@@ -1,0 +1,18 @@
+[
+  {
+    "name": "explicit_router_doc_passes",
+    "workspace_fixture": "local_python_router",
+    "expected_status": "PASS",
+    "expected_router_suffix": ".agent/router.md",
+    "expected_codes": ["router_present", "router_linked", "routing_smoke_present"],
+    "expected_warn_count": 0
+  },
+  {
+    "name": "missing_when_not_to_use_warns",
+    "workspace_fixture": "router_warn_missing_when_not_to_use",
+    "expected_status": "WARN",
+    "expected_router_suffix": ".agent/workspace-skill-map.md",
+    "expected_codes": ["missing_when_not_to_use"],
+    "expected_warn_count": 1
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "name": "forge-antigravity",
+  "host": "antigravity",
+  "overlay_dir": "overlay",
+  "description": "Antigravity adapter overlay for Forge core"
+}

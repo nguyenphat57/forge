@@ -1,0 +1,6 @@
+{
+  "name": "forge-codex",
+  "host": "codex",
+  "overlay_dir": "overlay",
+  "description": "Codex adapter overlay for Forge core"
+}

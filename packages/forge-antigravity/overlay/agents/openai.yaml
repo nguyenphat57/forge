@@ -1,0 +1,4 @@
+interface:
+  display_name: "Forge Antigravity"
+  short_description: "Antigravity delivery orchestrator"
+  default_prompt: "Use $forge-antigravity to route this task, choose the right skills, and keep verification strict."

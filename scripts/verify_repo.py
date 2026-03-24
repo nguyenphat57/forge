@@ -1,0 +1,89 @@
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+PACKAGES_DIR = ROOT_DIR / "packages"
+DIST_DIR = ROOT_DIR / "dist"
+
+
+def run_step(name: str, command: list[str], cwd: Path) -> dict:
+    completed = subprocess.run(
+        command,
+        cwd=str(cwd),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    return {
+        "name": name,
+        "command": command,
+        "returncode": completed.returncode,
+        "stdout": completed.stdout.strip(),
+        "stderr": completed.stderr.strip(),
+        "status": "PASS" if completed.returncode == 0 else "FAIL",
+    }
+
+
+def format_text(steps: list[dict]) -> str:
+    lines = ["Forge Repo Verify"]
+    for step in steps:
+        lines.append(f"- [{step['status']}] {step['name']}")
+        lines.append(f"  Command: {' '.join(step['command'])}")
+        if step["stdout"]:
+            lines.append("  Stdout:")
+            for line in step["stdout"].splitlines():
+                lines.append(f"    {line}")
+        if step["stderr"]:
+            lines.append("  Stderr:")
+            for line in step["stderr"].splitlines():
+                lines.append(f"    {line}")
+    return "\n".join(lines)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Run the canonical verification pipeline for the Forge monorepo.")
+    parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
+    args = parser.parse_args()
+
+    steps = [
+        run_step(
+            "forge-core.verify_bundle",
+            [sys.executable, str(PACKAGES_DIR / "forge-core" / "scripts" / "verify_bundle.py")],
+            ROOT_DIR,
+        ),
+        run_step(
+            "build_release",
+            [sys.executable, str(ROOT_DIR / "scripts" / "build_release.py")],
+            ROOT_DIR,
+        ),
+    ]
+
+    for bundle_name in ("forge-core", "forge-antigravity", "forge-codex"):
+        steps.append(
+            run_step(
+                f"dist.{bundle_name}.verify_bundle",
+                [sys.executable, str(DIST_DIR / bundle_name / "scripts" / "verify_bundle.py")],
+                ROOT_DIR,
+            )
+        )
+
+    payload = {
+        "status": "PASS" if all(step["status"] == "PASS" for step in steps) else "FAIL",
+        "steps": steps,
+    }
+    if args.format == "json":
+        print(json.dumps(payload, indent=2, ensure_ascii=False))
+    else:
+        print(format_text(steps))
+    return 0 if payload["status"] == "PASS" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

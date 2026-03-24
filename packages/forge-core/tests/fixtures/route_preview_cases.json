@@ -1,0 +1,122 @@
+[
+  {
+    "name": "review_natural_language",
+    "prompt": "Review code before merge",
+    "expected_intent": "REVIEW",
+    "expected_complexity": "medium",
+    "expected_skills": ["review", "secure"],
+    "expected_verification_profile": null
+  },
+  {
+    "name": "session_natural_language",
+    "prompt": "Continue the task we were working on yesterday",
+    "expected_intent": "SESSION",
+    "expected_complexity": "medium",
+    "expected_skills": ["session"],
+    "expected_verification_profile": null
+  },
+  {
+    "name": "review_stays_minimal_with_local_router",
+    "prompt": "Review code before merge",
+    "repo_signals": ["package.json", "tsconfig.json", "vite.config.ts", "capacitor.config.ts", "android", "supabase"],
+    "workspace_fixture": "mixed_local_router",
+    "workspace_router": "AGENTS.md",
+    "expected_intent": "REVIEW",
+    "expected_complexity": "medium",
+    "expected_skills": ["review", "secure"],
+    "expected_domain_skills": [],
+    "expected_local_companions": [],
+    "expected_quality_profile": "standard",
+    "expected_verification_profile": null
+  },
+  {
+    "name": "session_stays_minimal_with_local_router",
+    "prompt": "Continue the task in progress",
+    "repo_signals": ["package.json", "tsconfig.json", "vite.config.ts", "capacitor.config.ts", "android", "supabase"],
+    "workspace_fixture": "mixed_local_router",
+    "workspace_router": "AGENTS.md",
+    "expected_intent": "SESSION",
+    "expected_complexity": "medium",
+    "expected_skills": ["session"],
+    "expected_domain_skills": [],
+    "expected_local_companions": [],
+    "expected_quality_profile": "standard",
+    "expected_verification_profile": null
+  },
+  {
+    "name": "debug_regression_recovery",
+    "prompt": "Fix regression where the app crashes after release",
+    "expected_intent": "DEBUG",
+    "expected_complexity": "medium",
+    "expected_skills": ["debug", "test"],
+    "expected_quality_profile": "regression-recovery",
+    "expected_execution_pipeline": "implementer-quality",
+    "expected_verification_profile": "behavioral_reproduction_first"
+  },
+  {
+    "name": "build_high_risk_checkout",
+    "prompt": "Add a new checkout flow with payment and auth",
+    "repo_signals": ["package.json", "api/"],
+    "expected_intent": "BUILD",
+    "expected_complexity": "large",
+    "expected_skill_prefix": ["plan", "architect", "spec-review"],
+    "expected_domain_skills": ["backend"],
+    "expected_quality_profile": "release-critical",
+    "expected_execution_pipeline": "implementer-spec-quality",
+    "expected_verification_profile": "behavioral_reproduction_first"
+  },
+  {
+    "name": "brainstorm_gate_for_ambiguous_build",
+    "prompt": "Brainstorm options for checkout flow with payment before plan",
+    "repo_signals": ["package.json", "api/"],
+    "expected_intent": "BUILD",
+    "expected_complexity": "large",
+    "expected_skill_prefix": ["brainstorm", "plan", "architect", "spec-review"],
+    "expected_quality_profile": "release-critical",
+    "expected_execution_pipeline": "implementer-spec-quality",
+    "expected_verification_profile": "behavioral_reproduction_first"
+  },
+  {
+    "name": "visualize_tablet_checkout",
+    "prompt": "Sketch a new checkout screen for tablet with fast touch interactions",
+    "expected_intent": "VISUALIZE",
+    "expected_complexity": "medium",
+    "expected_skills": ["plan", "visualize"],
+    "expected_domain_skills": ["frontend"],
+    "expected_verification_profile": null
+  },
+  {
+    "name": "deploy_release_readiness",
+    "prompt": "Deploy the app to production",
+    "expected_intent": "DEPLOY",
+    "expected_complexity": "medium",
+    "expected_skills": ["secure", "quality-gate", "deploy"],
+    "expected_quality_profile": "release-critical",
+    "expected_execution_pipeline": "deploy-gate",
+    "expected_verification_profile": null
+  },
+  {
+    "name": "runtime_signal_selects_python_companion",
+    "prompt": "Implement endpoint",
+    "repo_signals": ["pyproject.toml"],
+    "workspace_fixture": "local_python_router",
+    "workspace_router": ".agent/router.md",
+    "expected_intent": "BUILD",
+    "expected_complexity": "medium",
+    "expected_skills": ["plan", "build", "test", "quality-gate"],
+    "expected_local_companions": ["python-fastapi"],
+    "expected_verification_profile": "behavioral_reproduction_first"
+  },
+  {
+    "name": "agents_entrypoint_resolves_router_for_local_companion",
+    "prompt": "Implement endpoint",
+    "repo_signals": ["pyproject.toml"],
+    "workspace_fixture": "local_python_router",
+    "workspace_router": "AGENTS.md",
+    "expected_intent": "BUILD",
+    "expected_complexity": "medium",
+    "expected_skills": ["plan", "build", "test", "quality-gate"],
+    "expected_local_companions": ["python-fastapi"],
+    "expected_verification_profile": "behavioral_reproduction_first"
+  }
+]

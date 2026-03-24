@@ -1,0 +1,8 @@
+dist/
+packages/forge-core/.forge-artifacts/
+packages/forge-antigravity/.forge-artifacts/
+packages/forge-codex/.forge-artifacts/
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+*.log
