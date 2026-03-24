@@ -5,7 +5,8 @@ triggers:
   - explicit request to bump version or prepare a release
   - optional alias: /bump
 quality_gates:
-  - Version bump only runs on an explicit bump/release request
+  - User-requested only: do not treat generic wrap-up as a bump request
+  - Current version is stated and target version is either explicit or justified by inference
   - Release verification steps are surfaced
   - Wrapper does not hide core semver/change checklist
 ---

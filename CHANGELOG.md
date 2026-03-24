@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.1 - 2026-03-24
+
+- Đồng bộ contract `/bump` của `forge-antigravity` và `forge-codex` theo `forge-core`, để cả hai host đều dùng wording và guardrail semver mới.
+- Thêm regression test ở release repo để chặn việc wrapper/skill của adapter lệch contract bump của core trong các lần cập nhật sau.
+- Rebuild và tái cài đặt bundle host từ commit sạch để manifest, version, và nội dung cài đặt của `.codex` và `.gemini` khớp nhau.
+
 ## 0.7.0 - 2026-03-24
 
 - Thêm host-aware delegation cho Forge, gồm routing `parallel-split`/`independent-reviewer`, workflow `dispatch-subagents`, và wiring Codex để bật delegation runtime khi host hỗ trợ subagent thật.

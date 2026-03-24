@@ -19,6 +19,13 @@ import install_bundle  # noqa: E402
 
 
 class ReleaseRepoTests(unittest.TestCase):
+    def assert_bump_wrapper_matches_release_contract(self, path: Path, *, label: str) -> None:
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("Current version is stated and target version is either explicit or justified by inference", text, label)
+        self.assertIn("python scripts/prepare_bump.py --workspace <workspace>", text, label)
+        self.assertIn("bump source: explicit hay inferred", text, label)
+        self.assertIn("explicit or inferred semver", text, label)
+
     def test_release_docs_and_version_exist(self) -> None:
         version = (ROOT_DIR / "VERSION").read_text(encoding="utf-8").strip()
 
@@ -150,6 +157,33 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertTrue((dist_root / "workflows" / "operator" / "recap.md").exists())
         self.assertTrue((dist_root / "references" / "antigravity-operator-surface.md").exists())
 
+    def test_adapter_bump_contracts_stay_aligned_with_core(self) -> None:
+        core_bump = ROOT_DIR / "packages" / "forge-core" / "workflows" / "operator" / "bump.md"
+        core_skill = ROOT_DIR / "packages" / "forge-core" / "SKILL.md"
+        antigravity_bump = ROOT_DIR / "packages" / "forge-antigravity" / "overlay" / "workflows" / "operator" / "bump.md"
+        antigravity_skill = ROOT_DIR / "packages" / "forge-antigravity" / "overlay" / "SKILL.md"
+        codex_bump = ROOT_DIR / "packages" / "forge-codex" / "overlay" / "workflows" / "operator" / "bump.md"
+        codex_skill = ROOT_DIR / "packages" / "forge-codex" / "overlay" / "SKILL.md"
+
+        self.assertIn(
+            "Current version is stated and target version is either explicit or justified by inference",
+            core_bump.read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            "VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION",
+            core_skill.read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            "VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION",
+            antigravity_skill.read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            "VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION",
+            codex_skill.read_text(encoding="utf-8"),
+        )
+        self.assert_bump_wrapper_matches_release_contract(antigravity_bump, label="forge-antigravity")
+        self.assert_bump_wrapper_matches_release_contract(codex_bump, label="forge-codex")
+
     def test_codex_wave_c_overlay_files_exist(self) -> None:
         overlay_root = ROOT_DIR / "packages" / "forge-codex" / "overlay"
         expected_files = [
@@ -197,6 +231,24 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertEqual(registry["host_capabilities"]["subagent_dispatch_skill"], "dispatch-subagents")
         self.assertNotIn("save-brain", (dist_root / "SKILL.md").read_text(encoding="utf-8"))
         self.assertNotIn("/save-brain", (dist_root / "workflows" / "execution" / "session.md").read_text(encoding="utf-8"))
+
+        antigravity_dist_root = ROOT_DIR / "dist" / "forge-antigravity"
+        self.assert_bump_wrapper_matches_release_contract(
+            antigravity_dist_root / "workflows" / "operator" / "bump.md",
+            label="dist forge-antigravity",
+        )
+        self.assert_bump_wrapper_matches_release_contract(
+            dist_root / "workflows" / "operator" / "bump.md",
+            label="dist forge-codex",
+        )
+        self.assertIn(
+            "VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION",
+            (antigravity_dist_root / "SKILL.md").read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            "VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION",
+            (dist_root / "SKILL.md").read_text(encoding="utf-8"),
+        )
 
 
 if __name__ == "__main__":
