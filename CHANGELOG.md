@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.0 - 2026-03-24
+
+- Thêm host-aware delegation cho Forge, gồm routing `parallel-split`/`independent-reviewer`, workflow `dispatch-subagents`, và wiring Codex để bật delegation runtime khi host hỗ trợ subagent thật.
+- Nâng cấp flow `bump` để có thể tự suy luận semver từ git diff theo workspace, trả thêm lý do và độ tự tin, đồng thời nhận đúng thay đổi capability trong cấu trúc monorepo.
+- Đồng bộ lại contract, docs, smoke tests, và release verification giữa `forge-core` với `forge-codex` để natural-language bump vẫn giữ guardrail release rõ ràng.
+
+
 ## 0.6.0 - 2026-03-24
 
 - Thêm Codex host takeover cho `forge-codex` qua `AGENTS.global.md` và `install_bundle.py --activate-codex`, đồng thời backup rồi retire `~/.codex/awf-codex` và các skill legacy `awf-*`.

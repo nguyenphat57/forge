@@ -86,6 +86,26 @@ Rules:
 - Auth/payment/migration/release-critical -> nghiêng về `independent-reviewer`
 - Nếu không justify được boundary rõ, không chia subagent
 
+## Delegation Packet
+
+Nếu execution chọn `subagent-split` hoặc reviewer lane thật sự độc lập, controller phải chuẩn bị packet tự đủ cho từng lane thay vì bắt lane đọc lại toàn bộ thread:
+
+```text
+Delegation packet:
+- Goal: [...]
+- Owned files / write scope: [...]
+- Allowed reads / shared artifacts: [...]
+- Proof before progress: [...]
+- Verification to rerun: [...]
+- Return contract: [changed files, verification, residual risk]
+```
+
+Rules:
+- Mỗi packet chỉ có một owner chịu trách nhiệm write scope
+- Không cho hai lane sửa cùng một file nếu chưa có merge plan rõ
+- Reviewer lane phải review từ packet + evidence, không tự hấp thụ toàn bộ context implementer
+- Nếu host không có subagents, vẫn dùng packet này để giữ pass tuần tự tách bạch
+
 ## Checkpoint Artifact
 
 Artifact ngắn nên có:

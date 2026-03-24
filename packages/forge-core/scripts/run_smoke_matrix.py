@@ -36,6 +36,7 @@ def run_command(command: list[str]) -> subprocess.CompletedProcess[str]:
 
 def validate_route_case(case: dict, report: dict) -> list[str]:
     detected = report["detected"]
+    host_supports_subagents = detected.get("host_supports_subagents", False)
     failures: list[str] = []
 
     def expect(actual: object, expected: object, label: str) -> None:
@@ -59,6 +60,13 @@ def validate_route_case(case: dict, report: dict) -> list[str]:
         expect(detected["quality_profile"], case["expected_quality_profile"], "quality_profile")
     if "expected_execution_pipeline" in case:
         expect(detected["execution_pipeline"], case["expected_execution_pipeline"], "execution_pipeline")
+    if "expected_delegation_strategy" in case:
+        expected_strategy = case["expected_delegation_strategy_when_subagents"] if host_supports_subagents and "expected_delegation_strategy_when_subagents" in case else case["expected_delegation_strategy"]
+        expect(detected["delegation_strategy"], expected_strategy, "delegation_strategy")
+    if "expected_host_skills" in case:
+        expect(detected["host_skills"], case["expected_host_skills"], "host_skills")
+    if host_supports_subagents and "expected_host_skills_when_subagents" in case:
+        expect(detected["host_skills"], case["expected_host_skills_when_subagents"], "host_skills")
 
     return failures
 
@@ -181,6 +189,21 @@ def validate_bump_case(case: dict, report: dict) -> list[str]:
     expect(report["status"], case["expected_status"], "status")
     expect(report["current_version"], case["expected_current_version"], "current_version")
     expect(report["target_version"], case["expected_target_version"], "target_version")
+    if "expected_selected_bump" in case:
+        expect(report["selected_bump"], case["expected_selected_bump"], "selected_bump")
+    if "expected_bump_source" in case:
+        expect(report["bump_source"], case["expected_bump_source"], "bump_source")
+    if "expected_inference_confidence" in case:
+        expect(report["inference_confidence"], case["expected_inference_confidence"], "inference_confidence")
+    if "expected_inferred_from" in case:
+        expect(report["inferred_from"], case["expected_inferred_from"], "inferred_from")
+    if "expected_inferred_from_any" in case and report["inferred_from"] not in case["expected_inferred_from_any"]:
+        failures.append(
+            "inferred_from: expected one of {expected!r}, got {actual!r}".format(
+                expected=case["expected_inferred_from_any"],
+                actual=report["inferred_from"],
+            )
+        )
     return failures
 
 

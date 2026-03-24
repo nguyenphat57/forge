@@ -51,6 +51,9 @@
     "expected_skills": ["debug", "test"],
     "expected_quality_profile": "regression-recovery",
     "expected_execution_pipeline": "implementer-quality",
+    "expected_delegation_strategy": "sequential-lanes",
+    "expected_delegation_strategy_when_subagents": "independent-reviewer",
+    "expected_host_skills_when_subagents": ["dispatch-subagents"],
     "expected_verification_profile": "behavioral_reproduction_first"
   },
   {
@@ -63,6 +66,9 @@
     "expected_domain_skills": ["backend"],
     "expected_quality_profile": "release-critical",
     "expected_execution_pipeline": "implementer-spec-quality",
+    "expected_delegation_strategy": "sequential-lanes",
+    "expected_delegation_strategy_when_subagents": "independent-reviewer",
+    "expected_host_skills_when_subagents": ["dispatch-subagents"],
     "expected_verification_profile": "behavioral_reproduction_first"
   },
   {
@@ -74,6 +80,9 @@
     "expected_skill_prefix": ["brainstorm", "plan", "architect", "spec-review"],
     "expected_quality_profile": "release-critical",
     "expected_execution_pipeline": "implementer-spec-quality",
+    "expected_delegation_strategy": "sequential-lanes",
+    "expected_delegation_strategy_when_subagents": "independent-reviewer",
+    "expected_host_skills_when_subagents": ["dispatch-subagents"],
     "expected_verification_profile": "behavioral_reproduction_first"
   },
   {
@@ -93,6 +102,9 @@
     "expected_skills": ["secure", "quality-gate", "deploy"],
     "expected_quality_profile": "release-critical",
     "expected_execution_pipeline": "deploy-gate",
+    "expected_delegation_strategy": "sequential-lanes",
+    "expected_delegation_strategy_when_subagents": "independent-reviewer",
+    "expected_host_skills_when_subagents": ["dispatch-subagents"],
     "expected_verification_profile": null
   },
   {

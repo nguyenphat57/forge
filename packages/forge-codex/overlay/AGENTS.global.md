@@ -29,6 +29,7 @@ Read the mapped workflow from `{{FORGE_CODEX_WORKFLOWS}}`.
 | `/help` | `operator/help.md` |
 | `/next` | `operator/next.md` |
 | `/run` | `operator/run.md` |
+| `/delegate` | `execution/dispatch-subagents.md` |
 | `/bump` | `operator/bump.md` |
 | `/rollback` | `operator/rollback.md` |
 | `/customize` | `operator/customize.md` |

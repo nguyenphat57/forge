@@ -155,6 +155,7 @@ class ReleaseRepoTests(unittest.TestCase):
         expected_files = [
             overlay_root / "AGENTS.global.md",
             overlay_root / "data" / "orchestrator-registry.json",
+            overlay_root / "workflows" / "execution" / "dispatch-subagents.md",
             overlay_root / "workflows" / "execution" / "session.md",
             overlay_root / "workflows" / "operator" / "help.md",
             overlay_root / "workflows" / "operator" / "next.md",
@@ -171,6 +172,7 @@ class ReleaseRepoTests(unittest.TestCase):
 
         skill = (overlay_root / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("natural-language first", skill)
+        self.assertIn("dispatch-subagents", skill)
         self.assertIn("workflows/operator/customize.md", skill)
         self.assertIn("workflows/operator/init.md", skill)
         self.assertIn("AGENTS.global.md", skill)
@@ -182,6 +184,7 @@ class ReleaseRepoTests(unittest.TestCase):
         dist_root = ROOT_DIR / "dist" / "forge-codex"
         self.assertTrue((dist_root / "AGENTS.global.md").exists())
         self.assertTrue((dist_root / "data" / "orchestrator-registry.json").exists())
+        self.assertTrue((dist_root / "workflows" / "execution" / "dispatch-subagents.md").exists())
         self.assertTrue((dist_root / "workflows" / "execution" / "session.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
@@ -190,6 +193,8 @@ class ReleaseRepoTests(unittest.TestCase):
 
         registry = json.loads((dist_root / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
         self.assertEqual(registry["intents"]["SESSION"]["shortcuts"], [])
+        self.assertTrue(registry["host_capabilities"]["supports_subagents"])
+        self.assertEqual(registry["host_capabilities"]["subagent_dispatch_skill"], "dispatch-subagents")
         self.assertNotIn("save-brain", (dist_root / "SKILL.md").read_text(encoding="utf-8"))
         self.assertNotIn("/save-brain", (dist_root / "workflows" / "execution" / "session.md").read_text(encoding="utf-8"))
 

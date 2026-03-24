@@ -125,3 +125,17 @@ Expected:
 - Routes to `workflows/operator/init.md`
 - Keeps workspace bootstrap thin
 - Does not overwrite existing repo files
+
+### CT-10: Delegate independent slices
+
+```text
+/delegate
+Split the independent checkout UI and API slices across subagents, keep write scopes isolated, and review each slice independently.
+```
+
+Expected:
+
+- Routes to `workflows/execution/dispatch-subagents.md`
+- Requires explicit ownership before delegation
+- Keeps reviewer lanes independent
+- Refuses parallel dispatch if boundaries are not actually clear

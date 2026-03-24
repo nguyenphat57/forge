@@ -25,6 +25,7 @@ class RoutePreviewSmokeMatrixTests(unittest.TestCase):
                     )
                 )
                 detected = report["detected"]
+                host_supports_subagents = detected.get("host_supports_subagents", False)
 
                 self.assertEqual(detected["intent"], case["expected_intent"])
                 self.assertEqual(detected["complexity"], case["expected_complexity"])
@@ -43,6 +44,13 @@ class RoutePreviewSmokeMatrixTests(unittest.TestCase):
                     self.assertEqual(detected["quality_profile"], case["expected_quality_profile"])
                 if "expected_execution_pipeline" in case:
                     self.assertEqual(detected["execution_pipeline"], case["expected_execution_pipeline"])
+                if "expected_delegation_strategy" in case:
+                    expected_strategy = case["expected_delegation_strategy_when_subagents"] if host_supports_subagents and "expected_delegation_strategy_when_subagents" in case else case["expected_delegation_strategy"]
+                    self.assertEqual(detected["delegation_strategy"], expected_strategy)
+                if "expected_host_skills" in case:
+                    self.assertEqual(detected["host_skills"], case["expected_host_skills"])
+                if "expected_host_skills_when_subagents" in case and host_supports_subagents:
+                    self.assertEqual(detected["host_skills"], case["expected_host_skills_when_subagents"])
 
 
 if __name__ == "__main__":

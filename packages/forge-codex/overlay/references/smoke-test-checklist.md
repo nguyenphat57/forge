@@ -31,6 +31,7 @@ Goal: record a fast pass/fail verdict for the Codex host surface after `forge-co
 | Session restore stays natural-language and repo-first | | |
 | No legacy recap/save ritual is suggested | | |
 | Build/debug/review keep evidence-first behavior | | |
+| Delegate flow keeps ownership and reviewer independence explicit | | |
 
 ## Test Cases
 
@@ -79,6 +80,16 @@ Goal: record a fast pass/fail verdict for the Codex host surface after `forge-co
 | Prompt used | `/review` |
 | Findings shown before summary? | |
 | Testing gaps stated? | |
+| Score | |
+
+### CT-06: Delegate alias
+
+| Item | Result |
+|------|--------|
+| Prompt used | `/delegate` plus a clearly splittable task |
+| Routed to dispatch-subagents? | |
+| Ownership explicit before spawn? | |
+| Reviewer independence preserved? | |
 | Score | |
 
 ## Final Verdict

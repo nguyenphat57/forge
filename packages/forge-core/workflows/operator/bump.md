@@ -5,8 +5,8 @@ triggers:
   - shortcut: /bump
   - user explicitly asks for a version bump or release prep
 quality_gates:
-  - Explicit-only: do not treat generic wrap-up as a bump request
-  - Current version and target version are both stated
+  - User-requested only: do not treat generic wrap-up as a bump request
+  - Current version is stated and target version is either explicit or justified by inference
   - Verification commands are surfaced before any release claim
 ---
 
@@ -23,9 +23,11 @@ quality_gates:
 ## Process
 
 1. Xác định workspace release và mức bump.
+   Nếu user chưa nêu `major|minor|patch`, suy luận từ git diff kể từ lần đổi `VERSION` gần nhất và nêu rõ lý do.
 2. Preview hoặc apply bằng:
 
 ```powershell
+python scripts/prepare_bump.py --workspace <workspace>
 python scripts/prepare_bump.py --workspace <workspace> --bump minor
 python scripts/prepare_bump.py --workspace <workspace> --bump 1.3.0 --apply --release-ready
 ```
@@ -33,6 +35,8 @@ python scripts/prepare_bump.py --workspace <workspace> --bump 1.3.0 --apply --re
 3. Trả về:
    - current version
    - target version
+   - bump source: explicit hay inferred
+   - inference reasons / confidence nếu dùng auto
    - files sẽ đổi
    - verification commands cần chạy
 
@@ -40,6 +44,7 @@ python scripts/prepare_bump.py --workspace <workspace> --bump 1.3.0 --apply --re
 
 ```text
 Version: [... -> ...]
+Bump source: [explicit|inferred]
 Files đổi: [...]
 Verify tiếp: [...]
 ```
@@ -47,5 +52,5 @@ Verify tiếp: [...]
 ## Activation Announcement
 
 ```text
-Forge: bump | explicit release prep, not generic wrap-up
+Forge: bump | release prep with explicit or inferred semver
 ```

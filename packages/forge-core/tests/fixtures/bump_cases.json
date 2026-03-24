@@ -14,5 +14,20 @@
     "expected_status": "PASS",
     "expected_current_version": "1.4.2",
     "expected_target_version": "2.0.0"
+  },
+  {
+    "name": "auto_preview_without_git_context",
+    "workspace_fixture": "release_workspace",
+    "bump": "auto",
+    "expected_status": "WARN",
+    "expected_current_version": "1.4.2",
+    "expected_target_version": "1.4.3",
+    "expected_selected_bump": "patch",
+    "expected_bump_source": "inferred",
+    "expected_inference_confidence": "low",
+    "expected_inferred_from_any": [
+      "since-last-version-change",
+      "working-tree-only"
+    ]
   }
 ]

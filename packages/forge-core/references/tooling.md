@@ -149,15 +149,17 @@ Semantics chi tiết: xem `error-translation.md`.
 
 ## Bump Preparation
 
-Khi cần chốt version mới theo explicit release flow:
+Khi cần chốt version mới theo release flow đã được user yêu cầu:
 
 ```powershell
+python scripts/prepare_bump.py --workspace C:\path\to\workspace
 python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump minor
 python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump 2.0.0 --apply --release-ready
 ```
 
 Script sẽ:
 - đọc `VERSION`
+- suy luận hoặc nhận explicit semver bump
 - tính `target_version`
 - preview hoặc update `VERSION` + `CHANGELOG.md`
 - trả về verification commands kế tiếp
@@ -315,8 +317,10 @@ Script sẽ trả về:
 - intent
 - complexity
 - Forge skills
+- host skills do bundle hiện tại expose (nếu có)
 - execution mode recommendation
 - execution pipeline recommendation
+- delegation strategy recommendation
 - lane model tier recommendations
 - quality profile recommendation
 - domain skills

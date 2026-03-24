@@ -16,7 +16,7 @@ description: "Forge Codex - Codex-oriented adapter for Forge core. Use when a re
 - `SKILL.md`: entrypoint để route intent, ghép skill, và giữ delivery guardrails
 - `AGENTS.global.md`: canonical global host entry template when Codex should point only to Forge
 - `workflows/design/`: planning, architecture, spec-review, visualize
-- `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session
+- `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session, và Codex-native subagent dispatch guidance
 - `workflows/operator/`: help, next, run, bump, rollback từ core, và thin Codex wrappers cho customize/init và natural-language-first guidance
 - `domains/`: core domain guidance cho frontend và backend
 - `data/`: machine-readable registry cho intent, matrix, verification profiles, quality profiles, execution pipelines, và lane model policy
@@ -165,7 +165,7 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 - `forge-codex` nên expose `run` theo kiểu natural-language first, với slash chỉ là alias optional.
 - Command execution guidance vẫn resolve từ core `scripts/run_with_guidance.py`; adapter không được fork semantics của `state`, `command_kind`, hay `suggested_workflow`.
 - Error translation vẫn resolve từ core `scripts/translate_error.py`; adapter này không được fork category hay pattern database.
-- `bump` và `rollback` nên là natural-language first hoặc alias optional, nhưng vẫn phải giữ explicit-only và risk-first contract của core.
+- `bump` và `rollback` nên là natural-language first hoặc alias optional, nhưng vẫn phải giữ user-requested/inference-justified và risk-first contract của core.
 - Nếu cần customize/init trong Codex, vẫn phải dùng `scripts/write_preferences.py` và `scripts/initialize_workspace.py` thay vì tạo host-local schema.
 
 ---
@@ -179,7 +179,8 @@ Primary entrypoints:
 | `help` | natural-language first, `/help` chi la alias optional | `scripts/resolve_help_next.py --mode help` |
 | `next` | natural-language first, `/next` chi la alias optional | `scripts/resolve_help_next.py --mode next` |
 | `run` | natural-language first, `/run` chi la alias optional | `scripts/run_with_guidance.py` |
-| `bump` | natural-language first, explicit-only | `scripts/prepare_bump.py` |
+| `delegate` | natural-language first, `/delegate` chi la alias optional | `workflows/execution/dispatch-subagents.md` |
+| `bump` | natural-language first, explicit-or-inferred | `scripts/prepare_bump.py` |
 | `rollback` | natural-language first, risk-first | `scripts/resolve_rollback.py` |
 | `customize` | thin preference update flow | `scripts/resolve_preferences.py` + `scripts/write_preferences.py` |
 | `init` | thin workspace bootstrap flow | `scripts/initialize_workspace.py` |
@@ -189,6 +190,12 @@ Compatibility rule:
 - Alias chỉ tồn tại nếu nó giảm friction rõ ràng.
 - Không thêm các session wrapper legacy cho Codex adapter.
 - Chi tiết mapping: `references/codex-operator-surface.md`.
+
+## Codex Multi-Agent Delegation
+
+- Khi route/build chọn `parallel-safe` hoặc reviewer lane độc lập và bundle registry báo host có native subagents, load `workflows/execution/dispatch-subagents.md`.
+- Workflow này chỉ map lane policy của Forge sang runtime Codex (`spawn_agent`, reviewer lane độc lập, fresh packet); nó không thay thế `build`, `debug`, `review`, hay `spec-review`.
+- Mặc định giữ packet mới và ownership rõ thay vì fork toàn bộ thread context cho subagent.
 
 ---
 
@@ -317,7 +324,7 @@ Verification profiles canonical sống trong `data/orchestrator-registry.json`.
 | help | `workflows/operator/help.md` | flexible | REPO-FIRST GUIDANCE, NOT RECAP THEATER |
 | next | `workflows/operator/next.md` | flexible | ONE CONCRETE NEXT STEP, NOT VAGUE MOMENTUM TALK |
 | run | `workflows/operator/run.md` | flexible | EXECUTE THE REAL COMMAND, THEN ROUTE FROM EVIDENCE |
-| bump | `workflows/operator/bump.md` | flexible | VERSION BUMPS ARE EXPLICIT-ONLY AND MUST SURFACE RELEASE VERIFICATION |
+| bump | `workflows/operator/bump.md` | flexible | VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION |
 | rollback | `workflows/operator/rollback.md` | flexible | DO NOT BLINDLY ROLL BACK WITHOUT SCOPE, RISK, AND POST-ROLLBACK VERIFICATION |
 | customize | `workflows/operator/customize.md` | flexible | DO NOT FORK THE CORE PREFERENCES SCHEMA OR WRITE HOST-LOCAL KEYS |
 | init | `workflows/operator/init.md` | flexible | DO NOT OVERWRITE EXISTING REPO FILES DURING BOOTSTRAP |

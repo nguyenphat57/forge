@@ -292,7 +292,7 @@ Verification profiles canonical sống trong `data/orchestrator-registry.json`.
 | help | `workflows/operator/help.md` | flexible | REPO-FIRST GUIDANCE, NOT RECAP THEATER |
 | next | `workflows/operator/next.md` | flexible | ONE CONCRETE NEXT STEP, NOT VAGUE MOMENTUM TALK |
 | run | `workflows/operator/run.md` | flexible | EXECUTE THE REAL COMMAND, THEN ROUTE FROM EVIDENCE |
-| bump | `workflows/operator/bump.md` | flexible | VERSION BUMPS ARE EXPLICIT-ONLY AND MUST SURFACE RELEASE VERIFICATION |
+| bump | `workflows/operator/bump.md` | flexible | VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION |
 | rollback | `workflows/operator/rollback.md` | flexible | DO NOT BLINDLY ROLL BACK WITHOUT SCOPE, RISK, AND POST-ROLLBACK VERIFICATION |
 
 **Rigid skills:** không bỏ qua evidence và quality gate.  

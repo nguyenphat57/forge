@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import copy
 import sys
 import unittest
 from argparse import Namespace
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -105,6 +107,32 @@ class RoutePreviewTests(unittest.TestCase):
 
         self.assertEqual(report["detected"]["intent"], "REVIEW")
         self.assertIn("capacitor-android", report["detected"]["local_companions"])
+
+    def test_parallel_safe_host_can_activate_subagent_dispatch_skill(self) -> None:
+        registry = copy.deepcopy(route_preview.load_registry())
+        registry["host_capabilities"] = {
+            "supports_subagents": True,
+            "supports_parallel_subagents": True,
+            "subagent_dispatch_skill": "dispatch-subagents",
+            "delegation_contract": [
+                "Fresh packet per delegated slice.",
+                "Explicit ownership and write scope.",
+                "Return changed files, verification, and residual risk.",
+            ],
+        }
+
+        with patch.object(route_preview, "load_registry", return_value=registry):
+            report = route_preview.build_report(
+                self.build_args(
+                    "Implement many screens and many endpoints in parallel",
+                    changed_files=12,
+                )
+            )
+
+        self.assertEqual(report["detected"]["execution_mode"], "parallel-safe")
+        self.assertEqual(report["detected"]["delegation_strategy"], "parallel-split")
+        self.assertEqual(report["detected"]["host_skills"], ["dispatch-subagents"])
+        self.assertEqual(report["delegation_plan"]["activation_skill"], "dispatch-subagents")
 
 
 if __name__ == "__main__":

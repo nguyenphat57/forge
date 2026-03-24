@@ -24,6 +24,7 @@ from common import (
 
 
 EDITING_INTENTS = {"BUILD", "DEBUG", "OPTIMIZE"}
+REVIEW_PIPELINES = {"implementer-quality", "implementer-spec-quality", "deploy-gate"}
 
 
 def uses_prompt_only_scope(intent: str, complexity: str, registry: dict, intent_key: str, small_key: str) -> bool:
@@ -312,6 +313,62 @@ def choose_lane_model_assignments(
     return {lane: assignments.get(lane, "standard") for lane in active_lanes}
 
 
+def choose_delegation_plan(
+    intent: str,
+    execution_mode: str | None,
+    execution_pipeline_key: str | None,
+    registry: dict,
+) -> tuple[str | None, dict | None, list[str]]:
+    if intent not in {"BUILD", "DEBUG", "OPTIMIZE", "DEPLOY"}:
+        return None, None, []
+
+    host_capabilities = registry.get("host_capabilities", {})
+    supports_subagents = bool(host_capabilities.get("supports_subagents", False))
+    supports_parallel_subagents = bool(
+        host_capabilities.get("supports_parallel_subagents", supports_subagents)
+    )
+    activation_skill = host_capabilities.get("subagent_dispatch_skill")
+    controller_contract = host_capabilities.get(
+        "delegation_contract",
+        [
+            "Fresh packet per delegated slice.",
+            "Explicit ownership and write scope.",
+            "Return changed files, verification, and residual risk.",
+        ],
+    )
+
+    uses_parallel_mode = execution_mode == "parallel-safe"
+    uses_review_lane = execution_pipeline_key in REVIEW_PIPELINES
+
+    if not uses_parallel_mode and not uses_review_lane:
+        return None, None, []
+
+    if uses_parallel_mode and supports_parallel_subagents:
+        key = "parallel-split"
+        label = "Parallel subagent split"
+        summary = "Independent slices can run in parallel under isolated ownership."
+    elif supports_subagents and uses_review_lane:
+        key = "independent-reviewer"
+        label = "Independent reviewer subagent"
+        summary = "Reviewer lanes should run as separate subagents instead of collapsing into the implementer pass."
+    else:
+        key = "sequential-lanes"
+        label = "Sequential lanes"
+        if uses_parallel_mode:
+            summary = "This task is parallel-safe, but the current bundle must keep slices as sequential lanes."
+        else:
+            summary = "This task needs distinct review lanes, but the current bundle must keep them as sequential passes."
+
+    host_skills = [activation_skill] if key != "sequential-lanes" and isinstance(activation_skill, str) and activation_skill else []
+    plan = {
+        "label": label,
+        "summary": summary,
+        "activation_skill": activation_skill if host_skills else None,
+        "controller_contract": controller_contract,
+    }
+    return key, plan, host_skills
+
+
 def choose_quality_profile(prompt_text: str, repo_signals: list[str], intent: str, complexity: str, registry: dict) -> tuple[str, dict]:
     normalized_prompt = normalize_text(prompt_text)
     normalized_signals = normalize_text(" ".join(repo_signals))
@@ -456,6 +513,7 @@ def infer_local_companions(
 
 def build_report(args: argparse.Namespace) -> dict:
     registry = load_registry()
+    host_capabilities = registry.get("host_capabilities", {})
     intent, intent_config = detect_intent(args.prompt, registry)
     complexity = detect_complexity(args.prompt, args.changed_files, registry)
     workspace_router = resolve_workspace_router(args.workspace_router)
@@ -489,6 +547,12 @@ def build_report(args: argparse.Namespace) -> dict:
         quality_profile_key,
         registry,
     )
+    delegation_strategy, delegation_plan, host_skills = choose_delegation_plan(
+        intent,
+        execution_mode,
+        execution_pipeline_key,
+        registry,
+    )
     local_companions = infer_local_companions(
         args.prompt,
         args.repo_signal,
@@ -507,6 +571,8 @@ def build_report(args: argparse.Namespace) -> dict:
             "intent": intent,
             "complexity": complexity,
             "forge_skills": forge_skills,
+            "host_skills": host_skills,
+            "host_supports_subagents": bool(host_capabilities.get("supports_subagents", False)),
             "domain_skills": domain_skills,
             "local_companions": local_companions,
             "runtimes": runtimes,
@@ -515,14 +581,16 @@ def build_report(args: argparse.Namespace) -> dict:
             "execution_pipeline": execution_pipeline_key,
             "lane_model_assignments": lane_model_assignments,
             "quality_profile": quality_profile_key,
+            "delegation_strategy": delegation_strategy,
         },
         "verification": verification,
         "execution_pipeline": execution_pipeline,
+        "delegation_plan": delegation_plan,
         "quality_profile": quality_profile,
         "activation_line": "Forge: {intent} | {complexity} | Skills: {skills}".format(
             intent=intent,
             complexity=complexity,
-            skills=" + ".join([*forge_skills, *domain_skills, *local_companions]) or current_bundle_skill_name(),
+            skills=" + ".join([*forge_skills, *host_skills, *domain_skills, *local_companions]) or current_bundle_skill_name(),
         ),
         "registry_source": "data/orchestrator-registry.json",
     }
@@ -538,7 +606,9 @@ def format_text(report: dict) -> str:
         f"- Forge skills: {' -> '.join(detected['forge_skills'])}",
         f"- Execution mode: {detected['execution_mode'] or '(n/a)'}",
         f"- Execution pipeline: {report['execution_pipeline']['label'] if report['execution_pipeline'] else '(n/a)'}",
+        f"- Delegation strategy: {report['delegation_plan']['label'] if report['delegation_plan'] else '(n/a)'}",
         f"- Quality profile: {report['quality_profile']['label']}",
+        f"- Host skills: {', '.join(detected['host_skills']) or '(none)'}",
         f"- Domain skills: {', '.join(detected['domain_skills']) or '(none)'}",
         f"- Local companions: {', '.join(detected['local_companions']) or '(none)'}",
         f"- Runtimes from repo signals: {', '.join(detected['runtimes']) or '(none)'}",
@@ -555,6 +625,11 @@ def format_text(report: dict) -> str:
         if max_revisions is None:
             max_revisions = 3
         lines.append(f"- Spec-review loop cap: {max_revisions}")
+    if report["delegation_plan"]:
+        lines.append(f"- Delegation summary: {report['delegation_plan']['summary']}")
+        lines.append("- Delegation controller contract:")
+        for item in report["delegation_plan"]["controller_contract"]:
+            lines.append(f"  - {item}")
     lines.extend([
         "- Quality profile evidence:",
     ])

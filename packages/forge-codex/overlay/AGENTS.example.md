@@ -17,6 +17,7 @@ Use `forge-codex` as the global orchestrator for this workspace.
 - Good entrypoints:
   - "Help me figure out the next step"
   - "Run `npm test` and tell me what to do after"
+  - "Split the independent failures across subagents where safe"
   - "Bump this to 0.5.0"
   - "We need to roll back the last deploy"
   - "Give shorter answers and move faster"
@@ -25,6 +26,7 @@ Use `forge-codex` as the global orchestrator for this workspace.
 - If the user wants durable preference changes, let `forge-codex` persist them through `scripts/write_preferences.py`, not a host-local schema.
 - Let `forge-codex` handle `help` and `next` from repo state directly; do not add a second session-restore workflow in local instructions.
 - Let `forge-codex` handle `run` through the core run-guidance engine; do not invent a second layer that only repeats terminal output.
+- If boundaries are clear and the host can delegate safely, let `forge-codex` load `dispatch-subagents` instead of improvising parallel edits.
 - Let `forge-codex` keep `bump` and `rollback` natural-language first, but still route through the core explicit release/rollback planners.
 - Let `forge-codex` keep `customize` and `init` thin; do not add heavy onboarding or memory rituals around them.
 - If the user asks to bootstrap a workspace, keep the UX thin but still route through `scripts/initialize_workspace.py`.

@@ -915,6 +915,16 @@
     "Spec is basically clear, implementation can figure it out.",
     "Merge first, follow up later."
   ],
+  "host_capabilities": {
+    "supports_subagents": true,
+    "supports_parallel_subagents": true,
+    "subagent_dispatch_skill": "dispatch-subagents",
+    "delegation_contract": [
+      "Fresh packet per delegated slice.",
+      "Explicit ownership and write scope.",
+      "Return changed files, verification, and residual risk."
+    ]
+  },
   "completion_states": {
     "in-progress": "Work is still active or lacks handoff evidence.",
     "ready-for-review": "Implementation evidence exists and the work is ready for review.",

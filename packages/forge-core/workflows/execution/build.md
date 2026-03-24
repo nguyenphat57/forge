@@ -167,6 +167,26 @@ Rule:
 - Nếu boundary chưa rõ -> không dùng `subagent-split`
 - Nếu đã chọn `subagent-split`, phải có chain status hoặc checkpoint đủ rõ để hợp nhất kết quả
 
+## Subagent Split Packet
+
+Khi build thật sự dùng `subagent-split`, mỗi subagent phải nhận packet tự đủ thay vì chỉ nói "đi đọc code rồi làm":
+
+```text
+Delegation packet:
+- Slice goal: [...]
+- Owned files / write scope: [...]
+- Shared reads allowed: [...]
+- Proof before progress: [...]
+- Verification to rerun before handoff: [...]
+- Return with: [status, changed files, verification, residual risk]
+```
+
+Rules:
+- Fresh worker cho từng slice hoặc review lane; không tái dùng context cũ nếu packet đã đổi đáng kể
+- Không giao write scope chồng chéo giữa hai subagents
+- Nếu repo dirty hoặc blast radius cao, cân nhắc `worktree` trước khi `subagent-split`
+- Nếu packet chưa nói rõ proof hoặc ownership, quay lại `plan` / `spec-review` thay vì dispatch mù
+
 ## Spec-Review Dependency
 
 `Spec-review` là gate trước build khi:
@@ -270,6 +290,7 @@ Rules:
 - Verification đã đủ mức cho blast radius?
 
 Nếu execution pipeline có `quality-reviewer`, pass này phải đọc như một lane riêng, không chỉ là tự nhìn lại code trong cùng nhịp implement.
+Nếu host hỗ trợ subagents, reviewer lane nên nhận packet rút gọn từ controller: scope, evidence, diff/files changed, và câu hỏi review cụ thể; không bắt reviewer tự đoán intent từ toàn bộ session.
 
 ## Drift / Reopen Rules
 
