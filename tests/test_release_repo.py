@@ -150,6 +150,35 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertTrue((dist_root / "workflows" / "operator" / "recap.md").exists())
         self.assertTrue((dist_root / "references" / "antigravity-operator-surface.md").exists())
 
+    def test_codex_wave_c_overlay_files_exist(self) -> None:
+        overlay_root = ROOT_DIR / "packages" / "forge-codex" / "overlay"
+        expected_files = [
+            overlay_root / "workflows" / "operator" / "help.md",
+            overlay_root / "workflows" / "operator" / "next.md",
+            overlay_root / "workflows" / "operator" / "run.md",
+            overlay_root / "workflows" / "operator" / "bump.md",
+            overlay_root / "workflows" / "operator" / "rollback.md",
+            overlay_root / "workflows" / "operator" / "customize.md",
+            overlay_root / "workflows" / "operator" / "init.md",
+            overlay_root / "references" / "codex-operator-surface.md",
+        ]
+        for path in expected_files:
+            with self.subTest(path=path):
+                self.assertTrue(path.exists())
+
+        skill = (overlay_root / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("natural-language first", skill)
+        self.assertIn("workflows/operator/customize.md", skill)
+        self.assertIn("workflows/operator/init.md", skill)
+
+    def test_build_release_preserves_codex_wave_c_overlay(self) -> None:
+        build_release.build_all()
+        dist_root = ROOT_DIR / "dist" / "forge-codex"
+        self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "help.md").exists())
+        self.assertTrue((dist_root / "references" / "codex-operator-surface.md").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

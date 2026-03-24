@@ -15,12 +15,12 @@ description: "Forge Codex - Codex-oriented adapter for Forge core. Use when a re
 - `SKILL.md`: entrypoint để route intent, ghép skill, và giữ delivery guardrails
 - `workflows/design/`: planning, architecture, spec-review, visualize
 - `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session
-- `workflows/operator/`: help, next, và các operator workflow host-neutral
+- `workflows/operator/`: help, next, run, bump, rollback tu core, va thin Codex wrappers cho customize/init va natural-language-first guidance
 - `domains/`: core domain guidance cho frontend và backend
 - `data/`: machine-readable registry cho intent, matrix, verification profiles, quality profiles, execution pipelines, và lane model policy
 - `scripts/`: deterministic tooling cho route preview, scoped continuity capture, và các kiểm tra tùy chọn cho workspace có local layer
 - `tests/`: regression tests cho deterministic scripts và router/tooling contracts
-- `references/`: smoke tests, companion contract, và tài liệu tham chiếu chỉ đọc khi cần
+- `references/`: smoke tests, companion contract, tài liệu tham chiếu chỉ đọc khi cần, và Codex operator surface note
 - adapter này map Forge core sang surface của Codex (`AGENTS.md`, local skills, repo-level instructions)
 
 ```text
@@ -166,6 +166,28 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 
 ---
 
+## Codex Operator Surface
+
+Primary entrypoints:
+
+| Surface | Codex style | Core contract |
+|---------|-------------|---------------|
+| `help` | natural-language first, `/help` chi la alias optional | `scripts/resolve_help_next.py --mode help` |
+| `next` | natural-language first, `/next` chi la alias optional | `scripts/resolve_help_next.py --mode next` |
+| `run` | natural-language first, `/run` chi la alias optional | `scripts/run_with_guidance.py` |
+| `bump` | natural-language first, explicit-only | `scripts/prepare_bump.py` |
+| `rollback` | natural-language first, risk-first | `scripts/resolve_rollback.py` |
+| `customize` | thin preference update flow | `scripts/resolve_preferences.py` + `scripts/write_preferences.py` |
+| `init` | thin workspace bootstrap flow | `scripts/initialize_workspace.py` |
+
+Compatibility rule:
+
+- Alias chi ton tai neu no giam friction ro rang.
+- Khong them recap/save-brain/handover wrappers cho Codex adapter.
+- Chi tiet mapping: `references/codex-operator-surface.md`.
+
+---
+
 ## Intent Detection
 
 Khi nhận prompt từ user, phân loại intent:
@@ -293,6 +315,8 @@ Verification profiles canonical sống trong `data/orchestrator-registry.json`.
 | run | `workflows/operator/run.md` | flexible | EXECUTE THE REAL COMMAND, THEN ROUTE FROM EVIDENCE |
 | bump | `workflows/operator/bump.md` | flexible | VERSION BUMPS ARE EXPLICIT-ONLY AND MUST SURFACE RELEASE VERIFICATION |
 | rollback | `workflows/operator/rollback.md` | flexible | DO NOT BLINDLY ROLL BACK WITHOUT SCOPE, RISK, AND POST-ROLLBACK VERIFICATION |
+| customize | `workflows/operator/customize.md` | flexible | DO NOT FORK THE CORE PREFERENCES SCHEMA OR WRITE HOST-LOCAL KEYS |
+| init | `workflows/operator/init.md` | flexible | DO NOT OVERWRITE EXISTING REPO FILES DURING BOOTSTRAP |
 
 **Rigid skills:** không bỏ qua evidence và quality gate.  
 **Flexible skills:** adapt theo context, nhưng vẫn phải rõ output và next step.
@@ -347,5 +371,5 @@ Nếu task kéo dài hoặc command lặp lại thất bại:
 ## Activation Announcement
 
 ```
-Forge Antigravity: orchestrator | route đúng intent, giữ evidence trước claims
+Forge Codex: orchestrator | route đúng intent, giữ evidence trước claims
 ```

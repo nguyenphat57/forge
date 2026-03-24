@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0 - 2026-03-24
+
+- Them Wave C cho `forge-codex` voi thin wrappers cho `help`, `next`, `run`, `bump`, `rollback`, `customize`, va `init`.
+- Cap nhat `AGENTS.example.md` va adapter docs de Codex giu natural-language first, slash chi la alias optional, va khong duplicate orchestration rules cua Forge.
+- Bo sung `codex-operator-surface.md` va release tests de build/install giu nguyen Codex overlay sau moi lan release.
+
+
 ## 0.4.0 - 2026-03-24
 
 - Them Wave B cho `forge-antigravity` voi operator wrappers cho `help`, `next`, `run`, `bump`, `rollback`, `customize`, `init`, va session handover flows.

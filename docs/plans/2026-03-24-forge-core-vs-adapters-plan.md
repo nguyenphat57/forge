@@ -262,4 +262,15 @@ Phan duoc them vao `forge-core` de ho tro Wave B nhung van host-neutral:
 - them persistence helper cho preferences
 - them reusable workspace skeleton init
 
-Phan chua lam la Wave C cho `forge-codex`, khong phai Wave B.
+Wave C da delivered o `forge-codex` theo dung boundary:
+
+- them thin wrappers cho `help`, `next`, `run`, `bump`, `rollback`, `customize`, va `init`
+- giu natural-language first, coi slash chi la alias optional
+- cap nhat `AGENTS.example.md` de workspace Codex dua ve Forge ma khong duplicate orchestration rules
+- bo sung release tests de build/install giu nguyen Codex overlay surface
+
+Khong them cho Codex:
+
+- `recap`, `save-brain`, `handover`
+- onboarding dai dong
+- compatibility alias day dac theo kieu AWF cu
