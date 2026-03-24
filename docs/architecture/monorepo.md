@@ -4,6 +4,8 @@
 
 Keep one canonical implementation of Forge while supporting multiple host surfaces.
 
+Boundary reference: see `docs/architecture/adapter-boundary.md`.
+
 ## Package roles
 
 ### `forge-core`
@@ -52,3 +54,5 @@ This avoids three drifting copies of the same logic.
 - Shared tests belong in `forge-core`.
 - Installed bundles are release artifacts, not development source.
 - Canonical version lives in `/VERSION`, not in installed runtimes.
+- `forge-core` must stay clean enough for future adapters such as `forge-claude`.
+- If a feature is host-shaped, keep the engine in core only when it is truly reusable, and keep the wrapper in the adapter.

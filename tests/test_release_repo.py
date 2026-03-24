@@ -23,8 +23,20 @@ class ReleaseRepoTests(unittest.TestCase):
 
         self.assertRegex(version, r"^\d+\.\d+\.\d+$")
         self.assertTrue((ROOT_DIR / "CHANGELOG.md").exists())
+        self.assertTrue((ROOT_DIR / "docs" / "architecture" / "adapter-boundary.md").exists())
         self.assertTrue((ROOT_DIR / "docs" / "release" / "install.md").exists())
         self.assertTrue((ROOT_DIR / "docs" / "release" / "release-process.md").exists())
+
+    def test_architecture_docs_enforce_core_purity(self) -> None:
+        boundary = (ROOT_DIR / "docs" / "architecture" / "adapter-boundary.md").read_text(encoding="utf-8")
+        monorepo = (ROOT_DIR / "docs" / "architecture" / "monorepo.md").read_text(encoding="utf-8")
+        release_process = (ROOT_DIR / "docs" / "release" / "release-process.md").read_text(encoding="utf-8")
+
+        self.assertIn("forge-claude", boundary)
+        self.assertIn("forge-core", boundary)
+        self.assertIn("adapter-boundary.md", monorepo)
+        self.assertIn("forge-claude", release_process)
+        self.assertIn("core purity", release_process.lower())
 
     def test_build_release_manifest_carries_version(self) -> None:
         build_release.build_all()
