@@ -1,0 +1,36 @@
+[
+  {
+    "name": "help_from_session_context",
+    "workspace_fixture": "help_next_session_workspace",
+    "mode": "help",
+    "expected_status": "PASS",
+    "expected_stage": "session-active",
+    "expected_workflow": "session",
+    "expected_focus": "Session task: Finish loyalty verification matrix",
+    "expected_recommended_action": "Resume the highest-signal pending task: Write migration verification notes."
+  },
+  {
+    "name": "next_from_plan_context",
+    "workspace_fixture": "help_next_planned_workspace",
+    "mode": "next",
+    "expected_status": "PASS",
+    "expected_stage": "planned",
+    "expected_workflow": "plan",
+    "expected_focus": "Plan: Checkout Rollout",
+    "expected_recommended_action": "Start the first concrete slice from plan 'Checkout Rollout'."
+  },
+  {
+    "name": "help_warns_when_context_is_unscoped",
+    "workspace_fixture": "help_next_unscoped_workspace",
+    "mode": "help",
+    "expected_status": "WARN",
+    "expected_stage": "unscoped",
+    "expected_workflow": "review",
+    "expected_focus": "No active slice detected from repo state.",
+    "expected_recommended_action": "Start from README, package manifests, and docs/plans to identify the active workflow.",
+    "expected_warning_contains": [
+      "No active plan",
+      "No session context"
+    ]
+  }
+]

@@ -19,6 +19,9 @@
 | `ui-heuristics.md` | Heuristics global cho touch-heavy, dashboard, dense-data UI |
 | `ui-progress.md` | Track stage cho task UI kéo dài |
 | `tooling.md` | Khi cần chạy route preview, capture continuity, router checker, hoặc tìm artifact paths |
+| `personalization.md` | Khi sửa response-style preferences, adaptive language, hoặc adapter wrappers cho customize |
+| `help-next.md` | Khi sửa navigator logic cho help/next, repo-state priority, hoặc operator guidance wrappers |
+| `run-guidance.md` | Khi sửa workflow `run`, ready-signal detection, command classification, hoặc adapter wrappers cho execute-then-route |
 | `canary-rollout.md` | Khi cần rollout Forge trên workspace thật và chốt readiness bằng canary artifacts |
 | `companion-skill-contract.md` | Thiết kế hoặc update companion skills, khi repo thật sự có lớp runtime/framework mở rộng |
 | `companion-routing-smoke-tests.md` | Kiểm routing giữa Forge và companion skills, chỉ khi dùng companion/local layer |
@@ -30,11 +33,14 @@
 ```text
 1. SKILL.md
 2. tooling.md nếu cần deterministic preview/check thay vì đọc prose thuần
-3. backend-briefs.md hoặc execution-delivery.md tùy layer đang sửa
-4. smoke-tests.md / smoke-test-checklist.md nếu cần verify host behavior
-5. canary-rollout.md nếu đang chuẩn bị rollout thật
-6. companion-skill-contract.md chỉ khi đang sửa lớp companion/runtime
-7. companion-routing-smoke-tests.md chỉ khi đang test lớp companion/runtime
+3. personalization.md nếu đang sửa response style hay preference engine
+4. help-next.md nếu đang sửa navigator help/next
+5. run-guidance.md nếu đang sửa run/execute-then-route
+6. backend-briefs.md hoặc execution-delivery.md tùy layer đang sửa
+7. smoke-tests.md / smoke-test-checklist.md nếu cần verify host behavior
+8. canary-rollout.md nếu đang chuẩn bị rollout thật
+9. companion-skill-contract.md chỉ khi đang sửa lớp companion/runtime
+10. companion-routing-smoke-tests.md chỉ khi đang test lớp companion/runtime
 ```
 
 ### Khi repo chưa có local skills

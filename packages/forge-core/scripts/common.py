@@ -6,12 +6,14 @@ import re
 import sys
 import unicodedata
 from datetime import datetime
+from functools import lru_cache
 from pathlib import Path
 from typing import Iterable
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 REGISTRY_PATH = ROOT_DIR / "data" / "orchestrator-registry.json"
+PREFERENCES_SCHEMA_PATH = ROOT_DIR / "data" / "preferences-schema.json"
 
 STOP_TOKENS = {
     "skill",
@@ -49,6 +51,129 @@ TOKEN_ALIASES = {
     "ux": {"ux", "interaction", "layout", "flow", "design"},
 }
 
+PREFERENCE_ALIASES = {
+    "technical_level": {
+        "newbie": "newbie",
+        "beginner": "newbie",
+        "basic": "basic",
+        "default": "basic",
+        "standard": "basic",
+        "intermediate": "basic",
+        "technical": "technical",
+        "developer": "technical",
+        "advanced": "technical",
+        "expert": "technical",
+    },
+    "detail_level": {
+        "concise": "concise",
+        "brief": "concise",
+        "short": "concise",
+        "balanced": "balanced",
+        "default": "balanced",
+        "normal": "balanced",
+        "standard": "balanced",
+        "detailed": "detailed",
+        "detail": "detailed",
+        "verbose": "detailed",
+        "deep": "detailed",
+        "thorough": "detailed",
+    },
+    "autonomy_level": {
+        "guided": "guided",
+        "low": "guided",
+        "careful": "guided",
+        "balanced": "balanced",
+        "default": "balanced",
+        "standard": "balanced",
+        "autonomous": "autonomous",
+        "proactive": "autonomous",
+        "high": "autonomous",
+        "independent": "autonomous",
+    },
+    "personality": {
+        "default": "default",
+        "mentor": "mentor",
+        "strict-coach": "strict-coach",
+        "strict_coach": "strict-coach",
+        "strict coach": "strict-coach",
+    },
+}
+
+TECHNICAL_STYLE = {
+    "newbie": {
+        "terminology_mode": "translated",
+        "term_explanation_policy": "always",
+        "acronym_policy": "avoid",
+        "step_granularity": "small",
+    },
+    "basic": {
+        "terminology_mode": "mixed",
+        "term_explanation_policy": "first-use",
+        "acronym_policy": "define-on-first-use",
+        "step_granularity": "medium",
+    },
+    "technical": {
+        "terminology_mode": "standard",
+        "term_explanation_policy": "on-request",
+        "acronym_policy": "standard",
+        "step_granularity": "compact",
+    },
+}
+
+DETAIL_STYLE = {
+    "concise": {
+        "response_verbosity": "concise",
+        "context_depth": "minimal",
+        "option_spread": "tight",
+    },
+    "balanced": {
+        "response_verbosity": "balanced",
+        "context_depth": "targeted",
+        "option_spread": "focused",
+    },
+    "detailed": {
+        "response_verbosity": "detailed",
+        "context_depth": "thorough",
+        "option_spread": "broad",
+    },
+}
+
+AUTONOMY_STYLE = {
+    "guided": {
+        "decision_mode": "confirm-major-assumptions",
+        "plan_visibility": "high",
+        "execution_bias": "pause-at-branching-points",
+    },
+    "balanced": {
+        "decision_mode": "state-assumptions-and-proceed-when-safe",
+        "plan_visibility": "medium",
+        "execution_bias": "execute-safe-slices",
+    },
+    "autonomous": {
+        "decision_mode": "propose-best-path-and-execute-safe-slices",
+        "plan_visibility": "targeted",
+        "execution_bias": "move-forward-until-risky-boundary",
+    },
+}
+
+PERSONALITY_STYLE = {
+    "default": {
+        "tone": "pragmatic",
+        "teaching_mode": "as-needed",
+        "challenge_level": "measured",
+    },
+    "mentor": {
+        "tone": "supportive-pragmatic",
+        "teaching_mode": "explain-why",
+        "challenge_level": "light",
+    },
+    "strict-coach": {
+        "tone": "direct-high-standard",
+        "teaching_mode": "best-practice-first",
+        "challenge_level": "high",
+    },
+}
+
 
 def configure_stdio() -> None:
     for name in ("stdout", "stderr"):
@@ -62,6 +187,11 @@ def load_registry() -> dict:
     return json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
 
 
+@lru_cache(maxsize=1)
+def load_preferences_schema() -> dict:
+    return json.loads(PREFERENCES_SCHEMA_PATH.read_text(encoding="utf-8"))
+
+
 def normalize_text(value: str) -> str:
     text = unicodedata.normalize("NFKD", value)
     text = "".join(char for char in text if not unicodedata.combining(char))
@@ -69,6 +199,13 @@ def normalize_text(value: str) -> str:
     text = re.sub(r"[\r\n\t]+", " ", text)
     text = re.sub(r"\s+", " ", text)
     return text.strip()
+
+
+def normalize_choice_token(value: str) -> str:
+    normalized = normalize_text(value)
+    normalized = normalized.replace("_", "-")
+    normalized = re.sub(r"\s+", "-", normalized)
+    return normalized
 
 
 def slugify(value: str) -> str:
@@ -88,6 +225,120 @@ def read_text(path: Path | None) -> str:
     if path is None or not path.exists():
         return ""
     return path.read_text(encoding="utf-8")
+
+
+def preference_defaults() -> dict[str, str]:
+    schema = load_preferences_schema()
+    defaults: dict[str, str] = {}
+    for key, config in schema.get("properties", {}).items():
+        default_value = config.get("default")
+        if isinstance(default_value, str):
+            defaults[key] = default_value
+    return defaults
+
+
+def resolve_workspace_preferences_path(workspace: Path | None = None) -> Path:
+    root = Path(workspace).resolve() if workspace is not None else Path.cwd()
+    return root / ".brain" / "preferences.json"
+
+
+def normalize_preferences(payload: object, *, strict: bool = False) -> tuple[dict[str, str], list[str]]:
+    defaults = preference_defaults()
+    warnings: list[str] = []
+    if payload is None:
+        return defaults, warnings
+    if not isinstance(payload, dict):
+        raise ValueError("Preferences payload must be a JSON object.")
+
+    properties = load_preferences_schema().get("properties", {})
+    normalized = defaults.copy()
+    allowed_keys = set(properties)
+
+    for key in sorted(payload):
+        if key not in allowed_keys:
+            message = f"Ignored unknown preference '{key}'."
+            if strict:
+                raise ValueError(message)
+            warnings.append(message)
+            continue
+
+        raw_value = payload[key]
+        if not isinstance(raw_value, str):
+            message = f"Preference '{key}' must be a string."
+            if strict:
+                raise ValueError(message)
+            warnings.append(message)
+            continue
+
+        token = normalize_choice_token(raw_value)
+        aliases = PREFERENCE_ALIASES.get(key, {})
+        canonical = aliases.get(token)
+        if canonical is None:
+            allowed = ", ".join(properties[key].get("enum", []))
+            message = f"Preference '{key}' must be one of: {allowed}."
+            if strict:
+                raise ValueError(message)
+            warnings.append(message)
+            continue
+
+        normalized[key] = canonical
+
+    return normalized, warnings
+
+
+def load_preferences(
+    *,
+    preferences_file: Path | None = None,
+    workspace: Path | None = None,
+    strict: bool = False,
+) -> dict:
+    warnings: list[str] = []
+    defaults = preference_defaults()
+
+    if preferences_file is not None:
+        path = Path(preferences_file).resolve()
+        if not path.exists():
+            raise FileNotFoundError(f"Preferences file does not exist: {path}")
+        source_type = "explicit"
+    else:
+        path = resolve_workspace_preferences_path(workspace)
+        source_type = "workspace-local"
+        if not path.exists():
+            return {
+                "preferences": defaults,
+                "source": {"type": "defaults", "path": None},
+                "warnings": warnings,
+            }
+
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        if strict:
+            raise ValueError(f"Invalid JSON in preferences file: {path}") from exc
+        warnings.append(f"Invalid JSON in preferences file '{path.name}'. Using defaults.")
+        payload = None
+
+    preferences, normalization_warnings = normalize_preferences(payload, strict=strict)
+    warnings.extend(normalization_warnings)
+    return {
+        "preferences": preferences,
+        "source": {"type": source_type, "path": str(path)},
+        "warnings": warnings,
+    }
+
+
+def resolve_response_style(preferences: dict[str, str]) -> dict[str, str]:
+    technical_level = preferences["technical_level"]
+    detail_level = preferences["detail_level"]
+    autonomy_level = preferences["autonomy_level"]
+    personality = preferences["personality"]
+
+    style: dict[str, str] = {}
+    style.update(TECHNICAL_STYLE[technical_level])
+    style.update(DETAIL_STYLE[detail_level])
+    style.update(AUTONOMY_STYLE[autonomy_level])
+    style.update(PERSONALITY_STYLE[personality])
+    return style
 
 
 def current_bundle_skill_name() -> str:

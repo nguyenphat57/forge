@@ -17,6 +17,86 @@
 - evidence response contract
 - completion states
 
+## Preferences Resolver
+
+Khi can inspect hoac validate response-style preferences theo schema chung cua Forge:
+
+```powershell
+python scripts/resolve_preferences.py --workspace C:\path\to\workspace
+```
+
+Explicit file:
+
+```powershell
+python scripts/resolve_preferences.py --preferences-file C:\path\to\.brain\preferences.json --format json
+```
+
+Strict validation:
+
+```powershell
+python scripts/resolve_preferences.py --workspace C:\path\to\workspace --strict
+```
+
+Script se tra ve:
+- source cua preferences (explicit, workspace-local, hoac defaults)
+- canonical preferences sau khi normalize
+- response-style contract da resolve
+- warnings neu payload co field la hoac gia tri khong hop le
+
+Schema va boundary doc: xem `personalization.md`.
+
+## Help/Next Navigator
+
+Khi can resolve operator guidance dua tren repo state thay vi recap ritual:
+
+```powershell
+python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode help
+python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode next --format json
+```
+
+Script se doc:
+- `git status` neu workspace do la git root rieng
+- `docs/plans/` va `docs/specs/`
+- `.brain/session.json` va `.brain/handover.md` neu co
+- `README`
+- `.brain/preferences.json` de adapt response style
+
+Script se tra ve:
+- `current_stage`
+- `current_focus`
+- `suggested_workflow`
+- `recommended_action`
+- toi da 2 alternatives
+- evidence va warnings
+
+Semantics chi tiet: xem `help-next.md`.
+
+## Run Guidance
+
+Khi can chay lenh that va route buoc tiep theo tu output:
+
+```powershell
+python scripts/run_with_guidance.py --workspace C:\path\to\workspace --timeout-ms 20000 -- npm run dev
+python scripts/run_with_guidance.py --workspace C:\path\to\workspace --format json -- python -m pytest tests/unit
+```
+
+Script se tra ve:
+- `state`
+- `command_kind`
+- `suggested_workflow`
+- `recommended_action`
+- `stdout_excerpt` / `stderr_excerpt`
+- `readiness_detected`
+- evidence va warnings
+
+Neu dung `--persist`, artifact mac dinh nam o:
+
+```text
+.forge-artifacts/run-reports/
+```
+
+Semantics chi tiet: xem `run-guidance.md`.
+
 ## UI Brief Generator
 
 Khi task là `frontend` hoặc `visualize` và cần first artifact rõ trước khi code/mockup:
@@ -338,6 +418,12 @@ python scripts/run_smoke_matrix.py --suite router-check --format json
 ```
 
 Runner này đọc fixture từ `tests/fixtures/` và gọi chính CLI scripts để bắt drift ở mức entrypoint.
+Smoke suite hiện cover:
+- route preview
+- workspace router check
+- preferences resolution
+- help/next navigator
+- run guidance
 
 ## Verify Bundle
 

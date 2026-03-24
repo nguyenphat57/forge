@@ -1,0 +1,25 @@
+{
+  "updated_at": "2026-03-24T03:00:00Z",
+  "working_on": {
+    "feature": "loyalty-rollout",
+    "task": "Finish loyalty verification matrix",
+    "status": "active",
+    "files": [
+      "src/loyalty/service.ts",
+      "tests/loyalty/test_matrix.py"
+    ]
+  },
+  "pending_tasks": [
+    "Write migration verification notes",
+    "Run targeted loyalty smoke"
+  ],
+  "recent_changes": [
+    "Updated points ledger assumptions"
+  ],
+  "verification": [
+    "Targeted loyalty smoke still pending"
+  ],
+  "decisions_made": [
+    "Keep points ledger append-only"
+  ]
+}

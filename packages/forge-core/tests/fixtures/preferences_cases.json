@@ -1,0 +1,61 @@
+[
+  {
+    "name": "defaults_without_workspace_preferences",
+    "workspace_fixture": "no_preferences",
+    "expected_status": "PASS",
+    "expected_source_type": "defaults",
+    "expected_preferences": {
+      "technical_level": "basic",
+      "detail_level": "balanced",
+      "autonomy_level": "balanced",
+      "personality": "default"
+    },
+    "expected_response_style": {
+      "terminology_mode": "mixed",
+      "response_verbosity": "balanced",
+      "decision_mode": "state-assumptions-and-proceed-when-safe",
+      "teaching_mode": "as-needed"
+    }
+  },
+  {
+    "name": "workspace_preferences_override_defaults",
+    "workspace_fixture": "preferences_workspace",
+    "expected_status": "PASS",
+    "expected_source_type": "workspace-local",
+    "expected_preferences": {
+      "technical_level": "newbie",
+      "detail_level": "detailed",
+      "autonomy_level": "autonomous",
+      "personality": "mentor"
+    },
+    "expected_response_style": {
+      "terminology_mode": "translated",
+      "response_verbosity": "detailed",
+      "decision_mode": "propose-best-path-and-execute-safe-slices",
+      "teaching_mode": "explain-why"
+    }
+  },
+  {
+    "name": "invalid_preferences_warn_and_fall_back",
+    "workspace_fixture": "invalid_preferences_workspace",
+    "expected_status": "WARN",
+    "expected_source_type": "workspace-local",
+    "expected_preferences": {
+      "technical_level": "basic",
+      "detail_level": "balanced",
+      "autonomy_level": "guided",
+      "personality": "strict-coach"
+    },
+    "expected_response_style": {
+      "terminology_mode": "mixed",
+      "response_verbosity": "balanced",
+      "decision_mode": "confirm-major-assumptions",
+      "teaching_mode": "best-practice-first"
+    },
+    "expected_warning_contains": [
+      "technical_level",
+      "detail_level",
+      "unknown_field"
+    ]
+  }
+]

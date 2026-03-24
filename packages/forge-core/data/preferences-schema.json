@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Forge Preferences",
+  "description": "Host-neutral response-style preferences shared by Forge adapters.",
+  "type": "object",
+  "properties": {
+    "technical_level": {
+      "type": "string",
+      "enum": ["newbie", "basic", "technical"],
+      "default": "basic",
+      "description": "How much Forge should translate or assume technical terminology."
+    },
+    "detail_level": {
+      "type": "string",
+      "enum": ["concise", "balanced", "detailed"],
+      "default": "balanced",
+      "description": "Preferred response depth."
+    },
+    "autonomy_level": {
+      "type": "string",
+      "enum": ["guided", "balanced", "autonomous"],
+      "default": "balanced",
+      "description": "How proactively Forge should move through safe steps."
+    },
+    "personality": {
+      "type": "string",
+      "enum": ["default", "mentor", "strict-coach"],
+      "default": "default",
+      "description": "Preferred coaching style."
+    }
+  },
+  "additionalProperties": false
+}

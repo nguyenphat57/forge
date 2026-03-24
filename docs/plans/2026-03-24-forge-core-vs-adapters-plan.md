@@ -1,6 +1,6 @@
 # Forge Core vs Adapters Plan
 
-**Status:** Proposed  
+**Status:** In progress  
 **Date:** 2026-03-24  
 **Input backlog:** [2026-03-23-forge-vs-awf-gap-backlog.md](C:/Users/Admin/.gemini/LamDiFood/docs/plans/2026-03-23-forge-vs-awf-gap-backlog.md)  
 **Goal:** bóc backlog AWF-centric thành kế hoạch triển khai đúng kiến trúc `forge-core + forge-antigravity + forge-codex`  
@@ -62,9 +62,9 @@ Hard gate:
 
 | Item | Phân loại | `forge-core` | `forge-antigravity` | `forge-codex` | Quyết định |
 |------|-----------|--------------|----------------------|----------------|-----------|
-| P0.1 Preferences + adaptive language | Core engine + adapter wrapper | Thêm schema + resolver cho `technical_level`, `detail_level`, `autonomy_level`, `personality` | Thêm surface `/customize` và đọc preferences mặc định | Thêm natural-language customize flow, alias chỉ là optional | Làm cho cả hai, nhưng engine nằm ở core |
-| P0.2 `/help` + `/next` | Core engine + adapter wrapper | Thêm navigator logic đọc repo state, plans, docs, `.brain` khi cần | Expose rõ `/help`, `/next` | Expose qua AGENTS guidance, alias mỏng nếu thật sự hữu ích | Làm cho cả hai |
-| P0.3 `/run` | Core cho cả hai | Thêm workflow `run` host-neutral: chạy command, đọc output, route tiếp sang debug/test/deploy | Bọc bằng `/run` | Bọc bằng natural language và alias nhẹ nếu cần | Làm cho cả hai |
+| P0.1 Preferences + adaptive language | Core engine + adapter wrapper | Da co schema + resolver cho `technical_level`, `detail_level`, `autonomy_level`, `personality` | Da noi host entrypoint vao core engine; wrapper `/customize` de sau | Da noi AGENTS/adapter entrypoint vao core engine; customize flow de sau | Delivered o core + thin adapter wiring |
+| P0.2 `/help` + `/next` | Core engine + adapter wrapper | Da co navigator logic doc repo state, plans, docs, `.brain` khi can | Da noi adapter vao core navigator; slash wrapper day hon de sau | Da noi AGENTS guidance vao core navigator; natural-language first giu nguyen | Delivered o core + thin adapter wiring |
+| P0.3 `/run` | Core cho cả hai | Đã có `run_with_guidance.py` + workflow `run` host-neutral: chạy command, đọc output, route tiếp sang debug/test/deploy | Adapter Antigravity chỉ thêm wrapper `/run` trên contract của core | Adapter Codex giữ natural-language first trên contract của core | Delivered ở core + thin adapter wiring |
 | P1.1 Error translator | Core cho cả hai | Tách thành helper/reference layer dùng chung cho `run/build/debug/test` | Không cần logic riêng | Không cần logic riêng | Làm ở core |
 | P1.2 `/bump` | Core engine + adapter wrapper | Workflow release checklist + version change logic | Expose `/bump` | Expose `bump` qua AGENTS/natural language | Làm cho cả hai |
 | P1.3 `/rollback` | Core engine + adapter wrapper | Workflow rollback strategy + risk framing | Expose `/rollback` | Expose rollback flow qua AGENTS/natural language | Làm cho cả hai |

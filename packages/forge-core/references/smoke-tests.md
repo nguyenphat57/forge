@@ -87,6 +87,90 @@ Tiếp tục việc hôm trước, nhắc nhanh mình đang làm gì và bước
 
 ---
 
+### FT-03b: Help theo repo state
+
+**Prompt**
+
+```text
+/help
+```
+
+Hoặc natural-language:
+
+```text
+Mình đang hơi kẹt, xem repo hiện tại rồi chỉ mình nên làm gì tiếp.
+```
+
+**Kỳ vọng**
+
+- Route vào navigator `help`, không recap theater
+- Repo-first: đọc `git status`, plan/spec, `.brain` nếu có
+- Trả về 1 hướng chính và tối đa 2 lựa chọn khác
+
+**Fail nếu**
+
+- Đẩy user sang `/recap` hay `/save-brain`
+- Advice generic, không bám repo state
+
+---
+
+### FT-03c: Next step cụ thể
+
+**Prompt**
+
+```text
+/next
+```
+
+Hoặc natural-language:
+
+```text
+Từ repo hiện tại, bước hợp lý tiếp theo là gì?
+```
+
+**Kỳ vọng**
+
+- Route vào navigator `next`
+- Chốt đúng 1 bước tiếp theo rõ ràng
+- Nếu repo thiếu context, nói rõ và vẫn cho một next step usable
+
+**Fail nếu**
+
+- Trả lời kiểu "tiếp tục làm task hiện tại"
+- Mở rộng scope khi repo chưa ủng hộ
+
+---
+
+### FT-03d: Run và route từ output
+
+**Prompt**
+
+```text
+/run
+Chạy giúp mình command dev hiện tại và cho biết sau đó nên test, debug, hay deploy.
+```
+
+Hoặc natural-language:
+
+```text
+Chạy lệnh này trong repo rồi nói giúp bước tiếp theo từ output: npm run dev
+```
+
+**Kỳ vọng**
+
+- Route vào workflow `run`
+- Command được chạy thật, không chỉ repeat lại lệnh
+- Output có tín hiệu chính hoặc lỗi chính
+- Kết thúc bằng workflow tiếp theo hợp lý (`test`, `debug`, hoặc `deploy`)
+
+**Fail nếu**
+
+- Nói "đã chạy" nhưng không có output
+- Không phân biệt được ready-signal với timeout thật
+- Build/run xong rồi claim release-ready ngay
+
+---
+
 ### FT-04: Plan medium task
 
 **Prompt**

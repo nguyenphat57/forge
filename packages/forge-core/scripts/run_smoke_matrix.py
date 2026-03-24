@@ -12,6 +12,10 @@ FIXTURES_DIR = ROOT_DIR / "tests" / "fixtures"
 WORKSPACES_DIR = FIXTURES_DIR / "workspaces"
 ROUTE_CASES = json.loads((FIXTURES_DIR / "route_preview_cases.json").read_text(encoding="utf-8"))
 ROUTER_CASES = json.loads((FIXTURES_DIR / "router_check_cases.json").read_text(encoding="utf-8"))
+PREFERENCES_CASES = json.loads((FIXTURES_DIR / "preferences_cases.json").read_text(encoding="utf-8"))
+HELP_NEXT_CASES = json.loads((FIXTURES_DIR / "help_next_cases.json").read_text(encoding="utf-8"))
+RUN_CASES = json.loads((FIXTURES_DIR / "run_cases.json").read_text(encoding="utf-8"))
+RUN_HELPERS_DIR = FIXTURES_DIR / "run_helpers"
 
 
 def run_command(command: list[str]) -> subprocess.CompletedProcess[str]:
@@ -78,6 +82,67 @@ def validate_router_case(case: dict, report: dict) -> list[str]:
                 actual=report["counts"]["warn"],
             )
         )
+    return failures
+
+
+def validate_preferences_case(case: dict, report: dict) -> list[str]:
+    failures: list[str] = []
+
+    def expect(actual: object, expected: object, label: str) -> None:
+        if actual != expected:
+            failures.append(f"{label}: expected {expected!r}, got {actual!r}")
+
+    expect(report["status"], case["expected_status"], "status")
+    expect(report["source"]["type"], case["expected_source_type"], "source_type")
+    expect(report["preferences"], case["expected_preferences"], "preferences")
+
+    for key, expected in case.get("expected_response_style", {}).items():
+        actual = report["response_style"].get(key)
+        expect(actual, expected, f"response_style.{key}")
+
+    warnings = report.get("warnings", [])
+    for expected in case.get("expected_warning_contains", []):
+        if not any(expected in warning for warning in warnings):
+            failures.append(f"warning missing substring: {expected!r}")
+
+    return failures
+
+
+def validate_help_next_case(case: dict, report: dict) -> list[str]:
+    failures: list[str] = []
+
+    def expect(actual: object, expected: object, label: str) -> None:
+        if actual != expected:
+            failures.append(f"{label}: expected {expected!r}, got {actual!r}")
+
+    expect(report["status"], case["expected_status"], "status")
+    expect(report["current_stage"], case["expected_stage"], "current_stage")
+    expect(report["suggested_workflow"], case["expected_workflow"], "suggested_workflow")
+    expect(report["current_focus"], case["expected_focus"], "current_focus")
+    expect(report["recommended_action"], case["expected_recommended_action"], "recommended_action")
+
+    warnings = report.get("warnings", [])
+    for expected in case.get("expected_warning_contains", []):
+        if not any(expected in warning for warning in warnings):
+            failures.append(f"warning missing substring: {expected!r}")
+
+    return failures
+
+
+def validate_run_case(case: dict, report: dict) -> list[str]:
+    failures: list[str] = []
+
+    def expect(actual: object, expected: object, label: str) -> None:
+        if actual != expected:
+            failures.append(f"{label}: expected {expected!r}, got {actual!r}")
+
+    expect(report["status"], case["expected_status"], "status")
+    expect(report["state"], case["expected_state"], "state")
+    expect(report["command_kind"], case["expected_command_kind"], "command_kind")
+    expect(report["suggested_workflow"], case["expected_workflow"], "suggested_workflow")
+    if "expected_readiness_detected" in case:
+        expect(report["readiness_detected"], case["expected_readiness_detected"], "readiness_detected")
+
     return failures
 
 
@@ -148,6 +213,130 @@ def run_router_suite() -> list[dict]:
     return results
 
 
+def run_preferences_suite() -> list[dict]:
+    preferences_script = ROOT_DIR / "scripts" / "resolve_preferences.py"
+    results: list[dict] = []
+    for case in PREFERENCES_CASES:
+        workspace = WORKSPACES_DIR / case["workspace_fixture"]
+        command = [sys.executable, str(preferences_script), "--workspace", str(workspace), "--format", "json"]
+        completed = run_command(command)
+        if completed.returncode != 0:
+            results.append(
+                {
+                    "suite": "preferences",
+                    "name": case["name"],
+                    "status": "FAIL",
+                    "failures": [f"command exited {completed.returncode}", completed.stderr.strip() or completed.stdout.strip()],
+                }
+            )
+            continue
+
+        report = json.loads(completed.stdout)
+        failures = validate_preferences_case(case, report)
+        results.append(
+            {
+                "suite": "preferences",
+                "name": case["name"],
+                "status": "PASS" if not failures else "FAIL",
+                "failures": failures,
+            }
+        )
+    return results
+
+
+def run_help_next_suite() -> list[dict]:
+    navigator_script = ROOT_DIR / "scripts" / "resolve_help_next.py"
+    results: list[dict] = []
+    for case in HELP_NEXT_CASES:
+        workspace = WORKSPACES_DIR / case["workspace_fixture"]
+        command = [
+            sys.executable,
+            str(navigator_script),
+            "--workspace",
+            str(workspace),
+            "--mode",
+            case["mode"],
+            "--format",
+            "json",
+        ]
+        completed = run_command(command)
+        if completed.returncode != 0:
+            results.append(
+                {
+                    "suite": "help-next",
+                    "name": case["name"],
+                    "status": "FAIL",
+                    "failures": [f"command exited {completed.returncode}", completed.stderr.strip() or completed.stdout.strip()],
+                }
+            )
+            continue
+
+        report = json.loads(completed.stdout)
+        failures = validate_help_next_case(case, report)
+        results.append(
+            {
+                "suite": "help-next",
+                "name": case["name"],
+                "status": "PASS" if not failures else "FAIL",
+                "failures": failures,
+            }
+        )
+    return results
+
+
+def resolve_run_command(parts: list[str]) -> list[str]:
+    resolved: list[str] = []
+    for part in parts:
+        candidate = RUN_HELPERS_DIR / part
+        if part.endswith(".py") and candidate.exists():
+            resolved.append(str(candidate))
+        else:
+            resolved.append(part)
+    return resolved
+
+
+def run_run_suite() -> list[dict]:
+    run_script = ROOT_DIR / "scripts" / "run_with_guidance.py"
+    results: list[dict] = []
+    for case in RUN_CASES:
+        workspace = WORKSPACES_DIR / case["workspace_fixture"]
+        command = [
+            sys.executable,
+            str(run_script),
+            "--workspace",
+            str(workspace),
+            "--timeout-ms",
+            str(case["timeout_ms"]),
+            "--format",
+            "json",
+            "--",
+            *resolve_run_command(case["command"]),
+        ]
+        completed = run_command(command)
+        if completed.returncode not in {0, 1}:
+            results.append(
+                {
+                    "suite": "run",
+                    "name": case["name"],
+                    "status": "FAIL",
+                    "failures": [f"unexpected exit code {completed.returncode}", completed.stderr.strip() or completed.stdout.strip()],
+                }
+            )
+            continue
+
+        report = json.loads(completed.stdout)
+        failures = validate_run_case(case, report)
+        results.append(
+            {
+                "suite": "run",
+                "name": case["name"],
+                "status": "PASS" if not failures else "FAIL",
+                "failures": failures,
+            }
+        )
+    return results
+
+
 def summarize(results: list[dict]) -> dict:
     passes = sum(1 for item in results if item["status"] == "PASS")
     failures = [item for item in results if item["status"] == "FAIL"]
@@ -178,7 +367,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run Forge smoke matrices for route preview and router checks.")
     parser.add_argument(
         "--suite",
-        choices=["route-preview", "router-check", "all"],
+        choices=["route-preview", "router-check", "preferences", "help-next", "run", "all"],
         default="all",
         help="Smoke suite to run",
     )
@@ -190,6 +379,12 @@ def main() -> int:
         results.extend(run_route_suite())
     if args.suite in {"router-check", "all"}:
         results.extend(run_router_suite())
+    if args.suite in {"preferences", "all"}:
+        results.extend(run_preferences_suite())
+    if args.suite in {"help-next", "all"}:
+        results.extend(run_help_next_suite())
+    if args.suite in {"run", "all"}:
+        results.extend(run_run_suite())
 
     summary = summarize(results)
     payload = {"summary": summary, "results": results}

@@ -15,6 +15,7 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 - `SKILL.md`: entrypoint để route intent, ghép skill, và giữ delivery guardrails
 - `workflows/design/`: planning, architecture, spec-review, visualize
 - `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session
+- `workflows/operator/`: help, next, và các operator workflow host-neutral
 - `domains/`: core domain guidance cho frontend và backend
 - `data/`: machine-readable registry cho intent, matrix, verification profiles, quality profiles, execution pipelines, và lane model policy
 - `scripts/`: deterministic tooling cho route preview, scoped continuity capture, và các kiểm tra tùy chọn cho workspace có local layer
@@ -107,6 +108,9 @@ forge-antigravity/
 ## Executable Tooling
 
 - Canonical machine-readable source: `data/orchestrator-registry.json`
+- Preferences resolver: `scripts/resolve_preferences.py` (workspace-local `.brain/preferences.json` -> canonical response-style contract)
+- Help/next navigator: `scripts/resolve_help_next.py` (repo state -> current focus, suggested workflow, next action)
+- Run guidance resolver: `scripts/run_with_guidance.py` (execute command -> classify signal -> route to test/debug/deploy)
 - Deterministic route preview: `scripts/route_preview.py` (intent + chain + execution pipeline + lane model tiers)
 - Workspace router drift check: `scripts/check_workspace_router.py` (chỉ dùng khi workspace thật sự có local routing layer)
 - Scoped continuity capture for durable decisions/learnings: `scripts/capture_continuity.py`
@@ -129,10 +133,29 @@ forge-antigravity/
   - `.forge-artifacts/chain-status/`
   - `.forge-artifacts/execution-progress/`
   - `.forge-artifacts/ui-briefs/`
+  - `.brain/preferences.json`
   - `.brain/decisions.json`
   - `.brain/learnings.json`
 
 Khi cần command examples hoặc artifact behavior chi tiết, đọc `references/tooling.md`.
+
+---
+
+## Response Personalization
+
+- Neu workspace co `.brain/preferences.json`, Forge resolve no qua core engine `scripts/resolve_preferences.py`.
+- `forge-antigravity` co the them wrapper nhu `/customize`, nhung schema va response-style semantics van phai doc tu core.
+- Host UX co the day hon Codex, nhung khong duoc fork key names hay validation rules.
+
+---
+
+## Operator Guidance
+
+- `forge-antigravity` co the expose ro `/help` va `/next`, nhung guidance van phai resolve tu core navigator `scripts/resolve_help_next.py`.
+- Repo-first van la hard rule: `git status`, plans/specs, roi moi den `.brain`.
+- Wrapper UX co the operator-friendly hon, nhung khong duoc bien guidance thanh recap theater.
+- `forge-antigravity` co the expose ro `/run`, nhung ket qua van phai resolve tu core `scripts/run_with_guidance.py`.
+- Wrapper nay duoc day hon ve UX, nhung khong duoc doi `state`, `command_kind`, hay `suggested_workflow` cua core.
 
 ---
 
@@ -258,6 +281,9 @@ Verification profiles canonical sống trong `data/orchestrator-registry.json`.
 | refactor | `workflows/execution/refactor.md` | rigid | NO REFACTOR WITHOUT BASELINE AND AFTER VERIFICATION |
 | visualize | `workflows/design/visualize.md` | flexible | DO NOT CODE UI BEFORE THE INTERACTION MODEL IS CLEAR |
 | session | `workflows/execution/session.md` | flexible | REBUILD CONTEXT FROM REAL ARTIFACTS BEFORE WRITING MEMORY |
+| help | `workflows/operator/help.md` | flexible | REPO-FIRST GUIDANCE, NOT RECAP THEATER |
+| next | `workflows/operator/next.md` | flexible | ONE CONCRETE NEXT STEP, NOT VAGUE MOMENTUM TALK |
+| run | `workflows/operator/run.md` | flexible | EXECUTE THE REAL COMMAND, THEN ROUTE FROM EVIDENCE |
 
 **Rigid skills:** không bỏ qua evidence và quality gate.  
 **Flexible skills:** adapt theo context, nhưng vẫn phải rõ output và next step.

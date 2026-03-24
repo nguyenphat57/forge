@@ -42,12 +42,27 @@ class BundleContractTests(unittest.TestCase):
             with self.subTest(router_case=case["name"]):
                 self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
 
+        for case in load_json_fixture("preferences_cases.json"):
+            with self.subTest(preferences_case=case["name"]):
+                self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
+
+        for case in load_json_fixture("help_next_cases.json"):
+            with self.subTest(help_next_case=case["name"]):
+                self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
+
+        for case in load_json_fixture("run_cases.json"):
+            with self.subTest(run_case=case["name"]):
+                self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
+
     def test_tooling_docs_mention_verify_entrypoints(self) -> None:
         tooling = (ROOT_DIR / "references" / "tooling.md").read_text(encoding="utf-8")
         self.assertIn("run_smoke_matrix.py", tooling)
         self.assertIn("verify_bundle.py", tooling)
         self.assertIn("record_canary_result.py", tooling)
         self.assertIn("evaluate_canary_readiness.py", tooling)
+        self.assertIn("resolve_preferences.py", tooling)
+        self.assertIn("resolve_help_next.py", tooling)
+        self.assertIn("run_with_guidance.py", tooling)
 
 
 if __name__ == "__main__":
