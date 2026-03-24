@@ -172,5 +172,5 @@ Security report:
 ## Activation Announcement
 
 ```
-Forge Antigravity: secure | review finding theo severity trước khi cho release decision
+Forge: secure | review finding theo severity trước khi cho release decision
 ```

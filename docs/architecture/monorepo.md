@@ -41,6 +41,7 @@ Adapter overlay for Codex:
 3. Copy core into each adapter bundle under `dist/`.
 4. Overlay adapter files on top of the copied core.
 5. Run verify on the built bundles.
+6. Install from `dist/` into runtime paths with `scripts/install_bundle.py`.
 
 This avoids three drifting copies of the same logic.
 
@@ -50,3 +51,4 @@ This avoids three drifting copies of the same logic.
 - Host entry files belong in adapters.
 - Shared tests belong in `forge-core`.
 - Installed bundles are release artifacts, not development source.
+- Canonical version lives in `/VERSION`, not in installed runtimes.

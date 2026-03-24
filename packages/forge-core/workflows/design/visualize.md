@@ -208,5 +208,5 @@ Visualize report:
 ## Activation Announcement
 
 ```text
-Forge Antigravity: visualize | tạo/reuse visual brief trước, rồi mới chốt spec/mockup
+Forge: visualize | tạo/reuse visual brief trước, rồi mới chốt spec/mockup
 ```

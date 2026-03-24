@@ -90,6 +90,29 @@ def read_text(path: Path | None) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def current_bundle_skill_name() -> str:
+    skill_match = re.search(
+        r"(?m)^name:\s*['\"]?([a-z0-9][a-z0-9-]*)['\"]?\s*$",
+        read_text(ROOT_DIR / "SKILL.md"),
+    )
+    if skill_match:
+        return skill_match.group(1)
+
+    manifest_path = ROOT_DIR / "BUILD-MANIFEST.json"
+    if manifest_path.exists():
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        package_name = manifest.get("package")
+        if isinstance(package_name, str) and package_name:
+            return package_name
+
+    return ROOT_DIR.name
+
+
+def reserved_skill_names() -> set[str]:
+    names = {ROOT_DIR.name, current_bundle_skill_name()}
+    return {name for name in names if name}
+
+
 def score_keywords(text: str, keywords: Iterable[str]) -> int:
     score = 0
     seen: set[str] = set()

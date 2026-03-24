@@ -7,15 +7,13 @@ from pathlib import Path
 
 from common import (
     configure_stdio,
+    reserved_skill_names,
     default_artifact_dir,
     extract_skill_names,
     read_text,
     slugify,
     timestamp_slug,
 )
-
-
-ROOT_SKILL_NAMES = {"forge-core", "forge-antigravity", "forge-codex"}
 
 
 def router_candidate_rank(path: Path) -> tuple[int, int, str]:
@@ -112,7 +110,10 @@ def check_workspace(args: argparse.Namespace) -> dict:
     local_inventory_section = section_text(router_content, "## Local Skill Inventory", "## Routing Map")
     local_inventory_names = set(extract_skill_names(local_inventory_section))
     scope_policy_section = section_text(router_content, "## Scope Policy", "## Local Skill Inventory")
+    if not scope_policy_section:
+        scope_policy_section = section_text(router_content, "## Scope Policy", "## Routing Map")
     global_scope_names = set(extract_skill_names(scope_policy_section))
+    excluded_skill_names = reserved_skill_names() | global_scope_names
 
     record(findings, "pass", "agents_present", f"Using AGENTS.md: {agents_path}")
     record(findings, "pass", "router_present", f"Using router map: {router_map}")
@@ -141,7 +142,7 @@ def check_workspace(args: argparse.Namespace) -> dict:
     unknown_map_skills = sorted(
         name
         for name in map_skill_names
-        if name not in ROOT_SKILL_NAMES and name not in skills and name not in global_scope_names
+        if name not in excluded_skill_names and name not in skills
     )
     for skill_name in unknown_map_skills:
         severity = "warn" if skill_name in local_inventory_names else "pass"

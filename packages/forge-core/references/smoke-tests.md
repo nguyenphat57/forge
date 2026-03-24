@@ -1,6 +1,6 @@
-# Forge Antigravity Smoke Tests
+# Forge Smoke Tests
 
-Mục tiêu: kiểm tra nhanh xem host Antigravity có đang route đúng vào Forge Antigravity và bundle có giữ được các guardrail quan trọng hay không.
+Mục tiêu: kiểm tra nhanh xem host runtime có đang route đúng vào Forge và bundle có giữ được các guardrail quan trọng hay không.
 
 ## Cách dùng
 

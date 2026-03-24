@@ -1,4 +1,4 @@
-# Forge Antigravity Reference Map
+# Forge Reference Map
 
 > Mục tiêu: giúp người bảo trì và agent biết nên đọc reference nào cho đúng việc, thay vì lục toàn bộ thư mục `references/`.
 

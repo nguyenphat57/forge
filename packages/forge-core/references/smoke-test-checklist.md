@@ -1,6 +1,6 @@
-# Forge Antigravity Smoke Test Checklist
+# Forge Smoke Test Checklist
 
-Mục tiêu: ghi kết quả nhanh cho từng lần chạy smoke test trong host thật của Antigravity.
+Mục tiêu: ghi kết quả nhanh cho từng lần chạy smoke test trong host thật đang rollout Forge.
 
 ## Metadata
 
@@ -10,7 +10,7 @@ Mục tiêu: ghi kết quả nhanh cho từng lần chạy smoke test trong host
 | Người test | |
 | Workspace / project | |
 | Host version | |
-| Forge Antigravity version / commit | |
+| Forge bundle version / commit | |
 | Ghi chú chung | |
 
 ## Thang chấm

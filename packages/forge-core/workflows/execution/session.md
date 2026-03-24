@@ -13,7 +13,7 @@ quality_gates:
 
 # Session - Context & Session Management
 
-> Mục tiêu: phục hồi context từ artifact thật, không dựa vào memory tổng hợp nếu không cần. Bản này giả định `.brain` là memory layer mặc định của Antigravity.
+> Mục tiêu: phục hồi context từ artifact thật, không dựa vào memory tổng hợp nếu không cần. Bản này giả định `.brain` là memory layer mặc định của workspace khi host có hỗ trợ lớp nhớ cục bộ này.
 
 <HARD-GATE>
 - Không fabricate token usage, context %, hay "bộ nhớ sắp đầy".
@@ -43,7 +43,7 @@ quality_gates:
 
 ## Restore Mode (`/recap`)
 
-Trong Antigravity:
+Trong host có shortcut tương đương:
 - `/recap` -> restore nhanh
 - `/recap full` -> restore rộng hơn nếu host hỗ trợ
 - `/recap deep` -> restore sâu hơn nếu host hỗ trợ
@@ -208,5 +208,5 @@ Lưu tại `.brain/handover.md` nếu user muốn lưu.
 ## Activation Announcement
 
 ```
-Forge Antigravity: session | restore/save context từ repo trước, .brain sau
+Forge: session | restore/save context từ repo trước, .brain sau
 ```

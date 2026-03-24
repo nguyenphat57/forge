@@ -10,6 +10,8 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parents[1]
 PACKAGES_DIR = ROOT_DIR / "packages"
 DIST_DIR = ROOT_DIR / "dist"
+SCRIPTS_DIR = ROOT_DIR / "scripts"
+TESTS_DIR = ROOT_DIR / "tests"
 
 
 def run_step(name: str, command: list[str], cwd: Path) -> dict:
@@ -52,7 +54,20 @@ def main() -> int:
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     args = parser.parse_args()
 
+    python_files = sorted(str(path) for path in SCRIPTS_DIR.glob("*.py"))
+    python_files.extend(sorted(str(path) for path in TESTS_DIR.glob("*.py")))
+
     steps = [
+        run_step(
+            "repo.py_compile",
+            [sys.executable, "-m", "py_compile", *python_files],
+            ROOT_DIR,
+        ),
+        run_step(
+            "repo.unittest",
+            [sys.executable, "-m", "unittest", "discover", "-s", str(TESTS_DIR), "-v"],
+            ROOT_DIR,
+        ),
         run_step(
             "forge-core.verify_bundle",
             [sys.executable, str(PACKAGES_DIR / "forge-core" / "scripts" / "verify_bundle.py")],
@@ -61,6 +76,16 @@ def main() -> int:
         run_step(
             "build_release",
             [sys.executable, str(ROOT_DIR / "scripts" / "build_release.py")],
+            ROOT_DIR,
+        ),
+        run_step(
+            "install_dry_run.forge-antigravity",
+            [sys.executable, str(ROOT_DIR / "scripts" / "install_bundle.py"), "forge-antigravity", "--dry-run"],
+            ROOT_DIR,
+        ),
+        run_step(
+            "install_dry_run.forge-codex",
+            [sys.executable, str(ROOT_DIR / "scripts" / "install_bundle.py"), "forge-codex", "--dry-run"],
             ROOT_DIR,
         ),
     ]

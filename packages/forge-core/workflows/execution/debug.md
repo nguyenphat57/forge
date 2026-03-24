@@ -225,5 +225,5 @@ Bug report:
 ## Activation Announcement
 
 ```
-Forge Antigravity: debug | root cause trước, fix sau
+Forge: debug | root cause trước, fix sau
 ```

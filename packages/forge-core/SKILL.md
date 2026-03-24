@@ -20,7 +20,7 @@ description: "Forge Core - host-neutral orchestrator source-of-truth for intent 
 - `scripts/`: deterministic tooling cho route preview, scoped continuity capture, và các kiểm tra tùy chọn cho workspace có local layer
 - `tests/`: regression tests cho deterministic scripts và router/tooling contracts
 - `references/`: smoke tests, companion contract, và tài liệu tham chiếu chỉ đọc khi cần
-- host metadata files sống trong các adapter bundle (`forge-antigravity`, `forge-codex`), không nằm trong core
+- host metadata files sống trong các adapter bundle, không nằm trong core
 
 ```text
 forge-core/
@@ -89,7 +89,7 @@ forge-core/
 ## Host Boundary
 
 - Forge core không khóa với một host cụ thể.
-- Rule của từng host sống trong adapter bundle tương ứng (`forge-antigravity`, `forge-codex`, v.v.).
+- Rule của từng host sống trong adapter bundle tương ứng.
 - File như `GEMINI.md`, `AGENTS.md`, UI metadata, hay host-level shortcuts là adapter concern, không phải canonical source của core.
 - Forge core có thể đọc workspace router/local skill docs khi host cung cấp chúng, nhưng logic route/verify không được phụ thuộc vào một host rule file duy nhất.
 
@@ -310,5 +310,5 @@ Nếu task kéo dài hoặc command lặp lại thất bại:
 ## Activation Announcement
 
 ```
-Forge Antigravity: orchestrator | route đúng intent, giữ evidence trước claims
+Forge: orchestrator | route đúng intent, giữ evidence trước claims
 ```

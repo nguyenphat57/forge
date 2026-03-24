@@ -202,5 +202,5 @@ Direction ready:
 ## Activation Announcement
 
 ```text
-Forge Antigravity: brainstorm | chốt direction trước, rồi mới lập plan
+Forge: brainstorm | chốt direction trước, rồi mới lập plan
 ```

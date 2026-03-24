@@ -349,5 +349,5 @@ Build report:
 ## Activation Announcement
 
 ```
-Forge Antigravity: build | verification-first, impact analysis trước khi sửa
+Forge: build | verification-first, impact analysis trước khi sửa
 ```

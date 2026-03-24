@@ -169,5 +169,5 @@ Spec review:
 ## Activation Announcement
 
 ```text
-Forge Antigravity: spec-review | chốt build-readiness trước khi vào implementation rủi ro cao
+Forge: spec-review | chốt build-readiness trước khi vào implementation rủi ro cao
 ```

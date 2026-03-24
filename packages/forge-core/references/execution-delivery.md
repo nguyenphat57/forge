@@ -175,7 +175,7 @@ Ví dụ:
 
 ```powershell
 python scripts/track_chain_status.py "Checkout rewrite flow" `
-  --project-name antigravity `
+  --project-name example-project `
   --current-stage spec-review `
   --active-skill build `
   --active-skill spec-review `

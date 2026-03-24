@@ -267,5 +267,5 @@ Backend report:
 ## Activation Announcement
 
 ```
-Forge Antigravity: backend | chốt contract và validation ở boundary trước
+Forge: backend | chốt contract và validation ở boundary trước
 ```

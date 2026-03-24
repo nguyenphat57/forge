@@ -7,6 +7,7 @@ from pathlib import Path
 
 from common import (
     configure_stdio,
+    current_bundle_skill_name,
     default_artifact_dir,
     detect_runtimes,
     extract_skill_names,
@@ -14,6 +15,7 @@ from common import (
     load_registry,
     normalize_text,
     read_text,
+    reserved_skill_names,
     score_keywords,
     skill_aliases,
     slugify,
@@ -22,7 +24,6 @@ from common import (
 
 
 EDITING_INTENTS = {"BUILD", "DEBUG", "OPTIMIZE"}
-ROOT_SKILL_NAMES = {"forge-core", "forge-antigravity", "forge-codex"}
 
 
 def uses_prompt_only_scope(intent: str, complexity: str, registry: dict, intent_key: str, small_key: str) -> bool:
@@ -398,9 +399,13 @@ def infer_local_companions(
         return []
 
     content = read_text(router_doc)
+    scope_policy_section = section_text(content, "## Scope Policy", "## Local Skill Inventory")
+    if not scope_policy_section:
+        scope_policy_section = section_text(content, "## Scope Policy", "## Routing Map")
+    excluded_skill_names = reserved_skill_names() | set(extract_skill_names(scope_policy_section))
     local_inventory = section_text(content, "## Local Skill Inventory", "## Routing Map")
     skill_source = local_inventory or content
-    skills = [name for name in extract_skill_names(skill_source) if name not in ROOT_SKILL_NAMES]
+    skills = [name for name in extract_skill_names(skill_source) if name not in excluded_skill_names]
     normalized_prompt = normalize_text(prompt_text)
     normalized_signals = normalize_text(" ".join(repo_signals))
     prompt_only = uses_prompt_only_scope(
@@ -517,7 +522,7 @@ def build_report(args: argparse.Namespace) -> dict:
         "activation_line": "Forge: {intent} | {complexity} | Skills: {skills}".format(
             intent=intent,
             complexity=complexity,
-            skills=" + ".join([*forge_skills, *domain_skills, *local_companions]) or "forge-core",
+            skills=" + ".join([*forge_skills, *domain_skills, *local_companions]) or current_bundle_skill_name(),
         ),
         "registry_source": "data/orchestrator-registry.json",
     }

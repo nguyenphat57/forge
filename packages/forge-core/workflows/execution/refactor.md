@@ -103,5 +103,5 @@ Refactor report:
 ## Activation Announcement
 
 ```
-Forge Antigravity: refactor | baseline trước, verify sau mỗi micro-step
+Forge: refactor | baseline trước, verify sau mỗi micro-step
 ```

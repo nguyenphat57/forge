@@ -232,5 +232,5 @@ Plan ready:
 ## Activation Announcement
 
 ```
-Forge Antigravity: plan | chốt scope, assumptions, verification trước khi build
+Forge: plan | chốt scope, assumptions, verification trước khi build
 ```

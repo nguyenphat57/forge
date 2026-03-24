@@ -172,5 +172,5 @@ Architecture ready:
 ## Activation Announcement
 
 ```
-Forge Antigravity: architect | chốt quyết định kiến trúc trước implementation lớn
+Forge: architect | chốt quyết định kiến trúc trước implementation lớn
 ```

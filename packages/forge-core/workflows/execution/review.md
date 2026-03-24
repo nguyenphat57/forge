@@ -223,5 +223,5 @@ Summary:
 ## Activation Announcement
 
 ```
-Forge Antigravity: review | findings trước, summary sau
+Forge: review | findings trước, summary sau
 ```

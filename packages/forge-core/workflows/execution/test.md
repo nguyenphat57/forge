@@ -236,5 +236,5 @@ Test report:
 ## Activation Announcement
 
 ```
-Forge Antigravity: test | chọn strategy trước, RED khi harness cho phép
+Forge: test | chọn strategy trước, RED khi harness cho phép
 ```

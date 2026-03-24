@@ -1,6 +1,6 @@
 ## Scope Policy
 
-Global orchestrator is `forge-antigravity`.
+Global orchestrator is `forge-runtime`.
 
 ## Local Skill Inventory
 

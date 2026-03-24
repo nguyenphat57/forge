@@ -1,6 +1,6 @@
 # Companion Routing Smoke Tests
 
-> Dùng để stress test việc ghép `forge-antigravity` với companion skills. File này chỉ cần khi workspace chọn dùng companion/local layer; nó không phải smoke test bắt buộc của Forge core.
+> Dùng để stress test việc ghép Forge với companion skills. File này chỉ cần khi workspace chọn dùng companion/local layer; nó không phải smoke test bắt buộc của Forge core.
 
 ## Pass Criteria
 

@@ -209,5 +209,5 @@ Quality gate:
 ## Activation Announcement
 
 ```text
-Forge Antigravity: quality-gate | chốt go/no-go bằng evidence mới
+Forge: quality-gate | chốt go/no-go bằng evidence mới
 ```

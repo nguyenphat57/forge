@@ -237,5 +237,5 @@ Frontend report:
 ## Activation Announcement
 
 ```text
-Forge Antigravity: frontend | tạo/reuse frontend brief trước, rồi mới implement UI
+Forge: frontend | tạo/reuse frontend brief trước, rồi mới implement UI
 ```

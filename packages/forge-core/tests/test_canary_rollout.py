@@ -21,7 +21,7 @@ class CanaryRolloutTests(unittest.TestCase):
                     workspace="lamdi-pos",
                     summary="Stable route behavior across core prompts",
                     status="pass",
-                    host="antigravity",
+                    host="generic",
                     scenario=["review", "build", "session"],
                     signal=["No misroute seen"],
                     blocker=[],

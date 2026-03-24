@@ -205,5 +205,5 @@ Deploy report:
 ## Activation Announcement
 
 ```
-Forge Antigravity: deploy | pre-check, security decision, rồi mới rollout
+Forge: deploy | pre-check, security decision, rồi mới rollout
 ```
