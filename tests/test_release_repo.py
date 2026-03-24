@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import unittest
 from pathlib import Path
@@ -88,6 +89,66 @@ class ReleaseRepoTests(unittest.TestCase):
             manifest = json.loads((target / "INSTALL-MANIFEST.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["bundle"], "forge-antigravity")
             self.assertEqual(manifest["version"], build_release.read_version())
+
+    def test_install_bundle_succeeds_when_target_root_is_locked_as_cwd(self) -> None:
+        build_release.build_all()
+        with TemporaryDirectory() as temp_dir:
+            temp_root = Path(temp_dir)
+            target = temp_root / "runtime" / "forge-antigravity"
+            target.mkdir(parents=True, exist_ok=True)
+            (target / "old.txt").write_text("old", encoding="utf-8")
+
+            locker = subprocess.Popen(
+                [
+                    sys.executable,
+                    "-c",
+                    "import os, sys, time; os.chdir(sys.argv[1]); time.sleep(10)",
+                    str(target),
+                ],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                text=True,
+            )
+            try:
+                report = install_bundle.install_bundle(
+                    "forge-antigravity",
+                    target=str(target),
+                    backup_dir=str(temp_root / "backups"),
+                )
+            finally:
+                locker.terminate()
+                locker.wait(timeout=5)
+
+            self.assertEqual(report["bundle"], "forge-antigravity")
+            self.assertTrue((target / "SKILL.md").exists())
+            self.assertFalse((target / "old.txt").exists())
+
+    def test_antigravity_wave_b_overlay_files_exist(self) -> None:
+        overlay_root = ROOT_DIR / "packages" / "forge-antigravity" / "overlay"
+        expected_files = [
+            overlay_root / "workflows" / "operator" / "customize.md",
+            overlay_root / "workflows" / "operator" / "init.md",
+            overlay_root / "workflows" / "operator" / "recap.md",
+            overlay_root / "workflows" / "operator" / "save-brain.md",
+            overlay_root / "workflows" / "operator" / "handover.md",
+            overlay_root / "references" / "antigravity-operator-surface.md",
+        ]
+        for path in expected_files:
+            with self.subTest(path=path):
+                self.assertTrue(path.exists())
+
+        skill = (overlay_root / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("/customize", skill)
+        self.assertIn("/init", skill)
+        self.assertIn("/save-brain", skill)
+
+    def test_build_release_preserves_antigravity_wave_b_overlay(self) -> None:
+        build_release.build_all()
+        dist_root = ROOT_DIR / "dist" / "forge-antigravity"
+        self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "recap.md").exists())
+        self.assertTrue((dist_root / "references" / "antigravity-operator-surface.md").exists())
 
 
 if __name__ == "__main__":

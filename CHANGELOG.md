@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 - 2026-03-24
+
+- Them Wave B cho `forge-antigravity` voi operator wrappers cho `help`, `next`, `run`, `bump`, `rollback`, `customize`, `init`, va session handover flows.
+- Mo rong `forge-core` voi preference persistence qua `write_preferences.py`, them `pace` va `feedback_style`, va workspace bootstrap reusable qua `initialize_workspace.py`.
+- Hardening `install_bundle.py` theo huong sync in-place de rollout an toan tren Windows ngay ca khi thu muc runtime dang bi host lock.
+- Tang verify coverage cho release/install va bo sung regression, smoke, va overlay checks cho Wave B.
+
+
 ## 0.3.0 - 2026-03-24
 
 - Them Wave A / P1.1 voi error translator host-neutral va noi truc tiep vao `run` de bien loi ky thuat thanh guidance de doc va xu ly.

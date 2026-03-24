@@ -20,6 +20,7 @@
 | `ui-progress.md` | Track stage cho task UI kéo dài |
 | `tooling.md` | Khi cần chạy route preview, capture continuity, router checker, hoặc tìm artifact paths |
 | `personalization.md` | Khi sửa response-style preferences, adaptive language, hoặc adapter wrappers cho customize |
+| `workspace-init.md` | Khi sửa skeleton workspace, init flow, hoặc onboarding wrapper cần bám repo-neutral contract |
 | `help-next.md` | Khi sửa navigator logic cho help/next, repo-state priority, hoặc operator guidance wrappers |
 | `run-guidance.md` | Khi sửa workflow `run`, ready-signal detection, command classification, hoặc adapter wrappers cho execute-then-route |
 | `error-translation.md` | Khi sửa error pattern database, sanitation rules, hoặc cách `run/debug/test` đổi lỗi kỹ thuật thành guidance đọc được |
@@ -37,15 +38,16 @@
 1. SKILL.md
 2. tooling.md nếu cần deterministic preview/check thay vì đọc prose thuần
 3. personalization.md nếu đang sửa response style hay preference engine
-4. help-next.md nếu đang sửa navigator help/next
-5. run-guidance.md nếu đang sửa run/execute-then-route
-6. error-translation.md nếu đang sửa error translator/helper layer
-7. bump-release.md hoặc rollback-guidance.md nếu đang sửa release operators
-8. backend-briefs.md hoặc execution-delivery.md tùy layer đang sửa
-9. smoke-tests.md / smoke-test-checklist.md nếu cần verify host behavior
-10. canary-rollout.md nếu đang chuẩn bị rollout thật
-11. companion-skill-contract.md chỉ khi đang sửa lớp companion/runtime
-12. companion-routing-smoke-tests.md chỉ khi đang test lớp companion/runtime
+4. workspace-init.md nếu đang sửa init/onboarding skeleton logic
+5. help-next.md nếu đang sửa navigator help/next
+6. run-guidance.md nếu đang sửa run/execute-then-route
+7. error-translation.md nếu đang sửa error translator/helper layer
+8. bump-release.md hoặc rollback-guidance.md nếu đang sửa release operators
+9. backend-briefs.md hoặc execution-delivery.md tùy layer đang sửa
+10. smoke-tests.md / smoke-test-checklist.md nếu cần verify host behavior
+11. canary-rollout.md nếu đang chuẩn bị rollout thật
+12. companion-skill-contract.md chỉ khi đang sửa lớp companion/runtime
+13. companion-routing-smoke-tests.md chỉ khi đang test lớp companion/runtime
 ```
 
 ### Khi repo chưa có local skills

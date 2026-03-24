@@ -245,6 +245,76 @@ Release production vừa hỏng login, có artifact của bản trước. Plan r
 
 ---
 
+### FT-03h: Customize preferences
+
+**Prompt**
+
+```text
+/customize
+Mac dinh ve sau giai thich ky hon, feedback thang hon, va di nhanh hon khi an toan.
+```
+
+**Kỳ vọng**
+
+- Host adapter route vao flow `customize`
+- Preferences duoc map vao schema canonical cua Forge
+- Neu adapter ghi file, `.brain/preferences.json` dung key canonical cua core
+- Khong invent schema rieng chi cho host
+
+**Fail nếu**
+
+- Adapter tu viet file sai schema
+- Chi doi prompt tam thoi ma khong co contract ro rang
+- Fork key names hoac meaning khoi `forge-core`
+
+---
+
+### FT-03i: Init workspace
+
+**Prompt**
+
+```text
+/init
+Khoi tao workspace moi toi thieu cho Forge roi noi giup minh nen brainstorm hay plan tiep.
+```
+
+**Kỳ vọng**
+
+- Host adapter route vao flow `init`
+- Skeleton toi thieu duoc tao hoac preview tu core script
+- Co next workflow ro rang (`brainstorm` cho greenfield, `plan` cho existing)
+- Khong overwrite file user da co
+
+**Fail nếu**
+
+- Onboarding bi tron vao repo da co context ma khong can
+- Init flow tao nhieu host-specific ceremony trong core
+- Khong chi ra buoc tiep theo usable
+
+---
+
+### FT-03j: Save lightweight continuity
+
+**Prompt**
+
+```text
+/save-brain
+Luu giup minh continuity ngan cho task dang do, chi giu next step, verification, va risk con mo.
+```
+
+**Kỳ vọng**
+
+- Route vao wrapper save cua `session`
+- Luu thong tin ngan, co scope, va evidence-backed
+- Khong bien save thanh ritual dai dong
+
+**Fail nếu**
+
+- Ghi recap dai lap lai repo state
+- Khong nhac verification hay next step
+
+---
+
 ### FT-04: Plan medium task
 
 **Prompt**

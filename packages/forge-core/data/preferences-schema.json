@@ -22,6 +22,18 @@
       "default": "balanced",
       "description": "How proactively Forge should move through safe steps."
     },
+    "pace": {
+      "type": "string",
+      "enum": ["steady", "balanced", "fast"],
+      "default": "balanced",
+      "description": "Preferred working pace when Forge is driving a task forward."
+    },
+    "feedback_style": {
+      "type": "string",
+      "enum": ["gentle", "balanced", "direct"],
+      "default": "balanced",
+      "description": "How directly Forge should surface critique and gaps."
+    },
     "personality": {
       "type": "string",
       "enum": ["default", "mentor", "strict-coach"],

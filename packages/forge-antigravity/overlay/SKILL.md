@@ -15,7 +15,7 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 - `SKILL.md`: entrypoint để route intent, ghép skill, và giữ delivery guardrails
 - `workflows/design/`: planning, architecture, spec-review, visualize
 - `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session
-- `workflows/operator/`: help, next, và các operator workflow host-neutral
+- `workflows/operator/`: help, next, run, bump, rollback, va cac wrapper Antigravity nhu customize/init/recap/save-brain/handover
 - `domains/`: core domain guidance cho frontend và backend
 - `data/`: machine-readable registry cho intent, matrix, verification profiles, quality profiles, execution pipelines, và lane model policy
 - `scripts/`: deterministic tooling cho route preview, scoped continuity capture, và các kiểm tra tùy chọn cho workspace có local layer
@@ -109,6 +109,8 @@ forge-antigravity/
 
 - Canonical machine-readable source: `data/orchestrator-registry.json`
 - Preferences resolver: `scripts/resolve_preferences.py` (workspace-local `.brain/preferences.json` -> canonical response-style contract)
+- Preferences writer: `scripts/write_preferences.py` (canonical schema persistence for `/customize`)
+- Workspace init skeleton: `scripts/initialize_workspace.py` (repo-neutral bootstrap for `/init`)
 - Help/next navigator: `scripts/resolve_help_next.py` (repo state -> current focus, suggested workflow, next action)
 - Run guidance resolver: `scripts/run_with_guidance.py` (execute command -> classify signal -> route to test/debug/deploy)
 - Error translator: `scripts/translate_error.py` (raw stderr/error text -> sanitized human summary + suggested action)
@@ -147,7 +149,9 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 ## Response Personalization
 
 - Neu workspace co `.brain/preferences.json`, Forge resolve no qua core engine `scripts/resolve_preferences.py`.
+- Schema canonical gom `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, va `personality`.
 - `forge-antigravity` co the them wrapper nhu `/customize`, nhung schema va response-style semantics van phai doc tu core.
+- Durable preference updates phai di qua `scripts/write_preferences.py`, khong duoc tu viet file schema rieng cho host.
 - Host UX co the day hon Codex, nhung khong duoc fork key names hay validation rules.
 
 ---
@@ -160,7 +164,39 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 - `forge-antigravity` co the expose ro `/run`, nhung ket qua van phai resolve tu core `scripts/run_with_guidance.py`.
 - Error translation van doc tu core helper `scripts/translate_error.py`; adapter nay chi doi presentation, khong doi pattern database.
 - `/bump` va `/rollback` co the duoc expose ro o Antigravity, nhung van phai giu explicit-only va risk-first contract cua core.
+- `/init` co the day hon ve onboarding, nhung workspace skeleton reusable van phai di qua `scripts/initialize_workspace.py`.
+- Session ergonomics wrappers nhu `/recap`, `/save-brain`, va `/handover` chi la be mat thuan tay tren `workflows/execution/session.md`.
 - Wrapper nay duoc day hon ve UX, nhung khong duoc doi `state`, `command_kind`, hay `suggested_workflow` cua core.
+
+---
+
+## Antigravity Operator Surface
+
+Primary wrappers:
+
+| Surface | Wrapper | Core contract |
+|---------|---------|---------------|
+| `/help` | `workflows/operator/help.md` | `scripts/resolve_help_next.py --mode help` |
+| `/next` | `workflows/operator/next.md` | `scripts/resolve_help_next.py --mode next` |
+| `/run` | `workflows/operator/run.md` | `scripts/run_with_guidance.py` |
+| `/bump` | `workflows/operator/bump.md` | `scripts/prepare_bump.py` |
+| `/rollback` | `workflows/operator/rollback.md` | `scripts/resolve_rollback.py` |
+| `/customize` | `workflows/operator/customize.md` | `scripts/resolve_preferences.py` + `scripts/write_preferences.py` |
+| `/init` | `workflows/operator/init.md` | `scripts/initialize_workspace.py` |
+
+Session wrappers:
+
+| Alias | Wrapper | Core contract |
+|-------|---------|---------------|
+| `/recap` | `workflows/operator/recap.md` | `workflows/execution/session.md` restore mode |
+| `/save-brain` | `workflows/operator/save-brain.md` | `workflows/execution/session.md` save mode |
+| `/handover` | `workflows/operator/handover.md` | `workflows/execution/session.md` handover mode |
+
+Compatibility rule:
+
+- Alias chi duoc giam friction migration, khong tao intent moi.
+- Wrapper docs co the operator-friendly hon, nhung deterministic semantics van doc tu core.
+- Chi tiet mapping: `references/antigravity-operator-surface.md`.
 
 ---
 
@@ -291,6 +327,11 @@ Verification profiles canonical sống trong `data/orchestrator-registry.json`.
 | run | `workflows/operator/run.md` | flexible | EXECUTE THE REAL COMMAND, THEN ROUTE FROM EVIDENCE |
 | bump | `workflows/operator/bump.md` | flexible | VERSION BUMPS ARE EXPLICIT-ONLY AND MUST SURFACE RELEASE VERIFICATION |
 | rollback | `workflows/operator/rollback.md` | flexible | DO NOT BLINDLY ROLL BACK WITHOUT SCOPE, RISK, AND POST-ROLLBACK VERIFICATION |
+| customize | `workflows/operator/customize.md` | flexible | DO NOT FORK THE CORE PREFERENCES SCHEMA OR WRITE HOST-LOCAL KEYS |
+| init | `workflows/operator/init.md` | flexible | DO NOT OVERWRITE EXISTING REPO FILES DURING BOOTSTRAP |
+| recap | `workflows/operator/recap.md` | flexible | RESTORE FROM REPO FIRST, MEMORY SECOND |
+| save-brain | `workflows/operator/save-brain.md` | flexible | SAVE ONLY DURABLE, SCOPED CONTINUITY |
+| handover | `workflows/operator/handover.md` | flexible | CAPTURE ONLY THE NEXT PERSON ACTUALLY NEEDS |
 
 **Rigid skills:** không bỏ qua evidence và quality gate.  
 **Flexible skills:** adapt theo context, nhưng vẫn phải rõ output và next step.

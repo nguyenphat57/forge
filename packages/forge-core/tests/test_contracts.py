@@ -66,6 +66,14 @@ class BundleContractTests(unittest.TestCase):
             with self.subTest(rollback_case=case["name"]):
                 self.assertIn(case["scope"], {"deploy", "config", "migration", "code-change"})
 
+        for case in load_json_fixture("preferences_write_cases.json"):
+            with self.subTest(preferences_write_case=case["name"]):
+                self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
+
+        for case in load_json_fixture("workspace_init_cases.json"):
+            with self.subTest(workspace_init_case=case["name"]):
+                self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
+
     def test_tooling_docs_mention_verify_entrypoints(self) -> None:
         tooling = (ROOT_DIR / "references" / "tooling.md").read_text(encoding="utf-8")
         self.assertIn("run_smoke_matrix.py", tooling)
@@ -78,6 +86,8 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("translate_error.py", tooling)
         self.assertIn("prepare_bump.py", tooling)
         self.assertIn("resolve_rollback.py", tooling)
+        self.assertIn("write_preferences.py", tooling)
+        self.assertIn("initialize_workspace.py", tooling)
 
 
 if __name__ == "__main__":

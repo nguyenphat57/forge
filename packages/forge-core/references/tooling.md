@@ -45,6 +45,39 @@ Script se tra ve:
 
 Schema va boundary doc: xem `personalization.md`.
 
+## Preferences Persistence
+
+Khi can update `.brain/preferences.json` ma van giu schema canonical cua Forge:
+
+```powershell
+python scripts/write_preferences.py --workspace C:\path\to\workspace --technical-level newbie --pace fast
+python scripts/write_preferences.py --workspace C:\path\to\workspace --feedback-style direct --apply
+```
+
+Script se:
+- merge update vao preferences hien co theo mac dinh
+- ho tro `--replace` de reset field khong truyen ve defaults
+- tra ve `changed_fields`, target preferences, va response-style contract sau khi normalize
+
+Semantics chi tiet: xem `personalization.md`.
+
+## Workspace Init
+
+Khi can preview hoac tao skeleton Forge-toi-thieu cho workspace moi:
+
+```powershell
+python scripts/initialize_workspace.py --workspace C:\path\to\workspace
+python scripts/initialize_workspace.py --workspace C:\path\to\workspace --seed-preferences --apply
+```
+
+Script se:
+- classify workspace thanh `greenfield` hoac `existing`
+- tao `.brain/`, `docs/plans/`, `docs/specs/`, va `.brain/session.json`
+- tuy chon seed `.brain/preferences.json`
+- tra ve next workflow khuyen nghi (`brainstorm` hoac `plan`)
+
+Semantics chi tiet: xem `workspace-init.md`.
+
 ## Help/Next Navigator
 
 Khi can resolve operator guidance dua tren repo state thay vi recap ritual:

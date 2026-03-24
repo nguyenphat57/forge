@@ -2,6 +2,8 @@
   "technical_level": "wizard",
   "detail_level": 42,
   "autonomy_level": "low",
+  "pace": "slow",
+  "feedback_style": "gentle",
   "personality": "strict_coach",
   "unknown_field": "ignored"
 }

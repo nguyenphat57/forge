@@ -114,6 +114,33 @@ def write_install_manifest(target: Path, report: dict) -> None:
     )
 
 
+def remove_path(path: Path) -> None:
+    if path.is_dir():
+        shutil.rmtree(path)
+    else:
+        path.unlink()
+
+
+def prune_extra_entries(source: Path, target: Path) -> None:
+    if not target.exists() or not target.is_dir():
+        return
+
+    source_names = {item.name for item in source.iterdir()}
+    for child in target.iterdir():
+        if child.name in source_names:
+            source_child = source / child.name
+            if child.is_dir() and source_child.is_dir():
+                prune_extra_entries(source_child, child)
+            continue
+        remove_path(child)
+
+
+def sync_tree(source: Path, target: Path) -> None:
+    target.mkdir(parents=True, exist_ok=True)
+    prune_extra_entries(source, target)
+    shutil.copytree(source, target, dirs_exist_ok=True)
+
+
 def install_from_plan(report: dict) -> dict:
     if report["dry_run"]:
         return report
@@ -126,10 +153,10 @@ def install_from_plan(report: dict) -> dict:
         backup_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(target_path, backup_path)
 
-    if target_path.exists():
-        shutil.rmtree(target_path)
+    if target_path.exists() and not target_path.is_dir():
+        target_path.unlink()
 
-    shutil.copytree(source_path, target_path)
+    sync_tree(source_path, target_path)
     write_install_manifest(target_path, report)
     return report
 

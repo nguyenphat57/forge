@@ -18,6 +18,8 @@ RUN_CASES = json.loads((FIXTURES_DIR / "run_cases.json").read_text(encoding="utf
 ERROR_TRANSLATION_CASES = json.loads((FIXTURES_DIR / "error_translation_cases.json").read_text(encoding="utf-8"))
 BUMP_CASES = json.loads((FIXTURES_DIR / "bump_cases.json").read_text(encoding="utf-8"))
 ROLLBACK_CASES = json.loads((FIXTURES_DIR / "rollback_cases.json").read_text(encoding="utf-8"))
+PREFERENCES_WRITE_CASES = json.loads((FIXTURES_DIR / "preferences_write_cases.json").read_text(encoding="utf-8"))
+WORKSPACE_INIT_CASES = json.loads((FIXTURES_DIR / "workspace_init_cases.json").read_text(encoding="utf-8"))
 RUN_HELPERS_DIR = FIXTURES_DIR / "run_helpers"
 
 
@@ -195,6 +197,31 @@ def validate_rollback_case(case: dict, report: dict) -> list[str]:
     for expected in case.get("expected_warning_contains", []):
         if not any(expected in warning for warning in report.get("warnings", [])):
             failures.append(f"warning missing substring: {expected!r}")
+    return failures
+
+
+def validate_preferences_write_case(case: dict, report: dict) -> list[str]:
+    failures: list[str] = []
+
+    def expect(actual: object, expected: object, label: str) -> None:
+        if actual != expected:
+            failures.append(f"{label}: expected {expected!r}, got {actual!r}")
+
+    expect(report["status"], case["expected_status"], "status")
+    expect(report["preferences"], case["expected_preferences"], "preferences")
+    expect(report["changed_fields"], case["expected_changed_fields"], "changed_fields")
+    return failures
+
+
+def validate_workspace_init_case(case: dict, report: dict) -> list[str]:
+    failures: list[str] = []
+
+    def expect(actual: object, expected: object, label: str) -> None:
+        if actual != expected:
+            failures.append(f"{label}: expected {expected!r}, got {actual!r}")
+
+    expect(report["workspace_mode"], case["expected_mode"], "workspace_mode")
+    expect(report["recommended_next_workflow"], case["expected_next_workflow"], "recommended_next_workflow")
     return failures
 
 
@@ -510,6 +537,84 @@ def run_rollback_suite() -> list[dict]:
     return results
 
 
+def run_preferences_write_suite() -> list[dict]:
+    write_script = ROOT_DIR / "scripts" / "write_preferences.py"
+    results: list[dict] = []
+    for case in PREFERENCES_WRITE_CASES:
+        workspace = WORKSPACES_DIR / case["workspace_fixture"]
+        command = [
+            sys.executable,
+            str(write_script),
+            "--workspace",
+            str(workspace),
+            "--format",
+            "json",
+            *case["args"],
+        ]
+        completed = run_command(command)
+        if completed.returncode != 0:
+            results.append(
+                {
+                    "suite": "preferences-write",
+                    "name": case["name"],
+                    "status": "FAIL",
+                    "failures": [f"command exited {completed.returncode}", completed.stderr.strip() or completed.stdout.strip()],
+                }
+            )
+            continue
+
+        report = json.loads(completed.stdout)
+        failures = validate_preferences_write_case(case, report)
+        results.append(
+            {
+                "suite": "preferences-write",
+                "name": case["name"],
+                "status": "PASS" if not failures else "FAIL",
+                "failures": failures,
+            }
+        )
+    return results
+
+
+def run_workspace_init_suite() -> list[dict]:
+    init_script = ROOT_DIR / "scripts" / "initialize_workspace.py"
+    results: list[dict] = []
+    for case in WORKSPACE_INIT_CASES:
+        workspace = WORKSPACES_DIR / case["workspace_fixture"]
+        command = [
+            sys.executable,
+            str(init_script),
+            "--workspace",
+            str(workspace),
+            "--format",
+            "json",
+            *case["args"],
+        ]
+        completed = run_command(command)
+        if completed.returncode != 0:
+            results.append(
+                {
+                    "suite": "workspace-init",
+                    "name": case["name"],
+                    "status": "FAIL",
+                    "failures": [f"command exited {completed.returncode}", completed.stderr.strip() or completed.stdout.strip()],
+                }
+            )
+            continue
+
+        report = json.loads(completed.stdout)
+        failures = validate_workspace_init_case(case, report)
+        results.append(
+            {
+                "suite": "workspace-init",
+                "name": case["name"],
+                "status": "PASS" if not failures else "FAIL",
+                "failures": failures,
+            }
+        )
+    return results
+
+
 def summarize(results: list[dict]) -> dict:
     passes = sum(1 for item in results if item["status"] == "PASS")
     failures = [item for item in results if item["status"] == "FAIL"]
@@ -540,7 +645,19 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run Forge smoke matrices for route preview and router checks.")
     parser.add_argument(
         "--suite",
-        choices=["route-preview", "router-check", "preferences", "help-next", "run", "error-translation", "bump", "rollback", "all"],
+        choices=[
+            "route-preview",
+            "router-check",
+            "preferences",
+            "help-next",
+            "run",
+            "error-translation",
+            "bump",
+            "rollback",
+            "preferences-write",
+            "workspace-init",
+            "all",
+        ],
         default="all",
         help="Smoke suite to run",
     )
@@ -564,6 +681,10 @@ def main() -> int:
         results.extend(run_bump_suite())
     if args.suite in {"rollback", "all"}:
         results.extend(run_rollback_suite())
+    if args.suite in {"preferences-write", "all"}:
+        results.extend(run_preferences_write_suite())
+    if args.suite in {"workspace-init", "all"}:
+        results.extend(run_workspace_init_suite())
 
     summary = summarize(results)
     payload = {"summary": summary, "results": results}

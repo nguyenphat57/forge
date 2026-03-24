@@ -1,0 +1,51 @@
+[
+  {
+    "name": "merge_preview_with_aliases",
+    "workspace_fixture": "preferences_workspace",
+    "args": [
+      "--feedback-style",
+      "balanced",
+      "--pace",
+      "slow"
+    ],
+    "expected_status": "PASS",
+    "expected_preferences": {
+      "technical_level": "newbie",
+      "detail_level": "detailed",
+      "autonomy_level": "autonomous",
+      "pace": "steady",
+      "feedback_style": "balanced",
+      "personality": "mentor"
+    },
+    "expected_changed_fields": [
+      "pace",
+      "feedback_style"
+    ]
+  },
+  {
+    "name": "replace_preview_resets_unspecified_fields",
+    "workspace_fixture": "preferences_workspace",
+    "args": [
+      "--replace",
+      "--technical-level",
+      "technical"
+    ],
+    "expected_status": "PASS",
+    "expected_preferences": {
+      "technical_level": "technical",
+      "detail_level": "balanced",
+      "autonomy_level": "balanced",
+      "pace": "balanced",
+      "feedback_style": "balanced",
+      "personality": "default"
+    },
+    "expected_changed_fields": [
+      "technical_level",
+      "detail_level",
+      "autonomy_level",
+      "pace",
+      "feedback_style",
+      "personality"
+    ]
+  }
+]

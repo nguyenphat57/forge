@@ -90,6 +90,30 @@ PREFERENCE_ALIASES = {
         "high": "autonomous",
         "independent": "autonomous",
     },
+    "pace": {
+        "steady": "steady",
+        "slow": "steady",
+        "careful": "steady",
+        "balanced": "balanced",
+        "default": "balanced",
+        "normal": "balanced",
+        "standard": "balanced",
+        "fast": "fast",
+        "rapid": "fast",
+        "quick": "fast",
+        "push": "fast",
+    },
+    "feedback_style": {
+        "gentle": "gentle",
+        "soft": "gentle",
+        "encouraging": "gentle",
+        "balanced": "balanced",
+        "default": "balanced",
+        "standard": "balanced",
+        "direct": "direct",
+        "blunt": "direct",
+        "strict": "direct",
+    },
     "personality": {
         "default": "default",
         "mentor": "mentor",
@@ -153,6 +177,36 @@ AUTONOMY_STYLE = {
         "decision_mode": "propose-best-path-and-execute-safe-slices",
         "plan_visibility": "targeted",
         "execution_bias": "move-forward-until-risky-boundary",
+    },
+}
+
+PACE_STYLE = {
+    "steady": {
+        "delivery_pace": "steady",
+        "iteration_rhythm": "pause-at-notable-branch-points",
+    },
+    "balanced": {
+        "delivery_pace": "balanced",
+        "iteration_rhythm": "default-checkpoints",
+    },
+    "fast": {
+        "delivery_pace": "fast",
+        "iteration_rhythm": "push-until-risk-boundary",
+    },
+}
+
+FEEDBACK_STYLE = {
+    "gentle": {
+        "feedback_mode": "gentle",
+        "critique_style": "encouraging-first",
+    },
+    "balanced": {
+        "feedback_mode": "balanced",
+        "critique_style": "direct-when-useful",
+    },
+    "direct": {
+        "feedback_mode": "direct",
+        "critique_style": "call-out-gaps-plainly",
     },
 }
 
@@ -448,14 +502,63 @@ def resolve_response_style(preferences: dict[str, str]) -> dict[str, str]:
     technical_level = preferences["technical_level"]
     detail_level = preferences["detail_level"]
     autonomy_level = preferences["autonomy_level"]
+    pace = preferences["pace"]
+    feedback_style = preferences["feedback_style"]
     personality = preferences["personality"]
 
     style: dict[str, str] = {}
     style.update(TECHNICAL_STYLE[technical_level])
     style.update(DETAIL_STYLE[detail_level])
     style.update(AUTONOMY_STYLE[autonomy_level])
+    style.update(PACE_STYLE[pace])
+    style.update(FEEDBACK_STYLE[feedback_style])
     style.update(PERSONALITY_STYLE[personality])
     return style
+
+
+def write_preferences(
+    *,
+    workspace: Path,
+    updates: dict[str, str],
+    strict: bool = False,
+    replace: bool = False,
+    apply: bool = False,
+) -> dict:
+    if not updates:
+        raise ValueError("At least one preference update is required.")
+
+    workspace = Path(workspace).resolve()
+    existing = load_preferences(workspace=workspace, strict=strict)
+    base = preference_defaults() if replace else existing["preferences"].copy()
+    base.update(updates)
+    preferences, warnings = normalize_preferences(base, strict=strict)
+    path = resolve_workspace_preferences_path(workspace)
+
+    changed_fields = [
+        key for key in preferences if existing["preferences"].get(key) != preferences.get(key)
+    ]
+    created_file = not path.exists()
+    if apply:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(preferences, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    status = "PASS" if changed_fields else "WARN"
+    if warnings and status == "PASS":
+        status = "WARN"
+
+    return {
+        "status": status,
+        "workspace": str(workspace),
+        "path": str(path),
+        "applied": apply,
+        "replace": replace,
+        "created_file": created_file and apply,
+        "previous_preferences": existing["preferences"],
+        "preferences": preferences,
+        "response_style": resolve_response_style(preferences),
+        "changed_fields": changed_fields,
+        "warnings": warnings,
+    }
 
 
 def current_bundle_skill_name() -> str:

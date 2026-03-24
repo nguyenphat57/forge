@@ -107,6 +107,8 @@ forge-codex/
 
 - Canonical machine-readable source: `data/orchestrator-registry.json`
 - Preferences resolver: `scripts/resolve_preferences.py` (workspace-local `.brain/preferences.json` -> canonical response-style contract)
+- Preferences writer: `scripts/write_preferences.py` (canonical schema persistence for future customize flows)
+- Workspace init skeleton: `scripts/initialize_workspace.py` (repo-neutral bootstrap for future init flows)
 - Help/next navigator: `scripts/resolve_help_next.py` (repo state -> current focus, suggested workflow, next action)
 - Run guidance resolver: `scripts/run_with_guidance.py` (execute command -> classify signal -> route to test/debug/deploy)
 - Error translator: `scripts/translate_error.py` (raw stderr/error text -> sanitized human summary + suggested action)
@@ -145,6 +147,7 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 ## Response Personalization
 
 - Neu workspace co `.brain/preferences.json`, Forge resolve no qua core engine `scripts/resolve_preferences.py`.
+- Schema canonical gom `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, va `personality`.
 - `forge-codex` nen giu natural-language customize flow tren schema nay, khong can slash-heavy wrapper by default.
 - Adapter nay khong duoc fork key names hay response-style semantics cua core.
 
@@ -159,6 +162,7 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 - Command execution guidance van resolve tu core `scripts/run_with_guidance.py`; adapter khong duoc fork semantics cua `state`, `command_kind`, hay `suggested_workflow`.
 - Error translation van resolve tu core `scripts/translate_error.py`; adapter nay khong duoc fork category hay pattern database.
 - `bump` va `rollback` nen la natural-language first hoac alias optional, nhung van phai giu explicit-only va risk-first contract cua core.
+- Neu can customize/init trong Codex, van phai dung `scripts/write_preferences.py` va `scripts/initialize_workspace.py` thay vi tao host-local schema.
 
 ---
 

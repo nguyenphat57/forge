@@ -107,6 +107,8 @@ forge-core/
 
 - Canonical machine-readable source: `data/orchestrator-registry.json`
 - Preferences resolver: `scripts/resolve_preferences.py` (workspace-local `.brain/preferences.json` -> canonical response-style contract)
+- Preferences writer: `scripts/write_preferences.py` (canonical schema persistence for adapter-level customize flows)
+- Workspace init skeleton: `scripts/initialize_workspace.py` (repo-neutral workspace bootstrap for adapter-level init flows)
 - Help/next navigator: `scripts/resolve_help_next.py` (repo state -> current focus, suggested workflow, next action)
 - Run guidance resolver: `scripts/run_with_guidance.py` (execute command -> classify signal -> route to test/debug/deploy)
 - Error translator: `scripts/translate_error.py` (raw stderr/error text -> sanitized human summary + suggested action)
@@ -145,7 +147,8 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 ## Response Personalization
 
 - Neu workspace co `.brain/preferences.json`, Forge co the resolve no bang `scripts/resolve_preferences.py`.
-- Core schema gom `technical_level`, `detail_level`, `autonomy_level`, va `personality`.
+- Core schema gom `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, va `personality`.
+- Adapter co the persist preferences qua `scripts/write_preferences.py`, nhung khong duoc doi key names hay validation rules.
 - Adapter co the them UX wrapper nhu `customize`, nhung khong duoc fork schema hay doi meaning cua response-style contract.
 
 ---
@@ -158,6 +161,7 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 - `run` song o `workflows/operator/` va dung `scripts/run_with_guidance.py` de bien output that thanh next workflow ro rang.
 - Error translation la helper core dung chung cho `run`, `build`, `debug`, va `test`; raw error can duoc sanitize truoc khi tom tat lai.
 - `bump` va `rollback` song o `workflows/operator/` va chi kich hoat khi user explicit release intent.
+- Adapter co the them `/init` hoac onboarding mong, nhung workspace skeleton reusable phai di qua `scripts/initialize_workspace.py`.
 - Adapter co the them wrapper `/run` hoac natural-language entrypoint, nhung khong duoc doi meaning cua `state`, `command_kind`, hay `suggested_workflow`.
 
 ---

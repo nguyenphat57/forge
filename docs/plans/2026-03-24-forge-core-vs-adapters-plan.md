@@ -241,3 +241,25 @@ Tức là:
 3. Làm Wave A trước.
 4. Sau khi Wave A pass verify, triển khai wrapper Antigravity.
 5. Sau khi Antigravity ổn, mới thêm wrapper chọn lọc cho Codex.
+
+---
+
+## 9. Status Update - 2026-03-24
+
+Wave A da delivered o `forge-core`.
+
+Wave B da delivered o `forge-antigravity` theo dung boundary:
+
+- them be mat ro rang cho `/help`, `/next`, `/run`, `/bump`, `/rollback`
+- them `/customize` tren core preferences schema + persistence (`resolve_preferences.py` + `write_preferences.py`)
+- them `/init` tren core workspace bootstrap (`initialize_workspace.py`)
+- them session ergonomics wrappers: `/recap`, `/save-brain`, `/handover`
+- them compatibility layer giam friction migration tu AWF/Antigravity cu
+
+Phan duoc them vao `forge-core` de ho tro Wave B nhung van host-neutral:
+
+- mo rong preferences schema voi `pace` va `feedback_style`
+- them persistence helper cho preferences
+- them reusable workspace skeleton init
+
+Phan chua lam la Wave C cho `forge-codex`, khong phai Wave B.
