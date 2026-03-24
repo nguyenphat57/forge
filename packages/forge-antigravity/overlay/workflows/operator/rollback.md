@@ -12,19 +12,19 @@ quality_gates:
 
 # Rollback - Antigravity Operator Wrapper
 
-> Muc tieu: giu `/rollback` ro rang cho Antigravity nhung van giu risk-first contract cua core.
+> Mục tiêu: giữ `/rollback` rõ ràng cho Antigravity nhưng vẫn giữ risk-first contract của core.
 
 ## Process
 
-1. Chot scope: deploy/config/migration/code-change.
-2. Resolve bang:
+1. Chốt scope: deploy/config/migration/code-change.
+2. Resolve bằng:
 
 ```powershell
 python scripts/resolve_rollback.py --scope deploy --customer-impact broad --has-rollback-artifact
 ```
 
-3. Tra ve:
-   - strategy an toan nhat
+3. Trả về:
+   - strategy an toàn nhất
    - warnings
    - verification checklist sau rollback
 

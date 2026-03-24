@@ -12,19 +12,19 @@ quality_gates:
 
 # Bump - Antigravity Operator Wrapper
 
-> Muc tieu: giu `/bump` ro rang cho user Antigravity, nhung semver math va release checklist van di qua core.
+> Mục tiêu: giữ `/bump` rõ ràng cho user Antigravity, nhưng semver math và release checklist vẫn đi qua core.
 
 ## Process
 
-1. Chot muc bump.
-2. Preview hoac apply bang:
+1. Chốt mức bump.
+2. Preview hoặc apply bằng:
 
 ```powershell
 python scripts/prepare_bump.py --workspace <workspace> --bump minor
 python scripts/prepare_bump.py --workspace <workspace> --bump 1.3.0 --apply --release-ready
 ```
 
-3. Tom tat `old -> new`, files doi, va verify tiep.
+3. Tóm tắt `old -> new`, files đổi, và verify tiếp.
 
 ## Activation Announcement
 

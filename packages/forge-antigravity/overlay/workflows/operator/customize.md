@@ -12,23 +12,23 @@ quality_gates:
 
 # Customize - Antigravity Preference Wrapper
 
-> Muc tieu: cho user Antigravity mot be mat `/customize` ro rang, nhung van ghi vao schema canonical cua Forge.
+> Mục tiêu: cho user Antigravity một bề mặt `/customize` rõ ràng, nhưng vẫn ghi vào schema canonical của Forge.
 
 <HARD-GATE>
-- Khong tao key rieng cho Antigravity.
-- Khong overwrite toan bo preferences neu user chi doi mot vai field.
-- Khong doi routing/gate logic; workflow nay chi doi response style.
+- Không tạo key riêng cho Antigravity.
+- Không overwrite toàn bộ preferences nếu user chỉ đổi một vài field.
+- Không đổi routing/gate logic; workflow này chỉ đổi response style.
 </HARD-GATE>
 
 ## Process
 
-1. Doc preferences hien tai:
+1. Đọc preferences hiện tại:
 
 ```powershell
 python scripts/resolve_preferences.py --workspace <workspace> --format json
 ```
 
-2. Map user intent vao cac field canonical:
+2. Map user intent vào các field canonical:
    - `technical_level`
    - `detail_level`
    - `autonomy_level`
@@ -36,28 +36,28 @@ python scripts/resolve_preferences.py --workspace <workspace> --format json
    - `feedback_style`
    - `personality`
 
-3. Preview hoac persist bang core writer:
+3. Preview hoặc persist bằng core writer:
 
 ```powershell
 python scripts/write_preferences.py --workspace <workspace> --detail-level detailed --pace fast --feedback-style direct
 python scripts/write_preferences.py --workspace <workspace> --detail-level detailed --pace fast --feedback-style direct --apply
 ```
 
-4. Tra loi ngan:
-   - preferences moi
-   - field nao da doi
-   - response se khac nhu the nao
+4. Trả lời ngắn:
+   - preferences mới
+   - field nào đã đổi
+   - response sẽ khác như thế nào
 
 ## Output Contract
 
 ```text
-Da doi:
+Đã đổi:
 - [...]
 
-Style moi:
+Style mới:
 - [...]
 
-Tac dong:
+Tác động:
 - [...]
 ```
 

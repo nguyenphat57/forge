@@ -12,20 +12,20 @@ quality_gates:
 
 # Next - Codex Operator Wrapper
 
-> Muc tieu: dua ra mot buoc tiep theo ro rang cho Codex ma khong tao them ceremony.
+> Mục tiêu: đưa ra một bước tiếp theo rõ ràng cho Codex mà không tạo thêm ceremony.
 
 ## Process
 
-1. Resolve bang:
+1. Resolve bằng:
 
 ```powershell
 python scripts/resolve_help_next.py --workspace <workspace> --mode next
 ```
 
-2. Tra loi ngan:
-   - next step chinh
-   - vi sao day la buoc dung
-   - toi da 2 lua chon thay the neu can
+2. Trả lời ngắn:
+   - next step chính
+   - vì sao đây là bước đúng
+   - tối đa 2 lựa chọn thay thế nếu cần
 
 ## Activation Announcement
 

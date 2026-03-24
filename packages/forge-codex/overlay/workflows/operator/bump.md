@@ -12,22 +12,22 @@ quality_gates:
 
 # Bump - Codex Operator Wrapper
 
-> Muc tieu: giu bump flow ngan va ro cho Codex, nhung van theo contract explicit-only cua core.
+> Mục tiêu: giữ bump flow ngắn và rõ cho Codex, nhưng vẫn theo contract explicit-only của core.
 
 ## Process
 
-1. Chot muc bump (`patch`, `minor`, `major`) hoac version cu the.
-2. Preview/apply bang core planner:
+1. Chốt mức bump (`patch`, `minor`, `major`) hoặc version cụ thể.
+2. Preview/apply bằng core planner:
 
 ```powershell
 python scripts/prepare_bump.py --workspace <workspace> --bump minor
 python scripts/prepare_bump.py --workspace <workspace> --bump minor --apply --release-ready
 ```
 
-3. Tra loi ngan:
-   - version tu -> den
-   - file da doi
-   - verify nao phai chay
+3. Trả lời ngắn:
+   - version từ -> đến
+   - file đã đổi
+   - verify nào phải chạy
 
 ## Activation Announcement
 

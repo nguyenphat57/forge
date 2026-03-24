@@ -12,7 +12,7 @@ quality_gates:
 
 # Init - Codex Workspace Bootstrap
 
-> Muc tieu: cho Codex mot init flow toi thieu de bat dau workspace moi ma khong bien no thanh onboarding dai.
+> Mục tiêu: cho Codex một init flow tối thiểu để bắt đầu workspace mới mà không biến nó thành onboarding dài.
 
 ## Process
 
@@ -22,13 +22,13 @@ quality_gates:
 python scripts/initialize_workspace.py --workspace <workspace> --format json
 ```
 
-2. Neu can tao skeleton that:
+2. Nếu cần tạo skeleton thật:
 
 ```powershell
 python scripts/initialize_workspace.py --workspace <workspace> --seed-preferences --apply
 ```
 
-3. Ket thuc bang mot next workflow duy nhat:
+3. Kết thúc bằng một next workflow duy nhất:
    - `brainstorm` cho workspace greenfield
    - `plan` cho workspace existing
 

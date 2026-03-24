@@ -1,37 +1,37 @@
 # Forge Workspace Init
 
-> Muc tieu: giu phan khoi tao workspace o `forge-core` theo kieu host-neutral, de adapter chi can them wrapper `/init` va onboarding ma khong fork skeleton logic.
+> Mục tiêu: giữ phần khởi tạo workspace ở `forge-core` theo kiểu host-neutral, để adapter chỉ cần thêm wrapper `/init` và onboarding mà không fork skeleton logic.
 
 ## Core Contract
 
-- Script canonical nam tai `scripts/initialize_workspace.py`
-- Script nay chi tao skeleton Forge-toi-thieu co the tai su dung qua nhieu host
-- Adapter co the them first-run UX, nhung khong duoc doi shape cua `.brain/` hay docs skeleton ma core da chot
+- Script canonical nằm tại `scripts/initialize_workspace.py`
+- Script này chỉ tạo skeleton Forge tối thiểu có thể tái sử dụng qua nhiều host
+- Adapter có thể thêm first-run UX, nhưng không được đổi shape của `.brain/` hay docs skeleton mà core đã chốt
 
-## Skeleton Toi Thieu
+## Skeleton Tối Thiểu
 
 - `.brain/`
 - `.brain/session.json`
 - `docs/plans/`
 - `docs/specs/`
 
-Tuy chon:
+Tùy chọn:
 
-- `.brain/preferences.json` neu wrapper muon seed default preferences ngay luc init
+- `.brain/preferences.json` nếu wrapper muốn seed default preferences ngay lúc init
 
 ## Workspace Classification
 
-- `greenfield`: workspace rong hoac chua co repo state dang ke -> next workflow mac dinh la `brainstorm`
-- `existing`: workspace da co repo state -> next workflow mac dinh la `plan`
+- `greenfield`: workspace rỗng hoặc chưa có repo state đáng kể -> next workflow mặc định là `brainstorm`
+- `existing`: workspace đã có repo state -> next workflow mặc định là `plan`
 
 ## Hard Rules
 
-- Khong overwrite file da ton tai
-- Khong nhung host-specific onboarding prose vao core script
-- Khong tao README, command alias, hay memory ritual rieng cua mot host trong script nay
+- Không overwrite file đã tồn tại
+- Không nhúng host-specific onboarding prose vào core script
+- Không tạo README, command alias, hay memory ritual riêng của một host trong script này
 
 ## Adapter Boundary
 
-- `forge-antigravity`: co the dua `/init` + onboarding mong dua tren script nay
-- `forge-codex`: co the expose init toi thieu qua natural language ma khong can ceremony day
-- Adapter tuong lai nhu `forge-claude` phai co the tai su dung script nay ma khong doi schema hay file layout
+- `forge-antigravity`: có thể đưa `/init` + onboarding mỏng dựa trên script này
+- `forge-codex`: có thể expose init tối thiểu qua natural language mà không cần ceremony dày
+- Adapter tương lai như `forge-claude` phải có thể tái sử dụng script này mà không đổi schema hay file layout

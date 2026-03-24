@@ -251,20 +251,20 @@ Release production vừa hỏng login, có artifact của bản trước. Plan r
 
 ```text
 /customize
-Mac dinh ve sau giai thich ky hon, feedback thang hon, va di nhanh hon khi an toan.
+Mặc định về sau giải thích kỹ hơn, feedback thẳng hơn, và đi nhanh hơn khi an toàn.
 ```
 
 **Kỳ vọng**
 
 - Host adapter route vao flow `customize`
-- Preferences duoc map vao schema canonical cua Forge
-- Neu adapter ghi file, `.brain/preferences.json` dung key canonical cua core
-- Khong invent schema rieng chi cho host
+- Preferences được map vào schema canonical của Forge
+- Nếu adapter ghi file, `.brain/preferences.json` dùng key canonical của core
+- Không invent schema riêng chỉ cho host
 
 **Fail nếu**
 
 - Adapter tu viet file sai schema
-- Chi doi prompt tam thoi ma khong co contract ro rang
+- Chỉ đổi prompt tạm thời mà không có contract rõ ràng
 - Fork key names hoac meaning khoi `forge-core`
 
 ---
@@ -275,21 +275,21 @@ Mac dinh ve sau giai thich ky hon, feedback thang hon, va di nhanh hon khi an to
 
 ```text
 /init
-Khoi tao workspace moi toi thieu cho Forge roi noi giup minh nen brainstorm hay plan tiep.
+Khởi tạo workspace mới tối thiểu cho Forge rồi nói giúp mình nên brainstorm hay plan tiếp.
 ```
 
 **Kỳ vọng**
 
 - Host adapter route vao flow `init`
-- Skeleton toi thieu duoc tao hoac preview tu core script
-- Co next workflow ro rang (`brainstorm` cho greenfield, `plan` cho existing)
-- Khong overwrite file user da co
+- Skeleton tối thiểu được tạo hoặc preview từ core script
+- Có next workflow rõ ràng (`brainstorm` cho greenfield, `plan` cho existing)
+- Không overwrite file user đã có
 
 **Fail nếu**
 
-- Onboarding bi tron vao repo da co context ma khong can
+- Onboarding bị trộn vào repo đã có context mà không cần
 - Init flow tao nhieu host-specific ceremony trong core
-- Khong chi ra buoc tiep theo usable
+- Không chỉ ra bước tiếp theo usable
 
 ---
 
@@ -299,19 +299,19 @@ Khoi tao workspace moi toi thieu cho Forge roi noi giup minh nen brainstorm hay 
 
 ```text
 /save-brain
-Luu giup minh continuity ngan cho task dang do, chi giu next step, verification, va risk con mo.
+Lưu giúp mình continuity ngắn cho task đang dở, chỉ giữ next step, verification, và risk còn mở.
 ```
 
 **Kỳ vọng**
 
-- Route vao wrapper save cua `session`
-- Luu thong tin ngan, co scope, va evidence-backed
-- Khong bien save thanh ritual dai dong
+- Route vào wrapper save của `session`
+- Lưu thông tin ngắn, có scope, và evidence-backed
+- Không biến save thành ritual dài dòng
 
 **Fail nếu**
 
 - Ghi recap dai lap lai repo state
-- Khong nhac verification hay next step
+- Không nhắc verification hay next step
 
 ---
 

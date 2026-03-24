@@ -3,7 +3,7 @@
 ## Mục tiêu
 
 Cài bundle đã build từ `dist/` vào runtime thật, thay vì sửa trực tiếp thư mục đang chạy.
-Install flow dong bo noi dung theo kieu in-place sync de giam rui ro khi host dang giu lock vao root folder runtime.
+Install flow đồng bộ nội dung theo kiểu in-place sync để giảm rủi ro khi host đang giữ lock vào root folder runtime.
 
 ## Default targets
 
@@ -34,7 +34,7 @@ python scripts/install_bundle.py forge-codex --dry-run
 - Có thể đổi nơi backup bằng `--backup-dir`.
 - Dùng `--no-backup` chỉ khi runtime đích là disposable.
 - Không install vào `packages/`, `dist/`, hay root repo.
-- Script prune file cu khong con trong bundle moi, nhung khong can xoa ca root folder runtime.
+- Script prune file cũ không còn trong bundle mới, nhưng không cần xóa cả root folder runtime.
 
 ## Override target
 

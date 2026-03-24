@@ -12,37 +12,37 @@ quality_gates:
 
 # Help - Contextual Operator Guidance
 
-> Muc tieu: dua ra huong dan ngan, dung ngu canh, va dua tren repo state that su co san.
+> Mục tiêu: đưa ra hướng dẫn ngắn, đúng ngữ cảnh, và dựa trên repo state thật sự có sẵn.
 
 <HARD-GATE>
-- Khong duoc goi y `/recap` hoac `/save-brain` nhu reflex.
-- Khong fabricate current state neu repo/artifact chua xac nhan.
-- Khong dua hon 1 huong chinh va toi da 2 lua chon thay the.
+- Không được gợi ý `/recap` hoặc `/save-brain` như reflex.
+- Không fabricate current state nếu repo/artifact chưa xác nhận.
+- Không đưa hơn 1 hướng chính và tối đa 2 lựa chọn thay thế.
 </HARD-GATE>
 
 ## Process
 
-1. Doc repo state huu ich nhat:
+1. Đọc repo state hữu ích nhất:
    - `git status`
-   - plan/spec docs gan nhat
-   - `.brain/session.json` hoac `.brain/handover.md` neu co
-2. Resolve bang:
+   - plan/spec docs gần nhất
+   - `.brain/session.json` hoặc `.brain/handover.md` nếu có
+2. Resolve bằng:
 
 ```powershell
 python scripts/resolve_help_next.py --workspace <workspace> --mode help
 ```
 
-3. Tra loi ngan gon:
-   - Ban dang o dau
-   - Lam tiep gi la tot nhat
-   - Toi da 2 lua chon thay the neu can
+3. Trả lời ngắn gọn:
+   - Bạn đang ở đâu
+   - Làm tiếp gì là tốt nhất
+   - Tối đa 2 lựa chọn thay thế nếu cần
 
 ## Output Contract
 
 ```text
-Ban dang o: [...]
-Lam tiep: [...]
-Lua chon khac:
+Bạn đang ở: [...]
+Làm tiếp: [...]
+Lựa chọn khác:
 - [...]
 - [...]
 ```

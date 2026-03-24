@@ -1,6 +1,6 @@
 # Forge Bump Release
 
-> Dung khi can chot version moi va update release artifacts theo mot checklist ro rang.
+> Dùng khi cần chốt version mới và update release artifacts theo một checklist rõ ràng.
 
 ## Canonical Script
 
@@ -11,12 +11,12 @@ python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump 2.0.0 --a
 
 ## Contract
 
-- Doc `VERSION`
-- Tinh `target_version` tu `patch|minor|major` hoac explicit semver
-- Preview hoac apply doi `VERSION` + `CHANGELOG.md`
-- Tra ve verification commands tiep theo, khong commit/push tu dong
+- Đọc `VERSION`
+- Tính `target_version` từ `patch|minor|major` hoặc explicit semver
+- Preview hoặc apply đổi `VERSION` + `CHANGELOG.md`
+- Trả về verification commands tiếp theo, không commit/push tự động
 
 ## Boundary
 
-- Core chi lo version math va release checklist.
-- Adapter co the expose `/bump` hoac natural-language wrapper, nhung khong duoc doi explicit-only contract.
+- Core chỉ lo version math và release checklist.
+- Adapter có thể expose `/bump` hoặc natural-language wrapper, nhưng không được đổi explicit-only contract.

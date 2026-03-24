@@ -12,40 +12,40 @@ quality_gates:
 
 # Run - Execute Then Route
 
-> Muc tieu: chay lenh that, doc output that, va chot buoc tiep theo an toan thay vi chi noi "da chay".
+> Mục tiêu: chạy lệnh thật, đọc output thật, và chốt bước tiếp theo an toàn thay vì chỉ nói "đã chạy".
 
 <HARD-GATE>
-- Khong duoc claim lenh da chay neu chua co output tu command.
-- Khong duoc dua ra ket luan release-ready chi tu mot lenh build/run.
-- Neu command fail, dung chinh lenh do lam reproduction anchor cho debug.
+- Không được claim lệnh đã chạy nếu chưa có output từ command.
+- Không được đưa ra kết luận release-ready chỉ từ một lệnh build/run.
+- Nếu command fail, dùng chính lệnh đó làm reproduction anchor cho debug.
 </HARD-GATE>
 
 ## Process
 
-1. Chot command can chay va timeout hop ly.
-2. Run bang CLI deterministic:
+1. Chốt command cần chạy và timeout hợp lý.
+2. Run bằng CLI deterministic:
 
 ```powershell
 python scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>
 ```
 
-3. Doc report:
+3. Đọc report:
    - `state`
    - `command_kind`
    - `suggested_workflow`
-   - `error_translation` neu command fail hoac timeout
-   - output excerpt va warnings
-4. Handoff ngan:
-   - command da chay
-   - output/failure signal chinh
-   - workflow tiep theo nen vao
+   - `error_translation` nếu command fail hoặc timeout
+   - output excerpt và warnings
+4. Handoff ngắn:
+   - command đã chạy
+   - output/failure signal chính
+   - workflow tiếp theo nên vào
 
 ## Output Contract
 
 ```text
-Da chay: [...]
-Tin hieu chinh: [...]
-Lam tiep: [...]
+Đã chạy: [...]
+Tín hiệu chính: [...]
+Làm tiếp: [...]
 ```
 
 ## Activation Announcement

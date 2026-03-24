@@ -48,8 +48,8 @@ Good:
 
 ```tsx
 if (isLoading) return <OrdersSkeleton />;
-if (error) return <InlineError message="Khong tai duoc don hang" />;
-if (orders.length === 0) return <EmptyState title="Chua co don hang" />;
+if (error) return <InlineError message="Không tải được đơn hàng" />;
+if (orders.length === 0) return <EmptyState title="Chưa có đơn hàng" />;
 
 return <OrderList orders={orders} />;
 ```

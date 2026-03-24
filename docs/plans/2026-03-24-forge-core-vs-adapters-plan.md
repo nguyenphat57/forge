@@ -62,8 +62,8 @@ Hard gate:
 
 | Item | Phân loại | `forge-core` | `forge-antigravity` | `forge-codex` | Quyết định |
 |------|-----------|--------------|----------------------|----------------|-----------|
-| P0.1 Preferences + adaptive language | Core engine + adapter wrapper | Da co schema + resolver cho `technical_level`, `detail_level`, `autonomy_level`, `personality` | Da noi host entrypoint vao core engine; wrapper `/customize` de sau | Da noi AGENTS/adapter entrypoint vao core engine; customize flow de sau | Delivered o core + thin adapter wiring |
-| P0.2 `/help` + `/next` | Core engine + adapter wrapper | Da co navigator logic doc repo state, plans, docs, `.brain` khi can | Da noi adapter vao core navigator; slash wrapper day hon de sau | Da noi AGENTS guidance vao core navigator; natural-language first giu nguyen | Delivered o core + thin adapter wiring |
+| P0.1 Preferences + adaptive language | Core engine + adapter wrapper | Đã có schema + resolver cho `technical_level`, `detail_level`, `autonomy_level`, `personality` | Đã nối host entrypoint vào core engine; wrapper `/customize` để sau | Đã nối AGENTS/adapter entrypoint vào core engine; customize flow để sau | Delivered ở core + thin adapter wiring |
+| P0.2 `/help` + `/next` | Core engine + adapter wrapper | Đã có navigator logic đọc repo state, plans, docs, `.brain` khi cần | Đã nối adapter vào core navigator; slash wrapper dày hơn để sau | Đã nối AGENTS guidance vào core navigator; natural-language first giữ nguyên | Delivered ở core + thin adapter wiring |
 | P0.3 `/run` | Core cho cả hai | Đã có `run_with_guidance.py` + workflow `run` host-neutral: chạy command, đọc output, route tiếp sang debug/test/deploy | Adapter Antigravity chỉ thêm wrapper `/run` trên contract của core | Adapter Codex giữ natural-language first trên contract của core | Delivered ở core + thin adapter wiring |
 | P1.1 Error translator | Core cho cả hai | Đã có helper + script `translate_error.py` dùng chung cho `run/build/debug/test`, kèm sanitation và pattern database host-neutral | Không cần logic riêng | Không cần logic riêng | Delivered ở core |
 | P1.2 `/bump` | Core engine + adapter wrapper | Đã có `prepare_bump.py` + workflow `bump` cho semver math, VERSION/CHANGELOG update, và verification checklist | Adapter Antigravity chỉ thêm wrapper `/bump` trên contract của core | Adapter Codex expose qua natural language hoặc alias nhẹ | Delivered ở core + thin adapter wiring |
@@ -246,30 +246,30 @@ Tức là:
 
 ## 9. Status Update - 2026-03-24
 
-Wave A da delivered o `forge-core`.
+Wave A đã delivered ở `forge-core`.
 
-Wave B da delivered o `forge-antigravity` theo dung boundary:
+Wave B đã delivered ở `forge-antigravity` theo đúng boundary:
 
-- them be mat ro rang cho `/help`, `/next`, `/run`, `/bump`, `/rollback`
-- them `/customize` tren core preferences schema + persistence (`resolve_preferences.py` + `write_preferences.py`)
-- them `/init` tren core workspace bootstrap (`initialize_workspace.py`)
-- them session ergonomics wrappers: `/recap`, `/save-brain`, `/handover`
-- them compatibility layer giam friction migration tu AWF/Antigravity cu
+- thêm bề mặt rõ ràng cho `/help`, `/next`, `/run`, `/bump`, `/rollback`
+- thêm `/customize` trên core preferences schema + persistence (`resolve_preferences.py` + `write_preferences.py`)
+- thêm `/init` trên core workspace bootstrap (`initialize_workspace.py`)
+- thêm session ergonomics wrappers: `/recap`, `/save-brain`, `/handover`
+- thêm compatibility layer giảm friction migration từ AWF/Antigravity cũ
 
-Phan duoc them vao `forge-core` de ho tro Wave B nhung van host-neutral:
+Phần được thêm vào `forge-core` để hỗ trợ Wave B nhưng vẫn host-neutral:
 
-- mo rong preferences schema voi `pace` va `feedback_style`
-- them persistence helper cho preferences
-- them reusable workspace skeleton init
+- mở rộng preferences schema với `pace` và `feedback_style`
+- thêm persistence helper cho preferences
+- thêm reusable workspace skeleton init
 
-Wave C da delivered o `forge-codex` theo dung boundary:
+Wave C đã delivered ở `forge-codex` theo đúng boundary:
 
-- them thin wrappers cho `help`, `next`, `run`, `bump`, `rollback`, `customize`, va `init`
-- giu natural-language first, coi slash chi la alias optional
-- cap nhat `AGENTS.example.md` de workspace Codex dua ve Forge ma khong duplicate orchestration rules
-- bo sung release tests de build/install giu nguyen Codex overlay surface
+- thêm thin wrappers cho `help`, `next`, `run`, `bump`, `rollback`, `customize`, và `init`
+- giữ natural-language first, coi slash chỉ là alias optional
+- cập nhật `AGENTS.example.md` để workspace Codex đưa về Forge mà không duplicate orchestration rules
+- bổ sung release tests để build/install giữ nguyên Codex overlay surface
 
-Khong them cho Codex:
+Không thêm cho Codex:
 
 - `recap`, `save-brain`, `handover`
 - onboarding dai dong

@@ -146,23 +146,23 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 
 ## Response Personalization
 
-- Neu workspace co `.brain/preferences.json`, Forge co the resolve no bang `scripts/resolve_preferences.py`.
-- Core schema gom `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, va `personality`.
-- Adapter co the persist preferences qua `scripts/write_preferences.py`, nhung khong duoc doi key names hay validation rules.
-- Adapter co the them UX wrapper nhu `customize`, nhung khong duoc fork schema hay doi meaning cua response-style contract.
+- Nếu workspace có `.brain/preferences.json`, Forge có thể resolve nó bằng `scripts/resolve_preferences.py`.
+- Core schema gồm `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, và `personality`.
+- Adapter có thể persist preferences qua `scripts/write_preferences.py`, nhưng không được đổi key names hay validation rules.
+- Adapter có thể thêm UX wrapper như `customize`, nhưng không được fork schema hay đổi meaning của response-style contract.
 
 ---
 
 ## Operator Guidance
 
-- `help` va `next` song o `workflows/operator/` va dung chung navigator `scripts/resolve_help_next.py`.
-- Repo-first la hard rule: `git status`, plans/specs, roi moi den `.brain`.
-- Adapter co the them slash alias hoac natural-language wrapper, nhung khong duoc doi stage model hay repo-first contract.
-- `run` song o `workflows/operator/` va dung `scripts/run_with_guidance.py` de bien output that thanh next workflow ro rang.
-- Error translation la helper core dung chung cho `run`, `build`, `debug`, va `test`; raw error can duoc sanitize truoc khi tom tat lai.
-- `bump` va `rollback` song o `workflows/operator/` va chi kich hoat khi user explicit release intent.
-- Adapter co the them `/init` hoac onboarding mong, nhung workspace skeleton reusable phai di qua `scripts/initialize_workspace.py`.
-- Adapter co the them wrapper `/run` hoac natural-language entrypoint, nhung khong duoc doi meaning cua `state`, `command_kind`, hay `suggested_workflow`.
+- `help` và `next` sống ở `workflows/operator/` và dùng chung navigator `scripts/resolve_help_next.py`.
+- Repo-first là hard rule: `git status`, plans/specs, rồi mới đến `.brain`.
+- Adapter có thể thêm slash alias hoặc natural-language wrapper, nhưng không được đổi stage model hay repo-first contract.
+- `run` sống ở `workflows/operator/` và dùng `scripts/run_with_guidance.py` để biến output thật thành next workflow rõ ràng.
+- Error translation là helper core dùng chung cho `run`, `build`, `debug`, và `test`; raw error cần được sanitize trước khi tóm tắt lại.
+- `bump` và `rollback` sống ở `workflows/operator/` và chỉ kích hoạt khi user explicit release intent.
+- Adapter có thể thêm `/init` hoặc onboarding mỏng, nhưng workspace skeleton reusable phải đi qua `scripts/initialize_workspace.py`.
+- Adapter có thể thêm wrapper `/run` hoặc natural-language entrypoint, nhưng không được đổi meaning của `state`, `command_kind`, hay `suggested_workflow`.
 
 ---
 

@@ -12,17 +12,17 @@ quality_gates:
 
 # Customize - Codex Preference Wrapper
 
-> Muc tieu: cho Codex mot customize flow ngan, doi style phan hoi ma khong them host-local schema.
+> Mục tiêu: cho Codex một customize flow ngắn, đổi style phản hồi mà không thêm host-local schema.
 
 ## Process
 
-1. Doc preferences hien tai:
+1. Đọc preferences hiện tại:
 
 ```powershell
 python scripts/resolve_preferences.py --workspace <workspace> --format json
 ```
 
-2. Map nhu cau vao cac field canonical:
+2. Map nhu cầu vào các field canonical:
    - `technical_level`
    - `detail_level`
    - `autonomy_level`
@@ -30,16 +30,16 @@ python scripts/resolve_preferences.py --workspace <workspace> --format json
    - `feedback_style`
    - `personality`
 
-3. Preview hoac persist bang core writer:
+3. Preview hoặc persist bằng core writer:
 
 ```powershell
 python scripts/write_preferences.py --workspace <workspace> --detail-level concise --pace fast --feedback-style direct
 python scripts/write_preferences.py --workspace <workspace> --detail-level concise --pace fast --feedback-style direct --apply
 ```
 
-4. Tra loi ngan:
-   - field nao da doi
-   - style moi se khac nhu the nao
+4. Trả lời ngắn:
+   - field nào đã đổi
+   - style mới sẽ khác như thế nào
 
 ## Activation Announcement
 

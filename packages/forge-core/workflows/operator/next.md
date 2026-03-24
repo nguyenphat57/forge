@@ -12,12 +12,12 @@ quality_gates:
 
 # Next - Concrete Next-Step Navigator
 
-> Muc tieu: chot mot buoc tiep theo cu the, ngan, va an toan dua tren repo state hien tai.
+> Mục tiêu: chốt một bước tiếp theo cụ thể, ngắn, và an toàn dựa trên repo state hiện tại.
 
 <HARD-GATE>
-- Khong dua next step mo ho kieu "tiep tuc lam".
-- Khong de xuat scope moi neu repo state chua ung ho.
-- Khong dua hon 1 next step chinh; alternatives chi la phu.
+- Không đưa next step mơ hồ kiểu "tiếp tục làm".
+- Không đề xuất scope mới nếu repo state chưa ủng hộ.
+- Không đưa hơn 1 next step chính; alternatives chỉ là phụ.
 </HARD-GATE>
 
 ## Process
@@ -25,24 +25,24 @@ quality_gates:
 1. Inspect workspace state:
    - active plan/spec
    - current working tree changes
-   - session or handover artifacts neu co
-2. Resolve bang:
+   - session hoặc handover artifacts nếu có
+2. Resolve bằng:
 
 ```powershell
 python scripts/resolve_help_next.py --workspace <workspace> --mode next
 ```
 
-3. Tra ve:
+3. Trả về:
    - current focus
-   - next step cu the
-   - toi da 1-2 alternatives khi can
+   - next step cụ thể
+   - tối đa 1-2 alternatives khi cần
 
 ## Output Contract
 
 ```text
-Focus hien tai: [...]
+Focus hiện tại: [...]
 Next step: [...]
-Neu can doi huong:
+Nếu cần đổi hướng:
 - [...]
 ```
 

@@ -22,6 +22,6 @@
 
 ## Compatibility Rule
 
-- Wrapper docs co the doi cach trinh bay cho operator-friendly hon.
-- Core semantics, schema, va deterministic scripts khong duoc fork.
-- Alias chi ton tai de giam friction migration tu AWF/Antigravity cu, khong tao intent moi.
+- Wrapper docs có thể đổi cách trình bày cho operator-friendly hơn.
+- Core semantics, schema, và deterministic scripts không được fork.
+- Alias chỉ tồn tại để giảm friction migration từ AWF/Antigravity cũ, không tạo intent mới.

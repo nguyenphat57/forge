@@ -1,13 +1,13 @@
 # Forge Run Guidance
 
-> Dung khi can mot lop `run` host-neutral: thuc thi command that, tom tat signal chinh, va route sang workflow tiep theo thay vi chi dump terminal.
+> Dùng khi cần một lớp `run` host-neutral: thực thi command thật, tóm tắt signal chính, và route sang workflow tiếp theo thay vì chỉ dump terminal.
 
-## Muc tieu
+## Mục tiêu
 
-- chay command that trong workspace user chi dinh
-- capture output chinh, timeout, va ready-signal
-- classify command thanh `build`, `serve`, `deploy`, hoac `generic`
-- goi y workflow tiep theo phu hop: `test`, `debug`, hoac `deploy`
+- chạy command thật trong workspace user chỉ định
+- capture output chính, timeout, và ready-signal
+- classify command thành `build`, `serve`, `deploy`, hoặc `generic`
+- gợi ý workflow tiếp theo phù hợp: `test`, `debug`, hoặc `deploy`
 
 ## Canonical Script
 
@@ -18,16 +18,16 @@ python scripts/run_with_guidance.py --workspace C:\path\to\workspace --format js
 
 ## Input Contract
 
-- `--workspace`: root ma command se chay trong do
+- `--workspace`: root mà command sẽ chạy trong đó
 - `--timeout-ms`: timeout budget
-- command phai duoc truyen sau `--`
+- command phải được truyền sau `--`
 
 ## Output Contract
 
-Script tra ve:
+Script trả về:
 
-- `status`: `PASS` hoac `FAIL`
-- `state`: `completed`, `running`, `failed`, hoac `timed-out`
+- `status`: `PASS` hoặc `FAIL`
+- `state`: `completed`, `running`, `failed`, hoặc `timed-out`
 - `command_kind`: `build`, `serve`, `deploy`, `generic`
 - `suggested_workflow`
 - `recommended_action`
@@ -37,14 +37,14 @@ Script tra ve:
 
 ## Routing Semantics
 
-- `build` thanh cong -> `test`
-- `serve` co ready-signal va con song sau timeout -> `test`
-- `deploy` thanh cong -> `deploy` de tiep tuc post-deploy verification
-- command fail hoac timeout khong co ready-signal -> `debug`
+- `build` thành công -> `test`
+- `serve` có ready-signal và còn sống sau timeout -> `test`
+- `deploy` thành công -> `deploy` để tiếp tục post-deploy verification
+- command fail hoặc timeout không có ready-signal -> `debug`
 
 ## Persisted Artifacts
 
-Neu dung `--persist`, artifact mac dinh nam o:
+Nếu dùng `--persist`, artifact mặc định nằm ở:
 
 ```text
 .forge-artifacts/run-reports/
@@ -52,6 +52,6 @@ Neu dung `--persist`, artifact mac dinh nam o:
 
 ## Adapter Boundary
 
-- Core chi lo command execution + deterministic guidance.
-- Adapter co the them slash wrapper, natural-language wrapper, hay host UX rieng.
-- Adapter khong duoc doi meaning cua `state`, `command_kind`, hay `suggested_workflow`.
+- Core chỉ lo command execution + deterministic guidance.
+- Adapter có thể thêm slash wrapper, natural-language wrapper, hay host UX riêng.
+- Adapter không được đổi meaning của `state`, `command_kind`, hay `suggested_workflow`.

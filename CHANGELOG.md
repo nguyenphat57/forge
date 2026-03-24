@@ -1,34 +1,37 @@
 # Changelog
 
+## 0.5.1 - 2026-03-24
+
+- Chuẩn hóa lại prose tiếng Việt có dấu trên toàn bộ source Markdown của `forge-core`, `forge-antigravity`, và `forge-codex`.
+- Dọn các residue lỗi dấu kiểu `kh?ng/???c` trong docs, workflow wrappers, plan, và release references để source repo sạch hơn.
+- Rebuild `dist/` từ source đã chuẩn hóa và verify lại toàn bộ repo để bảo đảm bundle phát hành bám đúng nội dung mới.
+
 ## 0.5.0 - 2026-03-24
 
-- Them Wave C cho `forge-codex` voi thin wrappers cho `help`, `next`, `run`, `bump`, `rollback`, `customize`, va `init`.
-- Cap nhat `AGENTS.example.md` va adapter docs de Codex giu natural-language first, slash chi la alias optional, va khong duplicate orchestration rules cua Forge.
-- Bo sung `codex-operator-surface.md` va release tests de build/install giu nguyen Codex overlay sau moi lan release.
-
+- Thêm Wave C cho `forge-codex` với thin wrappers cho `help`, `next`, `run`, `bump`, `rollback`, `customize`, và `init`.
+- Cập nhật `AGENTS.example.md` và adapter docs để Codex giữ natural-language first, slash chỉ là alias optional, và không duplicate orchestration rules của Forge.
+- Bổ sung `codex-operator-surface.md` và release tests để build/install giữ nguyên Codex overlay sau mỗi lần release.
 
 ## 0.4.0 - 2026-03-24
 
-- Them Wave B cho `forge-antigravity` voi operator wrappers cho `help`, `next`, `run`, `bump`, `rollback`, `customize`, `init`, va session handover flows.
-- Mo rong `forge-core` voi preference persistence qua `write_preferences.py`, them `pace` va `feedback_style`, va workspace bootstrap reusable qua `initialize_workspace.py`.
-- Hardening `install_bundle.py` theo huong sync in-place de rollout an toan tren Windows ngay ca khi thu muc runtime dang bi host lock.
-- Tang verify coverage cho release/install va bo sung regression, smoke, va overlay checks cho Wave B.
-
+- Thêm Wave B cho `forge-antigravity` với operator wrappers cho `help`, `next`, `run`, `bump`, `rollback`, `customize`, `init`, và session handover flows.
+- Mở rộng `forge-core` với preference persistence qua `write_preferences.py`, thêm `pace` và `feedback_style`, và workspace bootstrap reusable qua `initialize_workspace.py`.
+- Hardening `install_bundle.py` theo hướng sync in-place để rollout an toàn trên Windows ngay cả khi thư mục runtime đang bị host lock.
+- Tăng verify coverage cho release/install và bổ sung regression, smoke, và overlay checks cho Wave B.
 
 ## 0.3.0 - 2026-03-24
 
-- Them Wave A / P1.1 voi error translator host-neutral va noi truc tiep vao `run` de bien loi ky thuat thanh guidance de doc va xu ly.
-- Them Wave A / P1.2 voi bump workflow dung chung qua `prepare_bump.py`, cap nhat `VERSION`, changelog, va release checklist theo mot contract duy nhat.
-- Them Wave A / P1.3 voi rollback guidance engine qua `resolve_rollback.py`, phan loai deploy/config/migration/code-change va de xuat buoc xu ly an toan.
-- Nang full regression, smoke matrix, va adapter wiring de Antigravity runtime va Codex runtime cung ke thua tron bo Wave A tu core.
-
+- Thêm Wave A / P1.1 với error translator host-neutral và nối trực tiếp vào `run` để biến lỗi kỹ thuật thành guidance dễ đọc và xử lý.
+- Thêm Wave A / P1.2 với bump workflow dùng chung qua `prepare_bump.py`, cập nhật `VERSION`, changelog, và release checklist theo một contract duy nhất.
+- Thêm Wave A / P1.3 với rollback guidance engine qua `resolve_rollback.py`, phân loại deploy/config/migration/code-change và đề xuất bước xử lý an toàn.
+- Nâng full regression, smoke matrix, và adapter wiring để Antigravity runtime và Codex runtime cùng kế thừa trọn bộ Wave A từ core.
 
 ## 0.2.0 - 2026-03-24
 
-- Them Wave A / P0.1 voi preferences engine host-neutral cho `technical_level`, `detail_level`, `autonomy_level`, va `personality`.
-- Them Wave A / P0.2 voi help-next navigator repo-first dung chung cho `forge-antigravity` va `forge-codex`.
-- Them Wave A / P0.3 voi run-guidance engine de chay lenh that, detect ready-signal, va route tiep sang `test`, `debug`, hoac `deploy`.
-- Mo rong regression, smoke matrix, va adapter wiring de ca Antigravity runtime lan Codex runtime deu ke thua cung contract cua core.
+- Thêm Wave A / P0.1 với preferences engine host-neutral cho `technical_level`, `detail_level`, `autonomy_level`, và `personality`.
+- Thêm Wave A / P0.2 với help-next navigator repo-first dùng chung cho `forge-antigravity` và `forge-codex`.
+- Thêm Wave A / P0.3 với run-guidance engine để chạy lệnh thật, detect ready-signal, và route tiếp sang `test`, `debug`, hoặc `deploy`.
+- Mở rộng regression, smoke matrix, và adapter wiring để cả Antigravity runtime lẫn Codex runtime đều kế thừa cùng contract của core.
 
 ## 0.1.0 - 2026-03-24
 

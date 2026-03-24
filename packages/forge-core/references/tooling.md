@@ -19,7 +19,7 @@
 
 ## Preferences Resolver
 
-Khi can inspect hoac validate response-style preferences theo schema chung cua Forge:
+Khi cần inspect hoặc validate response-style preferences theo schema chung của Forge:
 
 ```powershell
 python scripts/resolve_preferences.py --workspace C:\path\to\workspace
@@ -37,50 +37,50 @@ Strict validation:
 python scripts/resolve_preferences.py --workspace C:\path\to\workspace --strict
 ```
 
-Script se tra ve:
-- source cua preferences (explicit, workspace-local, hoac defaults)
+Script sẽ trả về:
+- source của preferences (explicit, workspace-local, hoặc defaults)
 - canonical preferences sau khi normalize
-- response-style contract da resolve
-- warnings neu payload co field la hoac gia tri khong hop le
+- response-style contract đã resolve
+- warnings nếu payload có field lạ hoặc giá trị không hợp lệ
 
-Schema va boundary doc: xem `personalization.md`.
+Schema và boundary doc: xem `personalization.md`.
 
 ## Preferences Persistence
 
-Khi can update `.brain/preferences.json` ma van giu schema canonical cua Forge:
+Khi cần update `.brain/preferences.json` mà vẫn giữ schema canonical của Forge:
 
 ```powershell
 python scripts/write_preferences.py --workspace C:\path\to\workspace --technical-level newbie --pace fast
 python scripts/write_preferences.py --workspace C:\path\to\workspace --feedback-style direct --apply
 ```
 
-Script se:
-- merge update vao preferences hien co theo mac dinh
-- ho tro `--replace` de reset field khong truyen ve defaults
-- tra ve `changed_fields`, target preferences, va response-style contract sau khi normalize
+Script sẽ:
+- merge update vào preferences hiện có theo mặc định
+- hỗ trợ `--replace` để reset field không truyền về defaults
+- trả về `changed_fields`, target preferences, và response-style contract sau khi normalize
 
-Semantics chi tiet: xem `personalization.md`.
+Semantics chi tiết: xem `personalization.md`.
 
 ## Workspace Init
 
-Khi can preview hoac tao skeleton Forge-toi-thieu cho workspace moi:
+Khi cần preview hoặc tạo skeleton Forge tối thiểu cho workspace mới:
 
 ```powershell
 python scripts/initialize_workspace.py --workspace C:\path\to\workspace
 python scripts/initialize_workspace.py --workspace C:\path\to\workspace --seed-preferences --apply
 ```
 
-Script se:
-- classify workspace thanh `greenfield` hoac `existing`
-- tao `.brain/`, `docs/plans/`, `docs/specs/`, va `.brain/session.json`
-- tuy chon seed `.brain/preferences.json`
-- tra ve next workflow khuyen nghi (`brainstorm` hoac `plan`)
+Script sẽ:
+- classify workspace thành `greenfield` hoặc `existing`
+- tạo `.brain/`, `docs/plans/`, `docs/specs/`, và `.brain/session.json`
+- tùy chọn seed `.brain/preferences.json`
+- trả về next workflow khuyến nghị (`brainstorm` hoặc `plan`)
 
-Semantics chi tiet: xem `workspace-init.md`.
+Semantics chi tiết: xem `workspace-init.md`.
 
 ## Help/Next Navigator
 
-Khi can resolve operator guidance dua tren repo state thay vi recap ritual:
+Khi cần resolve operator guidance dựa trên repo state thay vì recap ritual:
 
 ```powershell
 python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode help
@@ -88,9 +88,9 @@ python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode next
 ```
 
 Script se doc:
-- `git status` neu workspace do la git root rieng
+- `git status` nếu workspace đó là git root riêng
 - `docs/plans/` va `docs/specs/`
-- `.brain/session.json` va `.brain/handover.md` neu co
+- `.brain/session.json` và `.brain/handover.md` nếu có
 - `README`
 - `.brain/preferences.json` de adapt response style
 
@@ -99,21 +99,21 @@ Script se tra ve:
 - `current_focus`
 - `suggested_workflow`
 - `recommended_action`
-- toi da 2 alternatives
+- tối đa 2 alternatives
 - evidence va warnings
 
 Semantics chi tiet: xem `help-next.md`.
 
 ## Run Guidance
 
-Khi can chay lenh that va route buoc tiep theo tu output:
+Khi cần chạy lệnh thật và route bước tiếp theo từ output:
 
 ```powershell
 python scripts/run_with_guidance.py --workspace C:\path\to\workspace --timeout-ms 20000 -- npm run dev
 python scripts/run_with_guidance.py --workspace C:\path\to\workspace --format json -- python -m pytest tests/unit
 ```
 
-Script se tra ve:
+Script sẽ trả về:
 - `state`
 - `command_kind`
 - `suggested_workflow`
@@ -122,51 +122,51 @@ Script se tra ve:
 - `readiness_detected`
 - evidence va warnings
 
-Neu dung `--persist`, artifact mac dinh nam o:
+Nếu dùng `--persist`, artifact mặc định nằm ở:
 
 ```text
 .forge-artifacts/run-reports/
 ```
 
-Semantics chi tiet: xem `run-guidance.md`.
+Semantics chi tiết: xem `run-guidance.md`.
 
 ## Error Translation
 
-Khi can dich stderr/raw error sang tom tat de doc hon ma van giu du context cho debug:
+Khi cần dịch stderr/raw error sang tóm tắt dễ đọc hơn mà vẫn giữ đủ context cho debug:
 
 ```powershell
 python scripts/translate_error.py --error-text "Module not found: payments.service"
 python scripts/translate_error.py --input-file C:\path\to\stderr.txt --format json
 ```
 
-Script se:
-- sanitize token, secret, va path nhay cam co ban
-- match vao pattern database deterministic
-- tra ve `human_message`, `suggested_action`, va `category`
-- fallback generic neu chua co pattern phu hop
+Script sẽ:
+- sanitize token, secret, và path nhạy cảm cơ bản
+- match vào pattern database deterministic
+- trả về `human_message`, `suggested_action`, và `category`
+- fallback generic nếu chưa có pattern phù hợp
 
-Semantics chi tiet: xem `error-translation.md`.
+Semantics chi tiết: xem `error-translation.md`.
 
 ## Bump Preparation
 
-Khi can chot version moi theo explicit release flow:
+Khi cần chốt version mới theo explicit release flow:
 
 ```powershell
 python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump minor
 python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump 2.0.0 --apply --release-ready
 ```
 
-Script se:
-- doc `VERSION`
-- tinh `target_version`
-- preview hoac update `VERSION` + `CHANGELOG.md`
-- tra ve verification commands ke tiep
+Script sẽ:
+- đọc `VERSION`
+- tính `target_version`
+- preview hoặc update `VERSION` + `CHANGELOG.md`
+- trả về verification commands kế tiếp
 
-Semantics chi tiet: xem `bump-release.md`.
+Semantics chi tiết: xem `bump-release.md`.
 
 ## Rollback Guidance
 
-Khi can plan rollback an toan thay vi blind-revert:
+Khi cần plan rollback an toàn thay vì blind-revert:
 
 ```powershell
 python scripts/resolve_rollback.py --scope deploy --customer-impact broad --has-rollback-artifact
@@ -175,7 +175,7 @@ python scripts/resolve_rollback.py --scope migration --data-risk high
 
 Script se:
 - chot recovery strategy theo scope/risk
-- canh bao data-loss risk khi can
+- cảnh báo data-loss risk khi cần
 - tra ve suggested workflow va verification checklist
 
 Semantics chi tiet: xem `rollback-guidance.md`.

@@ -12,20 +12,20 @@ quality_gates:
 
 # Help - Codex Operator Wrapper
 
-> Muc tieu: giu `help` tu nhien cho Codex, nhung van dung core navigator cua Forge.
+> Mục tiêu: giữ `help` tự nhiên cho Codex, nhưng vẫn dùng core navigator của Forge.
 
 ## Process
 
-1. Resolve bang:
+1. Resolve bằng:
 
 ```powershell
 python scripts/resolve_help_next.py --workspace <workspace> --mode help
 ```
 
-2. Tra loi ngan gon theo kieu Codex:
-   - ban dang o dau
-   - buoc nen lam tiep
-   - toi da 2 lua chon khac neu can
+2. Trả lời ngắn gọn theo kiểu Codex:
+   - bạn đang ở đâu
+   - bước nên làm tiếp
+   - tối đa 2 lựa chọn khác nếu cần
 
 ## Activation Announcement
 

@@ -12,12 +12,12 @@ quality_gates:
 
 # Init - Antigravity Workspace Bootstrap
 
-> Muc tieu: cho Antigravity mot `/init` ro rang de dung Forge tren workspace moi ma khong nhung host ceremony vao core.
+> Mục tiêu: cho Antigravity một `/init` rõ ràng để dùng Forge trên workspace mới mà không nhúng host ceremony vào core.
 
 <HARD-GATE>
-- Khong overwrite file da ton tai.
-- Khong bien init thanh onboarding dai dong.
-- Khong dua slash surface rieng cua host vao core script.
+- Không overwrite file đã tồn tại.
+- Không biến init thành onboarding dài dòng.
+- Không đưa slash surface riêng của host vào core script.
 </HARD-GATE>
 
 ## Process
@@ -28,21 +28,21 @@ quality_gates:
 python scripts/initialize_workspace.py --workspace <workspace> --format json
 ```
 
-2. Neu user muon tao skeleton that:
+2. Nếu user muốn tạo skeleton thật:
 
 ```powershell
 python scripts/initialize_workspace.py --workspace <workspace> --seed-preferences --apply
 ```
 
-3. Neu user muon ca nhan hoa ngay, chuyen sang `/customize`.
-4. Ket thuc bang mot next workflow duy nhat:
+3. Nếu user muốn cá nhân hóa ngay, chuyển sang `/customize`.
+4. Kết thúc bằng một next workflow duy nhất:
    - `brainstorm` cho workspace greenfield
    - `plan` cho workspace existing
 
 ## Output Contract
 
 ```text
-Da khoi tao: [...]
+Đã khởi tạo: [...]
 Mode: [...]
 Lam tiep: [...]
 ```

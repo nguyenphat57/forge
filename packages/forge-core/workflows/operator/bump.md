@@ -12,36 +12,36 @@ quality_gates:
 
 # Bump - Version Preparation
 
-> Muc tieu: chot `old -> new`, cap nhat artifact release can thiet, va dua ra checklist verify ro rang.
+> Mục tiêu: chốt `old -> new`, cập nhật artifact release cần thiết, và đưa ra checklist verify rõ ràng.
 
 <HARD-GATE>
-- Khong bump version neu user chua noi ro can bump/release.
-- Khong claim release-ready chi vi da doi `VERSION`.
-- Khong commit/push tu dong neu user chua yeu cau.
+- Không bump version nếu user chưa nói rõ cần bump/release.
+- Không claim release-ready chỉ vì đã đổi `VERSION`.
+- Không commit/push tự động nếu user chưa yêu cầu.
 </HARD-GATE>
 
 ## Process
 
-1. Xac dinh workspace release va muc bump.
-2. Preview hoac apply bang:
+1. Xác định workspace release và mức bump.
+2. Preview hoặc apply bằng:
 
 ```powershell
 python scripts/prepare_bump.py --workspace <workspace> --bump minor
 python scripts/prepare_bump.py --workspace <workspace> --bump 1.3.0 --apply --release-ready
 ```
 
-3. Tra ve:
+3. Trả về:
    - current version
    - target version
-   - files se doi
-   - verification commands can chay
+   - files sẽ đổi
+   - verification commands cần chạy
 
 ## Output Contract
 
 ```text
 Version: [... -> ...]
-Files doi: [...]
-Verify tiep: [...]
+Files đổi: [...]
+Verify tiếp: [...]
 ```
 
 ## Activation Announcement

@@ -12,20 +12,20 @@ quality_gates:
 
 # Help - Antigravity Operator Wrapper
 
-> Muc tieu: giu `/help` ro rang cho user Antigravity, nhung van dung core navigator cua Forge.
+> Mục tiêu: giữ `/help` rõ ràng cho user Antigravity, nhưng vẫn dùng core navigator của Forge.
 
 ## Process
 
-1. Resolve bang:
+1. Resolve bằng:
 
 ```powershell
 python scripts/resolve_help_next.py --workspace <workspace> --mode help
 ```
 
-2. Trinh bay theo kieu operator-friendly:
-   - ban dang o dau
-   - huong chinh
-   - toi da 2 lua chon khac
+2. Trình bày theo kiểu operator-friendly:
+   - bạn đang ở đâu
+   - hướng chính
+   - tối đa 2 lựa chọn khác
 
 ## Activation Announcement
 

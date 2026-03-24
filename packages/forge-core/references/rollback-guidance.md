@@ -1,6 +1,6 @@
 # Forge Rollback Guidance
 
-> Dung khi can mot rollback plan an toan, khong blind-execute.
+> Dùng khi cần một rollback plan an toàn, không blind-execute.
 
 ## Canonical Script
 
@@ -11,12 +11,12 @@ python scripts/resolve_rollback.py --scope migration --data-risk high --failure-
 
 ## Contract
 
-- Chot rollback scope
-- Chot customer impact va data risk
-- Chon strategy an toan nhat
-- Tra ve suggested workflow tiep theo va verification checklist
+- Chốt rollback scope
+- Chốt customer impact và data risk
+- Chọn strategy an toàn nhất
+- Trả về suggested workflow tiếp theo và verification checklist
 
 ## Boundary
 
-- Core chi lap ke hoach rollback.
-- Adapter co the them UX wrapper, nhung khong duoc bo qua warning data-risk hay rollback-scope gate.
+- Core chỉ lập kế hoạch rollback.
+- Adapter có thể thêm UX wrapper, nhưng không được bỏ qua warning data-risk hay rollback-scope gate.

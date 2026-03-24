@@ -12,16 +12,16 @@ quality_gates:
 
 # Save-Brain - Antigravity Continuity Wrapper
 
-> Muc tieu: giu `/save-brain` cho user quen AWF/Antigravity nhung khong bien no thanh memory ritual bat buoc.
+> Mục tiêu: giữ `/save-brain` cho user quen AWF/Antigravity nhưng không biến nó thành memory ritual bắt buộc.
 
 ## Process
 
-1. Vao `workflows/execution/session.md` theo save mode.
-2. Chi luu:
-   - next step con mo
-   - verification da chay
-   - risk/blocker dang mo
-3. Neu can structured continuity, dung `scripts/capture_continuity.py`.
+1. Vào `workflows/execution/session.md` theo save mode.
+2. Chỉ lưu:
+   - next step còn mở
+   - verification đã chạy
+   - risk/blocker đang mở
+3. Nếu cần structured continuity, dùng `scripts/capture_continuity.py`.
 
 ## Activation Announcement
 

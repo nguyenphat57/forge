@@ -12,17 +12,17 @@ quality_gates:
 
 # Next - Antigravity Operator Wrapper
 
-> Muc tieu: giu `/next` ro rang cho Antigravity va van bat repo-first contract cua core.
+> Mục tiêu: giữ `/next` rõ ràng cho Antigravity và vẫn bám repo-first contract của core.
 
 ## Process
 
-1. Resolve bang:
+1. Resolve bằng:
 
 ```powershell
 python scripts/resolve_help_next.py --workspace <workspace> --mode next
 ```
 
-2. Tra ve dung 1 next step chinh.
+2. Trả về đúng 1 next step chính.
 
 ## Activation Announcement
 

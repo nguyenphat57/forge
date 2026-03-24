@@ -15,7 +15,7 @@ description: "Forge Codex - Codex-oriented adapter for Forge core. Use when a re
 - `SKILL.md`: entrypoint để route intent, ghép skill, và giữ delivery guardrails
 - `workflows/design/`: planning, architecture, spec-review, visualize
 - `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session
-- `workflows/operator/`: help, next, run, bump, rollback tu core, va thin Codex wrappers cho customize/init va natural-language-first guidance
+- `workflows/operator/`: help, next, run, bump, rollback từ core, và thin Codex wrappers cho customize/init và natural-language-first guidance
 - `domains/`: core domain guidance cho frontend và backend
 - `data/`: machine-readable registry cho intent, matrix, verification profiles, quality profiles, execution pipelines, và lane model policy
 - `scripts/`: deterministic tooling cho route preview, scoped continuity capture, và các kiểm tra tùy chọn cho workspace có local layer
@@ -146,23 +146,23 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 
 ## Response Personalization
 
-- Neu workspace co `.brain/preferences.json`, Forge resolve no qua core engine `scripts/resolve_preferences.py`.
-- Schema canonical gom `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, va `personality`.
-- `forge-codex` nen giu natural-language customize flow tren schema nay, khong can slash-heavy wrapper by default.
-- Adapter nay khong duoc fork key names hay response-style semantics cua core.
+- Nếu workspace có `.brain/preferences.json`, Forge resolve nó qua core engine `scripts/resolve_preferences.py`.
+- Schema canonical gồm `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, và `personality`.
+- `forge-codex` nên giữ natural-language customize flow trên schema này, không cần slash-heavy wrapper by default.
+- Adapter này không được fork key names hay response-style semantics của core.
 
 ---
 
 ## Operator Guidance
 
-- `forge-codex` nen expose `help/next` theo kieu natural-language first, voi slash chi la alias optional.
-- Guidance van resolve tu core navigator `scripts/resolve_help_next.py`.
-- Repo-first va one-step-next contracts cua core khong duoc fork o adapter nay.
-- `forge-codex` nen expose `run` theo kieu natural-language first, voi slash chi la alias optional.
-- Command execution guidance van resolve tu core `scripts/run_with_guidance.py`; adapter khong duoc fork semantics cua `state`, `command_kind`, hay `suggested_workflow`.
-- Error translation van resolve tu core `scripts/translate_error.py`; adapter nay khong duoc fork category hay pattern database.
-- `bump` va `rollback` nen la natural-language first hoac alias optional, nhung van phai giu explicit-only va risk-first contract cua core.
-- Neu can customize/init trong Codex, van phai dung `scripts/write_preferences.py` va `scripts/initialize_workspace.py` thay vi tao host-local schema.
+- `forge-codex` nên expose `help/next` theo kiểu natural-language first, với slash chỉ là alias optional.
+- Guidance vẫn resolve từ core navigator `scripts/resolve_help_next.py`.
+- Repo-first và one-step-next contracts của core không được fork ở adapter này.
+- `forge-codex` nên expose `run` theo kiểu natural-language first, với slash chỉ là alias optional.
+- Command execution guidance vẫn resolve từ core `scripts/run_with_guidance.py`; adapter không được fork semantics của `state`, `command_kind`, hay `suggested_workflow`.
+- Error translation vẫn resolve từ core `scripts/translate_error.py`; adapter này không được fork category hay pattern database.
+- `bump` và `rollback` nên là natural-language first hoặc alias optional, nhưng vẫn phải giữ explicit-only và risk-first contract của core.
+- Nếu cần customize/init trong Codex, vẫn phải dùng `scripts/write_preferences.py` và `scripts/initialize_workspace.py` thay vì tạo host-local schema.
 
 ---
 
@@ -182,9 +182,9 @@ Primary entrypoints:
 
 Compatibility rule:
 
-- Alias chi ton tai neu no giam friction ro rang.
-- Khong them recap/save-brain/handover wrappers cho Codex adapter.
-- Chi tiet mapping: `references/codex-operator-surface.md`.
+- Alias chỉ tồn tại nếu nó giảm friction rõ ràng.
+- Không thêm recap/save-brain/handover wrappers cho Codex adapter.
+- Chi tiết mapping: `references/codex-operator-surface.md`.
 
 ---
 

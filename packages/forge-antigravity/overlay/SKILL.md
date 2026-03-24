@@ -15,7 +15,7 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 - `SKILL.md`: entrypoint để route intent, ghép skill, và giữ delivery guardrails
 - `workflows/design/`: planning, architecture, spec-review, visualize
 - `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session
-- `workflows/operator/`: help, next, run, bump, rollback, va cac wrapper Antigravity nhu customize/init/recap/save-brain/handover
+- `workflows/operator/`: help, next, run, bump, rollback, và các wrapper Antigravity như customize/init/recap/save-brain/handover
 - `domains/`: core domain guidance cho frontend và backend
 - `data/`: machine-readable registry cho intent, matrix, verification profiles, quality profiles, execution pipelines, và lane model policy
 - `scripts/`: deterministic tooling cho route preview, scoped continuity capture, và các kiểm tra tùy chọn cho workspace có local layer
@@ -148,25 +148,25 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 
 ## Response Personalization
 
-- Neu workspace co `.brain/preferences.json`, Forge resolve no qua core engine `scripts/resolve_preferences.py`.
-- Schema canonical gom `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, va `personality`.
-- `forge-antigravity` co the them wrapper nhu `/customize`, nhung schema va response-style semantics van phai doc tu core.
-- Durable preference updates phai di qua `scripts/write_preferences.py`, khong duoc tu viet file schema rieng cho host.
-- Host UX co the day hon Codex, nhung khong duoc fork key names hay validation rules.
+- Nếu workspace có `.brain/preferences.json`, Forge resolve nó qua core engine `scripts/resolve_preferences.py`.
+- Schema canonical gồm `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, và `personality`.
+- `forge-antigravity` có thể thêm wrapper như `/customize`, nhưng schema và response-style semantics vẫn phải đọc từ core.
+- Durable preference updates phải đi qua `scripts/write_preferences.py`, không được tự viết file schema riêng cho host.
+- Host UX có thể dày hơn Codex, nhưng không được fork key names hay validation rules.
 
 ---
 
 ## Operator Guidance
 
-- `forge-antigravity` co the expose ro `/help` va `/next`, nhung guidance van phai resolve tu core navigator `scripts/resolve_help_next.py`.
-- Repo-first van la hard rule: `git status`, plans/specs, roi moi den `.brain`.
-- Wrapper UX co the operator-friendly hon, nhung khong duoc bien guidance thanh recap theater.
-- `forge-antigravity` co the expose ro `/run`, nhung ket qua van phai resolve tu core `scripts/run_with_guidance.py`.
-- Error translation van doc tu core helper `scripts/translate_error.py`; adapter nay chi doi presentation, khong doi pattern database.
-- `/bump` va `/rollback` co the duoc expose ro o Antigravity, nhung van phai giu explicit-only va risk-first contract cua core.
-- `/init` co the day hon ve onboarding, nhung workspace skeleton reusable van phai di qua `scripts/initialize_workspace.py`.
-- Session ergonomics wrappers nhu `/recap`, `/save-brain`, va `/handover` chi la be mat thuan tay tren `workflows/execution/session.md`.
-- Wrapper nay duoc day hon ve UX, nhung khong duoc doi `state`, `command_kind`, hay `suggested_workflow` cua core.
+- `forge-antigravity` có thể expose rõ `/help` và `/next`, nhưng guidance vẫn phải resolve từ core navigator `scripts/resolve_help_next.py`.
+- Repo-first vẫn là hard rule: `git status`, plans/specs, rồi mới đến `.brain`.
+- Wrapper UX có thể operator-friendly hơn, nhưng không được biến guidance thành recap theater.
+- `forge-antigravity` có thể expose rõ `/run`, nhưng kết quả vẫn phải resolve từ core `scripts/run_with_guidance.py`.
+- Error translation vẫn đọc từ core helper `scripts/translate_error.py`; adapter này chỉ đổi presentation, không đổi pattern database.
+- `/bump` và `/rollback` có thể được expose rõ ở Antigravity, nhưng vẫn phải giữ explicit-only và risk-first contract của core.
+- `/init` có thể dày hơn về onboarding, nhưng workspace skeleton reusable vẫn phải đi qua `scripts/initialize_workspace.py`.
+- Session ergonomics wrappers như `/recap`, `/save-brain`, và `/handover` chỉ là bề mặt thuận tay trên `workflows/execution/session.md`.
+- Wrapper này được dày hơn về UX, nhưng không được đổi `state`, `command_kind`, hay `suggested_workflow` của core.
 
 ---
 
@@ -194,8 +194,8 @@ Session wrappers:
 
 Compatibility rule:
 
-- Alias chi duoc giam friction migration, khong tao intent moi.
-- Wrapper docs co the operator-friendly hon, nhung deterministic semantics van doc tu core.
+- Alias chỉ được giảm friction migration, không tạo intent mới.
+- Wrapper docs có thể operator-friendly hơn, nhưng deterministic semantics vẫn đọc từ core.
 - Chi tiet mapping: `references/antigravity-operator-surface.md`.
 
 ---
