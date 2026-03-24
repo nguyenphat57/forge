@@ -11,10 +11,12 @@ from pathlib import Path
 from common import (
     configure_stdio,
     default_artifact_dir,
+    excerpt_text,
     load_preferences,
     resolve_response_style,
     slugify,
     timestamp_slug,
+    translate_error_text,
 )
 
 
@@ -66,18 +68,6 @@ def normalize_command(command: list[str]) -> list[str]:
 
 def quote_command(command: list[str]) -> str:
     return " ".join(shlex.quote(part) for part in command)
-
-
-def excerpt(text: str, *, max_lines: int = 8, max_chars: int = 500) -> str:
-    trimmed = text.strip()
-    if not trimmed:
-        return ""
-    lines = trimmed.splitlines()[:max_lines]
-    joined = "\n".join(lines)
-    if len(joined) > max_chars:
-        return joined[: max_chars - 3].rstrip() + "..."
-    return joined
-
 
 def detect_readiness(output: str) -> bool:
     if not output.strip():
@@ -193,9 +183,9 @@ def build_evidence(command_display: str, execution: dict, workspace: Path) -> li
         f"duration_ms: {execution['duration_ms']}",
     ]
     if execution["stdout"].strip():
-        evidence.append(f"stdout: {excerpt(execution['stdout'])}")
+        evidence.append(f"stdout: {excerpt_text(execution['stdout'])}")
     if execution["stderr"].strip():
-        evidence.append(f"stderr: {excerpt(execution['stderr'])}")
+        evidence.append(f"stderr: {excerpt_text(execution['stderr'])}")
     if execution["timed_out"]:
         evidence.append("timeout: command exceeded the requested timeout budget")
     return evidence
@@ -219,10 +209,17 @@ def build_report(args: argparse.Namespace) -> dict:
     state, suggested_workflow, recommended_action = determine_guidance(command_kind, execution, readiness_detected)
     status = "PASS" if state in {"completed", "running"} else "FAIL"
     warnings = preferences_report["warnings"][:]
+    error_translation = None
     if execution["timed_out"] and readiness_detected:
         warnings.append("Command exceeded timeout after a ready signal; treat the process as still running.")
     elif execution["timed_out"]:
         warnings.append("Command exceeded timeout before a ready signal was detected.")
+        error_translation = translate_error_text("timed out", include_empty_fallback=True)
+    elif execution["exit_code"] != 0:
+        error_translation = translate_error_text(combined_output, include_empty_fallback=True)
+
+    if error_translation is not None and state in {"failed", "timed-out"}:
+        recommended_action = error_translation["suggested_action"]
 
     command_display = quote_command(command)
     return {
@@ -238,8 +235,9 @@ def build_report(args: argparse.Namespace) -> dict:
         "readiness_detected": readiness_detected,
         "suggested_workflow": suggested_workflow,
         "recommended_action": recommended_action,
-        "stdout_excerpt": excerpt(execution["stdout"]),
-        "stderr_excerpt": excerpt(execution["stderr"]),
+        "stdout_excerpt": excerpt_text(execution["stdout"]),
+        "stderr_excerpt": excerpt_text(execution["stderr"]),
+        "error_translation": error_translation,
         "evidence": build_evidence(command_display, execution, workspace),
         "response_style": response_style,
         "warnings": warnings,
@@ -268,6 +266,12 @@ def format_text(report: dict) -> str:
         lines.append("- Stderr excerpt:")
         for line in report["stderr_excerpt"].splitlines():
             lines.append(f"  {line}")
+    if report["error_translation"] is not None:
+        lines.append("- Error translation:")
+        lines.append(f"  - Meaning: {report['error_translation']['human_message']}")
+        lines.append(f"  - Suggested action: {report['error_translation']['suggested_action']}")
+        if report["error_translation"]["error_excerpt"]:
+            lines.append(f"  - Snippet: {report['error_translation']['error_excerpt']}")
     lines.append("- Evidence:")
     for item in report["evidence"]:
         lines.append(f"  - {item}")

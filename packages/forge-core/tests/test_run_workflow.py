@@ -71,6 +71,8 @@ class RunWorkflowTests(unittest.TestCase):
         self.assertEqual(report["status"], "FAIL")
         self.assertEqual(report["state"], "failed")
         self.assertEqual(report["suggested_workflow"], "debug")
+        self.assertIsNotNone(report["error_translation"])
+        self.assertEqual(report["error_translation"]["category"], "module")
 
     def test_deploy_success_routes_to_deploy(self) -> None:
         helper = FIXTURES_DIR / "run_helpers" / "deploy_fixture.py"

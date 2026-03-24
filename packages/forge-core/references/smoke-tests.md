@@ -171,6 +171,80 @@ Chạy lệnh này trong repo rồi nói giúp bước tiếp theo từ output: 
 
 ---
 
+### FT-03e: Error translation
+
+**Prompt**
+
+```text
+Giải thích lỗi này theo kiểu dễ hiểu hơn: Module not found: payments.service
+```
+
+**Kỳ vọng**
+
+- Route vào helper error translation của core
+- Lỗi được diễn giải ngắn gọn hơn, không chỉ lặp lại raw stderr
+- Có suggested action usable cho bước debug tiếp theo
+- Không lộ secret, token, hoặc path nhạy cảm nếu error có chứa chúng
+
+**Fail nếu**
+
+- Chỉ echo lại nguyên error
+- Dịch quá chung chung, không có suggested action
+- Lộ raw credentials/path nhạy cảm
+
+---
+
+### FT-03f: Bump release
+
+**Prompt**
+
+```text
+/bump minor
+```
+
+Hoặc natural-language:
+
+```text
+Tăng version minor và cho mình checklist release tiếp theo.
+```
+
+**Kỳ vọng**
+
+- Route vào workflow `bump`
+- Nói rõ `current -> target`
+- Chỉ ra file release sẽ đổi
+- Không commit/push tự động
+
+**Fail nếu**
+
+- Bump version khi user chưa explicit
+- Chỉ đổi version mà không nói verification tiếp theo
+
+---
+
+### FT-03g: Rollback planning
+
+**Prompt**
+
+```text
+/rollback
+Release production vừa hỏng login, có artifact của bản trước. Plan rollback an toàn nhất giúp mình.
+```
+
+**Kỳ vọng**
+
+- Route vào workflow `rollback`
+- Chốt scope và risk trước
+- Đưa ra strategy rõ + verification checklist
+- Nếu là migration/data risk, không khuyên rollback mù
+
+**Fail nếu**
+
+- Đề xuất rollback ngay mà không nhắc risk
+- Không có bước verify sau rollback
+
+---
+
 ### FT-04: Plan medium task
 
 **Prompt**

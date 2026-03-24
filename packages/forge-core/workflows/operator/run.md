@@ -33,6 +33,7 @@ python scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -
    - `state`
    - `command_kind`
    - `suggested_workflow`
+   - `error_translation` neu command fail hoac timeout
    - output excerpt va warnings
 4. Handoff ngan:
    - command da chay

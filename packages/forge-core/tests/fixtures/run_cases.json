@@ -28,7 +28,8 @@
     "expected_status": "FAIL",
     "expected_state": "failed",
     "expected_command_kind": "generic",
-    "expected_workflow": "debug"
+    "expected_workflow": "debug",
+    "expected_translation_category": "module"
   },
   {
     "name": "deploy_success_routes_to_deploy",

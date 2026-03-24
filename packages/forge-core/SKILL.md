@@ -109,6 +109,9 @@ forge-core/
 - Preferences resolver: `scripts/resolve_preferences.py` (workspace-local `.brain/preferences.json` -> canonical response-style contract)
 - Help/next navigator: `scripts/resolve_help_next.py` (repo state -> current focus, suggested workflow, next action)
 - Run guidance resolver: `scripts/run_with_guidance.py` (execute command -> classify signal -> route to test/debug/deploy)
+- Error translator: `scripts/translate_error.py` (raw stderr/error text -> sanitized human summary + suggested action)
+- Bump preparation: `scripts/prepare_bump.py` (explicit semver bump -> update VERSION/CHANGELOG checklist)
+- Rollback planner: `scripts/resolve_rollback.py` (scope/risk -> safest recovery strategy + verification)
 - Deterministic route preview: `scripts/route_preview.py` (intent + chain + execution pipeline + lane model tiers)
 - Workspace router drift check: `scripts/check_workspace_router.py` (chỉ dùng khi workspace thật sự có local routing layer)
 - Scoped continuity capture for durable decisions/learnings: `scripts/capture_continuity.py`
@@ -153,6 +156,8 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 - Repo-first la hard rule: `git status`, plans/specs, roi moi den `.brain`.
 - Adapter co the them slash alias hoac natural-language wrapper, nhung khong duoc doi stage model hay repo-first contract.
 - `run` song o `workflows/operator/` va dung `scripts/run_with_guidance.py` de bien output that thanh next workflow ro rang.
+- Error translation la helper core dung chung cho `run`, `build`, `debug`, va `test`; raw error can duoc sanitize truoc khi tom tat lai.
+- `bump` va `rollback` song o `workflows/operator/` va chi kich hoat khi user explicit release intent.
 - Adapter co the them wrapper `/run` hoac natural-language entrypoint, nhung khong duoc doi meaning cua `state`, `command_kind`, hay `suggested_workflow`.
 
 ---
@@ -282,6 +287,8 @@ Verification profiles canonical sống trong `data/orchestrator-registry.json`.
 | help | `workflows/operator/help.md` | flexible | REPO-FIRST GUIDANCE, NOT RECAP THEATER |
 | next | `workflows/operator/next.md` | flexible | ONE CONCRETE NEXT STEP, NOT VAGUE MOMENTUM TALK |
 | run | `workflows/operator/run.md` | flexible | EXECUTE THE REAL COMMAND, THEN ROUTE FROM EVIDENCE |
+| bump | `workflows/operator/bump.md` | flexible | VERSION BUMPS ARE EXPLICIT-ONLY AND MUST SURFACE RELEASE VERIFICATION |
+| rollback | `workflows/operator/rollback.md` | flexible | DO NOT BLINDLY ROLL BACK WITHOUT SCOPE, RISK, AND POST-ROLLBACK VERIFICATION |
 
 **Rigid skills:** không bỏ qua evidence và quality gate.  
 **Flexible skills:** adapt theo context, nhưng vẫn phải rõ output và next step.

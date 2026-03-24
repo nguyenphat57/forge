@@ -1,0 +1,18 @@
+[
+  {
+    "name": "minor_preview",
+    "workspace_fixture": "release_workspace",
+    "bump": "minor",
+    "expected_status": "PASS",
+    "expected_current_version": "1.4.2",
+    "expected_target_version": "1.5.0"
+  },
+  {
+    "name": "explicit_version_preview",
+    "workspace_fixture": "release_workspace",
+    "bump": "2.0.0",
+    "expected_status": "PASS",
+    "expected_current_version": "1.4.2",
+    "expected_target_version": "2.0.0"
+  }
+]

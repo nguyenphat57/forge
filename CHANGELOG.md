@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 - 2026-03-24
+
+- Them Wave A / P1.1 voi error translator host-neutral va noi truc tiep vao `run` de bien loi ky thuat thanh guidance de doc va xu ly.
+- Them Wave A / P1.2 voi bump workflow dung chung qua `prepare_bump.py`, cap nhat `VERSION`, changelog, va release checklist theo mot contract duy nhat.
+- Them Wave A / P1.3 voi rollback guidance engine qua `resolve_rollback.py`, phan loai deploy/config/migration/code-change va de xuat buoc xu ly an toan.
+- Nang full regression, smoke matrix, va adapter wiring de Antigravity runtime va Codex runtime cung ke thua tron bo Wave A tu core.
+
+
 ## 0.2.0 - 2026-03-24
 
 - Them Wave A / P0.1 voi preferences engine host-neutral cho `technical_level`, `detail_level`, `autonomy_level`, va `personality`.

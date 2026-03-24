@@ -97,6 +97,56 @@ Neu dung `--persist`, artifact mac dinh nam o:
 
 Semantics chi tiet: xem `run-guidance.md`.
 
+## Error Translation
+
+Khi can dich stderr/raw error sang tom tat de doc hon ma van giu du context cho debug:
+
+```powershell
+python scripts/translate_error.py --error-text "Module not found: payments.service"
+python scripts/translate_error.py --input-file C:\path\to\stderr.txt --format json
+```
+
+Script se:
+- sanitize token, secret, va path nhay cam co ban
+- match vao pattern database deterministic
+- tra ve `human_message`, `suggested_action`, va `category`
+- fallback generic neu chua co pattern phu hop
+
+Semantics chi tiet: xem `error-translation.md`.
+
+## Bump Preparation
+
+Khi can chot version moi theo explicit release flow:
+
+```powershell
+python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump minor
+python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump 2.0.0 --apply --release-ready
+```
+
+Script se:
+- doc `VERSION`
+- tinh `target_version`
+- preview hoac update `VERSION` + `CHANGELOG.md`
+- tra ve verification commands ke tiep
+
+Semantics chi tiet: xem `bump-release.md`.
+
+## Rollback Guidance
+
+Khi can plan rollback an toan thay vi blind-revert:
+
+```powershell
+python scripts/resolve_rollback.py --scope deploy --customer-impact broad --has-rollback-artifact
+python scripts/resolve_rollback.py --scope migration --data-risk high
+```
+
+Script se:
+- chot recovery strategy theo scope/risk
+- canh bao data-loss risk khi can
+- tra ve suggested workflow va verification checklist
+
+Semantics chi tiet: xem `rollback-guidance.md`.
+
 ## UI Brief Generator
 
 Khi task là `frontend` hoặc `visualize` và cần first artifact rõ trước khi code/mockup:
@@ -424,6 +474,9 @@ Smoke suite hiện cover:
 - preferences resolution
 - help/next navigator
 - run guidance
+- error translation
+- bump preparation
+- rollback guidance
 
 ## Verify Bundle
 

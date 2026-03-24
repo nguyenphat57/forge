@@ -15,6 +15,9 @@ ROUTER_CASES = json.loads((FIXTURES_DIR / "router_check_cases.json").read_text(e
 PREFERENCES_CASES = json.loads((FIXTURES_DIR / "preferences_cases.json").read_text(encoding="utf-8"))
 HELP_NEXT_CASES = json.loads((FIXTURES_DIR / "help_next_cases.json").read_text(encoding="utf-8"))
 RUN_CASES = json.loads((FIXTURES_DIR / "run_cases.json").read_text(encoding="utf-8"))
+ERROR_TRANSLATION_CASES = json.loads((FIXTURES_DIR / "error_translation_cases.json").read_text(encoding="utf-8"))
+BUMP_CASES = json.loads((FIXTURES_DIR / "bump_cases.json").read_text(encoding="utf-8"))
+ROLLBACK_CASES = json.loads((FIXTURES_DIR / "rollback_cases.json").read_text(encoding="utf-8"))
 RUN_HELPERS_DIR = FIXTURES_DIR / "run_helpers"
 
 
@@ -142,7 +145,56 @@ def validate_run_case(case: dict, report: dict) -> list[str]:
     expect(report["suggested_workflow"], case["expected_workflow"], "suggested_workflow")
     if "expected_readiness_detected" in case:
         expect(report["readiness_detected"], case["expected_readiness_detected"], "readiness_detected")
+    if "expected_translation_category" in case:
+        translation = report.get("error_translation") or {}
+        expect(translation.get("category"), case["expected_translation_category"], "error_translation.category")
 
+    return failures
+
+
+def validate_error_translation_case(case: dict, report: dict) -> list[str]:
+    failures: list[str] = []
+
+    def expect(actual: object, expected: object, label: str) -> None:
+        if actual != expected:
+            failures.append(f"{label}: expected {expected!r}, got {actual!r}")
+
+    translation = report["translation"]
+    expect(report["status"], case["expected_status"], "status")
+    expect(translation["category"], case["expected_category"], "translation.category")
+    if case["expected_message_contains"] not in translation["human_message"].lower():
+        failures.append(f"human_message missing substring: {case['expected_message_contains']!r}")
+    if case["expected_action_contains"] not in translation["suggested_action"].lower():
+        failures.append(f"suggested_action missing substring: {case['expected_action_contains']!r}")
+    return failures
+
+
+def validate_bump_case(case: dict, report: dict) -> list[str]:
+    failures: list[str] = []
+
+    def expect(actual: object, expected: object, label: str) -> None:
+        if actual != expected:
+            failures.append(f"{label}: expected {expected!r}, got {actual!r}")
+
+    expect(report["status"], case["expected_status"], "status")
+    expect(report["current_version"], case["expected_current_version"], "current_version")
+    expect(report["target_version"], case["expected_target_version"], "target_version")
+    return failures
+
+
+def validate_rollback_case(case: dict, report: dict) -> list[str]:
+    failures: list[str] = []
+
+    def expect(actual: object, expected: object, label: str) -> None:
+        if actual != expected:
+            failures.append(f"{label}: expected {expected!r}, got {actual!r}")
+
+    expect(report["status"], case["expected_status"], "status")
+    expect(report["recommended_strategy"], case["expected_strategy"], "recommended_strategy")
+    expect(report["suggested_workflow"], case["expected_workflow"], "suggested_workflow")
+    for expected in case.get("expected_warning_contains", []):
+        if not any(expected in warning for warning in report.get("warnings", [])):
+            failures.append(f"warning missing substring: {expected!r}")
     return failures
 
 
@@ -337,6 +389,127 @@ def run_run_suite() -> list[dict]:
     return results
 
 
+def run_error_translation_suite() -> list[dict]:
+    translate_script = ROOT_DIR / "scripts" / "translate_error.py"
+    results: list[dict] = []
+    for case in ERROR_TRANSLATION_CASES:
+        command = [
+            sys.executable,
+            str(translate_script),
+            "--error-text",
+            case["error_text"],
+            "--format",
+            "json",
+        ]
+        completed = run_command(command)
+        if completed.returncode != 0:
+            results.append(
+                {
+                    "suite": "error-translation",
+                    "name": case["name"],
+                    "status": "FAIL",
+                    "failures": [f"command exited {completed.returncode}", completed.stderr.strip() or completed.stdout.strip()],
+                }
+            )
+            continue
+
+        report = json.loads(completed.stdout)
+        failures = validate_error_translation_case(case, report)
+        results.append(
+            {
+                "suite": "error-translation",
+                "name": case["name"],
+                "status": "PASS" if not failures else "FAIL",
+                "failures": failures,
+            }
+        )
+    return results
+
+
+def run_bump_suite() -> list[dict]:
+    bump_script = ROOT_DIR / "scripts" / "prepare_bump.py"
+    results: list[dict] = []
+    for case in BUMP_CASES:
+        workspace = WORKSPACES_DIR / case["workspace_fixture"]
+        command = [
+            sys.executable,
+            str(bump_script),
+            "--workspace",
+            str(workspace),
+            "--bump",
+            case["bump"],
+            "--format",
+            "json",
+        ]
+        completed = run_command(command)
+        if completed.returncode != 0:
+            results.append(
+                {
+                    "suite": "bump",
+                    "name": case["name"],
+                    "status": "FAIL",
+                    "failures": [f"command exited {completed.returncode}", completed.stderr.strip() or completed.stdout.strip()],
+                }
+            )
+            continue
+
+        report = json.loads(completed.stdout)
+        failures = validate_bump_case(case, report)
+        results.append(
+            {
+                "suite": "bump",
+                "name": case["name"],
+                "status": "PASS" if not failures else "FAIL",
+                "failures": failures,
+            }
+        )
+    return results
+
+
+def run_rollback_suite() -> list[dict]:
+    rollback_script = ROOT_DIR / "scripts" / "resolve_rollback.py"
+    results: list[dict] = []
+    for case in ROLLBACK_CASES:
+        command = [
+            sys.executable,
+            str(rollback_script),
+            "--scope",
+            case["scope"],
+            "--customer-impact",
+            case["customer_impact"],
+            "--data-risk",
+            case["data_risk"],
+            "--format",
+            "json",
+        ]
+        if case["has_rollback_artifact"]:
+            command.append("--has-rollback-artifact")
+
+        completed = run_command(command)
+        if completed.returncode != 0:
+            results.append(
+                {
+                    "suite": "rollback",
+                    "name": case["name"],
+                    "status": "FAIL",
+                    "failures": [f"command exited {completed.returncode}", completed.stderr.strip() or completed.stdout.strip()],
+                }
+            )
+            continue
+
+        report = json.loads(completed.stdout)
+        failures = validate_rollback_case(case, report)
+        results.append(
+            {
+                "suite": "rollback",
+                "name": case["name"],
+                "status": "PASS" if not failures else "FAIL",
+                "failures": failures,
+            }
+        )
+    return results
+
+
 def summarize(results: list[dict]) -> dict:
     passes = sum(1 for item in results if item["status"] == "PASS")
     failures = [item for item in results if item["status"] == "FAIL"]
@@ -367,7 +540,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run Forge smoke matrices for route preview and router checks.")
     parser.add_argument(
         "--suite",
-        choices=["route-preview", "router-check", "preferences", "help-next", "run", "all"],
+        choices=["route-preview", "router-check", "preferences", "help-next", "run", "error-translation", "bump", "rollback", "all"],
         default="all",
         help="Smoke suite to run",
     )
@@ -385,6 +558,12 @@ def main() -> int:
         results.extend(run_help_next_suite())
     if args.suite in {"run", "all"}:
         results.extend(run_run_suite())
+    if args.suite in {"error-translation", "all"}:
+        results.extend(run_error_translation_suite())
+    if args.suite in {"bump", "all"}:
+        results.extend(run_bump_suite())
+    if args.suite in {"rollback", "all"}:
+        results.extend(run_rollback_suite())
 
     summary = summarize(results)
     payload = {"summary": summary, "results": results}

@@ -1,0 +1,26 @@
+[
+  {
+    "name": "module_not_found",
+    "error_text": "Module not found: payments.service",
+    "expected_status": "PASS",
+    "expected_category": "module",
+    "expected_message_contains": "missing",
+    "expected_action_contains": "install"
+  },
+  {
+    "name": "missing_relation",
+    "error_text": "relation orders does not exist",
+    "expected_status": "PASS",
+    "expected_category": "database",
+    "expected_message_contains": "does not exist",
+    "expected_action_contains": "migration"
+  },
+  {
+    "name": "unknown_error_falls_back",
+    "error_text": "Unhandled boom while doing thing",
+    "expected_status": "WARN",
+    "expected_category": "generic",
+    "expected_message_contains": "does not match",
+    "expected_action_contains": "debug"
+  }
+]

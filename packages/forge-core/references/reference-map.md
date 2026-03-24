@@ -22,6 +22,9 @@
 | `personalization.md` | Khi sửa response-style preferences, adaptive language, hoặc adapter wrappers cho customize |
 | `help-next.md` | Khi sửa navigator logic cho help/next, repo-state priority, hoặc operator guidance wrappers |
 | `run-guidance.md` | Khi sửa workflow `run`, ready-signal detection, command classification, hoặc adapter wrappers cho execute-then-route |
+| `error-translation.md` | Khi sửa error pattern database, sanitation rules, hoặc cách `run/debug/test` đổi lỗi kỹ thuật thành guidance đọc được |
+| `bump-release.md` | Khi sửa version-bump checklist, semver math, hoặc release artifact update flow |
+| `rollback-guidance.md` | Khi sửa rollback planner, risk framing, hoặc recovery strategy selection |
 | `canary-rollout.md` | Khi cần rollout Forge trên workspace thật và chốt readiness bằng canary artifacts |
 | `companion-skill-contract.md` | Thiết kế hoặc update companion skills, khi repo thật sự có lớp runtime/framework mở rộng |
 | `companion-routing-smoke-tests.md` | Kiểm routing giữa Forge và companion skills, chỉ khi dùng companion/local layer |
@@ -36,11 +39,13 @@
 3. personalization.md nếu đang sửa response style hay preference engine
 4. help-next.md nếu đang sửa navigator help/next
 5. run-guidance.md nếu đang sửa run/execute-then-route
-6. backend-briefs.md hoặc execution-delivery.md tùy layer đang sửa
-7. smoke-tests.md / smoke-test-checklist.md nếu cần verify host behavior
-8. canary-rollout.md nếu đang chuẩn bị rollout thật
-9. companion-skill-contract.md chỉ khi đang sửa lớp companion/runtime
-10. companion-routing-smoke-tests.md chỉ khi đang test lớp companion/runtime
+6. error-translation.md nếu đang sửa error translator/helper layer
+7. bump-release.md hoặc rollback-guidance.md nếu đang sửa release operators
+8. backend-briefs.md hoặc execution-delivery.md tùy layer đang sửa
+9. smoke-tests.md / smoke-test-checklist.md nếu cần verify host behavior
+10. canary-rollout.md nếu đang chuẩn bị rollout thật
+11. companion-skill-contract.md chỉ khi đang sửa lớp companion/runtime
+12. companion-routing-smoke-tests.md chỉ khi đang test lớp companion/runtime
 ```
 
 ### Khi repo chưa có local skills

@@ -49,13 +49,15 @@ class ReleaseRepoTests(unittest.TestCase):
     def test_install_bundle_dry_run_keeps_target_untouched(self) -> None:
         build_release.build_all()
         with TemporaryDirectory() as temp_dir:
-            target = Path(temp_dir) / "runtime" / "forge-codex"
+            temp_root = Path(temp_dir)
+            target = temp_root / "runtime" / "forge-codex"
             target.mkdir(parents=True, exist_ok=True)
             (target / "marker.txt").write_text("keep", encoding="utf-8")
 
             report = install_bundle.install_bundle(
                 "forge-codex",
                 target=str(target),
+                backup_dir=str(temp_root / "backups"),
                 dry_run=True,
             )
 

@@ -16,3 +16,4 @@ Use `forge-codex` as the global orchestrator for this workspace.
 - If `.brain/preferences.json` exists, let `forge-codex` resolve it through the core preferences engine instead of redefining response-style rules here.
 - Let `forge-codex` handle `help` and `next` from repo state directly; do not add a second recap workflow in local instructions.
 - Let `forge-codex` handle `run` through the core run-guidance engine; do not invent a second layer that only repeats terminal output.
+- Let `forge-codex` keep `bump` and `rollback` natural-language first, but still route through the core explicit release/rollback planners.
