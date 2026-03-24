@@ -36,5 +36,6 @@ Boundary policy chuẩn nằm ở `docs/architecture/adapter-boundary.md`.
 
 - `forge-antigravity` hiện là adapter chín nhất cho rollout thật.
 - `forge-codex` đã pass verify nội bộ, nhưng broad rollout vẫn cần soak trên host Codex thật.
+- Với Codex host takeover, dùng `install_bundle.py forge-codex --activate-codex` để rewrite global `AGENTS.md` và retire runtime legacy trong cùng một bước có backup.
 - `forge-core` không được nhận host-specific UX chỉ để phục vụ một adapter hiện tại.
 - Chỉ tag release sau khi `verify_repo.py` pass.

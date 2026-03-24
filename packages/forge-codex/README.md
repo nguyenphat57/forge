@@ -6,6 +6,7 @@ Contents:
 
 - Codex-oriented `SKILL.md`
 - `AGENTS.example.md` for workspace integration
+- `AGENTS.global.md` for taking over the global Codex host entrypoint
 - thin operator wrappers for natural-language-first `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`
 - `codex-operator-surface.md` for the adapter boundary and alias policy
 

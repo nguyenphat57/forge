@@ -7,12 +7,14 @@ description: "Forge Codex - Codex-oriented adapter for Forge core. Use when a re
 
 > Forge = delivery discipline + skill composition + evidence before claims.
 > Forge phải đủ mạnh và đủ kỷ luật ngay cả khi repo chưa có companion skill hay local skill nào.
+> Forge linh hoạt ở những task nhỏ và kỷ luật ở những task vừa và lớn.
 
 ---
 
 ## Bundle Layout
 
 - `SKILL.md`: entrypoint để route intent, ghép skill, và giữ delivery guardrails
+- `AGENTS.global.md`: canonical global host entry template when Codex should point only to Forge
 - `workflows/design/`: planning, architecture, spec-review, visualize
 - `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session
 - `workflows/operator/`: help, next, run, bump, rollback từ core, và thin Codex wrappers cho customize/init và natural-language-first guidance
@@ -26,6 +28,7 @@ description: "Forge Codex - Codex-oriented adapter for Forge core. Use when a re
 ```text
 forge-codex/
 ├── SKILL.md
+├── AGENTS.global.md
 ├── data/
 │   └── orchestrator-registry.json
 ├── domains/
@@ -90,6 +93,7 @@ forge-codex/
 ## Host Boundary
 
 - Rule của Codex sống ở `AGENTS.md`, system/developer instructions, và workspace-local skill layout của Codex host.
+- Global Codex host nên trỏ về bundle này qua `AGENTS.global.md` thay vì giữ một router legacy song song.
 - `AGENTS.md` ở root workspace là router/instruction file chính cho Codex; nó không thay thế `SKILL.md`, nhưng là entry surface quan trọng để host nạp context.
 - Adapter này giữ surface của Codex, còn routing logic, registry, verification, và canary tooling vẫn lấy từ Forge core.
 - Nếu workspace không có local layer, Forge Codex vẫn phải chạy tốt bằng core bundle mà không chờ thêm adapter repo-specific.
@@ -183,7 +187,7 @@ Primary entrypoints:
 Compatibility rule:
 
 - Alias chỉ tồn tại nếu nó giảm friction rõ ràng.
-- Không thêm recap/save-brain/handover wrappers cho Codex adapter.
+- Không thêm các session wrapper legacy cho Codex adapter.
 - Chi tiết mapping: `references/codex-operator-surface.md`.
 
 ---
@@ -200,7 +204,7 @@ Khi nhận prompt từ user, phân loại intent:
 | **DEPLOY** | deploy, release, production, rollout | "Deploy lên Vercel" |
 | **REVIEW** | review, đánh giá, kiểm tra, audit | "Review code trước khi merge" |
 | **VISUALIZE** | ui, ux, mockup, wireframe, screen, layout | "Phác thảo màn hình checkout" |
-| **SESSION** | recap, continue, resume, save, context | "Tiếp tục việc đang dở" |
+| **SESSION** | continue, resume, context, handover | "Tiếp tục việc đang dở" |
 
 **Khi user dùng `/shortcut`:** Map theo action surface và workflow aliases mà Codex workspace đang khai báo trong `AGENTS.md`.
 Canonical source cho intent keywords và chains: `data/orchestrator-registry.json`.

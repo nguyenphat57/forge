@@ -18,19 +18,28 @@ Install flow đồng bộ nội dung theo kiểu in-place sync để giảm rủ
 python scripts/verify_repo.py
 python scripts/build_release.py
 python scripts/install_bundle.py forge-antigravity --build
-python scripts/install_bundle.py forge-codex
+python scripts/install_bundle.py forge-codex --activate-codex
 ```
+
+`--activate-codex` dành cho rollout Codex thật:
+
+- sync `forge-codex` vào `~/.codex/skills/forge-codex`
+- rewrite `~/.codex/AGENTS.md` để `forge-codex` là global orchestrator duy nhất
+- retire `~/.codex/awf-codex`
+- retire các skill global legacy theo pattern `~/.codex/skills/awf-*`
 
 ## Dry run
 
 ```powershell
 python scripts/install_bundle.py forge-antigravity --dry-run
 python scripts/install_bundle.py forge-codex --dry-run
+python scripts/install_bundle.py forge-codex --dry-run --activate-codex
 ```
 
 ## Safety
 
 - Script tự backup runtime cũ vào `.install-backups/` trước khi sync.
+- Với `--activate-codex`, script backup thêm `~/.codex/AGENTS.md`, runtime legacy, và các skill legacy bị retire.
 - Có thể đổi nơi backup bằng `--backup-dir`.
 - Dùng `--no-backup` chỉ khi runtime đích là disposable.
 - Không install vào `packages/`, `dist/`, hay root repo.

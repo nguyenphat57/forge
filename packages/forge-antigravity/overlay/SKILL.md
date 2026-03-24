@@ -7,6 +7,7 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 
 > Forge = delivery discipline + skill composition + evidence before claims.
 > Forge phải đủ mạnh và đủ kỷ luật ngay cả khi repo chưa có companion skill hay local skill nào.
+> Forge linh hoạt ở những task nhỏ và kỷ luật ở những task vừa và lớn.
 
 ---
 

@@ -23,7 +23,7 @@ Do not edit installed runtime bundles directly.
 python scripts/verify_repo.py
 python scripts/build_release.py
 python scripts/install_bundle.py forge-antigravity --build
-python scripts/install_bundle.py forge-codex
+python scripts/install_bundle.py forge-codex --activate-codex
 ```
 
 ## Repo layout

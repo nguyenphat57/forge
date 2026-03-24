@@ -88,6 +88,17 @@ def main() -> int:
             [sys.executable, str(ROOT_DIR / "scripts" / "install_bundle.py"), "forge-codex", "--dry-run"],
             ROOT_DIR,
         ),
+        run_step(
+            "install_dry_run.forge-codex.activate_codex",
+            [
+                sys.executable,
+                str(ROOT_DIR / "scripts" / "install_bundle.py"),
+                "forge-codex",
+                "--dry-run",
+                "--activate-codex",
+            ],
+            ROOT_DIR,
+        ),
     ]
 
     for bundle_name in ("forge-core", "forge-antigravity", "forge-codex"):

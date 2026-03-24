@@ -35,7 +35,7 @@
 ## Guardrails
 
 - Không nhầm `help/next` thành recap dài dòng.
-- Không gợi ý ritual như `/save-brain`.
+- Không gợi ý ritual session legacy.
 - Không đưa next step mơ hồ nếu có thể chốt slice cụ thể hơn.
 - Khi context yếu, phải nói rõ ràng là repo chưa có enough signals.
 

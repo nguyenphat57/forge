@@ -153,6 +153,9 @@ class ReleaseRepoTests(unittest.TestCase):
     def test_codex_wave_c_overlay_files_exist(self) -> None:
         overlay_root = ROOT_DIR / "packages" / "forge-codex" / "overlay"
         expected_files = [
+            overlay_root / "AGENTS.global.md",
+            overlay_root / "data" / "orchestrator-registry.json",
+            overlay_root / "workflows" / "execution" / "session.md",
             overlay_root / "workflows" / "operator" / "help.md",
             overlay_root / "workflows" / "operator" / "next.md",
             overlay_root / "workflows" / "operator" / "run.md",
@@ -170,14 +173,25 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertIn("natural-language first", skill)
         self.assertIn("workflows/operator/customize.md", skill)
         self.assertIn("workflows/operator/init.md", skill)
+        self.assertIn("AGENTS.global.md", skill)
+        self.assertNotIn("save-brain", skill)
+        self.assertNotIn("/save-brain", (overlay_root / "workflows" / "execution" / "session.md").read_text(encoding="utf-8"))
 
     def test_build_release_preserves_codex_wave_c_overlay(self) -> None:
         build_release.build_all()
         dist_root = ROOT_DIR / "dist" / "forge-codex"
+        self.assertTrue((dist_root / "AGENTS.global.md").exists())
+        self.assertTrue((dist_root / "data" / "orchestrator-registry.json").exists())
+        self.assertTrue((dist_root / "workflows" / "execution" / "session.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "help.md").exists())
         self.assertTrue((dist_root / "references" / "codex-operator-surface.md").exists())
+
+        registry = json.loads((dist_root / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
+        self.assertEqual(registry["intents"]["SESSION"]["shortcuts"], [])
+        self.assertNotIn("save-brain", (dist_root / "SKILL.md").read_text(encoding="utf-8"))
+        self.assertNotIn("/save-brain", (dist_root / "workflows" / "execution" / "session.md").read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

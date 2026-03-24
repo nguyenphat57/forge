@@ -13,10 +13,13 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 DIST_DIR = ROOT_DIR / "dist"
 PACKAGES_DIR = ROOT_DIR / "packages"
 DEFAULT_BACKUP_DIR = ROOT_DIR / ".install-backups"
+DEFAULT_CODEX_HOME = Path.home() / ".codex"
 DEFAULT_INSTALL_TARGETS = {
     "forge-antigravity": Path.home() / ".gemini" / "antigravity" / "skills" / "forge-antigravity",
     "forge-codex": Path.home() / ".codex" / "skills" / "forge-codex",
 }
+CODEX_GLOBAL_TEMPLATE = "AGENTS.global.md"
+CODEX_LEGACY_SKILL_GLOB = "awf-*"
 
 
 def resolve_bundle_source(bundle_name: str, source: str | None) -> Path:
@@ -32,6 +35,12 @@ def resolve_install_target(bundle_name: str, target: str | None) -> Path:
     if default_target is None:
         raise ValueError(f"Bundle '{bundle_name}' does not have a default install target; pass --target explicitly.")
     return default_target.resolve()
+
+
+def resolve_codex_home(codex_home: str | None) -> Path:
+    if codex_home:
+        return Path(codex_home).expanduser().resolve()
+    return DEFAULT_CODEX_HOME.resolve()
 
 
 def validate_install_paths(source: Path, target: Path) -> None:
@@ -55,6 +64,62 @@ def load_build_manifest(source: Path) -> dict:
     return json.loads(manifest_path.read_text(encoding="utf-8"))
 
 
+def render_codex_global_agents(template_text: str, codex_home: Path, target_path: Path) -> str:
+    rendered = template_text
+    rendered = rendered.replace("{{CODEX_HOME}}", str(codex_home))
+    rendered = rendered.replace("{{FORGE_CODEX_SKILL}}", str(target_path))
+    rendered = rendered.replace("{{FORGE_CODEX_WORKFLOWS}}", str(target_path / "workflows"))
+    return rendered.rstrip() + "\n"
+
+
+def plan_codex_host_activation(
+    *,
+    bundle_name: str,
+    source_path: Path,
+    target_path: Path,
+    install_id: str,
+    backup: bool,
+    backup_root: Path,
+    activate_codex: bool,
+    codex_home: str | None,
+) -> dict:
+    if not activate_codex:
+        return {"enabled": False}
+
+    if bundle_name != "forge-codex":
+        raise ValueError("--activate-codex is only valid for the forge-codex bundle.")
+
+    codex_home_path = resolve_codex_home(codex_home)
+    expected_target = (codex_home_path / "skills" / "forge-codex").resolve()
+    if target_path != expected_target:
+        raise ValueError(
+            f"--activate-codex requires target path '{expected_target}'. "
+            f"Received '{target_path}'."
+        )
+
+    template_path = source_path / CODEX_GLOBAL_TEMPLATE
+    if not template_path.exists():
+        raise FileNotFoundError(f"Missing {CODEX_GLOBAL_TEMPLATE} in bundle source: {source_path}")
+
+    agents_path = codex_home_path / "AGENTS.md"
+    legacy_runtime_path = codex_home_path / "awf-codex"
+    skills_root = codex_home_path / "skills"
+    legacy_skill_paths = sorted(path.resolve() for path in skills_root.glob(CODEX_LEGACY_SKILL_GLOB) if path.exists())
+    host_backup_path = None
+    if backup and (agents_path.exists() or legacy_runtime_path.exists() or legacy_skill_paths):
+        host_backup_path = backup_root / f"{bundle_name}-host-{install_id}"
+
+    return {
+        "enabled": True,
+        "codex_home": str(codex_home_path),
+        "agents_path": str(agents_path),
+        "template_path": str(template_path),
+        "legacy_runtime_path": str(legacy_runtime_path),
+        "legacy_skill_paths": [str(path) for path in legacy_skill_paths],
+        "host_backup_path": str(host_backup_path) if host_backup_path else None,
+    }
+
+
 def plan_install(
     bundle_name: str,
     *,
@@ -64,6 +129,8 @@ def plan_install(
     backup: bool = True,
     backup_dir: str | None = None,
     dry_run: bool = False,
+    activate_codex: bool = False,
+    codex_home: str | None = None,
 ) -> dict:
     if build:
         build_release.build_all()
@@ -72,7 +139,11 @@ def plan_install(
     if not source_path.exists():
         raise FileNotFoundError(f"Bundle source does not exist: {source_path}")
 
-    target_path = resolve_install_target(bundle_name, target)
+    resolved_target = target
+    if bundle_name == "forge-codex" and codex_home and target is None:
+        resolved_target = str(resolve_codex_home(codex_home) / "skills" / "forge-codex")
+
+    target_path = resolve_install_target(bundle_name, resolved_target)
     validate_install_paths(source_path, target_path)
     build_manifest = load_build_manifest(source_path)
     install_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -80,6 +151,16 @@ def plan_install(
     backup_path = None
     if backup and target_path.exists():
         backup_path = backup_root / f"{bundle_name}-{install_id}"
+    codex_host_activation = plan_codex_host_activation(
+        bundle_name=bundle_name,
+        source_path=source_path,
+        target_path=target_path,
+        install_id=install_id,
+        backup=backup,
+        backup_root=backup_root,
+        activate_codex=activate_codex,
+        codex_home=codex_home,
+    )
 
     return {
         "bundle": bundle_name,
@@ -93,6 +174,7 @@ def plan_install(
         "backup_enabled": backup,
         "backup_path": str(backup_path) if backup_path else None,
         "source_build_manifest": build_manifest,
+        "codex_host_activation": codex_host_activation,
     }
 
 
@@ -108,10 +190,26 @@ def write_install_manifest(target: Path, report: dict) -> None:
         "backup_path": report["backup_path"],
         "source_build_manifest": report["source_build_manifest"],
     }
+    if report["codex_host_activation"]["enabled"]:
+        activation = report["codex_host_activation"]
+        manifest["codex_host_activation"] = {
+            "enabled": True,
+            "codex_home": activation["codex_home"],
+            "agents_path": activation["agents_path"],
+            "host_backup_path": activation["host_backup_path"],
+        }
     (target / "INSTALL-MANIFEST.json").write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
+
+
+def copy_path(source: Path, destination: Path) -> None:
+    if source.is_dir():
+        shutil.copytree(source, destination)
+        return
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source, destination)
 
 
 def remove_path(path: Path) -> None:
@@ -141,6 +239,60 @@ def sync_tree(source: Path, target: Path) -> None:
     shutil.copytree(source, target, dirs_exist_ok=True)
 
 
+def backup_codex_host_activation(activation: dict) -> None:
+    host_backup_path = activation.get("host_backup_path")
+    if not host_backup_path:
+        return
+
+    backup_root = Path(host_backup_path)
+    backup_root.mkdir(parents=True, exist_ok=True)
+
+    agents_path = Path(activation["agents_path"])
+    if agents_path.exists():
+        copy_path(agents_path, backup_root / "AGENTS.md")
+
+    legacy_runtime_path = Path(activation["legacy_runtime_path"])
+    if legacy_runtime_path.exists():
+        copy_path(legacy_runtime_path, backup_root / "awf-codex")
+
+    for raw_path in activation["legacy_skill_paths"]:
+        skill_path = Path(raw_path)
+        if skill_path.exists():
+            copy_path(skill_path, backup_root / "skills" / skill_path.name)
+
+
+def apply_codex_host_activation(report: dict) -> None:
+    activation = report["codex_host_activation"]
+    if not activation["enabled"]:
+        return
+
+    backup_codex_host_activation(activation)
+
+    codex_home_path = Path(activation["codex_home"])
+    codex_home_path.mkdir(parents=True, exist_ok=True)
+
+    agents_path = Path(activation["agents_path"])
+    template_path = Path(activation["template_path"])
+    rendered_agents = render_codex_global_agents(
+        template_path.read_text(encoding="utf-8"),
+        codex_home_path,
+        Path(report["target"]),
+    )
+    if agents_path.exists() and agents_path.is_dir():
+        remove_path(agents_path)
+    agents_path.parent.mkdir(parents=True, exist_ok=True)
+    agents_path.write_text(rendered_agents, encoding="utf-8")
+
+    legacy_runtime_path = Path(activation["legacy_runtime_path"])
+    if legacy_runtime_path.exists():
+        remove_path(legacy_runtime_path)
+
+    for raw_path in activation["legacy_skill_paths"]:
+        skill_path = Path(raw_path)
+        if skill_path.exists():
+            remove_path(skill_path)
+
+
 def install_from_plan(report: dict) -> dict:
     if report["dry_run"]:
         return report
@@ -157,6 +309,7 @@ def install_from_plan(report: dict) -> dict:
         target_path.unlink()
 
     sync_tree(source_path, target_path)
+    apply_codex_host_activation(report)
     write_install_manifest(target_path, report)
     return report
 
@@ -170,6 +323,8 @@ def install_bundle(
     backup: bool = True,
     backup_dir: str | None = None,
     dry_run: bool = False,
+    activate_codex: bool = False,
+    codex_home: str | None = None,
 ) -> dict:
     report = plan_install(
         bundle_name,
@@ -179,6 +334,8 @@ def install_bundle(
         backup=backup,
         backup_dir=backup_dir,
         dry_run=dry_run,
+        activate_codex=activate_codex,
+        codex_home=codex_home,
     )
     return install_from_plan(report)
 
@@ -192,6 +349,15 @@ def format_text(report: dict) -> str:
     lines.append(f"- Dry run: {'yes' if report['dry_run'] else 'no'}")
     if report["backup_enabled"]:
         lines.append(f"- Backup: {report['backup_path'] or '(not needed)'}")
+    if report["codex_host_activation"]["enabled"]:
+        activation = report["codex_host_activation"]
+        lines.append("- Codex host activation: yes")
+        lines.append(f"- Codex home: {activation['codex_home']}")
+        lines.append(f"- Global AGENTS: {activation['agents_path']}")
+        lines.append(f"- Retire legacy runtime: {activation['legacy_runtime_path']}")
+        if activation["legacy_skill_paths"]:
+            lines.append(f"- Retire legacy skills: {', '.join(activation['legacy_skill_paths'])}")
+        lines.append(f"- Host backup: {activation['host_backup_path'] or '(not needed)'}")
     return "\n".join(lines)
 
 
@@ -204,6 +370,12 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true", help="Print the install plan without modifying files")
     parser.add_argument("--no-backup", action="store_true", help="Do not back up the current target before replacing it")
     parser.add_argument("--backup-dir", help="Override backup root directory")
+    parser.add_argument(
+        "--activate-codex",
+        action="store_true",
+        help="For forge-codex: rewrite Codex global AGENTS.md and retire legacy AWF runtime artifacts.",
+    )
+    parser.add_argument("--codex-home", help="Override Codex home (defaults to ~/.codex)")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     args = parser.parse_args()
 
@@ -215,6 +387,8 @@ def main() -> int:
         backup=not args.no_backup,
         backup_dir=args.backup_dir,
         dry_run=args.dry_run,
+        activate_codex=args.activate_codex,
+        codex_home=args.codex_home,
     )
     if args.format == "json":
         print(json.dumps(report, indent=2, ensure_ascii=False))

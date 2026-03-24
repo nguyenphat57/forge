@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.0 - 2026-03-24
+
+- Thêm Codex host takeover cho `forge-codex` qua `AGENTS.global.md` và `install_bundle.py --activate-codex`, đồng thời backup rồi retire `~/.codex/awf-codex` và các skill legacy `awf-*`.
+- Bổ sung Wave C artifacts còn thiếu cho `forge-codex`: session workflow riêng cho Codex, smoke references, registry override, và release/install verification cho host activation path.
+- Chuẩn hóa lại narrative của Forge theo hướng natural-language first cho Codex và giữ `SESSION` của `forge-codex` nhất quán với registry, wrapper, docs, và dist output.
+
+
 ## 0.5.1 - 2026-03-24
 
 - Chuẩn hóa lại prose tiếng Việt có dấu trên toàn bộ source Markdown của `forge-core`, `forge-antigravity`, và `forge-codex`.
