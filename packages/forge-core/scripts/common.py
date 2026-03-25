@@ -477,6 +477,54 @@ def set_nested_value(payload: dict, path: str, value: object) -> None:
     current[segments[-1]] = value
 
 
+def canonical_preference_keys() -> set[str]:
+    return set(load_preferences_schema().get("properties", {}))
+
+
+def compat_canonical_paths(compat: dict | None) -> set[str]:
+    if not isinstance(compat, dict):
+        return set()
+
+    read_config = compat.get("read")
+    if not isinstance(read_config, dict):
+        return set()
+
+    fields = read_config.get("canonical_fields")
+    if not isinstance(fields, dict):
+        return set()
+
+    paths: set[str] = set()
+    for entry in fields.values():
+        if isinstance(entry, dict):
+            paths.update(compat_entry_paths(entry))
+    return paths
+
+
+def delete_nested_value(payload: dict, path: str) -> None:
+    segments = path.split(".")
+    current = payload
+    parents: list[tuple[dict, str]] = []
+
+    for segment in segments[:-1]:
+        next_value = current.get(segment)
+        if not isinstance(next_value, dict):
+            return
+        parents.append((current, segment))
+        current = next_value
+
+    if segments[-1] not in current:
+        return
+
+    del current[segments[-1]]
+
+    for parent, segment in reversed(parents):
+        child = parent.get(segment)
+        if isinstance(child, dict) and not child:
+            del parent[segment]
+            continue
+        break
+
+
 def preferences_compat_matches(payload: object, compat: dict | None = None) -> bool:
     if not isinstance(payload, dict):
         return False
@@ -515,8 +563,8 @@ def compat_read_value(raw_value: object, entry: dict) -> object:
     return raw_value
 
 
-def translate_preferences_payload(payload: object) -> object:
-    compat = load_preferences_compat()
+def translate_preferences_payload(payload: object, compat: dict | None = None) -> object:
+    compat = load_preferences_compat() if compat is None else compat
     if compat is None or not preferences_compat_matches(payload, compat):
         return payload
 
@@ -540,6 +588,51 @@ def translate_preferences_payload(payload: object) -> object:
             break
 
     return translated
+
+
+def extract_extras(raw_payload: object, compat_config: dict | None = None) -> dict[str, object]:
+    if not isinstance(raw_payload, dict):
+        return {}
+
+    compat = load_preferences_compat() if compat_config is None else compat_config
+    if preferences_compat_matches(raw_payload, compat):
+        extras = copy.deepcopy(raw_payload)
+        for path in compat_canonical_paths(compat):
+            delete_nested_value(extras, path)
+        return extras
+
+    canonical_keys = canonical_preference_keys()
+    return {
+        key: copy.deepcopy(value)
+        for key, value in raw_payload.items()
+        if key not in canonical_keys
+    }
+
+
+def filter_canonical_preferences(raw_payload: object, compat_config: dict | None = None) -> object:
+    if not isinstance(raw_payload, dict):
+        return raw_payload
+
+    compat = load_preferences_compat() if compat_config is None else compat_config
+    if preferences_compat_matches(raw_payload, compat):
+        return translate_preferences_payload(raw_payload, compat)
+
+    allowed_keys = canonical_preference_keys()
+    return {key: raw_payload[key] for key in raw_payload if key in allowed_keys}
+
+
+def merge_extra_preferences(
+    base: dict[str, object] | None,
+    override: dict[str, object] | None,
+) -> dict[str, object]:
+    merged: dict[str, object] = copy.deepcopy(base or {})
+    for key, value in (override or {}).items():
+        existing = merged.get(key)
+        if isinstance(existing, dict) and isinstance(value, dict):
+            merged[key] = merge_extra_preferences(existing, value)
+            continue
+        merged[key] = copy.deepcopy(value)
+    return merged
 
 
 def choose_compat_write_path(existing_payload: object, entry: dict) -> str | None:
@@ -745,6 +838,7 @@ def load_preferences(
             if path is None or not path.exists():
                 return {
                     "preferences": defaults,
+                    "extra": {},
                     "source": {"type": "defaults", "path": None},
                     "warnings": warnings,
                 }
@@ -757,10 +851,14 @@ def load_preferences(
         warnings.append(f"Invalid JSON in preferences file '{path.name}'. Using defaults.")
         payload = None
 
-    preferences, normalization_warnings = normalize_preferences(payload, strict=strict)
+    compat = load_preferences_compat()
+    extra = extract_extras(payload, compat_config=compat)
+    canonical_payload = filter_canonical_preferences(payload, compat_config=compat)
+    preferences, normalization_warnings = normalize_preferences(canonical_payload, strict=strict)
     warnings.extend(normalization_warnings)
     return {
         "preferences": preferences,
+        "extra": extra,
         "source": {"type": source_type, "path": str(path)},
         "warnings": warnings,
     }

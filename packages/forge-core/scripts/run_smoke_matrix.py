@@ -115,6 +115,8 @@ def validate_preferences_case(case: dict, report: dict) -> list[str]:
     expect(report["status"], case["expected_status"], "status")
     expect(report["source"]["type"], case["expected_source_type"], "source_type")
     expect(report["preferences"], case["expected_preferences"], "preferences")
+    if "expected_extra" in case:
+        expect(report.get("extra", {}), case["expected_extra"], "extra")
 
     for key, expected in case.get("expected_response_style", {}).items():
         actual = report["response_style"].get(key)

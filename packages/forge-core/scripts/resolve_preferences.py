@@ -4,7 +4,36 @@ import argparse
 import json
 from pathlib import Path
 
-from common import configure_stdio, load_preferences, resolve_response_style
+from common import (
+    configure_stdio,
+    extract_extras,
+    load_preferences,
+    merge_extra_preferences,
+    resolve_response_style,
+    resolve_workspace_preferences_path,
+)
+
+
+def load_workspace_extra_preferences(
+    workspace: Path | None,
+    *,
+    strict: bool = False,
+) -> tuple[dict[str, object], list[str]]:
+    if workspace is None:
+        return {}, []
+
+    path = resolve_workspace_preferences_path(workspace)
+    if not path.exists():
+        return {}, []
+
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        if strict:
+            raise ValueError(f"Invalid JSON in preferences file: {path}") from exc
+        return {}, [f"Invalid JSON in workspace extra preferences file '{path.name}'. Ignoring extras."]
+
+    return extract_extras(payload), []
 
 
 def build_payload(args: argparse.Namespace) -> dict:
@@ -14,12 +43,26 @@ def build_payload(args: argparse.Namespace) -> dict:
         strict=args.strict,
         forge_home=args.forge_home,
     )
+    warnings = list(report["warnings"])
+    extra = report.get("extra", {})
+
+    if args.workspace is not None and report["source"]["type"] != "workspace-legacy":
+        workspace_extra, workspace_warnings = load_workspace_extra_preferences(
+            args.workspace,
+            strict=args.strict,
+        )
+        extra = merge_extra_preferences(extra, workspace_extra)
+        for warning in workspace_warnings:
+            if warning not in warnings:
+                warnings.append(warning)
+
     payload = {
-        "status": "WARN" if report["warnings"] else "PASS",
+        "status": "WARN" if warnings else "PASS",
         "source": report["source"],
         "preferences": report["preferences"],
+        "extra": extra,
         "response_style": resolve_response_style(report["preferences"]),
-        "warnings": report["warnings"],
+        "warnings": warnings,
     }
     return payload
 
@@ -34,6 +77,12 @@ def format_text(payload: dict) -> str:
     ]
     for key, value in payload["preferences"].items():
         lines.append(f"  - {key}: {value}")
+    if payload["extra"]:
+        lines.append("- Extra:")
+        for line in json.dumps(payload["extra"], indent=2, ensure_ascii=False).splitlines():
+            lines.append(f"  {line}")
+    else:
+        lines.append("- Extra: (none)")
     lines.append("- Response style:")
     for key, value in payload["response_style"].items():
         lines.append(f"  - {key}: {value}")

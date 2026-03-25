@@ -12,6 +12,7 @@
       "feedback_style": "balanced",
       "personality": "default"
     },
+    "expected_extra": {},
     "expected_response_style": {
       "terminology_mode": "mixed",
       "response_verbosity": "balanced",
@@ -35,6 +36,7 @@
       "feedback_style": "direct",
       "personality": "strict-coach"
     },
+    "expected_extra": {},
     "expected_response_style": {
       "terminology_mode": "standard",
       "response_verbosity": "concise",
@@ -58,6 +60,19 @@
       "feedback_style": "direct",
       "personality": "strict-coach"
     },
+    "expected_extra": {
+      "tone_detail": "Gọi Sếp, xưng Em",
+      "language": "vi",
+      "output_quality": "production_ready",
+      "custom_rules": [
+        "Mỗi file không được vượt quá 300 dòng, nếu vượt phải chia nhỏ ra",
+        "Mỗi file chỉ chứa một chức năng, không gộp hay chồng chéo chức năng vào 1 file",
+        "Luôn dùng TypeScript thay vì JavaScript",
+        "Luôn sử dụng PowerShell thay vì Command Prompt",
+        "Luôn sử dụng ; thay vì && cho PowerShell",
+        "Luôn debug log mọi hành động, không đoán mò lỗi"
+      ]
+    },
     "expected_response_style": {
       "terminology_mode": "standard",
       "response_verbosity": "concise",
@@ -79,6 +94,19 @@
       "pace": "fast",
       "feedback_style": "direct",
       "personality": "mentor"
+    },
+    "expected_extra": {
+      "tone_detail": "Gọi Sếp, xưng Em",
+      "language": "vi",
+      "output_quality": "production_ready",
+      "custom_rules": [
+        "Mỗi file không được vượt quá 300 dòng, nếu vượt phải chia nhỏ ra",
+        "Mỗi file chỉ chứa một chức năng, không gộp hay chồng chéo chức năng vào 1 file",
+        "Luôn dùng TypeScript thay vì JavaScript",
+        "Luôn sử dụng PowerShell thay vì Command Prompt",
+        "Luôn sử dụng ; thay vì && cho PowerShell",
+        "Luôn debug log mọi hành động, không đoán mò lỗi"
+      ]
     },
     "expected_response_style": {
       "terminology_mode": "translated",
@@ -102,6 +130,9 @@
       "feedback_style": "gentle",
       "personality": "strict-coach"
     },
+    "expected_extra": {
+      "unknown_field": "ignored"
+    },
     "expected_response_style": {
       "terminology_mode": "mixed",
       "response_verbosity": "balanced",
@@ -112,8 +143,7 @@
     },
     "expected_warning_contains": [
       "technical_level",
-      "detail_level",
-      "unknown_field"
+      "detail_level"
     ]
   }
 ]

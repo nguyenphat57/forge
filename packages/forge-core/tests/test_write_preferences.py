@@ -57,8 +57,16 @@ class WritePreferencesTests(unittest.TestCase):
             self.assertEqual(report["preferences"]["technical_level"], "newbie")
             self.assertEqual(report["preferences"]["pace"], "fast")
             self.assertEqual(report["preferences"]["feedback_style"], "direct")
-            written = json.loads(common.resolve_global_preferences_path(forge_home).read_text(encoding="utf-8"))
-            self.assertEqual(written, report["preferences"])
+            written_path = common.resolve_global_preferences_path(forge_home)
+            written = json.loads(written_path.read_text(encoding="utf-8"))
+            reloaded = common.load_preferences(
+                preferences_file=written_path,
+                forge_home=forge_home,
+            )
+
+            self.assertIsInstance(written, dict)
+            self.assertEqual(reloaded["preferences"], report["preferences"])
+            self.assertEqual(reloaded["warnings"], [])
 
     def test_write_preferences_requires_updates(self) -> None:
         with TemporaryDirectory() as temp_dir:
