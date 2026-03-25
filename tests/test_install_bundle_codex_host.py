@@ -81,7 +81,7 @@ class CodexHostInstallTests(unittest.TestCase):
 
             agents_text = agents_path.read_text(encoding="utf-8")
             self.assertIn("Use `forge-codex` as the only global orchestrator for Codex.", agents_text)
-            self.assertIn(str(target), agents_text)
+            self.assertIn(str(target.resolve()), agents_text)
             self.assertNotIn("{{FORGE_CODEX_SKILL}}", agents_text)
 
             host_backup_path = Path(report["codex_host_activation"]["host_backup_path"])
