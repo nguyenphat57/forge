@@ -1,0 +1,23 @@
+[
+  {
+    "id": "20260325-105539",
+    "kind": "learning",
+    "scope": "codex-host-install",
+    "summary": "Codex host activation tests should compare resolved target paths on Windows because CI temp directories may surface as short paths.",
+    "status": "active",
+    "evidence": [
+      "GitHub verify log on 2026-03-25 showed RUNNER~1 short path in test expectation versus resolved runneradmin path rendered into AGENTS.md.",
+      "Commit 4a42127 changed tests/test_install_bundle_codex_host.py to assert target.resolve()."
+    ],
+    "next": [
+      "Check the verify rerun for commit 4a42127 on origin/main."
+    ],
+    "tags": [
+      "windows",
+      "ci",
+      "codex"
+    ],
+    "revisit_if": null,
+    "trigger": null
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "updated_at": "2026-03-25T03:55:42.8640476Z",
+  "working_on": {
+    "feature": "github-verify-fix",
+    "task": "Monitor the verify rerun for commit 4a42127 after fixing the Windows path assertion",
+    "status": "active",
+    "files": [
+      "tests/test_install_bundle_codex_host.py"
+    ]
+  },
+  "pending_tasks": [
+    "Check the GitHub verify rerun for commit 4a42127 on origin/main.",
+    "If verify is still red, pull the fresh log and compare it against the latest source state."
+  ],
+  "recent_changes": [
+    "Analyzed the GitHub Actions log and isolated the failure to test_activate_codex_rewrites_agents_and_removes_legacy_artifacts.",
+    "Updated tests/test_install_bundle_codex_host.py to compare target.resolve() so Windows short paths do not cause a false failure.",
+    "Committed and pushed 4a42127 to origin/main."
+  ],
+  "verification": [
+    "GitHub log showed a mismatch between RUNNER~1 short path and the resolved runneradmin path rendered into AGENTS.md.",
+    "python -m unittest discover -s tests -p 'test_install_bundle_codex_host.py' -v -> PASS",
+    "python scripts/verify_repo.py -> PASS"
+  ],
+  "decisions_made": [
+    "Treat the resolved canonical target path as the source of truth for Codex host activation assertions on Windows."
+  ]
+}
