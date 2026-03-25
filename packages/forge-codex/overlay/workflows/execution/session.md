@@ -7,6 +7,7 @@ triggers:
   - explicit handover request
 quality_gates:
   - Context restored or handover note persisted
+  - Workspace response preferences resolved when available
   - Scope-filtered continuity used when available
   - Structured continuity capture stays evidence-backed and scoped
 ---
@@ -32,6 +33,8 @@ quality_gates:
 
 ## Operating Rules
 
+- If the workspace has `.brain/preferences.json`, resolve it early through `scripts/resolve_preferences.py` so the recap follows the user's response settings.
+
 - Repo-first: start from `git status`, changed files, plans, specs, and current docs.
 - `.brain` is optional support, not the primary source of truth.
 - Continuity should stay narrow: current task, active files, next action, verification, and residual risk.
@@ -44,12 +47,29 @@ quality_gates:
 ```text
 1. docs/plans/, docs/specs/, task notes that match the current scope
 2. git status / changed files / recent commits when git exists
-3. .brain/handover.md
-4. .brain/session.json
-5. .brain/decisions.json
-6. .brain/learnings.json
-7. .brain/brain.json
+3. `.brain/preferences.json` via `python scripts/resolve_preferences.py --workspace <workspace> --format json`
+4. .brain/handover.md
+5. .brain/session.json
+6. .brain/decisions.json
+7. .brain/learnings.json
+8. .brain/brain.json
 ```
+
+### Response Personalization
+
+Resolve preferences before writing the recap:
+
+```powershell
+python scripts/resolve_preferences.py --workspace <workspace> --format json
+```
+
+Use the resolved payload to adapt:
+- terminology and explanation depth
+- recap verbosity and detail density
+- how proactive the proposed next step should be
+- pace, feedback sharpness, and personality in phrasing
+
+Apply the style without dumping raw preference fields unless the user asks for them directly.
 
 ### Scope-Filtered Continuity
 

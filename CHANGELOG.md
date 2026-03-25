@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.2 - 2026-03-25
+
+- Sửa contract `session` của `forge-core` để restore flow nạp `.brain/preferences.json` qua `resolve_preferences.py` trước khi tóm tắt context.
+- Cập nhật `forge-codex` session override để recap/next step bám theo response preferences của workspace thay vì bỏ qua personalization.
+- Thêm regression test ở `forge-core` và release repo để khóa yêu cầu preferences restore cho source bundle lẫn dist bundle của `forge-codex` và `forge-antigravity`.
+
+
 ## 0.7.1 - 2026-03-24
 
 - Đồng bộ contract `/bump` của `forge-antigravity` và `forge-codex` theo `forge-core`, để cả hai host đều dùng wording và guardrail semver mới.

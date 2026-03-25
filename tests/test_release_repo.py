@@ -26,6 +26,12 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertIn("bump source: explicit hay inferred", text, label)
         self.assertIn("explicit or inferred semver", text, label)
 
+    def assert_session_restores_preferences(self, path: Path, *, label: str) -> None:
+        text = path.read_text(encoding="utf-8")
+        self.assertIn(".brain/preferences.json", text, label)
+        self.assertIn("resolve_preferences.py", text, label)
+        self.assertIn("Response Personalization", text, label)
+
     def test_release_docs_and_version_exist(self) -> None:
         version = (ROOT_DIR / "VERSION").read_text(encoding="utf-8").strip()
 
@@ -156,6 +162,10 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "recap.md").exists())
         self.assertTrue((dist_root / "references" / "antigravity-operator-surface.md").exists())
+        self.assert_session_restores_preferences(
+            dist_root / "workflows" / "execution" / "session.md",
+            label="dist forge-antigravity session",
+        )
 
     def test_adapter_bump_contracts_stay_aligned_with_core(self) -> None:
         core_bump = ROOT_DIR / "packages" / "forge-core" / "workflows" / "operator" / "bump.md"
@@ -212,6 +222,10 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertIn("AGENTS.global.md", skill)
         self.assertNotIn("save-brain", skill)
         self.assertNotIn("/save-brain", (overlay_root / "workflows" / "execution" / "session.md").read_text(encoding="utf-8"))
+        self.assert_session_restores_preferences(
+            overlay_root / "workflows" / "execution" / "session.md",
+            label="forge-codex overlay session",
+        )
 
     def test_build_release_preserves_codex_wave_c_overlay(self) -> None:
         build_release.build_all()
@@ -224,6 +238,10 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "help.md").exists())
         self.assertTrue((dist_root / "references" / "codex-operator-surface.md").exists())
+        self.assert_session_restores_preferences(
+            dist_root / "workflows" / "execution" / "session.md",
+            label="dist forge-codex session",
+        )
 
         registry = json.loads((dist_root / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
         self.assertEqual(registry["intents"]["SESSION"]["shortcuts"], [])

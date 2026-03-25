@@ -89,6 +89,13 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("write_preferences.py", tooling)
         self.assertIn("initialize_workspace.py", tooling)
 
+    def test_session_workflow_mentions_preferences_restore_contract(self) -> None:
+        session = (ROOT_DIR / "workflows" / "execution" / "session.md").read_text(encoding="utf-8")
+
+        self.assertIn(".brain/preferences.json", session)
+        self.assertIn("resolve_preferences.py", session)
+        self.assertIn("Response Personalization", session)
+
 
 if __name__ == "__main__":
     unittest.main()

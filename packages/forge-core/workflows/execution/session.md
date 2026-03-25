@@ -7,6 +7,7 @@ triggers:
   - shortcut: /save-brain, /recap
 quality_gates:
   - Context restored or handover note persisted
+  - Response personalization resolved from `.brain/preferences.json` when available
   - Scope-filtered continuity used when available
   - Structured continuity capture stays evidence-backed and scoped
 ---
@@ -34,6 +35,8 @@ quality_gates:
 
 ## Operating Rules
 
+- Náº¿u workspace cÃ³ `.brain/preferences.json`, resolve nÃ³ sá»›m qua `scripts/resolve_preferences.py` Ä‘á»ƒ recap/next-step bÃ¡m Ä‘Ãºng style user.
+
 - Repo-first: ưu tiên `git status`, changed files, docs, plans, task notes.
 - `.brain` là opt-in: chỉ đọc/ghi khi user yêu cầu hoặc handover thật sự giảm rủi ro.
 - Không biến `/save-brain` thành nghi thức bắt buộc cuối task.
@@ -52,12 +55,29 @@ Trong host có shortcut tương đương:
 ```
 1. docs/plans/, docs/specs/, task notes đang mở
 2. git status / changed files / recent commits (nếu có git)
-3. .brain/handover.md
-4. .brain/session.json
-5. .brain/decisions.json
-6. .brain/learnings.json
-7. .brain/brain.json
+3. `.brain/preferences.json` qua `python scripts/resolve_preferences.py --workspace <workspace> --format json`
+4. .brain/handover.md
+5. .brain/session.json
+6. .brain/decisions.json
+7. .brain/learnings.json
+8. .brain/brain.json
 ```
+
+### Response Personalization
+
+Náº¿u workspace cÃ³ `.brain/preferences.json`, resolve trÆ°á»›c khi viáº¿t recap:
+
+```powershell
+python scripts/resolve_preferences.py --workspace <workspace> --format json
+```
+
+DÃ¹ng payload resolved Ä‘á»ƒ chá»‰nh:
+- terminology / Ä‘á»™ giáº£i thÃ­ch thuáº­t ngá»¯
+- Ä‘á»™ dÃ i recap vÃ  level chi tiáº¿t
+- má»©c chá»§ Ä‘á»™ng á»Ÿ proposed next step
+- pace / feedback / personality cá»§a cÃ¡ch phrasing
+
+KhÃ´ng cáº§n dump raw schema cho user trá»« khi há» há»i; má»¥c tiÃªu lÃ  Ã¡p style, khÃ´ng biáº¿n restore thÃ nh bÃ¡o cÃ¡o preferences.
 
 ### Scope-Filtered Continuity
 
