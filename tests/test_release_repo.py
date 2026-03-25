@@ -28,7 +28,8 @@ class ReleaseRepoTests(unittest.TestCase):
 
     def assert_session_restores_preferences(self, path: Path, *, label: str) -> None:
         text = path.read_text(encoding="utf-8")
-        self.assertIn(".brain/preferences.json", text, label)
+        self.assertIn("adapter-global", text, label)
+        self.assertIn("state/preferences.json", text, label)
         self.assertIn("resolve_preferences.py", text, label)
         self.assertIn("Response Personalization", text, label)
 
@@ -102,6 +103,17 @@ class ReleaseRepoTests(unittest.TestCase):
             manifest = json.loads((target / "INSTALL-MANIFEST.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["bundle"], "forge-antigravity")
             self.assertEqual(manifest["version"], build_release.read_version())
+            self.assertEqual(manifest["state"]["scope"], "adapter-global")
+            self.assertEqual(
+                manifest["state"]["root"],
+                str((temp_root / "runtime" / "forge-antigravity-state").resolve()),
+            )
+            self.assertEqual(
+                manifest["state"]["preferences_path"],
+                str((temp_root / "runtime" / "forge-antigravity-state" / "state" / "preferences.json").resolve()),
+            )
+            self.assertTrue((temp_root / "runtime" / "forge-antigravity-state").is_dir())
+            self.assertTrue((temp_root / "runtime" / "forge-antigravity-state" / "state").is_dir())
 
     def test_install_bundle_succeeds_when_target_root_is_locked_as_cwd(self) -> None:
         build_release.build_all()
@@ -145,6 +157,7 @@ class ReleaseRepoTests(unittest.TestCase):
             overlay_root / "workflows" / "operator" / "save-brain.md",
             overlay_root / "workflows" / "operator" / "handover.md",
             overlay_root / "references" / "antigravity-operator-surface.md",
+            overlay_root / "data" / "preferences-compat.json",
         ]
         for path in expected_files:
             with self.subTest(path=path):
@@ -162,6 +175,7 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "recap.md").exists())
         self.assertTrue((dist_root / "references" / "antigravity-operator-surface.md").exists())
+        self.assertTrue((dist_root / "data" / "preferences-compat.json").exists())
         self.assert_session_restores_preferences(
             dist_root / "workflows" / "execution" / "session.md",
             label="dist forge-antigravity session",

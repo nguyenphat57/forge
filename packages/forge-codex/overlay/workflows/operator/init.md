@@ -28,6 +28,8 @@ python scripts/initialize_workspace.py --workspace <workspace> --format json
 python scripts/initialize_workspace.py --workspace <workspace> --seed-preferences --apply
 ```
 
+`--seed-preferences` sẽ seed Codex-global preferences, không còn ghi vào workspace-local `.brain/preferences.json`.
+
 3. Kết thúc bằng một next workflow duy nhất:
    - `brainstorm` cho workspace greenfield
    - `plan` cho workspace existing

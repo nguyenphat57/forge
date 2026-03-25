@@ -34,6 +34,8 @@ python scripts/initialize_workspace.py --workspace <workspace> --format json
 python scripts/initialize_workspace.py --workspace <workspace> --seed-preferences --apply
 ```
 
+`--seed-preferences` sẽ seed Antigravity-global preferences, không còn ghi vào workspace-local `.brain/preferences.json`.
+
 3. Nếu user muốn cá nhân hóa ngay, chuyển sang `/customize`.
 4. Kết thúc bằng một next workflow duy nhất:
    - `brainstorm` cho workspace greenfield

@@ -258,7 +258,7 @@ Mặc định về sau giải thích kỹ hơn, feedback thẳng hơn, và đi n
 
 - Host adapter route vao flow `customize`
 - Preferences được map vào schema canonical của Forge
-- Nếu adapter ghi file, `.brain/preferences.json` dùng key canonical của core
+- Nếu adapter ghi file, adapter-global `state/preferences.json` dùng key canonical của core
 - Không invent schema riêng chỉ cho host
 
 **Fail nếu**

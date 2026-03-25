@@ -40,9 +40,9 @@ Read the mapped workflow from `{{FORGE_CODEX_WORKFLOWS}}`.
 - Natural language is the primary surface. Slash commands are optional aliases.
 - Use Vietnamese for user-facing communication unless the user switches language.
 - Keep `forge-codex` as the base orchestrator for all work in this host.
-- Prefer repo state, plans, specs, and workspace-local `.brain/` artifacts over legacy session rituals or host-global state files.
+- Prefer repo state, plans, specs, and scoped workspace `.brain/` continuity artifacts over legacy session rituals.
 - Let workspace-local routers extend Forge, not replace it.
 - Do not suggest legacy session rituals as default guidance.
-- Durable preferences live in workspace-local `.brain/preferences.json`.
+- Durable preferences live in Codex-global adapter state at `~/.codex/forge-codex/state/preferences.json` (or `$FORGE_HOME/state/preferences.json` when overridden).
 
 <!-- FORGE CODEX GLOBAL END -->

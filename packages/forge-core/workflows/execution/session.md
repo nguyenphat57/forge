@@ -7,7 +7,7 @@ triggers:
   - shortcut: /save-brain, /recap
 quality_gates:
   - Context restored or handover note persisted
-  - Response personalization resolved from `.brain/preferences.json` when available
+  - Response personalization resolved from adapter-global `state/preferences.json` when available
   - Scope-filtered continuity used when available
   - Structured continuity capture stays evidence-backed and scoped
 ---
@@ -35,7 +35,7 @@ quality_gates:
 
 ## Operating Rules
 
-- Náº¿u workspace cÃ³ `.brain/preferences.json`, resolve nÃ³ sá»›m qua `scripts/resolve_preferences.py` Ä‘á»ƒ recap/next-step bÃ¡m Ä‘Ãºng style user.
+- Global preferences á»Ÿ Ä‘Ã¢y lÃ  adapter-global `state/preferences.json`; chá»‰ fallback sang `.brain/preferences.json` cho workspace legacy chÆ°a migrate.
 
 - Repo-first: ưu tiên `git status`, changed files, docs, plans, task notes.
 - `.brain` là opt-in: chỉ đọc/ghi khi user yêu cầu hoặc handover thật sự giảm rủi ro.
@@ -55,7 +55,7 @@ Trong host có shortcut tương đương:
 ```
 1. docs/plans/, docs/specs/, task notes đang mở
 2. git status / changed files / recent commits (nếu có git)
-3. `.brain/preferences.json` qua `python scripts/resolve_preferences.py --workspace <workspace> --format json`
+3. Adapter-global `state/preferences.json` qua `python scripts/resolve_preferences.py --workspace <workspace> --format json`
 4. .brain/handover.md
 5. .brain/session.json
 6. .brain/decisions.json
@@ -65,7 +65,7 @@ Trong host có shortcut tương đương:
 
 ### Response Personalization
 
-Náº¿u workspace cÃ³ `.brain/preferences.json`, resolve trÆ°á»›c khi viáº¿t recap:
+Resolve adapter-global Forge preferences trÆ°á»›c khi viáº¿t recap:
 
 ```powershell
 python scripts/resolve_preferences.py --workspace <workspace> --format json

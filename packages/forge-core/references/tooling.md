@@ -22,13 +22,13 @@
 Khi cần inspect hoặc validate response-style preferences theo schema chung của Forge:
 
 ```powershell
-python scripts/resolve_preferences.py --workspace C:\path\to\workspace
+python scripts/resolve_preferences.py
 ```
 
 Explicit file:
 
 ```powershell
-python scripts/resolve_preferences.py --preferences-file C:\path\to\.brain\preferences.json --format json
+python scripts/resolve_preferences.py --preferences-file C:\path\to\adapter-state\state\preferences.json --format json
 ```
 
 Strict validation:
@@ -38,7 +38,7 @@ python scripts/resolve_preferences.py --workspace C:\path\to\workspace --strict
 ```
 
 Script sẽ trả về:
-- source của preferences (explicit, workspace-local, hoặc defaults)
+- source của preferences (explicit, global, workspace-legacy, hoặc defaults)
 - canonical preferences sau khi normalize
 - response-style contract đã resolve
 - warnings nếu payload có field lạ hoặc giá trị không hợp lệ
@@ -47,15 +47,16 @@ Schema và boundary doc: xem `personalization.md`.
 
 ## Preferences Persistence
 
-Khi cần update `.brain/preferences.json` mà vẫn giữ schema canonical của Forge:
+Khi cần update adapter-global Forge preferences mà vẫn giữ schema canonical của Forge:
 
 ```powershell
-python scripts/write_preferences.py --workspace C:\path\to\workspace --technical-level newbie --pace fast
-python scripts/write_preferences.py --workspace C:\path\to\workspace --feedback-style direct --apply
+python scripts/write_preferences.py --technical-level newbie --pace fast
+python scripts/write_preferences.py --feedback-style direct --apply
 ```
 
 Script sẽ:
 - merge update vào preferences hiện có theo mặc định
+- reuse legacy `.brain/preferences.json` làm migration base nếu adapter-global file chưa tồn tại và có truyền `--workspace`
 - hỗ trợ `--replace` để reset field không truyền về defaults
 - trả về `changed_fields`, target preferences, và response-style contract sau khi normalize
 
@@ -73,7 +74,7 @@ python scripts/initialize_workspace.py --workspace C:\path\to\workspace --seed-p
 Script sẽ:
 - classify workspace thành `greenfield` hoặc `existing`
 - tạo `.brain/`, `docs/plans/`, `docs/specs/`, và `.brain/session.json`
-- tùy chọn seed `.brain/preferences.json`
+- tùy chọn seed adapter-global `state/preferences.json`
 - trả về next workflow khuyến nghị (`brainstorm` hoặc `plan`)
 
 Semantics chi tiết: xem `workspace-init.md`.
@@ -92,7 +93,7 @@ Script se doc:
 - `docs/plans/` va `docs/specs/`
 - `.brain/session.json` và `.brain/handover.md` nếu có
 - `README`
-- `.brain/preferences.json` de adapt response style
+- adapter-global `state/preferences.json` de adapt response style
 
 Script se tra ve:
 - `current_stage`

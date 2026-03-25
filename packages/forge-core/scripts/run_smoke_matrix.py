@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -10,6 +11,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent
 FIXTURES_DIR = ROOT_DIR / "tests" / "fixtures"
 WORKSPACES_DIR = FIXTURES_DIR / "workspaces"
+FORGE_HOMES_DIR = FIXTURES_DIR / "forge-homes"
 ROUTE_CASES = json.loads((FIXTURES_DIR / "route_preview_cases.json").read_text(encoding="utf-8"))
 ROUTER_CASES = json.loads((FIXTURES_DIR / "router_check_cases.json").read_text(encoding="utf-8"))
 PREFERENCES_CASES = json.loads((FIXTURES_DIR / "preferences_cases.json").read_text(encoding="utf-8"))
@@ -23,7 +25,11 @@ WORKSPACE_INIT_CASES = json.loads((FIXTURES_DIR / "workspace_init_cases.json").r
 RUN_HELPERS_DIR = FIXTURES_DIR / "run_helpers"
 
 
-def run_command(command: list[str]) -> subprocess.CompletedProcess[str]:
+def run_command(command: list[str], *, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+    merged_env = os.environ.copy()
+    merged_env.setdefault("FORGE_HOME", str(FORGE_HOMES_DIR / "empty"))
+    if env:
+        merged_env.update(env)
     return subprocess.run(
         command,
         cwd=str(ROOT_DIR),
@@ -31,6 +37,7 @@ def run_command(command: list[str]) -> subprocess.CompletedProcess[str]:
         text=True,
         encoding="utf-8",
         check=False,
+        env=merged_env,
     )
 
 
@@ -320,8 +327,11 @@ def run_preferences_suite() -> list[dict]:
     results: list[dict] = []
     for case in PREFERENCES_CASES:
         workspace = WORKSPACES_DIR / case["workspace_fixture"]
+        env = None
+        if case.get("forge_home_fixture"):
+            env = {"FORGE_HOME": str(FORGE_HOMES_DIR / case["forge_home_fixture"])}
         command = [sys.executable, str(preferences_script), "--workspace", str(workspace), "--format", "json"]
-        completed = run_command(command)
+        completed = run_command(command, env=env)
         if completed.returncode != 0:
             results.append(
                 {
@@ -565,6 +575,9 @@ def run_preferences_write_suite() -> list[dict]:
     results: list[dict] = []
     for case in PREFERENCES_WRITE_CASES:
         workspace = WORKSPACES_DIR / case["workspace_fixture"]
+        env = None
+        if case.get("forge_home_fixture"):
+            env = {"FORGE_HOME": str(FORGE_HOMES_DIR / case["forge_home_fixture"])}
         command = [
             sys.executable,
             str(write_script),
@@ -574,7 +587,7 @@ def run_preferences_write_suite() -> list[dict]:
             "json",
             *case["args"],
         ]
-        completed = run_command(command)
+        completed = run_command(command, env=env)
         if completed.returncode != 0:
             results.append(
                 {
@@ -604,6 +617,9 @@ def run_workspace_init_suite() -> list[dict]:
     results: list[dict] = []
     for case in WORKSPACE_INIT_CASES:
         workspace = WORKSPACES_DIR / case["workspace_fixture"]
+        env = None
+        if case.get("forge_home_fixture"):
+            env = {"FORGE_HOME": str(FORGE_HOMES_DIR / case["forge_home_fixture"])}
         command = [
             sys.executable,
             str(init_script),
@@ -613,7 +629,7 @@ def run_workspace_init_suite() -> list[dict]:
             "json",
             *case["args"],
         ]
-        completed = run_command(command)
+        completed = run_command(command, env=env)
         if completed.returncode != 0:
             results.append(
                 {

@@ -5,7 +5,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from common import configure_stdio, preference_defaults, resolve_workspace_preferences_path
+from common import configure_stdio, preference_defaults, resolve_forge_home, resolve_global_preferences_path
 
 
 IGNORED_EXISTING_ENTRIES = {
@@ -64,7 +64,7 @@ def build_plan(args: argparse.Namespace) -> dict:
     if args.seed_preferences:
         files.append(
             (
-                resolve_workspace_preferences_path(workspace),
+                resolve_global_preferences_path(args.forge_home),
                 json.dumps(preference_defaults(), indent=2, ensure_ascii=False) + "\n",
             )
         )
@@ -104,6 +104,8 @@ def build_plan(args: argparse.Namespace) -> dict:
         "status": "PASS",
         "workspace": str(workspace),
         "workspace_mode": mode,
+        "state_root": str(resolve_forge_home(args.forge_home)),
+        "forge_home": str(resolve_forge_home(args.forge_home)),
         "applied": args.apply,
         "seed_preferences": args.seed_preferences,
         "created_directories": created_directories,
@@ -121,6 +123,7 @@ def format_text(report: dict) -> str:
         f"- Status: {report['status']}",
         f"- Workspace: {report['workspace']}",
         f"- Mode: {report['workspace_mode']}",
+        f"- State root: {report['state_root']}",
         f"- Applied: {'yes' if report['applied'] else 'no'}",
         f"- Seed preferences: {'yes' if report['seed_preferences'] else 'no'}",
         "- Created directories:",
@@ -155,9 +158,15 @@ def main() -> int:
 
     parser = argparse.ArgumentParser(description="Preview or create the reusable Forge workspace skeleton.")
     parser.add_argument("--workspace", type=Path, default=Path.cwd(), help="Workspace root")
+    parser.add_argument(
+        "--forge-home",
+        type=Path,
+        default=None,
+        help="Override adapter state root (defaults to $FORGE_HOME, installed adapter state, or ~/.forge in dev)",
+    )
     parser.add_argument("--project-name", default=None, help="Optional project name to seed into session metadata")
     parser.add_argument("--mode", choices=["auto", "greenfield", "existing"], default="auto", help="Override workspace classification")
-    parser.add_argument("--seed-preferences", action="store_true", help="Also create `.brain/preferences.json` with schema defaults")
+    parser.add_argument("--seed-preferences", action="store_true", help="Also create the adapter-global Forge preferences file with schema defaults")
     parser.add_argument("--apply", action="store_true", help="Create the planned directories/files")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     args = parser.parse_args()

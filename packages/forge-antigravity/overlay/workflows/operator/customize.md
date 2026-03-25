@@ -12,12 +12,13 @@ quality_gates:
 
 # Customize - Antigravity Preference Wrapper
 
-> Mục tiêu: cho user Antigravity một bề mặt `/customize` rõ ràng, nhưng vẫn ghi vào schema canonical của Forge.
+> Mục tiêu: cho user Antigravity một bề mặt `/customize` rõ ràng, nhưng vẫn map qua schema canonical của Forge ngay cả khi state file đang dùng schema native của host.
 
 <HARD-GATE>
 - Không tạo key riêng cho Antigravity.
 - Không overwrite toàn bộ preferences nếu user chỉ đổi một vài field.
 - Không đổi routing/gate logic; workflow này chỉ đổi response style.
+- Nếu file state hiện tại đang là native Antigravity payload, phải preserve cấu trúc host-native khi persist.
 </HARD-GATE>
 
 ## Process
@@ -25,7 +26,7 @@ quality_gates:
 1. Đọc preferences hiện tại:
 
 ```powershell
-python scripts/resolve_preferences.py --workspace <workspace> --format json
+python scripts/resolve_preferences.py --format json
 ```
 
 2. Map user intent vào các field canonical:
@@ -39,8 +40,8 @@ python scripts/resolve_preferences.py --workspace <workspace> --format json
 3. Preview hoặc persist bằng core writer:
 
 ```powershell
-python scripts/write_preferences.py --workspace <workspace> --detail-level detailed --pace fast --feedback-style direct
-python scripts/write_preferences.py --workspace <workspace> --detail-level detailed --pace fast --feedback-style direct --apply
+python scripts/write_preferences.py --detail-level detailed --pace fast --feedback-style direct
+python scripts/write_preferences.py --detail-level detailed --pace fast --feedback-style direct --apply
 ```
 
 4. Trả lời ngắn:

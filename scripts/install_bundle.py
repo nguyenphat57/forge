@@ -20,6 +20,8 @@ DEFAULT_INSTALL_TARGETS = {
 }
 CODEX_GLOBAL_TEMPLATE = "AGENTS.global.md"
 CODEX_LEGACY_SKILL_GLOB = "awf-*"
+STATE_SCOPE = "adapter-global"
+STATE_PREFERENCES_RELATIVE_PATH = Path("state") / "preferences.json"
 
 
 def resolve_bundle_source(bundle_name: str, source: str | None) -> Path:
@@ -41,6 +43,22 @@ def resolve_codex_home(codex_home: str | None) -> Path:
     if codex_home:
         return Path(codex_home).expanduser().resolve()
     return DEFAULT_CODEX_HOME.resolve()
+
+
+def resolve_adapter_state_root(target_path: Path) -> Path:
+    target_path = target_path.resolve()
+    if target_path.parent.name == "skills":
+        return (target_path.parent.parent / target_path.name).resolve()
+    return (target_path.parent / f"{target_path.name}-state").resolve()
+
+
+def build_state_metadata(target_path: Path) -> dict:
+    state_root = resolve_adapter_state_root(target_path)
+    return {
+        "scope": STATE_SCOPE,
+        "root": str(state_root),
+        "preferences_path": str(state_root / STATE_PREFERENCES_RELATIVE_PATH),
+    }
 
 
 def validate_install_paths(source: Path, target: Path) -> None:
@@ -161,6 +179,7 @@ def plan_install(
         activate_codex=activate_codex,
         codex_home=codex_home,
     )
+    state = build_state_metadata(target_path)
 
     return {
         "bundle": bundle_name,
@@ -175,6 +194,7 @@ def plan_install(
         "backup_path": str(backup_path) if backup_path else None,
         "source_build_manifest": build_manifest,
         "codex_host_activation": codex_host_activation,
+        "state": state,
     }
 
 
@@ -189,6 +209,7 @@ def write_install_manifest(target: Path, report: dict) -> None:
         "source": report["source"],
         "backup_path": report["backup_path"],
         "source_build_manifest": report["source_build_manifest"],
+        "state": report["state"],
     }
     if report["codex_host_activation"]["enabled"]:
         activation = report["codex_host_activation"]
@@ -293,6 +314,20 @@ def apply_codex_host_activation(report: dict) -> None:
             remove_path(skill_path)
 
 
+def ensure_state_layout(report: dict) -> None:
+    state = report.get("state") or {}
+    root_value = state.get("root")
+    preferences_value = state.get("preferences_path")
+    if not isinstance(root_value, str) or not root_value.strip():
+        return
+
+    state_root = Path(root_value)
+    state_root.mkdir(parents=True, exist_ok=True)
+
+    if isinstance(preferences_value, str) and preferences_value.strip():
+        Path(preferences_value).parent.mkdir(parents=True, exist_ok=True)
+
+
 def install_from_plan(report: dict) -> dict:
     if report["dry_run"]:
         return report
@@ -309,6 +344,7 @@ def install_from_plan(report: dict) -> dict:
         target_path.unlink()
 
     sync_tree(source_path, target_path)
+    ensure_state_layout(report)
     apply_codex_host_activation(report)
     write_install_manifest(target_path, report)
     return report

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
 import sys
 import unittest
 from pathlib import Path
@@ -92,7 +94,85 @@ class CodexHostInstallTests(unittest.TestCase):
 
             manifest = json.loads((target / "INSTALL-MANIFEST.json").read_text(encoding="utf-8"))
             self.assertTrue(manifest["codex_host_activation"]["enabled"])
+            self.assertEqual(manifest["state"]["scope"], "adapter-global")
+            self.assertEqual(manifest["state"]["root"], str((codex_home / "forge-codex").resolve()))
+            self.assertEqual(
+                manifest["state"]["preferences_path"],
+                str((codex_home / "forge-codex" / "state" / "preferences.json").resolve()),
+            )
+            self.assertTrue((codex_home / "forge-codex").is_dir())
+            self.assertTrue((codex_home / "forge-codex" / "state").is_dir())
             self.assertNotIn("awf-codex", json.dumps(manifest, ensure_ascii=False))
+
+    def test_installed_codex_bundle_uses_codex_host_state_by_default(self) -> None:
+        build_release.build_all()
+        with TemporaryDirectory() as temp_dir:
+            temp_root = Path(temp_dir)
+            codex_home = temp_root / "codex-home"
+            target = codex_home / "skills" / "forge-codex"
+            self.seed_codex_home(codex_home, target)
+
+            install_bundle.install_bundle(
+                "forge-codex",
+                target=str(target),
+                backup_dir=str(temp_root / "backups"),
+                activate_codex=True,
+                codex_home=str(codex_home),
+            )
+
+            workspace = temp_root / "workspace"
+            workspace.mkdir(parents=True, exist_ok=True)
+            expected_state_root = (codex_home / "forge-codex").resolve()
+            expected_preferences = (expected_state_root / "state" / "preferences.json").resolve()
+            env = os.environ.copy()
+            env.pop("FORGE_HOME", None)
+
+            write_result = subprocess.run(
+                [
+                    sys.executable,
+                    str(target / "scripts" / "write_preferences.py"),
+                    "--workspace",
+                    str(workspace),
+                    "--technical-level",
+                    "technical",
+                    "--apply",
+                    "--format",
+                    "json",
+                ],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                check=False,
+                env=env,
+            )
+            self.assertEqual(write_result.returncode, 0, write_result.stderr)
+            write_report = json.loads(write_result.stdout)
+
+            self.assertEqual(write_report["state_root"], str(expected_state_root))
+            self.assertEqual(write_report["path"], str(expected_preferences))
+            self.assertTrue(expected_preferences.exists())
+
+            resolve_result = subprocess.run(
+                [
+                    sys.executable,
+                    str(target / "scripts" / "resolve_preferences.py"),
+                    "--workspace",
+                    str(workspace),
+                    "--format",
+                    "json",
+                ],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                check=False,
+                env=env,
+            )
+            self.assertEqual(resolve_result.returncode, 0, resolve_result.stderr)
+            resolve_report = json.loads(resolve_result.stdout)
+
+            self.assertEqual(resolve_report["source"]["type"], "global")
+            self.assertEqual(resolve_report["source"]["path"], str(expected_preferences))
+            self.assertEqual(resolve_report["preferences"]["technical_level"], "technical")
 
     def test_activate_codex_requires_canonical_target(self) -> None:
         build_release.build_all()

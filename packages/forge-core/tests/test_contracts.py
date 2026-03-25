@@ -5,7 +5,7 @@ import re
 import unittest
 from pathlib import Path
 
-from support import ROOT_DIR, load_json_fixture, workspace_fixture
+from support import ROOT_DIR, forge_home_fixture, load_json_fixture, workspace_fixture
 
 
 class BundleContractTests(unittest.TestCase):
@@ -45,6 +45,8 @@ class BundleContractTests(unittest.TestCase):
         for case in load_json_fixture("preferences_cases.json"):
             with self.subTest(preferences_case=case["name"]):
                 self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
+                if case.get("forge_home_fixture"):
+                    self.assertTrue(forge_home_fixture(case["forge_home_fixture"]).exists())
 
         for case in load_json_fixture("help_next_cases.json"):
             with self.subTest(help_next_case=case["name"]):
@@ -69,10 +71,14 @@ class BundleContractTests(unittest.TestCase):
         for case in load_json_fixture("preferences_write_cases.json"):
             with self.subTest(preferences_write_case=case["name"]):
                 self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
+                if case.get("forge_home_fixture"):
+                    self.assertTrue(forge_home_fixture(case["forge_home_fixture"]).exists())
 
         for case in load_json_fixture("workspace_init_cases.json"):
             with self.subTest(workspace_init_case=case["name"]):
                 self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
+                if case.get("forge_home_fixture"):
+                    self.assertTrue(forge_home_fixture(case["forge_home_fixture"]).exists())
 
     def test_tooling_docs_mention_verify_entrypoints(self) -> None:
         tooling = (ROOT_DIR / "references" / "tooling.md").read_text(encoding="utf-8")
@@ -92,7 +98,8 @@ class BundleContractTests(unittest.TestCase):
     def test_session_workflow_mentions_preferences_restore_contract(self) -> None:
         session = (ROOT_DIR / "workflows" / "execution" / "session.md").read_text(encoding="utf-8")
 
-        self.assertIn(".brain/preferences.json", session)
+        self.assertIn("adapter-global", session)
+        self.assertIn("state/preferences.json", session)
         self.assertIn("resolve_preferences.py", session)
         self.assertIn("Response Personalization", session)
 

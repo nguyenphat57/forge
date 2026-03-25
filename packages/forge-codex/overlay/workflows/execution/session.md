@@ -33,7 +33,7 @@ quality_gates:
 
 ## Operating Rules
 
-- If the workspace has `.brain/preferences.json`, resolve it early through `scripts/resolve_preferences.py` so the recap follows the user's response settings.
+- Resolve adapter-global Forge preferences early through `scripts/resolve_preferences.py` so the recap follows the user's response settings; `--workspace` only keeps legacy `.brain/preferences.json` fallback alive.
 
 - Repo-first: start from `git status`, changed files, plans, specs, and current docs.
 - `.brain` is optional support, not the primary source of truth.
@@ -47,7 +47,7 @@ quality_gates:
 ```text
 1. docs/plans/, docs/specs/, task notes that match the current scope
 2. git status / changed files / recent commits when git exists
-3. `.brain/preferences.json` via `python scripts/resolve_preferences.py --workspace <workspace> --format json`
+3. Codex-global `state/preferences.json` via `python scripts/resolve_preferences.py --workspace <workspace> --format json`
 4. .brain/handover.md
 5. .brain/session.json
 6. .brain/decisions.json

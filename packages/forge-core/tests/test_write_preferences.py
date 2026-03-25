@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from support import load_json_fixture, run_python_script, workspace_fixture
+from support import forge_home_fixture, load_json_fixture, run_python_script, workspace_fixture
 
 import common  # noqa: E402
 
@@ -22,6 +22,7 @@ class WritePreferencesTests(unittest.TestCase):
                     "--format",
                     "json",
                     *case["args"],
+                    env={"FORGE_HOME": str(forge_home_fixture(case.get("forge_home_fixture", "empty")))},
                 )
                 self.assertEqual(result.returncode, 0, result.stderr)
                 report = json.loads(result.stdout)
@@ -34,6 +35,7 @@ class WritePreferencesTests(unittest.TestCase):
     def test_write_preferences_script_apply_writes_file(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
+            forge_home = Path(temp_dir) / "forge-home"
             result = run_python_script(
                 "write_preferences.py",
                 "--workspace",
@@ -47,6 +49,7 @@ class WritePreferencesTests(unittest.TestCase):
                 "--apply",
                 "--format",
                 "json",
+                env={"FORGE_HOME": str(forge_home)},
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             report = json.loads(result.stdout)
@@ -54,7 +57,7 @@ class WritePreferencesTests(unittest.TestCase):
             self.assertEqual(report["preferences"]["technical_level"], "newbie")
             self.assertEqual(report["preferences"]["pace"], "fast")
             self.assertEqual(report["preferences"]["feedback_style"], "direct")
-            written = json.loads(common.resolve_workspace_preferences_path(workspace).read_text(encoding="utf-8"))
+            written = json.loads(common.resolve_global_preferences_path(forge_home).read_text(encoding="utf-8"))
             self.assertEqual(written, report["preferences"])
 
     def test_write_preferences_requires_updates(self) -> None:
@@ -65,6 +68,7 @@ class WritePreferencesTests(unittest.TestCase):
                 temp_dir,
                 "--format",
                 "json",
+                env={"FORGE_HOME": str(Path(temp_dir) / "forge-home")},
             )
             self.assertNotEqual(result.returncode, 0)
             report = json.loads(result.stdout)

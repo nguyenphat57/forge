@@ -5,7 +5,9 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from support import load_json_fixture, run_python_script, workspace_fixture
+from support import forge_home_fixture, load_json_fixture, run_python_script, workspace_fixture
+
+import common  # noqa: E402
 
 
 class InitializeWorkspaceTests(unittest.TestCase):
@@ -20,6 +22,7 @@ class InitializeWorkspaceTests(unittest.TestCase):
                     "--format",
                     "json",
                     *case["args"],
+                    env={"FORGE_HOME": str(forge_home_fixture(case.get("forge_home_fixture", "empty")))},
                 )
                 self.assertEqual(result.returncode, 0, result.stderr)
                 report = json.loads(result.stdout)
@@ -30,6 +33,7 @@ class InitializeWorkspaceTests(unittest.TestCase):
     def test_initialize_workspace_apply_creates_expected_structure(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir) / "greenfield"
+            forge_home = Path(temp_dir) / "forge-home"
             result = run_python_script(
                 "initialize_workspace.py",
                 "--workspace",
@@ -40,13 +44,14 @@ class InitializeWorkspaceTests(unittest.TestCase):
                 "--apply",
                 "--format",
                 "json",
+                env={"FORGE_HOME": str(forge_home)},
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             report = json.loads(result.stdout)
 
             self.assertEqual(report["workspace_mode"], "greenfield")
             self.assertTrue((workspace / ".brain" / "session.json").exists())
-            self.assertTrue((workspace / ".brain" / "preferences.json").exists())
+            self.assertTrue(common.resolve_global_preferences_path(forge_home).exists())
             self.assertTrue((workspace / "docs" / "plans").exists())
             self.assertTrue((workspace / "docs" / "specs").exists())
 
@@ -63,6 +68,7 @@ class InitializeWorkspaceTests(unittest.TestCase):
                 "--apply",
                 "--format",
                 "json",
+                env={"FORGE_HOME": str(Path(temp_dir) / "forge-home")},
             )
             self.assertEqual(first.returncode, 0, first.stderr)
 
@@ -73,6 +79,7 @@ class InitializeWorkspaceTests(unittest.TestCase):
                 "--apply",
                 "--format",
                 "json",
+                env={"FORGE_HOME": str(Path(temp_dir) / "forge-home")},
             )
             self.assertEqual(second.returncode, 0, second.stderr)
             report = json.loads(second.stdout)

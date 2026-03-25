@@ -1,0 +1,256 @@
+{
+  "read": {
+    "match_any_top_level_keys": [
+      "communication",
+      "technical",
+      "working_style"
+    ],
+    "canonical_fields": {
+      "technical_level": {
+        "paths": [
+          "technical.technical_level"
+        ],
+        "read_map": {
+          "newbie": "newbie",
+          "basic": "basic",
+          "technical": "technical",
+          "learning": "basic"
+        },
+        "write_map": {
+          "newbie": "newbie",
+          "basic": "basic",
+          "technical": "technical"
+        }
+      },
+      "detail_level": {
+        "paths": [
+          "technical.detail_level"
+        ],
+        "read_map": {
+          "results-only": "concise",
+          "results_only": "concise",
+          "simple": "balanced",
+          "balanced": "balanced",
+          "learning": "detailed",
+          "detailed": "detailed",
+          "full-technical": "detailed",
+          "full_technical": "detailed",
+          "concise": "concise"
+        },
+        "write_map": {
+          "concise": "results_only",
+          "balanced": "simple",
+          "detailed": "learning"
+        }
+      },
+      "autonomy_level": {
+        "paths": [
+          "technical.autonomy"
+        ],
+        "read_map": {
+          "ask-often": "guided",
+          "ask_often": "guided",
+          "guided": "guided",
+          "balanced": "balanced",
+          "autonomous": "autonomous"
+        },
+        "write_map": {
+          "guided": "ask_often",
+          "balanced": "balanced",
+          "autonomous": "autonomous"
+        }
+      },
+      "pace": {
+        "paths": [
+          "working_style.pace"
+        ],
+        "read_map": {
+          "careful": "steady",
+          "steady": "steady",
+          "balanced": "balanced",
+          "fast": "fast"
+        },
+        "write_map": {
+          "steady": "careful",
+          "balanced": "careful",
+          "fast": "fast"
+        }
+      },
+      "feedback_style": {
+        "paths": [
+          "working_style.feedback"
+        ],
+        "read_map": {
+          "gentle": "gentle",
+          "balanced": "balanced",
+          "direct": "direct",
+          "silent": "balanced"
+        },
+        "write_map": {
+          "gentle": "gentle",
+          "balanced": "gentle",
+          "direct": "direct"
+        }
+      },
+      "personality": {
+        "paths": [
+          "communication.persona",
+          "communication.personality"
+        ],
+        "read_map": {
+          "assistant": "default",
+          "default": "default",
+          "smart-assistant": "default",
+          "smart_assistant": "default",
+          "mentor": "mentor",
+          "partner": "mentor",
+          "coach": "mentor",
+          "senior-dev": "strict-coach",
+          "senior_dev": "strict-coach",
+          "strict-coach": "strict-coach",
+          "strict_coach": "strict-coach",
+          "custom": "default"
+        },
+        "write_map": {
+          "default": "assistant",
+          "mentor": "mentor",
+          "strict-coach": "senior_dev"
+        }
+      }
+    }
+  },
+  "write": {
+    "prefer_native_format": true,
+    "preserve_existing_payload": true,
+    "template": {
+      "communication": {
+        "tone": "friendly",
+        "persona": "assistant"
+      },
+      "technical": {
+        "detail_level": "simple",
+        "autonomy": "ask_often",
+        "quality": "production",
+        "technical_level": "basic"
+      },
+      "working_style": {
+        "pace": "careful",
+        "feedback": "gentle"
+      },
+      "custom_rules": []
+    },
+    "canonical_fields": {
+      "technical_level": {
+        "paths": [
+          "technical.technical_level"
+        ],
+        "read_map": {
+          "newbie": "newbie",
+          "basic": "basic",
+          "technical": "technical",
+          "learning": "basic"
+        },
+        "write_map": {
+          "newbie": "newbie",
+          "basic": "basic",
+          "technical": "technical"
+        }
+      },
+      "detail_level": {
+        "paths": [
+          "technical.detail_level"
+        ],
+        "read_map": {
+          "results-only": "concise",
+          "results_only": "concise",
+          "simple": "balanced",
+          "balanced": "balanced",
+          "learning": "detailed",
+          "detailed": "detailed",
+          "full-technical": "detailed",
+          "full_technical": "detailed",
+          "concise": "concise"
+        },
+        "write_map": {
+          "concise": "results_only",
+          "balanced": "simple",
+          "detailed": "learning"
+        }
+      },
+      "autonomy_level": {
+        "paths": [
+          "technical.autonomy"
+        ],
+        "read_map": {
+          "ask-often": "guided",
+          "ask_often": "guided",
+          "guided": "guided",
+          "balanced": "balanced",
+          "autonomous": "autonomous"
+        },
+        "write_map": {
+          "guided": "ask_often",
+          "balanced": "balanced",
+          "autonomous": "autonomous"
+        }
+      },
+      "pace": {
+        "paths": [
+          "working_style.pace"
+        ],
+        "read_map": {
+          "careful": "steady",
+          "steady": "steady",
+          "balanced": "balanced",
+          "fast": "fast"
+        },
+        "write_map": {
+          "steady": "careful",
+          "balanced": "careful",
+          "fast": "fast"
+        }
+      },
+      "feedback_style": {
+        "paths": [
+          "working_style.feedback"
+        ],
+        "read_map": {
+          "gentle": "gentle",
+          "balanced": "balanced",
+          "direct": "direct",
+          "silent": "balanced"
+        },
+        "write_map": {
+          "gentle": "gentle",
+          "balanced": "gentle",
+          "direct": "direct"
+        }
+      },
+      "personality": {
+        "paths": [
+          "communication.persona",
+          "communication.personality"
+        ],
+        "read_map": {
+          "assistant": "default",
+          "default": "default",
+          "smart-assistant": "default",
+          "smart_assistant": "default",
+          "mentor": "mentor",
+          "partner": "mentor",
+          "coach": "mentor",
+          "senior-dev": "strict-coach",
+          "senior_dev": "strict-coach",
+          "strict-coach": "strict-coach",
+          "strict_coach": "strict-coach",
+          "custom": "default"
+        },
+        "write_map": {
+          "default": "assistant",
+          "mentor": "mentor",
+          "strict-coach": "senior_dev"
+        }
+      }
+    }
+  }
+}

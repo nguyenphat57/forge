@@ -12,6 +12,7 @@ def build_payload(args: argparse.Namespace) -> dict:
         preferences_file=args.preferences_file,
         workspace=args.workspace,
         strict=args.strict,
+        forge_home=args.forge_home,
     )
     payload = {
         "status": "WARN" if report["warnings"] else "PASS",
@@ -48,8 +49,16 @@ def format_text(payload: dict) -> str:
 def main() -> int:
     configure_stdio()
 
-    parser = argparse.ArgumentParser(description="Resolve Forge response-style preferences from a workspace or explicit file.")
-    parser.add_argument("--workspace", type=Path, default=None, help="Workspace root to inspect for .brain/preferences.json")
+    parser = argparse.ArgumentParser(
+        description="Resolve Forge response-style preferences from adapter-global state or an explicit file."
+    )
+    parser.add_argument("--workspace", type=Path, default=None, help="Optional workspace root to inspect for legacy .brain/preferences.json")
+    parser.add_argument(
+        "--forge-home",
+        type=Path,
+        default=None,
+        help="Override adapter state root (defaults to $FORGE_HOME, installed adapter state, or ~/.forge in dev)",
+    )
     parser.add_argument("--preferences-file", type=Path, default=None, help="Explicit preferences file to read")
     parser.add_argument("--strict", action="store_true", help="Fail on invalid values instead of warning and falling back")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")

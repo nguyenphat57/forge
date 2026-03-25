@@ -109,7 +109,7 @@ forge-antigravity/
 ## Executable Tooling
 
 - Canonical machine-readable source: `data/orchestrator-registry.json`
-- Preferences resolver: `scripts/resolve_preferences.py` (workspace-local `.brain/preferences.json` -> canonical response-style contract)
+- Preferences resolver: `scripts/resolve_preferences.py` (adapter-global Forge preferences -> canonical response-style contract, with optional legacy workspace fallback)
 - Preferences writer: `scripts/write_preferences.py` (canonical schema persistence for `/customize`)
 - Workspace init skeleton: `scripts/initialize_workspace.py` (repo-neutral bootstrap for `/init`)
 - Help/next navigator: `scripts/resolve_help_next.py` (repo state -> current focus, suggested workflow, next action)
@@ -139,7 +139,7 @@ forge-antigravity/
   - `.forge-artifacts/chain-status/`
   - `.forge-artifacts/execution-progress/`
   - `.forge-artifacts/ui-briefs/`
-  - `.brain/preferences.json`
+  - `~/.gemini/antigravity/forge-antigravity/state/preferences.json`
   - `.brain/decisions.json`
   - `.brain/learnings.json`
 
@@ -149,8 +149,9 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 
 ## Response Personalization
 
-- Nếu workspace có `.brain/preferences.json`, Forge resolve nó qua core engine `scripts/resolve_preferences.py`.
+- Forge resolve preferences qua core engine `scripts/resolve_preferences.py` từ Antigravity-global `state/preferences.json`, và chỉ fallback sang `.brain/preferences.json` cho workspace legacy.
 - Schema canonical gồm `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, và `personality`.
+- Khi file state đang dùng schema native của Antigravity, adapter này map payload đó về canonical schema trước khi resolve response style.
 - `forge-antigravity` có thể thêm wrapper như `/customize`, nhưng schema và response-style semantics vẫn phải đọc từ core.
 - Durable preference updates phải đi qua `scripts/write_preferences.py`, không được tự viết file schema riêng cho host.
 - Host UX có thể dày hơn Codex, nhưng không được fork key names hay validation rules.

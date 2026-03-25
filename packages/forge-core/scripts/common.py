@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import copy
 import io
 import json
+import os
 import re
 import sys
 import unicodedata
@@ -14,6 +16,11 @@ from typing import Iterable
 ROOT_DIR = Path(__file__).resolve().parent.parent
 REGISTRY_PATH = ROOT_DIR / "data" / "orchestrator-registry.json"
 PREFERENCES_SCHEMA_PATH = ROOT_DIR / "data" / "preferences-schema.json"
+PREFERENCES_COMPAT_PATH = ROOT_DIR / "data" / "preferences-compat.json"
+INSTALL_MANIFEST_PATH = ROOT_DIR / "INSTALL-MANIFEST.json"
+DEFAULT_FALLBACK_STATE_ROOT = Path.home() / ".forge"
+GLOBAL_PREFERENCES_RELATIVE_PATH = Path("state") / "preferences.json"
+LEGACY_WORKSPACE_PREFERENCES_RELATIVE_PATH = Path(".brain") / "preferences.json"
 
 STOP_TOKENS = {
     "skill",
@@ -408,9 +415,262 @@ def preference_defaults() -> dict[str, str]:
     return defaults
 
 
+@lru_cache(maxsize=1)
+def load_install_manifest() -> dict | None:
+    if not INSTALL_MANIFEST_PATH.exists():
+        return None
+    try:
+        manifest = json.loads(INSTALL_MANIFEST_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return None
+    return manifest if isinstance(manifest, dict) else None
+
+
+@lru_cache(maxsize=1)
+def load_preferences_compat() -> dict | None:
+    if not PREFERENCES_COMPAT_PATH.exists():
+        return None
+    try:
+        compat = json.loads(PREFERENCES_COMPAT_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return None
+    return compat if isinstance(compat, dict) else None
+
+
+def compat_entry_paths(entry: dict) -> list[str]:
+    raw_paths = entry.get("paths")
+    if isinstance(raw_paths, list):
+        return [path for path in raw_paths if isinstance(path, str) and path.strip()]
+    raw_path = entry.get("path")
+    if isinstance(raw_path, str) and raw_path.strip():
+        return [raw_path]
+    return []
+
+
+def get_nested_value(payload: object, path: str) -> object:
+    current = payload
+    for segment in path.split("."):
+        if not isinstance(current, dict) or segment not in current:
+            return None
+        current = current[segment]
+    return current
+
+
+def has_nested_value(payload: object, path: str) -> bool:
+    current = payload
+    for segment in path.split("."):
+        if not isinstance(current, dict) or segment not in current:
+            return False
+        current = current[segment]
+    return True
+
+
+def set_nested_value(payload: dict, path: str, value: object) -> None:
+    current = payload
+    segments = path.split(".")
+    for segment in segments[:-1]:
+        next_value = current.get(segment)
+        if not isinstance(next_value, dict):
+            next_value = {}
+            current[segment] = next_value
+        current = next_value
+    current[segments[-1]] = value
+
+
+def preferences_compat_matches(payload: object, compat: dict | None = None) -> bool:
+    if not isinstance(payload, dict):
+        return False
+    compat = load_preferences_compat() if compat is None else compat
+    if compat is None:
+        return False
+
+    read_config = compat.get("read")
+    if not isinstance(read_config, dict):
+        return False
+
+    match_any = read_config.get("match_any_top_level_keys")
+    if isinstance(match_any, list):
+        if any(isinstance(key, str) and key in payload for key in match_any):
+            return True
+
+    match_all = read_config.get("match_all_top_level_keys")
+    if isinstance(match_all, list):
+        keys = [key for key in match_all if isinstance(key, str)]
+        if keys and all(key in payload for key in keys):
+            return True
+
+    return False
+
+
+def compat_read_value(raw_value: object, entry: dict) -> object:
+    if not isinstance(raw_value, str):
+        return raw_value
+
+    token = normalize_choice_token(raw_value)
+    read_map = entry.get("read_map")
+    if isinstance(read_map, dict):
+        mapped = read_map.get(token)
+        if mapped is not None:
+            return mapped
+    return raw_value
+
+
+def translate_preferences_payload(payload: object) -> object:
+    compat = load_preferences_compat()
+    if compat is None or not preferences_compat_matches(payload, compat):
+        return payload
+
+    read_config = compat.get("read")
+    if not isinstance(read_config, dict):
+        return payload
+
+    fields = read_config.get("canonical_fields")
+    if not isinstance(fields, dict):
+        return payload
+
+    translated: dict[str, object] = {}
+    for key, entry in fields.items():
+        if not isinstance(entry, dict):
+            continue
+        for path in compat_entry_paths(entry):
+            raw_value = get_nested_value(payload, path)
+            if raw_value is None:
+                continue
+            translated[key] = compat_read_value(raw_value, entry)
+            break
+
+    return translated
+
+
+def choose_compat_write_path(existing_payload: object, entry: dict) -> str | None:
+    for path in compat_entry_paths(entry):
+        if has_nested_value(existing_payload, path):
+            return path
+    paths = compat_entry_paths(entry)
+    return paths[0] if paths else None
+
+
+def compat_values_equivalent(existing_raw: object, desired_value: str, entry: dict) -> bool:
+    existing_value = compat_read_value(existing_raw, entry)
+    if not isinstance(existing_value, str):
+        return False
+    return normalize_choice_token(existing_value) == normalize_choice_token(desired_value)
+
+
+def compat_write_value(existing_payload: object, desired_value: str, entry: dict) -> str:
+    for path in compat_entry_paths(entry):
+        existing_raw = get_nested_value(existing_payload, path)
+        if compat_values_equivalent(existing_raw, desired_value, entry) and isinstance(existing_raw, str):
+            return existing_raw
+
+    token = normalize_choice_token(desired_value)
+    write_map = entry.get("write_map")
+    if isinstance(write_map, dict):
+        mapped = write_map.get(token)
+        if isinstance(mapped, str):
+            return mapped
+    return desired_value
+
+
+def serialize_preferences_payload(
+    preferences: dict[str, str],
+    *,
+    existing_payload: object,
+    replace: bool,
+) -> object:
+    compat = load_preferences_compat()
+    if compat is None:
+        return preferences
+
+    write_config = compat.get("write")
+    if not isinstance(write_config, dict):
+        return preferences
+
+    use_compat = False
+    if preferences_compat_matches(existing_payload, compat):
+        use_compat = True
+    elif existing_payload is None and write_config.get("prefer_native_format"):
+        use_compat = True
+
+    if not use_compat:
+        return preferences
+
+    template = write_config.get("template")
+    if isinstance(existing_payload, dict) and write_config.get("preserve_existing_payload", True) and not replace:
+        serialized = copy.deepcopy(existing_payload)
+    elif isinstance(template, dict):
+        serialized = copy.deepcopy(template)
+    else:
+        serialized = {}
+
+    fields = write_config.get("canonical_fields")
+    if not isinstance(fields, dict):
+        return serialized
+
+    for key, desired_value in preferences.items():
+        entry = fields.get(key)
+        if not isinstance(entry, dict):
+            continue
+        path = choose_compat_write_path(existing_payload if not replace else serialized, entry)
+        if path is None:
+            continue
+        value = compat_write_value(existing_payload if not replace else serialized, desired_value, entry)
+        set_nested_value(serialized, path, value)
+
+    return serialized
+
+
+def resolve_installed_state_root() -> Path | None:
+    manifest = load_install_manifest()
+    if manifest is not None:
+        state = manifest.get("state")
+        if isinstance(state, dict):
+            root = state.get("root")
+            if isinstance(root, str) and root.strip():
+                return Path(root).expanduser().resolve()
+
+    if ROOT_DIR.parent.name == "skills":
+        return (ROOT_DIR.parent.parent / ROOT_DIR.name).resolve()
+
+    return None
+
+
+def resolve_installed_preferences_path() -> Path | None:
+    manifest = load_install_manifest()
+    if manifest is not None:
+        state = manifest.get("state")
+        if isinstance(state, dict):
+            path = state.get("preferences_path")
+            if isinstance(path, str) and path.strip():
+                return Path(path).expanduser().resolve()
+
+    state_root = resolve_installed_state_root()
+    if state_root is None:
+        return None
+    return state_root / GLOBAL_PREFERENCES_RELATIVE_PATH
+
+
+def resolve_forge_home(forge_home: Path | str | None = None) -> Path:
+    candidate = forge_home if forge_home is not None else os.environ.get("FORGE_HOME")
+    if candidate is not None:
+        return Path(candidate).expanduser().resolve()
+    installed_state_root = resolve_installed_state_root()
+    if installed_state_root is not None:
+        return installed_state_root
+    return DEFAULT_FALLBACK_STATE_ROOT.resolve()
+
+
+def resolve_global_preferences_path(forge_home: Path | str | None = None) -> Path:
+    if forge_home is None and os.environ.get("FORGE_HOME") is None:
+        installed_preferences_path = resolve_installed_preferences_path()
+        if installed_preferences_path is not None:
+            return installed_preferences_path
+    return resolve_forge_home(forge_home) / GLOBAL_PREFERENCES_RELATIVE_PATH
+
+
 def resolve_workspace_preferences_path(workspace: Path | None = None) -> Path:
     root = Path(workspace).resolve() if workspace is not None else Path.cwd()
-    return root / ".brain" / "preferences.json"
+    return root / LEGACY_WORKSPACE_PREFERENCES_RELATIVE_PATH
 
 
 def normalize_preferences(payload: object, *, strict: bool = False) -> tuple[dict[str, str], list[str]]:
@@ -418,6 +678,8 @@ def normalize_preferences(payload: object, *, strict: bool = False) -> tuple[dic
     warnings: list[str] = []
     if payload is None:
         return defaults, warnings
+
+    payload = translate_preferences_payload(payload)
     if not isinstance(payload, dict):
         raise ValueError("Preferences payload must be a JSON object.")
 
@@ -462,6 +724,7 @@ def load_preferences(
     preferences_file: Path | None = None,
     workspace: Path | None = None,
     strict: bool = False,
+    forge_home: Path | str | None = None,
 ) -> dict:
     warnings: list[str] = []
     defaults = preference_defaults()
@@ -472,14 +735,19 @@ def load_preferences(
             raise FileNotFoundError(f"Preferences file does not exist: {path}")
         source_type = "explicit"
     else:
-        path = resolve_workspace_preferences_path(workspace)
-        source_type = "workspace-local"
-        if not path.exists():
-            return {
-                "preferences": defaults,
-                "source": {"type": "defaults", "path": None},
-                "warnings": warnings,
-            }
+        global_path = resolve_global_preferences_path(forge_home)
+        if global_path.exists():
+            path = global_path
+            source_type = "global"
+        else:
+            path = resolve_workspace_preferences_path(workspace) if workspace is not None else None
+            source_type = "workspace-legacy"
+            if path is None or not path.exists():
+                return {
+                    "preferences": defaults,
+                    "source": {"type": "defaults", "path": None},
+                    "warnings": warnings,
+                }
 
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -518,21 +786,34 @@ def resolve_response_style(preferences: dict[str, str]) -> dict[str, str]:
 
 def write_preferences(
     *,
-    workspace: Path,
+    workspace: Path | None = None,
     updates: dict[str, str],
     strict: bool = False,
     replace: bool = False,
     apply: bool = False,
+    forge_home: Path | str | None = None,
 ) -> dict:
     if not updates:
         raise ValueError("At least one preference update is required.")
 
-    workspace = Path(workspace).resolve()
-    existing = load_preferences(workspace=workspace, strict=strict)
+    workspace_path = Path(workspace).resolve() if workspace is not None else None
+    forge_home_path = resolve_forge_home(forge_home)
+    existing = load_preferences(workspace=workspace_path, strict=strict, forge_home=forge_home_path)
     base = preference_defaults() if replace else existing["preferences"].copy()
     base.update(updates)
     preferences, warnings = normalize_preferences(base, strict=strict)
-    path = resolve_workspace_preferences_path(workspace)
+    path = resolve_global_preferences_path(forge_home_path)
+    raw_payload = None
+    if path.exists():
+        try:
+            raw_payload = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            raw_payload = None
+    serialized_preferences = serialize_preferences_payload(
+        preferences,
+        existing_payload=raw_payload,
+        replace=replace,
+    )
 
     changed_fields = [
         key for key in preferences if existing["preferences"].get(key) != preferences.get(key)
@@ -540,7 +821,7 @@ def write_preferences(
     created_file = not path.exists()
     if apply:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(preferences, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        path.write_text(json.dumps(serialized_preferences, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     status = "PASS" if changed_fields else "WARN"
     if warnings and status == "PASS":
@@ -548,11 +829,15 @@ def write_preferences(
 
     return {
         "status": status,
-        "workspace": str(workspace),
+        "scope": "adapter-global",
+        "state_root": str(forge_home_path),
+        "forge_home": str(forge_home_path),
+        "workspace": str(workspace_path) if workspace_path is not None else None,
         "path": str(path),
         "applied": apply,
         "replace": replace,
         "created_file": created_file and apply,
+        "migrated_legacy_workspace_preferences": existing["source"]["type"] == "workspace-legacy",
         "previous_preferences": existing["preferences"],
         "preferences": preferences,
         "response_style": resolve_response_style(preferences),

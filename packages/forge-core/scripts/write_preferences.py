@@ -27,6 +27,7 @@ def build_report(args: argparse.Namespace) -> dict:
         strict=args.strict,
         replace=args.replace,
         apply=args.apply,
+        forge_home=args.forge_home,
     )
 
 
@@ -34,12 +35,15 @@ def format_text(report: dict) -> str:
     lines = [
         "Forge Preferences Update",
         f"- Status: {report['status']}",
-        f"- Workspace: {report['workspace']}",
+        f"- Scope: {report['scope']}",
+        f"- State root: {report['state_root']}",
         f"- File: {report['path']}",
         f"- Applied: {'yes' if report['applied'] else 'no'}",
         f"- Replace mode: {'yes' if report['replace'] else 'no'}",
         "- Changed fields:",
     ]
+    if report["workspace"]:
+        lines.insert(4, f"- Workspace fallback: {report['workspace']}")
     if report["changed_fields"]:
         for field in report["changed_fields"]:
             lines.append(f"  - {field}")
@@ -60,14 +64,24 @@ def format_text(report: dict) -> str:
             lines.append(f"  - {warning}")
     else:
         lines.append("- Warnings: (none)")
+    if report["migrated_legacy_workspace_preferences"]:
+        lines.append("- Migration: reused legacy workspace preferences as the base before writing adapter-global state")
     return "\n".join(lines)
 
 
 def main() -> int:
     configure_stdio()
 
-    parser = argparse.ArgumentParser(description="Preview or write host-neutral Forge preferences for a workspace.")
-    parser.add_argument("--workspace", type=Path, default=Path.cwd(), help="Workspace root")
+    parser = argparse.ArgumentParser(
+        description="Preview or write host-neutral Forge preferences in the adapter-global state file."
+    )
+    parser.add_argument("--workspace", type=Path, default=None, help="Optional workspace root to inspect for legacy .brain/preferences.json during migration")
+    parser.add_argument(
+        "--forge-home",
+        type=Path,
+        default=None,
+        help="Override adapter state root (defaults to $FORGE_HOME, installed adapter state, or ~/.forge in dev)",
+    )
     parser.add_argument("--technical-level", dest="technical_level", help="technical_level value or alias")
     parser.add_argument("--detail-level", dest="detail_level", help="detail_level value or alias")
     parser.add_argument("--autonomy-level", dest="autonomy_level", help="autonomy_level value or alias")
@@ -75,7 +89,7 @@ def main() -> int:
     parser.add_argument("--feedback-style", dest="feedback_style", help="feedback_style value or alias")
     parser.add_argument("--personality", help="personality value or alias")
     parser.add_argument("--replace", action="store_true", help="Start from schema defaults instead of merging with current preferences")
-    parser.add_argument("--apply", action="store_true", help="Write `.brain/preferences.json` instead of preview only")
+    parser.add_argument("--apply", action="store_true", help="Write the adapter-global Forge preferences file instead of preview only")
     parser.add_argument("--strict", action="store_true", help="Fail on invalid values instead of warning and falling back")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     args = parser.parse_args()

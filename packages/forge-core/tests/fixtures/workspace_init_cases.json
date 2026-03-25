@@ -9,6 +9,7 @@
   {
     "name": "existing_preview_prefers_plan",
     "workspace_fixture": "run_workspace",
+    "forge_home_fixture": "empty",
     "args": [
       "--seed-preferences"
     ],

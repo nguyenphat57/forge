@@ -17,7 +17,7 @@
 
 Tùy chọn:
 
-- `.brain/preferences.json` nếu wrapper muốn seed default preferences ngay lúc init
+- adapter-global `state/preferences.json` nếu wrapper muốn seed default preferences ngay lúc init
 
 ## Workspace Classification
 

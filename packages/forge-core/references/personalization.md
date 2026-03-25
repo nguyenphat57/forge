@@ -7,7 +7,9 @@
 - Schema canonical nằm tại `data/preferences-schema.json`
 - Resolver canonical nằm tại `scripts/resolve_preferences.py`
 - Persistence helper canonical nằm tại `scripts/write_preferences.py`
-- Workspace-local file mặc định: `.brain/preferences.json`
+- Installed adapters mặc định dùng adapter-global state tại `<host-home>/<adapter-name>/state/preferences.json`
+- `$FORGE_HOME/state/preferences.json` là explicit override cho test/dev; nếu không có installed adapter metadata hay override, core fallback về `~/.forge/state/preferences.json`
+- Adapter có thể ship `data/preferences-compat.json` để map host-native preference payload sang canonical schema mà không fork core engine
 - Adapter có thể thêm flow `customize`, nhưng không được đổi key names hay meaning của schema
 
 ## Supported Fields
@@ -24,8 +26,9 @@
 ## Resolution Order
 
 1. Nếu có `--preferences-file`, dùng file đó và fail nếu file không tồn tại.
-2. Nếu có `--workspace`, đọc `.brain/preferences.json` trong workspace đó.
-3. Nếu không có file hợp lệ, dùng defaults từ schema.
+2. Nếu có adapter-global Forge state hợp lệ, đọc `state/preferences.json` của adapter đang chạy.
+3. Nếu chưa có adapter-global file và có `--workspace`, đọc legacy `.brain/preferences.json` trong workspace đó.
+4. Nếu không có file hợp lệ, dùng defaults từ schema.
 
 ## Validation Rules
 
@@ -50,7 +53,7 @@ Resolver không tạo host-specific command surface. Nó chỉ trả về respon
 Khi adapter muốn ghi preferences:
 
 ```powershell
-python scripts/write_preferences.py --workspace C:\path\to\workspace --technical-level newbie --pace fast --apply
+python scripts/write_preferences.py --technical-level newbie --pace fast --apply
 ```
 
 Rule:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from argparse import Namespace
@@ -11,6 +12,7 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 SCRIPTS_DIR = ROOT_DIR / "scripts"
 FIXTURES_DIR = ROOT_DIR / "tests" / "fixtures"
 WORKSPACES_DIR = FIXTURES_DIR / "workspaces"
+FORGE_HOMES_DIR = FIXTURES_DIR / "forge-homes"
 
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
@@ -44,8 +46,21 @@ def workspace_fixture(name: str) -> Path:
     return WORKSPACES_DIR / name
 
 
-def run_python_script(script_name: str, *args: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
+def forge_home_fixture(name: str) -> Path:
+    return FORGE_HOMES_DIR / name
+
+
+def run_python_script(
+    script_name: str,
+    *args: str,
+    cwd: Path | None = None,
+    env: dict[str, str] | None = None,
+) -> subprocess.CompletedProcess[str]:
     command = [sys.executable, str(SCRIPTS_DIR / script_name), *args]
+    merged_env = os.environ.copy()
+    merged_env.setdefault("FORGE_HOME", str(forge_home_fixture("empty")))
+    if env:
+        merged_env.update(env)
     return subprocess.run(
         command,
         cwd=str(cwd or ROOT_DIR),
@@ -53,4 +68,5 @@ def run_python_script(script_name: str, *args: str, cwd: Path | None = None) -> 
         text=True,
         encoding="utf-8",
         check=False,
+        env=merged_env,
     )

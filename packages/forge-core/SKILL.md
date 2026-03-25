@@ -107,7 +107,7 @@ forge-core/
 ## Executable Tooling
 
 - Canonical machine-readable source: `data/orchestrator-registry.json`
-- Preferences resolver: `scripts/resolve_preferences.py` (workspace-local `.brain/preferences.json` -> canonical response-style contract)
+- Preferences resolver: `scripts/resolve_preferences.py` (adapter-global Forge preferences -> canonical response-style contract, with optional legacy workspace fallback)
 - Preferences writer: `scripts/write_preferences.py` (canonical schema persistence for adapter-level customize flows)
 - Workspace init skeleton: `scripts/initialize_workspace.py` (repo-neutral workspace bootstrap for adapter-level init flows)
 - Help/next navigator: `scripts/resolve_help_next.py` (repo state -> current focus, suggested workflow, next action)
@@ -137,7 +137,7 @@ forge-core/
   - `.forge-artifacts/chain-status/`
   - `.forge-artifacts/execution-progress/`
   - `.forge-artifacts/ui-briefs/`
-  - `.brain/preferences.json`
+  - `<adapter-state-root>/state/preferences.json`
   - `.brain/decisions.json`
   - `.brain/learnings.json`
 
@@ -147,7 +147,7 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 
 ## Response Personalization
 
-- Nếu workspace có `.brain/preferences.json`, Forge có thể resolve nó bằng `scripts/resolve_preferences.py`.
+- Forge resolve preferences từ adapter-global `state/preferences.json` qua `scripts/resolve_preferences.py`, và chỉ fallback sang `.brain/preferences.json` khi workspace cũ chưa migrate.
 - Core schema gồm `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, và `personality`.
 - Adapter có thể persist preferences qua `scripts/write_preferences.py`, nhưng không được đổi key names hay validation rules.
 - Adapter có thể thêm UX wrapper như `customize`, nhưng không được fork schema hay đổi meaning của response-style contract.

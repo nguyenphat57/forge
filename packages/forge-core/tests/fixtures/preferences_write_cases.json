@@ -1,7 +1,58 @@
 [
   {
-    "name": "merge_preview_with_aliases",
+    "name": "merge_preview_with_aliases_from_global_preferences",
     "workspace_fixture": "preferences_workspace",
+    "forge_home_fixture": "global_preferences",
+    "args": [
+      "--feedback-style",
+      "balanced",
+      "--pace",
+      "slow"
+    ],
+    "expected_status": "PASS",
+    "expected_preferences": {
+      "technical_level": "technical",
+      "detail_level": "concise",
+      "autonomy_level": "autonomous",
+      "pace": "steady",
+      "feedback_style": "balanced",
+      "personality": "strict-coach"
+    },
+    "expected_changed_fields": [
+      "pace",
+      "feedback_style"
+    ]
+  },
+  {
+    "name": "replace_preview_resets_unspecified_fields",
+    "workspace_fixture": "preferences_workspace",
+    "forge_home_fixture": "global_preferences",
+    "args": [
+      "--replace",
+      "--technical-level",
+      "technical"
+    ],
+    "expected_status": "PASS",
+    "expected_preferences": {
+      "technical_level": "technical",
+      "detail_level": "balanced",
+      "autonomy_level": "balanced",
+      "pace": "balanced",
+      "feedback_style": "balanced",
+      "personality": "default"
+    },
+    "expected_changed_fields": [
+      "detail_level",
+      "autonomy_level",
+      "pace",
+      "feedback_style",
+      "personality"
+    ]
+  },
+  {
+    "name": "workspace_legacy_preferences_are_used_as_migration_base",
+    "workspace_fixture": "preferences_workspace",
+    "forge_home_fixture": "empty",
     "args": [
       "--feedback-style",
       "balanced",
@@ -20,32 +71,6 @@
     "expected_changed_fields": [
       "pace",
       "feedback_style"
-    ]
-  },
-  {
-    "name": "replace_preview_resets_unspecified_fields",
-    "workspace_fixture": "preferences_workspace",
-    "args": [
-      "--replace",
-      "--technical-level",
-      "technical"
-    ],
-    "expected_status": "PASS",
-    "expected_preferences": {
-      "technical_level": "technical",
-      "detail_level": "balanced",
-      "autonomy_level": "balanced",
-      "pace": "balanced",
-      "feedback_style": "balanced",
-      "personality": "default"
-    },
-    "expected_changed_fields": [
-      "technical_level",
-      "detail_level",
-      "autonomy_level",
-      "pace",
-      "feedback_style",
-      "personality"
     ]
   }
 ]

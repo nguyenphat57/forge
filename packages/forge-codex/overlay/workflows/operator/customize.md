@@ -19,7 +19,7 @@ quality_gates:
 1. Đọc preferences hiện tại:
 
 ```powershell
-python scripts/resolve_preferences.py --workspace <workspace> --format json
+python scripts/resolve_preferences.py --format json
 ```
 
 2. Map nhu cầu vào các field canonical:
@@ -33,8 +33,8 @@ python scripts/resolve_preferences.py --workspace <workspace> --format json
 3. Preview hoặc persist bằng core writer:
 
 ```powershell
-python scripts/write_preferences.py --workspace <workspace> --detail-level concise --pace fast --feedback-style direct
-python scripts/write_preferences.py --workspace <workspace> --detail-level concise --pace fast --feedback-style direct --apply
+python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct
+python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct --apply
 ```
 
 4. Trả lời ngắn:
