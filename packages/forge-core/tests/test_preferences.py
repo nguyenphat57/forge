@@ -76,6 +76,7 @@ class PreferencesTests(unittest.TestCase):
             forge_home=forge_home_fixture("empty"),
         )
         style = common.resolve_response_style(report["preferences"])
+        contract = common.resolve_output_contract(report["extra"])
 
         self.assertEqual(report["source"]["type"], "workspace-legacy")
         self.assertEqual(
@@ -111,6 +112,11 @@ class PreferencesTests(unittest.TestCase):
         self.assertEqual(style["delivery_pace"], "fast")
         self.assertEqual(style["feedback_mode"], "direct")
         self.assertEqual(style["teaching_mode"], "explain-why")
+        self.assertEqual(contract["language"], "vi")
+        self.assertEqual(contract["user_facing_language"], "vietnamese")
+        self.assertEqual(contract["orthography"], "vietnamese-diacritics")
+        self.assertEqual(contract["accent_policy"], "required")
+        self.assertEqual(contract["encoding"], "utf-8")
 
     def test_invalid_preferences_warn_and_fall_back_in_non_strict_mode(self) -> None:
         report = common.load_preferences(
@@ -246,6 +252,10 @@ class PreferencesTests(unittest.TestCase):
                 ],
             },
         )
+        self.assertEqual(report["output_contract"]["language"], "vi")
+        self.assertEqual(report["output_contract"]["orthography"], "vietnamese-diacritics")
+        self.assertEqual(report["output_contract"]["accent_policy"], "required")
+        self.assertEqual(report["output_contract"]["encoding"], "utf-8")
 
 
 if __name__ == "__main__":

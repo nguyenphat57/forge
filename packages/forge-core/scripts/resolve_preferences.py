@@ -9,6 +9,7 @@ from common import (
     extract_extras,
     load_preferences,
     merge_extra_preferences,
+    resolve_output_contract,
     resolve_response_style,
     resolve_workspace_preferences_path,
 )
@@ -61,6 +62,7 @@ def build_payload(args: argparse.Namespace) -> dict:
         "source": report["source"],
         "preferences": report["preferences"],
         "extra": extra,
+        "output_contract": resolve_output_contract(extra),
         "response_style": resolve_response_style(report["preferences"]),
         "warnings": warnings,
     }
@@ -83,6 +85,12 @@ def format_text(payload: dict) -> str:
             lines.append(f"  {line}")
     else:
         lines.append("- Extra: (none)")
+    if payload["output_contract"]:
+        lines.append("- Output contract:")
+        for line in json.dumps(payload["output_contract"], indent=2, ensure_ascii=False).splitlines():
+            lines.append(f"  {line}")
+    else:
+        lines.append("- Output contract: (none)")
     lines.append("- Response style:")
     for key, value in payload["response_style"].items():
         lines.append(f"  - {key}: {value}")

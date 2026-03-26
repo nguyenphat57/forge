@@ -39,6 +39,10 @@ Read the mapped workflow from `{{FORGE_CODEX_WORKFLOWS}}`.
 
 - Natural language is the primary surface. Slash commands are optional aliases.
 - Use Vietnamese for user-facing communication unless the user switches language.
+- When responding in Vietnamese, always use full Vietnamese diacritics and standard spelling.
+- Never intentionally strip Vietnamese diacritics in user-facing text, comments, summaries, plans, or review notes.
+- If shell or file content appears mojibake or accent-stripped, treat that as an encoding issue and restate it in valid UTF-8 Vietnamese instead of copying the corruption.
+- Prefer UTF-8 for generated text that contains Vietnamese.
 - Keep `forge-codex` as the base orchestrator for all work in this host.
 - Prefer repo state, plans, specs, and scoped workspace `.brain/` continuity artifacts over legacy session rituals.
 - Let workspace-local routers extend Forge, not replace it.

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.0 - 2026-03-26
+
+- Thêm `output_contract` trong `forge-core` để suy ra policy hiển thị từ workspace extras như `language`, `orthography`, `tone_detail`, và `custom_rules`.
+- Bổ sung template `extra preferences` trong tài liệu personalization để user tự thiết lập ngôn ngữ nhanh qua `.brain/preferences.json`.
+- Cập nhật flow `customize` của `forge-codex` và `forge-antigravity` để request về ngôn ngữ được trả lời ngắn, trỏ thẳng tới template extras thay vì giải thích dài về canonical preferences.
+- Thêm helper PowerShell `enable_windows_utf8.ps1` cho `forge-codex` để giảm lỗi vỡ dấu tiếng Việt trên Windows.
+
+
 ## 0.7.2 - 2026-03-25
 
 - Sửa contract `session` của `forge-core` để restore flow nạp `.brain/preferences.json` qua `resolve_preferences.py` trước khi tóm tắt context.

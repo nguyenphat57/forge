@@ -635,6 +635,45 @@ def merge_extra_preferences(
     return merged
 
 
+def resolve_output_contract(extra: object) -> dict[str, object]:
+    if not isinstance(extra, dict):
+        return {}
+
+    contract: dict[str, object] = {}
+
+    language = extra.get("language")
+    if isinstance(language, str) and language.strip():
+        normalized_language = normalize_choice_token(language)
+        contract["language"] = normalized_language
+        if normalized_language == "vi":
+            contract["user_facing_language"] = "vietnamese"
+            contract["accent_policy"] = "required"
+            contract["encoding"] = "utf-8"
+
+    orthography = extra.get("orthography")
+    if isinstance(orthography, str) and orthography.strip():
+        normalized_orthography = normalize_choice_token(orthography)
+        contract["orthography"] = normalized_orthography
+        if normalized_orthography == "vietnamese-diacritics":
+            contract["accent_policy"] = "required"
+            contract.setdefault("encoding", "utf-8")
+
+    tone_detail = extra.get("tone_detail")
+    if isinstance(tone_detail, str) and tone_detail.strip():
+        contract["tone_detail"] = tone_detail.strip()
+
+    custom_rules = extra.get("custom_rules")
+    if isinstance(custom_rules, list):
+        normalized_rules = [item.strip() for item in custom_rules if isinstance(item, str) and item.strip()]
+        if normalized_rules:
+            contract["custom_rules"] = normalized_rules
+
+    if contract.get("language") == "vi" and "orthography" not in contract:
+        contract["orthography"] = "vietnamese-diacritics"
+
+    return contract
+
+
 def choose_compat_write_path(existing_payload: object, entry: dict) -> str | None:
     for path in compat_entry_paths(entry):
         if has_nested_value(existing_payload, path):
@@ -860,6 +899,7 @@ def load_preferences(
         "preferences": preferences,
         "extra": extra,
         "source": {"type": source_type, "path": str(path)},
+        "output_contract": resolve_output_contract(extra),
         "warnings": warnings,
     }
 

@@ -4,9 +4,11 @@ type: flexible
 triggers:
   - shortcut: /customize
   - user wants to change explanation depth, tone, autonomy, pace, or feedback style
+  - user asks how to set language, diacritics, or writing conventions
 quality_gates:
   - Current preferences are inspected before changing anything
   - Durable changes use the core canonical schema and writer
+  - Language-only guidance points to workspace-local extra preference templates
   - Output states what changed and what response style will feel different
 ---
 
@@ -23,6 +25,13 @@ quality_gates:
 </HARD-GATE>
 
 ## Process
+
+Fast path cho language requests:
+
+- Nếu user chỉ hỏi cách thiết lập ngôn ngữ hoặc style viết:
+  - trỏ thẳng tới workspace `.brain/preferences.json` extras
+  - đưa template phù hợp từ `packages/forge-core/references/personalization.md`
+  - không cần giải thích dài về canonical fields
 
 1. Đọc preferences hiện tại:
 
@@ -51,7 +60,7 @@ python scripts/write_preferences.py --detail-level detailed --pace fast --feedba
    - preferences mới
    - field nào đã đổi
    - response sẽ khác như thế nào
-   - extra workspace-local nào đang được giữ nguyên, nếu có
+   - nếu là language request, chỉ cần chỉ mẫu extra preferences phù hợp
 
 ## Output Contract
 

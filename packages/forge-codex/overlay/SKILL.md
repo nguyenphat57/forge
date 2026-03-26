@@ -152,6 +152,8 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 
 - Forge resolve preferences qua core engine `scripts/resolve_preferences.py` từ Codex-global `state/preferences.json`, và chỉ fallback sang `.brain/preferences.json` cho workspace legacy.
 - Schema canonical gồm `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, và `personality`.
+- Workspace-local extra preferences may carry host-native response constraints such as `language`, `orthography`, honorific rules, or custom writing rules.
+- When `language` resolves to `vi`, `forge-codex` should respond in Vietnamese with full diacritics; accent-stripped or mojibake Vietnamese is an encoding defect, not an allowed style variant.
 - `forge-codex` nên giữ natural-language customize flow trên schema này, không cần slash-heavy wrapper by default.
 - Adapter này không được fork key names hay response-style semantics của core.
 
