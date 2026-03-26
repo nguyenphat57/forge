@@ -41,6 +41,12 @@ Adapters own:
 - host metadata and installation surfaces
 - thin mapping from host surface to Forge core capabilities
 
+Examples of adapter-only wrappers:
+
+- `customize` and `init` when they are host-facing UX around shared core scripts such as `write_preferences.py` and `initialize_workspace.py`
+- Antigravity-only session ergonomics such as `/recap`, `/save-brain`, and `/handover`
+- Codex-native delegation surfaces such as `dispatch-subagents.md`
+
 ## Decision test for new features
 
 Before adding anything to `forge-core`, answer:

@@ -8,7 +8,7 @@ quality_gates:
   - Qualified problem statement created
   - 2-3 options compared when more than one viable direction exists
   - Recommended direction chosen with why-now, why-not-others, first proof, and reversal signal
-  - If no direction can be chosen, exactly one decisive open question recorded
+  - If no direction can be chosen, exactly one decision open question recorded
 ---
 
 # Brainstorm - Direction Selection
@@ -19,34 +19,34 @@ quality_gates:
 NO AMBIGUOUS MEDIUM/LARGE WORK WITHOUT CHOOSING A DIRECTION FIRST
 ```
 
-> Brainstorm không phải để nở scope. Brainstorm chỉ để chọn hướng đủ rõ trước khi plan.
+> Brainstorm is not for scope expansion. Brainstorming is just to choose a clear enough direction before planning.
 
 <HARD-GATE>
-Áp dụng khi:
-- task medium/large nhưng problem statement còn mơ hồ
-- có 2+ hướng giải materially khác nhau
-- user hỏi "nên chọn hướng nào", "so sánh options", "brainstorm", "explore"
-- quyết định ban đầu sẽ làm thay đổi scope, UX shape, hoặc blast radius
+Applicable when:
+- task medium/large but problem statement is still vague
+- There are 2+ materially different solutions
+- user asks "which direction should I choose", "compare options", "brainstorm", "explore"
+- the initial decision will change the scope, UX shape, or blast radius
 
-Không áp dụng khi:
-- task small, rõ ràng
-- chỉ còn chuyển direction đã chốt thành phases/tasks
-- chỉ thiếu implementation detail mà không thiếu strategic direction
+Not applicable when:
+- small, clear task
+- The only thing left to do is convert the finalized directions into phases/tasks
+- only lacks implementation details but not lacks strategic direction
 </HARD-GATE>
 
 ## Completion Rule
 
-Brainstorm chỉ được xem là xong khi rơi vào một trong hai trạng thái:
+Brainstorm is only considered finished when it falls into one of two states:
 
-1. `Direction locked`: đã có hướng khuyến nghị đủ mạnh để đưa sang `plan`
-2. `Decision blocked`: còn đúng **một** câu hỏi quyết định khiến chưa thể chốt
+1. `Direction locked`: there is a strong enough recommendation to move to `plan`
+2. `Decision blocked`: there is still **one** decided question that cannot be finalized
 
-Không được kết thúc ở trạng thái:
-- "cần cân nhắc thêm"
-- "có vài hướng đều ổn"
-- "để plan quyết định tiếp"
+Must not end in the state:
+- "needs further consideration"
+- "some directions are fine"
+- "let the plan decide further"
 
-Nếu chưa chọn được hướng và vẫn còn nhiều hơn một open question, brainstorm chưa hoàn tất.
+If a direction has not been chosen and there is still more than one open question, the brainstorm is incomplete.
 
 ---
 
@@ -70,36 +70,36 @@ flowchart TD
 
 ```text
 For: [persona / team / workflow]
-Who: [pain, unmet need, hoặc job-to-be-done]
-That: [desired outcome, business impact, hoặc success signal]
+Who: [pain, unmet need, or job-to-be-done]
+That: [desired outcome, business impact, or success signal]
 ```
 
-Nếu không viết được 3 dòng này, chưa được đi tiếp.
+If you can't write these 3 lines, you can't continue.
 
 ## Decision Criteria
 
-Chốt 3-5 tiêu chí để tránh chọn option theo cảm tính:
+Determine 3-5 criteria to avoid choosing options based on emotions:
 
-- Speed to ship
+- Speed ​​to ship
 - Blast radius
 - Maintainability
 - UX clarity
 - Migration safety
 - Operational simplicity
 
-Không cần dùng đủ tất cả; chọn cái nào thật sự quan trọng cho bài toán.
+You don't need to use everything; Choose which one is really important for the problem.
 
 ## Lightweight Scoring
 
-Khi 2-3 options đều khả thi, chấm nhanh thay vì tranh luận dài:
+When 2-3 options are feasible, give a quick score instead of a long debate:
 
-| Tiêu chí | Cách đọc điểm |
+|Criteria | How to read scores|
 |----------|---------------|
-| Feasibility | `1` khó thực thi, `2` khả thi có caveat, `3` dễ thực thi với repo/team hiện tại |
-| Impact | `1` tác động nhỏ, `2` cải thiện vừa, `3` tác động rõ lên outcome chính |
-| Effort | `1` effort thấp, `2` effort vừa, `3` effort cao |
+|Feasibility | `1` is difficult to implement, `2` is possible with caveats, `3` is easy to implement with current repo/team|
+|Impact | `1` small impact, `2` moderate improvement, `3` clear impact on main outcome|
+|Effort | `1` low effort, `2` medium effort, `3` high effort|
 
-Template:
+Templates:
 
 ```text
 Approach A
@@ -110,37 +110,37 @@ Approach A
 ```
 
 Rule:
-- Không biến scoring thành pseudo-science; đây chỉ là shortcut để chốt direction
-- Ưu tiên option có `impact` đủ cao và `feasibility` tốt
-- `effort` dùng để nhìn tradeoff, không tự động thắng/thua một mình
-- Nếu scoring và decision criteria mâu thuẫn, giải thích ngắn gọn rồi chọn
+- Do not turn scoring into pseudo-science; This is just a shortcut to fix the directions
+- Prioritize options with high enough `impact` and good `feasibility`
+- `effort` is used to see winning tradeoff, not automatically/losing alone
+- If scoring and decision criteria conflict, briefly explain and then choose
 
 ## Decision Forcing Rules
 
-- Tối đa 3 options. Nhiều hơn thường làm loãng quyết định.
-- Mỗi option phải khác nhau về shape thật sự: rollout model, UX model, data flow, ownership, hoặc blast radius.
-- Mỗi option phải nói rõ tradeoff chính đang chấp nhận, không chỉ liệt kê ưu/nhược điểm chung chung.
-- Nếu một option chỉ là biến thể nhẹ của option khác, gộp lại.
-- Mặc định ưu tiên hướng đơn giản hơn nếu nó vẫn đạt success signal và giảm blast radius.
-- Nếu không đủ dữ kiện để chọn, không mở rộng research vô hạn; ghi lại đúng 1 câu hỏi quyết định cần user trả lời.
+- Maximum 3 options. More often dilutes the decision.
+- Each option must be different in actual shape: rollout model, UX model, data flow, ownership, or blast radius.
+- Each option must clearly state the main tradeoff being accepted, not just list general pros/cons.
+- If one option is just a slight variation of another option, combine it.
+- By default, the simpler direction is preferred if it still reaches the success signal and reduces the blast radius.
+- If there is not enough data to choose from, do not expand research indefinitely; Record exactly 1 decision question that needs the user to answer.
 
-## Option Comparison
+## Options Comparison
 
-Tối thiểu 2 options khi:
-- có hơn một hướng khả thi
-- hoặc user đang muốn chọn hướng
+Minimum 2 options when:
+- there is more than one possible direction
+- or the user wants to choose a direction
 
-Đây là nơi chính để Forge làm option comparison đầy đủ. Sau khi direction đã khóa, `plan` chỉ nên kế thừa chứ không lặp lại toàn bộ vòng so sánh này.
+This is the main place for Forge to do a full options comparison. Once the direction is locked, `plan` should just inherit and not repeat this entire round of comparisons.
 
-Template:
+Templates:
 
 ```text
-Approach A - [tên]
+Approach A - [name]
 - Shape: [...]
 - Pros: [...]
 - Risks: [...]
 
-Approach B - [tên]
+Approach B - [name]
 - Shape: [...]
 - Pros: [...]
 - Risks: [...]
@@ -152,55 +152,55 @@ Approach C - [optional]
 
 Recommendation:
 - Choose: [A/B/C]
-- Why: [ngắn gọn, theo decision criteria]
+- Why: [briefly, according to decision criteria]
 ```
 
 Rule:
-- Options phải khác nhau về shape, không chỉ đổi tên
-- Nếu 2 options gần như giống nhau, gộp lại
-- Nếu chỉ có 1 hướng hợp lý thật, phải nói rõ vì sao các hướng khác không đáng xét
+- Options must be different in shape, not just renamed
+- If 2 options are almost the same, combine them
+- If there is only one reasonable direction, it must be clearly stated why the other directions are not worth considering
 
 ## Recommendation Quality
 
-Mỗi recommendation phải trả lời được 4 ý sau:
+Each recommendation must answer the following 4 points:
 
 ```text
-- Why now: vì sao hướng này hợp nhất với bài toán hiện tại
-- Why not the others: vì sao các hướng còn lại không đáng chọn ngay lúc này
-- First proof: milestone nhỏ nhất để chứng minh hướng này đúng
-- Reversal signal: tín hiệu nào đủ mạnh để quay lại mở decision
+- Why now: why is this direction suitable for the current problem?
+- Why not the others: why the remaining directions are not worth choosing right now
+- First proof: smallest milestone to prove this direction is correct
+- Reversal signal: which signal is strong enough to return to open decision
 ```
 
-Nếu thiếu một trong 4 ý trên, recommendation chưa đủ mạnh để handoff sang `plan`.
+If one of the above 4 points is missing, the recommendation is not strong enough to handoff to `plan`.
 
 ## Direction Brief
 
-Output ngắn gọn trước khi handoff sang `plan`:
+Brief output before handoff to `plan`:
 
 ```text
 Direction ready:
 - Problem statement: [...]
 - Decision criteria: [...]
 - Options considered: [A/B/C]
-- Recommended direction: [...]
+- Recommended directions: [...]
 - Key tradeoff accepted: [...]
 - Why not the others: [...]
 - First proof: [...]
 - Revisit only if: [...]
-- Open questions: [none hoặc 1 câu hỏi quyết định]
+- Open questions: [none or 1 decision question]
 - Next: plan
 ```
 
 ## Anti-Patterns
 
-- Brainstorm để kéo scope ra rộng hơn yêu cầu
-- Liệt kê 5-7 options cho có vẻ nhiều mà không material difference
-- Chọn option theo "nghe hay" thay vì decision criteria
-- Brainstorm xong nhưng vẫn không dám recommend
-- Handoff sang plan khi chưa có `why not the others` hoặc chưa có `first proof`
+- Brainstorm to stretch the scope wider than required
+- List 5-7 options to make it seem like a lot without material difference
+- Choose options according to "sounds good" instead of decision criteria
+- Brainstormed but still don't dare recommend
+- Handoff to plan when there is no `why not the others` or no `first proof`
 
 ## Activation Announcement
 
 ```text
-Forge: brainstorm | chốt direction trước, rồi mới lập plan
+Forge: brainstorm | Set directions first, then make a plan
 ```

@@ -1,13 +1,13 @@
 # Backend Briefs
 
-> Dùng khi task backend là medium/large, chạm contract/schema/job/event, hoặc caller impact chưa rõ.
+> Used when the backend task is medium/large, touches contract/schema/job/event, or caller impact is unclear.
 
 ## Why This Exists
 
-`backend` cần một first artifact giống `frontend`, nhưng tập trung vào:
+`backend` needs a first artifact like `frontend`, but focuses on:
 
-- contract hoặc surface in scope
-- validation và authorization boundary
+- contract or surface in scope
+- validation and authorization boundary
 - data model / migration impact
 - consistency / idempotency / retry behavior
 - observability / ops notes
@@ -53,13 +53,13 @@ python scripts/generate_backend_brief.py "Split customer table into profile + pr
 
 ## Persisted Master + Surface Override Pattern
 
-Khi task kéo dài hoặc có nhiều API/job/event:
+When the task is long or has many APIs/jobs/events:
 
 ```powershell
 python scripts/generate_backend_brief.py "..." --persist --project-name "Example Project" --surface cancel-orders
 ```
 
-Artifact tạo ra:
+Artifact generates:
 
 ```text
 .forge-artifacts/backend-briefs/<project-slug>/MASTER.md
@@ -69,15 +69,15 @@ Artifact tạo ra:
 
 Reading order:
 1. `MASTER.md`
-2. `surfaces/<surface>.md` nếu surface có override
+2. `surfaces/<surface>.md` if the surface has override
 
 ## Minimum Brief Quality
 
-- Có contract/surface rõ
-- Có compatibility và caller impact rõ
-- Có note về migration hoặc persistence impact nếu data chạm vào
-- Có note về idempotency/retry/replay nếu async hoặc evented
-- Có note về observability hoặc rollback risk
+- Has a clear contract/surface
+- There is clear compatibility and caller impact
+- There is a note about migration or persistence impact if data is touched
+- There is a note about idempotency/retry/replay if async or evented
+- There is a note about observability or rollback risk
 
 ## Validate A Persisted Brief
 

@@ -1,65 +1,65 @@
 # Companion Routing Smoke Tests
 
-> Dùng để stress test việc ghép Forge với companion skills. File này chỉ cần khi workspace chọn dùng companion/local layer; nó không phải smoke test bắt buộc của Forge core.
+> Used to stress test pairing Forge with companion skills. This file is only needed when the workspace chooses to use a companion/local layer; it is not a mandatory smoke test of Forge core.
 
 ## Pass Criteria
 
-- Forge vẫn là process/orchestration layer
-- Companion skill được chọn đúng theo repo signals
-- Runtime artifact rõ (ví dụ `pyproject.toml`, `go.mod`, `*.csproj`) có thể đủ để kéo companion phù hợp khi router inventory đã rõ
-- Router doc được dùng như reference, không bị coi là skill
-- Router filename không bắt buộc phải chứa `skill-map` nếu `AGENTS.md` trỏ thẳng đúng file
-- Không load thừa nhiều companion skills khi một skill là đủ
-- Verification/evidence gate vẫn theo Forge
+- Forge is still a process/orchestration layer
+- Companion skill is selected correctly according to repo signals
+- A clear runtime artifact (e.g. `pyproject.toml`, `go.mod`, `*.csproj`) may be enough to pull a suitable companion when the router inventory is clear.
+- Router doc is used as a reference, not considered a skill
+- Router filename is not required to contain `skill-map` if `AGENTS.md` points to the correct file
+- Do not load too many companion skills when one skill is enough
+- Verification/evidence gate still follows Forge
 
-Có thể chạy `python scripts/run_smoke_matrix.py --suite router-check` để bắt drift entrypoint-level trước khi làm manual companion smoke trên host thật.
+You can run `python scripts/run_smoke_matrix.py --suite router-check` to catch entrypoint-level drift before doing manual companion smoke on the real host.
 
 ## Scenario 1 - Pure Web Repo
 
 ```text
 Prompt:
-Fix bug ở React page khi route `/orders` render sai sau khi refactor.
+Fix bug in React page when route `/orders` rendered incorrectly after refactoring.
 ```
 
 Expected:
 - Forge detect BUILD/DEBUG
-- Companion skill: web/runtime skill duy nhất
-- Không load mobile/native/database skill nếu repo signal không cần
+- Companion skill: unique web/runtime skill
+- Do not load mobile/native/database skills if the repo signal is not needed
 
 ## Scenario 2 - Android Native Bridge
 
 ```text
 Prompt:
-Fix custom Capacitor plugin không nhận callback sau khi app resume.
+Fix custom Capacitor plugin not receiving callback after app resume.
 ```
 
 Expected:
 - Forge + mobile shell companion + native bridge companion
-- Không chỉ dừng ở web React skill
-- Verification nhắc tới sync/build/device smoke
+- Not just web React skills
+- Verification mentions sync/build/device smoke
 
 ## Scenario 3 - Schema / RLS Change
 
 ```text
 Prompt:
-Thêm policy chỉ cho admin đọc bảng notifications.
+Add a policy that only allows admins to read the notifications panel.
 ```
 
 Expected:
 - Forge + database/security companion
-- Không kéo UI/web skill nếu task chỉ nằm ở data boundary
+- Do not pull UI/web skills if the task is only located at the data boundary
 
 ## Scenario 4 - Workspace-Local Companion
 
 ```text
 Prompt:
-Fix outbox bị kẹt ở processing sau khi app online lại.
+Fix outbox stuck in processing after app comes online again.
 ```
 
 Expected:
-- Forge đọc `AGENTS.md` hoặc workspace map nếu có
-- Chọn local offline-sync companion nếu workspace đã định nghĩa
-- Không đoán theo generic TS/web skill một cách duy nhất
+- Forge reads `AGENTS.md` or workspace map if available
+- Select local offline-sync companion if a workspace is defined
+- Don't guess based on generic TS/web skills only in one way
 
 ## Scenario 4B - Runtime Signal Only
 
@@ -69,10 +69,10 @@ Implement endpoint.
 ```
 
 Expected:
-- Nếu workspace inventory có `python-fastapi` và repo signal có `pyproject.toml`, Forge vẫn có thể chọn companion đó
-- Không buộc prompt phải ghi từ `python` một cách tự nhiên
+- If the workspace inventory has `python-fastapi` and the signal repo has `pyproject.toml`, Forge can still choose that companion
+- Do not force the prompt to write the word `python` naturally
 
-## Scenario 5 - Router Doc Is Not Skill
+## Scenario 5 - Router Doc Is Not Skilled
 
 ```text
 Prompt:
@@ -80,35 +80,35 @@ Use the workspace map to choose the right skill for this deploy task.
 ```
 
 Expected:
-- Agent có thể đọc router doc
-- Nhưng vẫn load skill thật từ `SKILL.md`
-- Không xem router doc là companion skill
+- Agent can read router doc
+- But still load real skills from `SKILL.md`
+- Do not consider router doc as a companion skill
 
 ## Scenario 6 - Minimal-Set Rule
 
 ```text
 Prompt:
-Deploy web SPA lên Cloudflare sau khi đổi một route fallback.
+Deploy SPA website to Cloudflare after changing a fallback route.
 ```
 
 Expected:
 - Forge + web companion + deploy companion
-- Không load mobile/native/database companions nếu không cần
+- Do not load mobile/native/database companions if you do not need them
 
 ## Scenario 7 - Router Filename Flexibility
 
 ```text
 Setup:
-AGENTS.md trỏ tới `.agent/router.md`
+AGENTS.md points to `.agent/router.md`
 ```
 
 Expected:
-- Workspace router checker resolve đúng `.agent/router.md`
-- Không fail chỉ vì file không chứa chuỗi `skill-map`
+- Workspace router checker resolves correctly `.agent/router.md`
+- It does not fail just because the file does not contain the string `skill-map`
 
 ## Failure Signs
 
-- Load quá 4-5 skills cho task vừa/nhỏ mà không có lý do
-- Router doc bị coi như skill executable
+- Loading too many 4-5 skills for small/medium tasks for no reason
+- Router doc is considered an executable skill
 - Companion skill override verification/evidence gate
-- Chọn companion chỉ vì agent quen stack đó, không dựa vào repo signals
+- Choose companion only because the agent is familiar with that stack, not based on repo signals

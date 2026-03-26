@@ -12,19 +12,19 @@ quality_gates:
 
 # Bump - Version Preparation
 
-> Mục tiêu: chốt `old -> new`, cập nhật artifact release cần thiết, và đưa ra checklist verify rõ ràng.
+> Objective: finalize `old -> new`, update necessary artifact checklist release, and provide a clear verification.
 
 <HARD-GATE>
-- Không bump version nếu user chưa nói rõ cần bump/release.
-- Không claim release-ready chỉ vì đã đổi `VERSION`.
-- Không commit/push tự động nếu user chưa yêu cầu.
+- Do not bump version if the user has not clearly stated the need to bump/release.
+- Do not claim release-ready just because `VERSION` has been changed.
+- Do not commit/push automatically if the user has not requested it.
 </HARD-GATE>
 
 ## Process
 
-1. Xác định workspace release và mức bump.
-   Nếu user chưa nêu `major|minor|patch`, suy luận từ git diff kể từ lần đổi `VERSION` gần nhất và nêu rõ lý do.
-2. Preview hoặc apply bằng:
+1. Determine workspace release and bump level.
+   If the user has not stated `major|minor|patch`, infer from git diff since the last change to `VERSION` and state the reason.
+2. Preview or apply using:
 
 ```powershell
 python scripts/prepare_bump.py --workspace <workspace>
@@ -32,21 +32,21 @@ python scripts/prepare_bump.py --workspace <workspace> --bump minor
 python scripts/prepare_bump.py --workspace <workspace> --bump 1.3.0 --apply --release-ready
 ```
 
-3. Trả về:
+3. Returns:
    - current version
    - target version
-   - bump source: explicit hay inferred
-   - inference reasons / confidence nếu dùng auto
-   - files sẽ đổi
-   - verification commands cần chạy
+   - bump source: explicit or conveyed
+   - inference reasons / confidence if using auto
+   - files will change
+   - verification commands need to be run
 
 ## Output Contract
 
 ```text
-Version: [... -> ...]
+Version: [... ->...]
 Bump source: [explicit|inferred]
-Files đổi: [...]
-Verify tiếp: [...]
+Files changed: [...]
+Verify continued: [...]
 ```
 
 ## Activation Announcement

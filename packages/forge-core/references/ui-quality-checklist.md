@@ -1,59 +1,59 @@
 # UI Quality Checklist
 
-> Checklist delivery dùng chung cho `frontend` và `visualize`.
+> Checklist delivery is shared for `frontend` and `visualize`.
 
 ## Visual Direction
 
-- [ ] Giữ design system hiện có hoặc nêu rõ vì sao phải mở rộng
-- [ ] Typography, color, spacing có chủ đích
-- [ ] Không dùng emoji như UI icons
-- [ ] Icon set nhất quán nếu có icon
+- [ ] Keep the existing design system or clearly state why it must be expanded
+- [ ] Typography, color, intentional spacing
+- [ ] Do not use emojis as UI icons
+- [ ] Icon set consistently if there is an icon
 
 ## Interaction Quality
 
-- [ ] Clickable surfaces có affordance rõ
-- [ ] Hover/focus states không gây layout shift
-- [ ] Cursor phù hợp với phần tử tương tác trên web
-- [ ] Không phụ thuộc hover cho hành vi cốt lõi trên touch surfaces
+- [ ] Clickable surfaces have clear affordances
+- [ ] Hover/focus states do not cause layout shift
+- [ ] Cursor is suitable for interactive elements on the web
+- [ ] No hover dependency for core behavior on touch surfaces
 
 ## States
 
-- [ ] Default state rõ
-- [ ] Loading state rõ
-- [ ] Empty state rõ
-- [ ] Error state rõ
-- [ ] Destructive or confirmation state rõ khi cần
+- [ ] Default state is clear
+- [ ] Loading state clearly
+- [ ] Empty state clearly
+- [ ] Error state is clear
+- [ ] Destructive or confirm state clearly when needed
 
 ## Layout & Responsive
 
-- [ ] Breakpoints chính đã được xem
-- [ ] Không có horizontal scroll vô tình trên mobile
-- [ ] Nội dung không bị che bởi sticky/fixed elements
-- [ ] Touch targets >= 44px cho surfaces chạm
+- [ ] Key breakpoints have been viewed
+- [ ] No accidental horizontal scrolling on mobile
+- [ ] Content is not covered by sticky/fixed elements
+- [ ] Touch targets >= 44px for touch surfaces
 
 ## Contrast & Theming
 
-- [ ] Text contrast đủ đọc ở light mode
-- [ ] Surface và border vẫn nhìn thấy được ở light mode
-- [ ] Dark/light differences không làm mất hierarchy
+- [ ] Text contrast is enough to read in light mode
+- [ ] Surface and border are still visible in light mode
+- [ ] Dark/light differences do not destroy hierarchy
 
 ## Motion
 
-- [ ] Motion chủ yếu dùng `transform` và `opacity`
-- [ ] Không dùng `transition: all`
-- [ ] Có nghĩ đến `prefers-reduced-motion`
+- [ ] Motion mainly uses `transform` and `opacity`
+- [ ] Do not use `transition: all`
+- [ ] Thinking about `prefers-reduced-motion`
 
 ## Accessibility
 
-- [ ] Focus order hợp lý
-- [ ] Focus state rõ
-- [ ] Form controls có label hoặc accessible name
-- [ ] Không dùng màu làm tín hiệu duy nhất
+- [ ] Reasonable focus order
+- [ ] Focus state is clear
+- [ ] Form controls have labels or accessible names
+- [ ] Do not use color as an indicator
 
 ## Anti-Patterns To Reject Fast
 
-- Scale hover làm card nhảy layout
-- Border quá mờ ở light mode
-- Body text màu xám quá nhạt
-- Chỉ làm happy path mà quên states hệ thống
-- Thiết kế desktop-first cho màn hình touch-heavy
+- Scale hover makes card jump layout
+- Border is too blurry in light mode
+- Body text is too light gray
+- Just do the happy path and forget the system states
+- Desktop-first design for touch-heavy screens

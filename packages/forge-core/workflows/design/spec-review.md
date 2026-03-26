@@ -2,11 +2,11 @@
 name: spec-review
 type: rigid
 triggers:
-  - before build for large implementation
+  - before build for large implementations
   - before build when medium task touches contract, migration, auth, payment, or public interface
 quality_gates:
   - Build-readiness decision explicit
-  - First slice và proof-before-progress explicit
+  - First slice and proof-before-progress explicit
   - Edge cases and acceptance criteria reviewed
   - Reopen conditions explicit when not ready
   - Revise loop bounded and explicit
@@ -20,31 +20,31 @@ quality_gates:
 NO HIGH-RISK BUILD WITHOUT A BUILD-READINESS REVIEW FIRST
 ```
 
-> `plan` chốt làm gì. `architect` chốt làm như thế nào. `spec-review` chốt đã đủ rõ để thi công chưa.
+> What does `plan` do? `architect` how to do it. `spec-review` Is the latch clear enough for construction?
 
 <HARD-GATE>
-Áp dụng khi:
+Applicable when:
 - task `large`
-- task `medium` nhưng chạm contract, schema, migration, auth, payment, webhook, public API, integration boundary, hoặc blast radius cao
-- direction/spec vừa đổi mạnh sau brainstorm/architect và có nguy cơ implementation hiểu sai
+- task `medium` but touches contract, schema, migration, auth, payment, webhook, public API, integration boundary, or high blast radius
+- direction/spec has just changed drastically after brainstorm/architect and there is a risk of implementation misunderstanding
 
-Không áp dụng khi:
-- task `small`, rõ ràng, blast radius hẹp
-- chỉ sửa text/style/config nhỏ không đổi behavior hay contract
+Not applicable when:
+- task `small`, clear, narrow blast radius
+- Only minor text/style/config changes, no behavior or contract changes
 
-Nếu `spec-review` trả về `revise` hoặc `blocked`, không được nhảy vào `build`.
-`Revise` không được lặp vô hạn. Mặc định tối đa `3` vòng revise cho cùng một spec packet; quá ngưỡng này phải chuyển `blocked` và quay upstream.
+If `spec-review` returns `revise` or `blocked`, do not jump to `build`.
+`Revise` cannot loop indefinitely. Default maximum `3` revision rounds for the same spec packet; If you exceed this threshold, you must switch `blocked` and turn upstream.
 </HARD-GATE>
 
 ## Process
 
 ```mermaid
 flowchart TD
-    A[Đọc plan/spec/design hiện có] --> B[Check scope + success criteria]
+    A[Read existing plan/spec/design] --> B[Check scope + success criteria]
     B --> C[Check boundary/contracts]
     C --> D[Check edge cases + failure paths]
     D --> E[Check verification readiness]
-    E --> F{Đủ rõ để build?}
+    E --> F{Clear enough to build?}
     F -->|No| G[Revise or block]
     F -->|Yes| H[Build-ready decision]
     G --> I[Back to plan/architect]
@@ -54,48 +54,48 @@ flowchart TD
 ## Review Lenses
 
 ### 1. Scope & Outcome
-- Scope in/out đã đủ rõ chưa?
-- Success criteria có đo được không?
-- Có assumption nào vẫn đang "để build tự hiểu" không?
+- Is the scope in/out clear enough?
+- Are success criteria measurable?
+- Are there any assumptions that are still "left to build to understand"?
 
 ### 2. Contract & Compatibility
-- API/schema/event/consumer boundary nào bị đổi?
-- Compatibility window có rõ không?
-- Caller/consumer nào phải update cùng lúc?
+- Which API/schema/event/consumer boundary was changed?
+- Is the Compatibility window clear?
+- Which caller/consumer must update at the same time?
 
 ### 3. Failure Paths & Ops
-- Error states chính đã được nghĩ tới chưa?
-- Rollback, fallback, hoặc kill switch có cần không?
-- Có bước nào irreversible mà chưa có guardrail không?
+- Have major error states been thought about?
+- Is rollback, fallback, or kill switch necessary?
+- Are there any irreversible steps that don't have a guardrail?
 
 ### 4. Verification Readiness
-- Failing test/repro path đã nghĩ tới chưa?
-- Acceptance checks có đủ gần blast radius không?
-- Có phần nào sẽ không verify được nếu nhảy vào code ngay?
+- Have you thought about failing test/repro path yet?
+- Are acceptance checks close enough to the blast radius?
+- Are there any parts that won't be verified if you jump into the code right away?
 
 ## Build-Readiness Decisions
 
-| Decision | Dùng khi |
+|Decision | Use when|
 |----------|----------|
-| `go` | Scope, contracts, edge cases, và verification đã đủ rõ để build |
-| `revise` | Hướng đúng nhưng còn thiếu vài chỗ cụ thể cần bổ sung trước khi build |
-| `blocked` | Còn lỗ hổng lớn về shape, ownership, rollback, hoặc success criteria |
+|`go` | Scope, contracts, edge cases, and verification are clear enough to build|
+|`revise` | The direction is correct but there are still some specific areas missing that need to be added before building|
+|`blocked` | There are big gaps in shape, ownership, rollback, or success criteria|
 
 Rule:
-- `go` chỉ dùng khi implementation team không phải đoán phần quan trọng
-- `revise` phải chỉ ra đúng phần cần bổ sung
-- `blocked` dùng khi nếu code ngay sẽ rất dễ drift hoặc tạo rework lớn
+- `go` is only used when the implementation team does not have to guess important parts
+- `revise` must indicate the correct part to be added
+- `blocked` is used when if you code right away, it will be easy to drift or create a large rework
 
 ## Review Loop Discipline
 
-`Spec-review` là lane độc lập với implementation, không phải phần mở rộng của implementer.
+`Spec-review` is an implementation-independent lane, not an implementer extension.
 
 Rules:
-- Nếu host hỗ trợ subagent/reviewer lane, ưu tiên dùng spec-reviewer lane độc lập
-- Nếu host không hỗ trợ, vẫn phải chạy spec-review như một pass riêng sau plan/architect
-- Tối đa `3` vòng `revise` cho cùng một spec packet
-- Mỗi vòng revise phải chỉ ra delta cụ thể để sửa; không được lặp lại feedback mơ hồ
-- Vòng `4` trở đi -> `blocked` và quay lại `plan` hoặc `architect`
+- If the host supports subagent/reviewer lane, priority should be given to using an independent spec-reviewer lane
+- If the host does not support it, you still have to run spec-review as a separate pass after plan/architect
+- Maximum `3` round `revise` for the same spec packet
+- Each revision round must indicate the specific delta to be corrected; Do not repeat vague feedback
+- Round `4` onwards -> `blocked` and back to `plan` or `architect`
 
 Iteration template:
 
@@ -109,21 +109,21 @@ Spec-review iteration:
 
 ## What Must Be Explicit
 
-Trước khi `go`, spec-review phải nhìn thấy rõ:
-- nguồn truth hiện tại: plan/spec/design nào đang dùng
-- first implementation slice là gì
-- file/surface map hoặc boundary map nào sẽ bị chạm đầu tiên
-- boundary đổi ở đâu
-- acceptance criteria nào sẽ chứng minh xong
-- proof/check nào phải xuất hiện trước khi nói slice đầu đã xong
-- edge case chính nào phải giữ
-- khi nào được reopen spec
+Before `go`, spec-review must clearly see:
+- Current source of truth: which plan/spec/design is being used
+- What is first implementation slice?
+- Which file/surface map or boundary map will be touched first
+- Where does the boundary change?
+- Which acceptance criteria will be proven?
+- What proof/check must appear before saying the first slice is done?
+- Which main edge case must be kept?
+- When will the spec be reopened?
 
 ## Implementation-Ready Packet Check
 
-`Go` không chỉ có nghĩa là "ý đúng". Nó phải có nghĩa là "thi công được mà không đoán phần quan trọng".
+`Go` doesn't just mean "correct idea". It should mean "can be constructed without guessing the important part".
 
-Spec-review nên kiểm tra packet ngắn sau:
+Spec-review should examine the following short packets:
 
 ```text
 Implementation-ready:
@@ -136,20 +136,20 @@ Implementation-ready:
 ```
 
 Rules:
-- Nếu chưa nói được `first slice`, build rất dễ drift ngay từ edit đầu
-- Nếu chưa nói được `proof before progress`, verification sẽ bị đẩy về cuối
-- Nếu boundary map còn mơ hồ ở contract/schema/public interface, decision không thể là `go`
+- If you can't say `first slice` yet, the build is very easy to drift right from the first edit
+- If you cannot say `proof before progress`, verification will be pushed to the end
+- If the boundary map is ambiguous in the contract/schema/public interface, the decision cannot be `go`
 
 ## Spec Review Checklist
 
-- [ ] Problem statement và chosen direction đã rõ
-- [ ] Scope in/out không còn mơ hồ
-- [ ] Boundary/contracts bị ảnh hưởng đã được nêu
-- [ ] First slice và file/surface map đủ rõ để bắt đầu build
-- [ ] Edge cases, failure paths, hoặc rollback concerns đã được chạm tới
-- [ ] Verification strategy đủ gần với blast radius
-- [ ] Có decision `go / revise / blocked`
-- [ ] Nếu chưa `go`, đã chỉ ra đúng bước quay lại `plan` hay `architect`
+- [ ] Problem statement and chosen direction are clear
+- [ ] Scope in/out is no longer ambiguous
+- [ ] Affected boundaries/contracts are stated
+- [ ] First slice and file/surface map are clear enough to start building
+- [ ] Edge cases, failure paths, or rollback concerns have been reached
+- [ ] Verification strategy is close enough to blast radius
+- [ ] Yes decision `go / revise / blocked`
+- [ ] If not `go`, the correct step back to `plan` or `architect` is indicated
 
 ## Output
 
@@ -169,5 +169,5 @@ Spec review:
 ## Activation Announcement
 
 ```text
-Forge: spec-review | chốt build-readiness trước khi vào implementation rủi ro cao
+Forge: spec-review | Lock build-readiness before entering high-risk implementation
 ```

@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from common import compat_default_extra, configure_stdio, load_preferences_compat, merge_extra_preferences
+
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 FIXTURES_DIR = ROOT_DIR / "tests" / "fixtures"
@@ -116,7 +118,11 @@ def validate_preferences_case(case: dict, report: dict) -> list[str]:
     expect(report["source"]["type"], case["expected_source_type"], "source_type")
     expect(report["preferences"], case["expected_preferences"], "preferences")
     if "expected_extra" in case:
-        expect(report.get("extra", {}), case["expected_extra"], "extra")
+        expected_extra = merge_extra_preferences(
+            compat_default_extra(load_preferences_compat()),
+            case["expected_extra"],
+        )
+        expect(report.get("extra", {}), expected_extra, "extra")
 
     for key, expected in case.get("expected_response_style", {}).items():
         actual = report["response_style"].get(key)
@@ -683,6 +689,8 @@ def format_text(summary: dict, results: list[dict]) -> str:
 
 
 def main() -> int:
+    configure_stdio()
+
     parser = argparse.ArgumentParser(description="Run Forge smoke matrices for route preview and router checks.")
     parser.add_argument(
         "--suite",

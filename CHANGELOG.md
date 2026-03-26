@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.0 - 2026-03-26
+
+- Describe release changes.
+
+
 ## 0.8.0 - 2026-03-26
 
 - Thêm `output_contract` trong `forge-core` để suy ra policy hiển thị từ workspace extras như `language`, `orthography`, `tone_detail`, và `custom_rules`.

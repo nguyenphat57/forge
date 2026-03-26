@@ -8,30 +8,30 @@ triggers:
 quality_gates:
   - Current preferences are inspected first
   - Durable changes use the core canonical schema and writer
-  - Host-native language rules stay in workspace-local extras instead of forking the canonical schema
+  - Durable language rules live in adapter-global extras; workspace `.brain/preferences.json` is only for workspace-specific overrides
   - The response states what changed and how interaction will feel different
 ---
 
 # Customize - Codex Preference Wrapper
 
-> Mục tiêu: cho Codex một customize flow ngắn, đổi style phản hồi mà không thêm host-local schema.
+> Goal: give Codex a short customization flow without inventing host-local preference schema.
 
 ## Process
 
-Fast path cho language requests:
+Fast path for language requests:
 
-- Nếu user chỉ hỏi cách thiết lập ngôn ngữ, dấu tiếng Việt, hoặc writing conventions:
-  - trỏ thẳng tới workspace `.brain/preferences.json` extras
-  - đưa một mẫu ngắn có sẵn từ `packages/forge-core/references/personalization.md`
-  - không cần giải thích dài về 6 field canonical
+- If the user only asks how to set language, Vietnamese diacritics, or writing conventions:
+  - point first to durable adapter-global updates through `scripts/write_preferences.py`
+  - only point to workspace `.brain/preferences.json` when they explicitly want repo-scoped overrides
+  - reuse the short templates in `references/personalization.md`
 
-1. Đọc preferences hiện tại:
+1. Read current preferences:
 
 ```powershell
 python scripts/resolve_preferences.py --format json
 ```
 
-2. Map nhu cầu vào các field canonical:
+2. Map the request into canonical fields when it is about tone or delivery style:
    - `technical_level`
    - `detail_level`
    - `autonomy_level`
@@ -39,22 +39,23 @@ python scripts/resolve_preferences.py --format json
    - `feedback_style`
    - `personality`
 
-3. Nếu user muốn khóa language/orthography hoặc các writing rules host-native:
-   - giữ chúng trong workspace `.brain/preferences.json`
-   - không đẩy chúng vào 6 field canonical
-   - ưu tiên trỏ user tới template phù hợp trong `packages/forge-core/references/personalization.md`
+3. If the user wants durable language, orthography, or host-native writing rules:
+   - persist them through adapter-global extras with `scripts/write_preferences.py`
+   - keep them out of the six canonical fields
+   - use workspace `.brain/preferences.json` only for workspace-only overrides
 
-4. Preview hoặc persist bằng core writer:
+4. Preview or persist using the core writer:
 
 ```powershell
 python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct
 python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct --apply
+python scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --apply
 ```
 
-5. Trả lời ngắn:
-   - field nào đã đổi
-   - style mới sẽ khác như thế nào
-   - nếu user hỏi về language rules, chỉ cần trỏ tới extra preferences + template phù hợp
+5. Short answer:
+   - which fields changed
+   - how the new response style will feel different
+   - whether any workspace-only overrides remain separate from adapter-global state
 
 ## Activation Announcement
 

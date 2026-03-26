@@ -1,46 +1,46 @@
 # Forge Help/Next
 
-> Mục tiêu: giữ `help` và `next` ở `forge-core` theo kiểu repo-first, host-neutral, và có thể tái sử dụng cho adapter tương lai.
+> Goal: keep `help` and `next` in `forge-core` repo-first, host-neutral, and reusable for future adapters.
 
 ## Core Contract
 
 - Engine canonical: `scripts/resolve_help_next.py`
-- Workflow wrappers: `workflows/operator/help.md` và `workflows/operator/next.md`
-- Nguồn ưu tiên:
+- Workflow wrappers: `workflows/operator/help.md` and `workflows/operator/next.md`
+- Preferred sources:
   1. `git status`
-  2. `docs/plans/` và `docs/specs/`
+  2. `docs/plans/` and `docs/specs/`
   3. `.brain/session.json`
   4. `.brain/handover.md`
   5. `README`
 
 ## Stage Model
 
-| Stage | Khi nào |
+|Stage | When|
 |------|---------|
-| `blocked` | session hoặc handover cho thấy blocker rõ |
-| `session-active` | có task đang làm hoặc pending tasks rõ ràng |
-| `active-changes` | working tree đang có diff / file mới |
-| `planned` | chưa code nhưng đã có plan/spec mới nhất |
-| `unscoped` | repo chưa cho thấy một slice đang active |
+|`blocked` | session or handover shows the blocker clearly|
+|`session-active` | Have clear ongoing tasks or pending tasks|
+|`active-changes` | working tree has new diff / files|
+|`planned` | No code yet but has the latest plan/spec|
+|`unscoped` | The repo does not yet show an active slice|
 
 ## Output Contract
 
 - `current_focus`
 - `suggested_workflow`
 - `recommended_action`
-- `alternatives` tối đa 2 mục
+- `alternatives` maximum 2 items
 - `evidence`
 - `warnings`
 
 ## Guardrails
 
-- Không nhầm `help/next` thành recap dài dòng.
-- Không gợi ý ritual session legacy.
-- Không đưa next step mơ hồ nếu có thể chốt slice cụ thể hơn.
-- Khi context yếu, phải nói rõ ràng là repo chưa có enough signals.
+- Do not mistake `help/next` for a lengthy recap.
+- Do not suggest ritual session legacy.
+- Do not give a vague next step if the slice can be more specifically defined.
+- When the context is weak, it must be clearly stated that the repo does not have enough signals.
 
 ## Adapter Boundary
 
-- `forge-antigravity` có thể expose rõ `/help` và `/next`.
-- `forge-codex` nên giữ natural-language first và có thể để slash là optional alias.
-- Adapter không được fork stage model hay source priority.
+- `forge-antigravity` can clearly expose `/help` and `/next`.
+- `forge-codex` should keep natural-language first and can leave slash as an optional alias.
+- The adapter cannot fork stage model or source priority.

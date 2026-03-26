@@ -9,7 +9,7 @@ Preferred user phrasing:
 - "Run `npm test` and tell me what to do after" -> `run`
 - "Split these independent slices across subagents" -> `delegate`
 - "Bump this to 0.5.0" -> `bump`
-- "We need to roll back the last deploy" -> `rollback`
+- "We need to roll back the last deployment" -> `rollback`
 - "Give shorter answers and move faster" -> `customize`
 - "Bootstrap this workspace for Forge" -> `init`
 

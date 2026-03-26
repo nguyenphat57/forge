@@ -5,14 +5,14 @@ triggers:
   - natural-language request to bootstrap a workspace for Forge
   - optional alias: /init
 quality_gates:
-  - Workspace is classified before suggesting a next step
+  - Workspace is classified before suggests a next step
   - No existing file is overwritten
   - Wrapper stays thin and avoids onboarding ceremony
 ---
 
 # Init - Codex Workspace Bootstrap
 
-> Mục tiêu: cho Codex một init flow tối thiểu để bắt đầu workspace mới mà không biến nó thành onboarding dài.
+> Goal: give Codex a minimal initial flow to start a new workspace without turning it into a lengthy onboarding.
 
 ## Process
 
@@ -22,17 +22,17 @@ quality_gates:
 python scripts/initialize_workspace.py --workspace <workspace> --format json
 ```
 
-2. Nếu cần tạo skeleton thật:
+2. If you need to create a real skeleton:
 
 ```powershell
 python scripts/initialize_workspace.py --workspace <workspace> --seed-preferences --apply
 ```
 
-`--seed-preferences` sẽ seed Codex-global preferences, không còn ghi vào workspace-local `.brain/preferences.json`.
+`--seed-preferences` will seed Codex-global preferences, no longer writing to workspace-local `.brain/preferences.json`.
 
-3. Kết thúc bằng một next workflow duy nhất:
-   - `brainstorm` cho workspace greenfield
-   - `plan` cho workspace existing
+3. Finish with a single next workflow:
+   - `brainstorm` for greenfield workspace
+   - `plan` for existing workspace
 
 ## Activation Announcement
 

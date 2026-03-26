@@ -9,6 +9,11 @@ import common  # noqa: E402
 
 
 class PreferencesTests(unittest.TestCase):
+    @staticmethod
+    def expected_extra(expected: dict[str, object]) -> dict[str, object]:
+        compat = common.load_preferences_compat()
+        return common.merge_extra_preferences(common.compat_default_extra(compat), expected)
+
     def test_missing_workspace_preferences_fall_back_to_defaults(self) -> None:
         report = common.load_preferences(
             workspace=workspace_fixture("no_preferences"),
@@ -27,7 +32,7 @@ class PreferencesTests(unittest.TestCase):
                 "personality": "default",
             },
         )
-        self.assertEqual(report["extra"], {})
+        self.assertEqual(report["extra"], self.expected_extra({}))
         self.assertEqual(report["warnings"], [])
 
     def test_global_preferences_override_defaults(self) -> None:
@@ -49,7 +54,7 @@ class PreferencesTests(unittest.TestCase):
                 "personality": "strict-coach",
             },
         )
-        self.assertEqual(report["extra"], {})
+        self.assertEqual(report["extra"], self.expected_extra({}))
         self.assertEqual(style["terminology_mode"], "standard")
         self.assertEqual(style["response_verbosity"], "concise")
         self.assertEqual(style["decision_mode"], "propose-best-path-and-execute-safe-slices")
@@ -65,7 +70,7 @@ class PreferencesTests(unittest.TestCase):
         style = common.resolve_response_style(report["preferences"])
 
         self.assertEqual(report["source"]["type"], "global")
-        self.assertEqual(report["extra"], {})
+        self.assertEqual(report["extra"], self.expected_extra({}))
         self.assertEqual(report["preferences"]["technical_level"], "technical")
         self.assertEqual(report["preferences"]["personality"], "strict-coach")
         self.assertEqual(style["teaching_mode"], "best-practice-first")
@@ -92,19 +97,21 @@ class PreferencesTests(unittest.TestCase):
         )
         self.assertEqual(
             report["extra"],
-            {
-                "tone_detail": "Gọi Sếp, xưng Em",
-                "language": "vi",
-                "output_quality": "production_ready",
-                "custom_rules": [
-                    "Mỗi file không được vượt quá 300 dòng, nếu vượt phải chia nhỏ ra",
-                    "Mỗi file chỉ chứa một chức năng, không gộp hay chồng chéo chức năng vào 1 file",
-                    "Luôn dùng TypeScript thay vì JavaScript",
-                    "Luôn sử dụng PowerShell thay vì Command Prompt",
-                    "Luôn sử dụng ; thay vì && cho PowerShell",
-                    "Luôn debug log mọi hành động, không đoán mò lỗi",
-                ],
-            },
+            self.expected_extra(
+                {
+                    "tone_detail": "Gọi Sếp, xưng Em",
+                    "language": "vi",
+                    "output_quality": "production_ready",
+                    "custom_rules": [
+                        "Mỗi file không được vượt quá 300 dòng, nếu vượt phải chia nhỏ ra",
+                        "Mỗi file chỉ chứa một chức năng, không gộp hay chồng chéo chức năng vào 1 file",
+                        "Luôn dùng TypeScript thay vì JavaScript",
+                        "Luôn sử dụng PowerShell thay vì Command Prompt",
+                        "Luôn sử dụng ; thay vì && cho PowerShell",
+                        "Luôn debug log mọi hành động, không đoán mò lỗi",
+                    ],
+                }
+            ),
         )
         self.assertEqual(style["terminology_mode"], "translated")
         self.assertEqual(style["response_verbosity"], "detailed")
@@ -125,7 +132,7 @@ class PreferencesTests(unittest.TestCase):
         )
 
         self.assertEqual(report["source"]["type"], "workspace-legacy")
-        self.assertEqual(report["extra"], {"unknown_field": "ignored"})
+        self.assertEqual(report["extra"], self.expected_extra({"unknown_field": "ignored"}))
         self.assertEqual(report["preferences"]["technical_level"], "basic")
         self.assertEqual(report["preferences"]["detail_level"], "balanced")
         self.assertEqual(report["preferences"]["autonomy_level"], "guided")
@@ -151,6 +158,7 @@ class PreferencesTests(unittest.TestCase):
                 "persona": "mentor",
                 "tone": "friendly",
                 "language": "vi",
+                "orthography": "vietnamese_diacritics",
             },
             "technical": {
                 "technical_level": "technical",
@@ -172,17 +180,91 @@ class PreferencesTests(unittest.TestCase):
         self.assertEqual(
             extras,
             {
+                "language": "vi",
+                "orthography": "vietnamese_diacritics",
+                "output_quality": "production_ready",
+                "custom_rules": [
+                    "Always log every action before guessing a root cause.",
+                ],
                 "communication": {
                     "tone": "friendly",
-                    "language": "vi",
                 },
-                "technical": {
-                    "quality": "production_ready",
-                },
+            },
+        )
+        contract = common.resolve_output_contract(extras)
+        self.assertEqual(contract["language"], "vi")
+        self.assertEqual(contract["orthography"], "vietnamese-diacritics")
+
+
+    def test_resolve_output_contract_supports_english_language(self) -> None:
+        contract = common.resolve_output_contract({"language": "en"})
+
+        self.assertEqual(contract, {"language": "en"})
+
+    def test_resolve_output_contract_supports_orthography_without_language(self) -> None:
+        contract = common.resolve_output_contract({"orthography": "vietnamese_diacritics"})
+
+        self.assertEqual(contract["orthography"], "vietnamese-diacritics")
+        self.assertEqual(contract["accent_policy"], "required")
+        self.assertEqual(contract["encoding"], "utf-8")
+
+    def test_resolve_extra_preferences_applies_compat_defaults(self) -> None:
+        compat_path = ROOT_DIR.parent.parent / "packages" / "forge-antigravity" / "overlay" / "data" / "preferences-compat.json"
+        compat = json.loads(compat_path.read_text(encoding="utf-8"))
+
+        defaults_only = common.resolve_extra_preferences(None, compat_config=compat)
+        overridden = common.resolve_extra_preferences(
+            {
+                "communication": {
+                    "language": "en",
+                }
+            },
+            compat_config=compat,
+        )
+
+        self.assertEqual(
+            defaults_only,
+            {
+                "language": "vi",
+                "orthography": "vietnamese_diacritics",
+            },
+        )
+        self.assertEqual(overridden["language"], "en")
+        self.assertEqual(overridden["orthography"], "vietnamese_diacritics")
+
+    def test_serialize_preferences_payload_writes_compat_extra_fields(self) -> None:
+        compat_path = ROOT_DIR.parent.parent / "packages" / "forge-antigravity" / "overlay" / "data" / "preferences-compat.json"
+        compat = json.loads(compat_path.read_text(encoding="utf-8"))
+        serialized = common.serialize_preferences_payload(
+            {
+                "technical_level": "basic",
+                "detail_level": "balanced",
+                "autonomy_level": "balanced",
+                "pace": "balanced",
+                "feedback_style": "balanced",
+                "personality": "mentor",
+            },
+            existing_payload=None,
+            replace=False,
+            extra_updates={
+                "language": "vi",
+                "orthography": "vietnamese_diacritics",
+                "output_quality": "production_ready",
                 "custom_rules": [
                     "Always log every action before guessing a root cause.",
                 ],
             },
+            compat_config=compat,
+        )
+
+        self.assertEqual(common.get_nested_value(serialized, "communication.language"), "vi")
+        self.assertEqual(common.get_nested_value(serialized, "communication.orthography"), "vietnamese_diacritics")
+        self.assertEqual(common.get_nested_value(serialized, "technical.quality"), "production_ready")
+        self.assertEqual(
+            common.get_nested_value(serialized, "custom_rules"),
+            [
+                "Always log every action before guessing a root cause.",
+            ],
         )
 
     def test_resolve_preferences_script_reports_global_payload(self) -> None:
@@ -201,7 +283,7 @@ class PreferencesTests(unittest.TestCase):
         self.assertEqual(report["source"]["type"], "global")
         self.assertEqual(report["preferences"]["technical_level"], "technical")
         self.assertEqual(report["preferences"]["pace"], "fast")
-        self.assertEqual(report["extra"], {})
+        self.assertEqual(report["extra"], self.expected_extra({}))
         self.assertEqual(report["response_style"]["teaching_mode"], "best-practice-first")
 
     def test_resolve_preferences_script_warns_for_invalid_workspace_payload(self) -> None:
@@ -220,7 +302,7 @@ class PreferencesTests(unittest.TestCase):
         self.assertGreaterEqual(len(report["warnings"]), 1)
         self.assertEqual(report["preferences"]["personality"], "strict-coach")
         self.assertEqual(report["preferences"]["feedback_style"], "gentle")
-        self.assertEqual(report["extra"], {"unknown_field": "ignored"})
+        self.assertEqual(report["extra"], self.expected_extra({"unknown_field": "ignored"}))
 
     def test_resolve_preferences_includes_workspace_extras(self) -> None:
         result = run_python_script(
@@ -238,19 +320,21 @@ class PreferencesTests(unittest.TestCase):
         self.assertEqual(report["source"]["type"], "global")
         self.assertEqual(
             report["extra"],
-            {
-                "tone_detail": "Gọi Sếp, xưng Em",
-                "language": "vi",
-                "output_quality": "production_ready",
-                "custom_rules": [
-                    "Mỗi file không được vượt quá 300 dòng, nếu vượt phải chia nhỏ ra",
-                    "Mỗi file chỉ chứa một chức năng, không gộp hay chồng chéo chức năng vào 1 file",
-                    "Luôn dùng TypeScript thay vì JavaScript",
-                    "Luôn sử dụng PowerShell thay vì Command Prompt",
-                    "Luôn sử dụng ; thay vì && cho PowerShell",
-                    "Luôn debug log mọi hành động, không đoán mò lỗi",
-                ],
-            },
+            self.expected_extra(
+                {
+                    "tone_detail": "Gọi Sếp, xưng Em",
+                    "language": "vi",
+                    "output_quality": "production_ready",
+                    "custom_rules": [
+                        "Mỗi file không được vượt quá 300 dòng, nếu vượt phải chia nhỏ ra",
+                        "Mỗi file chỉ chứa một chức năng, không gộp hay chồng chéo chức năng vào 1 file",
+                        "Luôn dùng TypeScript thay vì JavaScript",
+                        "Luôn sử dụng PowerShell thay vì Command Prompt",
+                        "Luôn sử dụng ; thay vì && cho PowerShell",
+                        "Luôn debug log mọi hành động, không đoán mò lỗi",
+                    ],
+                }
+            ),
         )
         self.assertEqual(report["output_contract"]["language"], "vi")
         self.assertEqual(report["output_contract"]["orthography"], "vietnamese-diacritics")

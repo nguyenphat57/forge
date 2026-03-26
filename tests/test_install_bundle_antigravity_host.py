@@ -68,6 +68,30 @@ class AntigravityHostInstallTests(unittest.TestCase):
             env=env,
         )
 
+    def test_installed_antigravity_bundle_defaults_to_vietnamese_output_contract(self) -> None:
+        build_release.build_all()
+        with TemporaryDirectory() as temp_dir:
+            temp_root = Path(temp_dir)
+            _, target = self.install_antigravity_bundle(temp_root)
+
+            result = self.run_installed_script(target / "scripts" / "resolve_preferences.py", "--format", "json")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+
+            self.assertEqual(payload["status"], "PASS")
+            self.assertEqual(payload["source"]["type"], "defaults")
+            self.assertEqual(
+                payload["extra"],
+                {
+                    "language": "vi",
+                    "orthography": "vietnamese_diacritics",
+                },
+            )
+            self.assertEqual(payload["output_contract"]["language"], "vi")
+            self.assertEqual(payload["output_contract"]["orthography"], "vietnamese-diacritics")
+            self.assertEqual(payload["output_contract"]["accent_policy"], "required")
+            self.assertEqual(payload["output_contract"]["encoding"], "utf-8")
+
     def test_installed_antigravity_bundle_reads_native_preferences_schema(self) -> None:
         build_release.build_all()
         with TemporaryDirectory() as temp_dir:

@@ -1,12 +1,12 @@
 # Forge Error Translation
 
-> Dùng khi cần biến stderr/raw error thành một tóm tắt dễ đọc hơn, nhưng vẫn giữ đủ context kỹ thuật để debug tiếp.
+> Use when you need to turn stderr/raw error into a more readable summary, but still retain enough technical context for further debugging.
 
-## Mục tiêu
+## Target
 
-- match các error pattern phổ biến một cách deterministic
-- redact secret, token, và đường dẫn nhạy cảm trước khi show lại
-- trả về `human_message` + `suggested_action` để `run`, `debug`, `build`, và `test` có thể reuse
+- Match common error patterns deterministically
+- redact secrets, tokens, and sensitive paths before displaying them again
+- Returns `human_message` + `suggested_action` so that `run`, `debug`, `build`, and `test` can be reused
 
 ## Canonical Script
 
@@ -17,11 +17,11 @@ python scripts/translate_error.py --input-file C:\path\to\stderr.txt --format js
 
 ## Output Contract
 
-- `status`: `PASS` nếu match được pattern đã biết, `WARN` nếu fallback generic
+- `status`: `PASS` if match known pattern, `WARN` if fallback generic
 - `translation.category`
 - `translation.human_message`
 - `translation.suggested_action`
-- `translation.error_excerpt` sau khi redact
+- `translation.error_excerpt` after redact
 
 ## Current Categories
 
@@ -38,6 +38,6 @@ python scripts/translate_error.py --input-file C:\path\to\stderr.txt --format js
 
 ## Boundary
 
-- Core chỉ lo translation deterministic và sanitation cơ bản.
-- Adapter có thể đổi cách present cho user, nhưng không được fork pattern database hay category semantics.
-- Nếu cần một pattern mới, thêm vào core thay vì patch riêng trong từng host.
+- Core only takes care of basic deterministic translation and sanitation.
+- The adapter can change the way it is presented to the user, but cannot fork the database pattern or category semantics.
+- If a new pattern is needed, add it to the core instead of patching it separately in each host.

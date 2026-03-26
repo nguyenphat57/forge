@@ -1,13 +1,13 @@
 # Forge Run Guidance
 
-> Dùng khi cần một lớp `run` host-neutral: thực thi command thật, tóm tắt signal chính, và route sang workflow tiếp theo thay vì chỉ dump terminal.
+> Use when a `run` host-neutral class is needed: executes the actual command, summarizes the main signal, and routes to the next workflow instead of just dumping the terminal.
 
-## Mục tiêu
+## Target
 
-- chạy command thật trong workspace user chỉ định
-- capture output chính, timeout, và ready-signal
-- classify command thành `build`, `serve`, `deploy`, hoặc `generic`
-- gợi ý workflow tiếp theo phù hợp: `test`, `debug`, hoặc `deploy`
+- run the actual command in the specified user workspace
+- capture main output, timeout, and ready-signal
+- classify command as `build`, `serve`, `deploy`, or `generic`
+- Suggest suitable next workflow: `test`, `debug`, or `deploy`
 
 ## Canonical Script
 
@@ -18,16 +18,16 @@ python scripts/run_with_guidance.py --workspace C:\path\to\workspace --format js
 
 ## Input Contract
 
-- `--workspace`: root mà command sẽ chạy trong đó
+- `--workspace`: root in which the command will run
 - `--timeout-ms`: timeout budget
-- command phải được truyền sau `--`
+- command must be passed after `--`
 
 ## Output Contract
 
-Script trả về:
+Script returns:
 
-- `status`: `PASS` hoặc `FAIL`
-- `state`: `completed`, `running`, `failed`, hoặc `timed-out`
+- `status`: `PASS` or `FAIL`
+- `state`: `completed`, `running`, `failed`, or `timed-out`
 - `command_kind`: `build`, `serve`, `deploy`, `generic`
 - `suggested_workflow`
 - `recommended_action`
@@ -37,14 +37,14 @@ Script trả về:
 
 ## Routing Semantics
 
-- `build` thành công -> `test`
-- `serve` có ready-signal và còn sống sau timeout -> `test`
-- `deploy` thành công -> `deploy` để tiếp tục post-deploy verification
-- command fail hoặc timeout không có ready-signal -> `debug`
+- `build` successful -> `test`
+- `serve` has ready-signal and is alive after timeout -> `test`
+- `deploy` successful -> `deploy` to continue post-deploy verification
+- command failure or timeout without ready-signal -> `debug`
 
 ## Persisted Artifacts
 
-Nếu dùng `--persist`, artifact mặc định nằm ở:
+If using `--persist`, the default artifact is located at:
 
 ```text
 .forge-artifacts/run-reports/
@@ -52,6 +52,6 @@ Nếu dùng `--persist`, artifact mặc định nằm ở:
 
 ## Adapter Boundary
 
-- Core chỉ lo command execution + deterministic guidance.
-- Adapter có thể thêm slash wrapper, natural-language wrapper, hay host UX riêng.
-- Adapter không được đổi meaning của `state`, `command_kind`, hay `suggested_workflow`.
+- Core only takes care of command execution + deterministic guidance.
+- Adapter can add slash wrapper, natural-language wrapper, or host its own UX.
+- The adapter cannot change the meaning of `state`, `command_kind`, or `suggested_workflow`.

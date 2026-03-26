@@ -1,15 +1,15 @@
 # UI Progress Tracking
 
-> Dùng cho task frontend/visualize kéo dài, nhiều màn hình, hoặc có handoff qua nhiều bước.
+> Used for long frontend/visualize tasks, multiple screens, or multiple handoffs.
 
 ## Why
 
-Forge route tốt nhưng task UI dài thường dễ trôi:
-- đã chốt brief chưa?
-- đang ở interaction model hay implementation?
-- còn review responsive/a11y chưa?
+Forge route is good but long UI tasks often drift easily:
+- Have you finalized the brief yet?
+- Are you in interaction model or implementation?
+- Have you reviewed responsive/a11y yet?
 
-Artifact progress giúp tránh mơ hồ mà không cần cả dashboard lớn.
+Artifact progress helps avoid ambiguity without the need for a large dashboard.
 
 ## Command
 
@@ -25,7 +25,7 @@ python scripts/track_ui_progress.py "Checkout tablet refresh" --mode frontend --
 python scripts/track_ui_progress.py "Kitchen dashboard exploration" --mode visualize --stage interaction-model --status active
 ```
 
-Artifact mặc định:
+Default Artifact:
 
 ```text
 .forge-artifacts/ui-progress/<mode>/<task>.md
@@ -52,5 +52,5 @@ Artifact mặc định:
 
 ## Use Rule
 
-- Không bắt buộc cho task nhỏ.
-- Nên dùng khi task UI kéo dài qua nhiều message, nhiều màn hình, hoặc dễ handoff giữa design và implementation.
+- Not required for small tasks.
+- Should be used when the UI task spans multiple messages, multiple screens, or is easy to handoff between design and implementation.

@@ -13,6 +13,9 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 
 ## Bundle Layout
 
+Cây thư mục bên dưới phản ánh bundle Antigravity sau khi overlay adapter này lên trên `forge-core`.
+Các file kế thừa từ core và các file do adapter thêm vào cùng xuất hiện trong một runtime layout.
+
 - `SKILL.md`: entrypoint để route intent, ghép skill, và giữ delivery guardrails
 - `workflows/design/`: planning, architecture, spec-review, visualize
 - `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session
@@ -30,55 +33,90 @@ forge-antigravity/
 ├── agents/
 │   └── openai.yaml
 ├── data/
-│   └── orchestrator-registry.json
+│   ├── orchestrator-registry.json
+│   ├── preferences-compat.json
+│   └── preferences-schema.json
 ├── domains/
 │   ├── backend.md
 │   └── frontend.md
 ├── references/
+│   ├── antigravity-operator-surface.md
+│   ├── backend-briefs.md
+│   ├── bump-release.md
+│   ├── canary-rollout.md
 │   ├── companion-routing-smoke-tests.md
 │   ├── companion-skill-contract.md
-│   ├── backend-briefs.md
+│   ├── error-translation.md
 │   ├── execution-delivery.md
 │   ├── failure-recovery-playbooks.md
 │   ├── frontend-stack-profiles.md
+│   ├── help-next.md
+│   ├── personalization.md
 │   ├── reference-map.md
+│   ├── rollback-guidance.md
+│   ├── run-guidance.md
 │   ├── smoke-test-checklist.md
 │   ├── smoke-tests.md
+│   ├── tooling.md
 │   ├── ui-briefs.md
 │   ├── ui-escalation.md
 │   ├── ui-good-bad-examples.md
 │   ├── ui-heuristics.md
 │   ├── ui-progress.md
 │   ├── ui-quality-checklist.md
-│   └── tooling.md
+│   └── workspace-init.md
 ├── scripts/
-│   ├── check_workspace_router.py
+│   ├── capture_continuity.py
 │   ├── check_backend_brief.py
 │   ├── check_ui_brief.py
+│   ├── check_workspace_router.py
 │   ├── common.py
+│   ├── evaluate_canary_readiness.py
 │   ├── generate_backend_brief.py
 │   ├── generate_ui_brief.py
+│   ├── initialize_workspace.py
+│   ├── prepare_bump.py
+│   ├── record_canary_result.py
+│   ├── resolve_help_next.py
+│   ├── resolve_preferences.py
+│   ├── resolve_rollback.py
+│   ├── route_preview.py
+│   ├── run_smoke_matrix.py
+│   ├── run_with_guidance.py
+│   ├── run_workspace_canary.py
 │   ├── track_chain_status.py
 │   ├── track_execution_progress.py
 │   ├── track_ui_progress.py
-│   ├── capture_continuity.py
-│   ├── route_preview.py
-│   ├── run_smoke_matrix.py
-│   └── verify_bundle.py
+│   ├── translate_error.py
+│   ├── verify_bundle.py
+│   └── write_preferences.py
 ├── tests/
 │   ├── fixtures/
+│   ├── support.py
+│   ├── test_bump_workflow.py
+│   ├── test_canary_rollout.py
 │   ├── test_check_workspace_router.py
 │   ├── test_contracts.py
+│   ├── test_error_translation.py
+│   ├── test_help_next.py
+│   ├── test_initialize_workspace.py
+│   ├── test_preferences.py
+│   ├── test_rollback_guidance.py
+│   ├── test_router_matrix.py
 │   ├── test_route_matrix.py
-│   └── test_route_preview.py
+│   ├── test_route_preview.py
+│   ├── test_run_workflow.py
+│   ├── test_tool_roundtrip.py
+│   ├── test_workspace_canary.py
+│   └── test_write_preferences.py
 └── workflows/
     ├── design/
-    │   ├── brainstorm.md
     │   ├── architect.md
+    │   ├── brainstorm.md
     │   ├── plan.md
     │   ├── spec-review.md
     │   └── visualize.md
-    └── execution/
+    ├── execution/
         ├── build.md
         ├── debug.md
         ├── deploy.md
@@ -88,6 +126,17 @@ forge-antigravity/
         ├── secure.md
         ├── session.md
         └── test.md
+    └── operator/
+        ├── bump.md
+        ├── customize.md
+        ├── handover.md
+        ├── help.md
+        ├── init.md
+        ├── next.md
+        ├── recap.md
+        ├── rollback.md
+        ├── run.md
+        └── save-brain.md
 ```
 
 ## Host Boundary
@@ -152,8 +201,9 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 - Forge resolve preferences qua core engine `scripts/resolve_preferences.py` từ Antigravity-global `state/preferences.json`, và chỉ fallback sang `.brain/preferences.json` cho workspace legacy.
 - Schema canonical gồm `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, và `personality`.
 - Khi file state đang dùng schema native của Antigravity, adapter này map payload đó về canonical schema trước khi resolve response style.
+- `forge-antigravity` ship compat defaults để clean install mặc định resolve `language=vi` và `orthography=vietnamese_diacritics` cho đến khi state hoặc workspace override chúng.
 - `forge-antigravity` có thể thêm wrapper như `/customize`, nhưng schema và response-style semantics vẫn phải đọc từ core.
-- Durable preference updates phải đi qua `scripts/write_preferences.py`, không được tự viết file schema riêng cho host.
+- Durable preference updates, bao gồm `language` và `orthography`, phải đi qua `scripts/write_preferences.py`; workspace `.brain/preferences.json` chỉ là override theo repo hoặc legacy fallback.
 - Host UX có thể dày hơn Codex, nhưng không được fork key names hay validation rules.
 
 ---

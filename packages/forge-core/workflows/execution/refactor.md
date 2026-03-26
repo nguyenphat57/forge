@@ -18,9 +18,9 @@ NO REFACTOR WITHOUT BASELINE AND AFTER VERIFICATION
 ```
 
 <HARD-GATE>
-- Logic nghiệp vụ phải giữ nguyên.
-- Không trộn refactor với feature work nếu chưa chốt scope.
-- Nếu không có baseline verification, cần tạo baseline trước khi đi tiếp.
+- Business logic must remain the same.
+- Do not mix refactor with feature work if the scope has not been finalized.
+- If there is no baseline verification, you need to create a baseline before continuing.
 </HARD-GATE>
 
 ---
@@ -29,66 +29,66 @@ NO REFACTOR WITHOUT BASELINE AND AFTER VERIFICATION
 
 ```mermaid
 flowchart TD
-    A[Xác định scope] --> B[Baseline verification]
+    A[Determine scope] --> B[Baseline verification]
     B --> C[Detect code smells]
     C --> D[Plan micro-steps]
-    D --> E[Refactor từng bước]
-    E --> F[Run checks sau mỗi bước]
-    F --> G{Còn green?}
-    G -->|No| H[Revert bước vừa sửa]
+    D --> E[Refactor step by step]
+    E --> F[Run checks after each step]
+    F --> G{And the green?}
+    G -->|No| H[Revert the edited step]
     G -->|Yes| I[Before/after review]
     I --> J[Handover]
 ```
 
 ## Code Smells
 
-| Smell | Dấu hiệu | Hành động |
+|Smell | Signs | Action|
 |-------|----------|-----------|
-| Long Function | >50 dòng | Tách hàm |
-| Deep Nesting | >3 cấp | Early return / flatten |
-| Large File | >500 dòng | Tách module |
-| Duplication | Copy-paste | Extract helper |
-| Vague Names | `data`, `x`, `obj` | Rename rõ nghĩa |
-| Dead Code | Không ai gọi | Xóa an toàn |
-| Magic Numbers | Số khó hiểu | Extract constant |
+|Long Function | >50 lines | Function separation|
+|Deep Nesting | >3 levels | Early return / flatten|
+|Large File | >500 lines | Split modules|
+|Duplication | Copy-paste | Extract helper|
+|Vague Names | `data`, `x`, `obj` | Rename clearly|
+|Dead Code | No one called | Secure Erase|
+|Magic Numbers | Confusing numbers | Extract constant|
 
 ## Anti-Rationalization
 
-| Bào chữa | Sự thật |
+|Defense | Truth|
 |----------|---------|
-| "Tiện tay sửa thêm logic luôn" | Đó không còn là refactor nữa |
-| "Không cần baseline, em chắc không đổi behavior" | Chắc cảm giác không thay cho evidence |
-| "Micro-step nhiều quá, gộp cho nhanh" | Refactor gộp dễ gây regression nhất |
+|"Conveniently edit more logic" | That's no longer a refactor|
+|"No need for baseline, I probably won't change my behavior" | Maybe feeling doesn't replace evidence|
+|"Too many micro-steps, combine them quickly" | Combined refactors are the most likely to cause regression|
 
 Code examples:
 
 Bad:
 
 ```text
-"Em refactor luôn chỗ này rồi tiện fix behavior kia."
+"I'll refactor this and then fix that behavior."
 ```
 
 Good:
 
 ```text
-"Scope refactor: tách module và đổi tên rõ hơn, baseline giữ nguyên. Behavior change kia là task riêng nếu còn cần."
+"Scope refactor: separate the module and change the name more clearly, the baseline remains the same. The other behavior change is a separate task if still needed."
 ```
 
 ## Verification Checklist
 
-- [ ] Baseline checks đã pass
-- [ ] Mỗi micro-step đều được verify
-- [ ] Checks sau refactor đã pass
-- [ ] Logic / public behavior không đổi
-- [ ] Đã xóa debug temp / dead scaffolding
+- [ ] Baseline checks passed
+- [ ] Each micro-step is verified
+- [ ] Checks after refactor have passed
+- [ ] Logic / public behavior remains unchanged
+- [ ] Removed debug temp / dead scaffolding
 
 ## Complexity Scaling
 
-| Level | Approach |
+|Level | Approach|
 |-------|----------|
-| **small** | 1-2 micro-steps + targeted checks |
-| **medium** | Tách thành nhiều micro-steps + review sau cùng |
-| **large** | Cần plan riêng, worktree/branch nếu cần, verify sau mỗi phase |
+|**small** | 1-2 micro-steps + targeted checks|
+|**medium** | Split into many micro-steps + final review|
+|**large** | Need separate plan, worktree/branch if necessary, verify after each phase|
 
 ## Handover
 
@@ -97,11 +97,11 @@ Refactor report:
 - Scope: [...]
 - Smells addressed: [...]
 - Verified: [checks]
-- Behavior changed?: no / note nếu có
+- Behavior changed?: no / note if yes
 ```
 
 ## Activation Announcement
 
 ```
-Forge: refactor | baseline trước, verify sau mỗi micro-step
+Forge: refactor | baseline first, verify after every micro-step
 ```

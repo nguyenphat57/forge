@@ -45,6 +45,12 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["intent"], "REVIEW")
         self.assertEqual(report["detected"]["forge_skills"], ["review", "secure"])
 
+    def test_vietnamese_build_prompt_routes_to_build_intent(self) -> None:
+        report = route_preview.build_report(self.build_args("Thêm endpoint thanh toán mới"))
+
+        self.assertEqual(report["detected"]["intent"], "BUILD")
+        self.assertIn("build", report["detected"]["forge_skills"])
+
     def test_session_prompt_skips_edit_verification_profile(self) -> None:
         report = route_preview.build_report(self.build_args("Tiếp tục task đang dở"))
 
@@ -52,6 +58,12 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertIsNone(report["detected"]["verification_profile"])
         self.assertIsNone(report["verification"])
         self.assertIn("Verification profile: (n/a)", route_preview.format_text(report))
+
+    def test_mixed_language_review_prompt_routes_to_review_intent(self) -> None:
+        report = route_preview.build_report(self.build_args("Review luồng thanh toán before merge"))
+
+        self.assertEqual(report["detected"]["intent"], "REVIEW")
+        self.assertEqual(report["detected"]["forge_skills"], ["review", "secure"])
 
     def test_runtime_signal_can_select_local_companion(self) -> None:
         with TemporaryDirectory() as temp_dir:

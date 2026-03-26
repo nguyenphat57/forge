@@ -1,19 +1,19 @@
 # UI Briefs
 
-> Dùng khi task là `frontend` hoặc `visualize` ở mức vừa/lớn, hoặc khi visual direction còn mơ hồ.
+> Use when the task is `frontend` or `visualize` at a medium/large level, or when the visual instructions are ambiguous.
 
 ## Why This Exists
 
-`frontend` và `visualize` đều cần một first artifact rõ ràng trước khi lao vào component hoặc mockup:
+`frontend` and `visualize` both need a clear first artifact before diving into the component or mockup:
 
 - `frontend`: frontend brief
 - `visualize`: visual brief
 
-Brief này không thay design system của project. Nó chỉ chốt:
-- scope
+This brief did not change the project's design system. It just latches:
+- scope. scope
 - visual direction
 - interaction model
-- states
+- states. states
 - responsive/a11y boundaries
 - stack/platform lens
 
@@ -41,13 +41,13 @@ python scripts/generate_ui_brief.py "Explore a calmer dashboard direction for ki
 
 ## Persisted Master + Page Override Pattern
 
-Khi task kéo dài nhiều bước hoặc nhiều màn hình, thêm `--persist`:
+When the task spans multiple steps or screens, add `--persist`:
 
 ```powershell
 python scripts/generate_ui_brief.py "..." --mode frontend --persist --project-name "LamDiFood POS" --screen checkout
 ```
 
-Artifact tạo ra:
+Artifact generates:
 
 ```text
 .forge-artifacts/ui-briefs/<project-slug>/<mode>/MASTER.md
@@ -57,28 +57,28 @@ Artifact tạo ra:
 
 Reading order:
 1. `MASTER.md`
-2. `pages/<screen>.md` nếu screen có override
+2. `pages/<screen>.md` if screen has override
 
 ## When To Reuse vs Regenerate
 
-Reuse brief hiện có khi:
-- visual direction không đổi
-- cùng screen family
-- cùng stack/platform constraints
+Reuse brief is available when:
+- visual direction remains unchanged
+- same screen family
+- same stack/platform constraints
 
-Regenerate hoặc update brief khi:
-- thêm screen mới
-- đổi visual direction
-- đổi platform lens
-- task chuyển từ concept sang implementation hoặc ngược lại
+Regenerate or update brief when:
+- added new screens
+- change visual direction
+- change lens platform
+- task moves from concept to implementation or vice versa
 
 ## Minimum Brief Quality
 
-- Có scope rõ
-- Có states rõ: default/loading/empty/error
-- Có responsive hoặc platform note
-- Có accessibility boundary
-- Có stack-specific focus hoặc watchouts
+- Have a clear scope
+- Have clear states: default/loading/empty/error
+- Have responsive or platform notes
+- Has accessibility boundary
+- Has stack-specific focus or watchouts
 
 ## Validate A Persisted Brief
 
@@ -86,7 +86,7 @@ Regenerate hoặc update brief khi:
 python scripts/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/frontend --mode frontend --screen checkout
 ```
 
-Hoặc:
+Or:
 
 ```powershell
 python scripts/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/visualize --mode visualize --screen dashboard

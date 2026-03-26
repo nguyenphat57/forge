@@ -26,14 +26,14 @@ NO BEHAVIORAL CHANGE WITHOUT DEFINING VERIFICATION FIRST
 ```
 
 <HARD-GATE>
-- Medium/large tasks: phải có impact analysis trước khi edit.
-- Large tasks: phải chọn execution mode trước khi code hàng loạt.
-- Medium/large hoặc high-risk work: phải chốt execution pipeline trước khi sửa rộng.
-- High-risk hoặc dirty-repo work: phải chốt isolation stance (`same tree`, `worktree`, hoặc host-supported subagent split) trước khi sửa rộng.
-- Large/high-risk implementation: nếu `spec-review` applicable, build chỉ bắt đầu khi readiness là `go`.
-- Behavioral changes: ưu tiên failing test hoặc reproduction trước khi sửa.
-- Nếu không có harness khả thi, phải nói rõ vì sao và dùng cách verify mạnh nhất còn lại.
-- Không claim "xong" khi chưa có bằng chứng mới.
+- Medium/large tasks: must have impact analysis before editing.
+- Large tasks: must select execution mode before batch coding.
+- Medium/large or high-risk work: must close the execution pipeline before expanding.
+- High-risk or dirty-repo work: isolation stance must be locked (`same tree`, `worktree`, or host-supported subagent split) before modifying.
+- Large/high-risk implementation: if `spec-review` applicable, build only starts when readiness is `go`.
+- Behavioral changes: prioritize failing test or reproduce before editing.
+- If there is no viable harness, you must clearly state why and use the strongest remaining verification method.
+- Do not claim "done" without new evidence.
 </HARD-GATE>
 
 ---
@@ -42,23 +42,23 @@ NO BEHAVIORAL CHANGE WITHOUT DEFINING VERIFICATION FIRST
 
 ```mermaid
 flowchart TD
-    A[Nhận task] --> B[Phân loại task]
-    B --> C[Impact analysis nếu cần]
-    C --> D[Chọn execution mode nếu cần]
-    D --> E[Chọn execution pipeline + lane stance]
+    A[Receive task] --> B[Classify task]
+    B --> C[Impact analysis if needed]
+    C --> D[Choose execution mode if needed]
+    D --> E[Choose execution pipeline + lane stance]
     E --> F[Take execution packet]
-    F --> G[Chọn verification strategy]
-    G --> H{Behavior change + có harness?}
-    H -->|Có| I[Write failing test/reproduction]
-    H -->|Không| J[Chốt command/check thay thế]
+    F --> G[Choose verification strategy]
+    G --> H{Behavior change + harness available?}
+    H -->|Yes| I[Write failing test/reproduction]
+    H -->|No| J[Lock fallback command/check]
     I --> K[Act on one slice]
     J --> K
     K --> L[Run slice proof + boundary checks]
     L --> M[Reflect: drift / next slice / reopen?]
     M --> N{Pass + still on-plan?}
-    N -->|No| O[Fix theo evidence hoặc quay lại plan/debug]
+    N -->|No| O[Fix from evidence or go back to plan/debug]
     O --> F
-    N -->|Yes| P[Update checkpoint nếu task dài]
+    N -->|Yes| P[Update checkpoint if the task is long-running]
     P --> Q[Reviewer lane / reviewer-style pass]
     Q --> R[Set completion state]
     R --> S[Handover]
@@ -66,25 +66,25 @@ flowchart TD
 
 ## Task Classes
 
-| Loại task | Cách verify trước khi sửa |
+|Task type | How to verify before editing|
 |-----------|---------------------------|
-| Feature / bugfix có test harness | Failing test hoặc reproduction |
-| Feature / bugfix không có harness | Manual reproduction rõ ràng, failing command, hoặc smoke path |
-| Config / build script / release chore | Build, lint, typecheck, diff, hoặc command mục tiêu |
-| Docs only | Link / path / content check, không giả vờ có test |
+|Feature / bugfix has test harness | Failing test or reproduction|
+|Feature / bugfix without harness | Manual reproduction is clear, failing command, or smoke path|
+|Config / build script / release chore | Build, lint, typecheck, diff, or target command|
+|Docs only | Link / path / content check, do not pretend to have a test|
 
-## Impact Analysis (bắt buộc cho medium/large)
+## Impact Analysis (required for medium/large)
 
-Trả lời trước khi code:
-1. Files nào bị ảnh hưởng?
-2. Callers/consumers nào phải update?
-3. Edge cases nào dễ vỡ?
-4. Cần thêm hoặc sửa verification nào?
-5. Nếu scope >3 files hoặc có assumption lớn -> báo user trước khi edit
+Answer before coding:
+1. Which files are affected?
+2. Which callers/consumers must update?
+3. Which edge cases are fragile?
+4. What verification needs to be added or edited?
+5. If the scope is >3 files or there is a large assumption -> notify the user before editing
 
 ## Execution Packet Intake
 
-Trước khi sửa `medium/large`, build phải chốt slice đang thi công:
+Before editing `medium/large`, the build must close the slice under construction:
 
 ```text
 Execution packet:
@@ -97,82 +97,82 @@ Execution packet:
 ```
 
 Rules:
-- Không edit khi chưa chốt `current slice`
-- Không gom nhiều slice vào một lượt edit chỉ vì "đang tiện"
-- Nếu cần chạm file/boundary ngoài packet để cứu thiết kế, dừng và reopen `plan`, `architect`, hoặc `spec-review`
+- Do not edit until `current slice` is finalized
+- Don't combine multiple slices into one edit just because it's "convenient".
+- If you need to touch a file/boundary outside the packet to save the design, stop and reopen `plan`, `architect`, or `spec-review`
 
 ## Execution Mode Selection
 
-Chọn mode trước khi code medium/large để tránh vừa làm vừa đổi chiến thuật:
+Choose mode before coding medium/large to avoid changing tactics at the same time:
 
-| Mode | Dùng khi | Tránh khi |
+|Mode | Use when | Avoid when|
 |------|----------|-----------|
-| `single-track` | Một critical path chính, thay đổi coupled, cần giữ context chặt | Có nhiều workstream độc lập thật sự |
-| `checkpoint-batch` | Large task có nhiều bước nối tiếp, cần chia checkpoint rõ | Tác vụ quá nhỏ hoặc quá coupled để tách batch |
-| `parallel-safe` | Có nhiều lát cắt độc lập, interface/boundary đã rõ | Chưa chốt contract hoặc blast radius chồng chéo |
+|`single-track` | A major critical path, coupled change, needs to keep the context tight | There are many truly independent workstreams|
+|`checkpoint-batch` | Large tasks have many sequential steps, need to clearly divide checkpoints The task is too small or too coupled to split the batch|
+|`parallel-safe` | There are many independent slices, the interface/boundary is clear The contract has not been finalized or the blast radius overlaps|
 
 Rule:
-- `small` -> gần như luôn `single-track`
-- `medium` -> mặc định `single-track`, chỉ nâng lên `checkpoint-batch` khi có 2+ mốc giao rõ
-- `large` -> bắt buộc chọn một mode
-- Nếu nghi ngờ có an toàn để song song hay không, quay về `single-track`
+- `small` -> almost always `single-track`
+- `medium` -> default `single-track`, only raised to `checkpoint-batch` when there are 2+ clear intersections
+- `large` -> forced to select a mode
+- If in doubt whether it is safe to parallelize or not, return to `single-track`
 
-Nếu task kéo dài, ghi checkpoint artifact bằng script `scripts/track_execution_progress.py`.
-Muốn xem mode chooser và completion states gọn hơn, đọc `references/execution-delivery.md`.
+If the task is long, log the checkpoint artifact with script `scripts/track_execution_progress.py`.
+To see the mode chooser and complete states more concisely, read `references/execution-delivery.md`.
 
 ## Execution Pipeline Selection
 
-Pipeline là cách Forge tách implement/spec/quality lanes để tránh vừa code vừa tự hợp thức hóa.
+Pipeline is Forge's way of separating implementation/spec/quality lanes to avoid both code and self-validation.
 
-| Pipeline | Dùng khi | Lanes |
+|Pipelines | Use when | Lanes|
 |----------|----------|-------|
-| `single-lane` | Small hoặc medium low-risk | `implementer` |
-| `implementer-quality` | Medium/large với spec đủ rõ nhưng vẫn cần review lane độc lập | `implementer` -> `quality-reviewer` |
-| `implementer-spec-quality` | `spec-review` applicable hoặc build high-risk | `implementer` -> `spec-reviewer` -> `quality-reviewer` |
+|`single-lane` | Small or medium low-risk | `implementer`|
+|`implementer-quality` | Medium/large with clear enough specs but still needs independent lane review | `implementer` -> `quality-reviewer`|
+|`implementer-spec-quality` | `spec-review` applicable or build high-risk | `implementer` -> `spec-reviewer` -> `quality-reviewer`|
 
 Rules:
-- `BUILD` có `spec-review` -> mặc định nghiêng về `implementer-spec-quality`
-- `large` hoặc profile mạnh hơn `standard` -> tối thiểu phải có `quality-reviewer`
-- Host có subagents -> lane có thể chạy độc lập
-- Host không có subagents -> vẫn phải chạy tuần tự theo lane, không gộp suy nghĩ lại thành một pass duy nhất
+- `BUILD` has `spec-review` -> defaults to `implementer-spec-quality`
+- `large` or stronger profile `standard` -> must have at least `quality-reviewer`
+- Host has subagents -> lane can run independently
+- Host does not have subagents -> still has to run sequentially in lanes, not combining thoughts into a single pass
 
 ## Lane Model Stance
 
-Forge dùng tier trừu tượng thay vì hardcode model vendor:
+Forge uses an abstract tier instead of a hardcode vendor model:
 
-| Lane | Default tier |
+|Lane | Default tier|
 |------|--------------|
-| `navigator` | `cheap` |
-| `implementer` | `standard` |
-| `spec-reviewer` | `capable` |
-| `quality-reviewer` | `standard` |
+|`navigator` | `cheap`|
+|`implementer` | `standard`|
+|`spec-reviewer` | `capable`|
+|`quality-reviewer` | `standard`|
 
 Rules:
-- `large` -> implement/review lanes nghiêng lên `capable`
-- `release-critical`, `migration-critical`, `external-interface`, `regression-recovery` -> lane review liên quan phải lên `capable`
-- Nếu task chỉ là bounded low-risk slice, giữ lane rẻ hơn là lựa chọn đúng
+- `large` -> implement/review tilted lanes `capable`
+- `release-critical`, `migration-critical`, `external-interface`, `regression-recovery` -> related review lane must go to `capable`
+- If the task is just a bounded low-risk slice, keeping the cheaper lane is the right choice
 
 ## Isolation Recommendation
 
-Với multi-step `large` hoặc `high-risk` work, chốt isolation stance trước khi bắt đầu:
+With multi-step `large` or `high-risk` work, latch isolation stance before starting:
 
-| Stance | Dùng khi |
+|Stance | Use when|
 |--------|----------|
-| `same-tree` | Task đủ nhỏ hoặc repo sạch, blast radius thấp |
-| `worktree` | Repo đang bẩn, task rủi ro cao, hoặc cần cô lập change set |
-| `subagent-split` | Host hỗ trợ subagents và task có nhiều lát cắt rõ boundary |
+|`same-tree` | Small enough task or clean repo, low blast radius|
+|`worktree` | The repo is dirty, the task is high risk, or the change set needs to be isolated|
+|`subagent-split` | Host supports subagents and tasks with many clear boundary slices|
 
 Rule:
-- Nếu repo đang dirty và task không nhỏ -> ưu tiên `worktree`
-- Nếu boundary chưa rõ -> không dùng `subagent-split`
-- Nếu đã chọn `subagent-split`, phải có chain status hoặc checkpoint đủ rõ để hợp nhất kết quả
+- If the repo is dirty and the task is not small -> prioritize `worktree`
+- If the boundary is unclear -> do not use `subagent-split`
+- If `subagent-split` is selected, there must be a clear enough chain status or checkpoint to merge the results
 
 ## Subagent Split Packet
 
-Khi build thật sự dùng `subagent-split`, mỗi subagent phải nhận packet tự đủ thay vì chỉ nói "đi đọc code rồi làm":
+When building actually uses `subagent-split`, each subagent must receive packets on its own instead of just saying "go read the code and do it":
 
 ```text
-Delegation packet:
+Delegation packets:
 - Slice goal: [...]
 - Owned files / write scope: [...]
 - Shared reads allowed: [...]
@@ -182,169 +182,169 @@ Delegation packet:
 ```
 
 Rules:
-- Fresh worker cho từng slice hoặc review lane; không tái dùng context cũ nếu packet đã đổi đáng kể
-- Không giao write scope chồng chéo giữa hai subagents
-- Nếu repo dirty hoặc blast radius cao, cân nhắc `worktree` trước khi `subagent-split`
-- Nếu packet chưa nói rõ proof hoặc ownership, quay lại `plan` / `spec-review` thay vì dispatch mù
+- Fresh worker for each slice or review lane; Do not reuse the old context if the packet has changed significantly
+- Do not assign overlapping write scopes between two subagents
+- If the repo is dirty or the blast radius is high, consider `worktree` before `subagent-split`
+- If the packet does not clearly state proof or ownership, return `plan` / `spec-review` instead of blind dispatch
 
 ## Spec-Review Dependency
 
-`Spec-review` là gate trước build khi:
+`Spec-review` is the gate before build when:
 - task `large`
-- task `medium` nhưng có contract/schema/migration/auth/payment/public interface/high-risk boundary
+- task `medium` but has contract/schema/migration/auth/payment/public interface/high-risk boundary
 
-Build không được tự “coi như spec đã đủ” nếu:
-- plan còn ghi assumption mở
-- architect vừa đổi system shape lớn
-- verification strategy còn thiếu cho boundary quan trọng
+Build should not be considered "as if the spec is sufficient" if:
+- The plan also states open assumption
+- The architect just changed the system shape to a large extent
+- verification strategy is missing for important boundaries
 
 ## Verification Strategy
 
-### Nếu có harness
-- Write failing test cho behavior cần đổi
-- Verify test fail đúng lý do
-- Implement tối thiểu
-- Run lại test liên quan và checks cần thiết
+### If there is a harness
+- Write failing test for behavior that needs to be changed
+- Verify test fails for correct reason
+- Minimum implementation
+- Rerun related tests and necessary checks
 
-### Nếu không có harness
-- Ghi rõ lý do không dùng test được
-- Tạo reproduction/check cụ thể trước khi sửa
-- Sau khi sửa, chạy lại đúng reproduction/check đó
+### Without harness
+- Clearly state the reason why the test cannot be used
+- Create specific reproduction/check before editing
+- After editing, run the correct reproduction/check again
 
 ### Verification ladder
-- `Slice proof`: check nhỏ nhất chứng minh slice hiện tại đúng
-- `Boundary check`: thêm khi slice chạm contract, schema, integration, auth, migration, hoặc external interface
-- `Broader suite`: thêm khi blast radius rộng, release-critical, hoặc vừa có regression
+- `Slice proof`: smallest check that proves the current slice is correct
+- `Boundary check`: added when slice touches contract, schema, integration, auth, migration, or external interface
+- `Broader suite`: added when blast radius is wide, release-critical, or just has regression
 
 Rule:
-- Không nhảy thẳng lên suite lớn để che việc thiếu slice proof
-- Không dừng ở slice proof khi boundary vừa bị đổi rõ ràng
+- Don't jump straight into the big suite to cover up the lack of slice proof
+- Do not stop at slice proof when the boundary has just been clearly changed
 
 ### Fast-Fail Order
 - 1. Packet + proof-before-progress locked
-- 2. Failing test hoặc reproduction captured
+- 2. Failing test or reproduction captured
 - 3. Slice proof pass
-- 4. Boundary check pass nếu có contract/schema/integration blast radius
-- 5. Reviewer lane hoặc reviewer-style pass
+- 4. Boundary check pass if there is contract/schema/integration blast radius
+- 5. Reviewer lane or reviewer-style pass
 - 6. Quality gate / completion claim
 
-Không dùng suite lớn hoặc câu "đã build pass" để bỏ qua bước 1-3.
+Do not use large suites or the phrase "built pass" to skip steps 1-3.
 
-### Tuyệt đối không làm
-- Nói "task này nhỏ quá khỏi test"
-- Báo đã test-first khi thực tế không có test
-- Sửa xong rồi mới nghĩ cách verify
+### Absolutely do not do it
+- Say "this task is too small to test"
+- Reported test-first when in reality there was no test
+- After editing, then think about how to verify
 
 ## Anti-Rationalization
 
-| Bào chữa | Sự thật |
+|Defense | Truth|
 |----------|---------|
-| "Cần explore trước rồi mới viết test/repro" | Explore có thể cần, nhưng verification strategy cho behavior change vẫn phải chốt trước khi sửa |
-| "TDD không practical trong repo này" | Nếu harness dùng được thì bỏ RED phải có lý do kỹ thuật cụ thể, không phải cảm giác |
-| "Giữ code cũ để tham khảo nên sửa tạm đã" | Tham khảo không thay thế cho reproduction/test; phải biết chính xác behavior nào đang đổi |
-| "Khó test nên skip cho nhanh" | Khi test khó, chuyển sang reproduction/check thay thế mạnh hơn chứ không bỏ verify |
-| "Fix xong rồi thêm test sau" | Test-after dễ hợp thức hóa code đã viết, không chứng minh được intent ban đầu |
-| "Plan rõ rồi cứ code một lèo" | Large work vẫn cần execution mode và checkpoint để tránh drift hoặc bỏ sót handoff state |
+|"Need to explore first before writing test/repro" | Explore may be needed, but the verification strategy for behavior change must still be finalized before editing|
+|"TDD is not practical in this repo" | If the harness can be used, there must be a specific technical reason for removing RED, not a feeling|
+|"Keeping the old code for reference should fix it temporarily" | Reference is not a substitute for reproduction/test; must know exactly which behavior is changing|
+|"It's difficult to test so skip quickly" | When testing is difficult, switch to a stronger reproduction/check instead of giving up verification|
+|"Fix it, then add more tests later" | Test-after easily validates the written code, but cannot prove the original intent|
+|"Plan clearly, just code at once" | Large work still needs execution mode and checkpoint to avoid drifting or missing handoff state|
 
 Code examples:
 
 Bad:
 
 ```text
-"Em sửa trước cho nhanh, lát nghĩ cách test."
+"I'll patch it first to move faster, then think about how to test it."
 ```
 
 Good:
 
 ```text
-"Verification trước khi sửa: reproduce bằng [command/scenario]. Sau đó mới đổi code và rerun đúng check đó."
+"Verification before editing: reproduce with [command/scenario]. Then change the code and rerun that exact check."
 ```
 
 ## Reason -> Act -> Verify -> Reflect
 
-Với mọi slice không nhỏ:
+For all non-small slices:
 
-1. `Reason` -> đọc packet hiện tại, nhắc lại proof và boundary
-2. `Act` -> sửa phần nhỏ nhất đủ để tiến lên
-3. `Verify` -> chạy đúng proof/check đã chốt cho slice
-4. `Reflect` -> ghi lại drift, next slice, blocker, hoặc signal phải reopen upstream
+1. `Reason` -> read current packet, repeat proof and boundary
+2. `Act` -> fix the smallest part enough to move forward
+3. `Verify` -> runs the correct proof/check for the slice
+4. `Reflect` -> recorded drift, next slice, blocker, or signal must reopen upstream
 
 Rules:
-- Không tích lũy nhiều thay đổi chưa verify rồi mới test một lần
-- Nếu verify fail vì lý do ngoài dự kiến, phản xạ đầu tiên là đọc lại packet và impact analysis
-- `Reflect` phải quyết định rõ: tiếp slice tiếp theo, sửa lại slice hiện tại, hay quay upstream
+- Do not accumulate many unverified changes before testing them once
+- If verification fails for unexpected reasons, the first response is to re-read the packet and do impact analysis
+- `Reflect` must decide clearly: continue with the next slice, edit the current slice, or go upstream
 
 ---
 
 ## Two-Stage Review
 
 ### Stage 1: Requirement Compliance
-- Đúng scope user yêu cầu?
-- Có assumptions nào chưa nói ra?
-- Có thừa feature hoặc bỏ sót requirement?
+- Correct scope the user requested?
+- Are there any unstated assumptions?
+- Are there excess features or missing requirements?
 
 ### Stage 2: Code Quality
-- Naming và structure có dễ đọc?
-- Error handling / validation đã đủ?
-- Consumers / imports / types còn hợp lệ?
-- Verification đã đủ mức cho blast radius?
+- Is the naming and structure easy to read?
+- Error handling / validation enough?
+- Consumers / imports / types still valid?
+- Verification is enough for blast radius?
 
-Nếu execution pipeline có `quality-reviewer`, pass này phải đọc như một lane riêng, không chỉ là tự nhìn lại code trong cùng nhịp implement.
-Nếu host hỗ trợ subagents, reviewer lane nên nhận packet rút gọn từ controller: scope, evidence, diff/files changed, và câu hỏi review cụ thể; không bắt reviewer tự đoán intent từ toàn bộ session.
+If the execution pipeline has `quality-reviewer`, this pass must be read as a separate lane, not just looking at the code itself in the same execution rhythm.
+If the host supports subagents, the reviewer lane should receive a shortened packet from the controller: scope, evidence, diff/files changed, and the specific review question; Do not force the reviewer to guess the intent from the entire session.
 
 ## Drift / Reopen Rules
 
-Build phải dừng và quay upstream khi:
-- slice hiện tại cần thêm boundary hoặc file ngoài packet một cách material
-- plan/spec-design vừa lộ assumption sai
-- verify fail lặp lại 3 vòng mà chưa rõ root cause
-- hoàn thành một slice nhưng next slice làm thay đổi chosen direction
+Build must stop and turn upstream when:
+- The current slice needs to physically add a boundary or file outside the packet
+- plan/spec-design just revealed the wrong assumption
+- verify failure repeats 3 rounds without clear root cause
+- completes a slice but the next slice changes the chosen direction
 
-Route gợi ý:
-- drift về shape / scope / sequencing -> quay lại `plan`
-- drift về contract / schema / architecture -> quay lại `architect` hoặc `spec-review`
-- drift về behavior không hiểu nổi -> sang `debug`
+Suggested routes:
+- drift to shape / scope / sequencing -> return to `plan`
+- drift about contract / schema / architecture -> return to `architect` or `spec-review`
+- drift towards incomprehensible behavior -> to `debug`
 
 ## Completion States
 
-Trước khi handover, build phải gán rõ một state:
+Before handover, the build must clearly assign a state:
 
-| State | Nghĩa là gì |
+|State | What does it mean?|
 |-------|-------------|
-| `in-progress` | Chưa đủ bằng chứng để handoff |
-| `ready-for-review` | Đã verify phần mình làm và chờ review/inspection cuối |
-| `ready-for-merge` | Chỉ dùng khi scope nhỏ, verification mạnh, và không còn finding/blocker đã biết |
-| `blocked-by-residual-risk` | Có risk/blocker đủ lớn nên chưa được coi là done |
+|`in-progress` | Not enough evidence to handoff|
+|`ready-for-review` | Verified my work and waiting for final review/inspection|
+|`ready-for-merge` | Only use when scope is small, verification is strong, and there are no known finding/blockers|
+|`blocked-by-residual-risk` | There is a large enough risk/blocker so it is not considered done|
 
-Không được dùng câu mơ hồ kiểu "gần xong", "cơ bản ổn", "chắc merge được".
+Do not use vague sentences like "almost done", "basically okay", "probably can be merged".
 
 ## Verification Checklist
 
-- [ ] Đã chốt verification strategy trước khi edit
-- [ ] Task medium/large đã có impact analysis
-- [ ] Task medium/large đã chọn execution mode phù hợp
-- [ ] High-risk work đã có isolation recommendation rõ
-- [ ] Task medium/large đã có execution packet cho slice hiện tại
-- [ ] Nếu applicable, spec-review đã trả về `go`
-- [ ] Behavioral change đã có failing test/reproduction hoặc lý do không có harness
-- [ ] Slice proof đã được chạy trước khi đi tiếp slice sau
-- [ ] Task dài đã cập nhật checkpoint hoặc nói rõ vì sao không cần
-- [ ] Checks liên quan đã được chạy lại sau khi sửa
-- [ ] Output đã đọc, không chỉ chạy lệnh cho có
-- [ ] Đã reviewer-style pass sau cùng
-- [ ] Completion state đã explicit
-- [ ] Đã note rõ phần chưa verify được (nếu có)
+- [ ] Verification strategy has been finalized before editing
+- [ ] Task medium/large already has impact analysis
+- [ ] Task medium/large has selected the appropriate execution mode
+- [ ] High-risk work has clear isolation recommendation
+- [ ] Task medium/large already has an execution packet for the current slice
+- [ ] If applicable, spec-review returned `go`
+- [ ] Behavioral change had a failing test/reproduction or the reason for not having a harness
+- [ ] Slice proof has been run before proceeding to the next slice
+- [ ] Long task has updated checkpoint or clearly stated why it is not needed
+- [ ] Related checks have been rerun after correction
+- [ ] Read output, don't just run the command for the sake of it
+- [ ] Reviewer-style pass is final
+- [ ] Completion state is explicit
+- [ ] Clearly noted the part that cannot be verified (if any)
 
 ## Language / Runtime Integration
 
 ```
-- Tôn trọng toolchain và package/build system hiện có của repo
-- Giữ contract/interface explicit theo khả năng của ngôn ngữ và framework đang dùng
-- Validate input ở boundary, dù repo là dynamic hay strongly typed
-- Nếu đổi contract, update callers/adapters cùng lúc
-- Nếu repo map rõ sang Python/Java/Go/.NET và có companion skill phù hợp, load companion đó cho idiom/framework detail
-- Nếu không có companion skill, vẫn thực hiện bằng Forge workflows hiện có; không dừng lại chỉ vì thiếu runtime-specific layer
-- Forge vẫn giữ verification strategy, evidence gate, và residual-risk reporting
+- Respect the repo's existing toolchain and package/build system
+- Keep contracts/interfaces explicit according to the capabilities of the language and framework in use
+- Validate input at the boundary, whether the repo is dynamic or strongly typed
+- If you change a contract, update callers/adapters at the same time
+- If the repo clearly maps to Python/Java/Go/.NET and a suitable companion skill exists, load that companion for idiom/framework detail
+- If there is no companion skill, continue with the existing Forge workflows; do not stop just because a runtime-specific layer is missing
+- Forge still owns verification strategy, evidence gates, and residual-risk reporting
 ```
 
 ## Handover
@@ -358,10 +358,10 @@ Build report:
 - Lane model stance: [implementer=standard, spec-reviewer=capable, quality-reviewer=standard]
 - Spec-review: [go/n-a]
 - Current/last slice: [...]
-- Progress checkpoint: [artifact path hoặc n/a]
+- Progress checkpoint: [artifact path or n/a]
 - Files changed: [...]
-- Verified: [command/check] -> [kết quả]
-- Evidence response: [I verified: ... / I investigated: ... / Clarification needed: ...]
+- Verified: [command/check] -> [result]
+- Evidence response: [I verified:... / I investigated:... / Clarification needed:...]
 - Completion state: [ready-for-review/ready-for-merge/blocked-by-residual-risk]
 - Unverified: [...]
 - Residual risk: [...]
@@ -370,5 +370,5 @@ Build report:
 ## Activation Announcement
 
 ```
-Forge: build | verification-first, impact analysis trước khi sửa
+Forge: build | verification-first, impact analysis before editing
 ```

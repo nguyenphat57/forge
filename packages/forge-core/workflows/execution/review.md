@@ -21,9 +21,9 @@ FINDINGS FIRST, SUMMARY SECOND
 ```
 
 <HARD-GATE>
-- Không được "đồng ý cho xong" với user, author, hoặc patch nếu chưa chỉ ra finding, no-finding rationale, hoặc testing gap.
-- Nếu kết luận "không có finding", phải nói rõ scope review và residual risk/gap còn lại.
-- Review phải đi hết 3 chặng: request -> receive -> finish branch.
+- Do not "let it go" with the user, author, or patch without indicating a finding, no-finding rationale, or testing gap.
+- If the conclusion is "no finding", the scope of review and remaining residual risk/gap must be clearly stated.
+- Review must go through 3 stages: request -> receive -> finish branch.
 </HARD-GATE>
 
 ## Process
@@ -38,164 +38,164 @@ flowchart TD
     F --> G[Finish branch]
 ```
 
-## 3-Part Review Lifecycle
+## 3-Part Lifecycle Review
 
 ### 1. Request
-- Chốt review mode, scope, và câu hỏi đang cần trả lời
-- Xác định review đang dựa trên diff, repo state, hay artifact cụ thể
+- Finalize review mode, scope, and questions that need to be answered
+- Determine if the review is based on a specific diff, repo state, or artifact
 
 ### 2. Receive
-- Đọc code/artifacts thật sự được đưa ra để review
-- Nếu có command/test evidence, dùng nó; nếu không có, nói rõ đây là static review
-- Collect findings trước khi viết summary
+- Read the actual code/artifacts presented for review
+- If there is command/test evidence, use it; If not, state clearly that this is a static review
+- Collect findings before writing summary
 
 ### 3. Finish Branch
-- Chốt disposition: `ready-for-merge`, `changes-required`, hoặc `blocked-by-residual-risk`
-- Nêu branch/work item nên đi tiếp thế nào: merge, sửa rồi review lại, hay dừng vì risk
-- Không kết thúc bằng nhận xét mơ hồ kiểu "trông ổn", "có vẻ tốt"
+- Battery Disposition: `ready-for-merge`, `changes-required`, or `blocked-by-residual-risk`
+- Indicate how the branch/work item should proceed: merge, edit and then review, or stop because of risk
+- Don't end with vague comments like "looks good", "looks good"
 
 ## Large-Task Review Discipline
 
-Với task `large`, `release-critical`, hoặc `high-risk`:
+With tasks `large`, `release-critical`, or `high-risk`:
 
-- Ưu tiên một lượt review độc lập với flow vừa implement
-- Nếu host hỗ trợ subagent/reviewer lane riêng, dùng reviewer độc lập thay vì tự review cùng lane implement
-- Nếu không có subagent, vẫn phải tách rõ:
+- Prioritize an independent review of the flow just implemented
+- If the host supports a separate subagent/reviewer lane, use an independent reviewer instead of reviewing the same lane implementation
+- If there is no subagent, it is still necessary to clearly separate:
   - implementation evidence
   - reviewer findings
   - final disposition
-- Không vừa sửa vừa review rồi tự kết luận merge-ready trong cùng một bước
-- Nếu build chain đã chọn pipeline `implementer-quality` hoặc `implementer-spec-quality`, reviewer lane phải giữ stance độc lập đúng pipeline đó
+- Do not edit and review at the same time and then consequently merge-ready in the same step
+- If the build chain has chosen pipeline `implementer-quality` or `implementer-spec-quality`, the reviewer lane must maintain stance independent of that pipeline
 
 High-risk signals:
 - auth/payment/data migration
-- nhiều boundary hoặc nhiều skill cùng chạm
-- rollback production khó
-- regression vừa mới xảy ra quanh khu vực đó
+- Multiple boundaries or multiple skills touching at the same time
+- Rollback production is difficult
+- regression just happened around that area
 
 ## Anti-Performative Agreement
 
-Reject các phản xạ kiểu:
-- "Đúng rồi, patch này ổn" khi chưa nêu finding hoặc no-finding rationale
-- "Không thấy gì đáng ngại" mà không nói scope review
-- "Chắc merge được" khi chưa chốt disposition
+Reject style reflections:
+- "That's right, this patch is fine" without stating finding or no-finding rationale
+- "Do not see anything alarming" without saying scope review
+- "Maybe it can be merged" when the disposition has not been finalized
 
-Review chỉ có giá trị khi nó tạo ra một trong ba thứ:
-- finding cụ thể
-- xác nhận không có finding trong scope đã kiểm, kèm gaps/risk
-- disposition rõ cho branch/work item
+Review is only valuable when it creates one of three things:
+- specific finding
+- confirm there are no findings in the checked scope, including gaps/risks
+- Clear disposition for branch/work item
 
-Contract này không chỉ là etiquette. Nó là gate chống performative agreement cho toàn bộ execution chain.
+This contract is not just an etiquette. It is a performative agreement gate for the entire execution chain.
 
 ## Feedback Response Matrix
 
-Khi review đang xử lý feedback đã nhận, phản hồi theo loại:
+When the review is processed received feedback, feedback by type:
 
-| Loại feedback | Cách xử lý |
+|Feedback type | How to handle|
 |---------------|------------|
-| Technically correct | Sửa, verify lại, và nói rõ evidence mới |
-| Unclear intent | Hỏi lại bằng một câu hỏi cụ thể, không đoán |
-| Technically questionable | Điều tra, rồi challenge bằng evidence nếu cần |
-| Stylistic preference | Nói rõ trade-off, convention, và quyết định cuối |
+|Technically correct | Edit, verify, and state new evidence|
+|Unclear intent | Ask again with a specific question, don't guess|
+|Technically questionable | Investigate, then challenge with evidence if necessary|
+| Stylistic preference | Clearly state the trade-off, convention, and final decision
 
-Mẫu phản hồi tốt:
+Good feedback sample:
 
 ```text
 - I verified: [evidence]. Correct because [reason]. Fixed: [change].
-- I investigated: [evidence]. Current code stays because [reason].
+- I evaluated: [evidence]. Current code stays because [reason].
 - Clarification needed: [single precise question].
 ```
 
 Required:
-- evidence phải là mới
-- phải có stance sửa hay giữ
-- nếu giữ code hiện tại, phải nói rõ vì sao
+- evidence must be new
+- must have a stance to fix or keep
+- If you keep the current code, you must clearly state why
 
-Mẫu phản hồi tệ:
+Bad feedback sample:
 
 ```text
 - Good catch! Fixed.
 - Looks fine now.
-- Chắc em sửa đúng rồi.
+- I guess I fixed it right.
 ```
 
 ## Review Modes
 
-| Mode | Mục tiêu |
+|Mode | Goal|
 |------|----------|
-| Code review | Tìm bug, regression, missing tests |
-| Health check | Xem build/lint/test/docs/deps |
-| Handover | Tóm tắt project và khu vực đang dở |
-| Upgrade assessment | Đánh giá rủi ro nâng cấp |
+|Code review | Find bugs, regressions, missing tests|
+|Health check | See build/lint/test/docs/deps|
+|Handover | Summary of project and area in progress|
+|Upgrade assessment | Upgrade Risk Assessment|
 
 ## Auto-Scan
 
 ```
-1. package manifests / build files (`package.json`, `pyproject.toml`, `go.mod`, `pom.xml`, `build.gradle`, `*.csproj`, ...)
+1. package manifests / build files (`package.json`, `pyproject.toml`, `go.mod`, `pom.xml`, `build.gradle`, `*.csproj`,...)
 2. Folder structure
 3. README / docs / plans
-4. Changed files / git status nếu có
-5. Build/lint/test commands phù hợp
+4. Changed files / git status if available
+5. Relevant build/lint/test commands
 ```
 
-Repo-first. `.brain` chỉ đọc nếu có và thật sự hữu ích.
+Repo-first. `.brain` is read only if available and truly useful.
 
 ## Anti-Rationalization
 
-| Bào chữa | Sự thật |
+|Defense | Truth|
 |----------|---------|
-| "Không thấy lỗi lớn là đủ" | Review tốt cần nói rõ finding và testing gap |
-| "Chỉ cần overview thôi" | Nếu user muốn review, finding phải lên trước |
-| "Không chạy check cũng review được" | Không có evidence thì phải nói rõ là static review |
-| "Patch nhìn hợp lý nên chắc ổn" | Cảm giác hợp lý không thay cho finding, no-finding rationale, hay disposition |
+|"Not seeing major errors is enough" | A good review should clearly state the finding and testing gap|
+|"Just an overview" | If the user wants to review, finding must come first|
+|"You can review even if you don't run a check" | Without evidence, it must be clearly stated that static review|
+|"Patch looks reasonable so it should be fine" | A sense of reason does not replace finding, no-finding rationale, or disposition|
 
 ## Verification Checklist
 
-- [ ] Đã xác định mode review
-- [ ] Đã scan source-of-truth artifacts
-- [ ] Findings được xếp ưu tiên
-- [ ] Đã note assumptions/testing gaps
-- [ ] Report tách bạch finding và summary
-- [ ] Không rơi vào performative agreement
-- [ ] Đã chốt disposition và next branch step
-- [ ] Feedback đã được xử lý theo matrix, không chỉ reply cho có
-- [ ] Large/high-risk task đã có reviewer discipline đủ độc lập
+- [ ] Review mode has been defined
+- [ ] Scanned source-of-truth artifacts
+- [ ] Findings are given priority
+- [ ] Noted assumptions/testing gaps
+- [ ] Report separates finding and summary
+- [ ] Does not fall into the performative agreement
+- [ ] Arrangement and next branch step finalized
+- [ ] Feedback has been processed according to the matrix, not just a reply
+- [ ] Large/high-risk task already has a sufficiently independent reviewer discipline
 
 ## Review Disposition
 
-Sau review, chốt một disposition rõ:
+After review, finalize a clear disposition:
 
-| Disposition | Dùng khi |
+|Disposition | Use when|
 |-------------|----------|
-| `ready-for-merge` | Không còn finding/blocker đủ nặng để giữ lại |
-| `changes-required` | Còn finding cần sửa trước khi merge |
-| `blocked-by-residual-risk` | Chưa có đủ evidence hoặc risk còn quá lớn |
+|`ready-for-merge` | No more finding/blocker heavy enough to hold back|
+|`changes-required` | The finding needs to be fixed before merging|
+|`blocked-by-residual-risk` | There is not enough evidence or the risk is still too great|
 
 ## Finish-Branch Protocol
 
-Sau disposition, branch/work item phải đi vào đúng một trạng thái:
+After disposition, the branch/work item must enter exactly one state:
 
-| Branch state | Dùng khi |
+|Branch state | Use when|
 |--------------|----------|
-| `merge` | Review sạch, evidence đủ, không còn blocker |
-| `open-pr` | Cần human/owner review hoặc org policy yêu cầu PR |
-| `continue-on-branch` | Còn findings/follow-up cần sửa ngay trên branch hiện tại |
-| `cleanup-only` | Code ổn nhưng còn dọn artifact/log/worktree trước khi coi là xong |
-| `stop-on-risk` | Risk quá lớn hoặc evidence thiếu, chưa được đi tiếp |
+|`merge` | Clean review, enough evidence, no more blockers|
+|`open-pr` | Need human/owner review or org policy PR request|
+|`continue-on-branch` | The findings/follow-up need to be fixed immediately on the current branch|
+|`cleanup-only` | The code is fine but still cleaning up artifact/log/worktree before it's considered done|
+| `stop-on-risk` | The risk is too large or the evidence is lacking, it is not allowed to proceed
 
-Không để branch ở trạng thái mơ hồ kiểu "để đó đã", "tạm ổn", hoặc "chắc merge được".
+Don't leave the branch in a vague state like "let it be", "it's okay for now", or "maybe it can be merged".
 
-Nếu branch bị kẹt ở tranh luận feedback hoặc disposition không hội tụ, đọc `references/failure-recovery-playbooks.md`.
+If the branch is stuck on feedback arguments or the disposition is not converging, read `references/failure-recovery-playbooks.md`.
 
 ## Output
 
-Lưu tại:
+Saved at:
 
 ```
 docs/PROJECT_REVIEW_[date].md
 ```
 
-Mẫu report ngắn:
+Short report sample:
 ```
 Findings:
 1. [severity] [...]
@@ -207,14 +207,14 @@ Assumptions / gaps:
 Disposition:
 - [ready-for-merge / changes-required / blocked-by-residual-risk]
 
-Finish branch:
-- [merge / open-pr / continue-on-branch / cleanup-only / stop-on-risk]
+Finish branches:
+- [merge/open-pr/continue-on-branch/cleanup-only/stop-on-risk]
 
 Feedback handled:
-- [fixed / challenged with evidence / clarification requested / stylistic decision]
+- [fixed / challenging with evidence / clarification requested / stylistic decision]
 
 Evidence response:
-- [I verified: ... / I investigated: ... / Clarification needed: ...]
+- [I verified:... / I investigated:... / Clarification needed:...]
 
 Summary:
 - [...]
@@ -223,5 +223,5 @@ Summary:
 ## Activation Announcement
 
 ```
-Forge: review | findings trước, summary sau
+Forge: review | findings first, summary second
 ```

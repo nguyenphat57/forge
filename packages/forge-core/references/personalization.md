@@ -1,82 +1,95 @@
 # Forge Personalization
 
-> Mục tiêu: giữ response-style preferences ở `forge-core` theo kiểu host-neutral để mỗi adapter chỉ cần thêm wrapper UX, không fork logic.
+> Goal: keep response-style preferences host-neutral in `forge-core` so adapters only add UX wrappers, not forked preference logic.
 
 ## Core Contract
 
-- Schema canonical nằm tại `data/preferences-schema.json`
-- Resolver canonical nằm tại `scripts/resolve_preferences.py`
-- Persistence helper canonical nằm tại `scripts/write_preferences.py`
-- Installed adapters mặc định dùng adapter-global state tại `<host-home>/<adapter-name>/state/preferences.json`
-- `$FORGE_HOME/state/preferences.json` là explicit override cho test/dev; nếu không có installed adapter metadata hay override, core fallback về `~/.forge/state/preferences.json`
-- Adapter có thể ship `data/preferences-compat.json` để map host-native preference payload sang canonical schema mà không fork core engine
-- Workspace `.brain/preferences.json` có thể chứa thêm non-canonical preferences; core sẽ trả phần này qua field `extra` thay vì fork schema canonical
-- Core cũng có thể suy ra `output_contract` từ `extra` cho các rule host-native như `language`, `orthography`, `tone_detail`, và `custom_rules`
-- Adapter có thể thêm flow `customize`, nhưng không được đổi key names hay meaning của schema
+- Canonical schema: `data/preferences-schema.json`
+- Canonical resolver: `scripts/resolve_preferences.py`
+- Canonical writer: `scripts/write_preferences.py`
+- Installed adapters default to adapter-global state at `<host-home>/<adapter-name>/state/preferences.json`
+- `$FORGE_HOME/state/preferences.json` is an explicit dev/test override; when no installed adapter metadata or override exists, core falls back to `~/.forge/state/preferences.json`
+- Adapters may ship `data/preferences-compat.json` to map host-native payloads back to the canonical schema without forking the core engine
+- Host-native extra preferences such as `language`, `orthography`, `tone_detail`, `output_quality`, or `custom_rules` can live in adapter-global state and are returned through `extra`
+- Workspace `.brain/preferences.json` is still supported as:
+  - legacy canonical fallback when no adapter-global state exists
+  - workspace-local extra override when a repo needs rules different from the adapter-wide default
+- Core can infer `output_contract` from `extra` for language, orthography, tone detail, and custom writing rules
+- Adapters may add `customize` UX, but they cannot change the meaning of the canonical keys
 
 ## Supported Fields
 
-| Field | Values | Default | Mục đích |
+| Field | Values | Default | Purpose |
 |------|--------|---------|---------|
-| `technical_level` | `newbie`, `basic`, `technical` | `basic` | Điều chỉnh mức độ giải thích thuật ngữ |
-| `detail_level` | `concise`, `balanced`, `detailed` | `balanced` | Điều chỉnh độ sâu và độ dài response |
-| `autonomy_level` | `guided`, `balanced`, `autonomous` | `balanced` | Điều chỉnh mức độ chủ động khi đẩy task đi tiếp |
-| `pace` | `steady`, `balanced`, `fast` | `balanced` | Điều chỉnh nhịp độ đẩy task đi tiếp |
-| `feedback_style` | `gentle`, `balanced`, `direct` | `balanced` | Điều chỉnh độ gắt hay mềm khi chỉ ra gap/problem |
-| `personality` | `default`, `mentor`, `strict-coach` | `default` | Điều chỉnh tone coaching |
+| `technical_level` | `newbie`, `basic`, `technical` | `basic` | Adjust terminology and explanation level |
+| `detail_level` | `concise`, `balanced`, `detailed` | `balanced` | Adjust response depth and length |
+| `autonomy_level` | `guided`, `balanced`, `autonomous` | `balanced` | Adjust how proactively Forge moves the task forward |
+| `pace` | `steady`, `balanced`, `fast` | `balanced` | Adjust delivery pace |
+| `feedback_style` | `gentle`, `balanced`, `direct` | `balanced` | Adjust how plainly gaps are called out |
+| `personality` | `default`, `mentor`, `strict-coach` | `default` | Adjust coaching tone |
 
 ## Resolution Order
 
-1. Nếu có `--preferences-file`, dùng file đó và fail nếu file không tồn tại.
-2. Nếu có adapter-global Forge state hợp lệ, đọc `state/preferences.json` của adapter đang chạy và preserve phần extra host-native ngoài schema canonical.
-3. Nếu chưa có adapter-global file và có `--workspace`, đọc legacy `.brain/preferences.json` trong workspace đó cho canonical fallback; cùng file này cũng có thể chứa workspace-local extra preferences.
-4. Nếu không có file hợp lệ, dùng defaults từ schema.
+1. If `--preferences-file` is provided, use that file and fail if it does not exist.
+2. If valid adapter-global Forge state exists, read the running adapter's `state/preferences.json` and preserve any host-native extras outside the canonical schema.
+3. If there is no adapter-global file and `--workspace` is provided, read legacy `.brain/preferences.json` in that workspace for canonical fallback. That same file may also provide workspace-local extra overrides.
+4. If no valid file exists, use schema defaults plus any adapter compat defaults.
 
 ## Validation Rules
 
-- Invalid JSON hoặc value sai enum sẽ fallback về default trong non-strict mode và trả warning.
-- `--strict` biến warning thành hard failure.
-- Alias như `strict_coach`, `beginner`, `verbose`, `low`, `high`, `slow`, `rapid`, `gentle`, `strict` được normalize về enum canonical.
+- Invalid JSON or invalid enum values fall back to defaults in non-strict mode and return warnings.
+- `--strict` turns those warnings into hard failures.
+- Aliases such as `strict_coach`, `beginner`, `verbose`, `low`, `high`, `slow`, `rapid`, `gentle`, and `strict` normalize to canonical enum values.
 
 ## Response Style Resolver
 
-Resolver không tạo host-specific command surface. Nó chỉ trả về response-style contract để adapter hoặc prompt entrypoint có thể áp dụng:
+The resolver does not create host-specific command surfaces. It returns a response-style contract that the adapter or prompt entrypoint can apply:
 
 - terminology policy
 - explanation policy
-- verbosity/context depth
-- decision/autonomy policy
+- verbosity and context depth
+- decision and autonomy policy
 - delivery pace
 - feedback style
-- tone/teaching/challenge style
+- tone, teaching mode, and challenge level
 
-Ngoài `response_style`, core có thể trả thêm `output_contract` khi workspace/global extras có rule host-native:
+When `extra` contains host-native rules, core can also emit `output_contract` for:
 
 - language policy
-- orthography / diacritics policy
+- orthography or diacritics policy
 - tone detail or honorific hints
-- custom writing rules mà adapter nên giữ nguyên
+- custom writing rules the adapter should preserve
 
 ## Persistence Flow
 
-Khi adapter muốn ghi preferences:
+When an adapter wants to record durable preferences:
 
 ```powershell
-python scripts/write_preferences.py --technical-level newbie --pace fast --apply
+python scripts/write_preferences.py --technical-level newbie --pace fast --feedback-style direct --apply
+python scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --apply
+python scripts/write_preferences.py --clear-language --clear-orthography --apply
 ```
 
-Rule:
+Rules:
 
-- Script merge với preferences hiện có theo mặc định
-- `--replace` reset những field không được truyền về defaults của schema
-- Adapter không được tự viết file theo schema riêng cho canonical state
-- Workspace-local extra preferences, nếu có, sống ở `.brain/preferences.json` và không thay đổi meaning của 6 canonical fields
+- The writer merges with existing preferences by default
+- `--replace` resets omitted canonical fields to schema defaults
+- Durable adapter-wide language or orthography rules should go through `scripts/write_preferences.py`
+- Workspace-local overrides may still live in `.brain/preferences.json` when the user explicitly wants repo-specific behavior
+- Adapters cannot invent host-local canonical schema or change the meaning of the six canonical fields
 
-## Extra Preference Templates
+## Language And Writing Templates
 
-Khi user chỉ hỏi về thiết lập ngôn ngữ hoặc cách viết, ưu tiên trỏ thẳng tới workspace `.brain/preferences.json` extras thay vì giải thích dài về 6 field canonical.
+Use the writer for adapter-wide durable rules:
 
-Mẫu 1: tiếng Việt có dấu
+```powershell
+python scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --apply
+python scripts/write_preferences.py --language en --clear-orthography --apply
+```
+
+Use workspace `.brain/preferences.json` only when the repo needs local overrides that should not become adapter-wide defaults.
+
+Sample 1: Vietnamese with full diacritics in one workspace
 
 ```json
 {
@@ -89,7 +102,7 @@ Mẫu 1: tiếng Việt có dấu
 }
 ```
 
-Mẫu 2: tiếng Anh
+Sample 2: English in one workspace
 
 ```json
 {
@@ -100,7 +113,7 @@ Mẫu 2: tiếng Anh
 }
 ```
 
-Mẫu 3: giải thích bằng tiếng Việt, code/comment bằng tiếng Anh
+Sample 3: Explain in Vietnamese, keep code and comments in English
 
 ```json
 {
@@ -112,14 +125,14 @@ Mẫu 3: giải thích bằng tiếng Việt, code/comment bằng tiếng Anh
 }
 ```
 
-Rule trả lời:
+Operator rule:
 
-- Nếu user hỏi cách thiết lập ngôn ngữ, trả lời ngắn và trỏ đến `extra preferences` trong `.brain/preferences.json`
-- Đưa 1 mẫu phù hợp nhất để user tự dán
-- Chỉ nói về canonical preferences nếu user đang muốn đổi cả tone/detail/autonomy/pace/feedback
+- If the user asks how to set language durably, point to `scripts/write_preferences.py` first
+- Only point to workspace `.brain/preferences.json` when the user explicitly wants workspace-scoped behavior or a repo-specific override
+- Only surface the six canonical fields when the user is changing tone, detail, autonomy, pace, feedback, or personality
 
 ## Adapter Boundary
 
-- `forge-antigravity`: có thể thêm `/customize` hoặc onboarding thin wrapper trên schema này, và có thể đọc workspace-local extra preferences cho host-native UX.
-- `forge-codex`: nên giữ natural-language customize flow, không slash-heavy by default.
-- `forge-claude` trong tương lai phải có thể tái sử dụng schema này gần như nguyên vẹn.
+- `forge-antigravity`: may add `/customize` or onboarding wrappers, and may ship compat defaults such as `language=vi`, but still writes through the core writer
+- `forge-codex`: should keep a natural-language customize flow and let adapter-global state drive durable language rules
+- Future adapters such as `forge-claude` should be able to reuse this schema with compat mapping instead of a fork

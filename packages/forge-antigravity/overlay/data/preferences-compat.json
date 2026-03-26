@@ -252,5 +252,36 @@
         }
       }
     }
+  },
+  "default_extra": {
+    "language": "vi",
+    "orthography": "vietnamese_diacritics"
+  },
+  "extra_fields": {
+    "language": {
+      "paths": [
+        "communication.language"
+      ]
+    },
+    "orthography": {
+      "paths": [
+        "communication.orthography"
+      ]
+    },
+    "tone_detail": {
+      "paths": [
+        "communication.tone_detail"
+      ]
+    },
+    "output_quality": {
+      "paths": [
+        "technical.quality"
+      ]
+    },
+    "custom_rules": {
+      "paths": [
+        "custom_rules"
+      ]
+    }
   }
 }

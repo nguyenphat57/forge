@@ -12,21 +12,21 @@ quality_gates:
 
 # Run - Codex Operator Wrapper
 
-> Mục tiêu: giữ `run` tự nhiên trong Codex, nhưng vẫn route theo evidence từ core.
+> Goal: keep `run` natural in Codex, but still route according to evidence from core.
 
 ## Process
 
-1. Chốt command cần chạy và timeout hợp lý.
-2. Run bằng core guidance:
+1. Close the command that needs to be run and have a reasonable timeout.
+2. Run using core guidance:
 
 ```powershell
 python scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>
 ```
 
-3. Tóm tắt ngắn:
-   - command đã chạy
-   - tín hiệu chính
-   - workflow tiếp theo (`test`, `debug`, hoặc `deploy`) nếu cần
+3. Short summary:
+   - command was run
+   - main signal
+   - next workflow (`test`, `debug`, or `deploy`) if needed
 
 ## Activation Announcement
 

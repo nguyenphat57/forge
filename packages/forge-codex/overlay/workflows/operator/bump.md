@@ -13,12 +13,12 @@ quality_gates:
 
 # Bump - Codex Operator Wrapper
 
-> Mục tiêu: giữ bump flow ngắn và rõ cho Codex, nhưng vẫn theo contract user-requested + justified semver của core.
+> Goal: keep the bump flow short and clear for the Codex, but still follow the core's user-requested + justified semver contract.
 
 ## Process
 
-1. Nếu user chưa nêu mức bump, suy luận từ repo diff và nêu lý do ngắn gọn.
-2. Preview/apply bằng core planner:
+1. If the user has not stated the bump level, infer from the diff repo and briefly state the reason.
+2. Preview/apply using core planner:
 
 ```powershell
 python scripts/prepare_bump.py --workspace <workspace>
@@ -26,11 +26,11 @@ python scripts/prepare_bump.py --workspace <workspace> --bump minor
 python scripts/prepare_bump.py --workspace <workspace> --bump minor --apply --release-ready
 ```
 
-3. Trả lời ngắn:
-   - version từ -> đến
+3. Short answer:
+   - version from -> to
    - bump source: explicit hay inferred
-   - file đã đổi
-   - verify nào phải chạy
+   - file changed
+   - Which verification must be run?
 
 ## Activation Announcement
 

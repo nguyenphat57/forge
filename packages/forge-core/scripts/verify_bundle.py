@@ -6,6 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from common import configure_stdio
+
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = ROOT_DIR / "scripts"
@@ -48,6 +50,8 @@ def format_text(steps: list[dict]) -> str:
 
 
 def main() -> int:
+    configure_stdio()
+
     parser = argparse.ArgumentParser(description="Run the canonical Forge bundle verification pipeline.")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     parser.add_argument("--include-canary", action="store_true", help="Also evaluate persisted canary readiness.")

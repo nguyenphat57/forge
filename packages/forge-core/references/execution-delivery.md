@@ -1,61 +1,61 @@
 # Forge Execution Delivery
 
-> Dùng khi cần triển khai code sau `plan`/`architect` theo cách có checkpoint, completion state, và ít drift hơn.
+> Use when you need to deploy code after `plan`/`architect` in a way that has checkpoints, completion states, and less drift.
 
-## Mục tiêu
+## Target
 
-- Chọn đúng execution mode trước khi code hàng loạt
-- Chốt execution pipeline và reviewer lane cho medium/large hoặc high-risk work
-- Chọn model tier theo lane thay vì đẩy mọi việc lên cùng một mức năng lực
-- Chốt `spec-review` trước build nếu boundary/risk chưa đủ khóa
-- Chốt execution packet đủ rõ để implement từng slice mà không đoán
-- Track tiến độ bằng artifact ngắn, không dựa vào trí nhớ phiên
-- Kết thúc bằng completion state rõ, không dùng ngôn ngữ mơ hồ
+- Choose the correct execution mode before batch coding
+- Close execution pipeline and reviewer lane for medium/large or high-risk work
+- Choose a lane-based tier model instead of pushing everything to the same capacity level
+- Lock `spec-review` before building if boundary/risk is not locked enough
+- The execution packet latch is clear enough to execute each slice without guessing
+- Track progress using short artifacts that do not rely on session memory
+- End with a clear completion state, without using vague language
 
 ## Execution Modes
 
-| Mode | Khi nào dùng | Dấu hiệu nhận biết |
+|Mode | When to use | Identification signs|
 |------|--------------|--------------------|
-| `single-track` | Một critical path chính | Coupling cao, context dày, boundary chưa đủ rõ để tách |
-| `checkpoint-batch` | Nhiều bước nối tiếp nhưng vẫn thuộc cùng một direction | Có thể chốt mốc `done -> next -> blocker` theo từng phase ngắn |
-| `parallel-safe` | Nhiều lát cắt độc lập | Boundary/interface đã rõ, mỗi lát cắt verify riêng được |
+|`single-track` | A main critical path | High coupling, thick context, boundary not clear enough to separate|
+|`checkpoint-batch` | Many steps are consecutive but still in the same direction | The `done -> next -> blocker` milestone can be locked in short phases|
+|`parallel-safe` | Multiple independent slices | Boundary/interface is clear, each slice can be verified separately|
 
-## Quy tắc chọn mode
+## Rules for mode selection
 
-1. `small` -> gần như luôn `single-track`
-2. `medium` -> mặc định `single-track`
-3. `large` -> bắt buộc chọn một mode
-4. Nếu chưa chắc song song có an toàn không -> không chọn `parallel-safe`
-5. Nếu task có nhiều bước nhưng chung blast radius -> ưu tiên `checkpoint-batch`
+1. `small` -> almost always `single-track`
+2. `medium` -> default `single-track`
+3. `large` -> requires choosing a mode
+4. If you are not sure whether parallelism is safe -> do not choose `parallel-safe`
+5. If the task has many steps but the same blast radius -> prioritize `checkpoint-batch`
 
 ## Execution Pipelines
 
-Forge không giả định host nào cũng có subagents thật. `Lane` là khái niệm logic:
+Forge does not assume that every host has real subagents. `Lane` is the logical concept:
 
-- host có subagents -> có thể chạy lane độc lập
-- host không có subagents -> vẫn phải giữ lane tách bạch theo từng pass
+- host has subagents -> can run independent lane
+- Host does not have subagents -> must still keep separate lanes for each pass
 
-| Pipeline | Dùng khi | Lanes |
+|Pipelines | Use when | Lanes|
 |----------|----------|-------|
-| `single-lane` | Small hoặc medium low-risk | `implementer` |
-| `implementer-quality` | Medium/large có spec đủ rõ nhưng vẫn cần independent quality pass | `implementer` -> `quality-reviewer` |
-| `implementer-spec-quality` | Build large hoặc medium/high-risk có `spec-review` | `implementer` -> `spec-reviewer` -> `quality-reviewer` |
-| `deploy-gate` | Deploy medium/large hoặc release-sensitive | `deploy-reviewer` -> `quality-reviewer` |
+|`single-lane` | Small or medium low-risk | `implementer`|
+|`implementer-quality` | Medium/large has clear enough specs but still needs an independent quality pass | `implementer` -> `quality-reviewer`|
+|`implementer-spec-quality` | Build large or medium/high-risk has `spec-review` | `implementer` -> `spec-reviewer` -> `quality-reviewer`|
+|`deploy-gate` | Deploy medium/large or release-sensitive | `deploy-reviewer` -> `quality-reviewer`|
 
 Rules:
-- `BUILD` có `spec-review` -> mặc định nghiêng về `implementer-spec-quality`
-- `large` hoặc profile mạnh hơn `standard` -> tối thiểu phải có `quality-reviewer`
-- Pipeline không được chỉ để "cho có"; mỗi lane phải có input/output riêng
+- `BUILD` has `spec-review` -> defaults to `implementer-spec-quality`
+- `large` or stronger profile than `standard` -> must have at least `quality-reviewer`
+- Pipeline should not be just for "show"; Each lane must have its own input/output
 
 ## Lane Model Tiers
 
-Forge dùng tier trừu tượng, không hardcode model vendor:
+Forge uses an abstract tier, not a hardcode vendor model:
 
-| Tier | Dùng cho |
+|Tier | Used for|
 |------|----------|
-| `cheap` | navigation, triage, artifact reading, status formatting |
-| `standard` | bounded implementation slices, standard review, day-to-day execution |
-| `capable` | high-risk implementation, spec review, release gates, migration/auth/payment review |
+|`cheap` | navigation, triage, artifact reading, status formatting|
+|`standard` | bounded implementation slices, standard review, day-to-day execution|
+|`capable` | high-risk implementation, spec review, release gates, migration/auth/payment review|
 
 Default stance:
 - `navigator` -> `cheap`
@@ -65,33 +65,33 @@ Default stance:
 - `deploy-reviewer` -> `standard`
 
 Upgrade rules:
-- `large` -> implement/review lanes nghiêng về `capable`
-- `release-critical`, `migration-critical`, `external-interface`, `regression-recovery` -> nâng lane review liên quan lên `capable`
-- Không đẩy mọi lane lên `capable` nếu task chỉ là low-risk slice
+- `large` -> implement/review lanes leaning towards `capable`
+- `release-critical`, `migration-critical`, `external-interface`, `regression-recovery` -> upgrade related review lane to `capable`
+- Do not push every lane to `capable` if the task is just a low-risk slice
 
 ## Isolation & Reviewer Recommendation
 
-Với task `large`, `release-critical`, hoặc `high-risk`, chốt thêm:
+For task `large`, `release-critical`, or `high-risk`, add:
 
-| Recommendation | Khi nào dùng |
+|Recommendation | When to use|
 |----------------|--------------|
-| `same-tree` | Repo sạch, scope hẹp, rollback đơn giản |
-| `worktree` | Dirty repo, high-risk changes, hoặc cần cô lập change set |
-| `subagent-split` | Host hỗ trợ subagents và boundaries đủ rõ |
-| `independent-reviewer` | Cần reviewer lane độc lập sau implementation |
+|`same-tree` | Clean repo, narrow scope, simple rollback|
+|`worktree` | Dirty repo, high-risk changes, or need to isolate change set|
+|`subagent-split` | Host supports subagents and boundaries clearly enough|
+|`independent-reviewer` | Need independent review lane after implementation|
 
 Rules:
-- Dirty repo + large/high-risk -> mặc định nghiêng về `worktree`
-- Nhiều lát cắt độc lập + host hỗ trợ -> có thể thêm `subagent-split`
-- Auth/payment/migration/release-critical -> nghiêng về `independent-reviewer`
-- Nếu không justify được boundary rõ, không chia subagent
+- Dirty repo + large/high-risk -> default towards `worktree`
+- Multiple independent slices + host support -> can add `subagent-split`
+- Auth/payment/migration/release-critical -> leaning towards `independent-reviewer`
+- If you don't justify the boundary clearly, don't divide the subagent
 
 ## Delegation Packet
 
-Nếu execution chọn `subagent-split` hoặc reviewer lane thật sự độc lập, controller phải chuẩn bị packet tự đủ cho từng lane thay vì bắt lane đọc lại toàn bộ thread:
+If execution chooses `subagent-split` or a truly independent reviewer lane, the controller must prepare enough packets for each lane instead of forcing the lane to re-read the entire thread:
 
 ```text
-Delegation packet:
+Delegation packets:
 - Goal: [...]
 - Owned files / write scope: [...]
 - Allowed reads / shared artifacts: [...]
@@ -101,14 +101,14 @@ Delegation packet:
 ```
 
 Rules:
-- Mỗi packet chỉ có một owner chịu trách nhiệm write scope
-- Không cho hai lane sửa cùng một file nếu chưa có merge plan rõ
-- Reviewer lane phải review từ packet + evidence, không tự hấp thụ toàn bộ context implementer
-- Nếu host không có subagents, vẫn dùng packet này để giữ pass tuần tự tách bạch
+- Each packet has only one owner responsible for write scope
+- Do not allow two lanes to edit the same file without a clear merge plan
+- Reviewer lane must review from packet + evidence, not absorb the entire context implementer
+- If the host does not have subagents, still use this packet to keep sequential passwords separate
 
 ## Checkpoint Artifact
 
-Artifact ngắn nên có:
+Short Artifact should have:
 
 ```text
 Execution progress:
@@ -126,9 +126,9 @@ Execution progress:
 - Risks: [...]
 ```
 
-Nếu task kéo dài quá một phase hoặc có nhiều checkpoint, persist artifact bằng `scripts/track_execution_progress.py`.
+If the task lasts more than one phase or has multiple checkpoints, persist the artifact with `scripts/track_execution_progress.py`.
 
-Ví dụ:
+For example:
 
 ```powershell
 python scripts/track_execution_progress.py "Checkout retry ordering" `
@@ -143,7 +143,7 @@ python scripts/track_execution_progress.py "Checkout retry ordering" `
 
 ## Execution Packet
 
-Trước khi sửa một slice medium/large, packet tối thiểu nên có:
+Before editing a medium/large slice, the minimum packet should have:
 
 ```text
 Execution packet:
@@ -155,19 +155,19 @@ Execution packet:
 - Reopen if: [...]
 ```
 
-Packet này là cầu nối giữa `plan/architect/spec-review` và `build`.
+This packet is the bridge between `plan/architect/spec-review` and `build`.
 
 ## Stage Exit Criteria
 
-Một stage hoặc slice chỉ nên được coi là xong khi:
-- proof của slice đó đã pass
-- boundary liên quan chưa bị phá
-- checkpoint đã nói rõ next slice hoặc blocker
-- không còn assumption thầm lặng nào bị đẩy sang stage sau
+A stage or slice should only be considered complete when:
+- The proof of that slice has passed
+- The relevant boundary has not been breached
+- checkpoint clearly says next slice or blocker
+- No more silent assumptions are pushed to the next stage
 
 ## Chain Visibility
 
-Khi task không còn là một execution checkpoint đơn lẻ mà là cả một chain dài:
+When the task is no longer a single execution checkpoint but a long chain:
 
 ```text
 Chain status:
@@ -185,13 +185,13 @@ Chain status:
 - Risks: [...]
 ```
 
-Persist bằng `scripts/track_chain_status.py` khi:
-- chain đi qua 3+ stages
-- có nhiều skill tham gia
-- cần pause/resume mà vẫn nhìn ra trạng thái ngay
-- có nhiều lane như implement/review/gate cần nhìn tách bạch
+Persist equals `scripts/track_chain_status.py` when:
+- chain goes through 3+ stages
+- There are many skills involved
+- need to pause/resume but still see the status immediately
+- There are many lanes such as implement/review/gate that need to be looked at separately
 
-Ví dụ:
+For example:
 
 ```powershell
 python scripts/track_chain_status.py "Checkout rewrite flow" `
@@ -210,28 +210,28 @@ python scripts/track_chain_status.py "Checkout rewrite flow" `
 
 ## Bounded Review Loops
 
-Spec-review và các reviewer lane không được revise vô hạn.
+Spec-review and review lanes cannot be revised indefinitely.
 
-Rule mặc định:
-- `spec-review` tối đa `3` vòng `revise`
-- quá ngưỡng -> `blocked` và quay lại `plan` hoặc `architect`
-- mỗi vòng revise phải chỉ ra đúng phần cần sửa, không lặp lại feedback mơ hồ
+Default rules:
+- `spec-review` maximum `3` round `revise`
+- exceed threshold -> `blocked` and return to `plan` or `architect`
+- Each round of revision must indicate the correct part that needs fixing, without repeating vague feedback
 
-Điều này giữ cho execution không trôi thành endless review theater.
+This keeps execution from devolving into endless review theater.
 
 ## Completion States
 
-| State | Ý nghĩa |
+|State | Meaning|
 |-------|---------|
-| `in-progress` | Chưa đủ bằng chứng để handoff |
-| `ready-for-review` | Đã verify phần implementation và chờ review cuối |
-| `ready-for-merge` | Chỉ dùng khi scope nhỏ hoặc review đã clear |
-| `blocked-by-residual-risk` | Risk hoặc blocker còn lớn, chưa được coi là done |
+|`in-progress` | Not enough evidence to handoff|
+|`ready-for-review` | Verified the implementation and waiting for the final review|
+|`ready-for-merge` | Only use when the scope is small or the review is clear|
+|`blocked-by-residual-risk` | The risk or blocker is still large, not considered done yet|
 
 ## Anti-Patterns
 
-- Dùng `parallel-safe` khi boundary chưa rõ
-- Bắt đầu code từ "việc thấy dễ nhất" thay vì từ execution packet
-- Không ghi checkpoint cho large work rồi cuối phiên mới tóm tắt bằng trí nhớ
-- Dùng `ready-for-merge` khi vẫn còn risk chưa verify
-- Handoff chỉ ghi "đã làm gần xong" mà không có state rõ
+- Use `parallel-safe` when the boundary is unclear
+- Start coding from "what's easiest" instead of from the execution packet
+- Do not record checkpoints for large work and then summarize from memory at the end of the session
+- Use `ready-for-merge` while there is still unverified risk
+- Handoff only says "almost done" without a clear state

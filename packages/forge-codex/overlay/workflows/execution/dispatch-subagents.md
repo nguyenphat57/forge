@@ -7,10 +7,10 @@ triggers:
   - explicit request to delegate or split safe parallel work
 quality_gates:
   - Delegation boundary explicit before spawn
-  - Fresh packet per subagent
+  - Fresh packets per subagent
   - Non-overlapping ownership for write scopes
   - Review lane independence preserved
-  - Merge and verification plan explicit before waiting
+  - Merge and verification plan clearly before waiting
 ---
 
 # Dispatch Subagents - Codex Multi-Agent Runtime
@@ -40,32 +40,32 @@ Do not use this workflow when:
 
 ## Delegation Modes
 
-| Mode | Use when | Subagent pattern |
+|Mode | Use when | Subagent patterns|
 |------|----------|------------------|
-| `parallel-split` | Independent BUILD/DEBUG/OPTIMIZE slices with clear boundaries | 1 worker per slice, merged by controller |
-| `independent-reviewer` | Forge pipeline requires spec/quality/deploy review lanes | 1 implementer worker + read-only reviewer lanes |
-| `sequential-fallback` | Bundle wants independent lanes but safe parallelism is not justified | No spawn, keep lanes separate as controller passes |
+|`parallel-split` | Independent BUILD/DEBUG/OPTIMIZE slices with clear boundaries | 1 worker per slice, merged by controller|
+|`independent-reviewer` | Forge pipeline requires spec/quality/deploy review lanes | 1 implementer worker + read-only reviewer lanes|
+|`sequential-fallback` | Bundle wants independent lanes but safe parallelism is not justified | No spawn, keep lanes separate as controller passes|
 
 ## Role Mapping
 
-| Forge lane | Codex role | Notes |
+|Forge lane | Codex roles | Notes|
 |-----------|------------|-------|
-| `implementer` | `worker` | Owns code changes in an explicit file scope |
-| `spec-reviewer` | `default` | Read-only unless controller explicitly reassigns fixes |
-| `quality-reviewer` | `default` | Findings first, patching only after ownership is reassigned |
-| `navigator` | controller or `explorer` | Use `explorer` only for bounded read-only codebase questions |
+|`implementer` | `worker` | Owns code changes in an explicit file scope|
+|`spec-reviewer` | `default` | Read-only unless controller explicitly reassigns fixes|
+|`quality-reviewer` | `default` | Findings first, patching only after ownership is reassigned|
+|`navigator` | controller or `explorer` | Use `explorer` only for bounded read-only codebase questions|
 
 Rules:
 - `worker` must be told which files it owns
 - reviewers should normally stay read-only
 - `explorer` is for specific codebase questions, not broad implementation
 
-## Packet Contract
+## Package Contract
 
 Every spawned subagent gets a self-contained packet:
 
 ```text
-Delegation packet:
+Delegation packets:
 - Goal: [...]
 - Current slice or review question: [...]
 - Owned files / write scope: [...]
@@ -90,7 +90,7 @@ Use `fork_context=true` only when the subagent truly needs the exact same sessio
 Use only when:
 - each slice has a stable boundary
 - each slice can verify independently
-- expected write scopes do not overlap
+- expected write scopes do not overlap. expected write scopes do not overlap
 
 Controller duties:
 1. lock slice boundaries first
@@ -104,15 +104,15 @@ Use when Forge chose `implementer-quality`, `implementer-spec-quality`, or `depl
 
 Controller duties:
 1. let implementer finish its slice and verification
-2. send a reviewer packet with spec, changed files, and evidence
+2. send a review packet with spec, changed files, and evidence
 3. collect findings before assigning any fix work
-4. if fixes are needed, hand ownership back to the implementer worker or a new worker
+4. If fixes are needed, hand ownership back to the implementer worker or a new worker
 
 ## Status Contract
 
 Subagents should return one of:
 - `DONE`: slice complete, verification included
-- `DONE_WITH_CONCERNS`: complete but with explicit doubt or residual risk
+- `DONE_WITH_CONCERNS`: complete but with obvious doubt or residual risk
 - `NEEDS_CONTEXT`: packet missing a concrete fact or artifact
 - `BLOCKED`: cannot proceed safely within current ownership or context
 

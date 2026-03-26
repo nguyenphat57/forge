@@ -1,6 +1,6 @@
 # UI Good / Bad Examples
 
-> Dùng khi muốn kéo anti-pattern từ level “rule” xuống level “dễ nhận ra”.
+> Used when you want to drag the anti-pattern from the "rule" level to the "easy to recognize" level.
 
 ## Hover Stability
 
@@ -12,10 +12,10 @@ Bad:
 }
 ```
 
-Vấn đề:
-- card nhảy layout
-- list/grid alignment dễ rung
-- touch devices không được lợi gì
+Problem:
+- jump card layout
+- list/grid alignment shakes easily
+- touch devices do not benefit at all
 
 Good:
 
@@ -39,10 +39,10 @@ Bad:
 return <OrderList orders={orders} />;
 ```
 
-Vấn đề:
-- không có loading
-- không có empty state
-- lỗi fetch không có chỗ xuất hiện
+Problem:
+- no loading
+- no empty state
+- fetch error has no place to appear
 
 Good:
 
@@ -62,9 +62,9 @@ Bad:
 <button className="h-8 px-2">Thanh toan</button>
 ```
 
-Vấn đề:
-- target quá nhỏ cho touch
-- hierarchy yếu nếu action là primary
+Problem:
+- target is too small to touch
+- hierarchy is weak if action is primary
 
 Good:
 
@@ -79,17 +79,17 @@ Good:
 Bad:
 
 ```text
-Task nhỏ trong app hiện có, nhưng tự đổi toàn bộ typography và màu CTA.
+Small task in the existing app, but automatically changes the entire typography and CTA color.
 ```
 
-Vấn đề:
-- phá design system
-- tăng blast radius không cần thiết
+Problem:
+- destroy design system
+- increased blast radius unnecessarily
 
 Good:
 
 ```text
-Giữ token và typography hiện có; chỉ mở visual direction mới nếu brief nói rõ vì sao.
+Keep existing tokens and typography; Only open new visual directions if the brief clearly states why.
 ```
 
 ## Dense Dashboard Layout
@@ -97,15 +97,15 @@ Giữ token và typography hiện có; chỉ mở visual direction mới nếu b
 Bad:
 
 ```text
-Nhét 14 metric cards, 3 charts, 2 filters và 4 CTA vào cùng một viewport đầu tiên.
+Stuff 14 metric cards, 3 charts, 2 filters and 4 CTAs into the first viewport.
 ```
 
-Vấn đề:
-- Hick's Law và Miller's Law bị phá
-- không còn primary focus
+Problem:
+- Hick's Law and Miller's Law are broken
+- no longer has primary focus
 
 Good:
 
 ```text
-Nhóm metrics thành 5-7 item chính, secondary insights xuống dưới fold hoặc vào tab/filter.
+Group metrics into 5-7 main items, secondary insights below the fold or into tab/filter.
 ```

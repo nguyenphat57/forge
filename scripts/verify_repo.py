@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import subprocess
 import sys
@@ -12,6 +13,14 @@ PACKAGES_DIR = ROOT_DIR / "packages"
 DIST_DIR = ROOT_DIR / "dist"
 SCRIPTS_DIR = ROOT_DIR / "scripts"
 TESTS_DIR = ROOT_DIR / "tests"
+
+
+def configure_stdio() -> None:
+    for name in ("stdout", "stderr"):
+        stream = getattr(sys, name)
+        encoding = getattr(stream, "encoding", None)
+        if encoding and encoding.lower() != "utf-8":
+            setattr(sys, name, io.TextIOWrapper(stream.buffer, encoding="utf-8"))
 
 
 def run_step(name: str, command: list[str], cwd: Path) -> dict:
@@ -50,6 +59,8 @@ def format_text(steps: list[dict]) -> str:
 
 
 def main() -> int:
+    configure_stdio()
+
     parser = argparse.ArgumentParser(description="Run the canonical verification pipeline for the Forge monorepo.")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     args = parser.parse_args()

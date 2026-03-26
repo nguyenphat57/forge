@@ -2,7 +2,7 @@
 
 Use `forge-codex` as the global orchestrator for this workspace.
 
-## Read order
+## Read orders
 
 1. Read this `AGENTS.md`.
 2. Load `forge-codex`.
@@ -11,7 +11,7 @@ Use `forge-codex` as the global orchestrator for this workspace.
 ## Notes
 
 - Keep `AGENTS.md` thin.
-- Put routing detail in the workspace router doc.
+- Put routing details in the workspace router doc.
 - Do not duplicate Forge orchestration rules inside local skills.
 - Prefer natural-language requests first; keep slash forms only as optional aliases.
 - Good entrypoints:
@@ -19,12 +19,12 @@ Use `forge-codex` as the global orchestrator for this workspace.
   - "Run `npm test` and tell me what to do after"
   - "Split the independent failures across subagents where safe"
   - "Bump this to 0.5.0"
-  - "We need to roll back the last deploy"
+  - "We need to roll back the last deployment"
   - "Give shorter answers and move faster"
   - "Bootstrap this workspace for Forge"
 - Let `forge-codex` resolve response-style preferences through the adapter-global Forge preferences engine instead of redefining response-style rules here.
 - If the user wants durable preference changes, let `forge-codex` persist them through `scripts/write_preferences.py`, not a host-local schema.
-- If the workspace needs durable language rules such as "always reply in Vietnamese with full diacritics", keep those host-native rules in `.brain/preferences.json` extras instead of forking the canonical Forge schema.
+- If the workspace needs durable language rules such as "always reply in Vietnamese with full diacritics", persist them through `scripts/write_preferences.py` in adapter-global Forge state; use `.brain/preferences.json` only for workspace-specific overrides, and otherwise let `forge-codex` default to English.
 - Let `forge-codex` handle `help` and `next` from repo state directly; do not add a second session-restore workflow in local instructions.
 - Let `forge-codex` handle `run` through the core run-guidance engine; do not invent a second layer that only repeats terminal output.
 - If boundaries are clear and the host can delegate safely, let `forge-codex` load `dispatch-subagents` instead of improvising parallel edits.

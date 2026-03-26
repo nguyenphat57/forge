@@ -1,124 +1,124 @@
 # Forge Reference Map
 
-> Mục tiêu: giúp người bảo trì và agent biết nên đọc reference nào cho đúng việc, thay vì lục toàn bộ thư mục `references/`.
+> Goal: help maintainers and agents know which reference to read for the right job, instead of searching the entire `references/` directory.
 
 ## Reference Registry
 
-| File | Khi nào đọc |
+|File | When to read|
 |------|-------------|
-| `smoke-tests.md` | Smoke test host routing và behavior chung của Forge |
-| `smoke-test-checklist.md` | Ghi kết quả chạy smoke test từng case |
-| `backend-briefs.md` | Tạo hoặc reuse backend brief cho API/job/event/data change ở mức vừa/lớn |
-| `execution-delivery.md` | Chọn execution mode, checkpoint, và completion state cho build lớn |
-| `failure-recovery-playbooks.md` | Khi chain bị stalled, gate bị blocked, review deadlock, hoặc deploy fail cần đường ra rõ |
-| `ui-briefs.md` | Khi frontend/visualize cần first artifact trước khi code hoặc mockup |
-| `frontend-stack-profiles.md` | Chọn stack lens cho frontend hoặc visualize |
-| `ui-quality-checklist.md` | Review nhanh anti-patterns và delivery checklist cho UI work |
-| `ui-escalation.md` | Quyết định khi nào cần kéo thêm `$ui-ux-pro-max` |
-| `ui-good-bad-examples.md` | Mẫu đúng/sai để giảm agent phải tự suy luận anti-pattern |
-| `ui-heuristics.md` | Heuristics global cho touch-heavy, dashboard, dense-data UI |
-| `ui-progress.md` | Track stage cho task UI kéo dài |
-| `tooling.md` | Khi cần chạy route preview, capture continuity, router checker, hoặc tìm artifact paths |
-| `personalization.md` | Khi sửa response-style preferences, adaptive language, hoặc adapter wrappers cho customize |
-| `workspace-init.md` | Khi sửa skeleton workspace, init flow, hoặc onboarding wrapper cần bám repo-neutral contract |
-| `help-next.md` | Khi sửa navigator logic cho help/next, repo-state priority, hoặc operator guidance wrappers |
-| `run-guidance.md` | Khi sửa workflow `run`, ready-signal detection, command classification, hoặc adapter wrappers cho execute-then-route |
-| `error-translation.md` | Khi sửa error pattern database, sanitation rules, hoặc cách `run/debug/test` đổi lỗi kỹ thuật thành guidance đọc được |
-| `bump-release.md` | Khi sửa version-bump checklist, semver math, hoặc release artifact update flow |
-| `rollback-guidance.md` | Khi sửa rollback planner, risk framing, hoặc recovery strategy selection |
-| `canary-rollout.md` | Khi cần rollout Forge trên workspace thật và chốt readiness bằng canary artifacts |
-| `companion-skill-contract.md` | Thiết kế hoặc update companion skills, khi repo thật sự có lớp runtime/framework mở rộng |
-| `companion-routing-smoke-tests.md` | Kiểm routing giữa Forge và companion skills, chỉ khi dùng companion/local layer |
+|`smoke-tests.md` | Smoke tests host routing and general behavior of Forge|
+|`smoke-test-checklist.md` | Record the results of running smoke test for each case|
+|`backend-briefs.md` | Create or reuse backend brief for API/job/event/data change at medium/large level|
+|`execution-delivery.md` | Select execution mode, checkpoint, and completion state for large builds|
+| `failure-recovery-playbooks.md` | When the chain is stalled, the gate is blocked, the review is deadlocked, or the deployment fails, you need a clear path out
+|`ui-briefs.md` | When frontend/visualize needs first artifact before coding or mockup|
+|`frontend-stack-profiles.md` | Choose stack lens for frontend or visualization|
+|`ui-quality-checklist.md` | Quick review of anti-patterns and delivery checklist for UI work|
+|`ui-escalation.md` | Decide when to pull more `$ui-ux-pro-max`|
+|`ui-good-bad-examples.md` | True/false pattern to reduce agents having to infer anti-pattern|
+|`ui-heuristics.md` | Global heuristics for touch-heavy, dashboard, dense-data UI|
+|`ui-progress.md` | Track stage for long UI tasks|
+|`tooling.md` | When you need to run route preview, capture continuity, router checker, or find artifact paths|
+|`personalization.md` | When editing response-style preferences, adaptive language, or adapter wrappers for customization|
+|`workspace-init.md` | When editing the skeleton workspace, init flow, or onboarding wrapper, you need to stick to the repo-neutral contract|
+|`help-next.md` | When editing navigator logic for help/next, repo-state priority, or operator guidance wrappers|
+|`run-guidance.md` | When editing workflow `run`, ready-signal detection, command classification, or adapter wrappers for execute-then-route|
+|`error-translation.md` | When fixing database error patterns, sanitation rules, or how `run/debug/test` converts technical errors into readable guidance|
+|`bump-release.md` | When editing version-bump checklist, semver math, or release artifact update flow|
+|`rollback-guidance.md` | When editing rollback planning, risk framing, or recovery strategy selection|
+|`canary-rollout.md` | When needed, roll out Forge on the real workspace and confirm readiness with canary artifacts|
+|`companion-skill-contract.md` | Design or update companion skills, when the repo actually has an extended runtime/framework layer|
+|`companion-routing-smoke-tests.md` | Check routing between Forge and companion skills, only when using companion/local layer|
 
 ## Reading Order
 
-### Khi maintain Forge core
+### When maintaining Forge core
 
 ```text
 1. SKILL.md
-2. tooling.md nếu cần deterministic preview/check thay vì đọc prose thuần
-3. personalization.md nếu đang sửa response style hay preference engine
-4. workspace-init.md nếu đang sửa init/onboarding skeleton logic
-5. help-next.md nếu đang sửa navigator help/next
-6. run-guidance.md nếu đang sửa run/execute-then-route
-7. error-translation.md nếu đang sửa error translator/helper layer
-8. bump-release.md hoặc rollback-guidance.md nếu đang sửa release operators
-9. backend-briefs.md hoặc execution-delivery.md tùy layer đang sửa
-10. smoke-tests.md / smoke-test-checklist.md nếu cần verify host behavior
-11. canary-rollout.md nếu đang chuẩn bị rollout thật
-12. companion-skill-contract.md chỉ khi đang sửa lớp companion/runtime
-13. companion-routing-smoke-tests.md chỉ khi đang test lớp companion/runtime
+2. tooling.md if you need deterministic preview/check instead of reading plain prose
+3. personalization.md if you are editing response style or preference engine
+4. workspace-init.md if editing init/onboarding skeleton logic
+5. help-next.md if editing navigator help/next
+6. run-guidance.md if editing run/execute-then-route
+7. error-translation.md if you are editing error translator/helper layer
+8. bump-release.md or rollback-guidance.md if editing release operators
+9. backend-briefs.md or execution-delivery.md depending on the layer being edited
+10. smoke-tests.md / smoke-test-checklist.md if needed to verify host behavior
+11. canary-rollout.md if preparing a real rollout
+12. companion-skill-contract.md only when editing the companion/runtime class
+13. companion-routing-smoke-tests.md only when testing the companion/runtime class
 ```
 
-### Khi repo chưa có local skills
+### When the repo does not have local skills
 
 ```text
 1. SKILL.md
-2. plan.md / architect.md / build.md / debug.md / review.md tùy intent
-3. backend-briefs.md hoặc ui-briefs.md nếu task cần first artifact
-4. execution-delivery.md hoặc quality-gate.md nếu task dài hoặc rủi ro
+2. plan.md / architect.md / build.md / debug.md / review.md depending on intent
+3. backend-briefs.md or ui-briefs.md if the task needs the first artifact
+4. execution-delivery.md or quality-gate.md if the task is long or risky
 ```
 
-### Khi chỉ muốn smoke test Forge core
+### When you just want to smoke test Forge core
 
 ```text
 1. smoke-tests.md
 2. smoke-test-checklist.md
-3. canary-rollout.md nếu smoke này là một phần của rollout thật
+3. canary-rollout.md if this smoke is part of the actual rollout
 ```
 
-### Khi debug companion routing
+### When debugging companion routing
 
 ```text
 1. companion-skill-contract.md
 2. companion-routing-smoke-tests.md
-3. tooling.md nếu cần chạy checker
-4. canary-rollout.md nếu bug đang xuất hiện ở workspace thật
+3. tooling.md if you need to run checker
+4. canary-rollout.md if the bug is appearing in the real workspace
 ```
 
-### Khi thiết kế workspace theo mô hình global + local
+### When designing a workspace according to the global + local model
 
 ```text
 1. companion-skill-contract.md
 2. tooling.md
 3. companion-routing-smoke-tests.md
-4. smoke-tests.md nếu cần verify host behavior rộng hơn
-5. canary-rollout.md nếu đang làm rollout có kiểm soát
+4. smoke-tests.md if you need to verify host behavior more broadly
+5. canary-rollout.md if you are doing a controlled rollout
 ```
 
-### Khi làm implementation sau plan/design
+### When doing implementation after plan/design
 
 ```text
 1. execution-delivery.md
-2. failure-recovery-playbooks.md nếu chain có risk stall/block
-3. tooling.md nếu cần checkpoint artifact
+2. failure-recovery-playbooks.md if the chain has risk stall/block
+3. tooling.md if checkpoint artifact is needed
 4. build.md
-5. review.md nếu cần clear disposition sau cùng
-6. quality-gate.md nếu cần go/no-go rõ trước claim hoặc deploy
+5. review.md if you need to clear disposition last
+6. quality-gate.md if you need to go/no-go clearly before claiming or deploying
 ```
 
-### Khi làm release-critical flow
+### When doing release-critical flow
 
 ```text
 1. secure.md
 2. quality-gate.md
 3. deploy.md
-4. failure-recovery-playbooks.md nếu gate bị block hoặc rollout fail
-5. execution-delivery.md nếu chain dài hoặc high-risk
+4. failure-recovery-playbooks.md if gate is blocked or rollout fails
+5. execution-delivery.md if the chain is long or high-risk
 ```
 
-### Khi làm backend
+### When working as a backend
 
 ```text
 1. backend-briefs.md
-2. tooling.md nếu muốn generate/check/persist backend brief
+2. tooling.md if you want to generate/check/persist backend brief
 3. backend.md
-4. failure-recovery-playbooks.md nếu task là migration/recovery/high-risk
-5. execution-delivery.md nếu task backend kéo dài qua nhiều checkpoint
-6. companion-skill-contract.md nếu runtime/framework đã rõ và muốn ghép thêm layer
+4. failure-recovery-playbooks.md if task is migration/recovery/high-risk
+5. execution-delivery.md if the backend task spans multiple checkpoints
+6. companion-skill-contract.md if the runtime/framework is clear and you want to add more layers
 ```
 
-### Khi làm frontend hoặc visualize
+### When doing frontend or visualization
 
 ```text
 1. ui-briefs.md
@@ -126,17 +126,17 @@
 3. ui-quality-checklist.md
 4. ui-good-bad-examples.md
 5. ui-heuristics.md
-6. ui-escalation.md nếu visual direction còn quá mở
-7. ui-progress.md nếu task kéo dài
-8. tooling.md nếu muốn generate/check/track/persist bằng script
+6. ui-escalation.md if the visual guide is too open
+7. ui-progress.md if the task takes a long time
+8. tooling.md if you want to generate/check/track/persist with script
 ```
 
-### Khi stalled hoặc blocked
+### When stalled or blocked
 
 ```text
 1. failure-recovery-playbooks.md
-2. execution-delivery.md nếu cần nhìn lại chain/checkpoint
-3. tooling.md nếu cần capture artifact mới
-4. debug.md / quality-gate.md / review.md / deploy.md tùy chỗ đang kẹt
-5. canary-rollout.md nếu kẹt ở phase rollout thật
+2. execution-delivery.md if you need to look back at the chain/checkpoint
+3. tooling.md if you need to capture new artifacts
+4. debug.md / quality-gate.md / review.md / deploy.md depending on where you're stuck
+5. canary-rollout.md if stuck in real rollout phase
 ```

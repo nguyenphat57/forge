@@ -11,7 +11,7 @@ Goal: confirm the Codex host routes into `forge-codex` and no legacy global orch
 
 ## Pass criteria
 
-- Global host routing resolves to `forge-codex`.
+- Global host resolves to `forge-codex`.
 - Natural-language prompts remain the primary surface.
 - Repo-first and evidence-first behavior stay intact.
 - No legacy recap or save ritual is suggested.
@@ -87,13 +87,13 @@ Fix the checkout crash that happens after release.
 Expected:
 
 - Routes to `workflows/execution/debug.md`
-- Investigates root cause before proposing a fix
+- Investigates root cause before suggesting a fix
 
 ### CT-07: Review alias
 
 ```text
 /review
-Review the current change before merge.
+Review the current changes before merging.
 ```
 
 Expected:
@@ -105,7 +105,7 @@ Expected:
 
 ```text
 /customize
-Give shorter answers, move faster, and keep feedback direct.
+Give shorter answers, move faster, and keep feedback directly.
 ```
 
 Expected:

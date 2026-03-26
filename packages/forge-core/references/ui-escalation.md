@@ -1,49 +1,49 @@
 # UI Escalation Rules
 
-> Dùng để quyết định khi nào `frontend` hoặc `visualize` nên kéo thêm `$ui-ux-pro-max`.
+> Used to decide when `frontend` or `visualize` should add `$ui-ux-pro-max`.
 
 ## Escalate To `$ui-ux-pro-max` When
 
-- user muốn nhiều visual directions hoặc style exploration
-- visual direction còn mơ hồ và cần reference breadth
-- cần palette / typography / landing pattern suggestions
-- task là concept-first hơn implementation-first
-- muốn nghiên cứu rộng trước khi chốt brief
+- user wants more visual directions or style exploration
+- visual direction is vague and needs reference breadth
+- need palette / typography / landing pattern suggestions
+- task is concept-first rather than implementation-first
+- want to do extensive research before finalizing the brief
 
 ## Do Not Escalate When
 
-- chỉ là bug CSS nhỏ hoặc spacing fix
-- design system hiện có đã quá rõ và task chỉ là implementation
-- chỉ cần sửa behavior/state nhỏ trong component hiện có
-- task thiên về accessibility/responsive cleanup hơn là visual exploration
+- just a small CSS bug or spacing fix
+- The existing design system is already clear and the task is just an implementation
+- just need to fix small behavior/state in existing component
+- The task is more about accessibility/responsive cleanup than visual exploration
 
 ## Recommended Order
 
-### Khi task là visualize-heavy
+### When the task is visualization-heavy
 
 ```text
 1. visualize
-2. Nếu visual direction còn rộng hoặc user muốn nhiều options -> load $ui-ux-pro-max
-3. Chốt visual brief
-4. Handoff cho frontend/build
+2. If the visual direction is still large or the user wants many options -> load $ui-ux-pro-max
+3. Finalize the visual brief
+4. Handoff for frontend/build
 ```
 
-### Khi task là frontend nhưng cần mở visual range
+### When the task is frontend but needs to open visual range
 
 ```text
 1. frontend
-2. Nếu design system chưa đủ direction -> load $ui-ux-pro-max
+2. If the design system is not directional enough -> load $ui-ux-pro-max
 3. Update frontend brief
 4. Implement UI
 ```
 
 ## Output Discipline
 
-- `$ui-ux-pro-max` cung cấp design exploration và breadth
-- Forge `frontend`/`visualize` vẫn giữ:
+- `$ui-ux-pro-max` provides design exploration and breadth
+- Forge `frontend`/`visualize` still keeps:
   - scope discipline
-  - brief requirement
+  - brief requirements
   - responsive/a11y/state coverage
   - handoff/report shape
 
-Đừng để `$ui-ux-pro-max` thay brief hoặc thay delivery checklist của Forge.
+Don't let `$ui-ux-pro-max` change Forge's brief or delivery checklist.

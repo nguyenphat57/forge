@@ -1,25 +1,25 @@
 # Forge Canary Rollout
 
-> Mục tiêu: biến câu hỏi "đã production-ready chưa?" thành một canary gate có artifact, ngưỡng rõ, và verdict lặp lại được.
+> Goal: turn the question "is it production-ready?" into a canary gate with artifact, clear threshold, and repeatable verdict.
 
-## Khi nào đọc file này
+## When to read this file
 
-- Khi Forge core đã pass `verify_bundle.py` nhưng bạn còn thiếu bằng chứng vận hành trên host thật
-- Khi chuẩn bị rollout Forge cho 2-3 workspace đầu tiên
-- Khi cần chốt `controlled-rollout ready` hoặc `broad ready`
+- When Forge core has passed `verify_bundle.py` but you still lack proof of operation on the real host
+- When preparing the Forge rollout for the first 2-3 workspaces
+- When you need to latch `controlled-rollout ready` or `broad ready`
 
 ## Rollout Stages
 
 ### 1. Controlled Rollout
 
-Mục tiêu:
-- Ít nhất 2 workspaces thật
-- Ít nhất 1 ngày quan sát
-- Không có run `fail`
-- Tối đa 1 workspace đang ở trạng thái `warn`
-- Không còn blocker ở latest run
+Target:
+- At least 2 real workspaces
+- At least 1 day of observation
+- There is no `fail` tremor
+- Maximum 1 workspace is in `warn` state
+- No more blocker in latest run
 
-Lệnh đánh giá:
+Evaluation command:
 
 ```powershell
 python scripts/evaluate_canary_readiness.py .forge-artifacts/canary-runs --profile controlled-rollout
@@ -27,15 +27,15 @@ python scripts/evaluate_canary_readiness.py .forge-artifacts/canary-runs --profi
 
 ### 2. Broad Readiness
 
-Mục tiêu:
-- Ít nhất 3 workspaces thật
-- Ít nhất 6 canary runs tổng
-- Ít nhất 2 ngày quan sát khác nhau
-- Không có run `fail`
-- Không có workspace latest run ở trạng thái `warn`
-- Không còn blocker ở latest run
+Target:
+- At least 3 real workspaces
+- At least 6 canary runs total
+- At least 2 different observation days
+- There is no `fail` tremor
+- There is no latest run workspace in state `warn`
+- No more blocker in latest run
 
-Lệnh đánh giá:
+Evaluation command:
 
 ```powershell
 python scripts/evaluate_canary_readiness.py .forge-artifacts/canary-runs --profile broad
@@ -43,39 +43,39 @@ python scripts/evaluate_canary_readiness.py .forge-artifacts/canary-runs --profi
 
 ## Workspace Selection
 
-Ưu tiên 3 loại workspace:
-- 1 workspace có local router/companion layer
-- 1 workspace chủ yếu dùng Forge core, không có local layer
-- 1 workspace có flow high-risk hơn: build/debug/deploy/review đan xen
+Prioritize 3 types of workspaces:
+- 1 workspace has a local router/companion layer
+- 1 workspace mainly uses Forge core, no local layer
+- 1 workspace has a more high-risk flow: build/debug/deploy/review interwoven
 
-Không chọn cả 3 workspace cùng một shape; mục tiêu là bắt misroute và fallback behavior trên bề mặt khác nhau.
+Do not select all 3 workspaces of the same shape; The goal is to catch misroute and fallback behavior on different surfaces.
 
-## Scenario Pack Gợi Ý
+## Scenario Pack Suggestions
 
-Mỗi workspace nên chạy ít nhất:
-- review natural-language
+Each workspace should run at least:
+- natural-language review
 - session/continue natural-language
-- build medium hoặc large
+- build medium or large
 - debug regression-style
 - deploy readiness
 
-Nếu workspace có local companions:
+If the workspace has local companions:
 - runtime-signal-only selection
-- router checker sau khi đổi docs/local skill inventory
+- router checker after changing docs/local skill inventory
 
 ## Canonical Workspace Runner
 
-Ưu tiên dùng runner tự động trước, rồi mới bổ sung `record_canary_result.py` khi cần note manual:
+Prioritize using automatic runner first, then add `record_canary_result.py` when needed. Note manual:
 
 ```powershell
 python scripts/run_workspace_canary.py C:\path\to\workspace --persist
 ```
 
-Runner tự persist:
+Runner self persists:
 - `.forge-artifacts/workspace-canaries/`
 - `.forge-artifacts/canary-runs/`
 
-## Cách ghi một canary run
+## How to score a canary run
 
 ```powershell
 python scripts/record_canary_result.py "Core prompts stable on POS workspace" `
@@ -88,7 +88,7 @@ python scripts/record_canary_result.py "Core prompts stable on POS workspace" `
   --persist
 ```
 
-Nếu có cảnh báo:
+If there is a warning:
 
 ```powershell
 python scripts/record_canary_result.py "1 warn on companion fallback wording" `
@@ -100,7 +100,7 @@ python scripts/record_canary_result.py "1 warn on companion fallback wording" `
   --persist
 ```
 
-Nếu có blocker:
+If there is a blocker:
 
 ```powershell
 python scripts/record_canary_result.py "Router drift broke local skill selection" `
@@ -114,14 +114,14 @@ python scripts/record_canary_result.py "Router drift broke local skill selection
 
 ## Canonical Gate
 
-Trước khi nói Forge "production-ready":
+Before saying Forge "production-ready":
 
 ```powershell
 python scripts/verify_bundle.py
 python scripts/evaluate_canary_readiness.py .forge-artifacts/canary-runs --profile controlled-rollout
 ```
 
-Khi muốn chốt rộng hơn:
+When you want a wider latch:
 
 ```powershell
 python scripts/verify_bundle.py --include-canary --canary-profile broad
@@ -129,21 +129,21 @@ python scripts/verify_bundle.py --include-canary --canary-profile broad
 
 ## Verdict Language
 
-Chỉ dùng 1 trong 3 verdict:
-- `not-ready`: verify bundle fail hoặc canary profile fail
+Use only 1 of 3 verdicts:
+- `not-ready`: verify bundle failed or canary profile failed
 - `controlled-rollout ready`: verify bundle pass + canary controlled-rollout pass
 - `broad ready`: verify bundle pass + canary broad pass
 
-Không dùng câu mơ hồ kiểu:
-- "gần như production"
-- "chắc ổn rồi"
-- "về cơ bản dùng được"
+Don't use vague sentences like:
+- "almost production"
+- "sure it's okay"
+- "basically usable"
 
 ## Failure Handling
 
-Nếu canary fail:
-1. Ghi artifact bằng `record_canary_result.py`
-2. Fix drift hoặc blocker trong bundle
-3. Chạy lại `verify_bundle.py`
-4. Rerun workspace canary bị fail
-5. Chỉ nâng verdict khi latest run đã sạch
+If canary fails:
+1. Burn artifact using `record_canary_result.py`
+2. Fix drift or blocker in bundle
+3. Run `verify_bundle.py` again
+4. Rerun workspace canary failed
+5. Only raise verdict when the latest run is clean

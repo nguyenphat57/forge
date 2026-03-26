@@ -1,12 +1,12 @@
 # Forge Tooling
 
-> Dùng khi muốn biến routing/verification của Forge từ prose sang bước kiểm tra có thể chạy được.
+> Used when you want to turn Forge's routing/verification from prose to runnable testing.
 
 ## Registry Canonical Source
 
-- File machine-readable của orchestrator nằm tại `data/orchestrator-registry.json`
-- Đây là nguồn canonical cho:
-- intent keywords
+- The orchestrator's machine-readable file is located at `data/orchestrator-registry.json`
+- This is the canonical source for:
+- intent keywords. intent keywords
 - skill composition matrix
 - complexity hints
 - verification profiles
@@ -19,13 +19,13 @@
 
 ## Preferences Resolver
 
-Khi cần inspect hoặc validate response-style preferences theo schema chung của Forge:
+When you need to inspect or validate response-style preferences according to Forge's general schema:
 
 ```powershell
 python scripts/resolve_preferences.py
 ```
 
-Explicit file:
+Explicit files:
 
 ```powershell
 python scripts/resolve_preferences.py --preferences-file C:\path\to\adapter-state\state\preferences.json --format json
@@ -37,120 +37,120 @@ Strict validation:
 python scripts/resolve_preferences.py --workspace C:\path\to\workspace --strict
 ```
 
-Script sẽ trả về:
-- source của preferences (explicit, global, workspace-legacy, hoặc defaults)
-- canonical preferences sau khi normalize
-- response-style contract đã resolve
-- warnings nếu payload có field lạ hoặc giá trị không hợp lệ
+The script will return:
+- source of preferences (explicit, global, workspace-legacy, or defaults)
+- canonical preferences after normalize
+- response-style contract resolved
+- warnings if the payload has strange fields or invalid values
 
-Schema và boundary doc: xem `personalization.md`.
+Schema and boundary doc: see `personalization.md`.
 
 ## Preferences Persistence
 
-Khi cần update adapter-global Forge preferences mà vẫn giữ schema canonical của Forge:
+When you need to update adapter-global Forge preferences while still keeping Forge's canonical schema:
 
 ```powershell
 python scripts/write_preferences.py --technical-level newbie --pace fast
 python scripts/write_preferences.py --feedback-style direct --apply
 ```
 
-Script sẽ:
-- merge update vào preferences hiện có theo mặc định
-- reuse legacy `.brain/preferences.json` làm migration base nếu adapter-global file chưa tồn tại và có truyền `--workspace`
-- hỗ trợ `--replace` để reset field không truyền về defaults
-- trả về `changed_fields`, target preferences, và response-style contract sau khi normalize
+The script will:
+- merge update into existing preferences by default
+- reuse legacy `.brain/preferences.json` as migration base if adapter-global file does not exist and passes `--workspace`
+- support `--replace` to reset fields without returning to defaults
+- returns `changed_fields`, target preferences, and response-style contract after normalization
 
-Semantics chi tiết: xem `personalization.md`.
+Detailed semantics: see `personalization.md`.
 
 ## Workspace Init
 
-Khi cần preview hoặc tạo skeleton Forge tối thiểu cho workspace mới:
+When you need to preview or create a minimal Forge skeleton for a new workspace:
 
 ```powershell
 python scripts/initialize_workspace.py --workspace C:\path\to\workspace
 python scripts/initialize_workspace.py --workspace C:\path\to\workspace --seed-preferences --apply
 ```
 
-Script sẽ:
-- classify workspace thành `greenfield` hoặc `existing`
-- tạo `.brain/`, `docs/plans/`, `docs/specs/`, và `.brain/session.json`
-- tùy chọn seed adapter-global `state/preferences.json`
-- trả về next workflow khuyến nghị (`brainstorm` hoặc `plan`)
+The script will:
+-classify workspace to `greenfield` or `existing`
+- create `.brain/`, `docs/plans/`, `docs/specs/`, and `.brain/session.json`
+- option seed adapter-global `state/preferences.json`
+- returns recommended next workflow (`brainstorm` or `plan`)
 
-Semantics chi tiết: xem `workspace-init.md`.
+Detailed semantics: see `workspace-init.md`.
 
 ## Help/Next Navigator
 
-Khi cần resolve operator guidance dựa trên repo state thay vì recap ritual:
+When you need to resolve operator based on repo state instead of guidance recap ritual:
 
 ```powershell
 python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode help
 python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode next --format json
 ```
 
-Script se doc:
-- `git status` nếu workspace đó là git root riêng
-- `docs/plans/` va `docs/specs/`
-- `.brain/session.json` và `.brain/handover.md` nếu có
+Script to read:
+- `git status` if that workspace is a private git root
+- `docs/plans/` and `docs/specs/`
+- `.brain/session.json` and `.brain/handover.md` if available
 - `README`
 - adapter-global `state/preferences.json` de adapt response style
 
-Script se tra ve:
+Script will check:
 - `current_stage`
 - `current_focus`
 - `suggested_workflow`
 - `recommended_action`
-- tối đa 2 alternatives
-- evidence va warnings
+- Maximum 2 alternatives
+- evidence and warnings
 
-Semantics chi tiet: xem `help-next.md`.
+Detailed Semantics: see `help-next.md`.
 
 ## Run Guidance
 
-Khi cần chạy lệnh thật và route bước tiếp theo từ output:
+When you need to run the actual command and route the next step from the output:
 
 ```powershell
 python scripts/run_with_guidance.py --workspace C:\path\to\workspace --timeout-ms 20000 -- npm run dev
 python scripts/run_with_guidance.py --workspace C:\path\to\workspace --format json -- python -m pytest tests/unit
 ```
 
-Script sẽ trả về:
+The script will return:
 - `state`
 - `command_kind`
 - `suggested_workflow`
 - `recommended_action`
 - `stdout_excerpt` / `stderr_excerpt`
 - `readiness_detected`
-- evidence va warnings
+- evidence and warnings
 
-Nếu dùng `--persist`, artifact mặc định nằm ở:
+If using `--persist`, the default artifact is located at:
 
 ```text
 .forge-artifacts/run-reports/
 ```
 
-Semantics chi tiết: xem `run-guidance.md`.
+Detailed semantics: see `run-guidance.md`.
 
 ## Error Translation
 
-Khi cần dịch stderr/raw error sang tóm tắt dễ đọc hơn mà vẫn giữ đủ context cho debug:
+When you need to translate stderr/raw error into a more readable summary while still preserving enough context for debugging:
 
 ```powershell
 python scripts/translate_error.py --error-text "Module not found: payments.service"
 python scripts/translate_error.py --input-file C:\path\to\stderr.txt --format json
 ```
 
-Script sẽ:
-- sanitize token, secret, và path nhạy cảm cơ bản
-- match vào pattern database deterministic
-- trả về `human_message`, `suggested_action`, và `category`
-- fallback generic nếu chưa có pattern phù hợp
+The script will:
+- Sanitize tokens, secrets, and basic sensitive paths
+- match into pattern database deterministic
+- returns `human_message`, `suggested_action`, and `category`
+- generic fallback if there is no suitable pattern
 
-Semantics chi tiết: xem `error-translation.md`.
+Detailed semantics: see `error-translation.md`.
 
 ## Bump Preparation
 
-Khi cần chốt version mới theo release flow đã được user yêu cầu:
+When it is necessary to finalize a new version according to the release flow requested by the user:
 
 ```powershell
 python scripts/prepare_bump.py --workspace C:\path\to\workspace
@@ -158,34 +158,34 @@ python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump minor
 python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump 2.0.0 --apply --release-ready
 ```
 
-Script sẽ:
-- đọc `VERSION`
-- suy luận hoặc nhận explicit semver bump
-- tính `target_version`
-- preview hoặc update `VERSION` + `CHANGELOG.md`
-- trả về verification commands kế tiếp
+The script will:
+- read`VERSION`
+- infer or get explicit semver bump
+- calculate `target_version`
+- preview or update `VERSION` + `CHANGELOG.md`
+- returns the next verification command
 
-Semantics chi tiết: xem `bump-release.md`.
+Detailed semantics: see `bump-release.md`.
 
 ## Rollback Guidance
 
-Khi cần plan rollback an toàn thay vì blind-revert:
+When you need a safe rollback plan instead of blind-revert:
 
 ```powershell
 python scripts/resolve_rollback.py --scope deploy --customer-impact broad --has-rollback-artifact
 python scripts/resolve_rollback.py --scope migration --data-risk high
 ```
 
-Script se:
-- chot recovery strategy theo scope/risk
-- cảnh báo data-loss risk khi cần
-- tra ve suggested workflow va verification checklist
+Script:
+- select recovery strategy according to scope/risk
+- warn of data-loss risk when needed
+- Check suggested workflow and verification checklist
 
-Semantics chi tiet: xem `rollback-guidance.md`.
+Detailed Semantics: see `rollback-guidance.md`.
 
 ## UI Brief Generator
 
-Khi task là `frontend` hoặc `visualize` và cần first artifact rõ trước khi code/mockup:
+When the task is `frontend` or `visualize` and needs an explicit first artifact before coding/mockup:
 
 ```powershell
 python scripts/generate_ui_brief.py "Refresh checkout for tablet POS" `
@@ -195,7 +195,7 @@ python scripts/generate_ui_brief.py "Refresh checkout for tablet POS" `
   --screen checkout
 ```
 
-Hoặc:
+Or:
 
 ```powershell
 python scripts/generate_ui_brief.py "Explore calmer kitchen dashboard direction" `
@@ -211,17 +211,17 @@ python scripts/generate_ui_brief.py "Explore calmer kitchen dashboard direction"
 python scripts/generate_ui_brief.py "..." --mode frontend --persist --project-name "LamDiFood POS" --screen checkout
 ```
 
-Artifact mặc định:
+Default Artifact:
 
 ```text
 .forge-artifacts/ui-briefs/<project-slug>/<mode>/
 ```
 
-Chi tiết brief pattern: xem `ui-briefs.md`.
+Brief pattern details: see `ui-briefs.md`.
 
 ## Backend Brief Generator
 
-Khi task backend là medium/large hoặc chạm contract/schema/job/event:
+When the backend task is medium/large or touches contract/schema/job/event:
 
 ```powershell
 python scripts/generate_backend_brief.py "Add bulk order cancellation endpoint" `
@@ -230,7 +230,7 @@ python scripts/generate_backend_brief.py "Add bulk order cancellation endpoint" 
   --surface cancel-orders
 ```
 
-Hoặc:
+Or:
 
 ```powershell
 python scripts/generate_backend_brief.py "Reconcile failed payouts in worker" `
@@ -245,23 +245,23 @@ python scripts/generate_backend_brief.py "Reconcile failed payouts in worker" `
 python scripts/generate_backend_brief.py "..." --pattern sync-api --persist --project-name "Example Project" --surface cancel-orders
 ```
 
-Artifact mặc định:
+Default Artifact:
 
 ```text
 .forge-artifacts/backend-briefs/<project-slug>/
 ```
 
-Chi tiết brief pattern: xem `backend-briefs.md`.
+Brief pattern details: see `backend-briefs.md`.
 
 ## Backend Brief Checker
 
-Khi brief backend đã được persist và cần verify nhanh:
+When the brief backend has been persisted and needs quick verification:
 
 ```powershell
 python scripts/check_backend_brief.py .forge-artifacts/backend-briefs/<project-slug> --surface cancel-orders
 ```
 
-Artifact report mặc định:
+Default Artifact report:
 
 ```text
 .forge-artifacts/backend-brief-checks/
@@ -269,13 +269,13 @@ Artifact report mặc định:
 
 ## UI Brief Checker
 
-Khi brief đã được persist và cần verify nhanh rằng artifact đủ section bắt buộc:
+Once the brief has been persisted and need to quickly verify that the artifact has all required sections:
 
 ```powershell
 python scripts/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/frontend --mode frontend --screen checkout
 ```
 
-Artifact report mặc định:
+Default Artifact report:
 
 ```text
 .forge-artifacts/ui-brief-checks/
@@ -283,13 +283,13 @@ Artifact report mặc định:
 
 ## UI Progress Tracker
 
-Khi task frontend/visualize kéo dài qua nhiều stage:
+When the frontend/visualize task spans multiple stages:
 
 ```powershell
 python scripts/track_ui_progress.py "Checkout tablet refresh" --mode frontend --stage implementation --status active
 ```
 
-Artifact mặc định:
+Default Artifact:
 
 ```text
 .forge-artifacts/ui-progress/<mode>/
@@ -297,7 +297,7 @@ Artifact mặc định:
 
 ## Route Preview
 
-Khi muốn preview route cho một prompt trước khi load skill chain:
+When you want to preview the route for a prompt before loading the skill chain:
 
 ```powershell
 python scripts/route_preview.py "Fix outbox bi ket sau khi app online lai" `
@@ -305,30 +305,30 @@ python scripts/route_preview.py "Fix outbox bi ket sau khi app online lai" `
   --repo-signal src/services/syncManager.ts
 ```
 
-Nếu workspace có local layer, thêm `--workspace-router` như input tùy chọn:
+If the workspace has local layers, add `--workspace-router` as an optional input:
 
 ```powershell
 python scripts/route_preview.py "..." `
   --workspace-router C:\path\to\workspace\.agent\workspace-skill-map.md
 ```
 
-`--workspace-router` chấp nhận cả `AGENTS.md` lẫn router map đã resolve.
+`--workspace-router` accepts both `AGENTS.md` and the resolved router map.
 
-Script sẽ trả về:
-- intent
+The script will return:
+- intent. intent
 - complexity
 - Forge skills
-- host skills do bundle hiện tại expose (nếu có)
+- host skills exposed by the current bundle (if any)
 - execution mode recommendation
 - execution pipeline recommendation
 - delegation strategy recommendation
 - lane model tier recommendations
 - quality profile recommendation
 - domain skills
-- local companion candidates (nếu workspace có local layer)
+- local companion candidates (if the workspace has a local layer)
 - verification-first plan
 
-Với `REVIEW`, `SESSION`, và task `small`, preview ưu tiên minimal path: repo signals không tự động kéo thêm domain/local companions nếu prompt không nói rõ.
+For `REVIEW`, `SESSION`, and task `small`, preview prioritizes minimal path: repo signals do not automatically pull additional domain/local companions if the prompt does not explicitly say so.
 
 ### Persist route preview
 
@@ -336,13 +336,13 @@ Với `REVIEW`, `SESSION`, và task `small`, preview ưu tiên minimal path: rep
 python scripts/route_preview.py "..." --persist
 ```
 
-Artifact mặc định:
+Default Artifact:
 
 ```text
 .forge-artifacts/route-previews/
 ```
 
-Ví dụ high-risk build:
+Example high-risk build:
 
 ```powershell
 python scripts/route_preview.py "Implement auth migration with public API contract change" `
@@ -351,23 +351,23 @@ python scripts/route_preview.py "Implement auth migration with public API contra
   --repo-signal api/
 ```
 
-Kỳ vọng output:
+Expected output:
 - `Execution pipeline: Implementer -> spec reviewer -> quality reviewer`
 - `Lane model tiers`
-- `Spec-review loop cap: 3` khi applicable
+- `Spec-review loop cap: 3` when applicable
 
 ## Scoped Continuity Capture
 
-Khi có decision hoặc learning đủ bền để lưu theo scope:
+When there is a decision or learning that is stable enough to be saved according to scope:
 
 ```powershell
-python scripts/capture_continuity.py "Compatibility window phải giữ 1 release" `
+python scripts/capture_continuity.py "Compatibility window must stay at 1 release" `
   --kind decision `
   --scope orders-api `
   --evidence "docs/DESIGN.md"
 ```
 
-Artifact mặc định:
+Default Artifact:
 
 ```text
 .brain/decisions.json
@@ -376,7 +376,7 @@ Artifact mặc định:
 
 ## Execution Progress Tracker
 
-Khi build task medium/large kéo dài qua nhiều checkpoint:
+When a medium/large build task spans multiple checkpoints:
 
 ```powershell
 python scripts/track_execution_progress.py "Implement offline order reconciliation" `
@@ -391,26 +391,26 @@ python scripts/track_execution_progress.py "Implement offline order reconciliati
   --risk "End-to-end verification still pending"
 ```
 
-Persist artifact:
+Persist artifacts:
 
 ```powershell
 python scripts/track_execution_progress.py "..." --mode checkpoint-batch --stage integration --persist --project-name "Example Project"
 ```
 
-Artifact mặc định:
+Default Artifact:
 
 ```text
 .forge-artifacts/execution-progress/<project-slug>/
 ```
 
-Fields mới quan trọng:
+Important new fields:
 - `lane`
 - `model-tier`
 - `proof-before-progress`
 
 ## Chain Status Tracker
 
-Khi chain dài đi qua nhiều skill/stage và cần thấy trạng thái tổng:
+When a long chain goes through many skills/stages and needs to see the total status:
 
 ```powershell
 python scripts/track_chain_status.py "Checkout rewrite flow" `
@@ -431,19 +431,19 @@ python scripts/track_chain_status.py "Checkout rewrite flow" `
   --risk "Large migration verification still pending"
 ```
 
-Persist artifact:
+Persist artifacts:
 
 ```powershell
 python scripts/track_chain_status.py "..." --current-stage build --persist --project-name "Example Project"
 ```
 
-Artifact mặc định:
+Default Artifact:
 
 ```text
 .forge-artifacts/chain-status/<project-slug>/
 ```
 
-Fields mới quan trọng:
+Important new fields:
 - `active-lanes`
 - `lane-model`
 - `review-iteration`
@@ -451,18 +451,18 @@ Fields mới quan trọng:
 
 ## Workspace Router Check
 
-Chỉ dùng khi workspace thật sự có local skill layer hoặc router docs.
+Only used when the workspace actually has a local skill layer or router docs.
 
-Khi vừa sửa `AGENTS.md`, workspace map, hoặc local skills:
+When editing `AGENTS.md`, workspace map, or local skills:
 
 ```powershell
 python scripts/check_workspace_router.py C:\path\to\workspace
 ```
 
-Checker sẽ so:
+Checker will compare:
 - `AGENTS.md`
 - workspace skill map
-- local skills dưới `.agent/skills/`
+- local skills under `.agent/skills/`
 - routing smoke tests
 - local-skill maintenance doc
 
@@ -472,7 +472,7 @@ Checker sẽ so:
 python scripts/check_workspace_router.py C:\path\to\workspace --persist
 ```
 
-Artifact mặc định:
+Default Artifact:
 
 ```text
 .forge-artifacts/router-checks/
@@ -480,33 +480,33 @@ Artifact mặc định:
 
 ## Regression Tests
 
-Khi vừa đổi routing logic, companion detection, hoặc router checker:
+When changing routing logic, companion detection, or router checker:
 
 ```powershell
 python -m unittest discover -s tests -v
 ```
 
-Hiện regression suite tập trung vào:
-- route preview cho review/session/local-companion cases
-- workspace router checker cho explicit router doc names
+Currently the regression suite focuses on:
+- route preview for review/session/local-companion cases
+- workspace router checker for explicit router doc names
 
 ## Smoke Matrix Runner
 
-Khi cần chạy smoke cases thực thi được thay vì chỉ đọc checklist:
+When you need to run executable smoke cases instead of just reading the checklist:
 
 ```powershell
 python scripts/run_smoke_matrix.py
 ```
 
-Tùy chọn:
+Options:
 
 ```powershell
 python scripts/run_smoke_matrix.py --suite route-preview
 python scripts/run_smoke_matrix.py --suite router-check --format json
 ```
 
-Runner này đọc fixture từ `tests/fixtures/` và gọi chính CLI scripts để bắt drift ở mức entrypoint.
-Smoke suite hiện cover:
+This runner reads the fixture from `tests/fixtures/` and calls CLI scripts to catch drift at the entrypoint level.
+Smoke suite currently covers:
 - route preview
 - workspace router check
 - preferences resolution
@@ -518,18 +518,18 @@ Smoke suite hiện cover:
 
 ## Verify Bundle
 
-Lệnh release/CI chuẩn cho Forge bundle:
+Standard release/CI command for Forge bundle:
 
 ```powershell
 python scripts/verify_bundle.py
 ```
 
-Pipeline hiện tại:
-- `py_compile` cho scripts + tests
+Current pipeline:
+- `py_compile` for scripts + tests
 - `unittest discover -s tests -v`
 - `run_smoke_matrix.py`
 
-Nếu đã có soak/canary artifacts thật:
+If there are real soak/canary artifacts:
 
 ```powershell
 python scripts/verify_bundle.py --include-canary --canary-profile controlled-rollout
@@ -538,20 +538,20 @@ python scripts/verify_bundle.py --include-canary --canary-profile broad
 
 ## Canary Rollout Tooling
 
-Chạy canary pack tự động trên workspace thật:
+Run canary pack automatically on real workspace:
 
 ```powershell
 python scripts/run_workspace_canary.py C:\path\to\workspace --persist
 ```
 
-Runner này sẽ:
-- detect repo signals thông dụng
-- chạy core route pack (`review`, `session`, `build`, `debug`, `deploy`)
-- chạy router check nếu workspace có `AGENTS.md`
-- chạy runtime-signal local companion check nếu workspace có local skills
-- persist cả detail artifact lẫn canary-run summary
+This Runner will:
+- detect common repo signals
+- run core route pack (`review`, `session`, `build`, `debug`, `deploy`)
+- run router check if workspace has `AGENTS.md`
+- run runtime-signal local companion check if workspace has local skills
+- persist both detail artifact and canary-run summary
 
-Ghi một canary run:
+Record a canary run:
 
 ```powershell
 python scripts/record_canary_result.py "Core prompts stable on POS workspace" `
@@ -561,29 +561,29 @@ python scripts/record_canary_result.py "Core prompts stable on POS workspace" `
   --persist
 ```
 
-Đánh giá readiness:
+Readiness rating:
 
 ```powershell
 python scripts/evaluate_canary_readiness.py .forge-artifacts/canary-runs --profile controlled-rollout
 python scripts/evaluate_canary_readiness.py .forge-artifacts/canary-runs --profile broad
 ```
 
-Broad readiness hiện cũng đòi ít nhất 2 ngày quan sát khác nhau, không chỉ đủ số run.
+Broad readiness now also requires at least two different days of observation, not just enough runs.
 
-Runbook chi tiết: xem `canary-rollout.md`.
+Detailed runbook: see `canary-rollout.md`.
 
-## Khi nào dùng tool nào
+## When to use which tool?
 
-- Preview một task đơn lẻ: `route_preview.py`
-- Audit drift của workspace router: `check_workspace_router.py` khi workspace có local layer
+- Preview a single task: `route_preview.py`
+- Audit drift of workspace router: `check_workspace_router.py` when workspace has local layer
 - Capture decision/learning scoped, evidence-backed: `capture_continuity.py`
-- Tạo hoặc check first artifact cho backend: `generate_backend_brief.py` / `check_backend_brief.py`
-- Check chain/go-no-go tổng thể: `track_chain_status.py` + `quality-gate.md`
-- Track checkpoint cho build dài: `track_execution_progress.py`
-- Track toàn chain dài: `track_chain_status.py`
-- Chạy smoke suite entrypoint-level: `run_smoke_matrix.py`
-- Chạy full release gate cục bộ/CI: `verify_bundle.py`
-- Chạy canary pack tự động trên workspace thật: `run_workspace_canary.py`
-- Ghi soak/canary artifact từ workspace thật: `record_canary_result.py`
-- Chốt verdict rollout từ artifact thật: `evaluate_canary_readiness.py`
-- Chỉ đọc policy và examples: quay lại `SKILL.md` hoặc `references/companion-skill-contract.md`
+- Create or check first artifact for backend: `generate_backend_brief.py` / `check_backend_brief.py`
+- Check overall chain/go-no-go: `track_chain_status.py` + `quality-gate.md`
+- Track checkpoint for long builds: `track_execution_progress.py`
+- Full chain track length: `track_chain_status.py`
+- Run smoke suite entrypoint-level: `run_smoke_matrix.py`
+- Run full release gate locally/CI: `verify_bundle.py`
+- Run canary pack automatically on real workspace: `run_workspace_canary.py`
+- Record soak/canary artifact from real workspace: `record_canary_result.py`
+- Final verdict rollout from real artifact: `evaluate_canary_readiness.py`
+- Only read policy and examples: return to `SKILL.md` or `references/companion-skill-contract.md`

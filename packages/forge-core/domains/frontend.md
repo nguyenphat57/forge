@@ -24,7 +24,7 @@ PRESERVE THE EXISTING DESIGN SYSTEM BEFORE INVENTING A NEW ONE
 NO MEDIUM/LARGE FRONTEND CHANGE WITHOUT A FRONTEND BRIEF.
 ```
 
-Frontend brief phải chốt trước:
+Frontend brief must be finalized first:
 - visual direction
 - screens/components in scope
 - states: default/loading/empty/error
@@ -32,20 +32,20 @@ Frontend brief phải chốt trước:
 - accessibility boundary
 - stack-specific watchouts
 
-Nếu chưa có brief hoặc visual direction còn mơ hồ:
+If there is no brief or the visual direction is still vague:
 
 ```powershell
 python scripts/generate_ui_brief.py "Task summary" --mode frontend --stack generic-web --platform web
 ```
 
-Nếu task kéo dài nhiều bước hoặc nhiều màn hình, thêm `--persist` và đọc `../references/ui-briefs.md`.
-Nếu dùng persisted brief, validate nhanh bằng:
+If the task spans multiple steps or screens, add `--persist` and read `../references/ui-briefs.md`.
+If using persisted brief, validate as quickly as:
 
 ```powershell
 python scripts/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/frontend --mode frontend --screen <screen>
 ```
 
-Nếu task UI kéo dài, nhiều màn hình, hoặc cần handoff qua nhiều bước:
+If the UI task is long, has multiple screens, or needs handoff through multiple steps:
 
 ```powershell
 python scripts/track_ui_progress.py "Task summary" --mode frontend --stage implementation --status active
@@ -55,10 +55,10 @@ python scripts/track_ui_progress.py "Task summary" --mode frontend --stage imple
 
 ```mermaid
 flowchart TD
-    A[Đọc requirement và repo context] --> B{Task UI mức small?}
-    B -->|No| C[Tạo hoặc reuse frontend brief]
-    B -->|Yes| D[Đọc design system hiện có]
-    C --> E[Chọn stack/platform profile]
+    A[Read requirements and repo context] --> B{Task UI small level?}
+    B -->|No| C[Create or reuse frontend brief]
+    B -->|Yes| D[Read existing design system]
+    C --> E[Select stack/platform profile]
     D --> E
     E --> F[Implement UI]
     F --> G[Run FE self-review]
@@ -68,89 +68,89 @@ flowchart TD
 
 ## Stack Lens
 
-Đừng dùng guideline chung chung nếu stack đã rõ. Chọn profile gần nhất trong `../references/frontend-stack-profiles.md`.
+Don't use general guidelines if the stack is clear. Select the closest profile in `../references/frontend-stack-profiles.md`.
 
 Quick routing:
-- `generic-web`: stack chưa rõ hoặc chỉ đang reasoning
+- `generic-web`: stack is unclear or just reasoning
 - `html-tailwind`: utility-first UI
 - `react-vite`: component/state-heavy frontend
 - `nextjs`: server/client boundary matters
 - `mobile-webview`: Capacitor/webview/tablet POS style UI
 
-Nếu cần mở visual range rộng hơn thay vì chỉ implementation guidance, xem `../references/ui-escalation.md` và cân nhắc load thêm `$ui-ux-pro-max`.
-Examples nhanh để tránh anti-patterns: `../references/ui-good-bad-examples.md`
-Heuristics cho touch/dense-data/dashboard UI: `../references/ui-heuristics.md`
+If you need a wider visual range than just implementation guidance, see `../references/ui-escalation.md` and consider loading `$ui-ux-pro-max`.
+Quick examples to avoid anti-patterns: `../references/ui-good-bad-examples.md`
+Heuristics for touch/dense-data/dashboard UI: `../references/ui-heuristics.md`
 
 ## Core Rules
 
 ### Design System & Tokens
 ```
-- Giữ token, spacing scale, và typography system có sẵn nếu project đã có
-- Nếu phải mở visual direction mới, brief phải nói rõ vì sao
-- Ưu tiên design tokens / CSS vars hơn ad-hoc values
-- Không hardcode màu lung tung nếu lẽ ra nên thành token
+- Keep the token, spacing scale, and typography system available if the project already has one
+- If a new visual direction must be opened, the brief must clearly state why
+- Prioritize design tokens / CSS vars over ad-hoc values
+- Don't hardcode random colors if they should be tokens
 ```
 
 ### Component & State Design
 ```
-- Chốt state model trước khi polish UI
-- Mọi screen/component vừa/lớn phải nghĩ rõ loading/empty/error
-- Không để interaction quan trọng chỉ tồn tại ở happy path
-- Layout và state ownership phải nhất quán với stack đang dùng
+- Finalize the state model before polishing the UI
+- Every medium/large screen/component must think clearly about loading/empty/error
+- Don't let important interactions exist only in the happy path
+- Layout and state ownership must be consistent with the stack in use
 ```
 
 ### Interaction Quality
 ```
-- Clickable surfaces phải có affordance rõ
-- Hover/focus không gây layout shift
-- Không phụ thuộc hover cho hành vi cốt lõi trên touch-heavy surfaces
-- Không dùng emoji làm UI icons
+- Clickable surfaces must have clear affordances
+- Hover/focus does not cause layout shift
+- Doesn't rely on hover for core behavior on touch-heavy surfaces
+- Do not use emojis as UI icons
 ```
 
 ### Motion & Responsive
 ```
-- Animate chủ yếu bằng `transform` và `opacity`
-- Tránh `transition: all`
-- Mobile-first hoặc touch-first nếu product cần
-- Breakpoints cần xem tối thiểu: 375, 768, 1024, 1440 nếu là web app
-- Touch targets >= 44px cho UI chạm
+- Animate mainly with `transform` and `opacity`
+- Avoid `transition: all`
+- Mobile-first or touch-first if the product needs it
+- Breakpoints to see at least: 375, 768, 1024, 1440 if web app
+- Touch targets >= 44px for touch UI
 ```
 
 ### Accessibility
 ```
-- Contrast >= 4.5:1 cho body text
-- Focus state rõ ràng
-- Keyboard navigable nếu có interactive UI
-- Accessible names / labels đúng cho element cần thiết
-- Tôn trọng reduced-motion khi có animation
+- Contrast >= 4.5:1 for body text
+- Focus state is clear
+- Keyboard navigable if interactive UI is present
+- Accessible names / labels are correct for the required element
+- Respect reduced-motion when there is animation
 ```
 
 ## Fast Anti-Patterns
 
-Reject nhanh nếu thấy:
-- scale hover làm card hoặc list nhảy layout
-- border quá mờ hoặc surface quá trong ở light mode
-- text màu xám quá nhạt nên hierarchy bị mất
-- fixed/sticky UI che mất content thật
-- visual polish có nhưng thiếu empty/loading/error states
+Reject quickly if you see:
+- scale hover makes card or list jump layout
+- The border is too blurry or the surface is too clear in light mode
+- The gray text is too light so the hierarchy is lost
+- fixed/sticky UI hides real content
+- visual polish has it but is missing empty/loading/error states
 
-Checklist chi tiết: `../references/ui-quality-checklist.md`
-Examples cụ thể: `../references/ui-good-bad-examples.md`
+Detailed checklist: `../references/ui-quality-checklist.md`
+Specific examples: `../references/ui-good-bad-examples.md`
 
 ## Frontend Integrity Checklist
 
-Trước khi gọi UI là "xong", kiểm tra các điểm giữ integrity của bề mặt hiện có:
+Before calling the UI "done", check the integrity points of the existing surface:
 
-- Không làm vỡ design tokens, spacing scale, hoặc typography hierarchy ngoài phạm vi chủ đích
-- Không làm regress state quan trọng: loading, empty, error, disabled, success
-- Không phá keyboard/focus order hoặc semantic structure của surface đã chạm
-- Không tạo visual drift ngoài scope: màu, shadow, radius, spacing chỉ đổi ở nơi đã chủ đích
-- Không để responsive behavior mới che content, tạo overflow lạ, hoặc làm sticky/fixed UI cản thao tác
-- Không làm touch target, hit area, hoặc affordance tệ hơn bản cũ
-- Không làm interaction model mâu thuẫn với pattern sẵn có của product
-- Không bỏ quên copy, icon, empty-state tone, hoặc hierarchy đã là một phần của UX contract
+- Do not disrupt design tokens, spacing scale, or typography hierarchy beyond the intended scope
+- Do not regress important states: loading, empty, error, disabled, success
+- Does not destroy the keyboard/focus order or semantic structure of the touched surface
+- Do not create visual drift outside the scope: color, shadow, radius, spacing only change in the intended place
+- Don't let the new responsive behavior cover content, create strange overflows, or make sticky/fixed UI prevent operations
+- Does not make touch target, hit area, or affordance worse than the old version
+- Do not make the interaction model conflict with the product's existing pattern
+- Don't forget the copy, icon, empty-state tone, or hierarchy that are part of the UX contract
 
-Nếu có thay đổi lớn về interaction model hoặc visual language, brief phải nói rõ đây là intentional break, không phải side effect.
+If there is a major change to the interaction model or visual language, the brief must clearly state that this is an intentional break, not a side effect.
 
 ## Good / Bad Examples
 
@@ -205,28 +205,28 @@ Good:
 
 ## Long-Task Progress
 
-Khi task UI không còn là one-shot edit, track stage bằng `../references/ui-progress.md`.
+When the UI task is no longer a one-shot edit, track stage with `../references/ui-progress.md`.
 
 ## FE Self-Review Checklist
 
-- [ ] Frontend brief đã có hoặc đã xác nhận brief hiện tại vẫn đúng
-- [ ] Nếu dùng persisted brief, `check_ui_brief.py` không fail
-- [ ] Nếu task dài, progress artifact đã được update
-- [ ] Preserve design system hoặc nêu rõ visual direction mới
-- [ ] Chọn stack profile phù hợp nếu stack đã rõ
-- [ ] States: default/loading/empty/error đã được nghĩ rõ
-- [ ] Responsive ở các breakpoints hoặc platform cần thiết
-- [ ] Focus, contrast, reduced-motion, touch targets đã được xem
-- [ ] Dense-data / dashboard / touch-heavy heuristics đã được xem nếu task thuộc loại đó
-- [ ] Frontend integrity checklist không có regression rõ ràng
-- [ ] Không có anti-pattern rõ ràng trong `ui-quality-checklist.md`
+- [ ] Frontend brief already exists or has confirmed that the current brief is still correct
+- [ ] If a persisted brief is used, `check_ui_brief.py` does not fail
+- [ ] If the task is long, the progress artifact has been updated
+- [ ] Preserve design system or state new visual direction
+- [ ] Select the appropriate stack profile if the stack is clear
+- [ ] States: default/loading/empty/error has been clearly thought out
+- [ ] Responsive at necessary breakpoints or platforms
+- [ ] Focus, contrast, reduced-motion, touch targets have been viewed
+- [ ] Dense-data / dashboard / touch-heavy heuristics were seen if the task was of that type
+- [ ] Frontend integrity checklist has no obvious regressions
+- [ ] There is no explicit anti-pattern in `ui-quality-checklist.md`
 
 ## Handover
 
 ```text
-Frontend report:
-- Brief: [new/reused + path nếu có]
-- Progress: [path nếu có]
+Frontend reports:
+- Brief: [new/reused + path if available]
+- Progress: [path if available]
 - Visual direction: [...]
 - Stack/profile lens: [...]
 - Screens/components touched: [...]
@@ -237,5 +237,5 @@ Frontend report:
 ## Activation Announcement
 
 ```text
-Forge: frontend | tạo/reuse frontend brief trước, rồi mới implement UI
+Forge: frontend | create/reuse the frontend brief first, then implement the UI
 ```

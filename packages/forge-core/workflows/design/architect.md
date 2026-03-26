@@ -5,8 +5,8 @@ triggers:
   - intent: BUILD (complexity large)
   - shortcut: /design
 quality_gates:
-  - DESIGN.md tạo xong với schema + API + flow
-  - Build sequence, boundaries, và decision records explicit
+  - DESIGN.md is created with schema + API + flow
+  - Build sequence, boundaries, and decision records explicit
   - Build-readiness path states whether spec-review is still required
   - User approved
 ---
@@ -19,11 +19,11 @@ quality_gates:
 NO LARGE IMPLEMENTATION WITHOUT ARCHITECTURE DECISIONS DOCUMENTED
 ```
 
-> Plan = biết làm gì. Design = biết làm như thế nào.
+> Plan = know what to do. Design = know how to do it.
 
 <HARD-GATE>
-Áp dụng cho task large, data flow phức tạp, auth, hoặc database change lớn.
-Task small/medium rõ ràng có thể bỏ qua architect nếu plan đã đủ.
+Applies to large tasks, complex data flows, auth, or large database changes.
+Small/medium tasks can obviously ignore the architect if the plan is sufficient.
 </HARD-GATE>
 
 ---
@@ -32,17 +32,17 @@ Task small/medium rõ ràng có thể bỏ qua architect nếu plan đã đủ.
 
 ```mermaid
 flowchart TD
-    A[Đọc spec/plan] --> B{Có spec chưa?}
-    B -->|Chưa| C[Cần /plan trước]
-    B -->|Có| D[Design data + schema]
+    A[Read spec/plan] --> B{Do you have a spec yet?}
+    B -->|Not yet| C[Need /plan in advance]
+    B -->|Yes| D[Design data + schema]
     D --> E[Design API + flows]
     E --> F[Security + NFR]
     F --> G[Testability + acceptance criteria]
     G --> H[Section-by-section design review]
-    H --> I[Tạo docs/DESIGN.md]
+    H --> I[Create docs/DESIGN.md]
     I --> J[User review]
     J --> K{Approve?}
-    K -->|Sửa| D
+    K -->|Edit| D
     K -->|OK| L[-> spec-review]
 ```
 
@@ -50,23 +50,23 @@ flowchart TD
 
 ### Schema Conventions
 ```
-- Table có id, created_at, updated_at
-- Chốt soft delete nếu domain cần
-- FK actions rõ ràng
-- Naming nhất quán
-- Chốt enum/status rules
+- Table has id, created_at, updated_at
+- Close soft delete if the domain needs it
+- FK actions are clear
+- Consistent naming
+- Lock enum/status rules
 ```
 
 ### Index Design
 ```
 - Index FK columns
-- Index cho WHERE / ORDER BY / JOIN
-- Partial/composite index khi cần
+- Index for WHERE / ORDER BY / JOIN
+- Partial/composite index when needed
 ```
 
 ## Design Outputs
 
-`docs/DESIGN.md` nên có:
+`docs/DESIGN.md` should have:
 1. Database schema / data model
 2. API endpoints / contracts
 3. User flows / state flows
@@ -78,7 +78,7 @@ flowchart TD
 
 ## ADR-Lite Records
 
-Mỗi quyết định kiến trúc quan trọng nên có format ADR rút gọn:
+Every major architectural decision should have a shortened ADR format:
 
 ```text
 ADR:
@@ -92,36 +92,36 @@ Reopen only if: [...]
 ```
 
 Rule:
-- Không chỉ ghi "dùng X" mà không ghi vì sao
-- Nếu quyết định làm thay đổi contract, schema, ownership, hoặc rollout shape, phải có `compatibility / rollback concern`
-- Nếu không nêu được `proof this design is working`, design đang quá trừu tượng
+- Don't just write "use X" without writing why
+- If you decide to change the contract, schema, ownership, or rollout shape, there must be `compatibility / rollback concern`
+- If `proof this design is working` cannot be stated, the design is too abstract
 
 ## Cross-Cutting Checklist
 
-Đọc nhanh checklist này trước khi coi design là đủ chín:
+Quickly read this checklist before considering the design mature enough:
 
 - `Security`: authn/authz, secrets, trust boundary, validation
 - `Compatibility`: versioning, consumer impact, migration window, rollout sequencing
 - `Data lifecycle`: create/update/delete, retention, cleanup, backfill, idempotency
-- `Observability`: log gì, metric gì, trace hoặc audit point nào cần
+- `Observability`: what log, what metrics, what trace or audit point are needed
 - `Failure handling`: retry, timeout, fallback, rollback, kill switch, operator action
 - `Performance`: hotspot, index/query shape, caching, throughput, latency-sensitive path
-- `Ownership`: ai giữ source of truth, ai consume, ai phải update cùng lúc
+- `Ownership`: who keeps the source of truth, who consumes, who must update at the same time
 - `Testability`: first proof, edge-case proof, boundary check, smoke path
 
 Rule:
-- Không cần biến mọi item thành tài liệu dài dòng, nhưng item nào chạm blast radius thật thì phải được trả lời
-- Nếu một item còn bỏ ngỏ mà có thể làm hỏng rollout hoặc verification, chưa được coi design-ready
+- There's no need to turn every item into a lengthy document, but any item that actually touches the blast radius must be answered
+- If an item is left open that could disrupt rollout or verification, it is not considered design-ready
 
 ## Build Sequence & Boundaries
 
-Design phải chỉ ra thứ tự thi công ở mức đủ dùng:
-- phần nào làm trước để unlock phần sau
-- boundary nào không được phá trong lúc thi công
-- integration point nào phải verify sớm
-- phần nào có thể làm độc lập, phần nào không
+The design must indicate the construction order at a sufficient level:
+- Which part should be done first to unlock the next part?
+- Any boundary must not be destroyed during construction
+- Any integration points must be verified soon
+- Which parts can be done independently, which parts cannot
 
-Template:
+Templates:
 
 ```text
 Build sequence:
@@ -133,28 +133,28 @@ Build sequence:
 
 ## Design Review Loop
 
-Trước khi chuyển sang `spec-review`, đọc lại design theo 4 pass:
+Before converting to `spec-review`, reread the design in 4 passes:
 
-1. `Data & lifecycle`: trạng thái dữ liệu, ownership, migration, cleanup
-2. `Contract & integration`: API/event/schema/public boundary và compatibility
-3. `Ops & failure`: logs/metrics/rollback/fallback/kill switch nếu cần
-4. `Testability`: acceptance criteria, first proof, edge cases, verification feasibility
+1. `Data & lifecycle`: data status, ownership, migration, cleanup
+2. `Contract & integration`: API/event/schema/public boundary and compatibility
+3. `Ops & failure`: logs/metrics/rollback/fallback/kill switch if needed
+4. `Testability`: acceptance criteria, first proof, edge cases, verification considerations
 
 Rule:
-- Nếu một pass còn mơ hồ ở boundary trọng yếu, quay lại sửa design trước khi handoff
-- `User review` không thay cho self-review; design phải tự đứng vững trước khi đem duyệt
+- If a pass is ambiguous at a critical boundary, go back and fix the design before handing off
+- `User review` does not replace self-review; The design must stand on its own before being approved
 
 ## Verification Checklist
 
-- [ ] Spec nguồn đã rõ ràng
-- [ ] Data model và API contract đã chốt
-- [ ] Security / auth / validation đã được xem
-- [ ] NFR và risks đã được note
-- [ ] Build sequence và must-not-break boundaries đã rõ
-- [ ] ADR-lite records đủ cho các quyết định lớn
-- [ ] Cross-cutting checklist đã được đọc cho các boundary quan trọng
-- [ ] Compatibility / rollback concern đã được ghi khi applicable
-- [ ] Design đủ test và đủ implement
+- [ ] Source spec is clear
+- [ ] Data model and API contract have been finalized
+- [ ] Security / auth / validation has been viewed
+- [ ] NFR and risks have been noted
+- [ ] Build sequence and must-not-break boundaries are clear
+- [ ] ADR-lite records are enough for big decisions
+- [ ] Cross-cutting checklist has been read for important boundaries
+- [ ] Compatibility / rollback concern has been recorded when applicable
+- [ ] Design has enough testing and enough implementation
 
 ## Handover
 
@@ -172,5 +172,5 @@ Architecture ready:
 ## Activation Announcement
 
 ```
-Forge: architect | chốt quyết định kiến trúc trước implementation lớn
+Forge: architect | finalize architectural decisions before large implementations
 ```

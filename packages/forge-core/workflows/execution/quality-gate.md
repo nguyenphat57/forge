@@ -2,7 +2,7 @@
 name: quality-gate
 type: rigid
 triggers:
-  - before deploy
+  - before deployment
   - before completion claim
   - when long-running chain needs explicit go/no-go
 quality_gates:
@@ -20,51 +20,51 @@ NO CLAIMS, HANDOFFS, OR DEPLOYS WITHOUT A FRESH GO / NO-GO DECISION
 ```
 
 <HARD-GATE>
-- Không dùng kết quả cũ, cảm giác, hay "đã pass trước đó" để thay cho gate hiện tại.
-- Không nói `done`, `ready`, `ship`, `merge`, hoặc `deploy` nếu chưa chốt gate decision.
-- Gate fail -> stop, report blocker, và nói rõ cần evidence gì tiếp theo.
-- Với `release-critical` flow, `conditional` không đủ để production deploy.
-- Nếu flow rõ ràng thuộc profile mạnh hơn `standard`, không được review nó như `standard`.
+- Do not use old results, feelings, or "previously passed" results to replace the current gate.
+- Do not say `done`, `ready`, `ship`, `merge`, or `deploy` if the gate decision has not been finalized.
+- Gate failure -> stop, report blocker, and state clearly what evidence is next needed.
+- With `release-critical` flow, `conditional` is not enough for production deployment.
+- If the flow clearly belongs to a stronger profile than `standard`, do not review it as `standard`.
 </HARD-GATE>
 
 ## Scope
 
-Dùng khi cần gom các bằng chứng đã có từ `build`, `test`, `review`, `secure`, `deploy` thành một quyết định cuối:
+Used when you need to gather the evidence from `build`, `test`, `review`, `secure`, `deploy` into a final decision:
 - `go`
 - `conditional`
 - `blocked`
 
 ## Gate Profiles
 
-| Profile | Dùng khi |
+|Profile | Use when|
 |---------|----------|
-| `standard` | Task bình thường, nội bộ, hoặc non-release-critical |
-| `release-critical` | Production deploy, migration nhạy cảm, auth/payment, public incident-prone flow |
-| `migration-critical` | Schema/data move/backfill/policy change có sequencing hoặc rollback concern |
-| `external-interface` | Public API/webhook/integration/consumer-facing contract change |
-| `regression-recovery` | Hotfix, recovery, hoặc regression vừa xảy ra cần containment rõ |
+|`standard` | Normal, internal, or non-release-critical task|
+|`release-critical` | Production deployment, sensitive migration, auth/payment, public incident-prone flow|
+|`migration-critical` | Schema/data move/backfill/policy change has sequencing or rollback concerns|
+|`external-interface` | Public API/webhook/integration/consumer-facing contract change|
+|`regression-recovery` | Hotfix, recovery, or regression that has just occurred needs clear containment|
 
-Với `release-critical`, gate phải đọc tối thiểu:
-- build/type/lint/smoke evidence mới
-- test evidence mới
+With `release-critical`, gate must read at least:
+- new build/type/lint/smoke evidence
+- test new evidence
 - review disposition
 - security decision
-- deploy target readiness và rollback path
+- deploy target readiness and rollback path
 
 ## Profile Selection Rules
 
-- `standard`: chỉ dùng khi change không chạm release risk, migration, hay external interface
-- `release-critical`: ưu tiên cho production rollout, payment/auth, và các flow từng có incident
-- `migration-critical`: dùng cho schema/data/policy changes, kể cả khi chưa deploy production ngay
-- `external-interface`: dùng khi caller/consumer ngoài boundary hiện tại sẽ bị ảnh hưởng
-- `regression-recovery`: dùng khi mục tiêu là khôi phục behavior đúng sau incident/regression
-- Profile mạnh hơn `standard` chỉ được chọn khi prompt hoặc repo signals có evidence tương ứng; intent một mình không đủ để nâng profile
+- `standard`: only used when the change does not touch release risk, migration, or external interface
+- `release-critical`: prioritize production rollout, payment/auth, and flows that have had incidents
+- `migration-critical`: used for schema/data/policy changes, even if not deployed to production immediately
+- `external-interface`: used when callers/consumers outside the current boundary will be affected
+- `regression-recovery`: used when the goal is to restore correct behavior after an incident/regression
+- Profiles stronger than `standard` are only selected when prompted or repo signals have corresponding evidence; Intent alone is not enough to raise profile
 
-Nếu flow chạm nhiều profile, chọn profile có blast radius cao hơn làm profile chính cho gate hiện tại.
+If the flow touches multiple profiles, select the profile with the higher blast radius as the main profile for the current gate.
 
 ## Gate Inputs
 
-Đọc từ artifact thật hoặc command output mới:
+Read from real artifact or new command output:
 - Verification/test output
 - Review disposition
 - Security decision
@@ -73,30 +73,30 @@ Nếu flow chạm nhiều profile, chọn profile có blast radius cao hơn làm
 
 ## Evidence Response Contract
 
-Mọi claim hoàn thành, phản hồi feedback, hoặc kết luận gate phải bám theo contract này:
+All completed claims, feedback, or gate conclusions must follow this contract:
 
 ```text
 - I verified: [fresh evidence]. Correct because [reason]. Fixed: [change].
-- I investigated: [evidence]. Current code stays because [reason].
+- I evaluated: [evidence]. Current code stays because [reason].
 - Clarification needed: [single precise question].
 ```
 
 Required fields:
 - fresh evidence
-- reason hoặc disposition
+- reason or disposition
 - change/no-change stance
 
-Reject nhanh các câu:
+Quickly reject sentences:
 - Good catch! Fixed.
 - Looks good now.
 - Should be fixed.
 - Probably fine.
 
-Contract này là global cho `build`, `debug`, `test`, `review`, và `deploy`, không chỉ riêng quality gate.
+This contract is global for `build`, `debug`, `test`, `review`, and `deploy`, not just quality gate.
 
 ## Canonical Rationalizations To Reject
 
-8 rationalizations dưới đây phải bị xem như tín hiệu gate yếu:
+The following 8 rationalizations should be considered weak gate signals:
 
 1. `Good catch! Fixed.`
 2. `Should be fine now.`
@@ -107,37 +107,37 @@ Contract này là global cho `build`, `debug`, `test`, `review`, và `deploy`, k
 7. `Spec is basically clear, implementation can figure it out.`
 8. `Merge first, follow up later.`
 
-Nếu kết luận hiện tại dựa vào một trong các câu trên, decision không được là `go`.
+If the current conclusion is based on one of the above statements, the decision cannot be `go`.
 
 ## Required Evidence By Profile
 
 ### `standard`
-- Focused verification hoặc smoke evidence
-- Review/residual-risk note nếu task không nhỏ
-- Claim target rõ
+- Focused verification or smoke evidence
+- Review/residual-risk note if the task is not small
+- Claim target clearly
 
 ### `release-critical`
 - Identity/target check
 - Secrets/config/env validation
 - Fresh sanity/build + test evidence
-- Rollback path và post-deploy smoke readiness
+- Rollback path and post-deploy smoke readiness
 
 ### `migration-critical`
-- Compatibility hoặc sequencing note
+- Compatibility or sequencing note
 - Migration/backfill verification
 - Rollback/backout path
-- Consumer impact hoặc cutoff plan
+- Consumer impact or cutoff plan
 
 ### `external-interface`
-- Contract diff hoặc compatibility note
+- Contract difference or compatibility note
 - Caller/consumer update note
-- Boundary verification hoặc smoke check từ phía consumer
+- Boundary verification or smoke check from the consumer
 
 ### `regression-recovery`
 - Fresh failing reproduction
-- Root-cause note
+- Root cause note
 - Targeted regression verification
-- Containment hoặc rollback stance
+- Containment or rollback stance
 
 ## Process
 
@@ -154,53 +154,53 @@ flowchart TD
 
 ## Decisions
 
-| Decision | Dùng khi |
+|Decision | Use when|
 |----------|----------|
-| `go` | Evidence mới đủ mạnh, không còn blocker quan trọng |
-| `conditional` | Có thể đi tiếp nhưng phải note rõ risk hoặc follow-up bắt buộc |
-| `blocked` | Thiếu evidence hoặc blocker/risk còn quá lớn |
+|`go` | The new Evidence is strong enough, there are no more important blockers|
+| `conditional` | You can continue but must clearly note the risks or follow-up is mandatory
+|`blocked` | Lack of evidence or blocker/risk is too big|
 
 Rule:
-- `standard` flow có thể chấp nhận `conditional` nếu user hiểu residual risk
-- `release-critical` flow muốn deploy production thì phải là `go`
-- `migration-critical` flow có bước irreversible thì `conditional` không đủ cho production data move
-- Nếu thiếu một gate bắt buộc cho `release-critical`, decision mặc định là `blocked`
+- `standard` flow can accept `conditional` if the user understands residual risk
+- `release-critical` flow to deploy to production must be `go`
+- `migration-critical` flow has an irreversible step, so `conditional` is not enough for production data move
+- If a required gate is missing for `release-critical`, the default decision is `blocked`
 
 ## Release-Critical Ordered Gates
 
-Khi profile là `release-critical`, đọc và chốt tuần tự:
+When profile is `release-critical`, read and latch sequentially:
 
-1. Identity/target đúng
-2. Config/secrets/env đúng
+1. Identity/target is correct
+2. Config/secrets/env is correct
 3. Sanity/build entry pass
 4. Tests/checks pass
-5. Review disposition sạch hoặc risk đã resolve
-6. Security decision cho release
-7. Rollback path và post-deploy smoke readiness
+5. Review disposition clean or risk resolved
+6. Security decision for release
+7. Rollback path and post-deploy smoke readiness
 
-Gate fail ở bước nào thì report ngay bước đó, không nhảy sang gate sau để "xem tiếp".
+If a gate fails at any step, report that step immediately, do not jump to the next gate to "continue watching".
 
-Khi blocked mà chưa rõ đường ra, đọc `references/failure-recovery-playbooks.md`.
+When blocked but the way out is unclear, read `references/failure-recovery-playbooks.md`.
 
 ## Gate Checklist
 
-- [ ] Evidence là mới, không phải kết quả cũ
-- [ ] Verification phù hợp với blast radius
-- [ ] Review/security disposition đã rõ nếu task chạm tới
-- [ ] Residual risk đã được đọc, không chỉ copy lại
-- [ ] Evidence response contract đã được giữ, không dùng performative agreement
-- [ ] Gate decision đã explicit
-- [ ] Nếu release-critical, ordered gates đã được đọc đủ và `go` là thật sự justified
-- [ ] Profile đang dùng thật sự khớp blast radius của flow
+- [ ] Evidence is new, not old results
+- [ ] Verification matches blast radius
+- [ ] Review/security disposition is clear if the task is reached
+- [ ] Residual risk was read, not just copied
+- [ ] Evidence response contract has been kept, no performative agreement is used
+- [ ] Gate decision is explicit
+- [ ] If release-critical, ordered gates have been fully read and `go` is truly justified
+- [ ] The profile being used actually matches the blast radius of the flow
 
 ## Output
 
 ```text
-Quality gate:
+Quality gates:
 - Profile: [standard / release-critical / migration-critical / external-interface / regression-recovery]
 - Target claim: [done / ready-for-review / ready-for-merge / deploy]
 - Evidence read: [...]
-- Evidence response: [I verified: ... / I investigated: ... / Clarification needed: ...]
+- Evidence response: [I verified:... / I investigated:... / Clarification needed:...]
 - Decision: [go / conditional / blocked]
 - Why: [...]
 - Next evidence needed: [...]
@@ -209,5 +209,5 @@ Quality gate:
 ## Activation Announcement
 
 ```text
-Forge: quality-gate | chốt go/no-go bằng evidence mới
+Forge: quality-gate | close go/no-go with new evidence
 ```

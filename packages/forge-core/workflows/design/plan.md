@@ -5,10 +5,10 @@ triggers:
   - intent: BUILD (complexity medium+)
   - shortcut: /plan
 quality_gates:
-  - Spec hoặc plan document tạo xong
-  - Implementation-ready plan packet explicit cho task medium/large
+  - Spec or plan document created
+  - Implementation-ready plan packet explicit for medium/large task
   - High-risk build path calls out spec-review when needed
-  - User approved trước khi build medium/large tasks
+  - User approved before building medium/large tasks
 ---
 
 # Plan - Planning & Feature Discovery
@@ -20,20 +20,20 @@ NO MEDIUM/LARGE BUILD WITHOUT A CONFIRMED PLAN FIRST
 ```
 
 <HARD-GATE>
-Với task medium, large, hoặc mơ hồ:
-- Không invoke build skill khi chưa chốt scope và success criteria.
-- Plan có thể ngắn, nhưng phải đủ rõ để implementation không đoán mò.
-- Nếu đã vào từ `brainstorm`, plan phải kế thừa direction đã chốt; không mở lại debate options trừ khi có evidence mới hoặc reversal signal đã xảy ra.
-- Với large hoặc medium/high-risk, plan phải nói rõ có cần `spec-review` trước khi build hay không.
+For medium, large, or vague tasks:
+- Do not invoke build skills without finalizing the scope and success criteria.
+- The plan can be short, but must be clear enough so that the implementation does not guess.
+- If entered from `brainstorm`, the plan must inherit the locked direction; Do not reopen debate options unless there is new evidence or a reversal signal has occurred.
+- With large or medium/high-risk, the plan must clearly state whether `spec-review` is needed before building or not.
 
-Với task small, rõ ràng:
-- Không cần ceremony đầy đủ.
-- Chỉ cần restate ngắn + verification plan rồi build.
+For small tasks, it's clear:
+- No need for a full ceremony.
+- Just need a short reset + verification plan then build.
 
 Explicit quick path:
-- `quick path` chỉ là hint để đi đường ngắn cho task `small`, rõ ràng, blast radius thấp.
-- Hint này có thể đến từ prompt rất ngắn, từ khóa như `quick`, hoặc prefix `/quick`, nhưng Forge không giả định host phải có slash command riêng cho nó.
-- Nếu task chạm migration, contract, auth, public interface, hoặc vẫn còn nhiều hướng materially khác nhau, bỏ qua quick path và quay về path đầy đủ.
+- `quick path` is just a hint to take a short path for task `small`, obviously, blast radius is low.
+- This hint can come from a very short prompt, keyword like `quick`, or prefix `/quick`, but Forge does not assume the host must have its own slash command.
+- If the task touches migration, contract, auth, public interface, or there are still many different materially paths, skip the quick path and return to the full path.
 </HARD-GATE>
 
 ---
@@ -42,85 +42,85 @@ Explicit quick path:
 
 ```mermaid
 flowchart TD
-    A[Input] --> B{Đã có brief/spec chưa?}
-    B -->|Có| C[Extract scope + assumptions]
-    B -->|Chưa| D[Hỏi 3 Câu Hỏi Vàng]
+    A[Input] --> B{Is there a brief/spec yet?}
+    B -->|Yes| C[Extract scope + assumptions]
+    B -->|Not yet| D[Ask 3 Golden Questions]
     D --> E[Qualified problem statement]
     C --> E
-    E --> F{Direction đã khóa chưa?}
-    F -->|Chưa| G[-> brainstorm]
-    F -->|Rồi| H[Đề xuất scope và stack]
+    E --> F{Direction locked yet?}
+    F -->|Not yet| G[-> brainstorm]
+    F -->|Yes| H[Recommended scope and stack]
     H --> I{User confirm?}
-    I -->|Sửa| G
+    I -->|Edit| G
     I -->|OK| J[Feature discovery]
     J --> K[Data flow + user flow]
     K --> L[Phase generation]
-    L --> M[Tạo plan/spec]
+    L --> M[Create plan/spec]
     M --> N[Plan readiness review]
-    N --> O{Cần architecture?}
-    O -->|Có| P[-> architect]
-    O -->|Không| Q{Cần spec-review?}
-    Q -->|Có| R[-> spec-review]
-    Q -->|Không| S[-> build]
+    N --> O{Need architect?}
+    O -->|Yes| P[-> architect]
+    O -->|No| Q{Need spec-review?}
+    Q -->|Yes| R[-> spec-review]
+    Q -->|No| S[-> build]
 ```
 
-## 3 Câu Hỏi Vàng
+## 3 Golden Questions
 
 ```
-1. Quản lý cái gì?
-2. Ai dùng nó?
-3. Nếu chỉ làm đúng 1 việc, việc đó là gì?
+1. Manage what?
+2. Who uses it?
+3. If you could only do one thing right, what would it be?
 ```
 
-Nếu user muốn "em quyết định giúp", được phép đoán có kiểm soát từ keyword, nhưng phải ghi rõ assumption.
+If the user wants "you to decide", he is allowed to make a controlled guess at the keyword, but must clearly state the assumption.
 
 ## Qualified Problem Statement
 
-Dùng cho task medium/large hoặc mơ hồ để chốt vấn đề trước khi chốt giải pháp:
+Use for medium/large or vague tasks to close the problem before finalizing the solution:
 
 ```text
 For: [persona / team / workflow]
-Who: [pain, unmet need, hoặc job-to-be-done]
-That: [desired outcome, business impact, hoặc success signal]
+Who: [pain, unmet need, or job-to-be-done]
+That: [desired outcome, business impact, or success signal]
 ```
 
-Ví dụ:
+For example:
 
 ```text
-For: nhân viên vận hành
-Who: cần xử lý tác vụ lặp lại nhanh hơn mà không phải mở nhiều màn hình
-That: thời gian hoàn tất tác vụ giảm và lỗi thao tác giảm
+For: operations staff
+Who: needs to handle repetitive tasks faster without having to open multiple screens
+That: task completion time is reduced and operation errors are reduced
 ```
 
-Nếu problem statement còn yếu, chưa được nhảy vào phase generation.
-Nếu problem statement vẫn chưa đủ rõ hoặc option tradeoffs còn quá lớn, quay lại `brainstorm` trước khi tiếp tục plan.
-Nếu đã có direction brief tốt từ `brainstorm`, dùng nó làm decision input thay vì khám phá lại từ đầu.
+If the problem statement is still weak, do not jump into the generation phase.
+If the problem statement is still not clear enough or the option tradeoffs are too large, return to `brainstorm` before continuing with the plan.
+If you already have a good direction brief from `brainstorm`, use it as decision input instead of exploring from scratch.
 
 ## Proposal Shape
 
 ```
-Đề xuất: [tên]
-Loại: [web / mobile / backend / internal tool]
+Recommended: [name]
+Type: [web / mobile / backend / internal tool]
 Core scope:
 1. [...]
 2. [...]
 3. [...]
-Stack gợi ý: [...]
+Stack suggests: [...]
 Assumptions: [...]
 ```
 
 ## Direction Intake
 
-`Plan` không phải nơi làm lại đầy đủ việc của `brainstorm`.
+`Plan` is not a complete redo of `brainstorm`.
 
-Plan chỉ nên đi tiếp khi có một trong hai điều:
-- đã có `direction brief` từ `brainstorm`
-- hoặc brief/spec/user input đã khóa direction đủ rõ, không còn 2+ hướng materially khác nhau
+Plan should only continue when one of two things happen:
+- already has `direction brief` from `brainstorm`
+- or brief/spec/user input has direction locked clearly enough, no longer 2+ materially different directions
 
 Rules:
-- Nếu vào `plan` mà vẫn còn debate thật sự về approach, quay lại `brainstorm`
-- `Plan` được phép tóm tắt chosen approach, nhưng không nên chạy lại full option comparison + scoring loop
-- Nếu `brainstorm` đã có `reversal signal`, chỉ reopen direction khi signal đó thật sự xảy ra hoặc có evidence mới materially làm đổi tradeoff
+- If you enter `plan` and there is still a real debate about the approach, return to `brainstorm`
+- `Plan` is allowed to summarize the chosen approach, but should not rerun the full option comparison + scoring loop
+- If `brainstorm` already has `reversal signal`, only reopen direction when that signal actually occurs or there is new evidence that materially changes the tradeoff
 
 ## Feature Discovery
 
@@ -129,31 +129,31 @@ Always check:
 - Validation / error states
 - Search / filter / pagination
 - Import / export / audit trail
-- Offline / concurrency / approval flow nếu domain có nguy cơ
+- Offline / concurrency / approval flow if the domain is at risk
 
 ## Phase Generation
 
-| Complexity | Pattern |
+|Complexity | Pattern|
 |------------|---------|
-| **small** | Skip planning, chỉ restate scope + verification |
-| **medium** | Setup -> core backend/data -> UI/integration -> test/review |
-| **large** | Discovery -> architecture -> implementation phases -> integration -> deploy prep |
+|**small** | Skip planning, just restore scope + verification|
+|**medium** | Setup -> core backend/data -> UI/integration -> test/review|
+|**large** | Discovery -> architecture -> implementation phases -> integration -> deploy prep|
 
-Phase >20 tasks -> split nhỏ hơn.
+Phase >20 tasks -> smaller split.
 
 ## Implementation-Ready Plan Packet
 
-Với task `medium/large`, plan không được dừng ở mức "ý tưởng hợp lý". Nó phải đủ để implementation không phải đoán phần quan trọng.
+With task `medium/large`, the plan must not stop at the "reasonable idea" level. It should be enough that the implementation doesn't have to guess the important part.
 
-Mỗi plan nên khóa tối thiểu:
-- `Source of truth`: brief/spec/direction nào đang được dùng
-- `File or surface map`: module, boundary, contract, hoặc file chính sẽ bị chạm
-- `Task slices`: mỗi slice có mục tiêu rõ và có thể verify độc lập
-- `Acceptance & proof`: mỗi slice chứng minh xong bằng test/check nào
-- `Dependencies & order`: thứ tự phải làm và thứ gì chờ thứ gì
-- `Reopen conditions`: khi nào phải quay lại `brainstorm`, `plan`, hoặc `architect`
+Each plan should lock in at least:
+- `Source of truth`: which brief/spec/direction is being used
+- `File or surface map`: module, boundary, contract, or main file will be touched
+- `Task slices`: each slice has a clear goal and can be verified independently
+- `Acceptance & proof`: each slice is proven by which test/check
+- `Dependencies & order`: order to do and what to expect
+- `Reopen conditions`: when to return to `brainstorm`, `plan`, or `architect`
 
-Template ngắn:
+Short templates:
 
 ```text
 Implementation-ready packet:
@@ -166,45 +166,45 @@ Implementation-ready packet:
 ```
 
 Rule:
-- Nếu implementer vẫn phải đoán file scope, sequence, hoặc proof chính, plan chưa ready
-- Không ép liệt kê mọi file chính xác khi repo còn quá sớm; nhưng phải chỉ ra được boundary và change surfaces
-- Nếu plan quá lớn để mô tả trong một packet ngắn, chia lại thành phases nhỏ hơn
+- If the implementer still has to guess the main scope, sequence, or proof file, the plan is not ready
+- Do not force all files to be listed correctly when the repo is too early; but must indicate boundaries and change surfaces
+- If the plan is too large to describe in a short packet, divide it into smaller phases
 
 ## Plan Review Loop
 
-Trước khi handoff sang `architect`, `spec-review`, hoặc `build`, đọc lại plan như một reviewer:
+Before handoff to `architect`, `spec-review`, or `build`, reread the plan like a reviewer:
 
 ### Pass 1: Scope & Sequence
-- Scope in/out đã khóa chưa?
-- Phases có build được từng bước hay đang trộn nhiều concern?
-- Có slice nào buộc phải làm cùng lúc vì contract chưa rõ không?
+- Is the scope in/out locked?
+- Can Phases be built step by step or are they mixing many concerns?
+- Are there any slices that must be done at the same time because the contract is unclear?
 
 ### Pass 2: Proof & Risk
-- Mỗi slice đã có proof/check tương ứng chưa?
-- Boundary, migration, auth, public interface có bị xem quá nhẹ không?
-- Có assumption nào nếu sai sẽ phá vỡ cả plan không?
+- Does each slice have a corresponding proof/check?
+- Are boundaries, migration, auth, public interface being taken too lightly?
+- Is there any assumption that if wrong will ruin the whole plan?
 
 Rules:
-- `large`, `high-risk`, `public interface`, `migration`, `auth/payment`: plan review loop là bắt buộc
-- Nếu sau 2 vòng review mà plan vẫn chưa khóa được sequence hoặc proof, quay lại `brainstorm` hoặc `architect`, không đẩy build đi tiếp bằng cảm giác
-- Plan review không thay thế `spec-review`; nó là bước làm sạch trước khi tới gate đó
+- `large`, `high-risk`, `public interface`, `migration`, `auth/payment`: plan review loop is required
+- If after 2 rounds of review the plan still hasn't locked the sequence or proof, go back to `brainstorm` or `architect`, don't push the build forward by feeling.
+- Plan review does not replace `spec-review`; It is a cleaning step before going to that gate
 
 ## Output Files
 
-Ưu tiên lưu tại:
+Priority to stay at:
 
 ```
 docs/plans/[YYYY-MM-DD]-[feature]-plan.md
 docs/specs/[feature]-spec.md
 ```
 
-Plan nên có:
+Plan should have:
 - Qualified problem statement
-- Options considered (nếu task medium/large)
+- Options considered (if task is medium/large)
 - Problem / goal
-- Scope in / out
+- Scope in/out
 - File/surface map
-- Task slices với proof per slice
+- Task slices with proof per slice
 - Risks / assumptions
 - Spec-review need: [required / not required + why]
 - Phases / tasks
@@ -212,7 +212,7 @@ Plan nên có:
 
 ## Handover
 
-Trước khi chuyển sang build hoặc architect, tóm tắt:
+Before moving on to build or architect, summarize:
 ```
 Plan ready:
 - Problem statement: [...]
@@ -232,5 +232,5 @@ Plan ready:
 ## Activation Announcement
 
 ```
-Forge: plan | chốt scope, assumptions, verification trước khi build
+Forge: plan | lock scope, assumptions, verification before build
 ```

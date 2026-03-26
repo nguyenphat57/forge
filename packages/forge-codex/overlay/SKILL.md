@@ -6,104 +6,152 @@ description: "Forge Codex - Codex-oriented adapter for Forge core. Use when a re
 # Forge Codex - Host Adapter
 
 > Forge = delivery discipline + skill composition + evidence before claims.
-> Forge phải đủ mạnh và đủ kỷ luật ngay cả khi repo chưa có companion skill hay local skill nào.
-> Forge linh hoạt ở những task nhỏ và kỷ luật ở những task vừa và lớn.
+> Forge must be strong and disciplined enough even if the repo does not have any companion skills or local skills.
+> Forge is flexible on small tasks and disciplined on medium and large tasks.
 
 ---
 
 ## Bundle Layout
 
-- `SKILL.md`: entrypoint để route intent, ghép skill, và giữ delivery guardrails
+The tree below reflects the built Codex bundle after overlaying this adapter on top of `forge-core`.
+Inherited core files and adapter-added files appear together in one runtime layout.
+
+- `SKILL.md`: entrypoint to route intent, pair skills, and hold delivery guardrails
 - `AGENTS.global.md`: canonical global host entry template when Codex should point only to Forge
-- `workflows/design/`: planning, architecture, spec-review, visualize
-- `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session, và Codex-native subagent dispatch guidance
-- `workflows/operator/`: help, next, run, bump, rollback từ core, và thin Codex wrappers cho customize/init và natural-language-first guidance
-- `domains/`: core domain guidance cho frontend và backend
-- `data/`: machine-readable registry cho intent, matrix, verification profiles, quality profiles, execution pipelines, và lane model policy
-- `scripts/`: deterministic tooling cho route preview, scoped continuity capture, và các kiểm tra tùy chọn cho workspace có local layer
-- `tests/`: regression tests cho deterministic scripts và router/tooling contracts
-- `references/`: smoke tests, companion contract, tài liệu tham chiếu chỉ đọc khi cần, và Codex operator surface note
-- adapter này map Forge core sang surface của Codex (`AGENTS.md`, local skills, repo-level instructions)
+- `workflows/design/`: planning, architecture, spec-review, visualization
+- `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session, and Codex-native subagent dispatch guidance
+- `workflows/operator/`: help, next, run, bump, rollback from core, and thin Codex wrappers for customize/init and natural-language-first guidance
+- `domains/`: core domain guidance for frontend and backend
+- `data/`: machine-readable registry for intent, matrix, verification profiles, quality profiles, execution pipelines, and lane model policy
+- `scripts/`: deterministic tooling for route preview, scoped continuity capture, and optional checks for workspaces with local layers
+- `tests/`: regression tests for deterministic scripts and router/tooling contracts
+- `references/`: smoke tests, companion contract, read-only reference documents when needed, and Codex operator surface note
+- This adapter maps Forge core to Codex surface (`AGENTS.md`, local skills, repo-level instructions)
 
 ```text
 forge-codex/
 ├── SKILL.md
+├── AGENTS.example.md
 ├── AGENTS.global.md
 ├── data/
-│   └── orchestrator-registry.json
+│ ├── orchestrator-registry.json
+│ └── preferences-schema.json
 ├── domains/
-│   ├── backend.md
-│   └── frontend.md
+│ ├── backend.md
+│ └── frontend.md
 ├── references/
-│   ├── companion-routing-smoke-tests.md
-│   ├── companion-skill-contract.md
-│   ├── backend-briefs.md
-│   ├── execution-delivery.md
-│   ├── failure-recovery-playbooks.md
-│   ├── frontend-stack-profiles.md
-│   ├── reference-map.md
-│   ├── smoke-test-checklist.md
-│   ├── smoke-tests.md
-│   ├── ui-briefs.md
-│   ├── ui-escalation.md
-│   ├── ui-good-bad-examples.md
-│   ├── ui-heuristics.md
-│   ├── ui-progress.md
-│   ├── ui-quality-checklist.md
-│   └── tooling.md
+│ ├── backend-briefs.md
+│ ├── bump-release.md
+│ ├── canary-rollout.md
+│ ├── codex-operator-surface.md
+│ ├── companion-routing-smoke-tests.md
+│ ├── companion-skill-contract.md
+│ ├── error-translation.md
+│ ├── execution-delivery.md
+│ ├── failure-recovery-playbooks.md
+│ ├── frontend-stack-profiles.md
+│ ├── help-next.md
+│ ├── personalization.md
+│ ├── reference-map.md
+│ ├── rollback-guidance.md
+│ ├── run-guidance.md
+│ ├── smoke-test-checklist.md
+│ ├── smoke-tests.md
+│ ├── tooling.md
+│ ├── ui-briefs.md
+│ ├── ui-escalation.md
+│ ├── ui-good-bad-examples.md
+│ ├── ui-heuristics.md
+│ ├── ui-progress.md
+│ ├── ui-quality-checklist.md
+│ └── workspace-init.md
 ├── scripts/
-│   ├── check_workspace_router.py
-│   ├── check_backend_brief.py
-│   ├── check_ui_brief.py
-│   ├── common.py
-│   ├── generate_backend_brief.py
-│   ├── generate_ui_brief.py
-│   ├── track_chain_status.py
-│   ├── track_execution_progress.py
-│   ├── track_ui_progress.py
-│   ├── capture_continuity.py
-│   ├── route_preview.py
-│   ├── run_smoke_matrix.py
-│   └── verify_bundle.py
+│ ├── capture_continuity.py
+│ ├── check_backend_brief.py
+│ ├── check_ui_brief.py
+│ ├── check_workspace_router.py
+│ ├── common.py
+│ ├── enable_windows_utf8.ps1
+│ ├── evaluate_canary_readiness.py
+│ ├── generate_backend_brief.py
+│ ├── generate_ui_brief.py
+│ ├── initialize_workspace.py
+│ ├── prepare_bump.py
+│ ├── record_canary_result.py
+│ ├── resolve_help_next.py
+│ ├── resolve_preferences.py
+│ ├── resolve_rollback.py
+│ ├── route_preview.py
+│ ├── run_smoke_matrix.py
+│ ├── run_with_guidance.py
+│ ├── run_workspace_canary.py
+│ ├── track_chain_status.py
+│ ├── track_execution_progress.py
+│ ├── track_ui_progress.py
+│ ├── translate_error.py
+│ ├── verify_bundle.py
+│ └── write_preferences.py
 ├── tests/
-│   ├── fixtures/
-│   ├── test_check_workspace_router.py
-│   ├── test_contracts.py
-│   ├── test_route_matrix.py
-│   └── test_route_preview.py
+│ ├── fixtures/
+│ ├── support.py
+│ ├── test_bump_workflow.py
+│ ├── test_canary_rollout.py
+│ ├── test_check_workspace_router.py
+│ ├── test_contracts.py
+│ ├── test_error_translation.py
+│ ├── test_help_next.py
+│ ├── test_initialize_workspace.py
+│ ├── test_preferences.py
+│ ├── test_rollback_guidance.py
+│ ├── test_router_matrix.py
+│ ├── test_route_matrix.py
+│ ├── test_route_preview.py
+│ ├── test_run_workflow.py
+│ ├── test_tool_roundtrip.py
+│ ├── test_workspace_canary.py
+│ └── test_write_preferences.py
 └── workflows/
     ├── design/
-    │   ├── brainstorm.md
-    │   ├── architect.md
-    │   ├── plan.md
-    │   ├── spec-review.md
-    │   └── visualize.md
-    └── execution/
+    │ ├── architect.md
+    │ ├── brainstorm.md
+    │ ├── plan.md
+    │ ├── spec-review.md
+    │ └── visualize.md
+    ├── execution/
         ├── build.md
         ├── debug.md
         ├── deploy.md
+        ├── dispatch-subagents.md
         ├── quality-gate.md
         ├── refactor.md
         ├── review.md
         ├── secure.md
         ├── session.md
         └── test.md
+    └── operator/
+        ├── bump.md
+        ├── customize.md
+        ├── help.md
+        ├── init.md
+        ├── next.md
+        ├── rollback.md
+        └── run.md
 ```
 
 ## Host Boundary
 
-- Rule của Codex sống ở `AGENTS.md`, system/developer instructions, và workspace-local skill layout của Codex host.
-- Global Codex host nên trỏ về bundle này qua `AGENTS.global.md` thay vì giữ một router legacy song song.
-- `AGENTS.md` ở root workspace là router/instruction file chính cho Codex; nó không thay thế `SKILL.md`, nhưng là entry surface quan trọng để host nạp context.
-- Adapter này giữ surface của Codex, còn routing logic, registry, verification, và canary tooling vẫn lấy từ Forge core.
-- Nếu workspace không có local layer, Forge Codex vẫn phải chạy tốt bằng core bundle mà không chờ thêm adapter repo-specific.
+- Codex rules live in `AGENTS.md`, system/developer instructions, and the workspace-local skill layout of the Codex host.
+- Global Codex host should point to this bundle via `AGENTS.global.md` instead of keeping a parallel legacy router.
+- `AGENTS.md` in the root workspace is the main router/instruction file for Codex; It does not replace `SKILL.md`, but is an important entry surface for the host to load context.
+- This adapter keeps the Codex surface, while the routing logic, registry, verification, and canary tooling are still taken from the Forge core.
+- If the workspace does not have a local layer, Forge Codex must still run well using the core bundle without waiting for additional repo-specific adapters.
 
 ## Independence Rule
 
-- Forge là **global-first orchestrator**.
-- Repo mới, repo nhỏ, hoặc repo chưa có local skills vẫn phải dùng Forge bình thường bằng chính workflows/domain skills của bundle này.
-- Companion skills và workspace routers là **optional augmentation**, không phải dependency mặc định.
-- Nếu không có companion/local skill rõ ràng, Forge không được chần chừ hay chờ “bộ skill đầy đủ” rồi mới làm việc.
+- Forge is **global-first orchestrator**.
+- New repos, small repos, or repos without local skills still have to use Forge normally using the workflows/domain skills of this bundle.
+- Companion skills and workspace routers are **optional augmentation**, not default dependencies.
+- If there is no clear companion/local skill, Forge cannot hesitate or wait for the "full skill set" before working.
 
 ---
 
@@ -111,16 +159,16 @@ forge-codex/
 
 - Canonical machine-readable source: `data/orchestrator-registry.json`
 - Preferences resolver: `scripts/resolve_preferences.py` (adapter-global Forge preferences -> canonical response-style contract, with optional legacy workspace fallback)
-- Preferences writer: `scripts/write_preferences.py` (canonical schema persistence for future customize flows)
+- Preferences writer: `scripts/write_preferences.py` (canonical schema persistence for future customized flows)
 - Workspace init skeleton: `scripts/initialize_workspace.py` (repo-neutral bootstrap for future init flows)
 - Help/next navigator: `scripts/resolve_help_next.py` (repo state -> current focus, suggested workflow, next action)
-- Run guidance resolver: `scripts/run_with_guidance.py` (execute command -> classify signal -> route to test/debug/deploy)
+- Run resolver: `scripts/run_with_guidance.py` (execute command guidance -> classify signal -> route to test/debug/deploy)
 - Error translator: `scripts/translate_error.py` (raw stderr/error text -> sanitized human summary + suggested action)
 - Bump preparation: `scripts/prepare_bump.py` (explicit semver bump -> update VERSION/CHANGELOG checklist)
 - Rollback planner: `scripts/resolve_rollback.py` (scope/risk -> safest recovery strategy + verification)
 - Deterministic route preview: `scripts/route_preview.py` (intent + chain + execution pipeline + lane model tiers)
-- Workspace router drift check: `scripts/check_workspace_router.py` (chỉ dùng khi workspace thật sự có local routing layer)
-- Scoped continuity capture for durable decisions/learnings: `scripts/capture_continuity.py`
+- Workspace router drift check: `scripts/check_workspace_router.py` (only used when the workspace actually has a local routing layer)
+- Scoped continuous capture for durable decisions/learnings: `scripts/capture_continuity.py`
 - Backend brief generator for medium/large backend work: `scripts/generate_backend_brief.py`
 - Backend brief checker for persisted backend artifacts: `scripts/check_backend_brief.py`
 - Chain status tracker for long-running multi-skill flows: `scripts/track_chain_status.py` (stages + lanes + model tiers + review loop state)
@@ -133,7 +181,7 @@ forge-codex/
 - Automated workspace canary runner for real repo rollout: `scripts/run_workspace_canary.py`
 - Canary result recorder for real workspace rollout: `scripts/record_canary_result.py`
 - Canary readiness evaluator for rollout verdicts: `scripts/evaluate_canary_readiness.py`
-- Persisted artifacts mặc định:
+- Default persistent artifacts:
   - `.forge-artifacts/route-previews/`
   - `.forge-artifacts/router-checks/`
   - `.forge-artifacts/backend-briefs/`
@@ -144,31 +192,31 @@ forge-codex/
   - `.brain/decisions.json`
   - `.brain/learnings.json`
 
-Khi cần command examples hoặc artifact behavior chi tiết, đọc `references/tooling.md`.
+When you need detailed command examples or artifact behavior, read `references/tooling.md`.
 
 ---
 
 ## Response Personalization
 
-- Forge resolve preferences qua core engine `scripts/resolve_preferences.py` từ Codex-global `state/preferences.json`, và chỉ fallback sang `.brain/preferences.json` cho workspace legacy.
-- Schema canonical gồm `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, và `personality`.
-- Workspace-local extra preferences may carry host-native response constraints such as `language`, `orthography`, honorific rules, or custom writing rules.
+- Forge resolve preferences via core engine `scripts/resolve_preferences.py` from Codex-global `state/preferences.json`, and only fallback to `.brain/preferences.json` for legacy workspace.
+- Schema canonical includes `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, and `personality`.
+- Adapter-global extra preferences may carry host-native response constraints such as `language`, `orthography`, honorific rules, or custom writing rules; workspace `.brain/preferences.json` remains a workspace-local override or legacy fallback.
 - When `language` resolves to `vi`, `forge-codex` should respond in Vietnamese with full diacritics; accent-stripped or mojibake Vietnamese is an encoding defect, not an allowed style variant.
-- `forge-codex` nên giữ natural-language customize flow trên schema này, không cần slash-heavy wrapper by default.
-- Adapter này không được fork key names hay response-style semantics của core.
+- `forge-codex` should keep natural-language customization flow on this schema, no need for slash-heavy wrapper by default.
+- This adapter must not fork key names or response-style semantics of the core.
 
 ---
 
 ## Operator Guidance
 
-- `forge-codex` nên expose `help/next` theo kiểu natural-language first, với slash chỉ là alias optional.
-- Guidance vẫn resolve từ core navigator `scripts/resolve_help_next.py`.
-- Repo-first và one-step-next contracts của core không được fork ở adapter này.
-- `forge-codex` nên expose `run` theo kiểu natural-language first, với slash chỉ là alias optional.
-- Command execution guidance vẫn resolve từ core `scripts/run_with_guidance.py`; adapter không được fork semantics của `state`, `command_kind`, hay `suggested_workflow`.
-- Error translation vẫn resolve từ core `scripts/translate_error.py`; adapter này không được fork category hay pattern database.
-- `bump` và `rollback` nên là natural-language first hoặc alias optional, nhưng vẫn phải giữ user-requested/inference-justified và risk-first contract của core.
-- Nếu cần customize/init trong Codex, vẫn phải dùng `scripts/write_preferences.py` và `scripts/initialize_workspace.py` thay vì tạo host-local schema.
+- `forge-codex` should expose `help/next` as natural-language first, with slash as an optional alias.
+- Guidance still resolves from core navigator `scripts/resolve_help_next.py`.
+- Core's repo-first and one-step-next contracts cannot be forked at this adapter.
+- `forge-codex` should expose `run` as natural-language first, with slash as an optional alias.
+- Command execution guidance still resolves from core `scripts/run_with_guidance.py`; The adapter cannot fork the semantics of `state`, `command_kind`, or `suggested_workflow`.
+- Error translation still resolves from core `scripts/translate_error.py`; This adapter cannot fork category or pattern database.
+- `bump` and `rollback` should be natural-language first or alias optional, but must still keep the core's user-requested/inference-justified and risk-first contract.
+- If you need to customize/init in Codex, you still have to use `scripts/write_preferences.py` and `scripts/initialize_workspace.py` instead of creating host-local schema.
 
 ---
 
@@ -176,62 +224,62 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 
 Primary entrypoints:
 
-| Surface | Codex style | Core contract |
+|Surface | Codex styles | Core contract|
 |---------|-------------|---------------|
-| `help` | natural-language first, `/help` chi la alias optional | `scripts/resolve_help_next.py --mode help` |
-| `next` | natural-language first, `/next` chi la alias optional | `scripts/resolve_help_next.py --mode next` |
-| `run` | natural-language first, `/run` chi la alias optional | `scripts/run_with_guidance.py` |
-| `delegate` | natural-language first, `/delegate` chi la alias optional | `workflows/execution/dispatch-subagents.md` |
-| `bump` | natural-language first, explicit-or-inferred | `scripts/prepare_bump.py` |
-| `rollback` | natural-language first, risk-first | `scripts/resolve_rollback.py` |
-| `customize` | thin preference update flow | `scripts/resolve_preferences.py` + `scripts/write_preferences.py` |
-| `init` | thin workspace bootstrap flow | `scripts/initialize_workspace.py` |
+|`help` | natural-language first, `/help` is only an optional alias | `scripts/resolve_help_next.py --mode help`|
+|`next` | natural-language first, `/next` is only an optional alias | `scripts/resolve_help_next.py --mode next`|
+|`run` | natural-language first, `/run` is only an optional alias | `scripts/run_with_guidance.py`|
+|`delegate` | natural-language first, `/delegate` is only an optional alias | `workflows/execution/dispatch-subagents.md`|
+|`bump` | natural-language first, explicit-or-inferred | `scripts/prepare_bump.py`|
+|`rollback` | natural-language first, risk-first | `scripts/resolve_rollback.py`|
+|`customize` | thin preference update flow | `scripts/resolve_preferences.py` + `scripts/write_preferences.py`|
+|`init` | thin workspace bootstrap flow | `scripts/initialize_workspace.py`|
 
-Compatibility rule:
+Compatibility rules:
 
-- Alias chỉ tồn tại nếu nó giảm friction rõ ràng.
-- Không thêm các session wrapper legacy cho Codex adapter.
-- Chi tiết mapping: `references/codex-operator-surface.md`.
+- Alias ​​only exists if it reduces friction clearly.
+- Do not add legacy session wrappers for Codex adapters.
+- Mapping details: `references/codex-operator-surface.md`.
 
 ## Codex Multi-Agent Delegation
 
-- Khi route/build chọn `parallel-safe` hoặc reviewer lane độc lập và bundle registry báo host có native subagents, load `workflows/execution/dispatch-subagents.md`.
-- Workflow này chỉ map lane policy của Forge sang runtime Codex (`spawn_agent`, reviewer lane độc lập, fresh packet); nó không thay thế `build`, `debug`, `review`, hay `spec-review`.
-- Mặc định giữ packet mới và ownership rõ thay vì fork toàn bộ thread context cho subagent.
+- When route/build select `parallel-safe` or independent reviewer lane and bundle registry tells host to have native subagents, load `workflows/execution/dispatch-subagents.md`.
+- This workflow only maps Forge's lane policy to runtime Codex (`spawn_agent`, independent reviewer lane, fresh packet); it does not replace `build`, `debug`, `review`, or `spec-review`.
+- By default, keep new packets and clear ownership instead of forking the entire thread context for the subagent.
 
 ---
 
 ## Intent Detection
 
-Khi nhận prompt từ user, phân loại intent:
+When receiving a prompt from the user, classify the intent:
 
-| Intent | Trigger keywords | Ví dụ |
+|Intent | Trigger keywords | Example|
 |--------|------------------|-------|
-| **BUILD** | thêm, tạo, implement, feature, code | "Thêm tính năng thanh toán" |
-| **DEBUG** | lỗi, bug, fix, sửa, error, crash | "Fix lỗi không đăng nhập được" |
-| **OPTIMIZE** | refactor, tối ưu, clean, dọn | "Refactor file quá dài" |
-| **DEPLOY** | deploy, release, production, rollout | "Deploy lên Vercel" |
-| **REVIEW** | review, đánh giá, kiểm tra, audit | "Review code trước khi merge" |
-| **VISUALIZE** | ui, ux, mockup, wireframe, screen, layout | "Phác thảo màn hình checkout" |
-| **SESSION** | continue, resume, context, handover | "Tiếp tục việc đang dở" |
+|**BUILD** | add, create, implement, feature, code | "Add payment feature"|
+|**DEBUG** | error, bug, fix, fix, error, crash | "Fix error of not being able to log in"|
+|**OPTIMIZE** | refactor, optimize, clean, tidy up | "Refactor file is too long"|
+|**DEPLOY** | deploy, release, production, rollout | "Deploy to Vercel"|
+|**REVIEW** | review, evaluate, check, audit | "Review code before merging"|
+|**VISUALIZE** | ui, ux, mockup, wireframe, screen, layout | "Checkout screen sketch"|
+|**SESSION** | continue, resume, context, handover | "Continue unfinished business"|
 
-**Khi user dùng `/shortcut`:** Map theo action surface và workflow aliases mà Codex workspace đang khai báo trong `AGENTS.md`.
-Canonical source cho intent keywords và chains: `data/orchestrator-registry.json`.
+**When the user uses `/shortcut`:** Map according to the action surface and workflow aliases that the Codex workspace is declared in `AGENTS.md`.
+Canonical source for intent keywords and chains: `data/orchestrator-registry.json`.
 
-Signals như `brainstorm`, `ý tưởng`, `nên chọn hướng nào`, `options`, `approach`, `tradeoff` không tạo intent mới; chúng bật **brainstorm gate** trước `plan` khi task đủ mơ hồ/phức tạp.
+Signals like `brainstorm`, Vietnamese phrases such as `ý tưởng` or `nên chọn hướng nào`, `options`, `approach`, and `tradeoff` do not create new intents; they turn on the **brainstorm gate** before `plan` when the task is vague or complex enough.
 
 ---
 
 ## Complexity Assessment
 
-| Level | Tiêu chí | Ví dụ |
+|Level | Criteria | Example|
 |-------|----------|-------|
-| **small** | <=2 files, blast radius nhỏ, yêu cầu rõ | Fix typo, sửa CSS, đổi 1 field |
-| **medium** | 3-10 files, có thay đổi hành vi hoặc cần assumption | Thêm filter, CRUD endpoint |
-| **large** | >10 files hoặc feature/module mới, data flow rộng | Payment, auth flow, new module |
+|**small** | <=2 files, small blast radius, clear requirements | Fix typo, edit CSS, change 1 field|
+|**medium** | 3-10 files, with behavior changes or need for assumption | Add filter, CRUD endpoint|
+|**large** | >10 new files or features/modules, extensive data flow | Payment, auth flow, new modules|
 
-Nghi ngờ small hay medium -> mặc định **medium**.
-Canonical source cho hints và thresholds: `data/orchestrator-registry.json`.
+Doubt small or medium -> default **medium**.
+Canonical source for hints and thresholds: `data/orchestrator-registry.json`.
 
 ---
 
@@ -239,100 +287,100 @@ Canonical source cho hints và thresholds: `data/orchestrator-registry.json`.
 
 Intent + Complexity -> skills can load:
 
-| Intent | small | medium | large |
+|Intent | small. small | medium | large. large|
 |--------|-------|--------|-------|
-| **BUILD** | `build` | `plan` -> `build` -> `test` -> `quality-gate` | `plan` -> `architect` -> `spec-review` -> `build` -> `test` -> `quality-gate` |
-| **DEBUG** | `debug` | `debug` -> `test` | `debug` -> `plan` -> `build` -> `test` |
-| **OPTIMIZE** | `refactor` | `refactor` -> `test` | `review` -> `refactor` -> `test` |
-| **DEPLOY** | `deploy` | `secure` -> `quality-gate` -> `deploy` | `secure` -> `test` -> `quality-gate` -> `deploy` |
-| **REVIEW** | `review` | `review` -> `secure` | `review` -> `secure` |
-| **VISUALIZE** | `visualize` | `plan` -> `visualize` | `plan` -> `architect` -> `visualize` |
-| **SESSION** | `session` | `session` | `session` |
+|**BUILD** | `build` | `plan` -> `build` -> `test` -> `quality-gate` | `plan` -> `architect` -> `spec-review` -> `build` -> `test` -> `quality-gate`|
+|**DEBUG** | `debug` | `debug` -> `test` | `debug` -> `plan` -> `build` -> `test`|
+|**OPTIMIZE** | `refactor` | `refactor` -> `test` | `review` -> `refactor` -> `test`|
+|**DEPLOY** | `deploy` | `secure` -> `quality-gate` -> `deploy` | `secure` -> `test` -> `quality-gate` -> `deploy`|
+|**REVIEW** | `review` | `review` -> `secure` | `review` -> `secure`|
+|**VISUALIZE** | `visualize` | `plan` -> `visualize` | `plan` -> `architect` -> `visualize`|
+|**SESSION** | `session` | `session` | `session`|
 
-**Ambiguity gate:** với `BUILD` hoặc `VISUALIZE` ở mức medium/large, nếu prompt còn mơ hồ hoặc đang cân giữa nhiều hướng giải, chèn `brainstorm` trước `plan`. `Brainstorm` không chỉ liệt kê options; nó phải khóa một hướng khuyến nghị đủ mạnh để `plan` kế thừa, hoặc ghi đúng một câu hỏi quyết định còn thiếu.
-**Spec-review gate:** với `BUILD large`, hoặc `BUILD medium` chạm contract/schema/migration/auth/payment/public interface/high-risk boundary, chèn `spec-review` trước `build`.
-**Execution pipeline gate:** với `BUILD/DEBUG/OPTIMIZE` cỡ large hoặc profile mạnh hơn `standard`, mặc định thêm reviewer lane độc lập; với `BUILD` có `spec-review`, nghiêng về pipeline `implementer -> spec-reviewer -> quality-reviewer`.
-**Lane model policy:** dùng tier trừu tượng `cheap / standard / capable` theo lane thay vì đẩy mọi bước lên cùng một mức năng lực.
+**Ambguity gate:** with `BUILD` or `VISUALIZE` at medium/large level, if the prompt is ambiguous or balancing multiple solutions, insert `brainstorm` before `plan`. `Brainstorm` doesn't just list options; it must lock in a recommendation direction strong enough for `plan` to inherit, or correctly record a missing decision question.
+**Spec-review gate:** with `BUILD large`, or `BUILD medium` touching contract/schema/migration/auth/payment/public interface/high-risk boundary, insert `spec-review` before `build`.
+**Execution pipeline gate:** with large `BUILD/DEBUG/OPTIMIZE` or stronger profile `standard`, default adds independent reviewer lane; with `BUILD` there is `spec-review`, leaning towards pipeline `implementer -> spec-reviewer -> quality-reviewer`.
+**Lane model policy:** uses abstract tier `cheap / standard / capable` according to lane instead of pushing every step to the same capacity level.
 
-**Domain skills** (`frontend`, `backend`) thêm vào khi task liên quan UI hoặc API/database/service layer.
-**Companion runtime/language skills** (Python, Java, Go, .NET, framework-specific) là optional augmentation khi repo/framework đã rõ. Forge vẫn phải chạy tốt nếu không có chúng.
-Contract ghép companion skill: xem `references/companion-skill-contract.md` khi bạn thật sự đang thêm runtime/framework layer.
-Nếu workspace có `AGENTS.md` hoặc router doc trỏ tới local skills, dùng router đó như source-of-truth cho lớp mở rộng này; nếu không có, Forge vẫn tiếp tục bằng chính bundle của nó.
-Muốn preview deterministic cho một prompt cụ thể: chạy `scripts/route_preview.py`.
+**Domain skills** (`frontend`, `backend`) added when the task involves UI or API/database/service layer.
+**Companion runtime/language skills** (Python, Java, Go,.NET, framework-specific) is an optional augmentation when the repo/framework is already known. Forge should still run fine without them.
+Companion skill contract: see `references/companion-skill-contract.md` when you are actually adding a runtime/framework layer.
+If the workspace has `AGENTS.md` or a router doc pointing to local skills, use that router as the source-of-truth for this extension class; If not, Forge continues with its own bundle.
+To preview deterministic for a specific prompt: run `scripts/route_preview.py`.
 
-### Cách load skill
+### How to load skills
 
 ```
 1. Detect intent + complexity
-2. Tra matrix -> danh sách Forge skills cần dùng
-3. Chọn execution pipeline và lane model tiers nếu task đủ lớn/rủi ro
-4. Chọn chain Forge đủ để giải quyết task bằng chính bundle này
-5. Kiểm repo signals (`package.json`, `pyproject.toml`, `go.mod`, `pom.xml`, `build.gradle`, `*.csproj`, ...)
-6. Nếu có companion skill phù hợp và thật sự giúp tăng độ chính xác -> thêm vào chain
-7. Nếu workspace có router doc cho local skills -> dùng nó như layer mở rộng, không thay Forge
-8. Thông báo user: "Forge: [intent] | [complexity] | Skills: [list]"
-9. Load skill đầu tiên
-10. Hoàn thành quality gate quan trọng
-11. Mới chuyển sang skill tiếp theo nếu cần
+2. Look up the matrix -> the list of Forge skills required
+3. Select the execution pipeline and lane model tiers if the task is large or risky enough
+4. Choose the Forge chain that is sufficient to solve the task with this bundle itself
+5. Check repo signals (`package.json`, `pyproject.toml`, `go.mod`, `pom.xml`, `build.gradle`, `*.csproj`,...)
+6. If a suitable companion skill exists and truly improves accuracy -> add it to the chain
+7. If the workspace has a router doc for local skills -> use it as an extension layer, not a Forge replacement
+8. Announce to the user: "Forge: [intent] | [complexity] | Skills: [list]"
+9. Load the first skill
+10. Complete the important quality gate
+11. Only move to the next skill if needed
 ```
 
-Không cần load đầy đủ đường dây nếu task đã được giải quyết an toàn ở sớm hơn.
-Companion/local skill không được override verification/evidence gate của Forge.
+There is no need to fully load the line if the task was safely resolved earlier.
+Companion/local skills cannot override Forge's verification/evidence gate.
 
-**Minimal routing policy:** với `REVIEW`, `SESSION`, và task `small`, Forge ưu tiên prompt-led routing. Repo signals lúc này không được tự động kéo thêm domain skills, local companions, hay escalation profile nếu prompt không nêu rõ nhu cầu.
+**Minimal routing policy:** with `REVIEW`, `SESSION`, and task `small`, Forge prioritizes prompt-led routing. Repo signals at this time will not automatically pull additional domain skills, local companions, or escalate profiles if the prompt does not clearly state the need.
 
 ---
 
 ## Verification Strategy
 
-Áp dụng cho mọi intent có sửa đổi:
+Applies to all intents with modifications:
 
-- **Behavioral code change + có harness** -> ưu tiên failing test hoặc reproduction trước khi sửa.
-- **Behavioral code change + không có harness khả thi** -> tạo manual reproduction, failing command, hoặc smoke scenario rõ ràng trước khi sửa.
-- **Non-behavioral change** (`docs`, `config`, `build script`, `release chores`) -> chốt verification command trước khi edit: build, lint, typecheck, diff, hoặc smoke run.
+- **Behavioral code change + with harness** -> prioritize failing test or reproduction before editing.
+- **Behavioral code change + no viable harness** -> create clear manual reproduction, failing command, or smoke scenario before editing.
+- **Non-behavioral change** (`docs`, `config`, `build script`, `release chores`) -> close verification command before editing: build, lint, typecheck, diff, or smoke run.
 
-Không fake TDD nếu project không có harness. Không bỏ qua verification nếu harness không có.
-Verification profiles canonical sống trong `data/orchestrator-registry.json`.
+Do not fake TDD if the project does not have a harness. Do not skip verification if the harness is not available.
+Verification profiles canonical live in `data/orchestrator-registry.json`.
 
 ## Execution Upgrade Notes
 
-- Forge dùng `execution pipeline` để tránh vừa implement vừa tự review cùng một lane.
-- Forge dùng `lane model tiers` để tối ưu cost: navigation/triage có thể rẻ hơn spec-review hoặc release gates.
-- Forge dùng `quality-gate` như canonical source cho evidence response contract và anti-rationalization.
-- `spec-review` loop bị chặn tối đa `3` vòng revise cho cùng một packet; quá ngưỡng này phải `blocked`.
+- Forge uses `execution pipeline` to avoid implementing and reviewing in the same lane.
+- Forge uses `lane model tiers` to optimize costs: navigation/triage can be cheaper than spec-review or release gates.
+- Forge uses `quality-gate` as canonical source for evidence response contract and anti-rationalization.
+- `spec-review` loop is blocked up to `3` revision loop for the same packet; beyond this threshold must be `blocked`.
 
 ---
 
 ## Skill Registry
 
-| Skill | File | Type | Iron Law |
+|Skills | File | Type | Iron Law|
 |-------|------|------|----------|
-| brainstorm | `workflows/design/brainstorm.md` | flexible | NO AMBIGUOUS MEDIUM/LARGE WORK WITHOUT CHOOSING A DIRECTION FIRST |
-| plan | `workflows/design/plan.md` | flexible | NO MEDIUM/LARGE BUILD WITHOUT A CONFIRMED PLAN |
-| architect | `workflows/design/architect.md` | flexible | NO LARGE IMPLEMENTATION WITHOUT ARCHITECTURE DECISIONS DOCUMENTED |
-| spec-review | `workflows/design/spec-review.md` | rigid | NO HIGH-RISK BUILD WITHOUT A BUILD-READINESS REVIEW FIRST |
-| build | `workflows/execution/build.md` | rigid | NO BEHAVIORAL CHANGE WITHOUT DEFINING VERIFICATION FIRST |
-| frontend | `domains/frontend.md` | flexible | PRESERVE THE EXISTING DESIGN SYSTEM BEFORE INVENTING A NEW ONE |
-| backend | `domains/backend.md` | flexible | VALIDATE AT THE BOUNDARY, KEEP LOGIC OUT OF TRANSPORT |
-| debug | `workflows/execution/debug.md` | rigid | NO FIXES WITHOUT ROOT-CAUSE INVESTIGATION |
-| test | `workflows/execution/test.md` | rigid | USE FAILING TESTS FIRST WHEN A HARNESS EXISTS |
-| secure | `workflows/execution/secure.md` | rigid | NO RELEASE WITHOUT EXPLICIT SECURITY REVIEW |
-| deploy | `workflows/execution/deploy.md` | rigid | NO DEPLOY WITHOUT VERIFIED QUALITY GATES |
-| quality-gate | `workflows/execution/quality-gate.md` | rigid | NO CLAIMS, HANDOFFS, OR DEPLOYS WITHOUT A FRESH GO / NO-GO DECISION |
-| review | `workflows/execution/review.md` | flexible | FINDINGS FIRST, SUMMARY SECOND |
-| refactor | `workflows/execution/refactor.md` | rigid | NO REFACTOR WITHOUT BASELINE AND AFTER VERIFICATION |
-| visualize | `workflows/design/visualize.md` | flexible | DO NOT CODE UI BEFORE THE INTERACTION MODEL IS CLEAR |
-| session | `workflows/execution/session.md` | flexible | REBUILD CONTEXT FROM REAL ARTIFACTS BEFORE WRITING MEMORY |
-| help | `workflows/operator/help.md` | flexible | REPO-FIRST GUIDANCE, NOT RECAP THEATER |
-| next | `workflows/operator/next.md` | flexible | ONE CONCRETE NEXT STEP, NOT VAGUE MOMENTUM TALK |
-| run | `workflows/operator/run.md` | flexible | EXECUTE THE REAL COMMAND, THEN ROUTE FROM EVIDENCE |
-| bump | `workflows/operator/bump.md` | flexible | VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION |
-| rollback | `workflows/operator/rollback.md` | flexible | DO NOT BLINDLY ROLL BACK WITHOUT SCOPE, RISK, AND POST-ROLLBACK VERIFICATION |
-| customize | `workflows/operator/customize.md` | flexible | DO NOT FORK THE CORE PREFERENCES SCHEMA OR WRITE HOST-LOCAL KEYS |
-| init | `workflows/operator/init.md` | flexible | DO NOT OVERWRITE EXISTING REPO FILES DURING BOOTSTRAP |
+|brainstorm | `workflows/design/brainstorm.md` | flexible. flexible | NO AMBIGUOUS MEDIUM/LARGE WORK WITHOUT CHOOSING A DIRECTION FIRST|
+|plan. plan | `workflows/design/plan.md` | flexible. flexible | NO MEDIUM/LARGE BUILD WITHOUT A CONFIRMED PLAN|
+|architect | `workflows/design/architect.md` | flexible. flexible | NO LARGE IMPLEMENTATION WITHOUT ARCHITECTURE DECISIONS DOCUMENTED|
+|spec-review | `workflows/design/spec-review.md` | rigid | NO HIGH-RISK BUILD WITHOUT A BUILD-READINESS REVIEW FIRST|
+|build | `workflows/execution/build.md` | rigid | NO BEHAVIORAL CHANGE WITHOUT DEFINING VERIFICATION FIRST|
+|frontend | `domains/frontend.md` | flexible. flexible | PRESERVE THE EXISTING DESIGN SYSTEM BEFORE INVENTING A NEW ONE|
+|backend | `domains/backend.md` | flexible. flexible | VALIDATE AT THE BOUNDARY, KEEP LOGIC OUT OF TRANSPORT|
+|debug | `workflows/execution/debug.md` | rigid | NO FIXES WITHOUT ROOT-CAUSE INVESTIGATION|
+|test. test | `workflows/execution/test.md` | rigid | USE FAILING TESTS FIRST WHEN A HARNESS EXISTS|
+|secure. secure | `workflows/execution/secure.md` | rigid | NO RELEASE WITHOUT EXPLICIT SECURITY REVIEW|
+|deploy.deploy | `workflows/execution/deploy.md` | rigid | NO DEPLOY WITHOUT VERIFIED QUALITY GATES|
+|quality-gate | `workflows/execution/quality-gate.md` | rigid | NO CLAIMS, HANDOFFS, OR DEPLOYS WITHOUT A FRESH GO / NO-GO DECISION|
+|review | `workflows/execution/review.md` | flexible. flexible | FINDINGS FIRST, SUMMARY SECOND|
+|refactor | `workflows/execution/refactor.md` | rigid | NO REFACTOR WITHOUT BASELINE AND AFTER VERIFICATION|
+|visualize | `workflows/design/visualize.md` | flexible. flexible | DO NOT CODE UI BEFORE THE INTERACTION MODEL IS CLEAR|
+|session. session | `workflows/execution/session.md` | flexible. flexible | REBUILD CONTEXT FROM REAL ARTIFACTS BEFORE WRITING MEMORY|
+|help. help | `workflows/operator/help.md` | flexible. flexible | REPO-FIRST GUIDANCE, NOT RECAP THEATER|
+|next. next | `workflows/operator/next.md` | flexible. flexible | ONE CONCRETE NEXT STEP, NOT VAGUE MOMENTUM TALK|
+|tremble | `workflows/operator/run.md` | flexible. flexible | EXECUTE THE REAL COMMAND, THEN ROUTE FROM EVIDENCE|
+|bump. bump | `workflows/operator/bump.md` | flexible. flexible | VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION|
+|rollback | `workflows/operator/rollback.md` | flexible. flexible | DO NOT BLINDLY ROLL BACK WITHOUT SCOPE, RISK, AND POST-ROLLBACK VERIFICATION|
+|customize | `workflows/operator/customize.md` | flexible. flexible | DO NOT FORK THE CORE PREFERENCES SCHEMA OR WRITE HOST-LOCAL KEYS|
+|init | `workflows/operator/init.md` | flexible. flexible | DO NOT OVERWRITE EXISTING REPO FILES DURING BOOTSTRAP|
 
-**Rigid skills:** không bỏ qua evidence và quality gate.  
-**Flexible skills:** adapt theo context, nhưng vẫn phải rõ output và next step.
+**Rigid skills:** do not ignore evidence and quality gate.
+**Flexible skills:** adapt according to context, but still have to be clear about output and next steps.
 
 ---
 
@@ -340,49 +388,49 @@ Verification profiles canonical sống trong `data/orchestrator-registry.json`.
 
 ### Auto-Retry
 ```
-Lỗi network, timeout, file write:
-1. Retry lần 1
-2. Retry lần 2 nếu lỗi có vẻ tạm thời
-3. Vẫn fail -> thông báo user + đề xuất fallback
+Network error, timeout, file write:
+1. Retry once
+2. Retry a second time if the error looks transient
+3. If it still fails -> notify the user + propose a fallback
 ```
 
 ### Long-Running Work
 ```
-Nếu task kéo dài hoặc command lặp lại thất bại:
-1. Báo user đang kẹt ở đâu
-2. Tóm tắt đã thử gì
-3. Đề xuất bước tiếp theo an toàn nhất
+If the task drags on or a command keeps failing:
+1. Tell the user where the work is stuck
+2. Summarize what has been tried
+3. Propose the safest next step
 ```
 
-### Error Translation (khi cần)
+### Error Translation (when needed)
 
-| Lỗi gốc | Dịch |
+|Original error | Translate|
 |---------|------|
-| `ECONNREFUSED` | Dịch vụ hoặc database chưa bật |
-| `Cannot read undefined` | Đang đọc dữ liệu chưa tồn tại |
-| `Module not found` | Thiếu package hoặc đường dẫn import sai |
-| `CORS error` | Server đang chặn request từ origin này |
-| `401 Unauthorized` | Chưa đăng nhập hoặc token hết hạn |
-| `Hydration mismatch` | HTML server và client render khác nhau |
+|`ECONNREFUSED` | The service or database is not enabled|
+|`Cannot read undefined` | Reading data that does not exist yet|
+|`Module not found` | Missing package or wrong import path|
+|`CORS error` | The server is blocking requests from this origin|
+|`401 Unauthorized` | Not logged in or token expired|
+|`Hydration mismatch` | HTML server and client render differently|
 
 ---
 
 ## Golden Rules
 
 ```
-1. CHỈ LÀM ĐÚNG YÊU CẦU - Không tự mở rộng scope
-2. MỘT VIỆC MỘT LÚC - Chốt xong A mới nhảy sang B
-3. THAY ĐỔI TỐI THIỂU - Sửa đúng chỗ cần sửa
-4. XIN PHÉP VIỆC LỚN - Schema, folder structure, dependency mới -> hỏi trước
-5. EVIDENCE BEFORE CLAIMS - Verify trước khi nói "xong"
+1. DO ONLY WHAT WAS REQUSTED - Do not expand scope on your own
+2. ONE THING AT A TIME - Finish A before jumping to B
+3. MINIMAL CHANGE - Edit exactly the part that needs to change
+4. ASK BEFORE BIG CHANGES - New schema, folder structure, or dependency -> ask first
+5. EVIDENCE BEFORE CLAIMS - Verify before saying "done"
 ```
 
 ## Reference Map
 
-Điểm vào nhanh cho references: xem `references/reference-map.md`.
+Quick entry point for references: see `references/reference-map.md`.
 
 ## Activation Announcement
 
 ```
-Forge Codex: orchestrator | route đúng intent, giữ evidence trước claims
+Forge Codex: orchestrator | route the right intent, keep evidence before claims
 ```

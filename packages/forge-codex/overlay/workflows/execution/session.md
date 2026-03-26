@@ -3,13 +3,13 @@ name: session
 type: flexible
 triggers:
   - continue/resume/context restore
-  - explicit continuity capture request
+  - explicit continuous capture request
   - explicit handover request
 quality_gates:
-  - Context restored or handover note persisted
+  - Context restored or handover note restored
   - Workspace response preferences resolved when available
   - Scope-filtered continuity used when available
-  - Structured continuity capture stays evidence-backed and scoped
+  - Structured continuous capture stays evidence-backed and scoped
 ---
 
 # Session - Context & Continuity
@@ -19,17 +19,17 @@ quality_gates:
 <HARD-GATE>
 - Do not invent token usage, context percentages, or fake memory pressure.
 - Do not replace repo state with `.brain` when stronger source-of-truth artifacts exist.
-- Do not write broad continuity summaries when the active scope only needs a small slice.
-- Do not store a decision or learning without evidence, scope, or clear reuse value.
+- Do not write broad continuous summaries when the active scope only needs a small slice.
+- Do not store a decision or learn without evidence, scope, or clear reuse value.
 </HARD-GATE>
 
 ## Modes
 
-| Trigger | Mode | Action |
+|Trigger | Mode | Action|
 |---------|------|--------|
-| "continue", "resume", "where were we", "remind me", "pick this back up" | **Restore** | Rebuild context from repo, plans, docs, and scoped `.brain` artifacts |
-| "save current progress", "capture continuity", "leave a short note" | **Save** | Write a compact continuity note only if the user wants persistence |
-| Explicit handover request | **Handover** | Create a short transfer note with next step and risk |
+|"continue", "resume", "where were we", "remind me", "pick this back up" | **Restore** | Rebuild context from repo, plans, docs, and scoped `.brain` artifacts|
+|"save current progress", "capture continuity", "leave a short note" | **Save** | Write a compact continuity note only if the user wants persistence|
+|Explicit handover request | **Handover** | Create a short transfer note with next steps and risks|
 
 ## Operating Rules
 
@@ -75,11 +75,11 @@ Apply the style without dumping raw preference fields unless the user asks for t
 
 ```text
 1. Identify the current feature, module, or file cluster
-2. Read .brain/handover.md first if the task was left mid-flight
-3. From .brain/session.json, prefer:
+2. Read.brain/handover.md first if the task was left mid-flight
+3. From.brain/session.json, prefer:
    - working_on
    - pending_tasks
-   - verification
+   - verification. verification
    - decisions_made
 4. Pull only active, scope-matching entries from decisions/learnings
 5. Ignore stale or broad memory that does not change the next action
@@ -102,7 +102,7 @@ Use this only when the user explicitly wants continuity captured.
 
 ### Good payload
 
-- Current task and scope
+- Current tasks and scope
 - Files or artifacts that matter next
 - Verification already run
 - Residual risk or blocker
@@ -110,11 +110,11 @@ Use this only when the user explicitly wants continuity captured.
 
 ### Avoid storing
 
-- Long recaps that just restate repo state
+- Long recaps that just reset repo state
 - Vague claims like "almost done"
 - Broad project memory with no clear reuse
 
-### Structured continuity capture
+### Structured continuous capture
 
 ```powershell
 python scripts/capture_continuity.py "Checkout rollback needs one-release compatibility window" `
@@ -139,7 +139,7 @@ python scripts/capture_continuity.py "Regression only appears when queue retry r
 
 ```text
 HANDOVER
-- Current task: [...]
+- Current tasks: [...]
 - Done: [...]
 - Remaining: [...]
 - Important decisions: [...]
@@ -152,5 +152,5 @@ Persist to `.brain/handover.md` only when the user wants a durable handoff.
 ## Activation Announcement
 
 ```text
-Forge: session | restore from repo first, capture only scoped continuity
+Forge: session | restore from first repo, capture only scoped continuity
 ```

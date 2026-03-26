@@ -5,47 +5,47 @@ triggers:
   - shortcut: /run
   - user asks to run the app, a script, or a verification command
 quality_gates:
-  - Command actually runs; do not just restate it
+  - Command actually runs; do not just restore it
   - Report the key output or failure signal
   - End with the next workflow (`test`, `debug`, or `deploy`) when useful
 ---
 
 # Run - Execute Then Route
 
-> Mục tiêu: chạy lệnh thật, đọc output thật, và chốt bước tiếp theo an toàn thay vì chỉ nói "đã chạy".
+> Goal: run the actual command, read the actual output, and safely finalize the next step instead of just saying "ran".
 
 <HARD-GATE>
-- Không được claim lệnh đã chạy nếu chưa có output từ command.
-- Không được đưa ra kết luận release-ready chỉ từ một lệnh build/run.
-- Nếu command fail, dùng chính lệnh đó làm reproduction anchor cho debug.
+- Do not claim a command has run if there is no output from the command.
+- Do not draw a release-ready conclusion from just one build/run command.
+- If the command fails, use that command as a reproduction anchor for debugging.
 </HARD-GATE>
 
 ## Process
 
-1. Chốt command cần chạy và timeout hợp lý.
-2. Run bằng CLI deterministic:
+1. Close the command that needs to be run and have a reasonable timeout.
+2. Run using CLI deterministic:
 
 ```powershell
 python scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>
 ```
 
-3. Đọc report:
+3. Read the report:
    - `state`
    - `command_kind`
    - `suggested_workflow`
-   - `error_translation` nếu command fail hoặc timeout
-   - output excerpt và warnings
-4. Handoff ngắn:
-   - command đã chạy
-   - output/failure signal chính
-   - workflow tiếp theo nên vào
+   - `error_translation` if command fails or times out
+   - output excerpt and warnings
+4. Short Handoff:
+   - command was run
+   - main output/failure signal
+   - the next workflow should be entered
 
 ## Output Contract
 
 ```text
-Đã chạy: [...]
-Tín hiệu chính: [...]
-Làm tiếp: [...]
+Ran: [...]
+Primary signal: [...]
+Next step: [...]
 ```
 
 ## Activation Announcement

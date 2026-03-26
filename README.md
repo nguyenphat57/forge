@@ -26,6 +26,12 @@ python scripts/install_bundle.py forge-antigravity --build
 python scripts/install_bundle.py forge-codex --activate-codex
 ```
 
+## Documentation Language Policy
+
+- Public package docs, architecture docs, and adapter boundary docs should default to English.
+- Maintainer-facing operational notes such as plans, release notes, and changelog entries may remain in Vietnamese.
+- Keep each file internally consistent in one language instead of mixing English and Vietnamese within the same document.
+
 ## Repo layout
 
 ```text

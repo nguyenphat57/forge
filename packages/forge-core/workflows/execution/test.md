@@ -8,7 +8,7 @@ triggers:
 quality_gates:
   - Test strategy selected
   - Proof chain explicit for important behavior changes
-  - Evidence response contract honored
+  - Evidence response contract honorable
   - Results reported with evidence
 ---
 
@@ -17,16 +17,16 @@ quality_gates:
 ## The Iron Law
 
 ```
-TESTS MUST PROVE BEHAVIOR, NOT DECORATE FINISHED CODE
+TESTS MUST PROOVE BEHAVIOR, NOT DECORATE FINISHED CODE
 ```
 
-> Nếu chưa chỉ ra được proof chain đủ rõ, thì chưa được gọi là verified.
+> If the proof chain has not been shown clearly enough, it cannot be called verified.
 
 <HARD-GATE>
-- Nếu task đổi behavior và có harness khả thi, ưu tiên RED trước GREEN.
-- Nếu không có harness, phải nói rõ và dùng verification thay thế.
-- Không được báo test pass/coverage nếu chưa chạy.
-- Không force TDD giả tạo cho task docs/config/release chores.
+- If the task changes behavior and has a viable harness, prioritize RED before GREEN.
+- If there is no harness, it must be clearly stated and use verification instead.
+- Do not report test pass/coverage if it has not been run yet.
+- Do not artificially force TDD for task docs/config/release chores.
 </HARD-GATE>
 
 ---
@@ -35,10 +35,10 @@ TESTS MUST PROVE BEHAVIOR, NOT DECORATE FINISHED CODE
 
 ```mermaid
 flowchart LR
-    A[Chọn mục tiêu test] --> B[Chọn scope]
-    B --> C{Có harness khả thi?}
-    C -->|Có| D[RED: failing test]
-    C -->|Không| E[Alternative verification]
+    A[Select test target] --> B[Select scope]
+    B --> C{Is there a viable harness?}
+    C -->|Yes| D[RED: failing test]
+    C -->|No| E[Alternative verification]
     D --> F[GREEN: implement/fix]
     E --> F
     F --> G[Run targeted/full checks]
@@ -47,84 +47,84 @@ flowchart LR
 
 ## Proof Before Progress
 
-Testing trong Forge không chỉ là "có test". Nó phải tạo bằng chứng theo thứ tự:
+Testing in Forge is more than just "having tests". It must generate proofs in the order:
 
-1. `Failing proof` hoặc verification thay thế trước khi sửa
-2. `Passing proof` cho behavior vừa đổi
-3. `Boundary proof` nếu vừa chạm contract/integration/schema/auth
-4. `Broader proof` khi blast radius đủ rộng hoặc đang release
+1. `Failing proof` or verify instead before repair
+2. `Passing proof` for the newly changed behavior
+3. `Boundary proof` if you just touched contract/integration/schema/auth
+4. `Broader proof` when blast radius is wide enough or released
 
 Rules:
-- Không báo `GREEN` nếu chưa thấy `RED` trong trường hợp harness khả thi
-- Không báo "đã verify" nếu chưa mô tả command/scenario nào đã chạy
-- Nếu đi bằng verification thay thế, phải mô tả cách lặp lại rõ như một test packet
+- Do not report `GREEN` if `RED` has not been found in case the harness is feasible
+- Do not say "verified" if no command/scenario has been described yet
+- If using verification instead, must describe the iteration clearly as a test packet
 
 ## Test Strategy Selection
 
-| Tình huống | Chọn |
+|Situation | Select|
 |------------|------|
-| Vừa sửa 1 behavior cụ thể | Targeted test |
-| Thay đổi blast radius rộng | Targeted + full suite liên quan |
-| Chuẩn bị release / deploy | Full suite + release checks |
-| Không có harness | Manual scenario / smoke test / build-lint-typecheck |
+|Just fix a specific behavior | Targeted testing|
+|Change blast radius wide | Targeted + full related suite|
+|Prepare for release / deployment | Full suite + release checks|
+|No harness | Manual scenario / smoke test / build-lint-typecheck|
 
 ## Harness Decision Ladder
 
-Khi chọn cách prove behavior, đi từ mạnh nhất xuống:
+When choosing how to prove behavior, go from strongest down:
 
-1. Test sẵn có hoặc thêm test mới gần boundary đang đổi
+1. Existing tests or adding new tests near the changing boundary
 2. Targeted integration/component/API test
-3. Deterministic reproduction command hoặc script
-4. Manual scenario lặp lại được + build/lint/typecheck/smoke
+3. Deterministic reproduction command or script
+4. Repeatable manual scenario + build/lint/typecheck/smoke
 
 Rules:
-- Nếu bậc 1 hoặc 2 khả thi mà bỏ qua, phải nêu lý do kỹ thuật cụ thể
-- "Repo này ít test" không phải lý do đủ để nhảy xuống manual
-- Khi manual là lựa chọn tốt nhất, phải mô tả scenario đủ chi tiết để người khác rerun được
+- If level 1 or 2 is feasible but omitted, specific technical reasons must be stated
+- "This repo has little testing" is not enough reason to jump down to manual
+- When manual is the best choice, the scenario must be described in enough detail for others to rerun
 
 ## RED-GREEN-REFACTOR
 
 ### RED
-- Một behavior duy nhất
-- Tên test mô tả behavior
-- Fail đúng lý do cần sửa
-- Quan sát output fail thật, không đoán
+- A single behavior
+- The test name describes the behavior
+- Failed for the right reason and needs to be fixed
+- Observe the actual output failure, don't guess
 
 ### GREEN
-- Implement tối thiểu để pass
-- Không tranh thủ thêm feature
-- Chạy lại đúng failing proof trước khi thêm broader checks
+- Minimum implementation to pass
+- Do not take advantage of additional features
+- Rerun the failing proof correctly adding before wider checks
 
 ### REFACTOR
-- Chỉ sau khi green
-- Clean nhẹ, không đổi behavior
+- Only after the green
+- Lightly clean, no change in behavior
 
 ## Verification Ladder
 
-Sau khi có `GREEN`, chọn mức verify phù hợp:
+After having `GREEN`, choose the appropriate verification level:
 
-| Mức | Dùng khi |
+|Level | Use when|
 |-----|----------|
-| `targeted` | Chỉ đổi một behavior hẹp |
-| `targeted + boundary` | Có contract/integration/schema/public edge |
-| `targeted + relevant suite` | Blast radius rộng trong subsystem |
-| `release ladder` | Chuẩn bị merge/deploy cho flow nhạy cảm |
+|`targeted` | Just change a narrow behavior|
+|`targeted + boundary` | There is contract/integration/schema/public edge|
+|`targeted + relevant suite` | Blast radius wide in subsystem|
+|`release ladder` | Prepare merge/deploy for sensitive flows|
 
-Release ladder tối thiểu:
+Minimum release ladder:
 - targeted proof pass
-- boundary hoặc integration check pass
-- suite/check liên quan pass
-- residual risk note rõ nếu vẫn còn gap
+- boundary or integration check pass
+- suite/check related pass
+- Residual risk note clearly if there is still a gap
 
 ## Test Packet
 
-Với task `medium/large` hoặc verification quan trọng, ghi packet ngắn:
+For important `medium/large` or verification tasks, write a short packet:
 
 ```text
-Test packet:
+Test packets:
 - Behavior under proof: [...]
 - RED proof: [test/command/scenario]
-- Expected fail signal: [...]
+- Expected failure signal: [...]
 - GREEN proof: [test/command/scenario]
 - Boundary checks: [...]
 - Broader checks: [...]
@@ -132,103 +132,103 @@ Test packet:
 ```
 
 Rules:
-- Nếu không viết nổi `Expected fail signal`, RED đang quá mơ hồ
-- Nếu không viết nổi `Boundary checks` cho public interface/migration/auth, verification đang quá yếu
+- If you can't write `Expected fail signal`, RED is too vague
+- If you can't write `Boundary checks` for public interface/migration/auth, verification is too weak
 
 ## Evidence Response Contract
 
-Testing output trong Forge không được dừng ở câu kiểu "tests passed".
+Testing output in Forge cannot stop at a sentence like "tests passed".
 
 ```text
 - I verified: [fresh evidence]. Correct because [reason]. Fixed: [change].
-- I investigated: [evidence]. Current code stays because [reason].
+- I evaluated: [evidence]. Current code stays because [reason].
 - Clarification needed: [single precise question].
 ```
 
 Applied to testing:
-- `fresh evidence` = test output, reproduction output, hoặc command/check vừa chạy
-- `reason` = behavior nào đã được prove hoặc gap nào còn lại
-- `change/no-change stance` = fix nào đã được chứng minh hoặc vì sao chưa đổi thêm
+- `fresh evidence` = test output, reproduction output, or command/check just run
+- `reason` = which behavior has been proven or which gap remains
+- `change/no-change stance` = Which fix has been proven or why hasn't it been changed yet?
 
 Reject:
 - Tests should be good now.
 - Suite passed earlier.
-- Manual tested, probably fine.
+- Manually tested, probably fine.
 
 ## Good Tests
 
-| Tiêu chí | Tốt | Xấu |
+|Criteria | Good | Bad|
 |----------|-----|-----|
-| Scope | Một behavior | Nhiều behavior trong 1 test |
-| Naming | Mô tả kết quả mong đợi | `test1`, `works` |
-| Signal | Fail đúng lý do | Fail vì setup sai |
-| Realism | Ít mock nhất có thể | Mock mọi thứ |
+|Scope | A behavior | Many behaviors in 1 test|
+|Naming | Describe expected results | `test1`, `works`|
+|Signal | Fail for the right reasons | Fail because of wrong setup|
+|Realism | As little mock as possible | Mock everything|
 
 ## Anti-Rationalization
 
-| Bào chữa | Sự thật |
+|Defense | Truth|
 |----------|---------|
-| "Task nhỏ khỏi test" | Nhỏ hay lớn đều cần bằng chứng phù hợp |
-| "Manual test rồi là đủ" | Manual test chỉ đủ khi nó được mô tả và lặp lại được |
-| "Repo không có test nên bỏ qua" | Không có harness != không cần verify |
-| "Test sau cũng được" | Test-after không chứng minh được ý đồ ban đầu |
-| "Giữ code cũ để tham khảo là ổn" | Tham khảo code cũ không chứng minh behavior đang được bảo vệ |
-| "Cần explore trước rồi mới viết RED" | Explore được, nhưng khi harness khả thi thì RED vẫn là bằng chứng tốt nhất trước GREEN |
-| "TDD không practical" | Nếu bỏ RED, phải nói rõ giới hạn kỹ thuật và verification thay thế là gì |
-| "Khó test thì skip" | Khó test nghĩa là cần đổi scope hoặc chiến lược verify, không phải bỏ qua |
-| "Suite lớn pass là đủ" | Suite lớn không thay thế cho failing proof đúng behavior vừa đổi |
+|"Small tasks avoid testing" | Small or large, both require appropriate evidence|
+| "Manual testing is enough" | Manual testing is only sufficient when it is descriptive and repeatable
+|"Repo has no tests so ignore" | No harness != no need to verify|
+|"It's okay to test later" | Test-after does not prove the original intention|
+|"It's okay to keep the old code for reference" | Referencing old code does not prove that behavior is being protected|
+|"Need to explore first before writing RED" | Explore is ok, but when the harness is viable, RED is still the best proof against GREEN|
+| "TDD is not practical" | If you remove RED, you must clearly state the technical limitations and what the alternative verification is
+|"If it's difficult to test, skip" | Difficult to test means by changing scope or verification strategy, not skipping|
+|"Big suite pass is enough" | Big Suite is not a substitute for failing proof, the behavior just changed|
 
 Code examples:
 
 Bad:
 
 ```text
-"Task này nhỏ, em test manual là đủ."
+"This task is small, manual testing is enough."
 ```
 
 Good:
 
 ```text
-"Không có harness phù hợp, nên verification thay thế là [manual scenario/build/lint/typecheck], và em sẽ rerun đúng bước đó sau khi sửa."
+"There is no suitable harness, so verification is changed [manual scenario/build/lint/typecheck], and I will rerun that step after fixing."
 ```
 
 Good (harness available):
 
 ```text
-"RED: chạy [test] và thấy fail đúng vì [signal]. GREEN: sửa tối thiểu cho pass. Sau đó chạy thêm [boundary/suite check] vì vừa chạm [contract/integration]."
+"RED: run [test] and fail correctly because of [signal]. GREEN: minimally fix the pass. Then run [boundary/suite check] because it just touched [contract/integration]."
 ```
 
 ## Reset Rules
 
-Phải dừng và reset cách test khi:
-- RED fail vì setup sai hoặc test viết sai intent
-- GREEN đạt được nhưng chưa từng quan sát RED trong harness-capable task
-- boundary vừa đổi nhưng test packet vẫn chỉ có targeted happy path
-- suite pass nhưng reproduction gốc vẫn chưa được chứng minh
+Testing must be stopped and reset when:
+- RED fails because the setup is wrong or the test writes the wrong intent
+- GREEN was achieved but RED was never observed in the harness-capable task
+- The boundary has just changed but the test packet still only has targeted happy path
+- suite pass but original reproduction has not been proven yet
 
-Reset ở đây nghĩa là quay lại viết lại proof đúng hơn, không cố giữ một chuỗi verify yếu chỉ vì đã tốn công
+Reset here means going back to rewriting the proof properly, not trying to keep a weak verification chain just because it's a waste of effort
 
 ## Verification Checklist
 
-- [ ] Đã chọn đúng scope test/check
-- [ ] Có failing test khi harness cho phép
-- [ ] Hoặc có lý do rõ ràng cho verification thay thế
-- [ ] Có test packet hoặc proof chain đủ rõ cho task quan trọng
-- [ ] Đã quan sát fail/pass thật, không chỉ suy đoán
-- [ ] Boundary checks đã được thêm khi blast radius yêu cầu
-- [ ] Đã chạy lại checks sau khi sửa
-- [ ] Đã đọc output thật
-- [ ] Evidence response contract đã được giữ
-- [ ] Đã note residual risk / phần chưa cover
+- [ ] The correct test/check scope has been selected
+- [ ] There is a failing test when the harness allows it
+- [ ] Or there is a clear reason for verification instead
+- [ ] Have a test packet or proof chain clear enough for important tasks
+- [ ] Observed real fail/pass, not just speculation
+- [ ] Boundary checks have been added when blast radius is required
+- [ ] Rerun checks after editing
+- [ ] Read the actual output
+- [ ] Evidence response contract has been held
+- [ ] Residual risk / portion not covered has been noted
 
 ## Output Template
 
 ```
 Test report:
 - Strategy: [targeted/full/alternative]
-- Proof chain: [red -> green -> boundary -> broader]
-- Verified: [command/check] -> [kết quả]
-- Evidence response: [I verified: ... / I investigated: ... / Clarification needed: ...]
+- Proof chain: [red -> green -> boundary -> wider]
+- Verified: [command/check] -> [result]
+- Evidence response: [I verified:... / I investigated:... / Clarification needed:...]
 - Coverage/gaps: [...]
 - Residual risk: [...]
 ```
@@ -236,5 +236,5 @@ Test report:
 ## Activation Announcement
 
 ```
-Forge: test | chọn strategy trước, RED khi harness cho phép
+Forge: test | choose strategy first, RED when the harness allows it
 ```

@@ -1,6 +1,6 @@
 # Forge Bump Release
 
-> Dùng khi cần chốt version mới và update release artifacts theo một checklist rõ ràng.
+> Use when you need to finalize a new version and update release artifacts according to a clear checklist.
 
 ## Canonical Script
 
@@ -12,14 +12,14 @@ python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump 2.0.0 --a
 
 ## Contract
 
-- Đọc `VERSION`
-- Nếu user yêu cầu bump nhưng không nêu mức, suy luận `patch|minor|major` từ git diff kể từ lần đổi `VERSION` gần nhất
-- Tính `target_version` từ mức suy luận, `patch|minor|major`, hoặc explicit semver
-- Preview hoặc apply đổi `VERSION` + `CHANGELOG.md`
-- Trả về verification commands tiếp theo, không commit/push tự động
-- Nếu suy luận có độ tự tin thấp, phải phát cảnh báo và cho phép override bằng `--bump`
+- Read `VERSION`
+- If user requests bump but doesn't state level, infer `patch|minor|major` from git diff since last changed `VERSION`
+- Calculate `target_version` from inference level, `patch|minor|major`, or explicit semver
+- Preview or apply to change `VERSION` + `CHANGELOG.md`
+- Returns the next verification commands, not commit/push automatically
+- If the inference has low confidence, a warning must be issued and override allowed with `--bump`
 
 ## Boundary
 
-- Core chỉ lo version math và release checklist.
-- Adapter có thể expose `/bump` hoặc natural-language wrapper, nhưng không được tự commit/push hay giả định release-ready.
+- Core only takes care of version math and release checklist.
+- The adapter can expose `/bump` or a natural-language wrapper, but cannot commit/push itself or assume release-ready.

@@ -500,6 +500,39 @@ def compat_canonical_paths(compat: dict | None) -> set[str]:
     return paths
 
 
+def compat_extra_fields(compat: dict | None) -> dict[str, dict]:
+    if not isinstance(compat, dict):
+        return {}
+
+    fields = compat.get("extra_fields")
+    if not isinstance(fields, dict):
+        return {}
+
+    return {
+        key: entry
+        for key, entry in fields.items()
+        if isinstance(key, str) and isinstance(entry, dict)
+    }
+
+
+def compat_extra_paths(compat: dict | None) -> set[str]:
+    paths: set[str] = set()
+    for entry in compat_extra_fields(compat).values():
+        paths.update(compat_entry_paths(entry))
+    return paths
+
+
+def compat_default_extra(compat: dict | None) -> dict[str, object]:
+    if not isinstance(compat, dict):
+        return {}
+
+    default_extra = compat.get("default_extra")
+    if not isinstance(default_extra, dict):
+        return {}
+
+    return copy.deepcopy(default_extra)
+
+
 def delete_nested_value(payload: dict, path: str) -> None:
     segments = path.split(".")
     current = payload
@@ -599,7 +632,16 @@ def extract_extras(raw_payload: object, compat_config: dict | None = None) -> di
         extras = copy.deepcopy(raw_payload)
         for path in compat_canonical_paths(compat):
             delete_nested_value(extras, path)
-        return extras
+        compat_extras: dict[str, object] = {}
+        for key, entry in compat_extra_fields(compat).items():
+            for path in compat_entry_paths(entry):
+                raw_value = get_nested_value(raw_payload, path)
+                if raw_value is None:
+                    continue
+                compat_extras[key] = copy.deepcopy(compat_read_value(raw_value, entry))
+                delete_nested_value(extras, path)
+                break
+        return merge_extra_preferences(extras, compat_extras)
 
     canonical_keys = canonical_preference_keys()
     return {
@@ -633,6 +675,19 @@ def merge_extra_preferences(
             continue
         merged[key] = copy.deepcopy(value)
     return merged
+
+
+def resolve_extra_preferences(
+    raw_payload: object,
+    *,
+    compat_config: dict | None = None,
+    include_defaults: bool = True,
+) -> dict[str, object]:
+    compat = load_preferences_compat() if compat_config is None else compat_config
+    extra = extract_extras(raw_payload, compat_config=compat)
+    if not include_defaults:
+        return extra
+    return merge_extra_preferences(compat_default_extra(compat), extra)
 
 
 def resolve_output_contract(extra: object) -> dict[str, object]:
@@ -704,19 +759,71 @@ def compat_write_value(existing_payload: object, desired_value: str, entry: dict
     return desired_value
 
 
+def apply_extra_preferences(
+    payload: object,
+    extra_updates: dict[str, object] | None,
+    *,
+    existing_payload: object,
+    compat: dict | None = None,
+) -> object:
+    if not isinstance(payload, dict) or not extra_updates:
+        return payload
+
+    compat_entries = compat_extra_fields(compat)
+    for key, value in extra_updates.items():
+        entry = compat_entries.get(key)
+        if entry is not None:
+            for path in compat_entry_paths(entry):
+                delete_nested_value(payload, path)
+            if value is None:
+                continue
+            path = choose_compat_write_path(existing_payload, entry)
+            if path is None:
+                continue
+            if isinstance(value, str):
+                serialized_value: object = compat_write_value(existing_payload, value, entry)
+            else:
+                serialized_value = copy.deepcopy(value)
+            set_nested_value(payload, path, serialized_value)
+            continue
+
+        if value is None:
+            payload.pop(key, None)
+            continue
+        payload[key] = copy.deepcopy(value)
+
+    return payload
+
+
 def serialize_preferences_payload(
     preferences: dict[str, str],
     *,
     existing_payload: object,
     replace: bool,
+    extra_updates: dict[str, object] | None = None,
+    compat_config: dict | None = None,
 ) -> object:
-    compat = load_preferences_compat()
+    compat = load_preferences_compat() if compat_config is None else compat_config
     if compat is None:
-        return preferences
+        serialized = copy.deepcopy(existing_payload) if isinstance(existing_payload, dict) else {}
+        for key, value in preferences.items():
+            serialized[key] = value
+        return apply_extra_preferences(
+            serialized,
+            extra_updates,
+            existing_payload=existing_payload,
+        )
 
     write_config = compat.get("write")
     if not isinstance(write_config, dict):
-        return preferences
+        serialized = copy.deepcopy(existing_payload) if isinstance(existing_payload, dict) else {}
+        for key, value in preferences.items():
+            serialized[key] = value
+        return apply_extra_preferences(
+            serialized,
+            extra_updates,
+            existing_payload=existing_payload,
+        )
 
     use_compat = False
     if preferences_compat_matches(existing_payload, compat):
@@ -725,10 +832,17 @@ def serialize_preferences_payload(
         use_compat = True
 
     if not use_compat:
-        return preferences
+        serialized = copy.deepcopy(existing_payload) if isinstance(existing_payload, dict) else {}
+        for key, value in preferences.items():
+            serialized[key] = value
+        return apply_extra_preferences(
+            serialized,
+            extra_updates,
+            existing_payload=existing_payload,
+        )
 
     template = write_config.get("template")
-    if isinstance(existing_payload, dict) and write_config.get("preserve_existing_payload", True) and not replace:
+    if isinstance(existing_payload, dict) and write_config.get("preserve_existing_payload", True):
         serialized = copy.deepcopy(existing_payload)
     elif isinstance(template, dict):
         serialized = copy.deepcopy(template)
@@ -749,7 +863,12 @@ def serialize_preferences_payload(
         value = compat_write_value(existing_payload if not replace else serialized, desired_value, entry)
         set_nested_value(serialized, path, value)
 
-    return serialized
+    return apply_extra_preferences(
+        serialized,
+        extra_updates,
+        existing_payload=existing_payload if isinstance(existing_payload, dict) else serialized,
+        compat=compat,
+    )
 
 
 def resolve_installed_state_root() -> Path | None:
@@ -875,10 +994,13 @@ def load_preferences(
             path = resolve_workspace_preferences_path(workspace) if workspace is not None else None
             source_type = "workspace-legacy"
             if path is None or not path.exists():
+                compat = load_preferences_compat()
+                extra = resolve_extra_preferences(None, compat_config=compat)
                 return {
                     "preferences": defaults,
-                    "extra": {},
+                    "extra": extra,
                     "source": {"type": "defaults", "path": None},
+                    "output_contract": resolve_output_contract(extra),
                     "warnings": warnings,
                 }
 
@@ -891,7 +1013,7 @@ def load_preferences(
         payload = None
 
     compat = load_preferences_compat()
-    extra = extract_extras(payload, compat_config=compat)
+    extra = resolve_extra_preferences(payload, compat_config=compat)
     canonical_payload = filter_canonical_preferences(payload, compat_config=compat)
     preferences, normalization_warnings = normalize_preferences(canonical_payload, strict=strict)
     warnings.extend(normalization_warnings)
@@ -926,12 +1048,13 @@ def write_preferences(
     *,
     workspace: Path | None = None,
     updates: dict[str, str],
+    extra_updates: dict[str, object] | None = None,
     strict: bool = False,
     replace: bool = False,
     apply: bool = False,
     forge_home: Path | str | None = None,
 ) -> dict:
-    if not updates:
+    if not updates and not extra_updates:
         raise ValueError("At least one preference update is required.")
 
     workspace_path = Path(workspace).resolve() if workspace is not None else None
@@ -947,21 +1070,29 @@ def write_preferences(
             raw_payload = json.loads(path.read_text(encoding="utf-8"))
         except json.JSONDecodeError:
             raw_payload = None
+    compat = load_preferences_compat()
     serialized_preferences = serialize_preferences_payload(
         preferences,
         existing_payload=raw_payload,
         replace=replace,
+        extra_updates=extra_updates,
+        compat_config=compat,
     )
+    extra = resolve_extra_preferences(serialized_preferences, compat_config=compat)
 
     changed_fields = [
         key for key in preferences if existing["preferences"].get(key) != preferences.get(key)
+    ]
+    changed_extra_fields = [
+        key for key in (extra_updates or {})
+        if existing["extra"].get(key) != extra.get(key)
     ]
     created_file = not path.exists()
     if apply:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(serialized_preferences, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
-    status = "PASS" if changed_fields else "WARN"
+    status = "PASS" if changed_fields or changed_extra_fields else "WARN"
     if warnings and status == "PASS":
         status = "WARN"
 
@@ -977,9 +1108,13 @@ def write_preferences(
         "created_file": created_file and apply,
         "migrated_legacy_workspace_preferences": existing["source"]["type"] == "workspace-legacy",
         "previous_preferences": existing["preferences"],
+        "previous_extra": existing["extra"],
         "preferences": preferences,
+        "extra": extra,
+        "output_contract": resolve_output_contract(extra),
         "response_style": resolve_response_style(preferences),
         "changed_fields": changed_fields,
+        "changed_extra_fields": changed_extra_fields,
         "warnings": warnings,
     }
 

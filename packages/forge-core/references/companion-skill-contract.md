@@ -1,41 +1,41 @@
 ## Companion Skill Contract
 
-> Mục tiêu: mô tả cách Forge ghép thêm runtime/framework skill mà không làm mờ orchestration, verification, và reporting của Forge.
-> Đây là lớp mở rộng tùy chọn. Forge core phải tự hoạt động tốt ngay cả khi không có companion hay local skill nào.
+> Goal: describe how Forge adds runtime/framework skills without obscuring Forge's orchestration, verification, and reporting.
+> This is an optional extension class. Forge core should work well on its own even without any companions or local skills.
 
-## Khi nào đọc file này
+## When to read this file
 
-- Khi tạo companion skill cho Python, Java, Go, .NET, hoặc framework-specific stack
-- Khi update Forge để ghép companion skill mới
-- Khi runtime của repo đã rõ và bạn cần chốt boundary giữa Forge với runtime/framework layer
+- When creating companion skills for Python, Java, Go,.NET, or framework-specific stack
+- When updating Forge to combine new companion skills
+- Once the repo's runtime is clear and you need to close the boundary between Forge and the runtime/framework layer
 
-Không cần đọc file này nếu:
-- repo chưa có companion/local skill nào
-- repo mới và Forge core đã đủ để plan/build/debug/review
-- task hiện tại không cần runtime/framework layer riêng
+There is no need to read this file if:
+- The repo doesn't have any companion/local skills yet
+- The new repo and Forge core are enough to plan/build/debug/review
+- The current task does not need a separate runtime/framework layer
 
 ## Default Operating Mode
 
-Mặc định Forge chạy theo:
+By default Forge runs as follows:
 
 ```text
 Forge core workflows + Forge domains
 ```
 
-Không phải:
+Not:
 
 ```text
-Forge + companion skill bắt buộc
+Forge + companion skill required
 ```
 
-Companion skill chỉ xuất hiện khi nó tăng độ chính xác rõ ràng.
+Companion skill only appears when it clearly increases accuracy.
 
 ## Mental Model
 
-Forge là **process/orchestration layer**.  
-Companion skill là **runtime/framework layer**.
+Forge is the **process/orchestration layer**.
+Companion skill is **runtime/framework layer**.
 
-Forge quyết định:
+Forge decided:
 - intent routing
 - complexity
 - verification gate
@@ -43,131 +43,131 @@ Forge quyết định:
 - residual-risk reporting
 - handover/report shape
 
-Companion skill quyết định:
-- idiom code theo ngôn ngữ
+Companion skill decides:
+- idiom code according to language
 - framework conventions
-- file/folder conventions của stack
-- build/test/run command discovery theo runtime
-- dependency/toolchain detail
+- file/folder conventions of the stack
+- build/test/run command discovery according to runtime
+- dependency/toolchain details
 
 ## Trigger Contract
 
-Chỉ load companion skill khi có **repo signal rõ ràng** hoặc user chỉ rõ stack.
+Only load companion skills when there is a clear **repo signal** or the user clearly indicates the stack.
 
-| Runtime | Repo signal thường gặp |
+|Runtime | Repo signals are common|
 |---------|------------------------|
-| Node/TS | `package.json` |
-| Python | `pyproject.toml`, `requirements.txt` |
-| Go | `go.mod` |
-| Java/Kotlin | `pom.xml`, `build.gradle` |
-| .NET | `*.csproj`, `*.sln` |
+|Node/Dr | `package.json`|
+|Python | `pyproject.toml`, `requirements.txt`|
+|Go | `go.mod`|
+|Java/Kotlin | `pom.xml`, `build.gradle`|
+|.NET | `*.csproj`, `*.sln`|
 
-Không đoán runtime chỉ từ tên folder, tên biến, hay thói quen của agent.
+Don't guess the runtime just from folder names, variable names, or agent habits.
 
 ## Integration Order
 
 ```text
 1. Forge detect intent + complexity
-2. Forge chọn process/domain skills chính đủ để làm việc
-3. Forge detect runtime từ source-of-truth artifact
-4. Nếu runtime rõ và companion skill thực sự giúp tăng độ chính xác -> load companion skill
-5. Companion cung cấp stack-specific conventions và commands
-6. Forge áp verification gate, reporting, và handover
+2. Forge chooses the main process/domain skills that are sufficient for the job
+3. Forge detect runtime from source-of-truth artifact
+4. If the runtime is clear and the companion skill really helps increase accuracy -> load companion skill
+5. The Companion provides stack-specific conventions and commands
+6. Forge applies verification gate, reporting, and handover
 ```
 
-Nếu không có companion skill phù hợp, dừng ở bước 3 và tiếp tục bằng Forge core.
+If you don't have a suitable companion skill, stop at step 3 and continue with Forge core.
 
 ## Ownership Boundary
 
-| Khu vực | Chủ sở hữu |
+|Area | Owner|
 |---------|------------|
-| Intent routing | Forge |
-| Complexity assessment | Forge |
-| Scope control | Forge |
-| Verification-first / test-first gate | Forge |
-| Evidence before claims | Forge |
-| Output/handover template | Forge |
-| Coding idiom theo ngôn ngữ | Companion |
-| Framework structure | Companion |
-| Stack-specific command discovery | Companion |
-| Dependency/toolchain detail | Companion |
+|Intent routing | Forge|
+|Complexity assessment | Forge|
+|Scope control | Forge|
+|Verification-first / test-first gate | Forge|
+|Evidence before claims | Forge|
+|Output/handover template | Forge|
+|Coding idioms by language | Companions|
+|Framework structure | Companions|
+|Stack-specific command discovery | Companions|
+|Dependency/toolchain details | Companions|
 
 ## Conflict Resolution
 
-Nếu Forge và companion skill khác nhau:
+If Forge and companion skill are different:
 
-- Theo Forge cho:
-  - verification
+- According to Forge for:
+  - verification. verification
   - evidence threshold
-  - reporting
+  - reporting. reporting
   - residual risk
   - scope discipline
-- Theo companion skill cho:
-  - code style theo runtime
+- According to companion skill gives:
+  - code style according to runtime
   - framework structure
   - stack-specific test/build/run commands
-  - migration/tooling conventions đặc thù
+  - specific migration/tooling conventions
 
-Companion skill không được:
-- bỏ qua failing test/reproduction gate của Forge khi harness khả thi
-- nới lỏng evidence chỉ vì framework quen thuộc
-- thay handover/report của Forge bằng format riêng
-- biến chính nó thành một orchestrator thứ hai
+Companion skills cannot:
+- Bypass Forge's failing test/reproduction gate when the harness is viable
+- loosen evidence just because the framework is familiar
+- Replace Forge's handover/report with its own format
+- turns itself into a second orchestrator
 
 ## Optional Workspace-Local Layer
 
-Companion skill có thể ở:
+Companion skills can be in:
 - global skill library
-- workspace-local skill folder gần repo
+- workspace-local skill folder near the repo
 
-Workspace-local layer chỉ áp dụng khi workspace thật sự chọn mô hình `global orchestrator + local companions`.
+Workspace-local layer only applies when the workspace actually selects the `global orchestrator + local companions` model.
 
-Workspace-local companion skill là hợp lệ khi:
-- workspace có `AGENTS.md` hoặc router doc trỏ tới nó
-- skill thật có `SKILL.md`
-- repo signals khớp với layer mà skill đó phụ trách
+Workspace-local companion skill is valid when:
+- workspace has `AGENTS.md` or router doc pointing to it
+- The real skill is `SKILL.md`
+- repo signals match the layer that skill is responsible for
 
-Ưu tiên workspace-local companion skill khi:
-- nó bám domain/runtime riêng của repo
-- router doc của workspace đã chỉ rõ
-- không có conflict với evidence gate của Forge
+Prioritize workspace-local companion skill when:
+- It attaches to the repo's own domain/runtime
+- router doc of the specified workspace
+- There is no conflict with Forge's evidence gate
 
-Nếu workspace không có local layer, không cần tạo giả router hay local inventory để dùng Forge.
+If the workspace does not have a local layer, there is no need to create a fake router or local inventory to use Forge.
 
 ## Router Docs vs Skill Docs
 
-- `SKILL.md` là triggerable skill entrypoint
-- `AGENTS.md` hoặc workspace skill map là router/reference doc
-- Router doc có thể nói **nên dùng skill nào**, nhưng bản thân router doc không thay thế `SKILL.md`
-- Không dùng router doc như một skill giả để nhét logic runtime thay cho skill thật
+- `SKILL.md` is a triggerable skill entrypoint
+- `AGENTS.md` or workspace skill map is router/reference doc
+- The router doc can say **which skill to use**, but the router doc itself does not replace `SKILL.md`
+- Do not use router doc as a fake skill to insert runtime logic in place of the real skill
 
 ## Workspace Router Contract
 
-Phần này chỉ áp dụng cho workspace chọn mô hình `global orchestrator + local companion skills`.
+This section only applies to workspaces select model `global orchestrator + local companion skills`.
 
-Nên giữ:
-- `AGENTS.md` mỏng:
-  - nhận diện workspace
+Should keep:
+- `AGENTS.md` slim:
+  - workspace identification
   - read order
-  - link sang router/source-of-truth doc
-- workspace skill map làm source-of-truth cho:
+  - link to router/source-of-truth doc
+- workspace skill map as source-of-truth for:
   - inventory local skills
   - routing precedence
   - fallback rules
-  - examples và smoke-test links
+  - examples and smoke-test links
 
-Không nên:
-- lặp cùng một bảng routing ở cả `AGENTS.md` và workspace map
-- nhét inventory đầy đủ local skills vào nhiều nơi
-- để từng local skill tự mô tả lại toàn bộ kiến trúc workspace
-- sửa router docs xong nhưng không chạy checker để bắt drift
+Shouldn't:
+- duplicate the same routing table in both `AGENTS.md` and workspace map
+- Stuff your inventory full of local skills into many places
+- Let each local skill describe the entire workspace architecture
+- The router docs have been repaired but do not run the checker to catch drift
 
 ## Recommended Workspace Layout
 
 ```text
 workspace/
 ├── AGENTS.md
-└── .agent/
+└──.agent/
     ├── workspace-skill-map.md
     ├── routing-smoke-tests.md
     ├── local-skill-maintenance.md
@@ -176,22 +176,22 @@ workspace/
         └── skill-b/SKILL.md
 ```
 
-Tên file có thể khác, nhưng vai trò nên giữ nguyên.
+The file name may be different, but the role should remain the same.
 
 ## Minimum Companion Output
 
-Khi được load, companion skill nên nhanh chóng xác nhận:
+When loaded, the companion skill should quickly confirm:
 
 ```text
 Runtime context:
 - Stack/framework: [...]
 - Repo signals: [...]
 - Primary commands: [build/test/run/lint]
-- Conventions cần giữ: [...]
-- Risks/constraints đặc thù stack: [...]
+- Conventions to keep: [...]
+- Stack-specific risks/constraints: [...]
 ```
 
-Không cần lặp lại toàn bộ guardrail của Forge.
+No need to duplicate Forge's entire guardrail.
 
 ## Recommended Activation Pattern
 
@@ -199,7 +199,7 @@ Không cần lặp lại toàn bộ guardrail của Forge.
 Forge: [intent] | [complexity] | Skills: [forge skills] + [companion skill]
 ```
 
-Ví dụ:
+For example:
 
 ```text
 Forge: BUILD | medium | Skills: plan + build + backend + python-fastapi
@@ -208,37 +208,37 @@ Forge: DEBUG | small | Skills: debug + test + dotnet-webapi
 
 ## Design Rule For Companion Skills
 
-Companion skill nên:
-- giả định Forge đã giữ process discipline
-- đi thẳng vào runtime-specific heuristics
-- ưu tiên command discovery từ repo thật
-- không hardcode framework nếu artifact chưa chứng minh
-- giữ reference ngắn, tránh biến companion thành orchestrator thứ hai
+Companion skills should:
+- assuming Forge has kept process discipline
+- Go straight to runtime-specific heuristics
+- Prioritize command discovery from the real repo
+- Do not hardcode the framework if the artifact is not proven
+- Keep references short, avoid turning companion into second orchestrator
 
 ## Anti-Patterns
 
-- Companion skill tự route intent thay Forge
-- Companion skill tự quyết định skip verification vì "stack này khó test"
-- Forge nhúng quá nhiều idiom của một ngôn ngữ vào `build.md` hoặc `backend.md`
-- Load cùng lúc nhiều companion skills khi repo signal chưa đủ rõ
-- Để workspace-local skills sống mãi dù repo đã bỏ runtime/feature đó
-- Không có `when not to use` nên companion skill bị load tràn lan
+- Companion skill automatically routes intent instead of Forge
+- Companion skill decides to skip verification because "this stack is difficult to test"
+- Forge embedding too many idioms of one language into `build.md` or `backend.md`
+- Load many companion skills at the same time when the repo signal is not clear enough
+- Let workspace-local skills live forever even though the repo has removed that runtime/feature
+- Without `when not to use`, companion skills are heavily loaded
 
 ## Evolution Policy
 
-- Companion skill nên có phần `when not to use`
-- Companion skill nên có repo signals rõ
-- Workspace nên có smoke tests cho routing nếu có nhiều local skills
-- Khi runtime/feature bị bỏ, retire hoặc archive companion skill tương ứng
-- Giữ local skill mỏng: repo-specific heuristics, không lặp lại orchestration của Forge
-- Giữ `AGENTS.md` ổn định và mỏng; routing detail nên dồn về workspace map
-- Khi routing đổi, update workspace map trước rồi mới update entrypoint docs nếu cần
-- Sau khi đổi router docs hoặc local skill inventory, chạy `scripts/check_workspace_router.py`
+- Companion skill should have part `when not to use`
+- Companion skills should have clear repo signals
+- Workspace should have smoke tests for routing if there are many local skills
+- When the runtime/feature is abandoned, retire or archive the corresponding companion skill
+- Keep local skills thin: repo-specific heuristics, don't duplicate Forge orchestration
+- Keeps `AGENTS.md` stable and slim; Routing details should be concentrated on the workspace map
+- When routing changes, update the workspace map first and then update the entrypoint docs if necessary
+- After changing router docs or local skill inventory, run `scripts/check_workspace_router.py`
 
 ## Quick Checklist
 
-- [ ] Runtime được xác định từ artifact thật
-- [ ] Forge vẫn giữ verification/evidence/reporting
-- [ ] Companion chỉ thêm stack-specific detail
-- [ ] Không có rule chồng chéo hoặc mâu thuẫn
-- [ ] User-facing activation line nói rõ companion skill nào đang được dùng
+- [ ] Runtime is determined from the actual artifact
+- [ ] Forge still keeps verification/evidence/reporting
+- [ ] Companion only adds stack-specific detail
+- [ ] There are no overlapping or conflicting rules
+- [ ] User-activation line clearly states which companion skill is being used

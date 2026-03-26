@@ -12,37 +12,37 @@ quality_gates:
 
 # Rollback - Controlled Recovery Planning
 
-> Mục tiêu: đề xuất rollback strategy an toàn nhất, không blind-revert.
+> Objective: proposes the safest rollback strategy, no blind-revert.
 
 <HARD-GATE>
-- Không rollback mù khi chưa rõ scope và failure signal.
-- Không đề xuất migration rollback như reflex nếu có nguy cơ mất dữ liệu.
-- Không bỏ qua post-rollback verification.
+- Do not rollback blindly when the scope and failure signal are unclear.
+- Do not recommend migration rollback like reflex if there is a risk of data loss.
+- Do not skip post-rollback verification.
 </HARD-GATE>
 
 ## Process
 
-1. Chốt scope: `deploy`, `config`, `migration`, hoặc `code-change`.
-2. Chốt customer impact, data risk, và rollback artifact.
-3. Resolve bằng:
+1. Battery scope: `deploy`, `config`, `migration`, or `code-change`.
+2. Close customer impact, data risk, and rollback artifacts.
+3. Resolve with:
 
 ```powershell
 python scripts/resolve_rollback.py --scope deploy --customer-impact broad --has-rollback-artifact
 python scripts/resolve_rollback.py --scope migration --data-risk high --failure-signal "writes failing after migration"
 ```
 
-4. Trả về:
+4. Returns:
    - recommended strategy
    - immediate action
-   - suggested workflow tiếp theo
+   - suggested next workflow
    - verification checklist
 
 ## Output Contract
 
 ```text
 Rollback strategy: [...]
-Làm ngay: [...]
-Verify sau rollback: [...]
+Do it now: [...]
+Verify after rollback: [...]
 ```
 
 ## Activation Announcement

@@ -23,22 +23,22 @@ VALIDATE AT THE BOUNDARY, KEEP LOGIC OUT OF TRANSPORT
 NO MEDIUM/LARGE BACKEND CHANGE WITHOUT A BACKEND BRIEF.
 ```
 
-Backend brief phải chốt trước:
-- contract hoặc surface in scope
-- validation và authorization boundary
+Backend brief must be finalized first:
+- contract or surface in scope
+- validation and authorization boundary
 - data model / migration impact
 - consistency / idempotency / retry / replay notes
 - observability / ops notes
 - caller / consumer compatibility
 
-Nếu chưa có brief hoặc contract impact còn mơ hồ:
+If there is no brief or the contract impact is still vague:
 
 ```powershell
 python scripts/generate_backend_brief.py "Task summary" --pattern sync-api --runtime generic
 ```
 
-Nếu task kéo dài hoặc chạm nhiều endpoint/job/event, thêm `--persist` và đọc `../references/backend-briefs.md`.
-Nếu dùng persisted brief, validate nhanh bằng:
+If the task is long or touches multiple endpoints/jobs/events, add `--persist` and read `../references/backend-briefs.md`.
+If using persisted brief, validate as quickly as:
 
 ```powershell
 python scripts/check_backend_brief.py .forge-artifacts/backend-briefs/<project-slug> --surface <surface>
@@ -48,12 +48,12 @@ python scripts/check_backend_brief.py .forge-artifacts/backend-briefs/<project-s
 
 ```mermaid
 flowchart TD
-    A[Đọc request/data flow] --> B{Task backend mức small?}
-    B -->|No| C[Tạo hoặc reuse backend brief]
-    B -->|Yes| D[Đọc contract và boundary hiện có]
-    C --> E[Chọn pattern/runtime lens]
+    A[Read request/data flow] --> B{Task backend small level?}
+    B -->|No| C[Create or reuse backend brief]
+    B -->|Yes| D[Read existing contract and boundary]
+    C --> E[Select pattern/runtime lens]
     D --> E
-    E --> F[Chốt contract + compatibility]
+    E --> F[Contract contract + compatibility]
     F --> G[Implement service logic]
     G --> H[Run API/data verification]
     H --> I[Run backend integrity review]
@@ -68,97 +68,97 @@ Quick routing:
 - `event-flow`: schema versioning, replay, dedup, producer/consumer blast radius
 - `data-change`: migration safety, backfill, compatibility window
 
-Nếu runtime đã rõ, chọn lens gần nhất trong backend brief generator để ép thinking sâu hơn.
+If the runtime is clear, choose the closest lens in the backend brief generator to force deeper thinking.
 
 ## Contract Conventions
 
 ### Transport
 ```
-- Theo protocol sẵn có của repo: REST, GraphQL, RPC, webhook, queue, event
-- Nếu repo đã có style, preserve thay vì tự áp chuẩn transport mới
-- Request/response/event contract phải explicit, version-aware khi cần
+- According to the repo's available protocols: REST, GraphQL, RPC, webhook, queue, event
+- If the repo already has a style, preserve it instead of automatically applying the new transport standard
+- Request/response/event contracts must be explicit, version-aware when necessary
 ```
 
 ### Success / Error Shape
 ```
-- Success và error shape phải nhất quán theo convention hiện có của service
-- Nếu repo chưa có envelope chuẩn, giữ output predictable và machine-readable
-- Status codes / error codes / retry semantics phải đúng với transport đang dùng
-- Breaking contract change phải có compatibility note hoặc migration window rõ
+- Success and error shapes must be consistent according to the service's existing conventions
+- If the repo doesn't have a standard envelope yet, keep the output predictable and machine-readable
+- Status codes / error codes / retry semantics must match the transport being used
+- Breaking contract changes must have a clear compatibility note or migration window
 ```
 
 ## Backend Integrity Checklist
 
-Trước khi gọi backend change là "xong", kiểm tra:
+Before calling the backend change "done", check:
 
-- Contract mới không vô tình phá caller/consumer cũ ngoài scope đã chốt
-- Validation, authz, và error semantics vẫn nằm ở boundary đúng
-- Migration/data change có compatibility path hoặc rủi ro đã được note rõ
-- Retry, replay, idempotency, hoặc concurrency không làm side effect nhân đôi
-- Logging, metrics, trace, hoặc audit signal đủ để điều tra sự cố thật
-- Không kéo business logic ngược vào transport layer chỉ vì "nhanh hơn"
-- Không tạo hidden coupling giữa service, worker, webhook, và DB step
-- Nếu surface là external hoặc release-sensitive, đã hook sang `secure` hoặc `deploy` khi cần
+- The new contract does not accidentally destroy the old caller/consumer outside the locked scope
+- Validation, authz, and error semantics are still at the correct boundary
+- Migration/data change has compatibility paths or risks that are clearly noted
+- Retry, replay, idempotency, or concurrency do not duplicate side effects
+- Logging, metrics, trace, or audit signals are enough to investigate a real problem
+- Don't pull business logic backwards into the transport layer just because it's "faster"
+- Do not create hidden coupling between service, worker, webhook, and DB step
+- If the surface is external or release-sensitive, hook to `secure` or `deploy` as needed
 
 ## Database Patterns
 
 ### Query Optimization
 ```
-- EXPLAIN ANALYZE cho query chậm
-- Tránh N+1
-- Dùng pagination phù hợp
-- Index cho WHERE / JOIN / ORDER BY
+- EXPLAIN ANALYZE for slow queries
+- Avoid N+1
+- Use appropriate pagination
+- Index for WHERE / JOIN / ORDER BY
 ```
 
 ### Transactions
 ```
-- Gom related writes trong một transaction hoặc đơn vị atom tương đương
-- Path có retry/webhook/job nên xem idempotency
-- Không để side effect nửa vời khi step giữa fail
+- Collect related writes in a transaction or equivalent atomic unit
+- Path has retry/webhook/job so see idempotency
+- Don't leave side effects half-baked when the middle step fails
 ```
 
 ### Migrations
 ```
-- Mọi schema change đi qua migration
-- Migration có rollback nếu có thể
-- Không sửa migration đã lên production
-- Ưu tiên expand-contract hoặc compatibility window trước destructive change
-- Nếu cần backfill, nêu rõ lock/volume/blast-radius risk
+- Every schema change goes through migration
+- Migration with rollback if possible
+- Do not edit migrations that are already in production
+- Prioritize expand-contract or compatibility window before destructive change
+- If backfill is needed, specify lock/volume/blast-radius risk
 ```
 
 ## Consistency, Idempotency, and Async Safety
 
 ```
-- Request retry, webhook replay, và job retry phải có stance rõ: idempotent hay không
-- Transaction boundary phải khớp với side effects và recovery story
-- Event/job flow phải nói rõ ordering, dedup, và partial failure handling
-- Không assume "at least once" hay "exactly once" nếu chưa nói ra
+- Request retry, webhook replay, and job retry must have a clear stance: idempotent or not
+- Transaction boundary must match side effects and recovery story
+- Event/job flow must clearly state ordering, dedup, and partial failure handling
+- Don't assume "at least once" or "exactly once" if you haven't said it
 ```
 
 ## Observability & Ops
 
 ```
-- Log có context đủ để trace request/job/event quan trọng
-- Metrics hoặc counters cho flow quan trọng phải có nơi bám khi cần
-- Error path có signal điều tra được, không chỉ swallow rồi trả generic
-- Nếu migration hoặc job có blast radius, phải có note về rollback, disable path, hoặc isolation strategy
+- Logs have enough context to trace important requests/jobs/events
+- Metrics or counters for important flows must have a place to stick when needed
+- Error paths have signals that can be investigated, not just swallowed and returned generically
+- If a migration or job has a blast radius, there must be a note about rollback, disable path, or isolation strategy
 ```
 
 ## Service Layer
 
 ```
-validate input -> authorize nếu cần -> business logic -> persistence -> map sang contract transport
+validate input -> authorize if necessary -> business logic -> persistence -> map to contract transport
 ```
 
 ## Fast Anti-Patterns
 
-Reject nhanh nếu thấy:
-- business logic lớn nằm nguyên trong controller/handler
-- contract đổi nhưng caller/consumer không được nhắc tới
-- migration destructive mà không có compatibility note
-- webhook/job retry nhưng không có idempotency stance
-- async flow có side effects nhưng không có recovery story
-- "log error rồi thôi" mà không có signal giúp điều tra production
+Reject quickly if you see:
+- Large business logic resides in the controller/handler
+- contract changes but caller/consumer is not mentioned
+- migration destruction without compatibility note
+- webhook/job retry but no idempotency stance
+- async flow has side effects but no recovery story
+- "log error already" without signal to help investigate production
 
 ## Good / Bad Examples
 
@@ -234,29 +234,29 @@ if err != nil {
 
 ## Companion Runtime Skill Hook
 
-- Detect runtime từ artifact thật: `package.json`, `pyproject.toml`, `requirements.txt`, `go.mod`, `pom.xml`, `build.gradle`, `*.csproj`, `*.sln`
-- Nếu có companion skill phù hợp cho runtime/framework, có thể load nó để lấy idiom code, framework structure, dependency conventions, và command đặc thù stack
-- Nếu chưa có companion skill nào, Forge backend vẫn phải đủ để giữ contract clarity, migration safety, idempotency, và verification discipline
-- Forge backend vẫn giữ các nguyên tắc chung: boundary validation, contract clarity, transaction safety, migration discipline, và API/data verification
-- Contract chi tiết: xem `../references/companion-skill-contract.md`
+- Detect runtime from real artifact: `package.json`, `pyproject.toml`, `requirements.txt`, `go.mod`, `pom.xml`, `build.gradle`, `*.csproj`, `*.sln`
+- If there is a suitable companion skill for the runtime/framework, you can load it to get the idiom code, framework structure, dependency conventions, and specific command stack.
+- If you don't have any companion skills, the Forge backend should still be enough to maintain contract clarity, migration safety, idempotency, and verification discipline.
+- Forge backend retains the same general principles: boundary validation, contract clarity, transaction safety, migration discipline, and API/data verification
+- Contract details: see `../references/companion-skill-contract.md`
 
 ## Verification Checklist
 
-- [ ] Backend brief đã có hoặc đã xác nhận brief hiện tại vẫn đúng
-- [ ] Nếu dùng persisted brief, `check_backend_brief.py` không fail
-- [ ] Input được validate ở boundary
-- [ ] Business logic không nằm hết trong handler/controller
-- [ ] Transaction / idempotency stance đúng cho related writes hoặc retries
-- [ ] Contract / schema / caller / consumer đã được update
-- [ ] Observability hoặc ops note đủ cho flow có blast radius
-- [ ] API/data checks đã chạy
-- [ ] Backend integrity checklist không có regression rõ ràng
+- [ ] Backend brief already exists or confirmed the current brief is still correct
+- [ ] If a persisted brief is used, `check_backend_brief.py` does not fail
+- [ ] Input is validated at boundary
+- [ ] Business logic is not all in the handler/controller
+- [ ] Transaction / idempotency stance is correct for related writes or retries
+- [ ] Contract / schema / caller / consumer has been updated
+- [ ] Observability or ops note is enough for a flow with blast radius
+- [ ] API/data checks run
+- [ ] Backend integrity checklist has no obvious regressions
 
 ## Output
 
 ```
-Backend report:
-- Brief: [new/reused + path nếu có]
+Backend reports:
+- Brief: [new/reused + path if available]
 - Contract/schema changed: [...]
 - Pattern/runtime lens: [...]
 - Services touched: [...]
@@ -267,5 +267,5 @@ Backend report:
 ## Activation Announcement
 
 ```
-Forge: backend | chốt contract và validation ở boundary trước
+Forge: backend | Close the contract and validation at the boundary first
 ```

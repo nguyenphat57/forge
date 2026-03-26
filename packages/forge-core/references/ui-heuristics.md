@@ -1,35 +1,35 @@
 # UI Heuristics
 
-> Heuristics global cho frontend/visualize, không gắn repo cụ thể.
+> Global heuristics for frontend/visualize, not specific repo.
 
 ## Touch-Heavy UI
 
-- Primary actions nên nằm ở vùng dễ với tới, không sát mép gesture nếu là mobile/tablet.
-- Các thao tác lặp lại hoặc tần suất cao nên có affordance rõ và target lớn.
-- Đừng thiết kế flow phụ thuộc hover nếu sản phẩm chạm là chính.
+- Primary actions should be located in an easy-to-reach area, not close to the edge of the gesture if it is a mobile/tablet.
+- Repetitive or high-frequency operations should have clear affordances and large targets.
+- Don't design a flow that depends on hover if the main product is touching.
 
 ## Dense Data UI
 
-- Nhóm thông tin thành semantic blocks vừa mắt, thường 5-9 item chính mỗi cluster.
-- Primary KPI phải nổi bật trước; secondary metrics có thể vào tabs, filters, hoặc secondary rows.
-- Tránh noise như box-shadow nặng, border quá đậm, hoặc card nào cũng “đòi chú ý”.
+- Group information into eye-catching semantic blocks, usually 5-9 main items per cluster.
+- Primary KPI must stand out first; Secondary metrics can go to tabs, filters, or secondary rows.
+- Avoid noise such as heavy box-shadows, too bold borders, or every card "demanding attention".
 
 ## Dashboard UI
 
-- Mỗi viewport đầu tiên nên có một hierarchy rõ: primary goal, primary KPI, primary action.
-- Empty/loading/error của dashboard phải được thiết kế như screen thật, không chỉ là khoảng trống.
-- Filters và time range controls cần rõ ảnh hưởng lên data nào.
+- Each first viewport should have a clear hierarchy: primary goal, primary KPI, primary action.
+- Empty/loading/error of the dashboard must be designed like a real screen, not just empty space.
+- Filters and time range controls need to be clear about what data they affect.
 
 ## Perceived Performance
 
-- UI phải phản hồi nhanh bằng skeleton, optimistic hint, disabled/loading state, hoặc inline feedback.
-- Animation không được che việc app đang chậm hay đang fail.
+- UI must respond quickly with skeleton, optimistic hint, disabled/loading state, or inline feedback.
+- Animation cannot hide whether the app is slow or failing.
 
 ## Decision Architecture
 
-- Tránh “wall of buttons”.
-- 1 hoặc tối đa 2 CTA chính mỗi view là mặc định an toàn; phần còn lại hạ cấp hoặc progressive disclosure.
+- Avoid "wall of buttons".
+- 1 or maximum 2 main CTAs per view is a safe default; the rest downgrade or progressive disclosure.
 
 ## Accessibility Defaults
 
-- Đừng chờ tới cuối mới nghĩ accessibility; focus order, contrast, labels, và motion boundaries phải xuất hiện ngay từ brief/spec.
+- Don't wait until the end to think about accessibility; focus order, contrast, labels, and motion boundaries must appear immediately from the brief/spec.

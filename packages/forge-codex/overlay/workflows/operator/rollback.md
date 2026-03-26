@@ -12,20 +12,20 @@ quality_gates:
 
 # Rollback - Codex Operator Wrapper
 
-> Mục tiêu: giữ rollback flow ngắn và risk-first cho Codex, không biến nó thành command ritual.
+> Goal: keep the rollback flow short and risk-first for the Codex, don't turn it into a command ritual.
 
 ## Process
 
-1. Resolve bằng core planner:
+1. Resolve using core planner:
 
 ```powershell
 python scripts/resolve_rollback.py --workspace <workspace> --scope deploy --format json
 ```
 
-2. Trả lời ngắn:
-   - scope và risk
-   - strategy an toàn nhất
-   - verify sau rollback
+2. Short answer:
+   - scope and risk
+   - the safest strategy
+   - verify after rollback
 
 ## Activation Announcement
 

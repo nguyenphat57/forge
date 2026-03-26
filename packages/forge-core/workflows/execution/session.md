@@ -6,56 +6,56 @@ triggers:
   - explicit save/handover request
   - shortcut: /save-brain, /recap
 quality_gates:
-  - Context restored or handover note persisted
+  - Context restored or handover note restored
   - Response personalization resolved from adapter-global `state/preferences.json` when available
   - Scope-filtered continuity used when available
-  - Structured continuity capture stays evidence-backed and scoped
+  - Structured continuous capture stays evidence-backed and scoped
 ---
 
 # Session - Context & Session Management
 
-> Mục tiêu: phục hồi context từ artifact thật, không dựa vào memory tổng hợp nếu không cần. Bản này giả định `.brain` là memory layer mặc định của workspace khi host có hỗ trợ lớp nhớ cục bộ này.
+> Goal: recover context from real artifact, don't rely on synthetic memory if not needed. This version assumes `.brain` is the workspace's default memory layer when the host supports this local memory layer.
 
 <HARD-GATE>
-- Không fabricate token usage, context %, hay "bộ nhớ sắp đầy".
-- Không được dùng `.brain` thay cho repo state khi source-of-truth thật đang có sẵn.
-- Không nạp toàn bộ memory nếu scope hiện tại chỉ cần một lát cắt nhỏ hơn.
-- Không capture `decision` hoặc `learning` nếu nó chưa có evidence, chưa đủ bền, hoặc không gắn scope rõ.
+- Do not fabricate token usage, context %, or "memory is almost full".
+- Do not use `.brain` instead of repo state when the actual source-of-truth is available.
+- Do not load all memory if the current scope only needs a smaller slice.
+- Do not capture `decision` or `learning` if it does not have evidence, is not durable enough, or does not have a clear scope attached.
 </HARD-GATE>
 
 ## Modes
 
-| Trigger | Mode | Hành động |
+|Triggers | Mode | Action|
 |---------|------|-----------|
-| `/recap`, `/recap full`, `/recap deep`, "continue", "resume" | **Restore** | Rebuild context từ repo/doc/plan/.brain |
-| `/save-brain`, "lưu progress" | **Save** | Ghi note ngắn hoặc cập nhật `.brain` nếu user muốn |
-| Explicit handover request | **Handover** | Tạo note chuyển giao ngắn gọn |
+|`/recap`, `/recap full`, `/recap deep`, "continue", "resume" | **Restore** | Rebuild context from repo/doc/plan/.brain|
+|`/save-brain`, "save progress" | **Save** | Write a short note or update `.brain` if the user wants|
+|Explicit handover request | **Handover** | Create concise transfer notes|
 
 ---
 
 ## Operating Rules
 
-- Global preferences á»Ÿ Ä‘Ã¢y lÃ  adapter-global `state/preferences.json`; chá»‰ fallback sang `.brain/preferences.json` cho workspace legacy chÆ°a migrate.
+- Global preferences live in adapter-global `state/preferences.json`; only fall back to `.brain/preferences.json` for legacy workspaces that still need migration.
 
-- Repo-first: ưu tiên `git status`, changed files, docs, plans, task notes.
-- `.brain` là opt-in: chỉ đọc/ghi khi user yêu cầu hoặc handover thật sự giảm rủi ro.
-- Không biến `/save-brain` thành nghi thức bắt buộc cuối task.
-- Nếu có memory, đọc theo scope nhỏ nhất đủ dùng: global -> module -> current task, không load tràn lan.
+- Repo-first: priority `git status`, changed files, docs, plans, task notes.
+- `.brain` is opt-in: only read/write when the user requests or handover really reduces risk.
+- Do not make `/save-brain` a mandatory end-of-task ritual.
+- If you have memory, read according to the smallest scope enough to use: global -> module -> current task, do not load it everywhere.
 
 ---
 
 ## Restore Mode (`/recap`)
 
-Trong host có shortcut tương đương:
-- `/recap` -> restore nhanh
-- `/recap full` -> restore rộng hơn nếu host hỗ trợ
-- `/recap deep` -> restore sâu hơn nếu host hỗ trợ
+In the host there is an equivalent shortcut:
+- `/recap` -> quick restore
+- `/recap full` -> restore more extensively if the host supports it
+- `/recap deep` -> restore more deeply if the host supports it
 
 ### Load Order
 ```
-1. docs/plans/, docs/specs/, task notes đang mở
-2. git status / changed files / recent commits (nếu có git)
-3. Adapter-global `state/preferences.json` qua `python scripts/resolve_preferences.py --workspace <workspace> --format json`
+1. docs/plans/, docs/specs/, open task notes
+2. git status / changed files / recent commits (if git exists)
+3. Adapter-global `state/preferences.json` via `python scripts/resolve_preferences.py --workspace <workspace> --format json`
 4. .brain/handover.md
 5. .brain/session.json
 6. .brain/decisions.json
@@ -65,108 +65,108 @@ Trong host có shortcut tương đương:
 
 ### Response Personalization
 
-Resolve adapter-global Forge preferences trÆ°á»›c khi viáº¿t recap:
+Resolve adapter-global Forge preferences before recapping:
 
 ```powershell
 python scripts/resolve_preferences.py --workspace <workspace> --format json
 ```
 
-DÃ¹ng payload resolved Ä‘á»ƒ chá»‰nh:
-- terminology / Ä‘á»™ giáº£i thÃ­ch thuáº­t ngá»¯
-- Ä‘á»™ dÃ i recap vÃ  level chi tiáº¿t
-- má»©c chá»§ Ä‘á»™ng á»Ÿ proposed next step
-- pace / feedback / personality cá»§a cÃ¡ch phrasing
+Payload resolved:
+- terminology / tone
+- recap and detail levels
+- program proposed next step
+- pace / feedback / personality of phrasing
 
-KhÃ´ng cáº§n dump raw schema cho user trá»« khi há» há»i; má»¥c tiÃªu lÃ  Ã¡p style, khÃ´ng biáº¿n restore thÃ nh bÃ¡o cÃ¡o preferences.
+It is not possible to dump raw schema for users unless otherwise requested; The main source of data is style, there is no way to restore it with preferences.
 
 ### Scope-Filtered Continuity
 
-Khi `.brain` có dữ liệu đủ nhiều, chỉ kéo phần liên quan:
+When `.brain` has enough data, drag only the relevant part:
 
 ```text
-1. Xác định scope hiện tại: feature, module, subsystem, hoặc file cluster
-2. Đọc `.brain/handover.md` trước nếu có task đang dở
-3. Từ `.brain/session.json`, ưu tiên:
+1. Determine the current scope: feature, module, subsystem, or file cluster
+2. Read `.brain/handover.md` first if there is an unfinished task
+3. From `.brain/session.json`, priority:
    - working_on
    - pending_tasks
-   - verification
+   - verification. verification
    - decisions_made
-4. Từ `.brain/decisions.json`, chỉ lấy entry còn `active` và khớp scope hiện tại
-5. Từ `.brain/learnings.json`, chỉ lấy item đến từ repeated failure, incident, hoặc reusable pattern
-6. Từ `.brain/brain.json`, chỉ lấy decisions/patterns khớp scope hiện tại
-7. Nếu memory và repo state mâu thuẫn -> repo state thắng
+4. From `.brain/decisions.json`, only get the entry but also `active` and match the current scope
+5. From `.brain/learnings.json`, only get items from repeated failures, incidents, or repeated patterns
+6. From `.brain/brain.json`, only get decisions/patterns that match the current scope
+7. If memory and repo state conflict -> repo state wins
 ```
 
-Mục tiêu là continuity nhẹ: lấy đúng phần giúp nối lại công việc, không kéo theo "bộ nhớ dự án" nguyên khối.
+The goal is lightweight continuity: getting the right parts helps resume work, not dragging along monolithic "project memory".
 
 ### Summary Template
 ```
 Context recap:
-- Đang làm: [...]
-- Files/changes quan trọng: [...]
+- In progress: [...]
+- Important files/changes: [...]
 - Pending: [...]
-- Rủi ro / assumption: [...]
-- Next step hợp lý nhất: [...]
+- Risks / assumptions: [...]
+- Most reasonable next step: [...]
 ```
 
-Nếu có continuity phù hợp, thêm:
+If there is appropriate continuity, add:
 
 ```
 - Relevant continuity: [decision / blocker / verification / handover note]
 ```
 
-### Fallback (không có `.brain`)
-- Quét manifest và entrypoints chính: `package.json`, `pyproject.toml`, `go.mod`, `pom.xml`, `build.gradle`, `*.csproj`, `docs/`, `src/`, `app/`, `README`
-- Đưa summary từ artifact thật
-- Không dừng lại chỉ vì thiếu memory file
+### Fallback (without `.brain`)
+- Scan manifest and key entrypoints: `package.json`, `pyproject.toml`, `go.mod`, `pom.xml`, `build.gradle`, `*.csproj`, `docs/`, `src/`, `app/`, `README`
+- Provide summary from real artifact
+- Don't stop just because of lack of memory files
 
 ---
 
 ## Save Mode (`/save-brain`)
 
-Chỉ ghi khi user muốn lưu context hoặc handover.
+Only write when the user wants to save context or handover.
 
-### Nên lưu gì
+### What to save
 ```
 Major:
-- module mới
-- schema mới
-- API mới
-- quyết định kiến trúc
+- new modules
+- new schema
+- new API
+- architectural decisions
 
 Minor:
-- bug fix đang dở
+- unfinished bug fix
 - next steps
-- files đang sửa
-- lệnh verify đã chạy
+- files being edited
+- verification commands already run
 ```
 
-### Dữ liệu ưu tiên
-- `.brain/handover.md` cho handover ngắn
-- `.brain/session.json` cho dynamic state
-- `.brain/decisions.json` cho decision còn hiệu lực theo scope
-- `.brain/learnings.json` cho repeated failure hoặc reusable pattern
-- `.brain/brain.json` chỉ khi có thay đổi mang tính cấu trúc
+### Priority data
+- `.brain/handover.md` for short handover
+- `.brain/session.json` for dynamic state
+- `.brain/decisions.json` for decision to be valid according to scope
+- `.brain/learnings.json` for repeated failure or reusable pattern
+- `.brain/brain.json` only when there is a structural change
 
 ### Lightweight Continuity Rule
 
-Chỉ lưu thứ có ích cho lần sau:
-- decision còn hiệu lực
-- blocker hoặc risk chưa xong
-- next steps thật sự còn mở
-- verification hoặc command cần nhớ để không làm lại từ đầu
+Save only what's useful for later:
+- the decision is still valid
+- blocker or risk is not finished
+- next steps is actually still open
+- verification or command to remember so as not to start over again
 
-Không lưu:
-- recap dài dòng chỉ lặp lại repo state
-- kết luận mơ hồ kiểu "đã gần xong"
-- memory không gắn scope hoặc next action
+Do not save:
+- verbose recap just repeats the repo state
+- vague conclusion like "almost done"
+- memory does not attach scope or next action
 
 ### Structured Continuity Capture
 
-Khi cần lưu thứ bền hơn handover ngắn:
+When you need to save something more durable than a short handover:
 
 ```powershell
-python scripts/capture_continuity.py "Checkout rollback phải giữ compatibility window 1 release" `
+python scripts/capture_continuity.py "Checkout rollback must preserve a 1-release compatibility window" `
   --kind decision `
   --scope checkout `
   --evidence "docs/specs/checkout-spec.md" `
@@ -174,10 +174,10 @@ python scripts/capture_continuity.py "Checkout rollback phải giữ compatibili
   --revisit-if "consumer contract changes"
 ```
 
-Hoặc:
+Or:
 
 ```powershell
-python scripts/capture_continuity.py "Regression này chỉ lộ ra khi queue retry chạy song song" `
+python scripts/capture_continuity.py "This regression only surfaces when queue retries run in parallel" `
   --kind learning `
   --scope sync-engine `
   --trigger "3 failed fixes around retry ordering" `
@@ -187,13 +187,13 @@ python scripts/capture_continuity.py "Regression này chỉ lộ ra khi queue re
 ```
 
 Rule:
-- `decision`: chỉ lưu thứ còn hiệu lực cho lần sau
-- `learning`: chỉ lưu pattern có evidence, thường đến từ repeated failure hoặc incident
-- Repo state vẫn thắng nếu có mâu thuẫn
+- `decision`: only save valid things for next time
+- `learning`: only stores patterns that have evidence, usually coming from repeated failures or incidents
+- Repo state still wins if there is a conflict
 
-Nếu continuity và repo state lệch nhau khó gỡ, đọc `references/failure-recovery-playbooks.md`.
+If continuity and repo state are different and difficult to fix, read `references/failure-recovery-playbooks.md`.
 
-### Session JSON gợi ý
+### Session JSON suggestions
 ```json
 {
   "updated_at": "",
@@ -209,24 +209,24 @@ Nếu continuity và repo state lệch nhau khó gỡ, đọc `references/failur
 
 ## Handover Mode
 
-Dùng khi user yêu cầu hoặc task dài/rủi ro cao cần chuyển giao.
+Used when a user requests or a long/high-risk task needs to be transferred.
 
 ```
 HANDOVER
-- Đang làm: [feature/task]
-- Đã xong: [list]
-- Còn lại: [list]
-- Quyết định quan trọng: [list]
-- Files quan trọng: [list]
-- Lệnh verify đã chạy: [list]
+- In progress: [feature/task]
+- Completed: [list]
+- Remaining: [list]
+- Important decisions: [list]
+- Important files: [list]
+- Verification commands already run: [list]
 ```
 
-Lưu tại `.brain/handover.md` nếu user muốn lưu.
+Save at `.brain/handover.md` if the user wants to save.
 
 ---
 
 ## Activation Announcement
 
 ```
-Forge: session | restore/save context từ repo trước, .brain sau
+Forge: session | restore/save context from the repo first, `.brain` second
 ```

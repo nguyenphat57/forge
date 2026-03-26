@@ -1,49 +1,49 @@
 # Frontend Stack Profiles
 
-> Dùng khi task frontend cần một lens cụ thể theo stack thay vì guideline chung chung.
+> Used when the frontend task needs a specific lens according to the stack instead of a general guideline.
 
 ## generic-web
 
-- Phù hợp khi stack chưa rõ hoặc task là UI reasoning trước implementation.
-- Ưu tiên semantics, tokens, interaction cues, responsive states.
-- Không mặc định framework-specific patterns khi artifact chưa chứng minh.
+- Suitable when the stack is unclear or the task is UI reasoning before implementation.
+- Prioritize semantics, tokens, interaction cues, responsive states.
+- Do not default to framework-specific patterns when the artifact is not yet proven.
 
 ## html-tailwind
 
-- Ưu tiên utility clarity, extracted patterns, theme tokens, stable hover/focus states.
+- Prioritize utility clarity, extracted patterns, theme tokens, stable hover/focus states.
 - Watchouts:
   - class soup
-  - arbitrary values tràn lan
+  - Arbitrary values ​​​are rampant
   - `transition-all`
-  - surface quá trong ở light mode
+  - Surface is too clear in light mode
 
 ## react-vite
 
-- Ưu tiên component boundaries theo screen regions và state ownership.
-- Định nghĩa rõ loading/empty/error path trong brief trước khi code.
+- Prioritize component boundaries according to screen regions and state ownership.
+- Clearly define loading/empty/error path in the brief before coding.
 - Watchouts:
-  - layout phụ thuộc state tạm thời không cần thiết
-  - polish animation che mất rerender or state complexity
+  - Layout depends on unnecessary temporary state
+  - polish animation hides rerender or state complexity
 
 ## nextjs
 
-- Tách server/client boundary trước khi mô tả interaction phức tạp.
-- Tính luôn loading and streaming placeholders vào UX contract.
+- Separate the server/client boundary before describing complex interactions.
+- Include loading and streaming placeholders in the UX contract.
 - Watchouts:
-  - design lệ thuộc client-only state mà không có fallback
-  - hydration edge cases kéo lệch visual plan
+  - design depends on client-only state without fallback
+  - hydration edge cases pull out visual plan
 
 ## mobile-webview
 
-- Dùng cho Capacitor/webview/tablet POS style work.
-- Ưu tiên touch targets, safe-area, keyboard behavior, viewport resize resilience.
+- Used for Capacitor/webview/tablet POS style work.
+- Prioritize touch targets, safe-area, keyboard behavior, viewport resize resilience.
 - Watchouts:
   - hover-centric interactions
-  - actions đặt sát vùng gesture
-  - dense layout chỉ đẹp trên desktop
+  - actions placed close to the gesture area
+  - dense layout only looks good on desktop
 
 ## Reading Rule
 
-- Chỉ chọn profile gần nhất với stack/task.
-- Nếu vẫn chưa rõ stack, dùng `generic-web`.
-- Nếu visual exploration cho mobile/tablet shell, thường `mobile-webview` hữu ích hơn `generic-web`.
+- Only select the profile closest to the stack/task.
+- If the stack is still unclear, use `generic-web`.
+- If visual exploration is for mobile/tablet shell, usually `mobile-webview` is more useful than `generic-web`.
