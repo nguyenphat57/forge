@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0 - 2026-03-27
+
+- Hoàn tất đợt refactor agent-health trên toàn repo: tách các script và test hotspot thành module nhỏ theo chức năng, giữ các entrypoint ổn định, và đưa toàn bộ source Python ngoài `dist/` cùng `.install-backups/` về dưới ngưỡng 300 dòng mỗi file.
+- Chuẩn hóa release/runtime contracts bằng cách materialize overlay registry khi build, siết verify pipeline với secret scan và release hardening coverage, đồng thời giữ nguyên các flow cài bundle, preferences, help-next, route preview, smoke matrix, và workspace canary sau khi tách lớp.
+- Giảm nhiễu khi agent đọc workspace bằng `.ignore`, bổ sung báo cáo remediation/review, và chốt full verification cho source bundle lẫn dist bundle trước khi phát hành.
+
+
 ## 0.14.0 - 2026-03-27
 
 - Mở rộng bootstrap host-level cho `forge-codex` và `forge-antigravity`, thêm global templates rõ state root, hai file preferences tách riêng, resolver tuyệt đối, và activation flow để render đúng `AGENTS.md` với `GEMINI.md`.

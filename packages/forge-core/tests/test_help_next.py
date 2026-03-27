@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
+import time
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -96,6 +98,67 @@ class HelpNextTests(unittest.TestCase):
         self.assertEqual(report["suggested_workflow"], "review")
         self.assertIn("run the nearest verification", report["recommended_action"])
         self.assertIn("README.md", report["signals"]["untracked_files"])
+
+    def test_next_detects_git_changes_from_nested_workspace(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            repo_root = Path(temp_dir)
+            nested_workspace = repo_root / "packages" / "forge-core"
+            nested_workspace.mkdir(parents=True)
+            subprocess.run(["git", "init"], cwd=repo_root, check=True, capture_output=True, text=True, encoding="utf-8")
+            (nested_workspace / "README.md").write_text("# Nested Workspace\n", encoding="utf-8")
+            (nested_workspace / "package.json").write_text('{"name":"nested-workspace"}\n', encoding="utf-8")
+            (nested_workspace / "src").mkdir()
+            (nested_workspace / "src" / "feature.ts").write_text("export const value = 1;\n", encoding="utf-8")
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(nested_workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+
+        self.assertEqual(report["current_stage"], "active-changes")
+        self.assertEqual(report["suggested_workflow"], "review")
+        self.assertIn("README.md", report["signals"]["untracked_files"])
+
+    def test_next_uses_latest_nested_plan_by_mtime(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            plans_dir = workspace / "docs" / "plans"
+            nested_dir = plans_dir / "nested"
+            nested_dir.mkdir(parents=True)
+            older_plan = plans_dir / "older.md"
+            newer_plan = nested_dir / "newer.md"
+            older_plan.write_text("# Plan: Older Slice\n", encoding="utf-8")
+            newer_plan.write_text("# Plan: Newer Slice\n", encoding="utf-8")
+
+            older_time = time.time() - 120
+            newer_time = time.time()
+            os.utime(older_plan, (older_time, older_time))
+            os.utime(newer_plan, (newer_time, newer_time))
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+
+        self.assertEqual(report["current_stage"], "planned")
+        self.assertEqual(report["signals"]["latest_plan_title"], "Newer Slice")
+        self.assertEqual(report["current_focus"], "Plan: Newer Slice")
 
 
 if __name__ == "__main__":

@@ -51,7 +51,7 @@ python scripts/install_bundle.py forge-codex --dry-run --activate-codex
 - With `--activate-codex`, the script also backs up `~/.codex/AGENTS.md`, the legacy runtime, and any retired legacy skills.
 - Use `--backup-dir` to override the backup location.
 - Use `--no-backup` only when the target runtime is disposable.
-- Do not install into `packages/`, `dist/`, or the repo root.
+- Do not install anywhere inside the repo tree, including `packages/`, `dist/`, or the repo root.
 - The script prunes files that are no longer in the new bundle, but it does not need to delete the entire runtime root.
 
 ## Override Target

@@ -96,6 +96,28 @@ class RunWorkflowTests(unittest.TestCase):
         self.assertEqual(report["command_kind"], "deploy")
         self.assertEqual(report["suggested_workflow"], "deploy")
 
+    def test_noisy_ready_server_keeps_output_excerpt_bounded(self) -> None:
+        helper = FIXTURES_DIR / "run_helpers" / "noisy_serve_fixture.py"
+        result = run_python_script(
+            "run_with_guidance.py",
+            "--workspace",
+            str(workspace_fixture("run_workspace")),
+            "--timeout-ms",
+            "150",
+            "--format",
+            "json",
+            "--",
+            "python",
+            str(helper),
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+
+        self.assertEqual(report["status"], "PASS")
+        self.assertEqual(report["state"], "running")
+        self.assertTrue(report["readiness_detected"])
+        self.assertLessEqual(len(report["stdout_excerpt"]), 500)
+
 
 if __name__ == "__main__":
     unittest.main()

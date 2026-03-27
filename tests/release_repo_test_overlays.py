@@ -1,0 +1,167 @@
+from __future__ import annotations
+
+import json
+
+from release_repo_test_support import ROOT_DIR, ReleaseRepoTestSupport, build_release
+
+
+class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
+    def test_antigravity_wave_b_overlay_files_exist(self) -> None:
+        overlay_root = ROOT_DIR / "packages" / "forge-antigravity" / "overlay"
+        expected_files = [
+            overlay_root / "GEMINI.global.md",
+            overlay_root / "workflows" / "operator" / "customize.md",
+            overlay_root / "workflows" / "operator" / "init.md",
+            overlay_root / "workflows" / "operator" / "recap.md",
+            overlay_root / "workflows" / "operator" / "save-brain.md",
+            overlay_root / "workflows" / "operator" / "handover.md",
+            overlay_root / "references" / "antigravity-operator-surface.md",
+            overlay_root / "data" / "preferences-compat.json",
+            overlay_root / "data" / "routing-locales.json",
+            overlay_root / "data" / "routing-locales" / "vi.json",
+            overlay_root / "data" / "output-contracts.json",
+        ]
+        for path in expected_files:
+            with self.subTest(path=path):
+                self.assertTrue(path.exists())
+
+        skill = (overlay_root / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("/customize", skill)
+        self.assertIn("/init", skill)
+        self.assertIn("/save-brain", skill)
+        self.assert_antigravity_skill_bootstraps_preferences(
+            overlay_root / "SKILL.md",
+            label="forge-antigravity overlay skill",
+        )
+        self.assert_antigravity_agent_prompt_bootstraps_preferences(
+            overlay_root / "agents" / "openai.yaml",
+            label="forge-antigravity overlay agent prompt",
+        )
+        self.assert_antigravity_global_gemini_bootstraps_preferences(
+            overlay_root / "GEMINI.global.md",
+            label="forge-antigravity overlay gemini",
+        )
+
+    def test_build_release_preserves_antigravity_wave_b_overlay(self) -> None:
+        build_release.build_all()
+        dist_root = ROOT_DIR / "dist" / "forge-antigravity"
+        self.assertTrue((dist_root / "GEMINI.global.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "recap.md").exists())
+        self.assertTrue((dist_root / "references" / "antigravity-operator-surface.md").exists())
+        self.assertTrue((dist_root / "data" / "preferences-compat.json").exists())
+        self.assertTrue((dist_root / "data" / "routing-locales.json").exists())
+        self.assertTrue((dist_root / "data" / "routing-locales" / "vi.json").exists())
+        self.assertTrue((dist_root / "data" / "output-contracts.json").exists())
+        self.assert_antigravity_skill_bootstraps_preferences(
+            dist_root / "SKILL.md",
+            label="dist forge-antigravity skill",
+        )
+        self.assert_antigravity_agent_prompt_bootstraps_preferences(
+            dist_root / "agents" / "openai.yaml",
+            label="dist forge-antigravity agent prompt",
+        )
+        self.assert_antigravity_global_gemini_bootstraps_preferences(
+            dist_root / "GEMINI.global.md",
+            label="dist forge-antigravity gemini",
+        )
+        self.assert_routing_locale_config(dist_root / "data" / "routing-locales.json", label="dist forge-antigravity")
+        self.assert_output_contract_profiles(dist_root / "data" / "output-contracts.json", label="dist forge-antigravity")
+        self.assert_session_restores_preferences(
+            dist_root / "workflows" / "execution" / "session.md",
+            label="dist forge-antigravity session",
+        )
+
+    def test_codex_wave_c_overlay_files_exist(self) -> None:
+        overlay_root = ROOT_DIR / "packages" / "forge-codex" / "overlay"
+        expected_files = [
+            overlay_root / "AGENTS.global.md",
+            overlay_root / "data" / "orchestrator-registry.json",
+            overlay_root / "data" / "routing-locales.json",
+            overlay_root / "data" / "routing-locales" / "vi.json",
+            overlay_root / "data" / "output-contracts.json",
+            overlay_root / "workflows" / "execution" / "dispatch-subagents.md",
+            overlay_root / "workflows" / "execution" / "session.md",
+            overlay_root / "workflows" / "operator" / "help.md",
+            overlay_root / "workflows" / "operator" / "next.md",
+            overlay_root / "workflows" / "operator" / "run.md",
+            overlay_root / "workflows" / "operator" / "bump.md",
+            overlay_root / "workflows" / "operator" / "rollback.md",
+            overlay_root / "workflows" / "operator" / "customize.md",
+            overlay_root / "workflows" / "operator" / "init.md",
+            overlay_root / "references" / "codex-operator-surface.md",
+        ]
+        for path in expected_files:
+            with self.subTest(path=path):
+                self.assertTrue(path.exists())
+
+        skill = (overlay_root / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("natural-language first", skill)
+        self.assertIn("dispatch-subagents", skill)
+        self.assertIn("workflows/operator/customize.md", skill)
+        self.assertIn("workflows/operator/init.md", skill)
+        self.assertIn("AGENTS.global.md", skill)
+        self.assertIn("At the start of each new thread, resolve preferences", skill)
+        self.assertNotIn("save-brain", skill)
+        self.assert_codex_global_agents_bootstraps_preferences(
+            overlay_root / "AGENTS.global.md",
+            label="forge-codex overlay agents",
+        )
+        self.assertNotIn("/save-brain", (overlay_root / "workflows" / "execution" / "session.md").read_text(encoding="utf-8"))
+        self.assert_session_restores_preferences(
+            overlay_root / "workflows" / "execution" / "session.md",
+            label="forge-codex overlay session",
+        )
+
+    def test_build_release_preserves_codex_wave_c_overlay(self) -> None:
+        build_release.build_all()
+        dist_root = ROOT_DIR / "dist" / "forge-codex"
+        self.assertTrue((dist_root / "AGENTS.global.md").exists())
+        self.assertTrue((dist_root / "data" / "orchestrator-registry.json").exists())
+        self.assertTrue((dist_root / "data" / "routing-locales.json").exists())
+        self.assertTrue((dist_root / "data" / "routing-locales" / "vi.json").exists())
+        self.assertTrue((dist_root / "data" / "output-contracts.json").exists())
+        self.assertTrue((dist_root / "workflows" / "execution" / "dispatch-subagents.md").exists())
+        self.assertTrue((dist_root / "workflows" / "execution" / "session.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "help.md").exists())
+        self.assertTrue((dist_root / "references" / "codex-operator-surface.md").exists())
+        self.assert_routing_locale_config(dist_root / "data" / "routing-locales.json", label="dist forge-codex")
+        self.assert_output_contract_profiles(dist_root / "data" / "output-contracts.json", label="dist forge-codex")
+        self.assert_codex_global_agents_bootstraps_preferences(
+            dist_root / "AGENTS.global.md",
+            label="dist forge-codex agents",
+        )
+        self.assert_session_restores_preferences(
+            dist_root / "workflows" / "execution" / "session.md",
+            label="dist forge-codex session",
+        )
+
+        registry = json.loads((dist_root / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
+        self.assertEqual(registry["intents"]["SESSION"]["shortcuts"], [])
+        self.assertTrue(registry["host_capabilities"]["supports_subagents"])
+        self.assertEqual(registry["host_capabilities"]["subagent_dispatch_skill"], "dispatch-subagents")
+        dist_skill = (dist_root / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("At the start of each new thread, resolve preferences", dist_skill)
+        self.assertNotIn("save-brain", dist_skill)
+        self.assertNotIn("/save-brain", (dist_root / "workflows" / "execution" / "session.md").read_text(encoding="utf-8"))
+
+        antigravity_dist_root = ROOT_DIR / "dist" / "forge-antigravity"
+        self.assert_bump_wrapper_matches_release_contract(
+            antigravity_dist_root / "workflows" / "operator" / "bump.md",
+            label="dist forge-antigravity",
+        )
+        self.assert_bump_wrapper_matches_release_contract(
+            dist_root / "workflows" / "operator" / "bump.md",
+            label="dist forge-codex",
+        )
+        self.assertIn(
+            "VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION",
+            (antigravity_dist_root / "SKILL.md").read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            "VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION",
+            (dist_root / "SKILL.md").read_text(encoding="utf-8"),
+        )

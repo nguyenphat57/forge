@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import argparse
 import json
-import shutil
 import subprocess
+import time
 from datetime import datetime, timezone
 from pathlib import Path
+
+from release_fs import IGNORE_PATTERNS, copy_file, copy_tree as copy_tree_with_retries, remove_tree, should_ignore_relative_path
+from release_registry import materialize_overlay_registry
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -13,7 +16,10 @@ PACKAGES_DIR = ROOT_DIR / "packages"
 DIST_DIR = ROOT_DIR / "dist"
 CORE_DIR = PACKAGES_DIR / "forge-core"
 VERSION_FILE = ROOT_DIR / "VERSION"
-IGNORE_PATTERNS = shutil.ignore_patterns(".forge-artifacts", "__pycache__", "*.pyc", ".pytest_cache")
+BUNDLE_BUILD_ATTEMPTS = 3
+BUNDLE_BUILD_DELAY_SECONDS = 0.2
+BUNDLE_READY_ATTEMPTS = 10
+BUNDLE_READY_DELAY_SECONDS = 0.1
 
 
 def load_adapter_manifest(package_dir: Path) -> dict:
@@ -44,11 +50,11 @@ def resolve_git_revision() -> str | None:
 
 def clean_dir(path: Path) -> None:
     if path.exists():
-        shutil.rmtree(path)
+        remove_tree(path)
 
 
 def copy_tree(source: Path, destination: Path) -> None:
-    shutil.copytree(source, destination, ignore=IGNORE_PATTERNS)
+    copy_tree_with_retries(source, destination, dirs_exist_ok=True, ignore=IGNORE_PATTERNS)
 
 
 def apply_overlay(overlay_dir: Path, destination: Path) -> None:
@@ -56,12 +62,13 @@ def apply_overlay(overlay_dir: Path, destination: Path) -> None:
         return
     for path in sorted(overlay_dir.rglob("*")):
         relative = path.relative_to(overlay_dir)
+        if should_ignore_relative_path(relative):
+            continue
         target = destination / relative
         if path.is_dir():
             target.mkdir(parents=True, exist_ok=True)
             continue
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(path, target)
+        copy_file(path, target)
 
 
 def build_state_metadata(package_name: str, host: str) -> dict | None:
@@ -111,27 +118,80 @@ def write_build_manifest(destination: Path, package_name: str, host: str, source
     )
 
 
+def required_bundle_paths(destination: Path, package_name: str, host: str) -> list[Path]:
+    paths = [
+        destination / "BUILD-MANIFEST.json",
+        destination / "scripts" / "common.py",
+        destination / "scripts" / "preferences.py",
+        destination / "scripts" / "help_next_support.py",
+        destination / "scripts" / "run_guidance_support.py",
+        destination / "scripts" / "verify_bundle.py",
+        destination / "scripts" / "resolve_help_next.py",
+        destination / "scripts" / "run_with_guidance.py",
+    ]
+    if package_name == "forge-antigravity":
+        paths.extend([
+            destination / "GEMINI.global.md",
+            destination / "workflows" / "operator" / "bump.md",
+        ])
+    if package_name == "forge-codex":
+        paths.extend([
+            destination / "AGENTS.global.md",
+            destination / "data" / "orchestrator-registry.json",
+        ])
+    return paths
+
+
+def wait_for_bundle_ready(destination: Path, package_name: str, host: str) -> None:
+    for attempt in range(BUNDLE_READY_ATTEMPTS):
+        missing = [path for path in required_bundle_paths(destination, package_name, host) if not path.exists()]
+        if not missing:
+            return
+        if attempt < BUNDLE_READY_ATTEMPTS - 1:
+            time.sleep(BUNDLE_READY_DELAY_SECONDS * (attempt + 1))
+            continue
+        raise FileNotFoundError(f"Missing build artifacts for {package_name}: {missing[0]}")
+
+
 def build_core_bundle(metadata: dict[str, str | None]) -> dict:
     destination = DIST_DIR / "forge-core"
-    clean_dir(destination)
-    copy_tree(CORE_DIR, destination)
-    write_build_manifest(destination, "forge-core", "generic", "packages/forge-core", metadata)
+    for attempt in range(BUNDLE_BUILD_ATTEMPTS):
+        clean_dir(destination)
+        copy_tree(CORE_DIR, destination)
+        write_build_manifest(destination, "forge-core", "generic", "packages/forge-core", metadata)
+        try:
+            wait_for_bundle_ready(destination, "forge-core", "generic")
+            break
+        except FileNotFoundError:
+            if attempt == BUNDLE_BUILD_ATTEMPTS - 1:
+                raise
+            time.sleep(BUNDLE_BUILD_DELAY_SECONDS * (attempt + 1))
     return {"name": "forge-core", "path": str(destination), "host": "generic", "version": metadata["version"]}
 
 
 def build_adapter_bundle(package_dir: Path, metadata: dict[str, str | None]) -> dict:
     manifest = load_adapter_manifest(package_dir)
     destination = DIST_DIR / manifest["name"]
-    clean_dir(destination)
-    copy_tree(CORE_DIR, destination)
-    apply_overlay(package_dir / manifest["overlay_dir"], destination)
-    write_build_manifest(
-        destination,
-        manifest["name"],
-        manifest["host"],
-        str(package_dir.relative_to(ROOT_DIR)),
-        metadata,
-    )
+    overlay_dir = package_dir / manifest["overlay_dir"]
+    for attempt in range(BUNDLE_BUILD_ATTEMPTS):
+        clean_dir(destination)
+        copy_tree(CORE_DIR, destination)
+        apply_overlay(overlay_dir, destination)
+        materialize_overlay_registry(CORE_DIR, overlay_dir, destination)
+        write_build_manifest(
+            destination,
+            manifest["name"],
+            manifest["host"],
+            str(package_dir.relative_to(ROOT_DIR)),
+            metadata,
+        )
+        try:
+            wait_for_bundle_ready(destination, manifest["name"], manifest["host"])
+            break
+        except FileNotFoundError:
+            if attempt == BUNDLE_BUILD_ATTEMPTS - 1:
+                raise
+            time.sleep(BUNDLE_BUILD_DELAY_SECONDS * (attempt + 1))
     return {
         "name": manifest["name"],
         "path": str(destination),

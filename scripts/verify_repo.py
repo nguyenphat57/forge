@@ -75,6 +75,11 @@ def main() -> int:
             ROOT_DIR,
         ),
         run_step(
+            "repo.secret_scan",
+            [sys.executable, str(ROOT_DIR / "scripts" / "scan_repo_secrets.py")],
+            ROOT_DIR,
+        ),
+        run_step(
             "repo.unittest",
             [sys.executable, "-m", "unittest", "discover", "-s", str(TESTS_DIR), "-v"],
             ROOT_DIR,

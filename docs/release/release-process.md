@@ -10,6 +10,7 @@
 
 1. Update source in the monorepo.
 2. Run `python scripts/verify_repo.py`.
+   This gate now includes the repo secret scan.
 3. Build artifacts with `python scripts/build_release.py`.
 4. Install or publish from `dist/`.
 5. Run host-specific smoke or canary checks before broad promotion.
