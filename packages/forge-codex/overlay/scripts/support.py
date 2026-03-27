@@ -11,7 +11,21 @@ from pathlib import Path
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-CORE_ROOT_DIR = ROOT_DIR.parents[1] / "forge-core"
+
+
+def resolve_core_root_dir() -> Path:
+    materialized_bundle = ROOT_DIR / "BUILD-MANIFEST.json"
+    if materialized_bundle.exists():
+        return ROOT_DIR
+
+    source_core_root = ROOT_DIR.parents[1] / "forge-core"
+    if source_core_root.exists():
+        return source_core_root
+
+    return ROOT_DIR
+
+
+CORE_ROOT_DIR = resolve_core_root_dir()
 CORE_SCRIPTS_DIR = CORE_ROOT_DIR / "scripts"
 
 
@@ -49,6 +63,9 @@ def write_json(path: Path, payload: object) -> None:
 
 
 def stage_bundle_root() -> Path:
+    if CORE_ROOT_DIR == ROOT_DIR:
+        return ROOT_DIR
+
     stage_root = Path(tempfile.mkdtemp(prefix="forge-codex-bundle-"))
     stage_data_dir = stage_root / "data"
     core_data_dir = CORE_ROOT_DIR / "data"

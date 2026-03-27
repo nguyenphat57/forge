@@ -10,7 +10,7 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 SCRIPTS_DIR = ROOT_DIR / "scripts"
 
 if str(SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_DIR))
+    sys.path.append(str(SCRIPTS_DIR))
 
 SUPPORT_SPEC = importlib.util.spec_from_file_location(
     "forge_codex_overlay_support",
