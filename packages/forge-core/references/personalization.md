@@ -171,6 +171,6 @@ Operator rule:
 
 ## Adapter Boundary
 
-- `forge-antigravity`: may add `/customize` or onboarding wrappers, may ship compat defaults, and may ship bundle-local output-contract profiles
-- `forge-codex`: should keep a natural-language customize flow and let adapter-global state drive durable language rules
-- Future adapters such as `forge-claude` should be able to reuse this schema with compat mapping and bundle-local output-contract profiles instead of a fork
+- Host adapters may add `/customize` or onboarding wrappers, may ship compat defaults, and may ship bundle-local output-contract profiles
+- The active host adapter should keep a natural-language customize flow and let adapter-global state drive durable language rules
+- Future adapters should be able to reuse this schema with compat mapping and bundle-local output-contract profiles instead of a fork

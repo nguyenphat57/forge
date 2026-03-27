@@ -24,6 +24,7 @@ BUMP_CASES = json.loads((FIXTURES_DIR / "bump_cases.json").read_text(encoding="u
 ROLLBACK_CASES = json.loads((FIXTURES_DIR / "rollback_cases.json").read_text(encoding="utf-8"))
 PREFERENCES_WRITE_CASES = json.loads((FIXTURES_DIR / "preferences_write_cases.json").read_text(encoding="utf-8"))
 WORKSPACE_INIT_CASES = json.loads((FIXTURES_DIR / "workspace_init_cases.json").read_text(encoding="utf-8"))
+RESPONSE_CONTRACT_CASES = json.loads((FIXTURES_DIR / "response_contract_cases.json").read_text(encoding="utf-8"))
 RUN_HELPERS_DIR = FIXTURES_DIR / "run_helpers"
 
 
@@ -260,6 +261,32 @@ def validate_workspace_init_case(case: dict, report: dict) -> list[str]:
 
     expect(report["workspace_mode"], case["expected_mode"], "workspace_mode")
     expect(report["recommended_next_workflow"], case["expected_next_workflow"], "recommended_next_workflow")
+    return failures
+
+
+def validate_response_contract_case(case: dict, report: dict) -> list[str]:
+    failures: list[str] = []
+
+    def expect(actual: object, expected: object, label: str) -> None:
+        if actual != expected:
+            failures.append(f"{label}: expected {expected!r}, got {actual!r}")
+
+    expect(report["status"], case["expected_status"], "status")
+    if "expected_evidence_required" in case:
+        expect(report["evidence_required"], case["expected_evidence_required"], "evidence_required")
+    if "expected_evidence_mode" in case:
+        expect(report["checks"]["evidence_response"]["mode"], case["expected_evidence_mode"], "evidence_mode")
+
+    findings = report.get("findings", [])
+    for expected in case.get("expected_finding_contains", []):
+        if not any(expected in finding for finding in findings):
+            failures.append(f"finding missing substring: {expected!r}")
+
+    warnings = report.get("warnings", [])
+    for expected in case.get("expected_warning_contains", []):
+        if not any(expected in warning for warning in warnings):
+            failures.append(f"warning missing substring: {expected!r}")
+
     return failures
 
 
@@ -662,6 +689,42 @@ def run_workspace_init_suite() -> list[dict]:
     return results
 
 
+def run_response_contract_suite() -> list[dict]:
+    contract_script = ROOT_DIR / "scripts" / "check_response_contract.py"
+    results: list[dict] = []
+    for case in RESPONSE_CONTRACT_CASES:
+        command = [
+            sys.executable,
+            str(contract_script),
+            "--format",
+            "json",
+            *case["args"],
+        ]
+        completed = run_command(command)
+        if completed.returncode not in {0, 1}:
+            results.append(
+                {
+                    "suite": "response-contract",
+                    "name": case["name"],
+                    "status": "FAIL",
+                    "failures": [f"unexpected exit code {completed.returncode}", completed.stderr.strip() or completed.stdout.strip()],
+                }
+            )
+            continue
+
+        report = json.loads(completed.stdout)
+        failures = validate_response_contract_case(case, report)
+        results.append(
+            {
+                "suite": "response-contract",
+                "name": case["name"],
+                "status": "PASS" if not failures else "FAIL",
+                "failures": failures,
+            }
+        )
+    return results
+
+
 def summarize(results: list[dict]) -> dict:
     passes = sum(1 for item in results if item["status"] == "PASS")
     failures = [item for item in results if item["status"] == "FAIL"]
@@ -705,6 +768,7 @@ def main() -> int:
             "rollback",
             "preferences-write",
             "workspace-init",
+            "response-contract",
             "all",
         ],
         default="all",
@@ -734,6 +798,8 @@ def main() -> int:
         results.extend(run_preferences_write_suite())
     if args.suite in {"workspace-init", "all"}:
         results.extend(run_workspace_init_suite())
+    if args.suite in {"response-contract", "all"}:
+        results.extend(run_response_contract_suite())
 
     summary = summarize(results)
     payload = {"summary": summary, "results": results}

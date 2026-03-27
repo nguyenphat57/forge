@@ -70,6 +70,25 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["intent"], "REVIEW")
         self.assertEqual(report["detected"]["forge_skills"], ["review", "secure"])
 
+    def test_direction_question_inserts_brainstorm_without_explicit_keyword(self) -> None:
+        report = route_preview.build_report(
+            self.build_args("Should we use web or native for the new checkout flow?")
+        )
+
+        self.assertEqual(report["detected"]["intent"], "BUILD")
+        self.assertEqual(report["detected"]["forge_skills"][0], "brainstorm")
+
+    def test_backward_compatibility_boundary_inserts_spec_review(self) -> None:
+        report = route_preview.build_report(
+            self.build_args(
+                "Add a new endpoint for existing clients and keep backward compatibility",
+                repo_signals=["api/"],
+            )
+        )
+
+        self.assertEqual(report["detected"]["intent"], "BUILD")
+        self.assertIn("spec-review", report["detected"]["forge_skills"])
+
     def test_runtime_signal_can_select_local_companion(self) -> None:
         with TemporaryDirectory() as temp_dir:
             router_path = Path(temp_dir) / "workspace-router.md"

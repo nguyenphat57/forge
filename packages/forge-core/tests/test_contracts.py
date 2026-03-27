@@ -16,6 +16,21 @@ from support import (
 
 
 class BundleContractTests(unittest.TestCase):
+    def test_core_runtime_assets_do_not_embed_codex_assumptions(self) -> None:
+        if not is_core_bundle():
+            self.skipTest("Adapter bundles may add host-specific behavior on top of Forge core.")
+
+        for relative_dir in ("scripts", "data", "workflows", "domains"):
+            for path in (ROOT_DIR / relative_dir).rglob("*"):
+                if not path.is_file() or path.suffix not in {".py", ".json", ".md"}:
+                    continue
+                text = path.read_text(encoding="utf-8").casefold()
+                relative_path = path.relative_to(ROOT_DIR)
+                with self.subTest(path=str(relative_path)):
+                    self.assertNotIn("forge-codex", text)
+                    self.assertNotIn(".codex", text)
+                    self.assertNotIn("codex", text)
+
     def test_registry_chains_reference_known_skills(self) -> None:
         registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
         known_skills = {path.stem for path in (ROOT_DIR / "domains").glob("*.md")}
@@ -60,6 +75,23 @@ class BundleContractTests(unittest.TestCase):
             self.assertTrue(
                 isinstance(profiles.get("languages"), dict) or isinstance(profiles.get("orthographies"), dict)
             )
+
+    def test_enabled_locale_assets_use_utf8_without_mojibake(self) -> None:
+        routing_locale_config = ROOT_DIR / "data" / "routing-locales.json"
+        routing_locale_dir = ROOT_DIR / "data" / "routing-locales"
+        if not routing_locale_config.exists():
+            self.skipTest("Bundle does not ship locale assets.")
+
+        payload = json.loads(routing_locale_config.read_text(encoding="utf-8"))
+        markers = ("Ã", "á»", "Ä‘", "Æ°", "â€œ", "â€", "\ufffd")
+        for locale_name in payload.get("enabled_locales", []):
+            locale_path = routing_locale_dir / f"{locale_name}.json"
+            text = locale_path.read_text(encoding="utf-8")
+            with self.subTest(bundle=bundle_package_name(), locale=locale_name):
+                for marker in markers:
+                    self.assertNotIn(marker, text)
+                if locale_name == "vi":
+                    self.assertTrue(any(char in text for char in "ăâđêôơưÁÀẢÃẠáàảãạ"))
 
     def test_reference_map_entries_exist(self) -> None:
         reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")

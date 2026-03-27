@@ -1,0 +1,49 @@
+[
+  {
+    "name": "verified_response_passes_contract",
+    "args": [
+      "--response-text",
+      "I verified: pytest -q passed. Correct because the validator only tightens response guardrails. Fixed: added response contract checks.",
+      "--language",
+      "en",
+      "--orthography",
+      "plain_english",
+      "--require-evidence-response"
+    ],
+    "expected_status": "PASS",
+    "expected_evidence_required": true,
+    "expected_evidence_mode": "verified"
+  },
+  {
+    "name": "banned_phrase_fails_contract",
+    "args": [
+      "--response-text",
+      "Good catch! Fixed.",
+      "--require-evidence-response"
+    ],
+    "expected_status": "FAIL",
+    "expected_evidence_required": true,
+    "expected_finding_contains": [
+      "Banned phrase detected",
+      "Evidence response required"
+    ]
+  },
+  {
+    "name": "vietnamese_contract_rejects_accent_stripped_prose",
+    "args": [
+      "--response-text",
+      "Em da xac minh: pytest -q pass. Dung vi validator moi chi them guardrail. Da sua: bo sung kiem tra hop dong output.",
+      "--language",
+      "vi",
+      "--orthography",
+      "vietnamese_diacritics",
+      "--require-evidence-response"
+    ],
+    "expected_status": "FAIL",
+    "expected_evidence_required": true,
+    "expected_evidence_mode": "verified",
+    "expected_finding_contains": [
+      "accent-stripped Vietnamese"
+    ]
+  }
+]

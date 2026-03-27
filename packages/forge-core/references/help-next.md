@@ -41,6 +41,6 @@
 
 ## Adapter Boundary
 
-- `forge-antigravity` can clearly expose `/help` and `/next`.
-- `forge-codex` should keep natural-language first and can leave slash as an optional alias.
+- Host adapters may expose `/help` and `/next` as thin wrappers.
+- The active host adapter should keep natural-language first and can leave slash as an optional alias.
 - The adapter cannot fork stage model or source priority.

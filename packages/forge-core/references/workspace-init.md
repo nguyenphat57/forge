@@ -32,6 +32,6 @@ Options:
 
 ## Adapter Boundary
 
-- `forge-antigravity`: can include `/init` + thin onboarding based on this script
-- `forge-codex`: can expose minimal init via natural language without needing a heavy ceremony
-- Future adapters like `forge-claude` must be able to reuse this script without changing the schema or layout files
+- Host adapters can include `/init` plus thin onboarding based on this script
+- The active host adapter can expose minimal init via natural language without needing a heavy ceremony
+- Future adapters must be able to reuse this script without changing the schema or layout files

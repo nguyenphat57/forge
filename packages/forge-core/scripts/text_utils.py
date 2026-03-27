@@ -19,6 +19,7 @@ def configure_stdio() -> None:
 def normalize_text(value: str) -> str:
     text = unicodedata.normalize("NFKD", value)
     text = "".join(char for char in text if not unicodedata.combining(char))
+    text = text.replace("đ", "d").replace("Đ", "D")
     text = text.casefold()
     text = re.sub(r"[\r\n\t]+", " ", text)
     text = re.sub(r"\s+", " ", text)

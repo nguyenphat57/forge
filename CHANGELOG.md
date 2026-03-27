@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.12.0 - 2026-03-27
+
+- Tăng độ native tiếng Việt cho `forge-codex` bằng cách làm sạch `locale/vi` về UTF-8 chuẩn, thêm regression cho prompt Việt tự nhiên hơn, và chặn lại lỗi mojibake ở asset bundle.
+- Bổ sung response-contract validator cùng smoke/tests để `forge-codex` bám chặt hơn vào contract output tiếng Việt và evidence response.
+- Siết adapter boundary để shared core không nhúng trực tiếp assumption của `.codex`, đồng thời giữ các tối ưu host-specific ở đúng lớp `forge-codex`.
+
+
 ## 0.11.0 - 2026-03-27
 
 - Tách hoàn toàn locale routing và output contract khỏi `forge-core`, giữ core EN-only và chuyển ownership sang adapter overlays.
