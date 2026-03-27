@@ -14,11 +14,13 @@ DIST_DIR = ROOT_DIR / "dist"
 PACKAGES_DIR = ROOT_DIR / "packages"
 DEFAULT_BACKUP_DIR = ROOT_DIR / ".install-backups"
 DEFAULT_CODEX_HOME = Path.home() / ".codex"
+DEFAULT_GEMINI_HOME = Path.home() / ".gemini"
 DEFAULT_INSTALL_TARGETS = {
     "forge-antigravity": Path.home() / ".gemini" / "antigravity" / "skills" / "forge-antigravity",
     "forge-codex": Path.home() / ".codex" / "skills" / "forge-codex",
 }
 CODEX_GLOBAL_TEMPLATE = "AGENTS.global.md"
+GEMINI_GLOBAL_TEMPLATE = "GEMINI.global.md"
 CODEX_LEGACY_SKILL_GLOB = "awf-*"
 STATE_SCOPE = "adapter-global"
 STATE_PREFERENCES_RELATIVE_PATH = Path("state") / "preferences.json"
@@ -43,6 +45,12 @@ def resolve_codex_home(codex_home: str | None) -> Path:
     if codex_home:
         return Path(codex_home).expanduser().resolve()
     return DEFAULT_CODEX_HOME.resolve()
+
+
+def resolve_gemini_home(gemini_home: str | None) -> Path:
+    if gemini_home:
+        return Path(gemini_home).expanduser().resolve()
+    return DEFAULT_GEMINI_HOME.resolve()
 
 
 def resolve_adapter_state_root(target_path: Path) -> Path:
@@ -83,10 +91,38 @@ def load_build_manifest(source: Path) -> dict:
 
 
 def render_codex_global_agents(template_text: str, codex_home: Path, target_path: Path) -> str:
+    state_root = resolve_adapter_state_root(target_path)
+    skill_path = target_path / "SKILL.md"
+    resolver_path = target_path / "scripts" / "resolve_preferences.py"
+    preferences_path = state_root / "state" / "preferences.json"
+    extra_preferences_path = state_root / "state" / "extra_preferences.json"
     rendered = template_text
     rendered = rendered.replace("{{CODEX_HOME}}", str(codex_home))
-    rendered = rendered.replace("{{FORGE_CODEX_SKILL}}", str(target_path))
+    rendered = rendered.replace("{{FORGE_CODEX_BUNDLE_ROOT}}", str(target_path))
+    rendered = rendered.replace("{{FORGE_CODEX_SKILL}}", str(skill_path))
     rendered = rendered.replace("{{FORGE_CODEX_WORKFLOWS}}", str(target_path / "workflows"))
+    rendered = rendered.replace("{{FORGE_CODEX_STATE_ROOT}}", str(state_root))
+    rendered = rendered.replace("{{FORGE_CODEX_PREFERENCES_PATH}}", str(preferences_path))
+    rendered = rendered.replace("{{FORGE_CODEX_EXTRA_PREFERENCES_PATH}}", str(extra_preferences_path))
+    rendered = rendered.replace("{{FORGE_CODEX_RESOLVER}}", f"python {resolver_path}")
+    return rendered.rstrip() + "\n"
+
+
+def render_antigravity_global_gemini(template_text: str, gemini_home: Path, target_path: Path) -> str:
+    state_root = resolve_adapter_state_root(target_path)
+    skill_path = target_path / "SKILL.md"
+    resolver_path = target_path / "scripts" / "resolve_preferences.py"
+    preferences_path = state_root / "state" / "preferences.json"
+    extra_preferences_path = state_root / "state" / "extra_preferences.json"
+    rendered = template_text
+    rendered = rendered.replace("{{GEMINI_HOME}}", str(gemini_home))
+    rendered = rendered.replace("{{FORGE_ANTIGRAVITY_SKILL}}", str(skill_path))
+    rendered = rendered.replace("{{FORGE_ANTIGRAVITY_BUNDLE_ROOT}}", str(target_path))
+    rendered = rendered.replace("{{FORGE_ANTIGRAVITY_WORKFLOWS}}", str(target_path / "workflows"))
+    rendered = rendered.replace("{{FORGE_ANTIGRAVITY_STATE_ROOT}}", str(state_root))
+    rendered = rendered.replace("{{FORGE_ANTIGRAVITY_PREFERENCES_PATH}}", str(preferences_path))
+    rendered = rendered.replace("{{FORGE_ANTIGRAVITY_EXTRA_PREFERENCES_PATH}}", str(extra_preferences_path))
+    rendered = rendered.replace("{{FORGE_ANTIGRAVITY_RESOLVER}}", f"python {resolver_path}")
     return rendered.rstrip() + "\n"
 
 
@@ -138,6 +174,49 @@ def plan_codex_host_activation(
     }
 
 
+def plan_gemini_host_activation(
+    *,
+    bundle_name: str,
+    source_path: Path,
+    target_path: Path,
+    install_id: str,
+    backup: bool,
+    backup_root: Path,
+    activate_gemini: bool,
+    gemini_home: str | None,
+) -> dict:
+    if not activate_gemini:
+        return {"enabled": False}
+
+    if bundle_name != "forge-antigravity":
+        raise ValueError("--activate-gemini is only valid for the forge-antigravity bundle.")
+
+    gemini_home_path = resolve_gemini_home(gemini_home)
+    expected_target = (gemini_home_path / "antigravity" / "skills" / "forge-antigravity").resolve()
+    if target_path != expected_target:
+        raise ValueError(
+            f"--activate-gemini requires target path '{expected_target}'. "
+            f"Received '{target_path}'."
+        )
+
+    template_path = source_path / GEMINI_GLOBAL_TEMPLATE
+    if not template_path.exists():
+        raise FileNotFoundError(f"Missing {GEMINI_GLOBAL_TEMPLATE} in bundle source: {source_path}")
+
+    gemini_md_path = gemini_home_path / "GEMINI.md"
+    host_backup_path = None
+    if backup and gemini_md_path.exists():
+        host_backup_path = backup_root / f"{bundle_name}-host-{install_id}"
+
+    return {
+        "enabled": True,
+        "gemini_home": str(gemini_home_path),
+        "gemini_md_path": str(gemini_md_path),
+        "template_path": str(template_path),
+        "host_backup_path": str(host_backup_path) if host_backup_path else None,
+    }
+
+
 def plan_install(
     bundle_name: str,
     *,
@@ -149,6 +228,8 @@ def plan_install(
     dry_run: bool = False,
     activate_codex: bool = False,
     codex_home: str | None = None,
+    activate_gemini: bool = False,
+    gemini_home: str | None = None,
 ) -> dict:
     if build:
         build_release.build_all()
@@ -160,6 +241,8 @@ def plan_install(
     resolved_target = target
     if bundle_name == "forge-codex" and codex_home and target is None:
         resolved_target = str(resolve_codex_home(codex_home) / "skills" / "forge-codex")
+    if bundle_name == "forge-antigravity" and gemini_home and target is None:
+        resolved_target = str(resolve_gemini_home(gemini_home) / "antigravity" / "skills" / "forge-antigravity")
 
     target_path = resolve_install_target(bundle_name, resolved_target)
     validate_install_paths(source_path, target_path)
@@ -179,6 +262,16 @@ def plan_install(
         activate_codex=activate_codex,
         codex_home=codex_home,
     )
+    gemini_host_activation = plan_gemini_host_activation(
+        bundle_name=bundle_name,
+        source_path=source_path,
+        target_path=target_path,
+        install_id=install_id,
+        backup=backup,
+        backup_root=backup_root,
+        activate_gemini=activate_gemini,
+        gemini_home=gemini_home,
+    )
     state = build_state_metadata(target_path)
 
     return {
@@ -194,6 +287,7 @@ def plan_install(
         "backup_path": str(backup_path) if backup_path else None,
         "source_build_manifest": build_manifest,
         "codex_host_activation": codex_host_activation,
+        "gemini_host_activation": gemini_host_activation,
         "state": state,
     }
 
@@ -217,6 +311,14 @@ def write_install_manifest(target: Path, report: dict) -> None:
             "enabled": True,
             "codex_home": activation["codex_home"],
             "agents_path": activation["agents_path"],
+            "host_backup_path": activation["host_backup_path"],
+        }
+    if report["gemini_host_activation"]["enabled"]:
+        activation = report["gemini_host_activation"]
+        manifest["gemini_host_activation"] = {
+            "enabled": True,
+            "gemini_home": activation["gemini_home"],
+            "gemini_md_path": activation["gemini_md_path"],
             "host_backup_path": activation["host_backup_path"],
         }
     (target / "INSTALL-MANIFEST.json").write_text(
@@ -282,6 +384,19 @@ def backup_codex_host_activation(activation: dict) -> None:
             copy_path(skill_path, backup_root / "skills" / skill_path.name)
 
 
+def backup_gemini_host_activation(activation: dict) -> None:
+    host_backup_path = activation.get("host_backup_path")
+    if not host_backup_path:
+        return
+
+    backup_root = Path(host_backup_path)
+    backup_root.mkdir(parents=True, exist_ok=True)
+
+    gemini_md_path = Path(activation["gemini_md_path"])
+    if gemini_md_path.exists():
+        copy_path(gemini_md_path, backup_root / "GEMINI.md")
+
+
 def apply_codex_host_activation(report: dict) -> None:
     activation = report["codex_host_activation"]
     if not activation["enabled"]:
@@ -312,6 +427,29 @@ def apply_codex_host_activation(report: dict) -> None:
         skill_path = Path(raw_path)
         if skill_path.exists():
             remove_path(skill_path)
+
+
+def apply_gemini_host_activation(report: dict) -> None:
+    activation = report["gemini_host_activation"]
+    if not activation["enabled"]:
+        return
+
+    backup_gemini_host_activation(activation)
+
+    gemini_home_path = Path(activation["gemini_home"])
+    gemini_home_path.mkdir(parents=True, exist_ok=True)
+
+    gemini_md_path = Path(activation["gemini_md_path"])
+    template_path = Path(activation["template_path"])
+    rendered_gemini = render_antigravity_global_gemini(
+        template_path.read_text(encoding="utf-8"),
+        gemini_home_path,
+        Path(report["target"]),
+    )
+    if gemini_md_path.exists() and gemini_md_path.is_dir():
+        remove_path(gemini_md_path)
+    gemini_md_path.parent.mkdir(parents=True, exist_ok=True)
+    gemini_md_path.write_text(rendered_gemini, encoding="utf-8")
 
 
 def ensure_state_layout(report: dict) -> None:
@@ -346,6 +484,7 @@ def install_from_plan(report: dict) -> dict:
     sync_tree(source_path, target_path)
     ensure_state_layout(report)
     apply_codex_host_activation(report)
+    apply_gemini_host_activation(report)
     write_install_manifest(target_path, report)
     return report
 
@@ -361,6 +500,8 @@ def install_bundle(
     dry_run: bool = False,
     activate_codex: bool = False,
     codex_home: str | None = None,
+    activate_gemini: bool = False,
+    gemini_home: str | None = None,
 ) -> dict:
     report = plan_install(
         bundle_name,
@@ -372,6 +513,8 @@ def install_bundle(
         dry_run=dry_run,
         activate_codex=activate_codex,
         codex_home=codex_home,
+        activate_gemini=activate_gemini,
+        gemini_home=gemini_home,
     )
     return install_from_plan(report)
 
@@ -394,6 +537,12 @@ def format_text(report: dict) -> str:
         if activation["legacy_skill_paths"]:
             lines.append(f"- Retire legacy skills: {', '.join(activation['legacy_skill_paths'])}")
         lines.append(f"- Host backup: {activation['host_backup_path'] or '(not needed)'}")
+    if report["gemini_host_activation"]["enabled"]:
+        activation = report["gemini_host_activation"]
+        lines.append("- Gemini host activation: yes")
+        lines.append(f"- Gemini home: {activation['gemini_home']}")
+        lines.append(f"- Global GEMINI: {activation['gemini_md_path']}")
+        lines.append(f"- Host backup: {activation['host_backup_path'] or '(not needed)'}")
     return "\n".join(lines)
 
 
@@ -412,6 +561,12 @@ def main() -> int:
         help="For forge-codex: rewrite Codex global AGENTS.md and retire legacy AWF runtime artifacts.",
     )
     parser.add_argument("--codex-home", help="Override Codex home (defaults to ~/.codex)")
+    parser.add_argument(
+        "--activate-gemini",
+        action="store_true",
+        help="For forge-antigravity: rewrite Gemini global GEMINI.md from the bundle template.",
+    )
+    parser.add_argument("--gemini-home", help="Override Gemini home (defaults to ~/.gemini)")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     args = parser.parse_args()
 
@@ -425,6 +580,8 @@ def main() -> int:
         dry_run=args.dry_run,
         activate_codex=args.activate_codex,
         codex_home=args.codex_home,
+        activate_gemini=args.activate_gemini,
+        gemini_home=args.gemini_home,
     )
     if args.format == "json":
         print(json.dumps(report, indent=2, ensure_ascii=False))

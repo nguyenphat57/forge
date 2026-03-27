@@ -23,6 +23,11 @@ VIETNAMESE_OUTPUT_CONTRACT = {
     "encoding": "utf-8",
 }
 
+HONORIFIC_OUTPUT_CONTRACT = {
+    **VIETNAMESE_OUTPUT_CONTRACT,
+    "tone_detail": "Gọi Sếp, xưng Em",
+}
+
 
 class ResponseContractTests(unittest.TestCase):
     def test_normalize_text_folds_vietnamese_d_with_stroke(self) -> None:
@@ -74,6 +79,25 @@ class ResponseContractTests(unittest.TestCase):
 
         self.assertEqual(report["status"], "FAIL")
         self.assertTrue(any("exactly one question" in finding for finding in report["findings"]))
+
+    def test_validator_rejects_wrong_honorific_for_tone_detail(self) -> None:
+        report = response_contract.validate_response_contract(
+            "Em đã xác minh: pytest -q pass. Đúng vì validator đã chạy. Đã sửa: anh sẽ cập nhật lại luồng trả lời.",
+            output_contract=HONORIFIC_OUTPUT_CONTRACT,
+            require_evidence_response=True,
+        )
+
+        self.assertEqual(report["status"], "FAIL")
+        self.assertTrue(any("Sếp" in finding or "xưng 'Em'" in finding for finding in report["findings"]))
+
+    def test_validator_accepts_expected_honorific_for_tone_detail(self) -> None:
+        report = response_contract.validate_response_contract(
+            "Em đã xác minh: pytest -q pass. Đúng vì validator đã chạy. Em đã sửa: từ giờ Em sẽ gọi Sếp đúng theo thiết lập.",
+            output_contract=HONORIFIC_OUTPUT_CONTRACT,
+            require_evidence_response=True,
+        )
+
+        self.assertEqual(report["status"], "PASS")
 
 
 if __name__ == "__main__":

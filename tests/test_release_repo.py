@@ -55,6 +55,14 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertIn("restore preferences from Antigravity-global state at thread start", text, label)
         self.assertIn("default to Vietnamese with full diacritics unless resolved preferences say otherwise", text, label)
 
+    def assert_antigravity_global_gemini_bootstraps_preferences(self, path: Path, *, label: str) -> None:
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("Preferences resolver", text, label)
+        self.assertIn("state/preferences.json", text, label)
+        self.assertIn("state/extra_preferences.json", text, label)
+        self.assertIn("read the two preference files directly", text, label)
+        self.assertIn("resolve_preferences.py", text, label)
+
     def assert_routing_locale_config(self, path: Path, *, label: str) -> None:
         config = json.loads(path.read_text(encoding="utf-8"))
         self.assertIn("enabled_locales", config, label)
@@ -252,6 +260,7 @@ class ReleaseRepoTests(unittest.TestCase):
     def test_antigravity_wave_b_overlay_files_exist(self) -> None:
         overlay_root = ROOT_DIR / "packages" / "forge-antigravity" / "overlay"
         expected_files = [
+            overlay_root / "GEMINI.global.md",
             overlay_root / "workflows" / "operator" / "customize.md",
             overlay_root / "workflows" / "operator" / "init.md",
             overlay_root / "workflows" / "operator" / "recap.md",
@@ -279,10 +288,15 @@ class ReleaseRepoTests(unittest.TestCase):
             overlay_root / "agents" / "openai.yaml",
             label="forge-antigravity overlay agent prompt",
         )
+        self.assert_antigravity_global_gemini_bootstraps_preferences(
+            overlay_root / "GEMINI.global.md",
+            label="forge-antigravity overlay gemini",
+        )
 
     def test_build_release_preserves_antigravity_wave_b_overlay(self) -> None:
         build_release.build_all()
         dist_root = ROOT_DIR / "dist" / "forge-antigravity"
+        self.assertTrue((dist_root / "GEMINI.global.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "recap.md").exists())
@@ -298,6 +312,10 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assert_antigravity_agent_prompt_bootstraps_preferences(
             dist_root / "agents" / "openai.yaml",
             label="dist forge-antigravity agent prompt",
+        )
+        self.assert_antigravity_global_gemini_bootstraps_preferences(
+            dist_root / "GEMINI.global.md",
+            label="dist forge-antigravity gemini",
         )
         self.assert_routing_locale_config(dist_root / "data" / "routing-locales.json", label="dist forge-antigravity")
         self.assert_output_contract_profiles(dist_root / "data" / "output-contracts.json", label="dist forge-antigravity")

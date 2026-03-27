@@ -19,6 +19,10 @@ class PreferencesTests(unittest.TestCase):
         compat = common.load_preferences_compat()
         return common.merge_extra_preferences(common.compat_default_extra(compat), expected)
 
+    @staticmethod
+    def mojibake(value: str) -> str:
+        return value.encode("utf-8").decode("latin-1")
+
     def test_missing_workspace_preferences_fall_back_to_defaults(self) -> None:
         report = common.load_preferences(
             workspace=workspace_fixture("no_preferences"),
@@ -111,6 +115,66 @@ class PreferencesTests(unittest.TestCase):
             self.assertEqual(report["preferences"]["technical_level"], "technical")
             self.assertEqual(report["extra"]["language"], "en")
             self.assertEqual(report["extra"]["orthography"], "plain_english")
+
+    def test_load_preferences_repairs_mojibake_extra_preferences(self) -> None:
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+
+        with TemporaryDirectory() as temp_dir:
+            forge_home = Path(temp_dir) / "forge-home"
+            preferences_path = common.resolve_global_preferences_path(forge_home)
+            extra_path = common.resolve_global_extra_preferences_path(forge_home)
+            preferences_path.parent.mkdir(parents=True, exist_ok=True)
+            preferences_path.write_text(
+                json.dumps(
+                    {
+                        "technical_level": "basic",
+                        "detail_level": "detailed",
+                        "autonomy_level": "balanced",
+                        "pace": "balanced",
+                        "feedback_style": "direct",
+                        "personality": "mentor",
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            extra_path.write_text(
+                json.dumps(
+                    {
+                        "language": "vi",
+                        "orthography": "vietnamese_diacritics",
+                        "tone_detail": self.mojibake("Gọi Sếp, xưng Em"),
+                        "custom_rules": [
+                            self.mojibake("Luôn dùng TypeScript thay vì JavaScript."),
+                            self.mojibake("Luôn sử dụng ; thay vì && cho PowerShell."),
+                        ],
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            report = common.load_preferences(
+                workspace=workspace_fixture("no_preferences"),
+                forge_home=forge_home,
+            )
+
+            self.assertEqual(report["source"]["type"], "global")
+            self.assertEqual(report["extra"]["tone_detail"], "Gọi Sếp, xưng Em")
+            self.assertEqual(
+                report["extra"]["custom_rules"],
+                [
+                    "Luôn dùng TypeScript thay vì JavaScript.",
+                    "Luôn sử dụng ; thay vì && cho PowerShell.",
+                ],
+            )
+            self.assertEqual(report["output_contract"], expected_output_contract(report["extra"]))
+            self.assertEqual(report["output_contract"]["tone_detail"], "Gọi Sếp, xưng Em")
 
     def test_resolve_preferences_explicit_legacy_file_is_read_only(self) -> None:
         from pathlib import Path

@@ -309,6 +309,35 @@ def validate_vietnamese_output(text: str, output_contract: dict[str, object]) ->
     }
 
 
+def validate_tone_detail_output(text: str, output_contract: dict[str, object]) -> dict[str, object]:
+    tone_detail = output_contract.get("tone_detail")
+    if not isinstance(tone_detail, str) or not tone_detail.strip():
+        return {
+            "status": "PASS",
+            "findings": [],
+            "warnings": [],
+        }
+
+    normalized_tone = normalize_text(tone_detail)
+    normalized_prose = normalize_text(strip_markdown_code(text))
+    findings: list[str] = []
+    warnings: list[str] = []
+
+    if "goi sep" in normalized_tone and "xung em" in normalized_tone:
+        if not re.search(r"\bsep\b", normalized_prose):
+            findings.append("Tone detail requires addressing the user as 'Sếp'.")
+        if re.search(r"\banh\b", normalized_prose):
+            findings.append("Tone detail requires xưng 'Em'; found 'anh' in the response prose.")
+        if not re.search(r"\bem\b", normalized_prose):
+            warnings.append("Tone detail prefers explicit self-reference as 'Em'.")
+
+    return {
+        "status": "PASS" if not findings else "FAIL",
+        "findings": findings,
+        "warnings": warnings,
+    }
+
+
 def validate_response_contract(
     text: str,
     *,
@@ -330,6 +359,7 @@ def validate_response_contract(
         required=evidence_required,
     )
     vietnamese_report = validate_vietnamese_output(text, resolved_output_contract)
+    tone_detail_report = validate_tone_detail_output(text, resolved_output_contract)
 
     findings: list[str] = []
     warnings: list[str] = []
@@ -340,7 +370,9 @@ def validate_response_contract(
         findings.append(f"Weak rationalization detected: {phrase}")
     findings.extend(evidence_report["findings"])
     findings.extend(vietnamese_report["findings"])
+    findings.extend(tone_detail_report["findings"])
     warnings.extend(vietnamese_report.get("warnings", []))
+    warnings.extend(tone_detail_report.get("warnings", []))
 
     if findings:
         status = "FAIL"
@@ -358,6 +390,7 @@ def validate_response_contract(
             "rationalization_patterns": rationalization_hits,
             "evidence_response": evidence_report,
             "vietnamese_output": vietnamese_report,
+            "tone_detail_output": tone_detail_report,
         },
         "findings": findings,
         "warnings": warnings,

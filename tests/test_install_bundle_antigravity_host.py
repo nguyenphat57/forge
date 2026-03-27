@@ -47,6 +47,12 @@ NATIVE_ANTIGRAVITY_PREFERENCES = {
 
 
 class AntigravityHostInstallTests(unittest.TestCase):
+    def seed_gemini_home(self, gemini_home: Path) -> Path:
+        gemini_md_path = gemini_home / "GEMINI.md"
+        gemini_md_path.parent.mkdir(parents=True, exist_ok=True)
+        gemini_md_path.write_text("legacy global orchestrator", encoding="utf-8")
+        return gemini_md_path
+
     def install_antigravity_bundle(self, temp_root: Path) -> tuple[dict, Path]:
         target = temp_root / "antigravity-home" / "skills" / "forge-antigravity"
         report = install_bundle.install_bundle(
@@ -55,6 +61,43 @@ class AntigravityHostInstallTests(unittest.TestCase):
             backup_dir=str(temp_root / "backups"),
         )
         return report, target
+
+    def test_activate_gemini_rewrites_global_gemini_md(self) -> None:
+        build_release.build_all()
+        with TemporaryDirectory() as temp_dir:
+            temp_root = Path(temp_dir)
+            gemini_home = temp_root / "gemini-home"
+            target = gemini_home / "antigravity" / "skills" / "forge-antigravity"
+            gemini_md_path = self.seed_gemini_home(gemini_home)
+
+            report = install_bundle.install_bundle(
+                "forge-antigravity",
+                target=str(target),
+                backup_dir=str(temp_root / "backups"),
+                activate_gemini=True,
+                gemini_home=str(gemini_home),
+            )
+
+            rendered = gemini_md_path.read_text(encoding="utf-8")
+            expected_state_root = str((gemini_home / "antigravity" / "forge-antigravity").resolve())
+            expected_preferences = str((gemini_home / "antigravity" / "forge-antigravity" / "state" / "preferences.json").resolve())
+            expected_extra_preferences = str((gemini_home / "antigravity" / "forge-antigravity" / "state" / "extra_preferences.json").resolve())
+            expected_skill = str((target / "SKILL.md").resolve())
+
+            self.assertIn("Use `forge-antigravity` as the global orchestrator for Gemini workspaces.", rendered)
+            self.assertIn(expected_skill, rendered)
+            self.assertIn(expected_state_root, rendered)
+            self.assertIn(expected_preferences, rendered)
+            self.assertIn(expected_extra_preferences, rendered)
+            self.assertIn(f"python {target.resolve() / 'scripts' / 'resolve_preferences.py'}", rendered)
+
+            host_backup_path = Path(report["gemini_host_activation"]["host_backup_path"])
+            self.assertTrue(host_backup_path.exists())
+            self.assertTrue((host_backup_path / "GEMINI.md").exists())
+
+            manifest = json.loads((target / "INSTALL-MANIFEST.json").read_text(encoding="utf-8"))
+            self.assertTrue(manifest["gemini_host_activation"]["enabled"])
+            self.assertEqual(manifest["gemini_host_activation"]["gemini_md_path"], str(gemini_md_path.resolve()))
 
     def run_installed_script(self, script_path: Path, *args: str) -> subprocess.CompletedProcess[str]:
         env = os.environ.copy()

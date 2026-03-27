@@ -5,7 +5,7 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
-from text_utils import normalize_choice_token
+from text_utils import normalize_choice_token, repair_text_artifacts
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -259,14 +259,14 @@ def extract_extras(raw_payload: object, compat_config: dict | None = None) -> di
                 compat_extras[key] = copy.deepcopy(compat_read_value(raw_value, entry))
                 delete_nested_value(extras, path)
                 break
-        return merge_extra_preferences(extras, compat_extras)
+        return repair_text_artifacts(merge_extra_preferences(extras, compat_extras))
 
     canonical_keys = canonical_preference_keys()
-    return {
+    return repair_text_artifacts({
         key: copy.deepcopy(value)
         for key, value in raw_payload.items()
         if key not in canonical_keys
-    }
+    })
 
 
 def filter_canonical_preferences(raw_payload: object, compat_config: dict | None = None) -> object:

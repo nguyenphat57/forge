@@ -1,24 +1,23 @@
-<!-- FORGE CODEX GLOBAL START -->
-# Forge Codex
+# Forge Antigravity
 
-Use `forge-codex` as the only global orchestrator for Codex.
+Use `forge-antigravity` as the global orchestrator for Gemini workspaces.
 
 ## Read Order
 
-1. Read this global `AGENTS.md`.
-2. Load `{{FORGE_CODEX_SKILL}}`.
-3. If the workspace has its own `AGENTS.md` or router doc, treat it as local augmentation, not a replacement.
+1. Read this global `GEMINI.md`.
+2. Load `{{FORGE_ANTIGRAVITY_SKILL}}`.
+3. If the workspace has its own router doc or local skill map, treat it as augmentation, not a replacement.
 
 ## Host Bindings
 
-- Bundle root: `{{FORGE_CODEX_BUNDLE_ROOT}}`
-- Preferences resolver: `{{FORGE_CODEX_RESOLVER}} --workspace <workspace> --format json`
-- Canonical resolver script: `scripts/resolve_preferences.py`
-- State root: `{{FORGE_CODEX_STATE_ROOT}}`
+- Bundle root: `{{FORGE_ANTIGRAVITY_BUNDLE_ROOT}}`
+- State root: `{{FORGE_ANTIGRAVITY_STATE_ROOT}}`
 - Canonical state layout: `state/preferences.json` + `state/extra_preferences.json` under the state root above.
+- Canonical resolver script: `scripts/resolve_preferences.py`
+- Preferences resolver: `{{FORGE_ANTIGRAVITY_RESOLVER}} --workspace <workspace> --format json`
 - Preferences files:
-  - `{{FORGE_CODEX_PREFERENCES_PATH}}`
-  - `{{FORGE_CODEX_EXTRA_PREFERENCES_PATH}}`
+  - `{{FORGE_ANTIGRAVITY_PREFERENCES_PATH}}`
+  - `{{FORGE_ANTIGRAVITY_EXTRA_PREFERENCES_PATH}}`
 
 ## Scope Of This File
 
@@ -26,18 +25,9 @@ Use `forge-codex` as the only global orchestrator for Codex.
 - Keep detailed routing, workflow logic, and quality gates in the Forge bundle files.
 - Update this file only when the host bindings, precedence rules, or top-level alias surface changes.
 
-## Thread Bootstrap
-
-- On every new thread, restore Forge response personalization before the first substantive reply.
-- Resolve adapter-global preferences from `{{FORGE_CODEX_PREFERENCES_PATH}}` plus `{{FORGE_CODEX_EXTRA_PREFERENCES_PATH}}`.
-- Treat `{{FORGE_CODEX_STATE_ROOT}}` as the canonical adapter-global state root; only fall back to the equivalent `$FORGE_HOME/state/...` paths when the install target is intentionally overridden.
-- Prefer the canonical resolver at `{{FORGE_CODEX_RESOLVER}} --workspace <workspace> --format json` when the merged payload is needed.
-- If a merged payload is not needed, read both state files directly instead of only one.
-- Apply the resolved language, orthography, tone detail, and custom writing rules as active instructions; do not wait for the user to repeat customization in each new thread.
-
 ## Mandatory First Action
 
-Before the first substantive reply in every new thread:
+Before the first substantive reply in every new conversation:
 
 1. Restore personalization from the resolver above, or read the two preference files directly when a merged payload is not needed.
 2. Apply language, orthography, tone detail, and custom rules immediately.
@@ -56,9 +46,10 @@ Before the first substantive reply in every new thread:
 - Workspace-local routers may extend Forge, but they do not replace Forge's verification, evidence, scope-control, or reporting rules.
 - If local guidance conflicts with Forge, Forge wins on verification and scope; local guidance may refine repo-specific conventions and stack-specific commands.
 - Prefer repo state, plans, specs, and scoped `.brain/` artifacts over session ceremony.
+- If there is no memory data, continue from repo state instead of stopping.
 - Keep scope minimal; ask before new dependencies, schema changes, or folder-structure changes.
 - Do not fabricate telemetry, token counters, or progress percentages.
-- Durable preferences live in Codex-global adapter state `{{FORGE_CODEX_STATE_ROOT}}`, with canonical fields in `{{FORGE_CODEX_PREFERENCES_PATH}}` and adapter extras in `{{FORGE_CODEX_EXTRA_PREFERENCES_PATH}}`.
+- Durable preferences live in Antigravity-global adapter state `{{FORGE_ANTIGRAVITY_STATE_ROOT}}`, with canonical fields in `{{FORGE_ANTIGRAVITY_PREFERENCES_PATH}}` and adapter extras in `{{FORGE_ANTIGRAVITY_EXTRA_PREFERENCES_PATH}}`.
 
 ## Global Verification Rule
 
@@ -76,7 +67,7 @@ Before closing a task:
 
 ## Command Aliases
 
-Treat each slash command as a workflow alias, not a filesystem path. Read the mapped workflow from `{{FORGE_CODEX_WORKFLOWS}}`.
+Treat each slash command as a workflow alias, not a filesystem path. Read the mapped workflow from `{{FORGE_ANTIGRAVITY_WORKFLOWS}}`.
 
 | Command | Workflow |
 |---------|----------|
@@ -89,20 +80,20 @@ Treat each slash command as a workflow alias, not a filesystem path. Read the ma
 | `/test` | `execution/test.md` |
 | `/review` | `execution/review.md` |
 | `/refactor` | `execution/refactor.md` |
+| `/audit` | `execution/secure.md` |
 | `/deploy` | `execution/deploy.md` |
 | `/help` | `operator/help.md` |
 | `/next` | `operator/next.md` |
 | `/run` | `operator/run.md` |
-| `/delegate` | `execution/dispatch-subagents.md` |
 | `/bump` | `operator/bump.md` |
 | `/rollback` | `operator/rollback.md` |
 | `/customize` | `operator/customize.md` |
 | `/init` | `operator/init.md` |
+| `/save-brain` | `operator/save-brain.md` |
+| `/recap` | `operator/recap.md` |
 
 ## Activation Announcement
 
 ```text
-Forge Codex: orchestrator | natural-language first, verification before claims
+Forge Antigravity: orchestrator | natural-language first, verification before claims
 ```
-
-<!-- FORGE CODEX GLOBAL END -->

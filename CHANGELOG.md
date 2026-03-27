@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.14.0 - 2026-03-27
+
+- Mở rộng bootstrap host-level cho `forge-codex` và `forge-antigravity`, thêm global templates rõ state root, hai file preferences tách riêng, resolver tuyệt đối, và activation flow để render đúng `AGENTS.md` với `GEMINI.md`.
+- Thêm self-healing cho extra preferences khi gặp mojibake có thể phục hồi an toàn, đồng thời siết `response_contract` để bắt sai `tone_detail` như trường hợp phải gọi `Sếp`, xưng `Em`.
+- Tăng release/install regression coverage để khóa contract bootstrap preferences, host activation, và release overlays trên cả source bundle lẫn dist bundle trước khi phát hành.
+
+
 ## 0.13.0 - 2026-03-27
 
 - Khôi phục response personalization tự động ở đầu mỗi thread mới cho `forge-codex` và `forge-antigravity`, bao gồm bootstrap instructions trong host entrypoints và prompt mặc định của Antigravity.

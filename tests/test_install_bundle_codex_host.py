@@ -82,8 +82,16 @@ class CodexHostInstallTests(unittest.TestCase):
             self.assertFalse(legacy_skill.exists())
 
             agents_text = agents_path.read_text(encoding="utf-8")
+            expected_state_root = str((codex_home / "forge-codex").resolve())
+            expected_preferences = str((codex_home / "forge-codex" / "state" / "preferences.json").resolve())
+            expected_extra_preferences = str((codex_home / "forge-codex" / "state" / "extra_preferences.json").resolve())
+            expected_skill = str((target / "SKILL.md").resolve())
             self.assertIn("Use `forge-codex` as the only global orchestrator for Codex.", agents_text)
-            self.assertIn(str(target.resolve()), agents_text)
+            self.assertIn(expected_skill, agents_text)
+            self.assertIn(expected_state_root, agents_text)
+            self.assertIn(expected_preferences, agents_text)
+            self.assertIn(expected_extra_preferences, agents_text)
+            self.assertIn(f"python {target.resolve() / 'scripts' / 'resolve_preferences.py'}", agents_text)
             self.assertNotIn("{{FORGE_CODEX_SKILL}}", agents_text)
 
             host_backup_path = Path(report["codex_host_activation"]["host_backup_path"])
