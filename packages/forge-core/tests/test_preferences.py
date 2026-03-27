@@ -62,6 +62,90 @@ class PreferencesTests(unittest.TestCase):
         self.assertEqual(style["feedback_mode"], "direct")
         self.assertEqual(style["teaching_mode"], "best-practice-first")
 
+    def test_explicit_preferences_file_reads_split_extra_sibling(self) -> None:
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+
+        with TemporaryDirectory() as temp_dir:
+            forge_home = Path(temp_dir) / "forge-home"
+            preferences_path = common.resolve_global_preferences_path(forge_home)
+            extra_path = common.resolve_global_extra_preferences_path(forge_home)
+            preferences_path.parent.mkdir(parents=True, exist_ok=True)
+            preferences_path.write_text(
+                json.dumps(
+                    {
+                        "technical_level": "technical",
+                        "detail_level": "concise",
+                        "autonomy_level": "autonomous",
+                        "pace": "fast",
+                        "feedback_style": "direct",
+                        "personality": "strict-coach",
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            extra_path.write_text(
+                json.dumps(
+                    {
+                        "language": "vi",
+                        "orthography": "vietnamese_diacritics",
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            report = common.load_preferences(preferences_file=preferences_path, forge_home=forge_home)
+
+            self.assertEqual(report["source"]["type"], "explicit")
+            self.assertEqual(report["preferences"]["technical_level"], "technical")
+            self.assertEqual(report["extra"]["language"], "vi")
+            self.assertEqual(report["extra"]["orthography"], "vietnamese_diacritics")
+
+    def test_resolve_preferences_explicit_legacy_file_is_read_only(self) -> None:
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+
+        with TemporaryDirectory() as temp_dir:
+            legacy_path = Path(temp_dir) / "preferences.json"
+            legacy_path.write_text(
+                json.dumps(
+                    {
+                        "technical_level": "basic",
+                        "detail_level": "balanced",
+                        "autonomy_level": "balanced",
+                        "pace": "balanced",
+                        "feedback_style": "direct",
+                        "personality": "default",
+                        "language": "vi",
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            result = run_python_script(
+                "resolve_preferences.py",
+                "--preferences-file",
+                str(legacy_path),
+                "--format",
+                "json",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+
+            self.assertEqual(report["status"], "PASS")
+            self.assertEqual(report["extra"]["language"], "vi")
+            self.assertFalse((legacy_path.parent / "extra_preferences.json").exists())
+            self.assertFalse((legacy_path.parent / "preferences.json.legacy.bak").exists())
+
     def test_global_preferences_take_precedence_over_workspace_legacy(self) -> None:
         report = common.load_preferences(
             workspace=workspace_fixture("preferences_workspace"),
@@ -232,7 +316,7 @@ class PreferencesTests(unittest.TestCase):
         self.assertEqual(overridden["language"], "en")
         self.assertEqual(overridden["orthography"], "vietnamese_diacritics")
 
-    def test_serialize_preferences_payload_writes_compat_extra_fields(self) -> None:
+    def test_serialize_preferences_payload_keeps_new_writes_flat_without_existing_legacy_payload(self) -> None:
         compat_path = ROOT_DIR.parent.parent / "packages" / "forge-antigravity" / "overlay" / "data" / "preferences-compat.json"
         compat = json.loads(compat_path.read_text(encoding="utf-8"))
         serialized = common.serialize_preferences_payload(
@@ -257,9 +341,67 @@ class PreferencesTests(unittest.TestCase):
             compat_config=compat,
         )
 
+        self.assertEqual(serialized["technical_level"], "basic")
+        self.assertEqual(serialized["language"], "vi")
+        self.assertEqual(serialized["orthography"], "vietnamese_diacritics")
+        self.assertEqual(serialized["output_quality"], "production_ready")
+        self.assertEqual(
+            serialized["custom_rules"],
+            [
+                "Always log every action before guessing a root cause.",
+            ],
+        )
+        self.assertIsNone(common.get_nested_value(serialized, "communication.language"))
+
+    def test_serialize_preferences_payload_updates_existing_legacy_compat_payload(self) -> None:
+        compat_path = ROOT_DIR.parent.parent / "packages" / "forge-antigravity" / "overlay" / "data" / "preferences-compat.json"
+        compat = json.loads(compat_path.read_text(encoding="utf-8"))
+        existing_payload = {
+            "communication": {
+                "persona": "assistant",
+                "tone": "friendly",
+                "language": "en",
+            },
+            "technical": {
+                "technical_level": "basic",
+                "detail_level": "simple",
+                "autonomy": "ask_often",
+                "quality": "production",
+            },
+            "working_style": {
+                "pace": "careful",
+                "feedback": "gentle",
+            },
+            "custom_rules": [],
+        }
+
+        serialized = common.serialize_preferences_payload(
+            {
+                "technical_level": "basic",
+                "detail_level": "balanced",
+                "autonomy_level": "balanced",
+                "pace": "balanced",
+                "feedback_style": "balanced",
+                "personality": "mentor",
+            },
+            existing_payload=existing_payload,
+            replace=False,
+            extra_updates={
+                "language": "vi",
+                "orthography": "vietnamese_diacritics",
+                "output_quality": "production_ready",
+                "custom_rules": [
+                    "Always log every action before guessing a root cause.",
+                ],
+            },
+            compat_config=compat,
+        )
+
         self.assertEqual(common.get_nested_value(serialized, "communication.language"), "vi")
         self.assertEqual(common.get_nested_value(serialized, "communication.orthography"), "vietnamese_diacritics")
         self.assertEqual(common.get_nested_value(serialized, "technical.quality"), "production_ready")
+        self.assertEqual(common.get_nested_value(serialized, "technical.detail_level"), "simple")
+        self.assertEqual(common.get_nested_value(serialized, "working_style.feedback"), "gentle")
         self.assertEqual(
             common.get_nested_value(serialized, "custom_rules"),
             [

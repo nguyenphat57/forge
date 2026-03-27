@@ -72,9 +72,9 @@ python scripts/initialize_workspace.py --workspace C:\path\to\workspace --seed-p
 ```
 
 The script will:
--classify workspace to `greenfield` or `existing`
+- classify workspace to `greenfield` or `existing`
 - create `.brain/`, `docs/plans/`, `docs/specs/`, and `.brain/session.json`
-- option seed adapter-global `state/preferences.json`
+- optionally seed adapter-global split preferences state (`state/preferences.json` + `state/extra_preferences.json`)
 - returns recommended next workflow (`brainstorm` or `plan`)
 
 Detailed semantics: see `workspace-init.md`.
@@ -93,7 +93,7 @@ Script to read:
 - `docs/plans/` and `docs/specs/`
 - `.brain/session.json` and `.brain/handover.md` if available
 - `README`
-- adapter-global `state/preferences.json` de adapt response style
+- adapter-global split preferences state via `resolve_preferences.py` to adapt response style
 
 Script will check:
 - `current_stage`

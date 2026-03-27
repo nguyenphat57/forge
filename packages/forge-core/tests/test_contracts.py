@@ -100,6 +100,7 @@ class BundleContractTests(unittest.TestCase):
 
         self.assertIn("adapter-global", session)
         self.assertIn("state/preferences.json", session)
+        self.assertIn("state/extra_preferences.json", session)
         self.assertIn("resolve_preferences.py", session)
         self.assertIn("Response Personalization", session)
 

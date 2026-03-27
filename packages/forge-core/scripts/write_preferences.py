@@ -47,6 +47,7 @@ def format_text(report: dict) -> str:
         f"- Scope: {report['scope']}",
         f"- State root: {report['state_root']}",
         f"- File: {report['path']}",
+        f"- Extra file: {report['extra_path']}",
         f"- Applied: {'yes' if report['applied'] else 'no'}",
         f"- Replace mode: {'yes' if report['replace'] else 'no'}",
         "- Changed fields:",
@@ -96,6 +97,8 @@ def format_text(report: dict) -> str:
         lines.append("- Warnings: (none)")
     if report["migrated_legacy_workspace_preferences"]:
         lines.append("- Migration: reused legacy workspace preferences as the base before writing adapter-global state")
+    if report.get("migrated_legacy_global_preferences"):
+        lines.append("- Migration: converted legacy adapter-global single-file state into split canonical + extra files")
     return "\n".join(lines)
 
 

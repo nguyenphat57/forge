@@ -7,7 +7,7 @@ triggers:
   - shortcut: /save-brain, /recap
 quality_gates:
   - Context restored or handover note restored
-  - Response personalization resolved from adapter-global `state/preferences.json` when available
+  - Response personalization resolved from adapter-global split preferences state when available
   - Scope-filtered continuity used when available
   - Structured continuous capture stays evidence-backed and scoped
 ---
@@ -35,7 +35,7 @@ quality_gates:
 
 ## Operating Rules
 
-- Global preferences live in adapter-global `state/preferences.json`; only fall back to `.brain/preferences.json` for legacy workspaces that still need migration.
+- Global preferences live in adapter-global split state: canonical fields in `state/preferences.json`, adapter extras in `state/extra_preferences.json`, and only fall back to `.brain/preferences.json` for legacy workspaces that still need migration.
 
 - Repo-first: priority `git status`, changed files, docs, plans, task notes.
 - `.brain` is opt-in: only read/write when the user requests or handover really reduces risk.
@@ -55,7 +55,7 @@ In the host there is an equivalent shortcut:
 ```
 1. docs/plans/, docs/specs/, open task notes
 2. git status / changed files / recent commits (if git exists)
-3. Adapter-global `state/preferences.json` via `python scripts/resolve_preferences.py --workspace <workspace> --format json`
+3. Adapter-global split preferences state (`state/preferences.json` + `state/extra_preferences.json`) via `python scripts/resolve_preferences.py --workspace <workspace> --format json`
 4. .brain/handover.md
 5. .brain/session.json
 6. .brain/decisions.json

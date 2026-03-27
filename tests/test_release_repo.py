@@ -30,6 +30,7 @@ class ReleaseRepoTests(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
         self.assertIn("adapter-global", text, label)
         self.assertIn("state/preferences.json", text, label)
+        self.assertIn("state/extra_preferences.json", text, label)
         self.assertIn("resolve_preferences.py", text, label)
         self.assertIn("Response Personalization", text, label)
 

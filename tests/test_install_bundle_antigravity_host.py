@@ -124,12 +124,13 @@ class AntigravityHostInstallTests(unittest.TestCase):
             )
             self.assertEqual(payload["warnings"], [])
 
-    def test_installed_antigravity_bundle_writes_back_to_native_schema(self) -> None:
+    def test_installed_antigravity_bundle_migrates_legacy_state_to_split_files(self) -> None:
         build_release.build_all()
         with TemporaryDirectory() as temp_dir:
             temp_root = Path(temp_dir)
             report, target = self.install_antigravity_bundle(temp_root)
             preferences_path = Path(report["state"]["preferences_path"])
+            extra_preferences_path = preferences_path.with_name("extra_preferences.json")
             preferences_path.parent.mkdir(parents=True, exist_ok=True)
             preferences_path.write_text(
                 json.dumps(NATIVE_ANTIGRAVITY_PREFERENCES, indent=2, ensure_ascii=False) + "\n",
@@ -155,15 +156,29 @@ class AntigravityHostInstallTests(unittest.TestCase):
             self.assertEqual(payload["preferences"]["pace"], "fast")
             self.assertEqual(payload["preferences"]["feedback_style"], "gentle")
             self.assertEqual(payload["preferences"]["personality"], "default")
+            self.assertTrue(payload["migrated_legacy_global_preferences"])
 
             written = json.loads(preferences_path.read_text(encoding="utf-8"))
-            self.assertEqual(written["communication"]["personality"], "smart_assistant")
-            self.assertEqual(written["technical"]["detail_level"], "detailed")
-            self.assertEqual(written["technical"]["autonomy"], "ask_often")
-            self.assertEqual(written["technical"]["technical_level"], "learning")
-            self.assertEqual(written["working_style"]["pace"], "fast")
-            self.assertEqual(written["working_style"]["feedback"], "gentle")
-            self.assertEqual(written["custom_rules"], NATIVE_ANTIGRAVITY_PREFERENCES["custom_rules"])
+            written_extra = json.loads(extra_preferences_path.read_text(encoding="utf-8"))
+
+            self.assertEqual(
+                written,
+                {
+                    "technical_level": "basic",
+                    "detail_level": "detailed",
+                    "autonomy_level": "guided",
+                    "pace": "fast",
+                    "feedback_style": "gentle",
+                    "personality": "default",
+                },
+            )
+            self.assertEqual(written_extra["language"], "vi")
+            self.assertEqual(written_extra["orthography"], "vietnamese_diacritics")
+            self.assertEqual(written_extra["tone_detail"], "Goi Sep, xung Em")
+            self.assertEqual(written_extra["technical"]["output_quality"], "production_ready")
+            self.assertEqual(written_extra["custom_rules"], NATIVE_ANTIGRAVITY_PREFERENCES["custom_rules"])
+            self.assertEqual(written_extra["communication"]["tone"], "custom")
+            self.assertTrue((preferences_path.parent / "preferences.json.legacy.bak").exists())
 
 
 if __name__ == "__main__":

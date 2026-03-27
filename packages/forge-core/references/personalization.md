@@ -1,26 +1,23 @@
 # Forge Personalization
 
-> Goal: keep response-style preferences host-neutral in `forge-core` so adapters only add UX wrappers, not forked preference logic.
+> Goal: keep response-style preferences host-neutral in `forge-core` so adapters add UX wrappers, not forked preference logic.
 
 ## Core Contract
 
 - Canonical schema: `data/preferences-schema.json`
 - Canonical resolver: `scripts/resolve_preferences.py`
 - Canonical writer: `scripts/write_preferences.py`
-- Installed adapters default to adapter-global state at `<host-home>/<adapter-name>/state/preferences.json`
-- `$FORGE_HOME/state/preferences.json` is an explicit dev/test override; when no installed adapter metadata or override exists, core falls back to `~/.forge/state/preferences.json`
-- Adapters may ship `data/preferences-compat.json` to map host-native payloads back to the canonical schema without forking the core engine
-- Host-native extra preferences such as `language`, `orthography`, `tone_detail`, `output_quality`, or `custom_rules` can live in adapter-global state and are returned through `extra`
-- Workspace `.brain/preferences.json` is still supported as:
-  - legacy canonical fallback when no adapter-global state exists
-  - workspace-local extra override when a repo needs rules different from the adapter-wide default
-- Core can infer `output_contract` from `extra` for language, orthography, tone detail, and custom writing rules
-- Adapters may add `customize` UX, but they cannot change the meaning of the canonical keys
+- Installed adapters default to adapter-global state under `<host-home>/<adapter-name>/state/`
+- Canonical fields persist in `state/preferences.json`
+- Adapter-global extras persist in `state/extra_preferences.json`
+- `$FORGE_HOME` remains the explicit dev/test override root
+- Adapters may ship `data/preferences-compat.json` to translate legacy host-native payloads back into the canonical schema without forking core logic
+- `output_contract` is still derived from `extra` and remains part of the public resolver/writer output
 
 ## Supported Fields
 
 | Field | Values | Default | Purpose |
-|------|--------|---------|---------|
+|---|---|---|---|
 | `technical_level` | `newbie`, `basic`, `technical` | `basic` | Adjust terminology and explanation level |
 | `detail_level` | `concise`, `balanced`, `detailed` | `balanced` | Adjust response depth and length |
 | `autonomy_level` | `guided`, `balanced`, `autonomous` | `balanced` | Adjust how proactively Forge moves the task forward |
@@ -28,12 +25,41 @@
 | `feedback_style` | `gentle`, `balanced`, `direct` | `balanced` | Adjust how plainly gaps are called out |
 | `personality` | `default`, `mentor`, `strict-coach` | `default` | Adjust coaching tone |
 
+## Persistence Layout
+
+Steady-state adapter-global persistence uses two files:
+
+```text
+<adapter-home>/state/
+|-- preferences.json
+`-- extra_preferences.json
+```
+
+`preferences.json` contains only the six canonical fields.
+
+`extra_preferences.json` contains adapter-global extras such as:
+
+- `language`
+- `orthography`
+- `tone_detail`
+- `output_quality`
+- `custom_rules`
+
+Legacy single-file state is still readable during rollout, but new durable writes target the split-file layout.
+
 ## Resolution Order
 
-1. If `--preferences-file` is provided, use that file and fail if it does not exist.
-2. If valid adapter-global Forge state exists, read the running adapter's `state/preferences.json` and preserve any host-native extras outside the canonical schema.
-3. If there is no adapter-global file and `--workspace` is provided, read legacy `.brain/preferences.json` in that workspace for canonical fallback. That same file may also provide workspace-local extra overrides.
-4. If no valid file exists, use schema defaults plus any adapter compat defaults.
+1. If `--preferences-file` is provided, inspect that file read-only and fail if it does not exist.
+2. If adapter-global split-file state exists, read `state/preferences.json` plus sibling `state/extra_preferences.json` when present.
+3. If only adapter-global `state/preferences.json` exists, read it as canonical or legacy single-file state.
+4. If there is no adapter-global state and `--workspace` is provided, read legacy `.brain/preferences.json` as canonical fallback.
+5. When adapter-global state exists, workspace `.brain/preferences.json` may still contribute workspace-local extra overrides.
+6. If no valid file exists, use schema defaults plus any compat defaults.
+
+Important:
+
+- `resolve_preferences.py --preferences-file ...` is read-only inspection. It must not rename, migrate, or rewrite the inspected file.
+- Migration belongs on write/apply flows, not read-only inspection.
 
 ## Validation Rules
 
@@ -53,7 +79,7 @@ The resolver does not create host-specific command surfaces. It returns a respon
 - feedback style
 - tone, teaching mode, and challenge level
 
-When `extra` contains host-native rules, core can also emit `output_contract` for:
+When `extra` contains host-native rules, core also emits `output_contract` for:
 
 - language policy
 - orthography or diacritics policy
@@ -77,6 +103,16 @@ Rules:
 - Durable adapter-wide language or orthography rules should go through `scripts/write_preferences.py`
 - Workspace-local overrides may still live in `.brain/preferences.json` when the user explicitly wants repo-specific behavior
 - Adapters cannot invent host-local canonical schema or change the meaning of the six canonical fields
+- Applying a write may migrate legacy adapter-global single-file state into split canonical + extra files
+
+## Workspace Legacy Behavior
+
+Workspace `.brain/preferences.json` is still supported as:
+
+- legacy canonical fallback when no adapter-global state exists
+- workspace-local extra override when a repo needs rules different from the adapter-wide default
+
+This means workspace legacy is not reduced to extras-only. Existing repos that still rely on canonical fields in `.brain/preferences.json` continue to resolve correctly.
 
 ## Language And Writing Templates
 

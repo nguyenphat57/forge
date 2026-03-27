@@ -189,6 +189,7 @@ forge-antigravity/
   - `.forge-artifacts/execution-progress/`
   - `.forge-artifacts/ui-briefs/`
   - `~/.gemini/antigravity/forge-antigravity/state/preferences.json`
+  - `~/.gemini/antigravity/forge-antigravity/state/extra_preferences.json`
   - `.brain/decisions.json`
   - `.brain/learnings.json`
 
@@ -198,9 +199,9 @@ Khi cần command examples hoặc artifact behavior chi tiết, đọc `referenc
 
 ## Response Personalization
 
-- Forge resolve preferences qua core engine `scripts/resolve_preferences.py` từ Antigravity-global `state/preferences.json`, và chỉ fallback sang `.brain/preferences.json` cho workspace legacy.
+- Forge resolve preferences qua core engine `scripts/resolve_preferences.py` từ Antigravity-global split state: canonical fields ở `state/preferences.json`, adapter extras ở `state/extra_preferences.json`, và chỉ fallback sang `.brain/preferences.json` cho workspace legacy.
 - Schema canonical gồm `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, và `personality`.
-- Khi file state đang dùng schema native của Antigravity, adapter này map payload đó về canonical schema trước khi resolve response style.
+- Khi file state đang dùng payload native cũ của Antigravity, adapter này chỉ map payload đó về canonical schema để đọc hoặc migrate; steady-state write path vẫn là split-file canonical + extras của core.
 - `forge-antigravity` ship compat defaults để clean install mặc định resolve `language=vi` và `orthography=vietnamese_diacritics` cho đến khi state hoặc workspace override chúng.
 - `forge-antigravity` có thể thêm wrapper như `/customize`, nhưng schema và response-style semantics vẫn phải đọc từ core.
 - Durable preference updates, bao gồm `language` và `orthography`, phải đi qua `scripts/write_preferences.py`; workspace `.brain/preferences.json` chỉ là override theo repo hoặc legacy fallback.

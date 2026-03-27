@@ -184,13 +184,14 @@ forge-codex/
 - Default persistent artifacts:
   - `.forge-artifacts/route-previews/`
   - `.forge-artifacts/router-checks/`
-  - `.forge-artifacts/backend-briefs/`
-  - `.forge-artifacts/chain-status/`
-  - `.forge-artifacts/execution-progress/`
-  - `.forge-artifacts/ui-briefs/`
-  - `~/.codex/forge-codex/state/preferences.json`
-  - `.brain/decisions.json`
-  - `.brain/learnings.json`
+- `.forge-artifacts/backend-briefs/`
+- `.forge-artifacts/chain-status/`
+- `.forge-artifacts/execution-progress/`
+- `.forge-artifacts/ui-briefs/`
+- `~/.codex/forge-codex/state/preferences.json`
+- `~/.codex/forge-codex/state/extra_preferences.json`
+- `.brain/decisions.json`
+- `.brain/learnings.json`
 
 When you need detailed command examples or artifact behavior, read `references/tooling.md`.
 
@@ -198,7 +199,7 @@ When you need detailed command examples or artifact behavior, read `references/t
 
 ## Response Personalization
 
-- Forge resolve preferences via core engine `scripts/resolve_preferences.py` from Codex-global `state/preferences.json`, and only fallback to `.brain/preferences.json` for legacy workspace.
+- Forge resolves preferences via core engine `scripts/resolve_preferences.py` from Codex-global split state: canonical fields in `state/preferences.json`, adapter extras in `state/extra_preferences.json`, and only falls back to `.brain/preferences.json` for legacy workspaces.
 - Schema canonical includes `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, and `personality`.
 - Adapter-global extra preferences may carry host-native response constraints such as `language`, `orthography`, honorific rules, or custom writing rules; workspace `.brain/preferences.json` remains a workspace-local override or legacy fallback.
 - When `language` resolves to `vi`, `forge-codex` should respond in Vietnamese with full diacritics; accent-stripped or mojibake Vietnamese is an encoding defect, not an allowed style variant.

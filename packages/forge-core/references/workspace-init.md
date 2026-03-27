@@ -17,7 +17,7 @@
 
 Options:
 
-- adapter-global `state/preferences.json` if wrapper wants to seed default preferences at init
+- adapter-global split preferences state (`state/preferences.json` + `state/extra_preferences.json`) if the wrapper wants to seed default preferences at init
 
 ## Workspace Classification
 

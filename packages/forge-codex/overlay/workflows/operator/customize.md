@@ -52,7 +52,13 @@ python scripts/write_preferences.py --detail-level concise --pace fast --feedbac
 python scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --apply
 ```
 
-5. Short answer:
+5. Persistence notes:
+   - canonical fields persist in `state/preferences.json`
+   - extras persist in `state/extra_preferences.json`
+   - explicit `resolve_preferences.py --preferences-file ...` stays read-only
+   - legacy single-file adapter-global state may be migrated on `--apply`
+
+6. Short answer:
    - which fields changed
    - how the new response style will feel different
    - whether any workspace-only overrides remain separate from adapter-global state

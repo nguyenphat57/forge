@@ -175,13 +175,14 @@ forge-core/
 - Persisted artifacts default:
   - `.forge-artifacts/route-previews/`
   - `.forge-artifacts/router-checks/`
-  - `.forge-artifacts/backend-briefs/`
-  - `.forge-artifacts/chain-status/`
-  - `.forge-artifacts/execution-progress/`
-  - `.forge-artifacts/ui-briefs/`
-  - `<adapter-state-root>/state/preferences.json`
-  - `.brain/decisions.json`
-  - `.brain/learnings.json`
+- `.forge-artifacts/backend-briefs/`
+- `.forge-artifacts/chain-status/`
+- `.forge-artifacts/execution-progress/`
+- `.forge-artifacts/ui-briefs/`
+- `<adapter-state-root>/state/preferences.json`
+- `<adapter-state-root>/state/extra_preferences.json`
+- `.brain/decisions.json`
+- `.brain/learnings.json`
 
 When you need detailed command examples or artifact behavior, read `references/tooling.md`.
 
@@ -189,7 +190,7 @@ When you need detailed command examples or artifact behavior, read `references/t
 
 ## Response Personalization
 
-- Forge resolves preferences from adapter-global `state/preferences.json` to `scripts/resolve_preferences.py`, and only fallsback to `.brain/preferences.json` when the old workspace has not migrated.
+- Forge resolves preferences through `scripts/resolve_preferences.py` from adapter-global split state: canonical fields in `state/preferences.json`, adapter extras in `state/extra_preferences.json`, and only falls back to `.brain/preferences.json` when the old workspace has not migrated.
 - Core schema includes `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, and `personality`.
 - The adapter can persist preferences via `scripts/write_preferences.py`, but cannot change key names or validation rules.
 - Adapters can add UX wrappers like `customize`, but cannot fork the schema or change the meaning of the response-style contract.

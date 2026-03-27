@@ -47,7 +47,7 @@ quality_gates:
 ```text
 1. docs/plans/, docs/specs/, task notes that match the current scope
 2. git status / changed files / recent commits when git exists
-3. Codex-global `state/preferences.json` via `python scripts/resolve_preferences.py --workspace <workspace> --format json`
+3. Codex-global split preferences state (`state/preferences.json` + `state/extra_preferences.json`) via `python scripts/resolve_preferences.py --workspace <workspace> --format json`
 4. .brain/handover.md
 5. .brain/session.json
 6. .brain/decisions.json

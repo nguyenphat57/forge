@@ -47,6 +47,6 @@ Read the mapped workflow from `{{FORGE_CODEX_WORKFLOWS}}`.
 - Prefer repo state, plans, specs, and scoped workspace `.brain/` continuous artifacts over legacy session rituals.
 - Let workspace-local routers extend Forge, not replace it.
 - Do not suggest legacy session rituals as default guidance.
-- Durable preferences live in Codex-global adapter state at `~/.codex/forge-codex/state/preferences.json` (or `$FORGE_HOME/state/preferences.json` when overridden).
+- Durable preferences live in Codex-global adapter state with canonical fields in `~/.codex/forge-codex/state/preferences.json` and adapter extras in `~/.codex/forge-codex/state/extra_preferences.json` (or the equivalent `$FORGE_HOME/state/...` paths when overridden).
 
 <!-- FORGE CODEX GLOBAL END -->

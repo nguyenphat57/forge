@@ -20,7 +20,8 @@ quality_gates:
 - Không tạo key riêng cho Antigravity trong adapter-global state.
 - Không overwrite toàn bộ preferences nếu user chỉ đổi một vài field.
 - Không đổi routing hay gate logic; workflow này chỉ đổi response style.
-- Nếu file state hiện tại đang là native Antigravity payload, phải preserve cấu trúc host-native khi persist.
+- Đọc bằng `resolve_preferences.py` là read-only, không được mutate state để “xem thử”.
+- Legacy single-file state của Antigravity có thể được migrate ở write/apply path; sau migration canonical và extras sẽ tách file.
 - Workspace `.brain/preferences.json` chỉ dùng cho legacy fallback hoặc override theo repo, không phải nơi mặc định để lưu language rules bền vững.
 </HARD-GATE>
 
@@ -64,6 +65,7 @@ python scripts/write_preferences.py --language vi --orthography vietnamese_diacr
    - preference nào đã đổi
    - style phản hồi sẽ khác thế nào
    - nếu có workspace-only override thì nói rõ nó vẫn tách khỏi adapter-global state
+   - nếu có migration legacy state thì nêu rõ canonical và extras đã tách file
 
 ## Output Contract
 
