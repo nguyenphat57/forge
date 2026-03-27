@@ -34,8 +34,12 @@ forge-antigravity/
 │   └── openai.yaml
 ├── data/
 │   ├── orchestrator-registry.json
+│   ├── output-contracts.json
 │   ├── preferences-compat.json
-│   └── preferences-schema.json
+│   ├── preferences-schema.json
+│   ├── routing-locales.json
+│   └── routing-locales/
+│       └── vi.json
 ├── domains/
 │   ├── backend.md
 │   └── frontend.md
@@ -99,6 +103,7 @@ forge-antigravity/
 ├── tests/
 │   ├── fixtures/
 │   ├── support.py
+│   ├── test_adapter_locales.py
 │   ├── test_bump_workflow.py
 │   ├── test_canary_rollout.py
 │   ├── test_check_workspace_router.py
@@ -152,6 +157,48 @@ forge-antigravity/
 - `AGENTS.md` at the workspace root is a **router/instruction file** for the workspace, not `SKILL.md`.
 - `forge-antigravity` may read host/workspace rules for better routing, but does not depend on a local `GEMINI.md` inside this skill folder.
 
+## Antigravity Protocol Bridge
+
+Forge concepts map directly to Antigravity host tools. Use Antigravity tools natively instead of duplicating ceremony.
+
+| Forge concept | Antigravity tool | Mapping |
+|--------------|-----------------|--------|
+| Activation line | `task_boundary` | `TaskName` = Forge skill name, `Mode` = PLANNING/EXECUTION/VERIFICATION |
+| Skill chain progress | `task_boundary` | Update `TaskStatus` as you move through the chain |
+| Intent + complexity | `task_boundary` | Include in first `TaskSummary`: `"Forge: BUILD \| medium"` |
+| Evidence reporting | `notify_user` | Use `PathsToReview` for plans/walkthroughs needing approval |
+| Blocked on user | `notify_user` | Set `BlockedOnUser=true` when spec/plan needs explicit approval |
+
+Mode mapping from Forge skills:
+
+| Forge skill phase | Antigravity Mode |
+|------------------|------------------|
+| `brainstorm`, `plan`, `architect`, `spec-review` | `PLANNING` |
+| `build`, `debug`, `refactor`, `deploy`, `secure` | `EXECUTION` |
+| `test`, `review`, `quality-gate` | `VERIFICATION` |
+| `session`, `visualize` | Use the mode that matches current activity |
+
+Rules:
+- Do **not** emit a separate Forge activation line AND a `task_boundary` call — the `task_boundary` call IS the activation.
+- Forge skill chain progress updates go through `task_boundary(TaskStatus)`, not through inline messages.
+- When Forge completes a skill and moves to the next in the chain, update `TaskName` to reflect the new skill.
+- Evidence and verification results that need user review go through `notify_user`, not inline.
+
+## Antigravity Artifact Boundary
+
+Two artifact paths serve different scopes:
+
+| Path | Scope | Purpose | Examples |
+|------|-------|---------|----------|
+| `.forge-artifacts/` | Workspace-scoped, durable across conversations | Forge tooling output: route previews, briefs, chain status, execution progress | `route-previews/`, `backend-briefs/`, `ui-briefs/` |
+| `brain/<conversation>/` | Conversation-scoped, managed by Antigravity host | Host artifacts: task.md, implementation_plan.md, walkthrough.md | `task.md`, `walkthrough.md` |
+
+Rules:
+- Forge deterministic scripts persist to `.forge-artifacts/` by default.
+- Antigravity host artifacts (`task_boundary` artifacts) persist to `brain/<conversation>/`.
+- Do **not** mix paths: Forge script output stays in `.forge-artifacts/`, host artifacts stay in `brain/`.
+- `.brain/decisions.json` and `.brain/learnings.json` are workspace memory and belong to the workspace `.brain/` layer.
+
 ## Independence Rule
 
 - Forge is a **global-first orchestrator**.
@@ -187,17 +234,17 @@ forge-antigravity/
 - Automated workspace canary runner for real repo rollout: `scripts/run_workspace_canary.py`
 - Canary result recorder for real workspace rollout: `scripts/record_canary_result.py`
 - Canary readiness evaluator for rollout verdicts: `scripts/evaluate_canary_readiness.py`
-- Default persisted artifacts:
-  - `.forge-artifacts/route-previews/`
-  - `.forge-artifacts/router-checks/`
-  - `.forge-artifacts/backend-briefs/`
-  - `.forge-artifacts/chain-status/`
-  - `.forge-artifacts/execution-progress/`
-  - `.forge-artifacts/ui-briefs/`
-  - `~/.gemini/antigravity/forge-antigravity/state/preferences.json`
-  - `~/.gemini/antigravity/forge-antigravity/state/extra_preferences.json`
-  - `.brain/decisions.json`
-  - `.brain/learnings.json`
+- Default persisted artifacts (see `Antigravity Artifact Boundary` for scope rules):
+  - `.forge-artifacts/route-previews/` (workspace-scoped)
+  - `.forge-artifacts/router-checks/` (workspace-scoped)
+  - `.forge-artifacts/backend-briefs/` (workspace-scoped)
+  - `.forge-artifacts/chain-status/` (workspace-scoped)
+  - `.forge-artifacts/execution-progress/` (workspace-scoped)
+  - `.forge-artifacts/ui-briefs/` (workspace-scoped)
+  - `~/.gemini/antigravity/forge-antigravity/state/preferences.json` (adapter-global)
+  - `~/.gemini/antigravity/forge-antigravity/state/extra_preferences.json` (adapter-global)
+  - `.brain/decisions.json` (workspace memory)
+  - `.brain/learnings.json` (workspace memory)
 
 For detailed command examples or artifact behavior, read `references/tooling.md`.
 

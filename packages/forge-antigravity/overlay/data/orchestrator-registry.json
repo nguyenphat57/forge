@@ -1,0 +1,874 @@
+{
+  "intents": {
+    "BUILD": {
+      "keywords": [
+        "implement",
+        "feature",
+        "code",
+        "build",
+        "add",
+        "create"
+      ],
+      "shortcuts": [
+        "/code"
+      ],
+      "chains": {
+        "small": [
+          "build"
+        ],
+        "medium": [
+          "plan",
+          "build",
+          "test",
+          "quality-gate"
+        ],
+        "large": [
+          "plan",
+          "architect",
+          "spec-review",
+          "build",
+          "test",
+          "quality-gate"
+        ]
+      }
+    },
+    "DEBUG": {
+      "keywords": [
+        "debug",
+        "bug",
+        "fix",
+        "error",
+        "crash",
+        "broken",
+        "regression"
+      ],
+      "shortcuts": [
+        "/debug"
+      ],
+      "chains": {
+        "small": [
+          "debug"
+        ],
+        "medium": [
+          "debug",
+          "test"
+        ],
+        "large": [
+          "debug",
+          "plan",
+          "build",
+          "test"
+        ]
+      }
+    },
+    "OPTIMIZE": {
+      "keywords": [
+        "refactor",
+        "clean",
+        "restructure",
+        "simplify"
+      ],
+      "shortcuts": [
+        "/refactor"
+      ],
+      "chains": {
+        "small": [
+          "refactor"
+        ],
+        "medium": [
+          "refactor",
+          "test"
+        ],
+        "large": [
+          "review",
+          "refactor",
+          "test"
+        ]
+      }
+    },
+    "DEPLOY": {
+      "keywords": [
+        "deploy",
+        "release",
+        "production",
+        "rollout",
+        "ship",
+        "publish"
+      ],
+      "shortcuts": [
+        "/deploy"
+      ],
+      "chains": {
+        "small": [
+          "deploy"
+        ],
+        "medium": [
+          "secure",
+          "quality-gate",
+          "deploy"
+        ],
+        "large": [
+          "secure",
+          "test",
+          "quality-gate",
+          "deploy"
+        ]
+      }
+    },
+    "REVIEW": {
+      "keywords": [
+        "review",
+        "audit",
+        "readiness",
+        "health check"
+      ],
+      "shortcuts": [
+        "/review"
+      ],
+      "chains": {
+        "small": [
+          "review"
+        ],
+        "medium": [
+          "review",
+          "secure"
+        ],
+        "large": [
+          "review",
+          "secure"
+        ]
+      }
+    },
+    "VISUALIZE": {
+      "keywords": [
+        "ui",
+        "ux",
+        "mockup",
+        "wireframe",
+        "screen",
+        "layout",
+        "visual",
+        "prototype"
+      ],
+      "shortcuts": [
+        "/visualize"
+      ],
+      "chains": {
+        "small": [
+          "visualize"
+        ],
+        "medium": [
+          "plan",
+          "visualize"
+        ],
+        "large": [
+          "plan",
+          "architect",
+          "visualize"
+        ]
+      }
+    },
+    "SESSION": {
+      "keywords": [
+        "recap",
+        "continue",
+        "resume",
+        "save",
+        "context",
+        "handover",
+        "where were we"
+      ],
+      "shortcuts": [
+        "/recap",
+        "/save-brain"
+      ],
+      "chains": {
+        "small": [
+          "session"
+        ],
+        "medium": [
+          "session"
+        ],
+        "large": [
+          "session"
+        ]
+      }
+    }
+  },
+  "complexity": {
+    "default": "medium",
+    "thresholds": {
+      "small_max_changed_files": 2,
+      "medium_max_changed_files": 10
+    },
+    "prompt_hints": {
+      "small": [
+        "typo",
+        "copy",
+        "text",
+        "label",
+        "placeholder",
+        "padding",
+        "spacing",
+        "rename",
+        "css tweak"
+      ],
+      "medium": [
+        "feature",
+        "screen",
+        "endpoint",
+        "crud",
+        "filter",
+        "form",
+        "flow",
+        "component",
+        "page",
+        "policy"
+      ],
+      "large": [
+        "payment",
+        "auth",
+        "migration",
+        "architecture",
+        "rewrite",
+        "new module",
+        "platform",
+        "checkout flow",
+        "offline sync"
+      ]
+    }
+  },
+  "brainstorm_gate": {
+    "eligible_intents": [
+      "BUILD",
+      "VISUALIZE"
+    ],
+    "eligible_complexities": [
+      "medium",
+      "large"
+    ],
+    "prompt_keywords": [
+      "brainstorm",
+      "option",
+      "options",
+      "approach",
+      "approaches",
+      "tradeoff",
+      "tradeoffs",
+      "compare",
+      "comparison",
+      "alternative",
+      "alternatives",
+      "unclear",
+      "strategy",
+      "explore"
+    ]
+  },
+  "spec_review_gate": {
+    "eligible_intents": [
+      "BUILD"
+    ],
+    "eligible_complexities": [
+      "medium",
+      "large"
+    ],
+    "always_large": true,
+    "prompt_keywords": [
+      "migration",
+      "schema",
+      "backfill",
+      "contract",
+      "public api",
+      "external",
+      "integration",
+      "webhook",
+      "auth",
+      "payment",
+      "checkout",
+      "queue",
+      "worker",
+      "background",
+      "security",
+      "high-risk",
+      "blast radius",
+      "rollback",
+      "module"
+    ],
+    "repo_signals": [
+      "migrations",
+      "schema.sql",
+      "supabase",
+      "api/",
+      "functions/",
+      "server/",
+      "worker",
+      "queue",
+      "auth",
+      "payment"
+    ]
+  },
+  "domains": {
+    "frontend": {
+      "prompt_keywords": [
+        "ui",
+        "ux",
+        "css",
+        "layout",
+        "responsive",
+        "component",
+        "screen",
+        "page",
+        "form",
+        "animation"
+      ],
+      "repo_signals": [
+        ".tsx",
+        ".jsx",
+        "components",
+        "pages",
+        "styles",
+        "tailwind",
+        "vite",
+        "src/"
+      ],
+      "weak_repo_signals": [
+        "src/"
+      ]
+    },
+    "backend": {
+      "prompt_keywords": [
+        "api",
+        "backend",
+        "database",
+        "db",
+        "migration",
+        "policy",
+        "rls",
+        "rpc",
+        "service",
+        "sql"
+      ],
+      "repo_signals": [
+        "supabase",
+        "migrations",
+        "schema.sql",
+        "api/",
+        "server/",
+        "backend/",
+        "functions/",
+        "pom.xml",
+        "go.mod"
+      ]
+    }
+  },
+  "minimal_routing_policy": {
+    "prompt_only_domain_intents": [
+      "REVIEW",
+      "SESSION"
+    ],
+    "prompt_only_quality_profile_intents": [
+      "REVIEW",
+      "SESSION"
+    ],
+    "prompt_only_local_companion_intents": [
+      "REVIEW",
+      "SESSION",
+      "VISUALIZE"
+    ],
+    "prompt_only_for_small": {
+      "domains": true,
+      "quality_profiles": true,
+      "local_companions": true
+    },
+    "runtime_signal_local_companion_intents": [
+      "BUILD",
+      "DEBUG",
+      "OPTIMIZE",
+      "DEPLOY"
+    ],
+    "repo_signal_companion_score_floor": {
+      "small": 2,
+      "medium": 2,
+      "large": 2
+    },
+    "max_local_companions": {
+      "small": 1,
+      "medium": 2,
+      "large": 3
+    }
+  },
+  "runtime_hints": {
+    "node-ts": [
+      "package.json",
+      "tsconfig.json",
+      "vite.config",
+      "next.config",
+      "pnpm-lock.yaml",
+      "package-lock.json"
+    ],
+    "python": [
+      "pyproject.toml",
+      "requirements.txt",
+      "poetry.lock",
+      "pytest.ini"
+    ],
+    "go": [
+      "go.mod"
+    ],
+    "java-kotlin": [
+      "pom.xml",
+      "build.gradle",
+      "settings.gradle",
+      "gradlew"
+    ],
+    "dotnet": [
+      ".csproj",
+      ".sln",
+      "Directory.Build.props"
+    ]
+  },
+  "change_type_hints": {
+    "non_behavioral_keywords": [
+      "docs",
+      "readme",
+      "changelog",
+      "config",
+      "build script",
+      "release",
+      "version bump",
+      "rename only",
+      "format only"
+    ],
+    "behavioral_keywords": [
+      "debug",
+      "fix",
+      "feature",
+      "flow",
+      "bug",
+      "regression",
+      "screen",
+      "endpoint",
+      "policy",
+      "logic",
+      "error",
+      "crash",
+      "timeout"
+    ]
+  },
+  "verification_profiles": {
+    "behavioral_with_harness": {
+      "label": "Behavioral change + harness available",
+      "steps": [
+        "Capture a failing test or failing automated reproduction before editing behavior.",
+        "Apply the minimal fix and rerun the focused test first.",
+        "Run the nearest confidence command after the focused verification passes."
+      ]
+    },
+    "behavioral_reproduction_first": {
+      "label": "Behavioral change + no harness confirmed",
+      "steps": [
+        "Capture a manual reproduction, failing command, or smoke scenario before editing behavior.",
+        "Apply the minimal fix and rerun the same scenario immediately.",
+        "Record residual risk if no stronger automated verification exists."
+      ]
+    },
+    "non_behavioral": {
+      "label": "Non-behavioral or repo chore change",
+      "steps": [
+        "Define the verification command before editing.",
+        "Use the narrowest valid check: diff, lint, typecheck, build, or smoke run.",
+        "Do not claim done without fresh evidence from the chosen check."
+      ]
+    }
+  },
+  "quality_profiles": {
+    "standard": {
+      "label": "Standard",
+      "intent_bias": [],
+      "intent_boost": 0,
+      "prompt_keywords": [],
+      "repo_signals": [],
+      "required_evidence": [
+        "Focused verification or smoke evidence",
+        "Relevant review or residual-risk note",
+        "Claim target stated explicitly"
+      ]
+    },
+    "release-critical": {
+      "label": "Release-critical",
+      "intent_bias": [
+        "DEPLOY"
+      ],
+      "intent_boost": 2,
+      "prompt_keywords": [
+        "deploy",
+        "release",
+        "production",
+        "prod",
+        "ship",
+        "rollout",
+        "payment",
+        "auth",
+        "checkout",
+        "incident"
+      ],
+      "repo_signals": [
+        "wrangler",
+        "deploy",
+        "release",
+        "payment",
+        "auth"
+      ],
+      "required_evidence": [
+        "Identity/target check",
+        "Secrets/config/env validation",
+        "Fresh sanity/build and test evidence",
+        "Rollback path and post-deploy smoke readiness"
+      ]
+    },
+    "migration-critical": {
+      "label": "Migration-critical",
+      "intent_bias": [
+        "BUILD",
+        "DEPLOY"
+      ],
+      "intent_boost": 1,
+      "prompt_keywords": [
+        "migration",
+        "schema",
+        "backfill",
+        "expand-contract",
+        "contract",
+        "drop column",
+        "policy",
+        "rls",
+        "data move"
+      ],
+      "repo_signals": [
+        "migrations",
+        "schema.sql",
+        "supabase",
+        "policy",
+        "rls"
+      ],
+      "required_evidence": [
+        "Compatibility or expand-contract plan",
+        "Rollback/backout path",
+        "Migration/backfill verification",
+        "Consumer impact or sequencing note"
+      ]
+    },
+    "external-interface": {
+      "label": "External-interface",
+      "intent_bias": [
+        "BUILD",
+        "REVIEW"
+      ],
+      "intent_boost": 1,
+      "prompt_keywords": [
+        "api",
+        "public",
+        "client",
+        "sdk",
+        "endpoint",
+        "webhook",
+        "integration",
+        "consumer",
+        "contract"
+      ],
+      "repo_signals": [
+        "api/",
+        "functions/",
+        "sdk",
+        "openapi",
+        "swagger"
+      ],
+      "required_evidence": [
+        "Contract diff or compatibility note",
+        "Caller/consumer update note",
+        "Boundary verification or smoke check"
+      ]
+    },
+    "regression-recovery": {
+      "label": "Regression-recovery",
+      "intent_bias": [
+        "DEBUG"
+      ],
+      "intent_boost": 2,
+      "prompt_keywords": [
+        "regression",
+        "incident",
+        "hotfix",
+        "restore",
+        "recovery",
+        "broken after release",
+        "outage"
+      ],
+      "repo_signals": [
+        "incident",
+        "hotfix",
+        "rollback"
+      ],
+      "required_evidence": [
+        "Fresh failing reproduction",
+        "Root-cause note",
+        "Targeted regression verification",
+        "Rollback or containment stance"
+      ]
+    }
+  },
+  "quality_profile_priority": [
+    "release-critical",
+    "migration-critical",
+    "external-interface",
+    "regression-recovery",
+    "standard"
+  ],
+  "quality_profile_intent_preference": {
+    "DEBUG": [
+      "regression-recovery"
+    ],
+    "DEPLOY": [
+      "release-critical"
+    ]
+  },
+  "execution_modes": {
+    "single-track": {
+      "label": "Single-track",
+      "recommended_for": [
+        "small",
+        "medium"
+      ],
+      "prompt_keywords": [
+        "single flow",
+        "single path",
+        "coupled",
+        "one screen",
+        "one endpoint"
+      ]
+    },
+    "checkpoint-batch": {
+      "label": "Checkpoint batch",
+      "recommended_for": [
+        "medium",
+        "large"
+      ],
+      "prompt_keywords": [
+        "phase",
+        "phases",
+        "checkpoint",
+        "step by step",
+        "migration",
+        "rollout",
+        "several tasks"
+      ]
+    },
+    "parallel-safe": {
+      "label": "Parallel-safe",
+      "recommended_for": [
+        "large"
+      ],
+      "prompt_keywords": [
+        "parallel",
+        "independent",
+        "separate",
+        "multiple surfaces",
+        "many screens",
+        "many endpoints"
+      ]
+    }
+  },
+  "execution_pipelines": {
+    "single-lane": {
+      "label": "Single lane",
+      "lanes": [
+        "implementer"
+      ],
+      "recommended_for": [
+        "small",
+        "medium"
+      ],
+      "intent_bias": [
+        "BUILD",
+        "DEBUG",
+        "OPTIMIZE"
+      ]
+    },
+    "implementer-quality": {
+      "label": "Implementer -> quality reviewer",
+      "lanes": [
+        "implementer",
+        "quality-reviewer"
+      ],
+      "recommended_for": [
+        "medium",
+        "large"
+      ],
+      "intent_bias": [
+        "BUILD",
+        "DEBUG",
+        "OPTIMIZE"
+      ]
+    },
+    "implementer-spec-quality": {
+      "label": "Implementer -> spec reviewer -> quality reviewer",
+      "lanes": [
+        "implementer",
+        "spec-reviewer",
+        "quality-reviewer"
+      ],
+      "recommended_for": [
+        "medium",
+        "large"
+      ],
+      "intent_bias": [
+        "BUILD"
+      ],
+      "requires_spec_review": true,
+      "max_revisions": 3
+    },
+    "deploy-gate": {
+      "label": "Deploy reviewer -> quality reviewer",
+      "lanes": [
+        "deploy-reviewer",
+        "quality-reviewer"
+      ],
+      "recommended_for": [
+        "medium",
+        "large"
+      ],
+      "intent_bias": [
+        "DEPLOY"
+      ]
+    }
+  },
+  "execution_pipeline_rules": {
+    "default": "single-lane",
+    "high_risk_quality_profiles": [
+      "release-critical",
+      "migration-critical",
+      "external-interface",
+      "regression-recovery"
+    ],
+    "spec_review_loop_max_revisions": 3
+  },
+  "model_tiers": {
+    "cheap": {
+      "label": "Cheap",
+      "use_for": [
+        "navigation",
+        "triage",
+        "artifact reading",
+        "status formatting"
+      ]
+    },
+    "standard": {
+      "label": "Standard",
+      "use_for": [
+        "bounded implementation slices",
+        "standard review",
+        "day-to-day execution"
+      ]
+    },
+    "capable": {
+      "label": "Capable",
+      "use_for": [
+        "high-risk implementation",
+        "spec review",
+        "release gates",
+        "migration/auth/payment review"
+      ]
+    }
+  },
+  "lane_model_policy": {
+    "default": {
+      "navigator": "cheap",
+      "implementer": "standard",
+      "spec-reviewer": "capable",
+      "quality-reviewer": "standard",
+      "deploy-reviewer": "standard"
+    },
+    "by_complexity": {
+      "small": {
+        "implementer": "standard",
+        "quality-reviewer": "standard"
+      },
+      "medium": {
+        "implementer": "standard",
+        "quality-reviewer": "standard",
+        "spec-reviewer": "capable"
+      },
+      "large": {
+        "implementer": "capable",
+        "quality-reviewer": "capable",
+        "spec-reviewer": "capable",
+        "deploy-reviewer": "capable"
+      }
+    },
+    "quality_profile_upgrades": {
+      "release-critical": {
+        "implementer": "capable",
+        "quality-reviewer": "capable",
+        "deploy-reviewer": "capable"
+      },
+      "migration-critical": {
+        "implementer": "capable",
+        "spec-reviewer": "capable",
+        "quality-reviewer": "capable"
+      },
+      "external-interface": {
+        "spec-reviewer": "capable",
+        "quality-reviewer": "capable"
+      },
+      "regression-recovery": {
+        "implementer": "capable",
+        "quality-reviewer": "capable"
+      }
+    }
+  },
+  "evidence_response_contract": {
+    "required_patterns": [
+      "I verified: [fresh evidence]. Correct because [reason]. Fixed: [change].",
+      "I investigated: [evidence]. Current code stays because [reason].",
+      "Clarification needed: [single precise question]."
+    ],
+    "required_fields": [
+      "fresh evidence",
+      "reason or disposition",
+      "change or no-change stance"
+    ],
+    "banned_phrases": [
+      "Good catch! Fixed.",
+      "Looks good now.",
+      "Should be fixed.",
+      "Probably fine.",
+      "CI passed earlier."
+    ]
+  },
+  "rationalization_patterns": [
+    "Good catch! Fixed.",
+    "Should be fine now.",
+    "CI passed earlier.",
+    "I did not run the exact check, but the change is small.",
+    "Test fail but it looks unrelated.",
+    "Could not reproduce, so it is probably okay.",
+    "Spec is basically clear, implementation can figure it out.",
+    "Merge first, follow up later."
+  ],
+  "host_capabilities": {
+    "supports_subagents": true,
+    "supports_parallel_subagents": false,
+    "subagent_dispatch_skill": null,
+    "delegation_contract": [
+      "Fresh packet per delegated slice.",
+      "Explicit ownership and write scope.",
+      "Return changed files, verification, and residual risk."
+    ]
+  },
+  "completion_states": {
+    "in-progress": "Work is still active or lacks handoff evidence.",
+    "ready-for-review": "Implementation evidence exists and the work is ready for review.",
+    "ready-for-merge": "Scope is clear, evidence is strong, and no known blocker remains.",
+    "blocked-by-residual-risk": "Known blocker or residual risk is too high to call done."
+  }
+}
