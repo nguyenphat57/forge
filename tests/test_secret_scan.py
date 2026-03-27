@@ -38,7 +38,8 @@ class SecretScanTests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             secret_file = root / "config.env"
-            secret_file.write_text("OPENAI_API_KEY=sk-AAAAAAAAAAAAAAAAAAAAAA\n", encoding="utf-8")
+            secret_value = "sk-" + ("A" * 22)
+            secret_file.write_text(f"OPENAI_API_KEY={secret_value}\n", encoding="utf-8")
 
             result = self.run_scan(root)
             self.assertEqual(result.returncode, 1, result.stdout)
