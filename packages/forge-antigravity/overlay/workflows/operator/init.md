@@ -12,12 +12,12 @@ quality_gates:
 
 # Init - Antigravity Workspace Bootstrap
 
-> Mục tiêu: cho Antigravity một `/init` rõ ràng để dùng Forge trên workspace mới mà không nhúng host ceremony vào core.
+> Goal: give Antigravity a clear `/init` to use Forge on a new workspace without embedding host ceremony into core.
 
 <HARD-GATE>
-- Không overwrite file đã tồn tại.
-- Không biến init thành onboarding dài dòng.
-- Không đưa slash surface riêng của host vào core script.
+- Do not overwrite existing files.
+- Do not turn init into a lengthy onboarding.
+- Do not embed host-specific slash surface into the core script.
 </HARD-GATE>
 
 ## Process
@@ -28,25 +28,25 @@ quality_gates:
 python scripts/initialize_workspace.py --workspace <workspace> --format json
 ```
 
-2. Nếu user muốn tạo skeleton thật:
+2. If the user wants to create the actual skeleton:
 
 ```powershell
 python scripts/initialize_workspace.py --workspace <workspace> --seed-preferences --apply
 ```
 
-`--seed-preferences` sẽ seed Antigravity-global preferences, không còn ghi vào workspace-local `.brain/preferences.json`.
+`--seed-preferences` seeds Antigravity-global preferences; it no longer writes to workspace-local `.brain/preferences.json`.
 
-3. Nếu user muốn cá nhân hóa ngay, chuyển sang `/customize`.
-4. Kết thúc bằng một next workflow duy nhất:
-   - `brainstorm` cho workspace greenfield
-   - `plan` cho workspace existing
+3. If the user wants to personalize immediately, switch to `/customize`.
+4. End with a single next workflow:
+   - `brainstorm` for greenfield workspaces
+   - `plan` for existing workspaces
 
 ## Output Contract
 
 ```text
-Đã khởi tạo: [...]
+Initialized: [...]
 Mode: [...]
-Lam tiep: [...]
+Next: [...]
 ```
 
 ## Activation Announcement

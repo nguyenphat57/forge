@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from support import forge_home_fixture, load_json_fixture, run_python_script, workspace_fixture
+from support import expected_output_contract, forge_home_fixture, load_json_fixture, run_python_script, workspace_fixture
 
 import common  # noqa: E402
 
@@ -33,6 +33,7 @@ class WritePreferencesTests(unittest.TestCase):
         compat_path = compat_paths.get(field)
         if compat_path is None:
             return None
+        payload = extra_payload if isinstance(extra_payload, dict) else preferences_payload
         return common.get_nested_value(payload, compat_path)
 
     @staticmethod
@@ -112,9 +113,9 @@ class WritePreferencesTests(unittest.TestCase):
                 "--workspace",
                 str(workspace),
                 "--language",
-                "vi",
+                "en",
                 "--orthography",
-                "vietnamese_diacritics",
+                "plain_english",
                 "--apply",
                 "--format",
                 "json",
@@ -136,20 +137,21 @@ class WritePreferencesTests(unittest.TestCase):
             self.assertEqual(
                 report["changed_extra_fields"],
                 self.expected_changed_extra_fields(
-                    language="vi",
-                    orthography="vietnamese_diacritics",
+                    language="en",
+                    orthography="plain_english",
                 ),
             )
-            self.assertEqual(report["extra"]["language"], "vi")
-            self.assertEqual(report["extra"]["orthography"], "vietnamese_diacritics")
-            self.assertEqual(report["output_contract"]["language"], "vi")
-            self.assertEqual(report["output_contract"]["orthography"], "vietnamese-diacritics")
+            self.assertEqual(report["extra"]["language"], "en")
+            self.assertEqual(report["extra"]["orthography"], "plain_english")
+            self.assertEqual(report["output_contract"], expected_output_contract(report["extra"]))
+            self.assertEqual(report["output_contract"]["language"], "en")
+            self.assertEqual(report["output_contract"]["orthography"], "plain-english")
             self.assertNotIn("language", written)
             self.assertNotIn("orthography", written)
-            self.assertEqual(self.read_persisted_extra(written, written_extra, "language"), "vi")
-            self.assertEqual(self.read_persisted_extra(written, written_extra, "orthography"), "vietnamese_diacritics")
-            self.assertEqual(reloaded["extra"]["language"], "vi")
-            self.assertEqual(reloaded["extra"]["orthography"], "vietnamese_diacritics")
+            self.assertEqual(self.read_persisted_extra(written, written_extra, "language"), "en")
+            self.assertEqual(self.read_persisted_extra(written, written_extra, "orthography"), "plain_english")
+            self.assertEqual(reloaded["extra"]["language"], "en")
+            self.assertEqual(reloaded["extra"]["orthography"], "plain_english")
 
     def test_write_preferences_script_preserves_existing_top_level_extras(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -166,8 +168,8 @@ class WritePreferencesTests(unittest.TestCase):
                         "pace": "balanced",
                         "feedback_style": "balanced",
                         "personality": "default",
-                        "language": "vi",
-                        "orthography": "vietnamese_diacritics",
+                        "language": "en",
+                        "orthography": "plain_english",
                     },
                     indent=2,
                     ensure_ascii=False,
@@ -194,10 +196,10 @@ class WritePreferencesTests(unittest.TestCase):
             written_extra = json.loads(written_extra_path.read_text(encoding="utf-8"))
 
             self.assertEqual(report["preferences"]["pace"], "fast")
-            self.assertEqual(report["extra"]["language"], "vi")
-            self.assertEqual(report["extra"]["orthography"], "vietnamese_diacritics")
-            self.assertEqual(self.read_persisted_extra(written, written_extra, "language"), "vi")
-            self.assertEqual(self.read_persisted_extra(written, written_extra, "orthography"), "vietnamese_diacritics")
+            self.assertEqual(report["extra"]["language"], "en")
+            self.assertEqual(report["extra"]["orthography"], "plain_english")
+            self.assertEqual(self.read_persisted_extra(written, written_extra, "language"), "en")
+            self.assertEqual(self.read_persisted_extra(written, written_extra, "orthography"), "plain_english")
             self.assertTrue(written_extra_path.exists())
             self.assertTrue((written_path.parent / "preferences.json.legacy.bak").exists())
             self.assertTrue(report["migrated_legacy_global_preferences"])

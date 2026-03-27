@@ -61,16 +61,17 @@
       "personality": "strict-coach"
     },
     "expected_extra": {
-      "tone_detail": "Gọi Sếp, xưng Em",
-      "language": "vi",
+      "tone_detail": "Address the user as lead engineer.",
+      "language": "en",
+      "orthography": "plain_english",
       "output_quality": "production_ready",
       "custom_rules": [
-        "Mỗi file không được vượt quá 300 dòng, nếu vượt phải chia nhỏ ra",
-        "Mỗi file chỉ chứa một chức năng, không gộp hay chồng chéo chức năng vào 1 file",
-        "Luôn dùng TypeScript thay vì JavaScript",
-        "Luôn sử dụng PowerShell thay vì Command Prompt",
-        "Luôn sử dụng ; thay vì && cho PowerShell",
-        "Luôn debug log mọi hành động, không đoán mò lỗi"
+        "Keep each file under 300 lines unless a split would reduce clarity.",
+        "Keep one responsibility per file and avoid overlapping concerns.",
+        "Prefer TypeScript over JavaScript.",
+        "Prefer PowerShell over Command Prompt on Windows.",
+        "Use semicolons in PowerShell examples instead of shell chaining operators.",
+        "Log observable evidence before guessing a root cause."
       ]
     },
     "expected_response_style": {
@@ -96,16 +97,17 @@
       "personality": "mentor"
     },
     "expected_extra": {
-      "tone_detail": "Gọi Sếp, xưng Em",
-      "language": "vi",
+      "tone_detail": "Address the user as lead engineer.",
+      "language": "en",
+      "orthography": "plain_english",
       "output_quality": "production_ready",
       "custom_rules": [
-        "Mỗi file không được vượt quá 300 dòng, nếu vượt phải chia nhỏ ra",
-        "Mỗi file chỉ chứa một chức năng, không gộp hay chồng chéo chức năng vào 1 file",
-        "Luôn dùng TypeScript thay vì JavaScript",
-        "Luôn sử dụng PowerShell thay vì Command Prompt",
-        "Luôn sử dụng ; thay vì && cho PowerShell",
-        "Luôn debug log mọi hành động, không đoán mò lỗi"
+        "Keep each file under 300 lines unless a split would reduce clarity.",
+        "Keep one responsibility per file and avoid overlapping concerns.",
+        "Prefer TypeScript over JavaScript.",
+        "Prefer PowerShell over Command Prompt on Windows.",
+        "Use semicolons in PowerShell examples instead of shell chaining operators.",
+        "Log observable evidence before guessing a root cause."
       ]
     },
     "expected_response_style": {

@@ -12,12 +12,12 @@ quality_gates:
 
 # Bump - Antigravity Operator Wrapper
 
-> Mục tiêu: giữ `/bump` rõ ràng cho user Antigravity, nhưng semver math và release checklist vẫn đi qua core.
+> Goal: keep `/bump` clear for Antigravity users, while semver math and the release checklist still go through core.
 
 ## Process
 
-1. Nếu user chưa nêu mức bump, suy luận từ repo diff và nêu lý do ngắn gọn.
-2. Preview hoặc apply bằng:
+1. If the user has not specified a bump level, infer from the repo diff and state the reasoning briefly.
+2. Preview or apply using:
 
 ```powershell
 python scripts/prepare_bump.py --workspace <workspace>
@@ -25,11 +25,11 @@ python scripts/prepare_bump.py --workspace <workspace> --bump minor
 python scripts/prepare_bump.py --workspace <workspace> --bump 1.3.0 --apply --release-ready
 ```
 
-3. Tóm tắt:
+3. Summarize:
    - version `old -> new`
-   - bump source: explicit hay inferred
-   - files đổi
-   - verify tiếp
+   - bump source: explicit or inferred
+   - files changed
+   - next verification step
 
 ## Activation Announcement
 

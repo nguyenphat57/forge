@@ -3,9 +3,16 @@ from __future__ import annotations
 import json
 import re
 import unittest
-from pathlib import Path
 
-from support import ROOT_DIR, forge_home_fixture, load_json_fixture, workspace_fixture
+from support import (
+    ROOT_DIR,
+    bundle_package_name,
+    forge_home_fixture,
+    is_core_bundle,
+    load_json_fixture,
+    load_output_contract_profiles,
+    workspace_fixture,
+)
 
 
 class BundleContractTests(unittest.TestCase):
@@ -19,6 +26,40 @@ class BundleContractTests(unittest.TestCase):
             for complexity, chain in config["chains"].items():
                 with self.subTest(intent=intent, complexity=complexity):
                     self.assertTrue(set(chain).issubset(known_skills), chain)
+
+    def test_canonical_registry_stays_ascii_only(self) -> None:
+        registry_text = (ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8")
+        self.assertTrue(registry_text.isascii())
+
+    def test_bundle_locale_and_output_contract_assets_follow_bundle_boundary(self) -> None:
+        routing_locale_config = ROOT_DIR / "data" / "routing-locales.json"
+        routing_locale_dir = ROOT_DIR / "data" / "routing-locales"
+        output_contracts_path = ROOT_DIR / "data" / "output-contracts.json"
+
+        if is_core_bundle():
+            self.assertFalse(routing_locale_config.exists())
+            self.assertFalse(routing_locale_dir.exists())
+            self.assertFalse(output_contracts_path.exists())
+            return
+
+        if routing_locale_config.exists():
+            payload = json.loads(routing_locale_config.read_text(encoding="utf-8"))
+            enabled_locales = payload.get("enabled_locales", [])
+            self.assertIsInstance(enabled_locales, list)
+            self.assertTrue(routing_locale_dir.exists())
+            for locale_name in enabled_locales:
+                with self.subTest(bundle=bundle_package_name(), locale=locale_name):
+                    self.assertIsInstance(locale_name, str)
+                    self.assertTrue((routing_locale_dir / f"{locale_name}.json").exists())
+        else:
+            self.assertFalse(routing_locale_dir.exists())
+
+        if output_contracts_path.exists():
+            profiles = load_output_contract_profiles()
+            self.assertIsInstance(profiles, dict)
+            self.assertTrue(
+                isinstance(profiles.get("languages"), dict) or isinstance(profiles.get("orthographies"), dict)
+            )
 
     def test_reference_map_entries_exist(self) -> None:
         reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")

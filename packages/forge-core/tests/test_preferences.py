@@ -3,7 +3,12 @@ from __future__ import annotations
 import json
 import unittest
 
-from support import ROOT_DIR, forge_home_fixture, run_python_script, workspace_fixture
+from support import (
+    expected_output_contract,
+    forge_home_fixture,
+    run_python_script,
+    workspace_fixture,
+)
 
 import common  # noqa: E402
 
@@ -90,8 +95,8 @@ class PreferencesTests(unittest.TestCase):
             extra_path.write_text(
                 json.dumps(
                     {
-                        "language": "vi",
-                        "orthography": "vietnamese_diacritics",
+                        "language": "en",
+                        "orthography": "plain_english",
                     },
                     indent=2,
                     ensure_ascii=False,
@@ -104,8 +109,8 @@ class PreferencesTests(unittest.TestCase):
 
             self.assertEqual(report["source"]["type"], "explicit")
             self.assertEqual(report["preferences"]["technical_level"], "technical")
-            self.assertEqual(report["extra"]["language"], "vi")
-            self.assertEqual(report["extra"]["orthography"], "vietnamese_diacritics")
+            self.assertEqual(report["extra"]["language"], "en")
+            self.assertEqual(report["extra"]["orthography"], "plain_english")
 
     def test_resolve_preferences_explicit_legacy_file_is_read_only(self) -> None:
         from pathlib import Path
@@ -122,7 +127,7 @@ class PreferencesTests(unittest.TestCase):
                         "pace": "balanced",
                         "feedback_style": "direct",
                         "personality": "default",
-                        "language": "vi",
+                        "language": "en",
                     },
                     indent=2,
                     ensure_ascii=False,
@@ -142,7 +147,7 @@ class PreferencesTests(unittest.TestCase):
             report = json.loads(result.stdout)
 
             self.assertEqual(report["status"], "PASS")
-            self.assertEqual(report["extra"]["language"], "vi")
+            self.assertEqual(report["extra"]["language"], "en")
             self.assertFalse((legacy_path.parent / "extra_preferences.json").exists())
             self.assertFalse((legacy_path.parent / "preferences.json.legacy.bak").exists())
 
@@ -183,16 +188,17 @@ class PreferencesTests(unittest.TestCase):
             report["extra"],
             self.expected_extra(
                 {
-                    "tone_detail": "Gọi Sếp, xưng Em",
-                    "language": "vi",
+                    "tone_detail": "Address the user as lead engineer.",
+                    "language": "en",
+                    "orthography": "plain_english",
                     "output_quality": "production_ready",
                     "custom_rules": [
-                        "Mỗi file không được vượt quá 300 dòng, nếu vượt phải chia nhỏ ra",
-                        "Mỗi file chỉ chứa một chức năng, không gộp hay chồng chéo chức năng vào 1 file",
-                        "Luôn dùng TypeScript thay vì JavaScript",
-                        "Luôn sử dụng PowerShell thay vì Command Prompt",
-                        "Luôn sử dụng ; thay vì && cho PowerShell",
-                        "Luôn debug log mọi hành động, không đoán mò lỗi",
+                        "Keep each file under 300 lines unless a split would reduce clarity.",
+                        "Keep one responsibility per file and avoid overlapping concerns.",
+                        "Prefer TypeScript over JavaScript.",
+                        "Prefer PowerShell over Command Prompt on Windows.",
+                        "Use semicolons in PowerShell examples instead of shell chaining operators.",
+                        "Log observable evidence before guessing a root cause.",
                     ],
                 }
             ),
@@ -203,11 +209,10 @@ class PreferencesTests(unittest.TestCase):
         self.assertEqual(style["delivery_pace"], "fast")
         self.assertEqual(style["feedback_mode"], "direct")
         self.assertEqual(style["teaching_mode"], "explain-why")
-        self.assertEqual(contract["language"], "vi")
-        self.assertEqual(contract["user_facing_language"], "vietnamese")
-        self.assertEqual(contract["orthography"], "vietnamese-diacritics")
-        self.assertEqual(contract["accent_policy"], "required")
-        self.assertEqual(contract["encoding"], "utf-8")
+        self.assertEqual(contract, expected_output_contract(report["extra"]))
+        self.assertEqual(contract["language"], "en")
+        self.assertEqual(contract["orthography"], "plain-english")
+        self.assertEqual(contract["tone_detail"], "Address the user as lead engineer.")
 
     def test_invalid_preferences_warn_and_fall_back_in_non_strict_mode(self) -> None:
         report = common.load_preferences(
@@ -235,14 +240,16 @@ class PreferencesTests(unittest.TestCase):
             )
 
     def test_extras_extracted_from_compat_payload(self) -> None:
-        compat_path = ROOT_DIR.parent.parent / "packages" / "forge-antigravity" / "overlay" / "data" / "preferences-compat.json"
+        compat_path = common.PREFERENCES_COMPAT_PATH
+        if not compat_path.exists():
+            self.skipTest(f"preferences-compat.json not available at {compat_path}")
         compat = json.loads(compat_path.read_text(encoding="utf-8"))
         payload = {
             "communication": {
                 "persona": "mentor",
                 "tone": "friendly",
-                "language": "vi",
-                "orthography": "vietnamese_diacritics",
+                "language": "en",
+                "orthography": "plain_english",
             },
             "technical": {
                 "technical_level": "technical",
@@ -264,8 +271,8 @@ class PreferencesTests(unittest.TestCase):
         self.assertEqual(
             extras,
             {
-                "language": "vi",
-                "orthography": "vietnamese_diacritics",
+                "language": "en",
+                "orthography": "plain_english",
                 "output_quality": "production_ready",
                 "custom_rules": [
                     "Always log every action before guessing a root cause.",
@@ -276,24 +283,25 @@ class PreferencesTests(unittest.TestCase):
             },
         )
         contract = common.resolve_output_contract(extras)
-        self.assertEqual(contract["language"], "vi")
-        self.assertEqual(contract["orthography"], "vietnamese-diacritics")
+        self.assertEqual(contract, expected_output_contract(extras))
+        self.assertEqual(contract["language"], "en")
+        self.assertEqual(contract["orthography"], "plain-english")
 
-
-    def test_resolve_output_contract_supports_english_language(self) -> None:
+    def test_resolve_output_contract_supports_generic_language(self) -> None:
         contract = common.resolve_output_contract({"language": "en"})
 
-        self.assertEqual(contract, {"language": "en"})
+        self.assertEqual(contract, expected_output_contract({"language": "en"}))
 
-    def test_resolve_output_contract_supports_orthography_without_language(self) -> None:
-        contract = common.resolve_output_contract({"orthography": "vietnamese_diacritics"})
+    def test_resolve_output_contract_normalizes_generic_orthography(self) -> None:
+        contract = common.resolve_output_contract({"orthography": "plain_english"})
 
-        self.assertEqual(contract["orthography"], "vietnamese-diacritics")
-        self.assertEqual(contract["accent_policy"], "required")
-        self.assertEqual(contract["encoding"], "utf-8")
+        self.assertEqual(contract, expected_output_contract({"orthography": "plain_english"}))
+        self.assertEqual(contract["orthography"], "plain-english")
 
     def test_resolve_extra_preferences_applies_compat_defaults(self) -> None:
-        compat_path = ROOT_DIR.parent.parent / "packages" / "forge-antigravity" / "overlay" / "data" / "preferences-compat.json"
+        compat_path = common.PREFERENCES_COMPAT_PATH
+        if not compat_path.exists():
+            self.skipTest(f"preferences-compat.json not available at {compat_path}")
         compat = json.loads(compat_path.read_text(encoding="utf-8"))
 
         defaults_only = common.resolve_extra_preferences(None, compat_config=compat)
@@ -306,18 +314,16 @@ class PreferencesTests(unittest.TestCase):
             compat_config=compat,
         )
 
-        self.assertEqual(
-            defaults_only,
-            {
-                "language": "vi",
-                "orthography": "vietnamese_diacritics",
-            },
-        )
+        self.assertEqual(defaults_only, common.compat_default_extra(compat))
         self.assertEqual(overridden["language"], "en")
-        self.assertEqual(overridden["orthography"], "vietnamese_diacritics")
+        default_orthography = common.compat_default_extra(compat).get("orthography")
+        if default_orthography is not None:
+            self.assertEqual(overridden["orthography"], default_orthography)
 
     def test_serialize_preferences_payload_keeps_new_writes_flat_without_existing_legacy_payload(self) -> None:
-        compat_path = ROOT_DIR.parent.parent / "packages" / "forge-antigravity" / "overlay" / "data" / "preferences-compat.json"
+        compat_path = common.PREFERENCES_COMPAT_PATH
+        if not compat_path.exists():
+            self.skipTest(f"preferences-compat.json not available at {compat_path}")
         compat = json.loads(compat_path.read_text(encoding="utf-8"))
         serialized = common.serialize_preferences_payload(
             {
@@ -331,8 +337,8 @@ class PreferencesTests(unittest.TestCase):
             existing_payload=None,
             replace=False,
             extra_updates={
-                "language": "vi",
-                "orthography": "vietnamese_diacritics",
+                "language": "en",
+                "orthography": "plain_english",
                 "output_quality": "production_ready",
                 "custom_rules": [
                     "Always log every action before guessing a root cause.",
@@ -342,8 +348,8 @@ class PreferencesTests(unittest.TestCase):
         )
 
         self.assertEqual(serialized["technical_level"], "basic")
-        self.assertEqual(serialized["language"], "vi")
-        self.assertEqual(serialized["orthography"], "vietnamese_diacritics")
+        self.assertEqual(serialized["language"], "en")
+        self.assertEqual(serialized["orthography"], "plain_english")
         self.assertEqual(serialized["output_quality"], "production_ready")
         self.assertEqual(
             serialized["custom_rules"],
@@ -354,7 +360,9 @@ class PreferencesTests(unittest.TestCase):
         self.assertIsNone(common.get_nested_value(serialized, "communication.language"))
 
     def test_serialize_preferences_payload_updates_existing_legacy_compat_payload(self) -> None:
-        compat_path = ROOT_DIR.parent.parent / "packages" / "forge-antigravity" / "overlay" / "data" / "preferences-compat.json"
+        compat_path = common.PREFERENCES_COMPAT_PATH
+        if not compat_path.exists():
+            self.skipTest(f"preferences-compat.json not available at {compat_path}")
         compat = json.loads(compat_path.read_text(encoding="utf-8"))
         existing_payload = {
             "communication": {
@@ -387,8 +395,8 @@ class PreferencesTests(unittest.TestCase):
             existing_payload=existing_payload,
             replace=False,
             extra_updates={
-                "language": "vi",
-                "orthography": "vietnamese_diacritics",
+                "language": "en",
+                "orthography": "plain_english",
                 "output_quality": "production_ready",
                 "custom_rules": [
                     "Always log every action before guessing a root cause.",
@@ -397,8 +405,8 @@ class PreferencesTests(unittest.TestCase):
             compat_config=compat,
         )
 
-        self.assertEqual(common.get_nested_value(serialized, "communication.language"), "vi")
-        self.assertEqual(common.get_nested_value(serialized, "communication.orthography"), "vietnamese_diacritics")
+        self.assertEqual(common.get_nested_value(serialized, "communication.language"), "en")
+        self.assertEqual(common.get_nested_value(serialized, "communication.orthography"), "plain_english")
         self.assertEqual(common.get_nested_value(serialized, "technical.quality"), "production_ready")
         self.assertEqual(common.get_nested_value(serialized, "technical.detail_level"), "simple")
         self.assertEqual(common.get_nested_value(serialized, "working_style.feedback"), "gentle")
@@ -464,24 +472,24 @@ class PreferencesTests(unittest.TestCase):
             report["extra"],
             self.expected_extra(
                 {
-                    "tone_detail": "Gọi Sếp, xưng Em",
-                    "language": "vi",
+                    "tone_detail": "Address the user as lead engineer.",
+                    "language": "en",
+                    "orthography": "plain_english",
                     "output_quality": "production_ready",
                     "custom_rules": [
-                        "Mỗi file không được vượt quá 300 dòng, nếu vượt phải chia nhỏ ra",
-                        "Mỗi file chỉ chứa một chức năng, không gộp hay chồng chéo chức năng vào 1 file",
-                        "Luôn dùng TypeScript thay vì JavaScript",
-                        "Luôn sử dụng PowerShell thay vì Command Prompt",
-                        "Luôn sử dụng ; thay vì && cho PowerShell",
-                        "Luôn debug log mọi hành động, không đoán mò lỗi",
+                        "Keep each file under 300 lines unless a split would reduce clarity.",
+                        "Keep one responsibility per file and avoid overlapping concerns.",
+                        "Prefer TypeScript over JavaScript.",
+                        "Prefer PowerShell over Command Prompt on Windows.",
+                        "Use semicolons in PowerShell examples instead of shell chaining operators.",
+                        "Log observable evidence before guessing a root cause.",
                     ],
                 }
             ),
         )
-        self.assertEqual(report["output_contract"]["language"], "vi")
-        self.assertEqual(report["output_contract"]["orthography"], "vietnamese-diacritics")
-        self.assertEqual(report["output_contract"]["accent_policy"], "required")
-        self.assertEqual(report["output_contract"]["encoding"], "utf-8")
+        self.assertEqual(report["output_contract"], expected_output_contract(report["extra"]))
+        self.assertEqual(report["output_contract"]["language"], "en")
+        self.assertEqual(report["output_contract"]["orthography"], "plain-english")
 
 
 if __name__ == "__main__":

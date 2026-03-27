@@ -12,21 +12,21 @@ quality_gates:
 
 # Run - Antigravity Operator Wrapper
 
-> Mục tiêu: giữ `/run` rõ ràng cho Antigravity, nhưng vẫn route từ output thật của core `run_with_guidance.py`.
+> Goal: keep `/run` clear for Antigravity users, while still routing from the real output of core `run_with_guidance.py`.
 
 ## Process
 
-1. Chốt command.
-2. Chạy bằng:
+1. Lock the command.
+2. Execute using:
 
 ```powershell
 python scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>
 ```
 
-3. Báo lại:
-   - command đã chạy
-   - tín hiệu chính
-   - workflow tiếp theo
+3. Report:
+   - command that ran
+   - key signal
+   - next workflow
 
 ## Activation Announcement
 

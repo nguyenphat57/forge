@@ -1,66 +1,197 @@
 {
   "intents": {
     "BUILD": {
-      "keywords": ["them", "thêm", "tao", "tạo", "implement", "feature", "code", "build", "add", "create"],
-      "shortcuts": ["/code"],
+      "keywords": [
+        "implement",
+        "feature",
+        "code",
+        "build",
+        "add",
+        "create"
+      ],
+      "shortcuts": [
+        "/code"
+      ],
       "chains": {
-        "small": ["build"],
-        "medium": ["plan", "build", "test", "quality-gate"],
-        "large": ["plan", "architect", "spec-review", "build", "test", "quality-gate"]
+        "small": [
+          "build"
+        ],
+        "medium": [
+          "plan",
+          "build",
+          "test",
+          "quality-gate"
+        ],
+        "large": [
+          "plan",
+          "architect",
+          "spec-review",
+          "build",
+          "test",
+          "quality-gate"
+        ]
       }
     },
     "DEBUG": {
-      "keywords": ["debug", "loi", "lỗi", "bug", "fix", "sua", "sửa", "error", "crash", "broken", "regression"],
-      "shortcuts": ["/debug"],
+      "keywords": [
+        "debug",
+        "bug",
+        "fix",
+        "error",
+        "crash",
+        "broken",
+        "regression"
+      ],
+      "shortcuts": [
+        "/debug"
+      ],
       "chains": {
-        "small": ["debug"],
-        "medium": ["debug", "test"],
-        "large": ["debug", "plan", "build", "test"]
+        "small": [
+          "debug"
+        ],
+        "medium": [
+          "debug",
+          "test"
+        ],
+        "large": [
+          "debug",
+          "plan",
+          "build",
+          "test"
+        ]
       }
     },
     "OPTIMIZE": {
-      "keywords": ["refactor", "toi uu", "tối ưu", "clean", "don", "dọn", "restructure", "simplify"],
-      "shortcuts": ["/refactor"],
+      "keywords": [
+        "refactor",
+        "clean",
+        "restructure",
+        "simplify"
+      ],
+      "shortcuts": [
+        "/refactor"
+      ],
       "chains": {
-        "small": ["refactor"],
-        "medium": ["refactor", "test"],
-        "large": ["review", "refactor", "test"]
+        "small": [
+          "refactor"
+        ],
+        "medium": [
+          "refactor",
+          "test"
+        ],
+        "large": [
+          "review",
+          "refactor",
+          "test"
+        ]
       }
     },
     "DEPLOY": {
-      "keywords": ["deploy", "release", "production", "rollout", "ship", "publish"],
-      "shortcuts": ["/deploy"],
+      "keywords": [
+        "deploy",
+        "release",
+        "production",
+        "rollout",
+        "ship",
+        "publish"
+      ],
+      "shortcuts": [
+        "/deploy"
+      ],
       "chains": {
-        "small": ["deploy"],
-        "medium": ["secure", "quality-gate", "deploy"],
-        "large": ["secure", "test", "quality-gate", "deploy"]
+        "small": [
+          "deploy"
+        ],
+        "medium": [
+          "secure",
+          "quality-gate",
+          "deploy"
+        ],
+        "large": [
+          "secure",
+          "test",
+          "quality-gate",
+          "deploy"
+        ]
       }
     },
     "REVIEW": {
-      "keywords": ["review", "danh gia", "đánh giá", "kiem tra", "kiểm tra", "audit", "readiness", "health check"],
-      "shortcuts": ["/review"],
+      "keywords": [
+        "review",
+        "audit",
+        "readiness",
+        "health check"
+      ],
+      "shortcuts": [
+        "/review"
+      ],
       "chains": {
-        "small": ["review"],
-        "medium": ["review", "secure"],
-        "large": ["review", "secure"]
+        "small": [
+          "review"
+        ],
+        "medium": [
+          "review",
+          "secure"
+        ],
+        "large": [
+          "review",
+          "secure"
+        ]
       }
     },
     "VISUALIZE": {
-      "keywords": ["ui", "ux", "mockup", "wireframe", "screen", "layout", "visual", "prototype", "giao diện", "trải nghiệm"],
-      "shortcuts": ["/visualize"],
+      "keywords": [
+        "ui",
+        "ux",
+        "mockup",
+        "wireframe",
+        "screen",
+        "layout",
+        "visual",
+        "prototype"
+      ],
+      "shortcuts": [
+        "/visualize"
+      ],
       "chains": {
-        "small": ["visualize"],
-        "medium": ["plan", "visualize"],
-        "large": ["plan", "architect", "visualize"]
+        "small": [
+          "visualize"
+        ],
+        "medium": [
+          "plan",
+          "visualize"
+        ],
+        "large": [
+          "plan",
+          "architect",
+          "visualize"
+        ]
       }
     },
     "SESSION": {
-      "keywords": ["recap", "continue", "resume", "save", "context", "handover", "where were we", "tiếp tục", "tiếp theo", "ngữ cảnh"],
-      "shortcuts": ["/recap", "/save-brain"],
+      "keywords": [
+        "recap",
+        "continue",
+        "resume",
+        "save",
+        "context",
+        "handover",
+        "where were we"
+      ],
+      "shortcuts": [
+        "/recap",
+        "/save-brain"
+      ],
       "chains": {
-        "small": ["session"],
-        "medium": ["session"],
-        "large": ["session"]
+        "small": [
+          "session"
+        ],
+        "medium": [
+          "session"
+        ],
+        "large": [
+          "session"
+        ]
       }
     }
   },
@@ -71,43 +202,53 @@
       "medium_max_changed_files": 10
     },
     "prompt_hints": {
-      "small": ["typo", "copy", "text", "label", "placeholder", "padding", "spacing", "rename", "css tweak"],
-      "medium": ["feature", "screen", "endpoint", "crud", "filter", "form", "flow", "component", "page", "policy"],
-      "large": ["payment", "auth", "migration", "architecture", "rewrite", "new module", "platform", "checkout flow", "offline sync"]
+      "small": [
+        "typo",
+        "copy",
+        "text",
+        "label",
+        "placeholder",
+        "padding",
+        "spacing",
+        "rename",
+        "css tweak"
+      ],
+      "medium": [
+        "feature",
+        "screen",
+        "endpoint",
+        "crud",
+        "filter",
+        "form",
+        "flow",
+        "component",
+        "page",
+        "policy"
+      ],
+      "large": [
+        "payment",
+        "auth",
+        "migration",
+        "architecture",
+        "rewrite",
+        "new module",
+        "platform",
+        "checkout flow",
+        "offline sync"
+      ]
     }
   },
   "brainstorm_gate": {
-    "eligible_intents": ["BUILD", "VISUALIZE"],
-    "eligible_complexities": ["medium", "large"],
+    "eligible_intents": [
+      "BUILD",
+      "VISUALIZE"
+    ],
+    "eligible_complexities": [
+      "medium",
+      "large"
+    ],
     "prompt_keywords": [
       "brainstorm",
-      "y tuong",
-      "mo ho",
-      "mơ hồ",
-      "chua ro",
-      "chưa rõ",
-      "khong ro",
-      "không rõ",
-      "khong chac",
-      "không chắc",
-      "nen chon",
-      "nên chọn",
-      "nen dung",
-      "nên dùng",
-      "can chot",
-      "cần chốt",
-      "chot huong",
-      "chốt hướng",
-      "chon huong",
-      "chọn hướng",
-      "huong nao",
-      "hướng nào",
-      "roi moi lap ke hoach",
-      "rồi mới lập kế hoạch",
-      "truoc khi lap ke hoach",
-      "trước khi lập kế hoạch",
-      "truoc khi plan",
-      "trước khi plan",
       "option",
       "options",
       "approach",
@@ -124,8 +265,13 @@
     ]
   },
   "spec_review_gate": {
-    "eligible_intents": ["BUILD"],
-    "eligible_complexities": ["medium", "large"],
+    "eligible_intents": [
+      "BUILD"
+    ],
+    "eligible_complexities": [
+      "medium",
+      "large"
+    ],
     "always_large": true,
     "prompt_keywords": [
       "migration",
@@ -146,13 +292,6 @@
       "high-risk",
       "blast radius",
       "rollback",
-      "di trú",
-      "hợp đồng",
-      "tích hợp",
-      "bảo mật",
-      "rủi ro cao",
-      "bán kính ảnh hưởng",
-      "quay lui",
       "module"
     ],
     "repo_signals": [
@@ -170,25 +309,83 @@
   },
   "domains": {
     "frontend": {
-      "prompt_keywords": ["ui", "ux", "css", "layout", "responsive", "component", "screen", "page", "form", "animation", "giao diện", "màn hình", "biểu mẫu"],
-      "repo_signals": [".tsx", ".jsx", "components", "pages", "styles", "tailwind", "vite", "src/"],
-      "weak_repo_signals": ["src/"]
+      "prompt_keywords": [
+        "ui",
+        "ux",
+        "css",
+        "layout",
+        "responsive",
+        "component",
+        "screen",
+        "page",
+        "form",
+        "animation"
+      ],
+      "repo_signals": [
+        ".tsx",
+        ".jsx",
+        "components",
+        "pages",
+        "styles",
+        "tailwind",
+        "vite",
+        "src/"
+      ],
+      "weak_repo_signals": [
+        "src/"
+      ]
     },
     "backend": {
-      "prompt_keywords": ["api", "backend", "database", "db", "migration", "policy", "rls", "rpc", "service", "sql", "cơ sở dữ liệu", "dịch vụ", "di trú"],
-      "repo_signals": ["supabase", "migrations", "schema.sql", "api/", "server/", "backend/", "functions/", "pom.xml", "go.mod"]
+      "prompt_keywords": [
+        "api",
+        "backend",
+        "database",
+        "db",
+        "migration",
+        "policy",
+        "rls",
+        "rpc",
+        "service",
+        "sql"
+      ],
+      "repo_signals": [
+        "supabase",
+        "migrations",
+        "schema.sql",
+        "api/",
+        "server/",
+        "backend/",
+        "functions/",
+        "pom.xml",
+        "go.mod"
+      ]
     }
   },
   "minimal_routing_policy": {
-    "prompt_only_domain_intents": ["REVIEW", "SESSION"],
-    "prompt_only_quality_profile_intents": ["REVIEW", "SESSION"],
-    "prompt_only_local_companion_intents": ["REVIEW", "SESSION", "VISUALIZE"],
+    "prompt_only_domain_intents": [
+      "REVIEW",
+      "SESSION"
+    ],
+    "prompt_only_quality_profile_intents": [
+      "REVIEW",
+      "SESSION"
+    ],
+    "prompt_only_local_companion_intents": [
+      "REVIEW",
+      "SESSION",
+      "VISUALIZE"
+    ],
     "prompt_only_for_small": {
       "domains": true,
       "quality_profiles": true,
       "local_companions": true
     },
-    "runtime_signal_local_companion_intents": ["BUILD", "DEBUG", "OPTIMIZE", "DEPLOY"],
+    "runtime_signal_local_companion_intents": [
+      "BUILD",
+      "DEBUG",
+      "OPTIMIZE",
+      "DEPLOY"
+    ],
     "repo_signal_companion_score_floor": {
       "small": 2,
       "medium": 2,
@@ -201,15 +398,62 @@
     }
   },
   "runtime_hints": {
-    "node-ts": ["package.json", "tsconfig.json", "vite.config", "next.config", "pnpm-lock.yaml", "package-lock.json"],
-    "python": ["pyproject.toml", "requirements.txt", "poetry.lock", "pytest.ini"],
-    "go": ["go.mod"],
-    "java-kotlin": ["pom.xml", "build.gradle", "settings.gradle", "gradlew"],
-    "dotnet": [".csproj", ".sln", "Directory.Build.props"]
+    "node-ts": [
+      "package.json",
+      "tsconfig.json",
+      "vite.config",
+      "next.config",
+      "pnpm-lock.yaml",
+      "package-lock.json"
+    ],
+    "python": [
+      "pyproject.toml",
+      "requirements.txt",
+      "poetry.lock",
+      "pytest.ini"
+    ],
+    "go": [
+      "go.mod"
+    ],
+    "java-kotlin": [
+      "pom.xml",
+      "build.gradle",
+      "settings.gradle",
+      "gradlew"
+    ],
+    "dotnet": [
+      ".csproj",
+      ".sln",
+      "Directory.Build.props"
+    ]
   },
   "change_type_hints": {
-    "non_behavioral_keywords": ["docs", "readme", "changelog", "config", "build script", "release", "version bump", "rename only", "format only"],
-    "behavioral_keywords": ["debug", "fix", "feature", "flow", "bug", "regression", "screen", "endpoint", "policy", "logic", "error", "crash", "timeout"]
+    "non_behavioral_keywords": [
+      "docs",
+      "readme",
+      "changelog",
+      "config",
+      "build script",
+      "release",
+      "version bump",
+      "rename only",
+      "format only"
+    ],
+    "behavioral_keywords": [
+      "debug",
+      "fix",
+      "feature",
+      "flow",
+      "bug",
+      "regression",
+      "screen",
+      "endpoint",
+      "policy",
+      "logic",
+      "error",
+      "crash",
+      "timeout"
+    ]
   },
   "verification_profiles": {
     "behavioral_with_harness": {
@@ -252,7 +496,9 @@
     },
     "release-critical": {
       "label": "Release-critical",
-      "intent_bias": ["DEPLOY"],
+      "intent_bias": [
+        "DEPLOY"
+      ],
       "intent_boost": 2,
       "prompt_keywords": [
         "deploy",
@@ -266,7 +512,13 @@
         "checkout",
         "incident"
       ],
-      "repo_signals": ["wrangler", "deploy", "release", "payment", "auth"],
+      "repo_signals": [
+        "wrangler",
+        "deploy",
+        "release",
+        "payment",
+        "auth"
+      ],
       "required_evidence": [
         "Identity/target check",
         "Secrets/config/env validation",
@@ -276,7 +528,10 @@
     },
     "migration-critical": {
       "label": "Migration-critical",
-      "intent_bias": ["BUILD", "DEPLOY"],
+      "intent_bias": [
+        "BUILD",
+        "DEPLOY"
+      ],
       "intent_boost": 1,
       "prompt_keywords": [
         "migration",
@@ -289,7 +544,13 @@
         "rls",
         "data move"
       ],
-      "repo_signals": ["migrations", "schema.sql", "supabase", "policy", "rls"],
+      "repo_signals": [
+        "migrations",
+        "schema.sql",
+        "supabase",
+        "policy",
+        "rls"
+      ],
       "required_evidence": [
         "Compatibility or expand-contract plan",
         "Rollback/backout path",
@@ -299,7 +560,10 @@
     },
     "external-interface": {
       "label": "External-interface",
-      "intent_bias": ["BUILD", "REVIEW"],
+      "intent_bias": [
+        "BUILD",
+        "REVIEW"
+      ],
       "intent_boost": 1,
       "prompt_keywords": [
         "api",
@@ -312,7 +576,13 @@
         "consumer",
         "contract"
       ],
-      "repo_signals": ["api/", "functions/", "sdk", "openapi", "swagger"],
+      "repo_signals": [
+        "api/",
+        "functions/",
+        "sdk",
+        "openapi",
+        "swagger"
+      ],
       "required_evidence": [
         "Contract diff or compatibility note",
         "Caller/consumer update note",
@@ -321,7 +591,9 @@
     },
     "regression-recovery": {
       "label": "Regression-recovery",
-      "intent_bias": ["DEBUG"],
+      "intent_bias": [
+        "DEBUG"
+      ],
       "intent_boost": 2,
       "prompt_keywords": [
         "regression",
@@ -332,7 +604,11 @@
         "broken after release",
         "outage"
       ],
-      "repo_signals": ["incident", "hotfix", "rollback"],
+      "repo_signals": [
+        "incident",
+        "hotfix",
+        "rollback"
+      ],
       "required_evidence": [
         "Fresh failing reproduction",
         "Root-cause note",
@@ -349,52 +625,121 @@
     "standard"
   ],
   "quality_profile_intent_preference": {
-    "DEBUG": ["regression-recovery"],
-    "DEPLOY": ["release-critical"]
+    "DEBUG": [
+      "regression-recovery"
+    ],
+    "DEPLOY": [
+      "release-critical"
+    ]
   },
   "execution_modes": {
     "single-track": {
       "label": "Single-track",
-      "recommended_for": ["small", "medium"],
-      "prompt_keywords": ["single flow", "single path", "coupled", "one screen", "one endpoint"]
+      "recommended_for": [
+        "small",
+        "medium"
+      ],
+      "prompt_keywords": [
+        "single flow",
+        "single path",
+        "coupled",
+        "one screen",
+        "one endpoint"
+      ]
     },
     "checkpoint-batch": {
       "label": "Checkpoint batch",
-      "recommended_for": ["medium", "large"],
-      "prompt_keywords": ["phase", "phases", "checkpoint", "step by step", "migration", "rollout", "several tasks"]
+      "recommended_for": [
+        "medium",
+        "large"
+      ],
+      "prompt_keywords": [
+        "phase",
+        "phases",
+        "checkpoint",
+        "step by step",
+        "migration",
+        "rollout",
+        "several tasks"
+      ]
     },
     "parallel-safe": {
       "label": "Parallel-safe",
-      "recommended_for": ["large"],
-      "prompt_keywords": ["parallel", "independent", "separate", "multiple surfaces", "many screens", "many endpoints"]
+      "recommended_for": [
+        "large"
+      ],
+      "prompt_keywords": [
+        "parallel",
+        "independent",
+        "separate",
+        "multiple surfaces",
+        "many screens",
+        "many endpoints"
+      ]
     }
   },
   "execution_pipelines": {
     "single-lane": {
       "label": "Single lane",
-      "lanes": ["implementer"],
-      "recommended_for": ["small", "medium"],
-      "intent_bias": ["BUILD", "DEBUG", "OPTIMIZE"]
+      "lanes": [
+        "implementer"
+      ],
+      "recommended_for": [
+        "small",
+        "medium"
+      ],
+      "intent_bias": [
+        "BUILD",
+        "DEBUG",
+        "OPTIMIZE"
+      ]
     },
     "implementer-quality": {
       "label": "Implementer -> quality reviewer",
-      "lanes": ["implementer", "quality-reviewer"],
-      "recommended_for": ["medium", "large"],
-      "intent_bias": ["BUILD", "DEBUG", "OPTIMIZE"]
+      "lanes": [
+        "implementer",
+        "quality-reviewer"
+      ],
+      "recommended_for": [
+        "medium",
+        "large"
+      ],
+      "intent_bias": [
+        "BUILD",
+        "DEBUG",
+        "OPTIMIZE"
+      ]
     },
     "implementer-spec-quality": {
       "label": "Implementer -> spec reviewer -> quality reviewer",
-      "lanes": ["implementer", "spec-reviewer", "quality-reviewer"],
-      "recommended_for": ["medium", "large"],
-      "intent_bias": ["BUILD"],
+      "lanes": [
+        "implementer",
+        "spec-reviewer",
+        "quality-reviewer"
+      ],
+      "recommended_for": [
+        "medium",
+        "large"
+      ],
+      "intent_bias": [
+        "BUILD"
+      ],
       "requires_spec_review": true,
       "max_revisions": 3
     },
     "deploy-gate": {
       "label": "Deploy reviewer -> quality reviewer",
-      "lanes": ["deploy-reviewer", "quality-reviewer"],
-      "recommended_for": ["medium", "large"],
-      "intent_bias": ["DEPLOY"]
+      "lanes": [
+        "deploy-reviewer",
+        "quality-reviewer"
+      ],
+      "recommended_for": [
+        "medium",
+        "large"
+      ],
+      "intent_bias": [
+        "DEPLOY"
+      ]
     }
   },
   "execution_pipeline_rules": {
@@ -497,10 +842,7 @@
       "Looks good now.",
       "Should be fixed.",
       "Probably fine.",
-      "CI passed earlier.",
-      "Khong reproduce duoc nen chac on.",
-      "Test fail nhung chac khong lien quan.",
-      "Spec co ban ro roi, cu code tiep."
+      "CI passed earlier."
     ]
   },
   "rationalization_patterns": [

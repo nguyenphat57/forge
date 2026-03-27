@@ -1,18 +1,18 @@
 # Forge Install
 
-## Mục tiêu
+## Goal
 
-Cài bundle đã build từ `dist/` vào runtime thật, thay vì sửa trực tiếp thư mục đang chạy.
-Install flow đồng bộ nội dung theo kiểu in-place sync để giảm rủi ro khi host đang giữ lock vào root folder runtime.
+Install the built bundle from `dist/` into a real runtime instead of editing the live runtime directory directly.
+The install flow uses in-place sync so rollout is safer when the host is holding locks on the runtime root.
 
 ## Default targets
 
 - `forge-antigravity` -> `~/.gemini/antigravity/skills/forge-antigravity`
 - `forge-codex` -> `~/.codex/skills/forge-codex`
 
-`forge-core` không có default target; nếu cần install bundle này, phải truyền `--target`.
+`forge-core` has no default target. Pass `--target` explicitly if you need to install it.
 
-## Quy trình chuẩn
+## Standard Flow
 
 ```powershell
 python scripts/verify_repo.py
@@ -21,14 +21,23 @@ python scripts/install_bundle.py forge-antigravity --build
 python scripts/install_bundle.py forge-codex --activate-codex
 ```
 
-`--activate-codex` dành cho rollout Codex thật:
+If Windows Codex is expected to reply in Vietnamese with full diacritics, run the bundled UTF-8 helper after `--activate-codex`:
 
-- sync `forge-codex` vào `~/.codex/skills/forge-codex`
-- rewrite `~/.codex/AGENTS.md` để `forge-codex` là global orchestrator duy nhất
+```powershell
+powershell -ExecutionPolicy Bypass -File "$HOME/.codex/skills/forge-codex/scripts/enable_windows_utf8.ps1"
+powershell -ExecutionPolicy Bypass -File "$HOME/.codex/skills/forge-codex/scripts/enable_windows_utf8.ps1" -Persist
+```
+
+The UTF-8 helper is only needed when preferences explicitly set `language=vi`.
+
+`--activate-codex` is for real Codex rollout:
+
+- sync `forge-codex` into `~/.codex/skills/forge-codex`
+- rewrite `~/.codex/AGENTS.md` so `forge-codex` becomes the only global orchestrator
 - retire `~/.codex/awf-codex`
-- retire các skill global legacy theo pattern `~/.codex/skills/awf-*`
+- retire legacy global skills matching `~/.codex/skills/awf-*`
 
-## Dry run
+## Dry Run
 
 ```powershell
 python scripts/install_bundle.py forge-antigravity --dry-run
@@ -38,14 +47,14 @@ python scripts/install_bundle.py forge-codex --dry-run --activate-codex
 
 ## Safety
 
-- Script tự backup runtime cũ vào `.install-backups/` trước khi sync.
-- Với `--activate-codex`, script backup thêm `~/.codex/AGENTS.md`, runtime legacy, và các skill legacy bị retire.
-- Có thể đổi nơi backup bằng `--backup-dir`.
-- Dùng `--no-backup` chỉ khi runtime đích là disposable.
-- Không install vào `packages/`, `dist/`, hay root repo.
-- Script prune file cũ không còn trong bundle mới, nhưng không cần xóa cả root folder runtime.
+- The script automatically backs up the existing runtime into `.install-backups/` before syncing.
+- With `--activate-codex`, the script also backs up `~/.codex/AGENTS.md`, the legacy runtime, and any retired legacy skills.
+- Use `--backup-dir` to override the backup location.
+- Use `--no-backup` only when the target runtime is disposable.
+- Do not install into `packages/`, `dist/`, or the repo root.
+- The script prunes files that are no longer in the new bundle, but it does not need to delete the entire runtime root.
 
-## Override target
+## Override Target
 
 ```powershell
 python scripts/install_bundle.py forge-core --target C:\path\to\custom\runtime

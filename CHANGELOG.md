@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.11.0 - 2026-03-27
+
+- Tách hoàn toàn locale routing và output contract khỏi `forge-core`, giữ core EN-only và chuyển ownership sang adapter overlays.
+- Thêm locale pack tiếng Việt và output-contract profiles cho `forge-antigravity` và `forge-codex`, kèm regression tests adapter-level và release checks tương ứng.
+- Chuẩn hóa personalization/docs/test fixtures sang English-first ở core, đồng thời bổ sung verify để dist bundles vẫn pass với bundle-aware contracts.
+
+
 ## 0.10.0 - 2026-03-27
 
 - Tách logic preferences trong `forge-core` khỏi `common.py` sang các module chuyên biệt như `preferences.py`, `compat.py`, `style_maps.py`, `skill_routing.py`, `text_utils.py`, và `error_translation.py`, đồng thời giữ `common.py` như shim re-export để không làm vỡ entrypoints hiện có.
@@ -9,7 +16,9 @@
 
 ## 0.9.0 - 2026-03-26
 
-- Describe release changes.
+- Đồng bộ test, docs, và release verification cho split-file preferences sau refactor v0.8.0.
+- Cập nhật regression tests để khóa behavior canonical + extras persistence trên cả source bundle lẫn dist bundle.
+- Clean up residual doc drift giữa `forge-core`, `forge-antigravity`, và `forge-codex` sau đợt thêm `output_contract`.
 
 
 ## 0.8.0 - 2026-03-26

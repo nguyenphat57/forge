@@ -2,10 +2,6 @@
   "intents": {
     "BUILD": {
       "keywords": [
-        "them",
-        "th\u00eam",
-        "tao",
-        "t\u1ea1o",
         "implement",
         "feature",
         "code",
@@ -39,12 +35,8 @@
     "DEBUG": {
       "keywords": [
         "debug",
-        "loi",
-        "l\u1ed7i",
         "bug",
         "fix",
-        "sua",
-        "s\u1eeda",
         "error",
         "crash",
         "broken",
@@ -72,11 +64,7 @@
     "OPTIMIZE": {
       "keywords": [
         "refactor",
-        "toi uu",
-        "t\u1ed1i \u01b0u",
         "clean",
-        "don",
-        "d\u1ecdn",
         "restructure",
         "simplify"
       ],
@@ -130,10 +118,6 @@
     "REVIEW": {
       "keywords": [
         "review",
-        "danh gia",
-        "\u0111\u00e1nh gi\u00e1",
-        "kiem tra",
-        "ki\u1ec3m tra",
         "audit",
         "readiness",
         "health check"
@@ -164,9 +148,7 @@
         "screen",
         "layout",
         "visual",
-        "prototype",
-        "giao di\u1ec7n",
-        "tr\u1ea3i nghi\u1ec7m"
+        "prototype"
       ],
       "shortcuts": [
         "/visualize"
@@ -192,11 +174,7 @@
         "resume",
         "context",
         "handover",
-        "where were we",
-        "tiep tuc",
-        "tiep theo",
-        "ngu canh",
-        "nhac nhanh"
+        "where were we"
       ],
       "shortcuts": [],
       "chains": {
@@ -266,33 +244,6 @@
     ],
     "prompt_keywords": [
       "brainstorm",
-      "y tuong",
-      "mo ho",
-      "m\u01a1 h\u1ed3",
-      "chua ro",
-      "ch\u01b0a r\u00f5",
-      "khong ro",
-      "kh\u00f4ng r\u00f5",
-      "khong chac",
-      "kh\u00f4ng ch\u1eafc",
-      "nen chon",
-      "n\u00ean ch\u1ecdn",
-      "nen dung",
-      "n\u00ean d\u00f9ng",
-      "can chot",
-      "c\u1ea7n ch\u1ed1t",
-      "chot huong",
-      "ch\u1ed1t h\u01b0\u1edbng",
-      "chon huong",
-      "ch\u1ecdn h\u01b0\u1edbng",
-      "huong nao",
-      "h\u01b0\u1edbng n\u00e0o",
-      "roi moi lap ke hoach",
-      "r\u1ed3i m\u1edbi l\u1eadp k\u1ebf ho\u1ea1ch",
-      "truoc khi lap ke hoach",
-      "tr\u01b0\u1edbc khi l\u1eadp k\u1ebf ho\u1ea1ch",
-      "truoc khi plan",
-      "tr\u01b0\u1edbc khi plan",
       "option",
       "options",
       "approach",
@@ -336,13 +287,6 @@
       "high-risk",
       "blast radius",
       "rollback",
-      "di tr\u00fa",
-      "h\u1ee3p \u0111\u1ed3ng",
-      "t\u00edch h\u1ee3p",
-      "b\u1ea3o m\u1eadt",
-      "r\u1ee7i ro cao",
-      "b\u00e1n k\u00ednh \u1ea3nh h\u01b0\u1edfng",
-      "quay lui",
       "module"
     ],
     "repo_signals": [
@@ -370,10 +314,7 @@
         "screen",
         "page",
         "form",
-        "animation",
-        "giao di\u1ec7n",
-        "m\u00e0n h\u00ecnh",
-        "bi\u1ec3u m\u1eabu"
+        "animation"
       ],
       "repo_signals": [
         ".tsx",
@@ -400,10 +341,7 @@
         "rls",
         "rpc",
         "service",
-        "sql",
-        "c\u01a1 s\u1edf d\u1eef li\u1ec7u",
-        "d\u1ecbch v\u1ee5",
-        "di tr\u00fa"
+        "sql"
       ],
       "repo_signals": [
         "supabase",
@@ -899,10 +837,7 @@
       "Looks good now.",
       "Should be fixed.",
       "Probably fine.",
-      "CI passed earlier.",
-      "Khong reproduce duoc nen chac on.",
-      "Test fail nhung chac khong lien quan.",
-      "Spec co ban ro roi, cu code tiep."
+      "CI passed earlier."
     ]
   },
   "rationalization_patterns": [

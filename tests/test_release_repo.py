@@ -23,7 +23,7 @@ class ReleaseRepoTests(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
         self.assertIn("Current version is stated and target version is either explicit or justified by inference", text, label)
         self.assertIn("python scripts/prepare_bump.py --workspace <workspace>", text, label)
-        self.assertIn("bump source: explicit hay inferred", text, label)
+        self.assertIn("bump source: explicit or inferred", text, label)
         self.assertIn("explicit or inferred semver", text, label)
 
     def assert_session_restores_preferences(self, path: Path, *, label: str) -> None:
@@ -33,6 +33,22 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertIn("state/extra_preferences.json", text, label)
         self.assertIn("resolve_preferences.py", text, label)
         self.assertIn("Response Personalization", text, label)
+
+    def assert_routing_locale_config(self, path: Path, *, label: str) -> None:
+        config = json.loads(path.read_text(encoding="utf-8"))
+        self.assertIn("enabled_locales", config, label)
+        self.assertIn("vi", config["enabled_locales"], label)
+
+    def assert_output_contract_profiles(self, path: Path, *, label: str) -> None:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        vi = payload.get("languages", {}).get("vi", {})
+        self.assertEqual(vi.get("default_orthography"), "vietnamese-diacritics", label)
+        self.assertEqual(vi.get("contract", {}).get("accent_policy"), "required", label)
+        self.assertEqual(
+            payload.get("orthographies", {}).get("vietnamese-diacritics", {}).get("encoding"),
+            "utf-8",
+            label,
+        )
 
     def test_release_docs_and_version_exist(self) -> None:
         version = (ROOT_DIR / "VERSION").read_text(encoding="utf-8").strip()
@@ -61,6 +77,14 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertEqual(manifest["version"], build_release.read_version())
         self.assertEqual(manifest["package"], "forge-core")
         self.assertIn("git_revision", manifest)
+
+    def test_build_release_keeps_core_bundle_english_only(self) -> None:
+        build_release.build_all()
+        dist_root = ROOT_DIR / "dist" / "forge-core"
+
+        self.assertFalse((dist_root / "data" / "routing-locales.json").exists())
+        self.assertFalse((dist_root / "data" / "routing-locales").exists())
+        self.assertFalse((dist_root / "data" / "output-contracts.json").exists())
 
     def test_install_bundle_dry_run_keeps_target_untouched(self) -> None:
         build_release.build_all()
@@ -159,6 +183,9 @@ class ReleaseRepoTests(unittest.TestCase):
             overlay_root / "workflows" / "operator" / "handover.md",
             overlay_root / "references" / "antigravity-operator-surface.md",
             overlay_root / "data" / "preferences-compat.json",
+            overlay_root / "data" / "routing-locales.json",
+            overlay_root / "data" / "routing-locales" / "vi.json",
+            overlay_root / "data" / "output-contracts.json",
         ]
         for path in expected_files:
             with self.subTest(path=path):
@@ -177,6 +204,11 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertTrue((dist_root / "workflows" / "operator" / "recap.md").exists())
         self.assertTrue((dist_root / "references" / "antigravity-operator-surface.md").exists())
         self.assertTrue((dist_root / "data" / "preferences-compat.json").exists())
+        self.assertTrue((dist_root / "data" / "routing-locales.json").exists())
+        self.assertTrue((dist_root / "data" / "routing-locales" / "vi.json").exists())
+        self.assertTrue((dist_root / "data" / "output-contracts.json").exists())
+        self.assert_routing_locale_config(dist_root / "data" / "routing-locales.json", label="dist forge-antigravity")
+        self.assert_output_contract_profiles(dist_root / "data" / "output-contracts.json", label="dist forge-antigravity")
         self.assert_session_restores_preferences(
             dist_root / "workflows" / "execution" / "session.md",
             label="dist forge-antigravity session",
@@ -214,6 +246,9 @@ class ReleaseRepoTests(unittest.TestCase):
         expected_files = [
             overlay_root / "AGENTS.global.md",
             overlay_root / "data" / "orchestrator-registry.json",
+            overlay_root / "data" / "routing-locales.json",
+            overlay_root / "data" / "routing-locales" / "vi.json",
+            overlay_root / "data" / "output-contracts.json",
             overlay_root / "workflows" / "execution" / "dispatch-subagents.md",
             overlay_root / "workflows" / "execution" / "session.md",
             overlay_root / "workflows" / "operator" / "help.md",
@@ -247,12 +282,17 @@ class ReleaseRepoTests(unittest.TestCase):
         dist_root = ROOT_DIR / "dist" / "forge-codex"
         self.assertTrue((dist_root / "AGENTS.global.md").exists())
         self.assertTrue((dist_root / "data" / "orchestrator-registry.json").exists())
+        self.assertTrue((dist_root / "data" / "routing-locales.json").exists())
+        self.assertTrue((dist_root / "data" / "routing-locales" / "vi.json").exists())
+        self.assertTrue((dist_root / "data" / "output-contracts.json").exists())
         self.assertTrue((dist_root / "workflows" / "execution" / "dispatch-subagents.md").exists())
         self.assertTrue((dist_root / "workflows" / "execution" / "session.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "help.md").exists())
         self.assertTrue((dist_root / "references" / "codex-operator-surface.md").exists())
+        self.assert_routing_locale_config(dist_root / "data" / "routing-locales.json", label="dist forge-codex")
+        self.assert_output_contract_profiles(dist_root / "data" / "output-contracts.json", label="dist forge-codex")
         self.assert_session_restores_preferences(
             dist_root / "workflows" / "execution" / "session.md",
             label="dist forge-codex session",

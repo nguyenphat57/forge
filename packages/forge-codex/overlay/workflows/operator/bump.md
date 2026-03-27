@@ -28,7 +28,7 @@ python scripts/prepare_bump.py --workspace <workspace> --bump minor --apply --re
 
 3. Short answer:
    - version from -> to
-   - bump source: explicit hay inferred
+   - bump source: explicit or inferred
    - file changed
    - Which verification must be run?
 

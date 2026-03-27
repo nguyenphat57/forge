@@ -267,7 +267,7 @@ When receiving a prompt from the user, classify the intent:
 **When the user uses `/shortcut`:** Map according to the action surface and workflow aliases that the Codex workspace is declared in `AGENTS.md`.
 Canonical source for intent keywords and chains: `data/orchestrator-registry.json`.
 
-Signals like `brainstorm`, Vietnamese phrases such as `ý tưởng` or `nên chọn hướng nào`, `options`, `approach`, and `tradeoff` do not create new intents; they turn on the **brainstorm gate** before `plan` when the task is vague or complex enough.
+Signals like `brainstorm`, locale-specific brainstorming phrases configured in active routing locales, `options`, `approach`, and `tradeoff` do not create new intents; they turn on the **brainstorm gate** before `plan` when the task is vague or complex enough.
 
 ---
 

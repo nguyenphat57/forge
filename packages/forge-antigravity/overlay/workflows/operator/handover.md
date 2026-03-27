@@ -12,17 +12,17 @@ quality_gates:
 
 # Handover - Antigravity Session Wrapper
 
-> Mục tiêu: cho Antigravity một bề mặt handover rõ ràng trên cùng contract session của Forge.
+> Goal: give Antigravity a clear handover surface on top of the Forge session contract.
 
 ## Process
 
-1. Vào `workflows/execution/session.md` theo handover mode.
-2. Tóm tắt:
-   - đang làm gì
-   - đã xong gì
-   - còn lại gì
-   - files quan trọng
-   - verification đã chạy
+1. Enter `workflows/execution/session.md` in handover mode.
+2. Summarize:
+   - what is in progress
+   - what is completed
+   - what remains
+   - important files
+   - verification already run
 
 ## Activation Announcement
 

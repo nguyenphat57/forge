@@ -48,8 +48,8 @@ Good:
 
 ```tsx
 if (isLoading) return <OrdersSkeleton />;
-if (error) return <InlineError message="Không tải được đơn hàng" />;
-if (orders.length === 0) return <EmptyState title="Chưa có đơn hàng" />;
+if (error) return <InlineError message="Could not load orders" />;
+if (orders.length === 0) return <EmptyState title="No orders yet" />;
 
 return <OrderList orders={orders} />;
 ```
@@ -59,7 +59,7 @@ return <OrderList orders={orders} />;
 Bad:
 
 ```tsx
-<button className="h-8 px-2">Thanh toan</button>
+<button className="h-8 px-2">Pay now</button>
 ```
 
 Problem:
@@ -70,7 +70,7 @@ Good:
 
 ```tsx
 <button className="min-h-[44px] px-4 text-sm font-medium">
-  Thanh toan
+  Pay now
 </button>
 ```
 

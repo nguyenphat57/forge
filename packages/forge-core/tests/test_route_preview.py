@@ -15,6 +15,7 @@ SCRIPTS_DIR = ROOT_DIR / "scripts"
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
+import common  # noqa: E402
 import route_preview  # noqa: E402
 
 
@@ -45,22 +46,26 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["intent"], "REVIEW")
         self.assertEqual(report["detected"]["forge_skills"], ["review", "secure"])
 
-    def test_vietnamese_build_prompt_routes_to_build_intent(self) -> None:
-        report = route_preview.build_report(self.build_args("Thêm endpoint thanh toán mới"))
+    def test_build_prompt_routes_to_build_intent(self) -> None:
+        report = route_preview.build_report(self.build_args("Add a new checkout endpoint"))
 
         self.assertEqual(report["detected"]["intent"], "BUILD")
         self.assertIn("build", report["detected"]["forge_skills"])
 
     def test_session_prompt_skips_edit_verification_profile(self) -> None:
-        report = route_preview.build_report(self.build_args("Tiếp tục task đang dở"))
+        report = route_preview.build_report(self.build_args("Continue the task in progress"))
+        active_routing_locales = common.routing_locale_names()
+        expected_routing_locales = ", ".join(active_routing_locales) if active_routing_locales else "(none)"
 
         self.assertEqual(report["detected"]["intent"], "SESSION")
+        self.assertEqual(report["detected"]["routing_locales"], active_routing_locales)
         self.assertIsNone(report["detected"]["verification_profile"])
         self.assertIsNone(report["verification"])
         self.assertIn("Verification profile: (n/a)", route_preview.format_text(report))
+        self.assertIn(f"Routing locales: {expected_routing_locales}", route_preview.format_text(report))
 
-    def test_mixed_language_review_prompt_routes_to_review_intent(self) -> None:
-        report = route_preview.build_report(self.build_args("Review luồng thanh toán before merge"))
+    def test_mixed_english_review_prompt_routes_to_review_intent(self) -> None:
+        report = route_preview.build_report(self.build_args("Review the checkout flow before merge"))
 
         self.assertEqual(report["detected"]["intent"], "REVIEW")
         self.assertEqual(report["detected"]["forge_skills"], ["review", "secure"])
@@ -145,6 +150,78 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["delegation_strategy"], "parallel-split")
         self.assertEqual(report["detected"]["host_skills"], ["dispatch-subagents"])
         self.assertEqual(report["delegation_plan"]["activation_skill"], "dispatch-subagents")
+        self.assertEqual(report["delegation_plan"]["dispatch_mode"], "parallel-workers")
+        self.assertEqual(
+            report["delegation_plan"]["packet_template"]["required_fields"],
+            [
+                "goal",
+                "current_slice_or_review_question",
+                "owned_files_or_write_scope",
+                "files_to_avoid",
+                "allowed_reads_or_supporting_artifacts",
+                "proof_before_progress",
+                "verification_to_rerun",
+            ],
+        )
+        self.assertEqual(
+            report["delegation_plan"]["packet_template"]["status_values"],
+            ["DONE", "DONE_WITH_CONCERNS", "NEEDS_CONTEXT", "BLOCKED"],
+        )
+        self.assertEqual(
+            report["delegation_plan"]["packet_blueprints"],
+            [
+                {
+                    "lane": "implementer",
+                    "packet_type": "slice-worker",
+                    "runtime_role": "worker",
+                    "read_only": False,
+                    "scope_rule": "One packet per independent slice with non-overlapping write ownership.",
+                }
+            ],
+        )
+
+    def test_review_lane_host_gets_packetized_independent_reviewer_plan(self) -> None:
+        registry = copy.deepcopy(route_preview.load_registry())
+        registry["host_capabilities"] = {
+            "supports_subagents": True,
+            "supports_parallel_subagents": False,
+            "subagent_dispatch_skill": "dispatch-subagents",
+            "delegation_contract": [
+                "Fresh packet per delegated slice.",
+                "Explicit ownership and write scope.",
+                "Return changed files, verification, and residual risk.",
+            ],
+        }
+
+        strategy, plan, host_skills = route_preview.choose_delegation_plan(
+            "DEBUG",
+            "single-threaded",
+            "implementer-quality",
+            registry,
+        )
+
+        self.assertEqual(strategy, "independent-reviewer")
+        self.assertEqual(host_skills, ["dispatch-subagents"])
+        self.assertEqual(plan["dispatch_mode"], "independent-reviewers")
+        self.assertEqual(
+            plan["packet_blueprints"],
+            [
+                {
+                    "lane": "implementer",
+                    "packet_type": "implementer-pass",
+                    "runtime_role": "worker",
+                    "read_only": False,
+                    "scope_rule": "Owns the implementation slice with explicit file scope.",
+                },
+                {
+                    "lane": "quality-reviewer",
+                    "packet_type": "reviewer-pass",
+                    "runtime_role": "default",
+                    "read_only": True,
+                    "scope_rule": "Read-only findings pass over implementer evidence and changed files.",
+                },
+            ],
+        )
 
 
 if __name__ == "__main__":

@@ -15,19 +15,13 @@ Contents:
 
 If Codex is expected to speak Vietnamese with full diacritics on Windows, do both:
 
-1. Keep a workspace-local language rule in `.brain/preferences.json`, for example:
+1. Persist the language setting in adapter-global Forge state:
 
-```json
-{
-  "language": "vi",
-  "orthography": "vietnamese_diacritics",
-  "custom_rules": [
-    "Always reply to the user in Vietnamese with full diacritics.",
-    "Never use accent-stripped Vietnamese in comments, plans, summaries, or reviews.",
-    "If shell or file text appears mojibake, treat it as an encoding issue and restate it in UTF-8 Vietnamese."
-  ]
-}
+```powershell
+python scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --apply
 ```
+
+`forge-codex` defaults to English. Use workspace `.brain/preferences.json` only for repo-specific overrides that should not become the Codex-wide default.
 
 2. Run the bundled PowerShell helper so the shell itself stays on UTF-8:
 

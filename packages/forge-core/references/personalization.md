@@ -1,6 +1,6 @@
 # Forge Personalization
 
-> Goal: keep response-style preferences host-neutral in `forge-core` so adapters add UX wrappers, not forked preference logic.
+> Goal: keep response-style preferences host-neutral in `forge-core` so adapters add UX wrappers and locale policy without forking preference logic.
 
 ## Core Contract
 
@@ -12,6 +12,7 @@
 - Adapter-global extras persist in `state/extra_preferences.json`
 - `$FORGE_HOME` remains the explicit dev/test override root
 - Adapters may ship `data/preferences-compat.json` to translate legacy host-native payloads back into the canonical schema without forking core logic
+- Adapters may ship `data/output-contracts.json` to expand bundle-local language or orthography policies from generic extra fields
 - `output_contract` is still derived from `extra` and remains part of the public resolver/writer output
 
 ## Supported Fields
@@ -82,9 +83,11 @@ The resolver does not create host-specific command surfaces. It returns a respon
 When `extra` contains host-native rules, core also emits `output_contract` for:
 
 - language policy
-- orthography or diacritics policy
+- orthography policy
 - tone detail or honorific hints
 - custom writing rules the adapter should preserve
+
+`forge-core` treats these fields generically. If an adapter needs bundle-specific language behavior, it should encode that in bundle-local `data/output-contracts.json`, not in core logic.
 
 ## Persistence Flow
 
@@ -92,7 +95,7 @@ When an adapter wants to record durable preferences:
 
 ```powershell
 python scripts/write_preferences.py --technical-level newbie --pace fast --feedback-style direct --apply
-python scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --apply
+python scripts/write_preferences.py --language en --orthography plain_english --apply
 python scripts/write_preferences.py --clear-language --clear-orthography --apply
 ```
 
@@ -114,31 +117,18 @@ Workspace `.brain/preferences.json` is still supported as:
 
 This means workspace legacy is not reduced to extras-only. Existing repos that still rely on canonical fields in `.brain/preferences.json` continue to resolve correctly.
 
-## Language And Writing Templates
+## Writing Templates
 
 Use the writer for adapter-wide durable rules:
 
 ```powershell
-python scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --apply
+python scripts/write_preferences.py --language en --orthography plain_english --apply
 python scripts/write_preferences.py --language en --clear-orthography --apply
 ```
 
 Use workspace `.brain/preferences.json` only when the repo needs local overrides that should not become adapter-wide defaults.
 
-Sample 1: Vietnamese with full diacritics in one workspace
-
-```json
-{
-  "language": "vi",
-  "orthography": "vietnamese_diacritics",
-  "custom_rules": [
-    "Luôn giao tiếp với user bằng tiếng Việt có dấu.",
-    "Không dùng tiếng Việt không dấu trong comment, summary, plan, review, hay text giải thích."
-  ]
-}
-```
-
-Sample 2: English in one workspace
+Sample 1: English workspace default
 
 ```json
 {
@@ -149,14 +139,26 @@ Sample 2: English in one workspace
 }
 ```
 
-Sample 3: Explain in Vietnamese, keep code and comments in English
+Sample 2: English with an explicit house style
 
 ```json
 {
-  "language": "vi",
+  "language": "en",
+  "orthography": "plain_english",
   "custom_rules": [
-    "Giải thích cho user bằng tiếng Việt có dấu.",
-    "Giữ code identifiers, commit messages, và code comments bằng tiếng Anh khi phù hợp với repo."
+    "Keep code identifiers, commit messages, and code comments aligned with the repository style guide."
+  ]
+}
+```
+
+Sample 3: Repo-specific tone detail
+
+```json
+{
+  "tone_detail": "Address the user as release manager.",
+  "custom_rules": [
+    "Keep status updates short and operational.",
+    "State risks before proposing follow-up work."
   ]
 }
 ```
@@ -169,6 +171,6 @@ Operator rule:
 
 ## Adapter Boundary
 
-- `forge-antigravity`: may add `/customize` or onboarding wrappers, and may ship compat defaults such as `language=vi`, but still writes through the core writer
+- `forge-antigravity`: may add `/customize` or onboarding wrappers, may ship compat defaults, and may ship bundle-local output-contract profiles
 - `forge-codex`: should keep a natural-language customize flow and let adapter-global state drive durable language rules
-- Future adapters such as `forge-claude` should be able to reuse this schema with compat mapping instead of a fork
+- Future adapters such as `forge-claude` should be able to reuse this schema with compat mapping and bundle-local output-contract profiles instead of a fork

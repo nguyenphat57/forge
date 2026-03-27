@@ -12,21 +12,21 @@ quality_gates:
 
 # Rollback - Antigravity Operator Wrapper
 
-> Mục tiêu: giữ `/rollback` rõ ràng cho Antigravity nhưng vẫn giữ risk-first contract của core.
+> Goal: keep `/rollback` clear for Antigravity users while maintaining the risk-first contract of core.
 
 ## Process
 
-1. Chốt scope: deploy/config/migration/code-change.
-2. Resolve bằng:
+1. Lock the scope: deploy/config/migration/code-change.
+2. Resolve using:
 
 ```powershell
 python scripts/resolve_rollback.py --scope deploy --customer-impact broad --has-rollback-artifact
 ```
 
-3. Trả về:
-   - strategy an toàn nhất
+3. Return:
+   - safest strategy
    - warnings
-   - verification checklist sau rollback
+   - post-rollback verification checklist
 
 ## Activation Announcement
 

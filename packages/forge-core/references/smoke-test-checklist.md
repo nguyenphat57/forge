@@ -62,7 +62,7 @@ Goal: quickly record results for each smoke test run on a real host rolling out 
 
 |Section | Results|
 |-----|---------|
-|Prompt is running | `Tiếp tục việc hôm trước, nhắc nhanh mình đang làm gì và bước hợp lý tiếp theo.`|
+|Prompt is running | `Continue yesterday's work, remind me what I was doing, and tell me the next sensible step.`|
 |Route with correct skill? |  |
 |Do you require the user to type `/recap` again? |  |
 |Is Next step actionable? |  |

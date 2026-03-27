@@ -1,6 +1,6 @@
-# Bề Mặt Điều Hướng Antigravity
+# Antigravity Operator Surface
 
-## Bề Mặt Chính
+## Primary Surface
 
 | Surface | Wrapper | Core contract |
 |---------|---------|---------------|
@@ -12,7 +12,7 @@
 | `/customize` | `workflows/operator/customize.md` | `scripts/resolve_preferences.py` + `scripts/write_preferences.py` |
 | `/init` | `workflows/operator/init.md` | `scripts/initialize_workspace.py` |
 
-## Lớp Tắt Cho Session
+## Session Alias Shortcuts
 
 | Alias | Wrapper | Core contract |
 |-------|---------|---------------|
@@ -20,8 +20,8 @@
 | `/save-brain` | `workflows/operator/save-brain.md` | `workflows/execution/session.md` save mode |
 | `/handover` | `workflows/operator/handover.md` | `workflows/execution/session.md` handover mode |
 
-## Quy Tắc Tương Thích
+## Compatibility Rules
 
-- Wrapper docs có thể đổi cách trình bày để operator-friendly hơn.
-- Core semantics, schema, và deterministic scripts không được fork.
-- Alias chỉ tồn tại để giảm friction khi migration từ AWF hoặc Antigravity cũ, không tạo intent mới.
+- Wrapper docs may change presentation to be more operator-friendly.
+- Core semantics, schema, and deterministic scripts must not be forked.
+- Aliases exist only to reduce friction when migrating from AWF or older Antigravity versions, not to create new intents.

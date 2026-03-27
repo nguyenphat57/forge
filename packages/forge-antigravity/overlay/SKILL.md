@@ -6,26 +6,26 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 # Forge Antigravity - Core Orchestrator
 
 > Forge = delivery discipline + skill composition + evidence before claims.
-> Forge phải đủ mạnh và đủ kỷ luật ngay cả khi repo chưa có companion skill hay local skill nào.
-> Forge linh hoạt ở những task nhỏ và kỷ luật ở những task vừa và lớn.
+> Forge must be strong and disciplined enough even if the repo does not have any companion skills or local skills.
+> Forge is flexible on small tasks and disciplined on medium and large tasks.
 
 ---
 
 ## Bundle Layout
 
-Cây thư mục bên dưới phản ánh bundle Antigravity sau khi overlay adapter này lên trên `forge-core`.
-Các file kế thừa từ core và các file do adapter thêm vào cùng xuất hiện trong một runtime layout.
+The tree below reflects the Antigravity bundle after overlaying this adapter on top of `forge-core`.
+Files inherited from core and files added by the adapter both appear in a single runtime layout.
 
-- `SKILL.md`: entrypoint để route intent, ghép skill, và giữ delivery guardrails
+- `SKILL.md`: entrypoint to route intent, pair skills, and hold delivery guardrails
 - `workflows/design/`: planning, architecture, spec-review, visualize
 - `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session
-- `workflows/operator/`: help, next, run, bump, rollback, và các wrapper Antigravity như customize/init/recap/save-brain/handover
-- `domains/`: core domain guidance cho frontend và backend
-- `data/`: machine-readable registry cho intent, matrix, verification profiles, quality profiles, execution pipelines, và lane model policy
-- `scripts/`: deterministic tooling cho route preview, scoped continuity capture, và các kiểm tra tùy chọn cho workspace có local layer
-- `tests/`: regression tests cho deterministic scripts và router/tooling contracts
-- `references/`: smoke tests, companion contract, và tài liệu tham chiếu chỉ đọc khi cần
-- `agents/openai.yaml`: metadata UI cho host hỗ trợ skill list/chips
+- `workflows/operator/`: help, next, run, bump, rollback, and Antigravity wrappers like customize/init/recap/save-brain/handover
+- `domains/`: core domain guidance for frontend and backend
+- `data/`: machine-readable registry for intent, matrix, verification profiles, quality profiles, execution pipelines, and lane model policy
+- `scripts/`: deterministic tooling for route preview, scoped continuity capture, and optional checks for workspaces with local layers
+- `tests/`: regression tests for deterministic scripts and router/tooling contracts
+- `references/`: smoke tests, companion contract, and read-only reference documentation when needed
+- `agents/openai.yaml`: UI metadata for hosts that support skill list/chips
 
 ```text
 forge-antigravity/
@@ -71,10 +71,13 @@ forge-antigravity/
 │   ├── check_ui_brief.py
 │   ├── check_workspace_router.py
 │   ├── common.py
+│   ├── compat.py
+│   ├── error_translation.py
 │   ├── evaluate_canary_readiness.py
 │   ├── generate_backend_brief.py
 │   ├── generate_ui_brief.py
 │   ├── initialize_workspace.py
+│   ├── preferences.py
 │   ├── prepare_bump.py
 │   ├── record_canary_result.py
 │   ├── resolve_help_next.py
@@ -84,6 +87,9 @@ forge-antigravity/
 │   ├── run_smoke_matrix.py
 │   ├── run_with_guidance.py
 │   ├── run_workspace_canary.py
+│   ├── skill_routing.py
+│   ├── style_maps.py
+│   ├── text_utils.py
 │   ├── track_chain_status.py
 │   ├── track_execution_progress.py
 │   ├── track_ui_progress.py
@@ -117,15 +123,15 @@ forge-antigravity/
     │   ├── spec-review.md
     │   └── visualize.md
     ├── execution/
-        ├── build.md
-        ├── debug.md
-        ├── deploy.md
-        ├── quality-gate.md
-        ├── refactor.md
-        ├── review.md
-        ├── secure.md
-        ├── session.md
-        └── test.md
+    │   ├── build.md
+    │   ├── debug.md
+    │   ├── deploy.md
+    │   ├── quality-gate.md
+    │   ├── refactor.md
+    │   ├── review.md
+    │   ├── secure.md
+    │   ├── session.md
+    │   └── test.md
     └── operator/
         ├── bump.md
         ├── customize.md
@@ -141,17 +147,17 @@ forge-antigravity/
 
 ## Host Boundary
 
-- Rule của host Antigravity sống ở scope cao hơn folder này.
-- Root `GEMINI.md` ở scope Antigravity, nếu host đang dùng nó, là **host rule file** chứ không phải một phần của skill bundle.
-- `AGENTS.md` ở root workspace là **router/instruction file** của workspace, không phải `SKILL.md`.
-- `forge-antigravity` có thể đọc host/workspace rules để route tốt hơn, nhưng không phụ thuộc vào một file local `GEMINI.md` nằm trong chính folder skill này.
+- Antigravity host rules live at a scope above this folder.
+- The root `GEMINI.md` at Antigravity scope, if the host is using it, is a **host rule file** and not part of this skill bundle.
+- `AGENTS.md` at the workspace root is a **router/instruction file** for the workspace, not `SKILL.md`.
+- `forge-antigravity` may read host/workspace rules for better routing, but does not depend on a local `GEMINI.md` inside this skill folder.
 
 ## Independence Rule
 
-- Forge là **global-first orchestrator**.
-- Repo mới, repo nhỏ, hoặc repo chưa có local skills vẫn phải dùng Forge bình thường bằng chính workflows/domain skills của bundle này.
-- Companion skills và workspace routers là **optional augmentation**, không phải dependency mặc định.
-- Nếu không có companion/local skill rõ ràng, Forge không được chần chừ hay chờ “bộ skill đầy đủ” rồi mới làm việc.
+- Forge is a **global-first orchestrator**.
+- New repos, small repos, or repos without local skills must still use Forge normally through the workflows/domain skills of this bundle.
+- Companion skills and workspace routers are **optional augmentation**, not default dependencies.
+- If there is no clear companion/local skill, Forge must not hesitate or wait for a "full skill set" before working.
 
 ---
 
@@ -164,10 +170,10 @@ forge-antigravity/
 - Help/next navigator: `scripts/resolve_help_next.py` (repo state -> current focus, suggested workflow, next action)
 - Run guidance resolver: `scripts/run_with_guidance.py` (execute command -> classify signal -> route to test/debug/deploy)
 - Error translator: `scripts/translate_error.py` (raw stderr/error text -> sanitized human summary + suggested action)
-- Bump preparation: `scripts/prepare_bump.py` (explicit hoặc inferred semver bump -> update VERSION/CHANGELOG checklist)
+- Bump preparation: `scripts/prepare_bump.py` (explicit or inferred semver bump -> update VERSION/CHANGELOG checklist)
 - Rollback planner: `scripts/resolve_rollback.py` (scope/risk -> safest recovery strategy + verification)
 - Deterministic route preview: `scripts/route_preview.py` (intent + chain + execution pipeline + lane model tiers)
-- Workspace router drift check: `scripts/check_workspace_router.py` (chỉ dùng khi workspace thật sự có local routing layer)
+- Workspace router drift check: `scripts/check_workspace_router.py` (only used when the workspace actually has a local routing layer)
 - Scoped continuity capture for durable decisions/learnings: `scripts/capture_continuity.py`
 - Backend brief generator for medium/large backend work: `scripts/generate_backend_brief.py`
 - Backend brief checker for persisted backend artifacts: `scripts/check_backend_brief.py`
@@ -181,7 +187,7 @@ forge-antigravity/
 - Automated workspace canary runner for real repo rollout: `scripts/run_workspace_canary.py`
 - Canary result recorder for real workspace rollout: `scripts/record_canary_result.py`
 - Canary readiness evaluator for rollout verdicts: `scripts/evaluate_canary_readiness.py`
-- Persisted artifacts mặc định:
+- Default persisted artifacts:
   - `.forge-artifacts/route-previews/`
   - `.forge-artifacts/router-checks/`
   - `.forge-artifacts/backend-briefs/`
@@ -193,33 +199,33 @@ forge-antigravity/
   - `.brain/decisions.json`
   - `.brain/learnings.json`
 
-Khi cần command examples hoặc artifact behavior chi tiết, đọc `references/tooling.md`.
+For detailed command examples or artifact behavior, read `references/tooling.md`.
 
 ---
 
 ## Response Personalization
 
-- Forge resolve preferences qua core engine `scripts/resolve_preferences.py` từ Antigravity-global split state: canonical fields ở `state/preferences.json`, adapter extras ở `state/extra_preferences.json`, và chỉ fallback sang `.brain/preferences.json` cho workspace legacy.
-- Schema canonical gồm `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, và `personality`.
-- Khi file state đang dùng payload native cũ của Antigravity, adapter này chỉ map payload đó về canonical schema để đọc hoặc migrate; steady-state write path vẫn là split-file canonical + extras của core.
-- `forge-antigravity` ship compat defaults để clean install mặc định resolve `language=vi` và `orthography=vietnamese_diacritics` cho đến khi state hoặc workspace override chúng.
-- `forge-antigravity` có thể thêm wrapper như `/customize`, nhưng schema và response-style semantics vẫn phải đọc từ core.
-- Durable preference updates, bao gồm `language` và `orthography`, phải đi qua `scripts/write_preferences.py`; workspace `.brain/preferences.json` chỉ là override theo repo hoặc legacy fallback.
-- Host UX có thể dày hơn Codex, nhưng không được fork key names hay validation rules.
+- Forge resolves preferences through the core engine `scripts/resolve_preferences.py` from the Antigravity-global split state: canonical fields in `state/preferences.json`, adapter extras in `state/extra_preferences.json`, and only falls back to `.brain/preferences.json` for workspace legacy.
+- Canonical schema includes `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, and `personality`.
+- When the state file contains an Antigravity native legacy payload, this adapter only maps that payload to the canonical schema for reading or migration; the steady-state write path remains the split-file canonical + extras from core.
+- `forge-antigravity` ships compat defaults so that a clean install resolves `language=vi` and `orthography=vietnamese_diacritics` by default until state or workspace overrides them.
+- `forge-antigravity` may add wrappers like `/customize`, but schema and response-style semantics must still be read from core.
+- Durable preference updates, including `language` and `orthography`, must go through `scripts/write_preferences.py`; workspace `.brain/preferences.json` is only for per-repo overrides or legacy fallback.
+- Host UX may be richer than Codex, but must not fork key names or validation rules.
 
 ---
 
 ## Operator Guidance
 
-- `forge-antigravity` có thể expose rõ `/help` và `/next`, nhưng guidance vẫn phải resolve từ core navigator `scripts/resolve_help_next.py`.
-- Repo-first vẫn là hard rule: `git status`, plans/specs, rồi mới đến `.brain`.
-- Wrapper UX có thể operator-friendly hơn, nhưng không được biến guidance thành recap theater.
-- `forge-antigravity` có thể expose rõ `/run`, nhưng kết quả vẫn phải resolve từ core `scripts/run_with_guidance.py`.
-- Error translation vẫn đọc từ core helper `scripts/translate_error.py`; adapter này chỉ đổi presentation, không đổi pattern database.
-- `/bump` và `/rollback` có thể được expose rõ ở Antigravity, nhưng vẫn phải giữ user-requested/inference-justified và risk-first contract của core.
-- `/init` có thể dày hơn về onboarding, nhưng workspace skeleton reusable vẫn phải đi qua `scripts/initialize_workspace.py`.
-- Session ergonomics wrappers như `/recap`, `/save-brain`, và `/handover` chỉ là bề mặt thuận tay trên `workflows/execution/session.md`.
-- Wrapper này được dày hơn về UX, nhưng không được đổi `state`, `command_kind`, hay `suggested_workflow` của core.
+- `forge-antigravity` may explicitly expose `/help` and `/next`, but guidance must still resolve from the core navigator `scripts/resolve_help_next.py`.
+- Repo-first remains a hard rule: `git status`, plans/specs, then `.brain`.
+- Wrapper UX may be more operator-friendly, but must not turn guidance into recap theater.
+- `forge-antigravity` may explicitly expose `/run`, but results must still resolve from the core `scripts/run_with_guidance.py`.
+- Error translation still reads from the core helper `scripts/translate_error.py`; this adapter only changes presentation, not the pattern database.
+- `/bump` and `/rollback` may be explicitly exposed in Antigravity, but must still maintain the user-requested/inference-justified and risk-first contract of core.
+- `/init` may be richer in onboarding, but the reusable workspace skeleton must still go through `scripts/initialize_workspace.py`.
+- Session ergonomics wrappers like `/recap`, `/save-brain`, and `/handover` are convenience surfaces on top of `workflows/execution/session.md`.
+- These wrappers may be richer in UX, but must not change `state`, `command_kind`, or `suggested_workflow` from core.
 
 ---
 
@@ -245,51 +251,51 @@ Session wrappers:
 | `/save-brain` | `workflows/operator/save-brain.md` | `workflows/execution/session.md` save mode |
 | `/handover` | `workflows/operator/handover.md` | `workflows/execution/session.md` handover mode |
 
-Compatibility rule:
+Compatibility rules:
 
-- Alias chỉ được giảm friction migration, không tạo intent mới.
-- Wrapper docs có thể operator-friendly hơn, nhưng deterministic semantics vẫn đọc từ core.
-- Chi tiet mapping: `references/antigravity-operator-surface.md`.
+- Aliases exist only to reduce migration friction, not to create new intents.
+- Wrapper docs may be more operator-friendly, but deterministic semantics must still be read from core.
+- Detailed mapping: `references/antigravity-operator-surface.md`.
 
 ---
 
 ## Intent Detection
 
-Khi nhận prompt từ user, phân loại intent:
+When receiving a prompt from the user, classify the intent:
 
-| Intent | Trigger keywords | Ví dụ |
-|--------|------------------|-------|
-| **BUILD** | thêm, tạo, implement, feature, code | "Thêm tính năng thanh toán" |
-| **DEBUG** | lỗi, bug, fix, sửa, error, crash | "Fix lỗi không đăng nhập được" |
-| **OPTIMIZE** | refactor, tối ưu, clean, dọn | "Refactor file quá dài" |
-| **DEPLOY** | deploy, release, production, rollout | "Deploy lên Vercel" |
-| **REVIEW** | review, đánh giá, kiểm tra, audit | "Review code trước khi merge" |
-| **VISUALIZE** | ui, ux, mockup, wireframe, screen, layout | "Phác thảo màn hình checkout" |
-| **SESSION** | recap, continue, resume, save, context | "Tiếp tục việc đang dở" |
+| Intent | Trigger keywords | Example |
+|--------|------------------|---------|
+| **BUILD** | add, create, implement, feature, code | "Add payment feature" |
+| **DEBUG** | error, bug, fix, crash | "Fix login failure" |
+| **OPTIMIZE** | refactor, optimize, clean, tidy | "Refactor overly long file" |
+| **DEPLOY** | deploy, release, production, rollout | "Deploy to Vercel" |
+| **REVIEW** | review, evaluate, check, audit | "Review code before merge" |
+| **VISUALIZE** | ui, ux, mockup, wireframe, screen, layout | "Sketch checkout screen" |
+| **SESSION** | recap, continue, resume, save, context | "Continue unfinished work" |
 
-**Khi user dùng `/shortcut`:** Map theo shortcut registry của host Antigravity, không phụ thuộc vào file local trong folder skill này.
-Canonical source cho intent keywords và chains: `data/orchestrator-registry.json`.
+**When user uses `/shortcut`:** Map according to the shortcut registry of the Antigravity host, not dependent on local files in this skill folder.
+Canonical source for intent keywords and chains: `data/orchestrator-registry.json`.
 
-Signals như `brainstorm`, `ý tưởng`, `nên chọn hướng nào`, `options`, `approach`, `tradeoff` không tạo intent mới; chúng bật **brainstorm gate** trước `plan` khi task đủ mơ hồ/phức tạp.
+Signals like `brainstorm`, `options`, `approach`, `tradeoff` do not create new intents; they activate the **brainstorm gate** before `plan` when the task is ambiguous/complex enough.
 
 ---
 
 ## Complexity Assessment
 
-| Level | Tiêu chí | Ví dụ |
-|-------|----------|-------|
-| **small** | <=2 files, blast radius nhỏ, yêu cầu rõ | Fix typo, sửa CSS, đổi 1 field |
-| **medium** | 3-10 files, có thay đổi hành vi hoặc cần assumption | Thêm filter, CRUD endpoint |
-| **large** | >10 files hoặc feature/module mới, data flow rộng | Payment, auth flow, new module |
+| Level | Criteria | Example |
+|-------|----------|---------|
+| **small** | <=2 files, small blast radius, clear requirements | Fix typo, edit CSS, change 1 field |
+| **medium** | 3-10 files, behavioral change or needs assumption | Add filter, CRUD endpoint |
+| **large** | >10 files or new feature/module, wide data flow | Payment, auth flow, new module |
 
-Nghi ngờ small hay medium -> mặc định **medium**.
-Canonical source cho hints và thresholds: `data/orchestrator-registry.json`.
+When in doubt between small and medium -> default to **medium**.
+Canonical source for hints and thresholds: `data/orchestrator-registry.json`.
 
 ---
 
 ## Skill Composition Matrix
 
-Intent + Complexity -> skills can load:
+Intent + Complexity -> skills to load:
 
 | Intent | small | medium | large |
 |--------|-------|--------|-------|
@@ -301,57 +307,57 @@ Intent + Complexity -> skills can load:
 | **VISUALIZE** | `visualize` | `plan` -> `visualize` | `plan` -> `architect` -> `visualize` |
 | **SESSION** | `session` | `session` | `session` |
 
-**Ambiguity gate:** với `BUILD` hoặc `VISUALIZE` ở mức medium/large, nếu prompt còn mơ hồ hoặc đang cân giữa nhiều hướng giải, chèn `brainstorm` trước `plan`. `Brainstorm` không chỉ liệt kê options; nó phải khóa một hướng khuyến nghị đủ mạnh để `plan` kế thừa, hoặc ghi đúng một câu hỏi quyết định còn thiếu.
-**Spec-review gate:** với `BUILD large`, hoặc `BUILD medium` chạm contract/schema/migration/auth/payment/public interface/high-risk boundary, chèn `spec-review` trước `build`.
-**Execution pipeline gate:** với `BUILD/DEBUG/OPTIMIZE` cỡ large hoặc profile mạnh hơn `standard`, mặc định thêm reviewer lane độc lập; với `BUILD` có `spec-review`, nghiêng về pipeline `implementer -> spec-reviewer -> quality-reviewer`.
-**Lane model policy:** dùng tier trừu tượng `cheap / standard / capable` theo lane thay vì đẩy mọi bước lên cùng một mức năng lực.
+**Ambiguity gate:** For `BUILD` or `VISUALIZE` at medium/large, if the prompt is ambiguous or weighing multiple approaches, insert `brainstorm` before `plan`. `Brainstorm` must not just list options; it must lock a recommendation strong enough for `plan` to inherit, or record exactly one missing decision question.
+**Spec-review gate:** For `BUILD large`, or `BUILD medium` touching contract/schema/migration/auth/payment/public interface/high-risk boundary, insert `spec-review` before `build`.
+**Execution pipeline gate:** For large `BUILD/DEBUG/OPTIMIZE` or profiles stronger than `standard`, add an independent reviewer lane by default; for `BUILD` with `spec-review`, lean towards the `implementer -> spec-reviewer -> quality-reviewer` pipeline.
+**Lane model policy:** Use abstract tiers `cheap / standard / capable` per lane instead of pushing every step to the same capacity level.
 
-**Domain skills** (`frontend`, `backend`) thêm vào khi task liên quan UI hoặc API/database/service layer.
-**Companion runtime/language skills** (Python, Java, Go, .NET, framework-specific) là optional augmentation khi repo/framework đã rõ. Forge vẫn phải chạy tốt nếu không có chúng.
-Contract ghép companion skill: xem `references/companion-skill-contract.md` khi bạn thật sự đang thêm runtime/framework layer.
-Nếu workspace có `AGENTS.md` hoặc router doc trỏ tới local skills, dùng router đó như source-of-truth cho lớp mở rộng này; nếu không có, Forge vẫn tiếp tục bằng chính bundle của nó.
-Muốn preview deterministic cho một prompt cụ thể: chạy `scripts/route_preview.py`.
+**Domain skills** (`frontend`, `backend`) are added when the task involves UI or API/database/service layer.
+**Companion runtime/language skills** (Python, Java, Go, .NET, framework-specific) are optional augmentation when the repo/framework is already known. Forge must still work fine without them.
+Companion skill contract: see `references/companion-skill-contract.md` when you are actually adding a runtime/framework layer.
+If the workspace has `AGENTS.md` or a router doc pointing to local skills, use that router as the source-of-truth for this extension layer; if not, Forge continues with its own bundle.
+To preview deterministic routing for a specific prompt: run `scripts/route_preview.py`.
 
-### Cách load skill
+### How to load skills
 
 ```
 1. Detect intent + complexity
-2. Tra matrix -> danh sách Forge skills cần dùng
-3. Chọn execution pipeline và lane model tiers nếu task đủ lớn/rủi ro
-4. Chọn chain Forge đủ để giải quyết task bằng chính bundle này
-5. Kiểm repo signals (`package.json`, `pyproject.toml`, `go.mod`, `pom.xml`, `build.gradle`, `*.csproj`, ...)
-6. Nếu có companion skill phù hợp và thật sự giúp tăng độ chính xác -> thêm vào chain
-7. Nếu workspace có router doc cho local skills -> dùng nó như layer mở rộng, không thay Forge
-8. Thông báo user: "Forge: [intent] | [complexity] | Skills: [list]"
-9. Load skill đầu tiên
-10. Hoàn thành quality gate quan trọng
-11. Mới chuyển sang skill tiếp theo nếu cần
+2. Look up matrix -> list of Forge skills needed
+3. Choose execution pipeline and lane model tiers if the task is large/risky enough
+4. Choose a Forge chain sufficient to solve the task with this bundle
+5. Check repo signals (`package.json`, `pyproject.toml`, `go.mod`, `pom.xml`, `build.gradle`, `*.csproj`, ...)
+6. If a suitable companion skill exists and genuinely increases accuracy -> add it to the chain
+7. If the workspace has a router doc for local skills -> use it as an extension layer, do not replace Forge
+8. Notify user: "Forge: [intent] | [complexity] | Skills: [list]"
+9. Load the first skill
+10. Complete the important quality gate
+11. Move to the next skill only if needed
 ```
 
-Không cần load đầy đủ đường dây nếu task đã được giải quyết an toàn ở sớm hơn.
-Companion/local skill không được override verification/evidence gate của Forge.
+No need to fully load the chain if the task was safely resolved earlier.
+Companion/local skills must not override Forge's verification/evidence gates.
 
-**Minimal routing policy:** với `REVIEW`, `SESSION`, và task `small`, Forge ưu tiên prompt-led routing. Repo signals lúc này không được tự động kéo thêm domain skills, local companions, hay escalation profile nếu prompt không nêu rõ nhu cầu.
+**Minimal routing policy:** For `REVIEW`, `SESSION`, and `small` tasks, Forge prioritizes prompt-led routing. Repo signals must not automatically pull additional domain skills, local companions, or escalation profiles unless the prompt clearly states the need.
 
 ---
 
 ## Verification Strategy
 
-Áp dụng cho mọi intent có sửa đổi:
+Applies to all intents with modifications:
 
-- **Behavioral code change + có harness** -> ưu tiên failing test hoặc reproduction trước khi sửa.
-- **Behavioral code change + không có harness khả thi** -> tạo manual reproduction, failing command, hoặc smoke scenario rõ ràng trước khi sửa.
-- **Non-behavioral change** (`docs`, `config`, `build script`, `release chores`) -> chốt verification command trước khi edit: build, lint, typecheck, diff, hoặc smoke run.
+- **Behavioral code change + harness available** -> prioritize failing test or reproduction before editing.
+- **Behavioral code change + no viable harness** -> create a clear manual reproduction, failing command, or smoke scenario before editing.
+- **Non-behavioral change** (`docs`, `config`, `build script`, `release chores`) -> lock the verification command before editing: build, lint, typecheck, diff, or smoke run.
 
-Không fake TDD nếu project không có harness. Không bỏ qua verification nếu harness không có.
-Verification profiles canonical sống trong `data/orchestrator-registry.json`.
+Do not fake TDD if the project has no harness. Do not skip verification if no harness is available.
+Verification profiles canonical source: `data/orchestrator-registry.json`.
 
 ## Execution Upgrade Notes
 
-- Forge dùng `execution pipeline` để tránh vừa implement vừa tự review cùng một lane.
-- Forge dùng `lane model tiers` để tối ưu cost: navigation/triage có thể rẻ hơn spec-review hoặc release gates.
-- Forge dùng `quality-gate` như canonical source cho evidence response contract và anti-rationalization.
-- `spec-review` loop bị chặn tối đa `3` vòng revise cho cùng một packet; quá ngưỡng này phải `blocked`.
+- Forge uses `execution pipeline` to avoid implementing and reviewing in the same lane.
+- Forge uses `lane model tiers` to optimize cost: navigation/triage can be cheaper than spec-review or release gates.
+- Forge uses `quality-gate` as the canonical source for evidence response contract and anti-rationalization.
+- `spec-review` loop is capped at `3` revision rounds for the same packet; beyond this threshold it must be `blocked`.
 
 ---
 
@@ -386,8 +392,8 @@ Verification profiles canonical sống trong `data/orchestrator-registry.json`.
 | save-brain | `workflows/operator/save-brain.md` | flexible | SAVE ONLY DURABLE, SCOPED CONTINUITY |
 | handover | `workflows/operator/handover.md` | flexible | CAPTURE ONLY THE NEXT PERSON ACTUALLY NEEDS |
 
-**Rigid skills:** không bỏ qua evidence và quality gate.  
-**Flexible skills:** adapt theo context, nhưng vẫn phải rõ output và next step.
+**Rigid skills:** must not skip evidence and quality gates.
+**Flexible skills:** adapt to context, but must still produce clear output and next step.
 
 ---
 
@@ -395,49 +401,49 @@ Verification profiles canonical sống trong `data/orchestrator-registry.json`.
 
 ### Auto-Retry
 ```
-Lỗi network, timeout, file write:
-1. Retry lần 1
-2. Retry lần 2 nếu lỗi có vẻ tạm thời
-3. Vẫn fail -> thông báo user + đề xuất fallback
+Network error, timeout, file write:
+1. Retry once
+2. Retry a second time if the error seems transient
+3. Still fails -> notify user + propose fallback
 ```
 
 ### Long-Running Work
 ```
-Nếu task kéo dài hoặc command lặp lại thất bại:
-1. Báo user đang kẹt ở đâu
-2. Tóm tắt đã thử gì
-3. Đề xuất bước tiếp theo an toàn nhất
+If the task drags on or a command repeatedly fails:
+1. Tell the user where you are stuck
+2. Summarize what was already tried
+3. Propose the safest next step
 ```
 
-### Error Translation (khi cần)
+### Error Translation (when needed)
 
-| Lỗi gốc | Dịch |
-|---------|------|
-| `ECONNREFUSED` | Dịch vụ hoặc database chưa bật |
-| `Cannot read undefined` | Đang đọc dữ liệu chưa tồn tại |
-| `Module not found` | Thiếu package hoặc đường dẫn import sai |
-| `CORS error` | Server đang chặn request từ origin này |
-| `401 Unauthorized` | Chưa đăng nhập hoặc token hết hạn |
-| `Hydration mismatch` | HTML server và client render khác nhau |
+| Raw error | Translation |
+|-----------|-------------|
+| `ECONNREFUSED` | Service or database is not running |
+| `Cannot read undefined` | Reading data that does not exist yet |
+| `Module not found` | Missing package or wrong import path |
+| `CORS error` | Server is blocking requests from this origin |
+| `401 Unauthorized` | Not logged in or token expired |
+| `Hydration mismatch` | Server and client rendered different HTML |
 
 ---
 
 ## Golden Rules
 
 ```
-1. CHỈ LÀM ĐÚNG YÊU CẦU - Không tự mở rộng scope
-2. MỘT VIỆC MỘT LÚC - Chốt xong A mới nhảy sang B
-3. THAY ĐỔI TỐI THIỂU - Sửa đúng chỗ cần sửa
-4. XIN PHÉP VIỆC LỚN - Schema, folder structure, dependency mới -> hỏi trước
-5. EVIDENCE BEFORE CLAIMS - Verify trước khi nói "xong"
+1. DO EXACTLY WHAT IS ASKED - Do not expand scope on your own
+2. ONE THING AT A TIME - Finish A before jumping to B
+3. MINIMAL CHANGES - Fix exactly what needs fixing
+4. ASK BEFORE BIG MOVES - Schema, folder structure, new dependency -> ask first
+5. EVIDENCE BEFORE CLAIMS - Verify before saying "done"
 ```
 
 ## Reference Map
 
-Điểm vào nhanh cho references: xem `references/reference-map.md`.
+Quick entry point for references: see `references/reference-map.md`.
 
 ## Activation Announcement
 
 ```
-Forge Antigravity: orchestrator | route đúng intent, giữ evidence trước claims
+Forge Antigravity: orchestrator | route intent correctly, evidence before claims
 ```

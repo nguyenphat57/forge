@@ -43,6 +43,7 @@ python scripts/resolve_preferences.py --format json
 3. If the user wants durable language, orthography, or adapter-global writing rules:
    - persist them through `scripts/write_preferences.py`
    - keep them in adapter-global extras, not in the six canonical fields
+   - let adapters expand locale-specific output policy through bundle-local data, not core-specific branching
    - use workspace `.brain/preferences.json` only when the user explicitly wants repo-scoped behavior
 
 4. Preview or persist with the writer:
@@ -50,7 +51,7 @@ python scripts/resolve_preferences.py --format json
 ```powershell
 python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct
 python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct --apply
-python scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --apply
+python scripts/write_preferences.py --language en --orthography plain_english --apply
 ```
 
 5. Persistence notes:

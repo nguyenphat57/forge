@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import re
 from pathlib import Path
@@ -10,6 +11,8 @@ from text_utils import extract_backtick_items, normalize_text, read_text
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 REGISTRY_PATH = ROOT_DIR / "data" / "orchestrator-registry.json"
+ROUTING_LOCALE_CONFIG_PATH = ROOT_DIR / "data" / "routing-locales.json"
+ROUTING_LOCALE_DIR = ROOT_DIR / "data" / "routing-locales"
 
 STOP_TOKENS = {
     "skill",
@@ -48,8 +51,69 @@ TOKEN_ALIASES = {
 }
 
 
+def merge_registry_overlay(base: object, overlay: object) -> object:
+    if isinstance(base, dict) and isinstance(overlay, dict):
+        merged = {key: copy.deepcopy(value) for key, value in base.items()}
+        for key, value in overlay.items():
+            if key in merged:
+                merged[key] = merge_registry_overlay(merged[key], value)
+            else:
+                merged[key] = copy.deepcopy(value)
+        return merged
+
+    if isinstance(base, list) and isinstance(overlay, list):
+        merged = [copy.deepcopy(item) for item in base]
+        seen = {json.dumps(item, sort_keys=True, ensure_ascii=False) for item in merged}
+        for item in overlay:
+            marker = json.dumps(item, sort_keys=True, ensure_ascii=False)
+            if marker in seen:
+                continue
+            seen.add(marker)
+            merged.append(copy.deepcopy(item))
+        return merged
+
+    return copy.deepcopy(overlay)
+
+
+def load_routing_locale_config() -> dict:
+    if not ROUTING_LOCALE_CONFIG_PATH.exists():
+        return {"enabled_locales": []}
+    return json.loads(ROUTING_LOCALE_CONFIG_PATH.read_text(encoding="utf-8"))
+
+
+def routing_locale_names() -> list[str]:
+    config = load_routing_locale_config()
+    locales = config.get("enabled_locales", [])
+    if not isinstance(locales, list):
+        return []
+
+    enabled: list[str] = []
+    for item in locales:
+        if not isinstance(item, str):
+            continue
+        normalized = item.strip()
+        if normalized and normalized not in enabled:
+            enabled.append(normalized)
+    return enabled
+
+
+def load_routing_locale_pack(locale_name: str) -> dict:
+    path = ROUTING_LOCALE_DIR / f"{locale_name}.json"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def registry_sources() -> list[str]:
+    sources = ["data/orchestrator-registry.json"]
+    for locale_name in routing_locale_names():
+        sources.append(f"data/routing-locales/{locale_name}.json")
+    return sources
+
+
 def load_registry() -> dict:
-    return json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+    registry = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+    for locale_name in routing_locale_names():
+        registry = merge_registry_overlay(registry, load_routing_locale_pack(locale_name))
+    return registry
 
 
 def current_bundle_skill_name() -> str:

@@ -13,16 +13,16 @@ quality_gates:
 
 # Recap - Antigravity Restore Wrapper
 
-> Mục tiêu: giữ `/recap` và các biến thể quen tay của Antigravity, nhưng vẫn route về `session` restore mode của Forge core.
+> Goal: keep `/recap` and its variants familiar for Antigravity users, while still routing to the `session` restore mode of Forge core.
 
 ## Process
 
-1. Vào `workflows/execution/session.md` theo restore mode.
+1. Enter `workflows/execution/session.md` in restore mode.
 2. Repo-first:
    - `git status`
    - docs/plans/specs
-   - `.brain` nếu cần
-3. Trả về summary ngắn + next step rõ ràng.
+   - `.brain` if needed
+3. Return a concise summary + one clear next step.
 
 ## Activation Announcement
 

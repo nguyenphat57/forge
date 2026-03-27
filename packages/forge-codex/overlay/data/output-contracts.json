@@ -1,0 +1,18 @@
+{
+  "languages": {
+    "vi": {
+      "default_orthography": "vietnamese-diacritics",
+      "contract": {
+        "user_facing_language": "vietnamese",
+        "accent_policy": "required",
+        "encoding": "utf-8"
+      }
+    }
+  },
+  "orthographies": {
+    "vietnamese-diacritics": {
+      "accent_policy": "required",
+      "encoding": "utf-8"
+    }
+  }
+}

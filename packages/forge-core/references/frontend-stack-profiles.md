@@ -13,14 +13,14 @@
 - Prioritize utility clarity, extracted patterns, theme tokens, stable hover/focus states.
 - Watchouts:
   - class soup
-  - Arbitrary values ​​​are rampant
+  - Arbitrary values are rampant
   - `transition-all`
   - Surface is too clear in light mode
 
 ## react-vite
 
 - Prioritize component boundaries according to screen regions and state ownership.
-- Clearly define loading/empty/error path in the brief before coding.
+- Clearly define loading, empty, and error paths in the brief before coding.
 - Watchouts:
   - Layout depends on unnecessary temporary state
   - polish animation hides rerender or state complexity
@@ -35,15 +35,15 @@
 
 ## mobile-webview
 
-- Used for Capacitor/webview/tablet POS style work.
-- Prioritize touch targets, safe-area, keyboard behavior, viewport resize resilience.
+- Used for Capacitor, webview, or tablet POS style work.
+- Prioritize touch targets, safe-area handling, keyboard behavior, and viewport resize resilience.
 - Watchouts:
   - hover-centric interactions
   - actions placed close to the gesture area
-  - dense layout only looks good on desktop
+  - dense layouts that only look good on desktop
 
 ## Reading Rule
 
-- Only select the profile closest to the stack/task.
+- Only select the profile closest to the stack or task.
 - If the stack is still unclear, use `generic-web`.
-- If visual exploration is for mobile/tablet shell, usually `mobile-webview` is more useful than `generic-web`.
+- If visual exploration is for a mobile or tablet shell, `mobile-webview` is usually more useful than `generic-web`.

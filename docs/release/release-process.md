@@ -1,41 +1,41 @@
 # Forge Release Process
 
-## Source of truth
+## Source of Truth
 
-- Chỉ sửa trong `packages/forge-core` và các adapter overlays.
-- `dist/` là release artifact.
-- Runtime đã cài đặt không phải nơi để dev trực tiếp.
+- Only edit `packages/forge-core` and adapter overlays.
+- `dist/` is the release artifact.
+- Installed runtimes are not development surfaces.
 
-## Release gate
+## Release Gate
 
-1. Cập nhật source trong monorepo.
-2. Chạy `python scripts/verify_repo.py`.
-3. Build artifact bằng `python scripts/build_release.py`.
-4. Install hoặc publish từ `dist/`.
-5. Chạy smoke/canary theo host trước khi promote rộng.
+1. Update source in the monorepo.
+2. Run `python scripts/verify_repo.py`.
+3. Build artifacts with `python scripts/build_release.py`.
+4. Install or publish from `dist/`.
+5. Run host-specific smoke or canary checks before broad promotion.
 
-## Core purity gate
+## Core Purity Gate
 
-Mọi thay đổi đụng `packages/forge-core` phải tự trả lời:
+Every change that touches `packages/forge-core` must answer:
 
-1. Feature này có còn đúng cho một adapter tương lai như `forge-claude` không?
-2. Nó có phụ thuộc `GEMINI.md`, `AGENTS.md`, slash grammar, hay host metadata cụ thể không?
-3. Phần nào là engine dùng chung, phần nào là wrapper riêng host?
-4. Có đang kéo compatibility UX của một host vào core không?
+1. Would this still make sense for a future adapter such as `forge-claude`?
+2. Does it depend on `GEMINI.md`, `AGENTS.md`, slash grammar, or any host-specific metadata?
+3. Which part is shared engine behavior, and which part is host wrapper behavior?
+4. Are we pulling one host's compatibility UX into core?
 
-Nếu change chỉ hợp với một host, giữ nó ở adapter.
-Boundary policy chuẩn nằm ở `docs/architecture/adapter-boundary.md`.
+If a change only fits one host, keep it in that adapter.
+The canonical boundary policy lives in `docs/architecture/adapter-boundary.md`.
 
 ## Versioning
 
-- Canonical version nằm ở file `VERSION`.
-- `build_release.py` ghi `version` và `git_revision` vào `BUILD-MANIFEST.json`.
-- `install_bundle.py` ghi `INSTALL-MANIFEST.json` ở runtime đã cài.
+- The canonical version lives in `VERSION`.
+- `build_release.py` writes `version` and `git_revision` into `BUILD-MANIFEST.json`.
+- `install_bundle.py` writes `INSTALL-MANIFEST.json` into the installed runtime.
 
 ## Promotion
 
-- `forge-antigravity` hiện là adapter chín nhất cho rollout thật.
-- `forge-codex` đã pass verify nội bộ, nhưng broad rollout vẫn cần soak trên host Codex thật.
-- Với Codex host takeover, dùng `install_bundle.py forge-codex --activate-codex` để rewrite global `AGENTS.md` và retire runtime legacy trong cùng một bước có backup.
-- `forge-core` không được nhận host-specific UX chỉ để phục vụ một adapter hiện tại.
-- Chỉ tag release sau khi `verify_repo.py` pass.
+- `forge-antigravity` is currently the most mature adapter for real rollout.
+- `forge-codex` has passed internal verification, but broad rollout still needs soak time on a real Codex host.
+- For Codex host takeover, use `install_bundle.py forge-codex --activate-codex` to rewrite global `AGENTS.md` and retire the legacy runtime in one backed-up step.
+- `forge-core` must not absorb host-specific UX just to serve one current adapter.
+- Only tag a release after `verify_repo.py` passes.

@@ -20,6 +20,7 @@ from text_utils import normalize_choice_token
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 PREFERENCES_SCHEMA_PATH = ROOT_DIR / "data" / "preferences-schema.json"
+OUTPUT_CONTRACTS_PATH = ROOT_DIR / "data" / "output-contracts.json"
 INSTALL_MANIFEST_PATH = ROOT_DIR / "INSTALL-MANIFEST.json"
 DEFAULT_FALLBACK_STATE_ROOT = Path.home() / ".forge"
 GLOBAL_PREFERENCES_RELATIVE_PATH = Path("state") / "preferences.json"
@@ -104,6 +105,14 @@ def load_preferences_schema() -> dict:
     return json.loads(PREFERENCES_SCHEMA_PATH.read_text(encoding="utf-8"))
 
 
+@lru_cache(maxsize=1)
+def load_output_contract_profiles() -> dict | None:
+    if not OUTPUT_CONTRACTS_PATH.exists():
+        return None
+    payload = json.loads(OUTPUT_CONTRACTS_PATH.read_text(encoding="utf-8"))
+    return payload if isinstance(payload, dict) else None
+
+
 def preference_defaults() -> dict[str, str]:
     schema = load_preferences_schema()
     defaults: dict[str, str] = {}
@@ -127,23 +136,33 @@ def resolve_output_contract(extra: object) -> dict[str, object]:
         return {}
 
     contract: dict[str, object] = {}
+    profiles = load_output_contract_profiles()
+    language_profile: dict[str, object] | None = None
 
     language = extra.get("language")
     if isinstance(language, str) and language.strip():
         normalized_language = normalize_choice_token(language)
         contract["language"] = normalized_language
-        if normalized_language == "vi":
-            contract["user_facing_language"] = "vietnamese"
-            contract["accent_policy"] = "required"
-            contract["encoding"] = "utf-8"
+        if isinstance(profiles, dict):
+            languages = profiles.get("languages")
+            if isinstance(languages, dict):
+                profile = languages.get(normalized_language)
+                if isinstance(profile, dict):
+                    language_profile = profile
+                    profile_contract = profile.get("contract")
+                    if isinstance(profile_contract, dict):
+                        contract.update(copy.deepcopy(profile_contract))
 
     orthography = extra.get("orthography")
     if isinstance(orthography, str) and orthography.strip():
         normalized_orthography = normalize_choice_token(orthography)
         contract["orthography"] = normalized_orthography
-        if normalized_orthography == "vietnamese-diacritics":
-            contract["accent_policy"] = "required"
-            contract.setdefault("encoding", "utf-8")
+        if isinstance(profiles, dict):
+            orthographies = profiles.get("orthographies")
+            if isinstance(orthographies, dict):
+                profile = orthographies.get(normalized_orthography)
+                if isinstance(profile, dict):
+                    contract.update(copy.deepcopy(profile))
 
     tone_detail = extra.get("tone_detail")
     if isinstance(tone_detail, str) and tone_detail.strip():
@@ -155,8 +174,17 @@ def resolve_output_contract(extra: object) -> dict[str, object]:
         if normalized_rules:
             contract["custom_rules"] = normalized_rules
 
-    if contract.get("language") == "vi" and "orthography" not in contract:
-        contract["orthography"] = "vietnamese-diacritics"
+    if "orthography" not in contract and isinstance(language_profile, dict):
+        default_orthography = language_profile.get("default_orthography")
+        if isinstance(default_orthography, str) and default_orthography.strip():
+            normalized_orthography = normalize_choice_token(default_orthography)
+            contract["orthography"] = normalized_orthography
+            if isinstance(profiles, dict):
+                orthographies = profiles.get("orthographies")
+                if isinstance(orthographies, dict):
+                    profile = orthographies.get(normalized_orthography)
+                    if isinstance(profile, dict):
+                        contract.update(copy.deepcopy(profile))
 
     return contract
 

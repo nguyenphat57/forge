@@ -12,17 +12,17 @@ quality_gates:
 
 # Next - Antigravity Operator Wrapper
 
-> Mục tiêu: giữ `/next` rõ ràng cho Antigravity và vẫn bám repo-first contract của core.
+> Goal: keep `/next` clear for Antigravity users while maintaining the repo-first contract of core.
 
 ## Process
 
-1. Resolve bằng:
+1. Resolve using:
 
 ```powershell
 python scripts/resolve_help_next.py --workspace <workspace> --mode next
 ```
 
-2. Trả về đúng 1 next step chính.
+2. Return exactly one primary next step.
 
 ## Activation Announcement
 

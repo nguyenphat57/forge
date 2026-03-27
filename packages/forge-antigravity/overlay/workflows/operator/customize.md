@@ -14,33 +14,33 @@ quality_gates:
 
 # Customize - Antigravity Preference Wrapper
 
-> Mục tiêu: cho user Antigravity một bề mặt `/customize` rõ ràng, nhưng mọi thay đổi bền vững vẫn đi qua contract canonical của Forge.
+> Goal: give Antigravity users a clear `/customize` surface, while all durable changes still go through the canonical Forge contract.
 
 <HARD-GATE>
-- Không tạo key riêng cho Antigravity trong adapter-global state.
-- Không overwrite toàn bộ preferences nếu user chỉ đổi một vài field.
-- Không đổi routing hay gate logic; workflow này chỉ đổi response style.
-- Đọc bằng `resolve_preferences.py` là read-only, không được mutate state để “xem thử”.
-- Legacy single-file state của Antigravity có thể được migrate ở write/apply path; sau migration canonical và extras sẽ tách file.
-- Workspace `.brain/preferences.json` chỉ dùng cho legacy fallback hoặc override theo repo, không phải nơi mặc định để lưu language rules bền vững.
+- Do not create Antigravity-specific keys in adapter-global state.
+- Do not overwrite all preferences if the user only changes a few fields.
+- Do not change routing or gate logic; this workflow only changes response style.
+- Reading via `resolve_preferences.py` is read-only; do not mutate state to "preview".
+- Legacy single-file state from Antigravity may be migrated on the write/apply path; after migration canonical and extras are split into separate files.
+- Workspace `.brain/preferences.json` is only for legacy fallback or per-repo overrides, not the default destination for durable language rules.
 </HARD-GATE>
 
 ## Process
 
-Fast path cho language requests:
+Fast path for language requests:
 
-- Nếu user chỉ hỏi cách đặt ngôn ngữ, dấu tiếng Việt, hay quy ước viết:
-  - ưu tiên chỉ thẳng tới durable adapter-global update qua `scripts/write_preferences.py`
-  - chỉ trỏ sang workspace `.brain/preferences.json` khi họ muốn rule chỉ áp dụng cho repo hiện tại
-  - dùng lại template ngắn trong `references/personalization.md`
+- If the user only asks how to set language, diacritics, or writing conventions:
+  - point directly to a durable adapter-global update via `scripts/write_preferences.py`
+  - only point to workspace `.brain/preferences.json` when they want a rule that applies to the current repo only
+  - reuse the short template in `references/personalization.md`
 
-1. Đọc preferences hiện tại:
+1. Read current preferences:
 
 ```powershell
 python scripts/resolve_preferences.py --format json
 ```
 
-2. Map user intent vào các field canonical khi yêu cầu liên quan tới style:
+2. Map user intent to canonical fields when the request is about style:
    - `technical_level`
    - `detail_level`
    - `autonomy_level`
@@ -48,12 +48,12 @@ python scripts/resolve_preferences.py --format json
    - `feedback_style`
    - `personality`
 
-3. Nếu user muốn khóa `language`, `orthography`, hoặc host-native writing rules:
-   - persist chúng qua adapter-global extras bằng `scripts/write_preferences.py`
-   - không nhét chúng vào 6 canonical fields
-   - chỉ dùng `.brain/preferences.json` cho override theo workspace
+3. If the user wants to lock `language`, `orthography`, or host-native writing rules:
+   - persist them via adapter-global extras using `scripts/write_preferences.py`
+   - do not put them in the 6 canonical fields
+   - only use `.brain/preferences.json` for per-workspace overrides
 
-4. Preview hoặc persist bằng core writer:
+4. Preview or persist using the core writer:
 
 ```powershell
 python scripts/write_preferences.py --detail-level detailed --pace fast --feedback-style direct
@@ -61,25 +61,25 @@ python scripts/write_preferences.py --detail-level detailed --pace fast --feedba
 python scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --apply
 ```
 
-5. Trả lời ngắn:
-   - preference nào đã đổi
-   - style phản hồi sẽ khác thế nào
-   - nếu có workspace-only override thì nói rõ nó vẫn tách khỏi adapter-global state
-   - nếu có migration legacy state thì nêu rõ canonical và extras đã tách file
+5. Reply concisely:
+   - which preference changed
+   - how the response style will feel different
+   - if there is a workspace-only override, state that it remains separate from adapter-global state
+   - if legacy state was migrated, note that canonical and extras are now split
 
 ## Output Contract
 
 ```text
-Đã đổi:
+Changed:
 - [...]
 
-Style mới:
+New style:
 - [...]
 
-Override theo workspace:
+Workspace override:
 - [...]
 
-Tác động:
+Impact:
 - [...]
 ```
 

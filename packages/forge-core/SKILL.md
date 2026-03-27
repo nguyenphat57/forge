@@ -227,7 +227,7 @@ When receiving a prompt from the user, classify the intent:
 **When user uses `/shortcut`:** Map according to the action surface of the host adapter, regardless of the local files in this core folder.
 Canonical source for intent keywords and chains: `data/orchestrator-registry.json`.
 
-Signals like `brainstorm`, `ý tưởng`, `nên chọn hướng nào`, `options`, `approach`, `tradeoff` do not create new intents; they turn on **brainstorm gate** before `plan` when the task is vague/complex enough.
+Signals like `brainstorm`, locale-specific brainstorming phrases configured in active routing locales, `options`, `approach`, and `tradeoff` do not create new intents; they turn on **brainstorm gate** before `plan` when the task is vague or complex enough.
 
 ---
 
