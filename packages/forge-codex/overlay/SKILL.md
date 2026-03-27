@@ -199,6 +199,7 @@ When you need detailed command examples or artifact behavior, read `references/t
 
 ## Response Personalization
 
+- At the start of each new thread, resolve preferences before the first substantive user-facing reply so adapter-global state is restored automatically.
 - Forge resolves preferences via core engine `scripts/resolve_preferences.py` from Codex-global split state: canonical fields in `state/preferences.json`, adapter extras in `state/extra_preferences.json`, and only falls back to `.brain/preferences.json` for legacy workspaces.
 - Schema canonical includes `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, and `personality`.
 - Adapter-global extra preferences may carry host-native response constraints such as `language`, `orthography`, honorific rules, or custom writing rules; workspace `.brain/preferences.json` remains a workspace-local override or legacy fallback.

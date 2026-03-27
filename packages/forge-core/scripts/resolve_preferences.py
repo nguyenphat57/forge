@@ -114,7 +114,7 @@ def main() -> int:
         "--forge-home",
         type=Path,
         default=None,
-        help="Override adapter state root (defaults to $FORGE_HOME, installed adapter state, or ~/.forge in dev)",
+        help="Override adapter state root (defaults to $FORGE_HOME, installed adapter state, bundle-native dev state, or ~/.forge only when no bundle-specific fallback exists)",
     )
     parser.add_argument("--preferences-file", type=Path, default=None, help="Explicit preferences file to read")
     parser.add_argument("--strict", action="store_true", help="Fail on invalid values instead of warning and falling back")

@@ -64,6 +64,35 @@ def apply_overlay(overlay_dir: Path, destination: Path) -> None:
         shutil.copy2(path, target)
 
 
+def build_state_metadata(package_name: str, host: str) -> dict | None:
+    if package_name == "forge-core":
+        return {
+            "dev_root": {
+                "strategy": "bundle-parent-relative",
+                "path_relative": "forge-core-state",
+            }
+        }
+    if host == "codex":
+        return {
+            "dev_root": {
+                "strategy": "host-home-relative",
+                "env_var": "CODEX_HOME",
+                "default_home_relative": ".codex",
+                "path_relative": package_name,
+            }
+        }
+    if host == "antigravity":
+        return {
+            "dev_root": {
+                "strategy": "host-home-relative",
+                "env_var": "GEMINI_HOME",
+                "default_home_relative": ".gemini/antigravity",
+                "path_relative": package_name,
+            }
+        }
+    return None
+
+
 def write_build_manifest(destination: Path, package_name: str, host: str, source: str, metadata: dict[str, str | None]) -> None:
     manifest = {
         "package": package_name,
@@ -73,6 +102,9 @@ def write_build_manifest(destination: Path, package_name: str, host: str, source
         "git_revision": metadata["git_revision"],
         "built_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
+    state_metadata = build_state_metadata(package_name, host)
+    if state_metadata is not None:
+        manifest["state"] = state_metadata
     (destination / "BUILD-MANIFEST.json").write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False),
         encoding="utf-8",

@@ -1,4 +1,4 @@
 interface:
   display_name: "Forge Antigravity"
   short_description: "Antigravity delivery orchestrator with operator wrappers"
-  default_prompt: "Use $forge-antigravity to route this task, default to Vietnamese with full diacritics unless resolved preferences say otherwise, expose the right Antigravity operator wrapper when useful, and keep verification strict."
+  default_prompt: "Use $forge-antigravity to route this task, restore preferences from Antigravity-global state at thread start, default to Vietnamese with full diacritics unless resolved preferences say otherwise, expose the right Antigravity operator wrapper when useful, and keep verification strict."

@@ -162,7 +162,7 @@ def main() -> int:
         "--forge-home",
         type=Path,
         default=None,
-        help="Override adapter state root (defaults to $FORGE_HOME, installed adapter state, or ~/.forge in dev)",
+        help="Override adapter state root (defaults to $FORGE_HOME, installed adapter state, bundle-native dev state, or ~/.forge only when no bundle-specific fallback exists)",
     )
     parser.add_argument("--project-name", default=None, help="Optional project name to seed into session metadata")
     parser.add_argument("--mode", choices=["auto", "greenfield", "existing"], default="auto", help="Override workspace classification")

@@ -252,6 +252,7 @@ For detailed command examples or artifact behavior, read `references/tooling.md`
 
 ## Response Personalization
 
+- At the start of each new thread, resolve preferences before the first substantive user-facing reply so Antigravity-global state is restored automatically.
 - Forge resolves preferences through the core engine `scripts/resolve_preferences.py` from the Antigravity-global split state: canonical fields in `state/preferences.json`, adapter extras in `state/extra_preferences.json`, and only falls back to `.brain/preferences.json` for workspace legacy.
 - Canonical schema includes `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, and `personality`.
 - When the state file contains an Antigravity native legacy payload, this adapter only maps that payload to the canonical schema for reading or migration; the steady-state write path remains the split-file canonical + extras from core.

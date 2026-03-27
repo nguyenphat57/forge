@@ -9,6 +9,13 @@ Use `forge-codex` as the only global orchestrator for Codex.
 2. Load `{{FORGE_CODEX_SKILL}}`.
 3. If the workspace has its own `AGENTS.md` or router doc, treat it as local augmentation on top of Forge.
 
+## Thread Bootstrap
+
+- On every new thread, restore Forge response personalization before the first substantive reply.
+- Resolve adapter-global preferences from `~/.codex/forge-codex/state/preferences.json` plus `~/.codex/forge-codex/state/extra_preferences.json` (or the equivalent `$FORGE_HOME/state/...` paths when overridden).
+- Prefer the canonical resolver at `{{FORGE_CODEX_SKILL}}\scripts\resolve_preferences.py --workspace <workspace> --format json` when the merged payload is needed.
+- Apply the resolved language, orthography, tone detail, and custom writing rules as active instructions; do not wait for the user to repeat customization in each new thread.
+
 ## Command Aliases
 
 When the user types one of the slash commands below, treat it as a workflow alias, not a filesystem path.

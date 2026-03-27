@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.13.0 - 2026-03-27
+
+- Khôi phục response personalization tự động ở đầu mỗi thread mới cho `forge-codex` và `forge-antigravity`, bao gồm bootstrap instructions trong host entrypoints và prompt mặc định của Antigravity.
+- Bổ sung bundle-native dev state fallback qua build metadata để `forge-core`, `forge-codex`, và `forge-antigravity` tự tìm đúng adapter-global state root ngay cả khi chưa có install manifest.
+- Mở rộng release regression tests để khóa behavior bootstrap preferences và state-root resolution trên cả overlay source lẫn dist bundles trước khi phát hành.
+
+
 ## 0.12.0 - 2026-03-27
 
 - Tăng độ native tiếng Việt cho `forge-codex` bằng cách làm sạch `locale/vi` về UTF-8 chuẩn, thêm regression cho prompt Việt tự nhiên hơn, và chặn lại lỗi mojibake ở asset bundle.

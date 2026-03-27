@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import unittest
@@ -33,6 +34,26 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertIn("state/extra_preferences.json", text, label)
         self.assertIn("resolve_preferences.py", text, label)
         self.assertIn("Response Personalization", text, label)
+
+    def assert_codex_global_agents_bootstraps_preferences(self, path: Path, *, label: str) -> None:
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("Thread Bootstrap", text, label)
+        self.assertIn("On every new thread, restore Forge response personalization", text, label)
+        self.assertIn("state/preferences.json", text, label)
+        self.assertIn("state/extra_preferences.json", text, label)
+        self.assertIn("resolve_preferences.py", text, label)
+
+    def assert_antigravity_skill_bootstraps_preferences(self, path: Path, *, label: str) -> None:
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("At the start of each new thread, resolve preferences", text, label)
+        self.assertIn("state/preferences.json", text, label)
+        self.assertIn("state/extra_preferences.json", text, label)
+        self.assertIn("resolve_preferences.py", text, label)
+
+    def assert_antigravity_agent_prompt_bootstraps_preferences(self, path: Path, *, label: str) -> None:
+        text = path.read_text(encoding="utf-8")
+        self.assertIn("restore preferences from Antigravity-global state at thread start", text, label)
+        self.assertIn("default to Vietnamese with full diacritics unless resolved preferences say otherwise", text, label)
 
     def assert_routing_locale_config(self, path: Path, *, label: str) -> None:
         config = json.loads(path.read_text(encoding="utf-8"))
@@ -85,6 +106,61 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertFalse((dist_root / "data" / "routing-locales.json").exists())
         self.assertFalse((dist_root / "data" / "routing-locales").exists())
         self.assertFalse((dist_root / "data" / "output-contracts.json").exists())
+
+    def test_uninstalled_dist_bundles_use_bundle_native_state_roots(self) -> None:
+        build_release.build_all()
+        with TemporaryDirectory() as temp_dir:
+            temp_root = Path(temp_dir)
+            home = temp_root / "home"
+            home.mkdir(parents=True, exist_ok=True)
+            cases = [
+                (
+                    "forge-core",
+                    ROOT_DIR / "dist" / "forge-core" / "scripts" / "write_preferences.py",
+                    (ROOT_DIR / "dist" / "forge-core-state").resolve(),
+                ),
+                (
+                    "forge-codex",
+                    ROOT_DIR / "dist" / "forge-codex" / "scripts" / "write_preferences.py",
+                    (home / ".codex" / "forge-codex").resolve(),
+                ),
+                (
+                    "forge-antigravity",
+                    ROOT_DIR / "dist" / "forge-antigravity" / "scripts" / "write_preferences.py",
+                    (home / ".gemini" / "antigravity" / "forge-antigravity").resolve(),
+                ),
+            ]
+
+            for bundle_name, script_path, expected_state_root in cases:
+                with self.subTest(bundle=bundle_name):
+                    env = os.environ.copy()
+                    env.pop("FORGE_HOME", None)
+                    env.pop("CODEX_HOME", None)
+                    env.pop("GEMINI_HOME", None)
+                    env["USERPROFILE"] = str(home)
+                    env["HOME"] = str(home)
+
+                    result = subprocess.run(
+                        [
+                            sys.executable,
+                            str(script_path),
+                            "--technical-level",
+                            "technical",
+                            "--format",
+                            "json",
+                        ],
+                        capture_output=True,
+                        text=True,
+                        encoding="utf-8",
+                        check=False,
+                        env=env,
+                    )
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    payload = json.loads(result.stdout)
+
+                    self.assertEqual(payload["state_root"], str(expected_state_root))
+                    self.assertEqual(payload["path"], str((expected_state_root / "state" / "preferences.json").resolve()))
+                    self.assertFalse((home / ".forge").exists())
 
     def test_install_bundle_dry_run_keeps_target_untouched(self) -> None:
         build_release.build_all()
@@ -195,6 +271,14 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertIn("/customize", skill)
         self.assertIn("/init", skill)
         self.assertIn("/save-brain", skill)
+        self.assert_antigravity_skill_bootstraps_preferences(
+            overlay_root / "SKILL.md",
+            label="forge-antigravity overlay skill",
+        )
+        self.assert_antigravity_agent_prompt_bootstraps_preferences(
+            overlay_root / "agents" / "openai.yaml",
+            label="forge-antigravity overlay agent prompt",
+        )
 
     def test_build_release_preserves_antigravity_wave_b_overlay(self) -> None:
         build_release.build_all()
@@ -207,6 +291,14 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertTrue((dist_root / "data" / "routing-locales.json").exists())
         self.assertTrue((dist_root / "data" / "routing-locales" / "vi.json").exists())
         self.assertTrue((dist_root / "data" / "output-contracts.json").exists())
+        self.assert_antigravity_skill_bootstraps_preferences(
+            dist_root / "SKILL.md",
+            label="dist forge-antigravity skill",
+        )
+        self.assert_antigravity_agent_prompt_bootstraps_preferences(
+            dist_root / "agents" / "openai.yaml",
+            label="dist forge-antigravity agent prompt",
+        )
         self.assert_routing_locale_config(dist_root / "data" / "routing-locales.json", label="dist forge-antigravity")
         self.assert_output_contract_profiles(dist_root / "data" / "output-contracts.json", label="dist forge-antigravity")
         self.assert_session_restores_preferences(
@@ -270,7 +362,12 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertIn("workflows/operator/customize.md", skill)
         self.assertIn("workflows/operator/init.md", skill)
         self.assertIn("AGENTS.global.md", skill)
+        self.assertIn("At the start of each new thread, resolve preferences", skill)
         self.assertNotIn("save-brain", skill)
+        self.assert_codex_global_agents_bootstraps_preferences(
+            overlay_root / "AGENTS.global.md",
+            label="forge-codex overlay agents",
+        )
         self.assertNotIn("/save-brain", (overlay_root / "workflows" / "execution" / "session.md").read_text(encoding="utf-8"))
         self.assert_session_restores_preferences(
             overlay_root / "workflows" / "execution" / "session.md",
@@ -293,6 +390,10 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertTrue((dist_root / "references" / "codex-operator-surface.md").exists())
         self.assert_routing_locale_config(dist_root / "data" / "routing-locales.json", label="dist forge-codex")
         self.assert_output_contract_profiles(dist_root / "data" / "output-contracts.json", label="dist forge-codex")
+        self.assert_codex_global_agents_bootstraps_preferences(
+            dist_root / "AGENTS.global.md",
+            label="dist forge-codex agents",
+        )
         self.assert_session_restores_preferences(
             dist_root / "workflows" / "execution" / "session.md",
             label="dist forge-codex session",
@@ -302,7 +403,9 @@ class ReleaseRepoTests(unittest.TestCase):
         self.assertEqual(registry["intents"]["SESSION"]["shortcuts"], [])
         self.assertTrue(registry["host_capabilities"]["supports_subagents"])
         self.assertEqual(registry["host_capabilities"]["subagent_dispatch_skill"], "dispatch-subagents")
-        self.assertNotIn("save-brain", (dist_root / "SKILL.md").read_text(encoding="utf-8"))
+        dist_skill = (dist_root / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("At the start of each new thread, resolve preferences", dist_skill)
+        self.assertNotIn("save-brain", dist_skill)
         self.assertNotIn("/save-brain", (dist_root / "workflows" / "execution" / "session.md").read_text(encoding="utf-8"))
 
         antigravity_dist_root = ROOT_DIR / "dist" / "forge-antigravity"
