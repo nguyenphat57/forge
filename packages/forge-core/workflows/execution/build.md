@@ -138,7 +138,7 @@ Rules:
 
 ## Lane Model Stance
 
-Forge uses an abstract tier instead of a hardcode vendor model:
+Forge uses an abstract tier instead of a hard-coded vendor model:
 
 |Lane | Default tier|
 |------|--------------|
@@ -154,7 +154,7 @@ Rules:
 
 ## Isolation Recommendation
 
-With multi-step `large` or `high-risk` work, latch isolation stance before starting:
+For multi-step `large` or `high-risk` work, lock the isolation stance before starting:
 
 |Stance | Use when|
 |--------|----------|
@@ -182,7 +182,7 @@ Delegation packets:
 ```
 
 Rules:
-- Fresh worker for each slice or review lane; Do not reuse the old context if the packet has changed significantly
+- Use a fresh worker for each slice or review lane. Do not reuse stale context after the packet changes materially.
 - Do not assign overlapping write scopes between two subagents
 - If the repo is dirty or the blast radius is high, consider `worktree` before `subagent-split`
 - If the packet does not clearly state proof or ownership, return `plan` / `spec-review` instead of blind dispatch
@@ -290,7 +290,7 @@ Rules:
 - Verification is enough for blast radius?
 
 If the execution pipeline has `quality-reviewer`, this pass must be read as a separate lane, not just looking at the code itself in the same execution rhythm.
-If the host supports subagents, the reviewer lane should receive a shortened packet from the controller: scope, evidence, diff/files changed, and the specific review question; Do not force the reviewer to guess the intent from the entire session.
+If the host supports subagents, the reviewer lane should receive a shortened controller packet: scope, evidence, changed files/diff, and the specific review question. Do not force the reviewer to reconstruct intent from the full session.
 
 ## Drift / Reopen Rules
 
@@ -343,7 +343,7 @@ Do not use vague sentences like "almost done", "basically okay", "probably can b
 - Validate input at the boundary, whether the repo is dynamic or strongly typed
 - If you change a contract, update callers/adapters at the same time
 - If the repo clearly maps to Python/Java/Go/.NET and a suitable companion skill exists, load that companion for idiom/framework detail
-- If there is no companion skill, continue with the existing Forge workflows; do not stop just because a runtime-specific layer is missing
+- If no companion skill exists, continue with the existing Forge workflows. Do not stop just because a runtime-specific layer is missing.
 - Forge still owns verification strategy, evidence gates, and residual-risk reporting
 ```
 

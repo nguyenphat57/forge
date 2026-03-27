@@ -1,11 +1,11 @@
 # Frontend Stack Profiles
 
-> Used when the frontend task needs a specific lens according to the stack instead of a general guideline.
+> Use this when a frontend task needs a stack-specific lens instead of only general guidance.
 
 ## generic-web
 
-- Suitable when the stack is unclear or the task is UI reasoning before implementation.
-- Prioritize semantics, tokens, interaction cues, responsive states.
+- Suitable when the stack is unclear or the task is still in UI reasoning before implementation.
+- Prioritize semantics, tokens, interaction cues, and responsive states.
 - Do not default to framework-specific patterns when the artifact is not yet proven.
 
 ## html-tailwind
@@ -13,9 +13,9 @@
 - Prioritize utility clarity, extracted patterns, theme tokens, stable hover/focus states.
 - Watchouts:
   - class soup
-  - Arbitrary values are rampant
+  - too many arbitrary values
   - `transition-all`
-  - Surface is too clear in light mode
+  - surfaces that disappear in light mode
 
 ## react-vite
 
@@ -23,7 +23,7 @@
 - Clearly define loading, empty, and error paths in the brief before coding.
 - Watchouts:
   - Layout depends on unnecessary temporary state
-  - polish animation hides rerender or state complexity
+  - polished animation hides rerender or state complexity
 
 ## nextjs
 
@@ -31,11 +31,11 @@
 - Include loading and streaming placeholders in the UX contract.
 - Watchouts:
   - design depends on client-only state without fallback
-  - hydration edge cases pull out visual plan
+  - hydration edge cases distort the visual plan
 
 ## mobile-webview
 
-- Used for Capacitor, webview, or tablet POS style work.
+- Use for Capacitor, webview, or tablet POS-style work.
 - Prioritize touch targets, safe-area handling, keyboard behavior, and viewport resize resilience.
 - Watchouts:
   - hover-centric interactions

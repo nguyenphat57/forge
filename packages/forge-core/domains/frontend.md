@@ -129,7 +129,7 @@ Heuristics for touch/dense-data/dashboard UI: `../references/ui-heuristics.md`
 
 Reject quickly if you see:
 - scale hover makes card or list jump layout
-- The border is too blurry or the surface is too clear in light mode
+- Borders are too faint or surfaces disappear in light mode
 - The gray text is too light so the hierarchy is lost
 - fixed/sticky UI hides real content
 - visual polish has it but is missing empty/loading/error states

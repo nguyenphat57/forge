@@ -9,21 +9,21 @@ quality_gates:
   - Review disposition explicit
   - Review lifecycle closed
   - Feedback handled with evidence-backed response
-  - Finish-branch protocol explicit
+  - Post-review branch state explicit
 ---
 
 # Review - Code Review & Project Health
 
 ## The Iron Law
 
-```
+```text
 FINDINGS FIRST, SUMMARY SECOND
 ```
 
 <HARD-GATE>
-- Do not "let it go" with the user, author, or patch without indicating a finding, no-finding rationale, or testing gap.
-- If the conclusion is "no finding", the scope of review and remaining residual risk/gap must be clearly stated.
-- Review must go through 3 stages: request -> receive -> finish branch.
+- Do not approve a patch, branch, or work item without either a finding, a no-finding rationale, or an explicit testing gap.
+- If the conclusion is "no findings", state the review scope and any residual risk clearly.
+- Every review must move through three stages: request -> receive -> close the review.
 </HARD-GATE>
 
 ## Process
@@ -33,170 +33,166 @@ flowchart TD
     A[Request review] --> B[Receive code and evidence]
     B --> C[Collect findings]
     C --> D[Prioritize by severity]
-    D --> E[State assumptions/gaps]
+    D --> E[State assumptions and gaps]
     E --> F[Disposition]
-    F --> G[Finish branch]
+    F --> G[Close review]
 ```
 
-## 3-Part Lifecycle Review
+## 3-Part Review Lifecycle
 
 ### 1. Request
-- Finalize review mode, scope, and questions that need to be answered
-- Determine if the review is based on a specific diff, repo state, or artifact
+- lock review mode, scope, and questions to answer
+- decide whether the review is about a diff, repo state, or another artifact
 
 ### 2. Receive
-- Read the actual code/artifacts presented for review
-- If there is command/test evidence, use it; If not, state clearly that this is a static review
-- Collect findings before writing summary
+- read the actual code and artifacts under review
+- use command/test evidence if it exists; otherwise say explicitly that this is a static review
+- collect findings before writing any summary
 
-### 3. Finish Branch
-- Battery Disposition: `ready-for-merge`, `changes-required`, or `blocked-by-residual-risk`
-- Indicate how the branch/work item should proceed: merge, edit and then review, or stop because of risk
-- Don't end with vague comments like "looks good", "looks good"
+### 3. Close Review
+- set a clear review disposition: `ready-for-merge`, `changes-required`, or `blocked-by-residual-risk`
+- state what happens next: merge, keep editing, or stop because of risk
+- avoid vague endings such as "looks good"
 
 ## Large-Task Review Discipline
 
-With tasks `large`, `release-critical`, or `high-risk`:
-
-- Prioritize an independent review of the flow just implemented
-- If the host supports a separate subagent/reviewer lane, use an independent reviewer instead of reviewing the same lane implementation
-- If there is no subagent, it is still necessary to clearly separate:
+For `large`, `release-critical`, or `high-risk` work:
+- prefer an independent review lane for the implemented flow
+- if the host supports reviewer subagents, use them
+- if not, still separate:
   - implementation evidence
   - reviewer findings
   - final disposition
-- Do not edit and review at the same time and then consequently merge-ready in the same step
-- If the build chain has chosen pipeline `implementer-quality` or `implementer-spec-quality`, the reviewer lane must maintain stance independent of that pipeline
+- do not implement and declare merge-ready in the same pass
+- if the build chain used `implementer-quality` or `implementer-spec-quality`, the reviewer lane must remain independent in tone and judgment
 
 High-risk signals:
-- auth/payment/data migration
-- Multiple boundaries or multiple skills touching at the same time
-- Rollback production is difficult
-- regression just happened around that area
+- auth, payment, or data migration
+- multiple boundaries or multiple skills changing at once
+- difficult production rollback
+- a recent regression in the same area
 
-## Anti-Performative Agreement
+## Avoid Empty Agreement
 
-Reject style reflections:
-- "That's right, this patch is fine" without stating finding or no-finding rationale
-- "Do not see anything alarming" without saying scope review
-- "Maybe it can be merged" when the disposition has not been finalized
+Reject review language such as:
+- "this patch is fine" without findings or rationale
+- "nothing alarming" without stating scope
+- "maybe it can merge" without a disposition
 
-Review is only valuable when it creates one of three things:
-- specific finding
-- confirm there are no findings in the checked scope, including gaps/risks
-- Clear disposition for branch/work item
-
-This contract is not just an etiquette. It is a performative agreement gate for the entire execution chain.
+A useful review must produce one of three things:
+- a specific finding
+- a clean no-finding rationale with scope and gaps
+- a clear disposition for the branch or work item
 
 ## Feedback Response Matrix
 
-When the review is processed received feedback, feedback by type:
+When responding to review feedback:
 
 |Feedback type | How to handle|
-|---------------|------------|
-|Technically correct | Edit, verify, and state new evidence|
-|Unclear intent | Ask again with a specific question, don't guess|
-|Technically questionable | Investigate, then challenge with evidence if necessary|
-| Stylistic preference | Clearly state the trade-off, convention, and final decision
+|---------------|-------------|
+|Technically correct | Edit, verify, and report fresh evidence|
+|Unclear intent | Ask one precise question|
+|Technically questionable | Investigate first, then challenge with evidence if needed|
+|Stylistic preference | State the tradeoff, the convention, and the final decision|
 
-Good feedback sample:
+Good responses:
 
 ```text
 - I verified: [evidence]. Correct because [reason]. Fixed: [change].
-- I evaluated: [evidence]. Current code stays because [reason].
+- I evaluated: [evidence]. The current code stays because [reason].
 - Clarification needed: [single precise question].
 ```
 
 Required:
-- evidence must be new
-- must have a stance to fix or keep
-- If you keep the current code, you must clearly state why
+- evidence must be fresh
+- the response must clearly decide whether to fix or keep the current behavior
+- if the code stays, explain why
 
-Bad feedback sample:
+Bad responses:
 
 ```text
-- Good catch! Fixed.
+- Good catch. I fixed it.
 - Looks fine now.
-- I guess I fixed it right.
+- I think it is fixed.
 ```
 
 ## Review Modes
 
 |Mode | Goal|
-|------|----------|
-|Code review | Find bugs, regressions, missing tests|
-|Health check | See build/lint/test/docs/deps|
-|Handover | Summary of project and area in progress|
-|Upgrade assessment | Upgrade Risk Assessment|
+|------|-----|
+|Code review | Find bugs, regressions, and missing tests|
+|Health check | Assess build/lint/test/docs/dependencies|
+|Handover | Summarize the project and active area|
+|Upgrade assessment | Assess upgrade risk|
 
 ## Auto-Scan
 
-```
-1. package manifests / build files (`package.json`, `pyproject.toml`, `go.mod`, `pom.xml`, `build.gradle`, `*.csproj`,...)
+```text
+1. Package manifests / build files (`package.json`, `pyproject.toml`, `go.mod`, `pom.xml`, `build.gradle`, `*.csproj`, ...)
 2. Folder structure
 3. README / docs / plans
 4. Changed files / git status if available
 5. Relevant build/lint/test commands
 ```
 
-Repo-first. `.brain` is read only if available and truly useful.
+Repo state comes first. Read `.brain` only when it is available and materially useful.
 
 ## Anti-Rationalization
 
 |Defense | Truth|
-|----------|---------|
-|"Not seeing major errors is enough" | A good review should clearly state the finding and testing gap|
-|"Just an overview" | If the user wants to review, finding must come first|
-|"You can review even if you don't run a check" | Without evidence, it must be clearly stated that static review|
-|"Patch looks reasonable so it should be fine" | A sense of reason does not replace finding, no-finding rationale, or disposition|
+|----------|------|
+|"Not seeing major errors is enough" | Good review states findings or no-finding rationale explicitly|
+|"This is just an overview" | Review still needs findings first|
+|"You can review without running checks" | If no evidence exists, say clearly that it is a static review|
+|"The patch looks reasonable" | Reasonable is not the same as verified|
 
 ## Verification Checklist
 
-- [ ] Review mode has been defined
-- [ ] Scanned source-of-truth artifacts
-- [ ] Findings are given priority
-- [ ] Noted assumptions/testing gaps
-- [ ] Report separates finding and summary
-- [ ] Does not fall into the performative agreement
-- [ ] Arrangement and next branch step finalized
-- [ ] Feedback has been processed according to the matrix, not just a reply
-- [ ] Large/high-risk task already has a sufficiently independent reviewer discipline
+- [ ] Review mode defined
+- [ ] Source-of-truth artifacts scanned
+- [ ] Findings prioritized
+- [ ] Assumptions and testing gaps noted
+- [ ] Findings and summary kept separate
+- [ ] No empty-agreement language
+- [ ] Disposition and post-review branch state finalized
+- [ ] Feedback handled through the matrix, not just acknowledged
+- [ ] Large/high-risk work kept reviewer independence
 
 ## Review Disposition
 
-After review, finalize a clear disposition:
-
 |Disposition | Use when|
-|-------------|----------|
-|`ready-for-merge` | No more finding/blocker heavy enough to hold back|
-|`changes-required` | The finding needs to be fixed before merging|
-|`blocked-by-residual-risk` | There is not enough evidence or the risk is still too great|
+|-------------|---------|
+|`ready-for-merge` | No blocker remains that should stop merge|
+|`changes-required` | Findings must be fixed before merge|
+|`blocked-by-residual-risk` | Evidence is insufficient or risk remains too high|
 
-## Finish-Branch Protocol
+## Post-Review Branch State
 
-After disposition, the branch/work item must enter exactly one state:
+After the disposition, the branch must enter exactly one state:
 
 |Branch state | Use when|
-|--------------|----------|
-|`merge` | Clean review, enough evidence, no more blockers|
-|`open-pr` | Need human/owner review or org policy PR request|
-|`continue-on-branch` | The findings/follow-up need to be fixed immediately on the current branch|
-|`cleanup-only` | The code is fine but still cleaning up artifact/log/worktree before it's considered done|
-| `stop-on-risk` | The risk is too large or the evidence is lacking, it is not allowed to proceed
+|--------------|---------|
+|`merge` | Review is clean and evidence is sufficient|
+|`open-pr` | A human/owner review is still required|
+|`continue-on-branch` | Findings need immediate follow-up on the current branch|
+|`cleanup-only` | Code is acceptable but logs/artifacts/worktree still need cleanup|
+|`stop-on-risk` | Risk is too high or evidence is too weak to proceed|
 
-Don't leave the branch in a vague state like "let it be", "it's okay for now", or "maybe it can be merged".
+Do not leave the branch in an ambiguous state.
 
-If the branch is stuck on feedback arguments or the disposition is not converging, read `references/failure-recovery-playbooks.md`.
+If review feedback is looping without convergence, read `references/failure-recovery-playbooks.md`.
 
 ## Output
 
 Saved at:
 
-```
+```text
 docs/PROJECT_REVIEW_[date].md
 ```
 
-Short report sample:
-```
+Template:
+
+```text
 Findings:
 1. [severity] [...]
 2. [...]
@@ -207,14 +203,14 @@ Assumptions / gaps:
 Disposition:
 - [ready-for-merge / changes-required / blocked-by-residual-risk]
 
-Finish branches:
-- [merge/open-pr/continue-on-branch/cleanup-only/stop-on-risk]
+Close review:
+- [merge / open-pr / continue-on-branch / cleanup-only / stop-on-risk]
 
 Feedback handled:
-- [fixed / challenging with evidence / clarification requested / stylistic decision]
+- [fixed / challenged with evidence / clarification requested / stylistic decision]
 
 Evidence response:
-- [I verified:... / I investigated:... / Clarification needed:...]
+- [I verified: ... / I evaluated: ... / Clarification needed: ...]
 
 Summary:
 - [...]
@@ -222,6 +218,6 @@ Summary:
 
 ## Activation Announcement
 
-```
+```text
 Forge: review | findings first, summary second
 ```

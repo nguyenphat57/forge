@@ -829,7 +829,7 @@
   "evidence_response_contract": {
     "required_patterns": [
       "I verified: [fresh evidence]. Correct because [reason]. Fixed: [change].",
-      "I investigated: [evidence]. Current code stays because [reason].",
+      "I investigated: [evidence]. The current code stays because [reason].",
       "Clarification needed: [single precise question]."
     ],
     "required_fields": [
@@ -838,7 +838,7 @@
       "change or no-change stance"
     ],
     "banned_phrases": [
-      "Good catch! Fixed.",
+      "Good catch. I fixed it.",
       "Looks good now.",
       "Should be fixed.",
       "Probably fine.",
@@ -846,7 +846,7 @@
     ]
   },
   "rationalization_patterns": [
-    "Good catch! Fixed.",
+    "Good catch. I fixed it.",
     "Should be fine now.",
     "CI passed earlier.",
     "I did not run the exact check, but the change is small.",

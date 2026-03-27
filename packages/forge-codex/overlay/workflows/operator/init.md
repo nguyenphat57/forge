@@ -5,14 +5,14 @@ triggers:
   - natural-language request to bootstrap a workspace for Forge
   - optional alias: /init
 quality_gates:
-  - Workspace is classified before suggests a next step
+  - Workspace is classified before suggesting a next step
   - No existing file is overwritten
   - Wrapper stays thin and avoids onboarding ceremony
 ---
 
 # Init - Codex Workspace Bootstrap
 
-> Goal: give Codex a minimal initial flow to start a new workspace without turning it into a lengthy onboarding.
+> Goal: give Codex a minimal initial flow for starting a workspace without turning it into a long onboarding flow.
 
 ## Process
 
@@ -28,7 +28,7 @@ python scripts/initialize_workspace.py --workspace <workspace> --format json
 python scripts/initialize_workspace.py --workspace <workspace> --seed-preferences --apply
 ```
 
-`--seed-preferences` will seed Codex-global preferences, no longer writing to workspace-local `.brain/preferences.json`.
+`--seed-preferences` seeds Codex-global preferences and does not write to workspace-local `.brain/preferences.json`.
 
 3. Finish with a single next workflow:
    - `brainstorm` for greenfield workspace

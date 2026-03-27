@@ -6,29 +6,29 @@
 
 |File | When to read|
 |------|-------------|
-|`smoke-tests.md` | Smoke tests host routing and general behavior of Forge|
-|`smoke-test-checklist.md` | Record the results of running smoke test for each case|
-|`backend-briefs.md` | Create or reuse backend brief for API/job/event/data change at medium/large level|
+|`smoke-tests.md` | Smoke-test host routing and Forge's general behavior|
+|`smoke-test-checklist.md` | Record smoke-test results for each case|
+|`backend-briefs.md` | Create or reuse a backend brief for medium/large API, job, event, or data changes|
 |`execution-delivery.md` | Select execution mode, checkpoint, and completion state for large builds|
-| `failure-recovery-playbooks.md` | When the chain is stalled, the gate is blocked, the review is deadlocked, or the deployment fails, you need a clear path out
-|`ui-briefs.md` | When frontend/visualize needs first artifact before coding or mockup|
+|`failure-recovery-playbooks.md` | Use when the chain is stalled, a gate is blocked, review is deadlocked, or deployment fails and you need a clear recovery path|
+|`ui-briefs.md` | Use when frontend/visualize needs a first artifact before coding or mockups|
 |`frontend-stack-profiles.md` | Choose stack lens for frontend or visualization|
-|`ui-quality-checklist.md` | Quick review of anti-patterns and delivery checklist for UI work|
+|`ui-quality-checklist.md` | Quick review of UI anti-patterns and delivery criteria|
 |`ui-escalation.md` | Decide when to pull more `$ui-ux-pro-max`|
-|`ui-good-bad-examples.md` | True/false pattern to reduce agents having to infer anti-pattern|
+|`ui-good-bad-examples.md` | Concrete good/bad patterns so the agent does not have to infer anti-patterns alone|
 |`ui-heuristics.md` | Global heuristics for touch-heavy, dashboard, dense-data UI|
-|`ui-progress.md` | Track stage for long UI tasks|
+|`ui-progress.md` | Track progress for long UI tasks|
 |`tooling.md` | When you need to run route preview, capture continuity, router checker, or find artifact paths|
 |`personalization.md` | When editing response-style preferences, adaptive language, or adapter wrappers for customization|
-|`workspace-init.md` | When editing the skeleton workspace, init flow, or onboarding wrapper, you need to stick to the repo-neutral contract|
+|`workspace-init.md` | When editing the skeleton workspace, init flow, or onboarding wrapper while preserving the repo-neutral contract|
 |`help-next.md` | When editing navigator logic for help/next, repo-state priority, or operator guidance wrappers|
 |`run-guidance.md` | When editing workflow `run`, ready-signal detection, command classification, or adapter wrappers for execute-then-route|
 |`error-translation.md` | When fixing database error patterns, sanitation rules, or how `run/debug/test` converts technical errors into readable guidance|
 |`bump-release.md` | When editing version-bump checklist, semver math, or release artifact update flow|
 |`rollback-guidance.md` | When editing rollback planning, risk framing, or recovery strategy selection|
-|`canary-rollout.md` | When needed, roll out Forge on the real workspace and confirm readiness with canary artifacts|
-|`companion-skill-contract.md` | Design or update companion skills, when the repo actually has an extended runtime/framework layer|
-|`companion-routing-smoke-tests.md` | Check routing between Forge and companion skills, only when using companion/local layer|
+|`canary-rollout.md` | Use when rolling Forge out on a real workspace and confirming readiness with canary artifacts|
+|`companion-skill-contract.md` | Design or update companion skills when the repo really has an extended runtime/framework layer|
+|`companion-routing-smoke-tests.md` | Check routing between Forge and companion skills when the workspace uses a companion/local layer|
 
 ## Reading Order
 
@@ -46,8 +46,8 @@
 9. backend-briefs.md or execution-delivery.md depending on the layer being edited
 10. smoke-tests.md / smoke-test-checklist.md if needed to verify host behavior
 11. canary-rollout.md if preparing a real rollout
-12. companion-skill-contract.md only when editing the companion/runtime class
-13. companion-routing-smoke-tests.md only when testing the companion/runtime class
+12. companion-skill-contract.md only when editing the companion/runtime layer
+13. companion-routing-smoke-tests.md only when testing the companion/runtime layer
 ```
 
 ### When the repo does not have local skills
@@ -107,7 +107,7 @@
 5. execution-delivery.md if the chain is long or high-risk
 ```
 
-### When working as a backend
+### When working on backend tasks
 
 ```text
 1. backend-briefs.md

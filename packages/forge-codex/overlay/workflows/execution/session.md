@@ -79,7 +79,7 @@ Apply the style without dumping raw preference fields unless the user asks for t
 3. From.brain/session.json, prefer:
    - working_on
    - pending_tasks
-   - verification. verification
+   - verification
    - decisions_made
 4. Pull only active, scope-matching entries from decisions/learnings
 5. Ignore stale or broad memory that does not change the next action

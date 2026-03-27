@@ -77,7 +77,7 @@ Don't just find secrets in code. With release scope, go through the following cl
 |Write guard | Do not generate/output secrets into code, logs, docs | redact values, do not paste the actual token|
 |Pre-commit / repo scan | Catch secrets revealed early | `gitleaks`, `git-secrets`, `trufflehog` or equivalent script|
 |Pre-deploy secret audit | Verify secret scope correct release target | env diff, provider secret list, stale secret check|
-|Runtime storage | Secret in the right place, right right, right lifetime | secret manager, least privilege, rotation owner|
+|Runtime storage | Secret in the right place, right scope, right lifetime | secret manager, least privilege, rotation owner|
 |Rotation & recovery | Have a plan when secrets are revealed or accounts are mistaken | revoke, rotate, audit logs, incident owner|
 
 A single tool is not required, but the release-grade repo should have at least one repeatable secret scan.
@@ -97,7 +97,7 @@ Identity confusion is a security and operational risk, not just a deployment pro
 
 ### Dependencies
 ```
-- Audit.vulnerabilities
+- Audit vulnerabilities
 - Review new packages / unnecessary packages
 - Major upgrades have risky notes
 ```
@@ -133,7 +133,7 @@ Bad:
 Good:
 
 ```text
-"This release requires an evidence secret scan or current secret control; if not, the security review is not complete."
+"This release requires either an evidence-backed secret scan or a current secret control. Without one, the security review is not complete."
 ```
 
 ## Verification Checklist

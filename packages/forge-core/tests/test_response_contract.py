@@ -44,7 +44,7 @@ class ResponseContractTests(unittest.TestCase):
 
     def test_validator_rejects_banned_phrase(self) -> None:
         report = response_contract.validate_response_contract(
-            "Good catch! Fixed.",
+            "Good catch. I fixed it.",
             require_evidence_response=True,
         )
 

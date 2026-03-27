@@ -16,7 +16,7 @@ description: "Forge Codex - Codex-oriented adapter for Forge core. Use when a re
 The tree below reflects the built Codex bundle after overlaying this adapter on top of `forge-core`.
 Inherited core files and adapter-added files appear together in one runtime layout.
 
-- `SKILL.md`: entrypoint to route intent, pair skills, and hold delivery guardrails
+- `SKILL.md`: entry point for intent routing, skill composition, and delivery guardrails
 - `AGENTS.global.md`: canonical global host entry template when Codex should point only to Forge
 - `workflows/design/`: planning, architecture, spec-review, visualization
 - `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session, and Codex-native subagent dispatch guidance
@@ -142,8 +142,8 @@ forge-codex/
 
 - Codex rules live in `AGENTS.md`, system/developer instructions, and the workspace-local skill layout of the Codex host.
 - Global Codex host should point to this bundle via `AGENTS.global.md` instead of keeping a parallel legacy router.
-- `AGENTS.md` in the root workspace is the main router/instruction file for Codex; It does not replace `SKILL.md`, but is an important entry surface for the host to load context.
-- This adapter keeps the Codex surface, while the routing logic, registry, verification, and canary tooling are still taken from the Forge core.
+- `AGENTS.md` at the workspace root is Codex's primary routing and instruction file. It does not replace `SKILL.md`, but it is an important entry surface for host-loaded context.
+- This adapter owns the Codex-facing surface, while routing logic, registry data, verification rules, and canary tooling still come from Forge core.
 - If the workspace does not have a local layer, Forge Codex must still run well using the core bundle without waiting for additional repo-specific adapters.
 
 ## Independence Rule
@@ -151,7 +151,7 @@ forge-codex/
 - Forge is **global-first orchestrator**.
 - New repos, small repos, or repos without local skills still have to use Forge normally using the workflows/domain skills of this bundle.
 - Companion skills and workspace routers are **optional augmentation**, not default dependencies.
-- If there is no clear companion/local skill, Forge cannot hesitate or wait for the "full skill set" before working.
+- If there is no clear companion or local skill, Forge must still proceed with the core bundle instead of waiting for a fuller setup.
 
 ---
 
@@ -159,8 +159,8 @@ forge-codex/
 
 - Canonical machine-readable source: `data/orchestrator-registry.json`
 - Preferences resolver: `scripts/resolve_preferences.py` (adapter-global Forge preferences -> canonical response-style contract, with optional legacy workspace fallback)
-- Preferences writer: `scripts/write_preferences.py` (canonical schema persistence for future customized flows)
-- Workspace init skeleton: `scripts/initialize_workspace.py` (repo-neutral bootstrap for future init flows)
+- Preferences writer: `scripts/write_preferences.py` (canonical schema persistence for durable customization flows)
+- Workspace init skeleton: `scripts/initialize_workspace.py` (repo-neutral bootstrap for reusable init flows)
 - Help/next navigator: `scripts/resolve_help_next.py` (repo state -> current focus, suggested workflow, next action)
 - Run resolver: `scripts/run_with_guidance.py` (execute command guidance -> classify signal -> route to test/debug/deploy)
 - Error translator: `scripts/translate_error.py` (raw stderr/error text -> sanitized human summary + suggested action)
@@ -177,7 +177,7 @@ forge-codex/
 - UI brief checker for persisted frontend/visualize artifacts: `scripts/check_ui_brief.py`
 - UI progress tracker for long-running frontend/visualize tasks: `scripts/track_ui_progress.py`
 - Automated smoke matrix runner for route/router cases: `scripts/run_smoke_matrix.py`
-- Canonical release/CI verification entrypoint: `scripts/verify_bundle.py`
+- Canonical release/CI verification entry point: `scripts/verify_bundle.py`
 - Automated workspace canary runner for real repo rollout: `scripts/run_workspace_canary.py`
 - Canary result recorder for real workspace rollout: `scripts/record_canary_result.py`
 - Canary readiness evaluator for rollout verdicts: `scripts/evaluate_canary_readiness.py`
@@ -201,30 +201,30 @@ When you need detailed command examples or artifact behavior, read `references/t
 
 - At the start of each new thread, resolve preferences before the first substantive user-facing reply so adapter-global state is restored automatically.
 - Forge resolves preferences via core engine `scripts/resolve_preferences.py` from Codex-global split state: canonical fields in `state/preferences.json`, adapter extras in `state/extra_preferences.json`, and only falls back to `.brain/preferences.json` for legacy workspaces.
-- Schema canonical includes `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, and `personality`.
-- Adapter-global extra preferences may carry host-native response constraints such as `language`, `orthography`, honorific rules, or custom writing rules; workspace `.brain/preferences.json` remains a workspace-local override or legacy fallback.
-- When `language` resolves to `vi`, `forge-codex` should respond in Vietnamese with full diacritics; accent-stripped or mojibake Vietnamese is an encoding defect, not an allowed style variant.
-- `forge-codex` should keep natural-language customization flow on this schema, no need for slash-heavy wrapper by default.
+- The canonical schema includes `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, and `personality`.
+- Adapter-global extra preferences may carry host-native response constraints such as `language`, `orthography`, honorific rules, or custom writing rules. Workspace `.brain/preferences.json` remains a workspace-local override or legacy fallback.
+- When `language` resolves to `vi`, `forge-codex` should respond in Vietnamese with full diacritics. Accent-stripped or mojibake Vietnamese is an encoding defect, not an allowed style variant.
+- `forge-codex` should keep customization natural-language first on top of this schema. By default, it should not rely on slash-command-heavy wrappers.
 - This adapter must not fork key names or response-style semantics of the core.
 
 ---
 
 ## Operator Guidance
 
-- `forge-codex` should expose `help/next` as natural-language first, with slash as an optional alias.
+- `forge-codex` should expose `help/next` as natural-language first, with slash commands as optional aliases.
 - Guidance still resolves from core navigator `scripts/resolve_help_next.py`.
-- Core's repo-first and one-step-next contracts cannot be forked at this adapter.
-- `forge-codex` should expose `run` as natural-language first, with slash as an optional alias.
-- Command execution guidance still resolves from core `scripts/run_with_guidance.py`; The adapter cannot fork the semantics of `state`, `command_kind`, or `suggested_workflow`.
-- Error translation still resolves from core `scripts/translate_error.py`; This adapter cannot fork category or pattern database.
-- `bump` and `rollback` should be natural-language first or alias optional, but must still keep the core's user-requested/inference-justified and risk-first contract.
+- The adapter must not fork core's repo-first contract or its "one clear next step" rule.
+- `forge-codex` should expose `run` as natural-language first, with slash commands as optional aliases.
+- Command execution guidance still resolves from core `scripts/run_with_guidance.py`. The adapter must not fork the semantics of `state`, `command_kind`, or `suggested_workflow`.
+- Error translation still resolves from core `scripts/translate_error.py`. This adapter must not fork the category or pattern database.
+- `bump` and `rollback` should stay natural-language first, with aliases remaining optional, while preserving the core's user-requested/inference-justified and risk-first contract.
 - If you need to customize/init in Codex, you still have to use `scripts/write_preferences.py` and `scripts/initialize_workspace.py` instead of creating host-local schema.
 
 ---
 
 ## Codex Operator Surface
 
-Primary entrypoints:
+Primary entry points:
 
 |Surface | Codex styles | Core contract|
 |---------|-------------|---------------|
@@ -246,7 +246,7 @@ Compatibility rules:
 ## Codex Multi-Agent Delegation
 
 - When route/build select `parallel-safe` or independent reviewer lane and bundle registry tells host to have native subagents, load `workflows/execution/dispatch-subagents.md`.
-- This workflow only maps Forge's lane policy to runtime Codex (`spawn_agent`, independent reviewer lane, fresh packet); it does not replace `build`, `debug`, `review`, or `spec-review`.
+- This workflow maps Forge's lane policy onto Codex runtime primitives (`spawn_agent`, independent reviewer lanes, fresh packets). It does not replace `build`, `debug`, `review`, or `spec-review`.
 - By default, keep new packets and clear ownership instead of forking the entire thread context for the subagent.
 
 ---
@@ -258,7 +258,7 @@ When receiving a prompt from the user, classify the intent:
 |Intent | Trigger keywords | Example|
 |--------|------------------|-------|
 |**BUILD** | add, create, implement, feature, code | "Add payment feature"|
-|**DEBUG** | error, bug, fix, fix, error, crash | "Fix error of not being able to log in"|
+|**DEBUG** | error, bug, fix, fix, error, crash | "Fix the login failure"|
 |**OPTIMIZE** | refactor, optimize, clean, tidy up | "Refactor file is too long"|
 |**DEPLOY** | deploy, release, production, rollout | "Deploy to Vercel"|
 |**REVIEW** | review, evaluate, check, audit | "Review code before merging"|
@@ -268,7 +268,7 @@ When receiving a prompt from the user, classify the intent:
 **When the user uses `/shortcut`:** Map according to the action surface and workflow aliases that the Codex workspace is declared in `AGENTS.md`.
 Canonical source for intent keywords and chains: `data/orchestrator-registry.json`.
 
-Signals like `brainstorm`, locale-specific brainstorming phrases configured in active routing locales, `options`, `approach`, and `tradeoff` do not create new intents; they turn on the **brainstorm gate** before `plan` when the task is vague or complex enough.
+Signals like `brainstorm`, locale-specific brainstorming phrases in active routing locales, `options`, `approach`, and `tradeoff` do not create new intents. They activate the **brainstorm gate** before `plan` when the task is vague or complex enough.
 
 ---
 
@@ -289,7 +289,7 @@ Canonical source for hints and thresholds: `data/orchestrator-registry.json`.
 
 Intent + Complexity -> skills can load:
 
-|Intent | small. small | medium | large. large|
+|Intent | small | medium | large|
 |--------|-------|--------|-------|
 |**BUILD** | `build` | `plan` -> `build` -> `test` -> `quality-gate` | `plan` -> `architect` -> `spec-review` -> `build` -> `test` -> `quality-gate`|
 |**DEBUG** | `debug` | `debug` -> `test` | `debug` -> `plan` -> `build` -> `test`|
@@ -299,16 +299,16 @@ Intent + Complexity -> skills can load:
 |**VISUALIZE** | `visualize` | `plan` -> `visualize` | `plan` -> `architect` -> `visualize`|
 |**SESSION** | `session` | `session` | `session`|
 
-**Ambguity gate:** with `BUILD` or `VISUALIZE` at medium/large level, if the prompt is ambiguous or balancing multiple solutions, insert `brainstorm` before `plan`. `Brainstorm` doesn't just list options; it must lock in a recommendation direction strong enough for `plan` to inherit, or correctly record a missing decision question.
-**Spec-review gate:** with `BUILD large`, or `BUILD medium` touching contract/schema/migration/auth/payment/public interface/high-risk boundary, insert `spec-review` before `build`.
-**Execution pipeline gate:** with large `BUILD/DEBUG/OPTIMIZE` or stronger profile `standard`, default adds independent reviewer lane; with `BUILD` there is `spec-review`, leaning towards pipeline `implementer -> spec-reviewer -> quality-reviewer`.
-**Lane model policy:** uses abstract tier `cheap / standard / capable` according to lane instead of pushing every step to the same capacity level.
+**Ambiguity gate:** for medium/large `BUILD` or `VISUALIZE`, if the prompt is ambiguous or balances multiple solutions, insert `brainstorm` before `plan`. `Brainstorm` must do more than list options: it should lock a recommendation that `plan` can inherit, or clearly record the unresolved decision.
+**Spec-review gate:** for `BUILD large`, or for `BUILD medium` that touches contracts, schema, migration, auth, payment, public interfaces, or another high-risk boundary, insert `spec-review` before `build`.
+**Execution pipeline gate:** for large `BUILD/DEBUG/OPTIMIZE`, or for profiles stronger than `standard`, add an independent reviewer lane by default. When `BUILD` already includes `spec-review`, prefer the `implementer -> spec-reviewer -> quality-reviewer` pipeline.
+**Lane model policy:** use abstract tiers `cheap / standard / capable` by lane instead of pushing every step to the same capability level.
 
 **Domain skills** (`frontend`, `backend`) added when the task involves UI or API/database/service layer.
-**Companion runtime/language skills** (Python, Java, Go,.NET, framework-specific) is an optional augmentation when the repo/framework is already known. Forge should still run fine without them.
+**Companion runtime/language skills** (Python, Java, Go, .NET, framework-specific) are optional augmentations when the repo/framework is already known. Forge should still run well without them.
 Companion skill contract: see `references/companion-skill-contract.md` when you are actually adding a runtime/framework layer.
-If the workspace has `AGENTS.md` or a router doc pointing to local skills, use that router as the source-of-truth for this extension class; If not, Forge continues with its own bundle.
-To preview deterministic for a specific prompt: run `scripts/route_preview.py`.
+If the workspace has `AGENTS.md` or a router doc that points to local skills, use that router as the source of truth for this extension layer. If not, Forge should continue with its own bundle.
+To preview routing deterministically for a specific prompt, run `scripts/route_preview.py`.
 
 ### How to load skills
 
@@ -326,7 +326,7 @@ To preview deterministic for a specific prompt: run `scripts/route_preview.py`.
 11. Only move to the next skill if needed
 ```
 
-There is no need to fully load the line if the task was safely resolved earlier.
+You do not need to load the full chain if the task is already resolved safely.
 Companion/local skills cannot override Forge's verification/evidence gate.
 
 **Minimal routing policy:** with `REVIEW`, `SESSION`, and task `small`, Forge prioritizes prompt-led routing. Repo signals at this time will not automatically pull additional domain skills, local companions, or escalate profiles if the prompt does not clearly state the need.
@@ -349,37 +349,37 @@ Verification profiles canonical live in `data/orchestrator-registry.json`.
 - Forge uses `execution pipeline` to avoid implementing and reviewing in the same lane.
 - Forge uses `lane model tiers` to optimize costs: navigation/triage can be cheaper than spec-review or release gates.
 - Forge uses `quality-gate` as canonical source for evidence response contract and anti-rationalization.
-- `spec-review` loop is blocked up to `3` revision loop for the same packet; beyond this threshold must be `blocked`.
+- The `spec-review` loop allows at most `3` revision rounds for the same packet. Beyond that threshold, the status must become `blocked`.
 
 ---
 
 ## Skill Registry
 
-|Skills | File | Type | Iron Law|
-|-------|------|------|----------|
-|brainstorm | `workflows/design/brainstorm.md` | flexible. flexible | NO AMBIGUOUS MEDIUM/LARGE WORK WITHOUT CHOOSING A DIRECTION FIRST|
-|plan. plan | `workflows/design/plan.md` | flexible. flexible | NO MEDIUM/LARGE BUILD WITHOUT A CONFIRMED PLAN|
-|architect | `workflows/design/architect.md` | flexible. flexible | NO LARGE IMPLEMENTATION WITHOUT ARCHITECTURE DECISIONS DOCUMENTED|
+|Skill | File | Type | Iron Law|
+|------|------|------|----------|
+|brainstorm | `workflows/design/brainstorm.md` | flexible | NO AMBIGUOUS MEDIUM/LARGE WORK WITHOUT CHOOSING A DIRECTION FIRST|
+|plan | `workflows/design/plan.md` | flexible | NO MEDIUM/LARGE BUILD WITHOUT A CONFIRMED PLAN|
+|architect | `workflows/design/architect.md` | flexible | NO LARGE IMPLEMENTATION WITHOUT ARCHITECTURE DECISIONS DOCUMENTED|
 |spec-review | `workflows/design/spec-review.md` | rigid | NO HIGH-RISK BUILD WITHOUT A BUILD-READINESS REVIEW FIRST|
 |build | `workflows/execution/build.md` | rigid | NO BEHAVIORAL CHANGE WITHOUT DEFINING VERIFICATION FIRST|
-|frontend | `domains/frontend.md` | flexible. flexible | PRESERVE THE EXISTING DESIGN SYSTEM BEFORE INVENTING A NEW ONE|
-|backend | `domains/backend.md` | flexible. flexible | VALIDATE AT THE BOUNDARY, KEEP LOGIC OUT OF TRANSPORT|
+|frontend | `domains/frontend.md` | flexible | PRESERVE THE EXISTING DESIGN SYSTEM BEFORE INVENTING A NEW ONE|
+|backend | `domains/backend.md` | flexible | VALIDATE AT THE BOUNDARY, KEEP LOGIC OUT OF TRANSPORT|
 |debug | `workflows/execution/debug.md` | rigid | NO FIXES WITHOUT ROOT-CAUSE INVESTIGATION|
-|test. test | `workflows/execution/test.md` | rigid | USE FAILING TESTS FIRST WHEN A HARNESS EXISTS|
-|secure. secure | `workflows/execution/secure.md` | rigid | NO RELEASE WITHOUT EXPLICIT SECURITY REVIEW|
-|deploy.deploy | `workflows/execution/deploy.md` | rigid | NO DEPLOY WITHOUT VERIFIED QUALITY GATES|
+|test | `workflows/execution/test.md` | rigid | USE FAILING TESTS FIRST WHEN A HARNESS EXISTS|
+|secure | `workflows/execution/secure.md` | rigid | NO RELEASE WITHOUT EXPLICIT SECURITY REVIEW|
+|deploy | `workflows/execution/deploy.md` | rigid | NO DEPLOY WITHOUT VERIFIED QUALITY GATES|
 |quality-gate | `workflows/execution/quality-gate.md` | rigid | NO CLAIMS, HANDOFFS, OR DEPLOYS WITHOUT A FRESH GO / NO-GO DECISION|
-|review | `workflows/execution/review.md` | flexible. flexible | FINDINGS FIRST, SUMMARY SECOND|
+|review | `workflows/execution/review.md` | flexible | FINDINGS FIRST, SUMMARY SECOND|
 |refactor | `workflows/execution/refactor.md` | rigid | NO REFACTOR WITHOUT BASELINE AND AFTER VERIFICATION|
-|visualize | `workflows/design/visualize.md` | flexible. flexible | DO NOT CODE UI BEFORE THE INTERACTION MODEL IS CLEAR|
-|session. session | `workflows/execution/session.md` | flexible. flexible | REBUILD CONTEXT FROM REAL ARTIFACTS BEFORE WRITING MEMORY|
-|help. help | `workflows/operator/help.md` | flexible. flexible | REPO-FIRST GUIDANCE, NOT RECAP THEATER|
-|next. next | `workflows/operator/next.md` | flexible. flexible | ONE CONCRETE NEXT STEP, NOT VAGUE MOMENTUM TALK|
-|tremble | `workflows/operator/run.md` | flexible. flexible | EXECUTE THE REAL COMMAND, THEN ROUTE FROM EVIDENCE|
-|bump. bump | `workflows/operator/bump.md` | flexible. flexible | VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION|
-|rollback | `workflows/operator/rollback.md` | flexible. flexible | DO NOT BLINDLY ROLL BACK WITHOUT SCOPE, RISK, AND POST-ROLLBACK VERIFICATION|
-|customize | `workflows/operator/customize.md` | flexible. flexible | DO NOT FORK THE CORE PREFERENCES SCHEMA OR WRITE HOST-LOCAL KEYS|
-|init | `workflows/operator/init.md` | flexible. flexible | DO NOT OVERWRITE EXISTING REPO FILES DURING BOOTSTRAP|
+|visualize | `workflows/design/visualize.md` | flexible | DO NOT CODE UI BEFORE THE INTERACTION MODEL IS CLEAR|
+|session | `workflows/execution/session.md` | flexible | REBUILD CONTEXT FROM REAL ARTIFACTS BEFORE WRITING MEMORY|
+|help | `workflows/operator/help.md` | flexible | REPO-FIRST GUIDANCE, NOT RECAP THEATER|
+|next | `workflows/operator/next.md` | flexible | ONE CONCRETE NEXT STEP, NOT VAGUE MOMENTUM TALK|
+|run | `workflows/operator/run.md` | flexible | EXECUTE THE REAL COMMAND, THEN ROUTE FROM EVIDENCE|
+|bump | `workflows/operator/bump.md` | flexible | VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION|
+|rollback | `workflows/operator/rollback.md` | flexible | DO NOT BLINDLY ROLL BACK WITHOUT SCOPE, RISK, AND POST-ROLLBACK VERIFICATION|
+|customize | `workflows/operator/customize.md` | flexible | DO NOT FORK THE CORE PREFERENCES SCHEMA OR WRITE HOST-LOCAL KEYS|
+|init | `workflows/operator/init.md` | flexible | DO NOT OVERWRITE EXISTING REPO FILES DURING BOOTSTRAP|
 
 **Rigid skills:** do not ignore evidence and quality gate.
 **Flexible skills:** adapt according to context, but still have to be clear about output and next steps.

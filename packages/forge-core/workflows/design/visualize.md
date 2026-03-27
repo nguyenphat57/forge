@@ -57,7 +57,7 @@ python ../../scripts/track_ui_progress.py "Task summary" --mode visualize --stag
 flowchart TD
     A[Read requirements/spec] --> B[Define products, screens, and user tasks]
     B --> C[Create or reuse visual brief]
-    C --> D[Latch interaction model]
+    C --> D[Lock interaction model]
     D --> E[Select stack/platform lens if implementation stack is clear]
     E --> F[Create wireframe/mockup/spec]
     F --> G[Review states + accessibility + responsive]

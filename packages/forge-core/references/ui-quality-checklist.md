@@ -1,13 +1,13 @@
 # UI Quality Checklist
 
-> Checklist delivery is shared for `frontend` and `visualize`.
+> This delivery checklist is shared by `frontend` and `visualize`.
 
 ## Visual Direction
 
 - [ ] Keep the existing design system or clearly state why it must be expanded
 - [ ] Typography, color, intentional spacing
 - [ ] Do not use emojis as UI icons
-- [ ] Icon set consistently if there is an icon
+- [ ] Iconography is consistent if icons are used
 
 ## Interaction Quality
 
@@ -19,10 +19,10 @@
 ## States
 
 - [ ] Default state is clear
-- [ ] Loading state clearly
-- [ ] Empty state clearly
+- [ ] Loading state is clear
+- [ ] Empty state is clear
 - [ ] Error state is clear
-- [ ] Destructive or confirm state clearly when needed
+- [ ] Destructive or confirmation states are clear when needed
 
 ## Layout & Responsive
 
@@ -33,15 +33,15 @@
 
 ## Contrast & Theming
 
-- [ ] Text contrast is enough to read in light mode
-- [ ] Surface and border are still visible in light mode
+- [ ] Text contrast is readable in light mode
+- [ ] Surfaces and borders remain visible in light mode
 - [ ] Dark/light differences do not destroy hierarchy
 
 ## Motion
 
 - [ ] Motion mainly uses `transform` and `opacity`
 - [ ] Do not use `transition: all`
-- [ ] Thinking about `prefers-reduced-motion`
+- [ ] `prefers-reduced-motion` has been considered
 
 ## Accessibility
 
@@ -52,8 +52,8 @@
 
 ## Anti-Patterns To Reject Fast
 
-- Scale hover makes card jump layout
-- Border is too blurry in light mode
+- Hover scale makes cards jump in layout
+- Borders are too faint in light mode
 - Body text is too light gray
-- Just do the happy path and forget the system states
-- Desktop-first design for touch-heavy screens
+- Only the happy path is designed while system states are ignored
+- Desktop-first design is used for touch-heavy screens

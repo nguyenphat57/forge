@@ -40,7 +40,7 @@ Goal: record a fast pass/fail verdict for the Codex host surface after `forge-co
 |Item | Result|
 |------|--------|
 |Prompt used | `Continue the task we were working on and tell me the best next step.`|
-|Routed to sessions? |  |
+|Routed to session? |  |
 |Repo-first? |  |
 |Next step actionable? |  |
 |Score |  |
@@ -78,7 +78,7 @@ Goal: record a fast pass/fail verdict for the Codex host surface after `forge-co
 |Item | Result|
 |------|--------|
 |Prompt used | `/review`|
-|Findings before shown summary? |  |
+|Findings shown before the summary? |  |
 |Testing gaps stated? |  |
 |Score |  |
 

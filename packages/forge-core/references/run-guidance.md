@@ -1,13 +1,13 @@
 # Forge Run Guidance
 
-> Use when a `run` host-neutral class is needed: executes the actual command, summarizes the main signal, and routes to the next workflow instead of just dumping the terminal.
+> Use this when a host-neutral `run` workflow is needed: execute the real command, summarize the main signal, and route to the next workflow instead of dumping raw terminal output.
 
 ## Target
 
-- run the actual command in the specified user workspace
-- capture main output, timeout, and ready-signal
-- classify command as `build`, `serve`, `deploy`, or `generic`
-- Suggest suitable next workflow: `test`, `debug`, or `deploy`
+- run the actual command in the specified workspace
+- capture the main output, timeout, and ready signal
+- classify the command as `build`, `serve`, `deploy`, or `generic`
+- suggest the next workflow: `test`, `debug`, or `deploy`
 
 ## Canonical Script
 
@@ -44,7 +44,7 @@ Script returns:
 
 ## Persisted Artifacts
 
-If using `--persist`, the default artifact is located at:
+If you use `--persist`, the default artifact path is:
 
 ```text
 .forge-artifacts/run-reports/
@@ -52,6 +52,6 @@ If using `--persist`, the default artifact is located at:
 
 ## Adapter Boundary
 
-- Core only takes care of command execution + deterministic guidance.
-- Adapter can add slash wrapper, natural-language wrapper, or host its own UX.
+- Core owns command execution plus deterministic guidance.
+- The adapter may add a slash wrapper, a natural-language wrapper, or host-specific UX.
 - The adapter cannot change the meaning of `state`, `command_kind`, or `suggested_workflow`.

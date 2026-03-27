@@ -70,7 +70,7 @@ Important:
 
 ## Response Style Resolver
 
-The resolver does not create host-specific command surfaces. It returns a response-style contract that the adapter or prompt entrypoint can apply:
+The resolver does not create host-specific command surfaces. It returns a response-style contract that the adapter or prompt entry point can apply:
 
 - terminology policy
 - explanation policy

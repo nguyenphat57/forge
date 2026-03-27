@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 import re
 from pathlib import Path
 from typing import Iterable
@@ -9,7 +10,17 @@ from typing import Iterable
 from text_utils import extract_backtick_items, normalize_text, read_text
 
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
+BUNDLE_ROOT_ENV_VAR = "FORGE_BUNDLE_ROOT"
+
+
+def resolve_bundle_root() -> Path:
+    override = os.environ.get(BUNDLE_ROOT_ENV_VAR)
+    if isinstance(override, str) and override.strip():
+        return Path(override).expanduser().resolve()
+    return Path(__file__).resolve().parent.parent
+
+
+ROOT_DIR = resolve_bundle_root()
 REGISTRY_PATH = ROOT_DIR / "data" / "orchestrator-registry.json"
 ROUTING_LOCALE_CONFIG_PATH = ROOT_DIR / "data" / "routing-locales.json"
 ROUTING_LOCALE_DIR = ROOT_DIR / "data" / "routing-locales"

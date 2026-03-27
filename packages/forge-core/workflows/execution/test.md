@@ -141,7 +141,7 @@ Testing output in Forge cannot stop at a sentence like "tests passed".
 
 ```text
 - I verified: [fresh evidence]. Correct because [reason]. Fixed: [change].
-- I evaluated: [evidence]. Current code stays because [reason].
+- I evaluated: [evidence]. The current code stays because [reason].
 - Clarification needed: [single precise question].
 ```
 

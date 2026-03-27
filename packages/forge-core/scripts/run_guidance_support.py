@@ -199,7 +199,7 @@ def determine_guidance(command_kind: str, execution: dict, readiness_detected: b
         return (
             "completed",
             "test",
-            "Service started cleanly. Run the nearest smoke or manual verification against the live entrypoint.",
+            "Service started cleanly. Run the nearest smoke or manual verification against the live entry point.",
         )
 
     if command_kind == "build":

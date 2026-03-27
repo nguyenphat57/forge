@@ -110,7 +110,7 @@ Rules:
 Rules:
 - `regression-recovery` or `large` -> both lanes tilt up `capable`
 - If the task is just a small reproduction, single file, single boundary -> `single-lane` is still valid
-- If the host does not have subagents, it must still run in two sequential lanes; Do not incorporate the reviewer's thoughts into the implementation pass
+- If the host does not support subagents, still run the work as two sequential lanes. Do not blend reviewer reasoning into the implementation pass.
 
 ## Boundary Instrumentation
 
@@ -155,7 +155,7 @@ When debugging replies about fixes, code retention, or clarification requests, t
 
 ```text
 - I verified: [fresh evidence]. Correct because [reason]. Fixed: [change].
-- I evaluated: [evidence]. Current code stays because [reason].
+- I evaluated: [evidence]. The current code stays because [reason].
 - Clarification needed: [single precise question].
 ```
 
@@ -165,7 +165,7 @@ Rules:
 - If not corrected, must clearly state why it has not been corrected or why the current code is still correct
 
 Quick Reject:
-- Good catch! Fixed.
+- Good catch. I fixed it.
 - Let's try changing X and see.
 - It's probably okay.
 

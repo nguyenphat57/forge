@@ -18,7 +18,7 @@
     "name": "banned_phrase_fails_contract",
     "args": [
       "--response-text",
-      "Good catch! Fixed.",
+      "Good catch. I fixed it.",
       "--require-evidence-response"
     ],
     "expected_status": "FAIL",

@@ -1,83 +1,83 @@
-# Forge Failure Recovery Playbooks
+# Forge Failure-Recovery Playbooks
 
-> Used when the chain is stuck, the gate is blocked, or the deploy/review/session enters a state where it cannot continue safely if improvised.
+> Use this when the chain is stuck, a gate is blocked, or deploy/review/session work cannot continue safely without a reset.
 
-## Debug Stalled
+## Debug Stall
 
-When to use:
-- 2-3 consecutive hypotheses are not confirmed
+Use when:
+- 2-3 consecutive hypotheses fail
 - 3 fix attempts fail
-- Reproduction is unstable
+- reproduction is unstable
 
-Do it now:
-1. Stop further patching.
+Do this now:
+1. Stop patching.
 2. Record the eliminated hypotheses.
-3. Select lens again: `code`, `data`, or `environment`.
-4. If the boundary/system shape is ambiguous, route to `plan` or `architect`.
+3. Reclassify the problem as `code`, `data`, or `environment`.
+4. If the boundary or system shape is still ambiguous, route back to `plan` or `architect`.
 
-Desired results:
-- There is a new, better hypothesis, or
-- There is clear escalation to `plan`/`architect`
+Desired outcome:
+- a stronger new hypothesis, or
+- a clear escalation to `plan` or `architect`
 
 ## Quality Gate Blocked
 
-When to use:
-- Quality gate ra `blocked`
-- Not enough evidence to claim done/release
+Use when:
+- the quality gate returned `blocked`
+- there is not enough evidence to claim done or release readiness
 
-Do it now:
-1. Indicates the first gate failed.
-2. List the correct missing evidence.
-3. Choose the shortest path to get that evidence.
-4. If the current claim is too big, lower the claim instead of trying to bypass the gate.
+Do this now:
+1. Name the first gate that failed.
+2. List the missing evidence precisely.
+3. Choose the shortest path that can produce that evidence.
+4. If the claim is too broad, narrow the claim instead of trying to bypass the gate.
 
-Desired results:
-- Gate retry with new evidence, or
-- Claim/disposition is smaller but correct
+Desired outcome:
+- a gate retry with fresh evidence, or
+- a smaller but accurate claim/disposition
 
 ## Deploy Failed Or Smoke Failed
 
-When to use:
-- Deploy command fail
-- Post-deploy smoke fail
-- Identity/target check detected the wrong environment
+Use when:
+- the deploy command failed
+- post-deploy smoke checks failed
+- identity or target checks show the wrong environment
 
-Do it now:
+Do this now:
 1. Stop the rollout.
-2. Pin release id, target, and scope of influence.
-3. If the main user-facing flow fails, enable rollback path immediately.
-4. Collect log/output at the correct failure point.
-5. Route to `debug` after the service is returned to a safe state.
+2. Pin the release ID, target, and affected scope.
+3. If a user-facing flow is failing, activate the rollback path immediately.
+4. Collect logs and output from the exact failure point.
+5. Route to `debug` after the service returns to a safe state.
 
-Desired results:
-- Service returns to a safe state, then investigate deeply
+Desired outcome:
+- the service returns to a safe state before deeper investigation continues
 
 ## Review Deadlock
 
-When to use:
-- Feedback goes back and forth but does not converge
-- Reviewer and implementer are arguing by feeling
+Use when:
+- feedback loops without converging
+- reviewer and implementer are arguing from instinct instead of evidence
 
-Do it now:
-1. Attach each feedback to `feedback response matrix`.
-2. Separate clearly: technical fact, convention, or ownership decision.
-3. If the dispute is factual, get evidence.
-4. If the dispute is a policy/convention, the owner decides.
+Do this now:
+1. Classify each feedback item using the feedback response matrix.
+2. Separate technical fact, convention, and ownership decision.
+3. If the disagreement is factual, get evidence.
+4. If it is a policy or convention question, let the owner decide.
 
-Desired results:
-- Fix, challenge with evidence, or clarify question only
+Desired outcome:
+- fix, challenge with evidence, or ask one clarifying question
 
 ## Continuity Mismatch
 
-When to use:
-- `.brain` says one thing, repo state says another
-- The old Handover is no longer valid for the current branch/task
+Use when:
+- `.brain` says one thing and repo state says another
+- an old handover no longer matches the current branch or task
 
-Do it now:
-1. Repo state wins.
-2. Remove memory that no longer matches the current scope.
-3. Recapture the correct decision/learning with a new artifact if necessary.
-4. Don't try to "reconcile" by mixing both sources.
+Do this now:
+1. Let repo state win.
+2. Drop memory that no longer matches the current scope.
+3. Capture a fresh decision or learning artifact if needed.
+4. Do not try to merge incompatible memories.
 
-Desired results:
-- Context is clean, scope-filtered, and does not carry stale assumptions
+Desired outcome:
+- clean, scope-filtered context without stale assumptions

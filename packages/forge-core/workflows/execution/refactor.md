@@ -57,7 +57,7 @@ flowchart TD
 |Defense | Truth|
 |----------|---------|
 |"Conveniently edit more logic" | That's no longer a refactor|
-|"No need for baseline, I probably won't change my behavior" | Maybe feeling doesn't replace evidence|
+|"No need for a baseline, I probably won't change behavior" | A gut feeling does not replace evidence|
 |"Too many micro-steps, combine them quickly" | Combined refactors are the most likely to cause regression|
 
 Code examples:

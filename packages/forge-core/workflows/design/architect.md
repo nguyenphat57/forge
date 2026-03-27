@@ -15,113 +15,116 @@ quality_gates:
 
 ## The Iron Law
 
-```
-NO LARGE IMPLEMENTATION WITHOUT ARCHITECTURE DECISIONS DOCUMENTED
+```text
+NO LARGE IMPLEMENTATION WITHOUT DOCUMENTED ARCHITECTURE DECISIONS
 ```
 
-> Plan = know what to do. Design = know how to do it.
+> Planning defines what to build. Architecture defines how it should work.
 
 <HARD-GATE>
-Applies to large tasks, complex data flows, auth, or large database changes.
-Small/medium tasks can obviously ignore the architect if the plan is sufficient.
-</HARD-GATE>
+Use this workflow for:
+- large tasks
+- complex data flows
+- auth or permission-heavy changes
+- major schema or migration work
 
----
+Small and many medium tasks can skip `architect` when the plan already defines the system shape clearly enough.
+</HARD-GATE>
 
 ## Process
 
 ```mermaid
 flowchart TD
-    A[Read spec/plan] --> B{Do you have a spec yet?}
-    B -->|Not yet| C[Need /plan in advance]
+    A[Read plan/spec] --> B{Spec available?}
+    B -->|No| C[Need /plan first]
     B -->|Yes| D[Design data + schema]
-    D --> E[Design API + flows]
-    E --> F[Security + NFR]
-    F --> G[Testability + acceptance criteria]
-    G --> H[Section-by-section design review]
+    D --> E[Design APIs + flows]
+    E --> F[Review security + NFRs]
+    F --> G[Review testability + acceptance criteria]
+    G --> H[Run design review]
     H --> I[Create docs/DESIGN.md]
     I --> J[User review]
-    J --> K{Approve?}
-    K -->|Edit| D
-    K -->|OK| L[-> spec-review]
+    J --> K{Approved?}
+    K -->|Revise| D
+    K -->|Yes| L[-> spec-review]
 ```
 
 ## Data Design
 
 ### Schema Conventions
-```
-- Table has id, created_at, updated_at
-- Close soft delete if the domain needs it
-- FK actions are clear
-- Consistent naming
-- Lock enum/status rules
+```text
+- Tables should have `id`, `created_at`, and `updated_at`
+- Add soft-delete support when the domain needs it
+- Make foreign-key actions explicit
+- Keep naming consistent
+- Lock enum/status rules explicitly
 ```
 
 ### Index Design
-```
-- Index FK columns
-- Index for WHERE / ORDER BY / JOIN
-- Partial/composite index when needed
+```text
+- Index foreign-key columns
+- Index common WHERE / ORDER BY / JOIN paths
+- Use partial or composite indexes where they change real query behavior
 ```
 
 ## Design Outputs
 
-`docs/DESIGN.md` should have:
-1. Database schema / data model
+`docs/DESIGN.md` should cover:
+1. database schema / data model
 2. API endpoints / contracts
-3. User flows / state flows
-4. Security design
-5. Non-functional requirements
-6. Compatibility / migration / rollout notes
-7. Observability / failure handling notes
-8. Acceptance criteria / test cases
+3. user flows / state flows
+4. security design
+5. non-functional requirements
+6. compatibility / migration / rollout notes
+7. observability / failure-handling notes
+8. acceptance criteria / test cases
 
 ## ADR-Lite Records
 
-Every major architectural decision should have a shortened ADR format:
+Record major architectural decisions in a compact ADR format:
 
 ```text
 ADR:
 - Context: [...]
 - Decision: [...]
 - Why: [...]
-Alternatives rejected: [...]
-Compatibility / rollback concern: [...]
-Proof this design is working: [...]
-Reopen only if: [...]
+- Alternatives rejected: [...]
+- Compatibility / rollback concern: [...]
+- Proof this design works: [...]
+- Reopen only if: [...]
 ```
 
-Rule:
-- Don't just write "use X" without writing why
-- If you decide to change the contract, schema, ownership, or rollout shape, there must be `compatibility / rollback concern`
-- If `proof this design is working` cannot be stated, the design is too abstract
+Rules:
+- do not write "use X" without explaining why
+- if you change contract, schema, ownership, or rollout shape, record the compatibility or rollback concern
+- if you cannot explain how the design will be proven, the design is still too abstract
 
 ## Cross-Cutting Checklist
 
-Quickly read this checklist before considering the design mature enough:
-
-- `Security`: authn/authz, secrets, trust boundary, validation
-- `Compatibility`: versioning, consumer impact, migration window, rollout sequencing
+Before calling the design mature, check:
+- `Security`: authn/authz, secrets, trust boundaries, validation
+- `Compatibility`: versioning, consumer impact, migration windows, rollout sequencing
 - `Data lifecycle`: create/update/delete, retention, cleanup, backfill, idempotency
-- `Observability`: what log, what metrics, what trace or audit point are needed
+- `Observability`: logs, metrics, traces, audit points
 - `Failure handling`: retry, timeout, fallback, rollback, kill switch, operator action
-- `Performance`: hotspot, index/query shape, caching, throughput, latency-sensitive path
-- `Ownership`: who keeps the source of truth, who consumes, who must update at the same time
-- `Testability`: first proof, edge-case proof, boundary check, smoke path
+- `Performance`: hotspots, query shape, indexes, caching, latency-sensitive paths
+- `Ownership`: source of truth, consumers, coordinated updates
+- `Testability`: first proof, edge-case proof, boundary checks, smoke path
 
-Rule:
-- There's no need to turn every item into a lengthy document, but any item that actually touches the blast radius must be answered
-- If an item is left open that could disrupt rollout or verification, it is not considered design-ready
+Rules:
+- you do not need a long write-up for every item
+- any item inside the blast radius must have a clear answer
+- if an unresolved item could break rollout or verification, the design is not ready
 
 ## Build Sequence & Boundaries
 
-The design must indicate the construction order at a sufficient level:
-- Which part should be done first to unlock the next part?
-- Any boundary must not be destroyed during construction
-- Any integration points must be verified soon
-- Which parts can be done independently, which parts cannot
+The design must make build order explicit enough to execute safely:
+- what should be implemented first to unlock the next slice?
+- which boundaries must stay stable throughout the build?
+- which integrations need early verification?
+- which slices are independent, and which are coupled?
 
-Templates:
+Template:
 
 ```text
 Build sequence:
@@ -133,44 +136,44 @@ Build sequence:
 
 ## Design Review Loop
 
-Before converting to `spec-review`, reread the design in 4 passes:
+Before handing off to `spec-review`, reread the design in four passes:
 
-1. `Data & lifecycle`: data status, ownership, migration, cleanup
-2. `Contract & integration`: API/event/schema/public boundary and compatibility
-3. `Ops & failure`: logs/metrics/rollback/fallback/kill switch if needed
-4. `Testability`: acceptance criteria, first proof, edge cases, verification considerations
+1. `Data & lifecycle`: ownership, migrations, cleanup, retention
+2. `Contract & integration`: APIs, events, schemas, public boundaries, compatibility
+3. `Ops & failure`: logs, metrics, rollback, fallback, kill switch
+4. `Testability`: acceptance criteria, first proof, edge cases, verification path
 
-Rule:
-- If a pass is ambiguous at a critical boundary, go back and fix the design before handing off
-- `User review` does not replace self-review; The design must stand on its own before being approved
+Rules:
+- if any critical boundary is still ambiguous, revise the design before handoff
+- user review does not replace self-review
 
 ## Verification Checklist
 
 - [ ] Source spec is clear
-- [ ] Data model and API contract have been finalized
-- [ ] Security / auth / validation has been viewed
-- [ ] NFR and risks have been noted
-- [ ] Build sequence and must-not-break boundaries are clear
-- [ ] ADR-lite records are enough for big decisions
-- [ ] Cross-cutting checklist has been read for important boundaries
-- [ ] Compatibility / rollback concern has been recorded when applicable
-- [ ] Design has enough testing and enough implementation
+- [ ] Data model and API contract are explicit
+- [ ] Security / auth / validation were reviewed
+- [ ] NFRs and major risks are recorded
+- [ ] Build sequence and must-not-break boundaries are explicit
+- [ ] ADR-lite records cover major decisions
+- [ ] Cross-cutting review covered important boundaries
+- [ ] Compatibility / rollback concern is recorded when applicable
+- [ ] The design explains both implementation shape and proof
 
 ## Handover
 
-```
+```text
 Architecture ready:
-- Decisions: [...]
-- Build sequence: [...]
+- System shape: [...]
+- Key decisions: [...]
+- Build order: [...]
 - Must-not-break boundaries: [...]
-- Risks: [...]
-- Docs: [DESIGN.md]
-- Spec-review: [required / not required + why]
-- Next: [spec-review/build]
+- Verification shape: [...]
+- Reopen only if: [...]
+- Next workflow: spec-review
 ```
 
 ## Activation Announcement
 
-```
-Forge: architect | finalize architectural decisions before large implementations
+```text
+Forge: architect | define the system shape before large implementation
 ```

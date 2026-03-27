@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0 - 2026-03-27
+
+- Nâng độ native-clear cho `forge-core` và `forge-codex` trên các workflow, reference, operator wrapper, và host docs để Codex đọc routing/gate/proof rõ hơn và ít ambiguity hơn.
+- Sửa adapter locale/runtime contract cho `forge-codex`, gồm locale pack tiếng Việt UTF-8 chuẩn, bundle-aware loading qua `FORGE_BUNDLE_ROOT`, và support shim để overlay tests chạy đúng cả khi chạy riêng lẫn khi chạy chung với `forge-core`.
+- Mở rộng regression coverage và giữ release evidence xanh sau thay đổi, đồng thời bump version theo semver `minor` vì repo có thêm capability mới ở lớp adapter/runtime support.
+
+
 ## 1.0.0 - 2026-03-27
 
 - Hoàn tất đợt refactor agent-health trên toàn repo: tách các script và test hotspot thành module nhỏ theo chức năng, giữ các entrypoint ổn định, và đưa toàn bộ source Python ngoài `dist/` cùng `.install-backups/` về dưới ngưỡng 300 dòng mỗi file.

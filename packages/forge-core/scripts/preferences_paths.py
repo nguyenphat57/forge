@@ -6,7 +6,17 @@ from functools import lru_cache
 from pathlib import Path
 
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
+BUNDLE_ROOT_ENV_VAR = "FORGE_BUNDLE_ROOT"
+
+
+def resolve_bundle_root() -> Path:
+    override = os.environ.get(BUNDLE_ROOT_ENV_VAR)
+    if isinstance(override, str) and override.strip():
+        return Path(override).expanduser().resolve()
+    return Path(__file__).resolve().parent.parent
+
+
+ROOT_DIR = resolve_bundle_root()
 PREFERENCES_SCHEMA_PATH = ROOT_DIR / "data" / "preferences-schema.json"
 OUTPUT_CONTRACTS_PATH = ROOT_DIR / "data" / "output-contracts.json"
 INSTALL_MANIFEST_PATH = ROOT_DIR / "INSTALL-MANIFEST.json"

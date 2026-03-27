@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import sys
 import unittest
 from pathlib import Path
@@ -11,7 +12,17 @@ SCRIPTS_DIR = ROOT_DIR / "scripts"
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
-from support import build_route_args, expected_output_contract  # noqa: E402
+SUPPORT_SPEC = importlib.util.spec_from_file_location(
+    "forge_codex_overlay_support",
+    SCRIPTS_DIR / "support.py",
+)
+if SUPPORT_SPEC is None or SUPPORT_SPEC.loader is None:
+    raise RuntimeError("Unable to load forge-codex overlay support module.")
+SUPPORT_MODULE = importlib.util.module_from_spec(SUPPORT_SPEC)
+SUPPORT_SPEC.loader.exec_module(SUPPORT_MODULE)
+
+build_route_args = SUPPORT_MODULE.build_route_args
+expected_output_contract = SUPPORT_MODULE.expected_output_contract
 
 import common  # noqa: E402
 import response_contract  # noqa: E402

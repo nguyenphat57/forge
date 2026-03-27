@@ -173,10 +173,10 @@ def build_focus(stage: str, *, session: dict | None, latest_plan: Path | None, l
         return f"Session task: {session_task(session) or pending_tasks(session)[0]}"
     if stage == "active-changes":
         total = len(git_state["changed_files"]) + len(git_state["untracked_files"])
-        return f"Working tree has {total} changed file(s)."
+        return f"Working tree contains {total} changed file(s)."
     if stage == "planned":
         return f"Plan: {extract_markdown_title(latest_plan)}" if latest_plan is not None else f"Spec: {extract_markdown_title(latest_spec)}"
-    return "No active slice detected from repo state."
+    return "No active work slice detected from repo state."
 
 
 def build_recommendations(
@@ -200,7 +200,7 @@ def build_recommendations(
         alternatives.append("If the blocker keeps drifting, capture a fresh handover with the missing evidence.")
         return "debug", f"Resolve the blocker first: {blocker}.", alternatives[:2]
     if stage == "session-active":
-        primary = f"Resume the highest-signal pending task: {pending[0]}." if pending else f"Continue the active task: {session_task(session)}."
+        primary = f"Resume the highest-priority pending task: {pending[0]}." if pending else f"Continue the active task: {session_task(session)}."
         alternatives: list[str] = []
         if len(pending) > 1:
             alternatives.append(f"Continue secondary pending task: {pending[1]}.")

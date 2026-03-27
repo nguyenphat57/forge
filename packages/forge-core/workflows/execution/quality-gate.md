@@ -77,7 +77,7 @@ All completed claims, feedback, or gate conclusions must follow this contract:
 
 ```text
 - I verified: [fresh evidence]. Correct because [reason]. Fixed: [change].
-- I evaluated: [evidence]. Current code stays because [reason].
+- I evaluated: [evidence]. The current code stays because [reason].
 - Clarification needed: [single precise question].
 ```
 
@@ -87,7 +87,7 @@ Required fields:
 - change/no-change stance
 
 Quickly reject sentences:
-- Good catch! Fixed.
+- Good catch. I fixed it.
 - Looks good now.
 - Should be fixed.
 - Probably fine.
@@ -98,7 +98,7 @@ This contract is global for `build`, `debug`, `test`, `review`, and `deploy`, no
 
 The following 8 rationalizations should be considered weak gate signals:
 
-1. `Good catch! Fixed.`
+1. `Good catch. I fixed it.`
 2. `Should be fine now.`
 3. `CI passed earlier.`
 4. `I did not run the exact check, but the change is small.`
@@ -168,7 +168,7 @@ Rule:
 
 ## Release-Critical Ordered Gates
 
-When profile is `release-critical`, read and latch sequentially:
+When the profile is `release-critical`, read and confirm each item in sequence:
 
 1. Identity/target is correct
 2. Config/secrets/env is correct
@@ -188,7 +188,7 @@ When blocked but the way out is unclear, read `references/failure-recovery-playb
 - [ ] Verification matches blast radius
 - [ ] Review/security disposition is clear if the task is reached
 - [ ] Residual risk was read, not just copied
-- [ ] Evidence response contract has been kept, no performative agreement is used
+- [ ] Evidence response contract has been kept, no empty agreement is used
 - [ ] Gate decision is explicit
 - [ ] If release-critical, ordered gates have been fully read and `go` is truly justified
 - [ ] The profile being used actually matches the blast radius of the flow

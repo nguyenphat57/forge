@@ -1,12 +1,12 @@
 # Forge Workspace Init
 
-> Goal: keep the workspace initialization at `forge-core` in a host-neutral fashion, so that the adapter only needs to add the `/init` wrapper and onboarding without forking the skeleton logic.
+> Goal: keep workspace initialization in `forge-core` host-neutral, so adapters only need a thin `/init` wrapper and onboarding layer without forking the skeleton logic.
 
 ## Core Contract
 
-- Script canonical is located at `scripts/initialize_workspace.py`
-- This script only creates a minimal Forge skeleton that can be reused across multiple hosts
-- Adapter can add first-run UX, but cannot change the shape of `.brain/` or the docs skeleton that the core has fixed
+- The canonical script lives at `scripts/initialize_workspace.py`
+- The script creates only a minimal Forge skeleton that can be reused across hosts
+- Adapters may add first-run UX, but they must not change the shape of `.brain/` or the docs skeleton fixed by core
 
 ## Minimum Skeleton
 
@@ -21,8 +21,8 @@ Options:
 
 ## Workspace Classification
 
-- `greenfield`: workspace is empty or has no significant state repo -> default next workflow is `brainstorm`
-- `existing`: workspace already has repo state -> default next workflow is `plan`
+- `greenfield`: the workspace is empty or has no significant repo state -> default next workflow is `brainstorm`
+- `existing`: the workspace already has repo state -> default next workflow is `plan`
 
 ## Hard Rules
 
@@ -33,5 +33,5 @@ Options:
 ## Adapter Boundary
 
 - Host adapters can include `/init` plus thin onboarding based on this script
-- The active host adapter can expose minimal init via natural language without needing a heavy ceremony
+- The active host adapter can expose minimal init through natural language without adding heavy ceremony
 - Future adapters must be able to reuse this script without changing the schema or layout files

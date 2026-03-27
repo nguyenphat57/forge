@@ -23,7 +23,7 @@ VALIDATE AT THE BOUNDARY, KEEP LOGIC OUT OF TRANSPORT
 NO MEDIUM/LARGE BACKEND CHANGE WITHOUT A BACKEND BRIEF.
 ```
 
-Backend brief must be finalized first:
+Finalize the backend brief first:
 - contract or surface in scope
 - validation and authorization boundary
 - data model / migration impact
@@ -38,7 +38,7 @@ python scripts/generate_backend_brief.py "Task summary" --pattern sync-api --run
 ```
 
 If the task is long or touches multiple endpoints/jobs/events, add `--persist` and read `../references/backend-briefs.md`.
-If using persisted brief, validate as quickly as:
+If you are using a persisted brief, validate it with:
 
 ```powershell
 python scripts/check_backend_brief.py .forge-artifacts/backend-briefs/<project-slug> --surface <surface>
@@ -48,12 +48,12 @@ python scripts/check_backend_brief.py .forge-artifacts/backend-briefs/<project-s
 
 ```mermaid
 flowchart TD
-    A[Read request/data flow] --> B{Task backend small level?}
+    A[Read request/data flow] --> B{Is this a small backend task?}
     B -->|No| C[Create or reuse backend brief]
     B -->|Yes| D[Read existing contract and boundary]
     C --> E[Select pattern/runtime lens]
     D --> E
-    E --> F[Contract contract + compatibility]
+    E --> F[Contract compatibility]
     F --> G[Implement service logic]
     G --> H[Run API/data verification]
     H --> I[Run backend integrity review]
@@ -74,14 +74,14 @@ If the runtime is clear, choose the closest lens in the backend brief generator 
 
 ### Transport
 ```
-- According to the repo's available protocols: REST, GraphQL, RPC, webhook, queue, event
+- Follow the protocols already present in the repo: REST, GraphQL, RPC, webhook, queue, event
 - If the repo already has a style, preserve it instead of automatically applying the new transport standard
 - Request/response/event contracts must be explicit, version-aware when necessary
 ```
 
 ### Success / Error Shape
 ```
-- Success and error shapes must be consistent according to the service's existing conventions
+- Success and error shapes must stay consistent with the service's existing conventions
 - If the repo doesn't have a standard envelope yet, keep the output predictable and machine-readable
 - Status codes / error codes / retry semantics must match the transport being used
 - Breaking contract changes must have a clear compatibility note or migration window
@@ -91,13 +91,13 @@ If the runtime is clear, choose the closest lens in the backend brief generator 
 
 Before calling the backend change "done", check:
 
-- The new contract does not accidentally destroy the old caller/consumer outside the locked scope
+- The new contract does not break existing callers/consumers outside the locked scope
 - Validation, authz, and error semantics are still at the correct boundary
 - Migration/data change has compatibility paths or risks that are clearly noted
 - Retry, replay, idempotency, or concurrency do not duplicate side effects
-- Logging, metrics, trace, or audit signals are enough to investigate a real problem
+- Logging, metrics, traces, or audit signals are sufficient to investigate real failures
 - Don't pull business logic backwards into the transport layer just because it's "faster"
-- Do not create hidden coupling between service, worker, webhook, and DB step
+- Do not create hidden coupling across services, workers, webhooks, and database steps
 - If the surface is external or release-sensitive, hook to `secure` or `deploy` as needed
 
 ## Database Patterns
@@ -113,7 +113,7 @@ Before calling the backend change "done", check:
 ### Transactions
 ```
 - Collect related writes in a transaction or equivalent atomic unit
-- Path has retry/webhook/job so see idempotency
+- If the path includes retries, webhooks, or jobs, make the idempotency stance explicit
 - Don't leave side effects half-baked when the middle step fails
 ```
 

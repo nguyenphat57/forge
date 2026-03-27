@@ -15,42 +15,40 @@ quality_gates:
 
 ## The Iron Law
 
-```
+```text
 NO MEDIUM/LARGE BUILD WITHOUT A CONFIRMED PLAN FIRST
 ```
 
 <HARD-GATE>
 For medium, large, or vague tasks:
-- Do not invoke build skills without finalizing the scope and success criteria.
-- The plan can be short, but must be clear enough so that the implementation does not guess.
-- If entered from `brainstorm`, the plan must inherit the locked direction; Do not reopen debate options unless there is new evidence or a reversal signal has occurred.
-- With large or medium/high-risk, the plan must clearly state whether `spec-review` is needed before building or not.
+- do not move into `build` until scope and success criteria are clear
+- the plan may be short, but it must be specific enough to prevent guesswork
+- if the task came from `brainstorm`, inherit the locked direction unless new evidence forces a reversal
+- call out whether `spec-review` is required before build
 
-For small tasks, it's clear:
-- No need for a full ceremony.
-- Just need a short reset + verification plan then build.
+For small, clear tasks:
+- skip ceremony
+- do a quick scope reset plus a verification plan, then build
 
-Explicit quick path:
-- `quick path` is just a hint to take a short path for task `small`, obviously, blast radius is low.
-- This hint can come from a very short prompt, keyword like `quick`, or prefix `/quick`, but Forge does not assume the host must have its own slash command.
-- If the task touches migration, contract, auth, public interface, or there are still many different materially paths, skip the quick path and return to the full path.
+Quick path:
+- use it only for clearly small, low-risk work
+- it may be triggered by a short prompt, `quick`, or `/quick`
+- do not use it for migration, contract, auth, public interface, or multi-direction work
 </HARD-GATE>
-
----
 
 ## Process
 
 ```mermaid
 flowchart TD
-    A[Input] --> B{Is there a brief/spec yet?}
+    A[Input] --> B{Brief/spec already exists?}
     B -->|Yes| C[Extract scope + assumptions]
-    B -->|Not yet| D[Ask 3 Golden Questions]
+    B -->|No| D[Ask 3 framing questions]
     D --> E[Qualified problem statement]
     C --> E
-    E --> F{Direction locked yet?}
-    F -->|Not yet| G[-> brainstorm]
+    E --> F{Direction locked?}
+    F -->|No| G[-> brainstorm]
     F -->|Yes| H[Recommended scope and stack]
-    H --> I{User confirm?}
+    H --> I{User confirms?}
     I -->|Edit| G
     I -->|OK| J[Feature discovery]
     J --> K[Data flow + user flow]
@@ -64,19 +62,19 @@ flowchart TD
     Q -->|No| S[-> build]
 ```
 
-## 3 Golden Questions
+## 3 Framing Questions
 
-```
-1. Manage what?
+```text
+1. What are we building or managing?
 2. Who uses it?
-3. If you could only do one thing right, what would it be?
+3. If only one thing works perfectly, what must it be?
 ```
 
-If the user wants "you to decide", he is allowed to make a controlled guess at the keyword, but must clearly state the assumption.
+If the user says "you decide", you may make a controlled assumption, but you must state it explicitly.
 
 ## Qualified Problem Statement
 
-Use for medium/large or vague tasks to close the problem before finalizing the solution:
+Use this for medium, large, or vague work:
 
 ```text
 For: [persona / team / workflow]
@@ -84,76 +82,66 @@ Who: [pain, unmet need, or job-to-be-done]
 That: [desired outcome, business impact, or success signal]
 ```
 
-For example:
-
-```text
-For: operations staff
-Who: needs to handle repetitive tasks faster without having to open multiple screens
-That: task completion time is reduced and operation errors are reduced
-```
-
-If the problem statement is still weak, do not jump into the generation phase.
-If the problem statement is still not clear enough or the option tradeoffs are too large, return to `brainstorm` before continuing with the plan.
-If you already have a good direction brief from `brainstorm`, use it as decision input instead of exploring from scratch.
+Do not move into phase generation until this statement is clear enough to constrain the solution.
 
 ## Proposal Shape
 
-```
+```text
 Recommended: [name]
 Type: [web / mobile / backend / internal tool]
 Core scope:
 1. [...]
 2. [...]
 3. [...]
-Stack suggests: [...]
+Suggested stack: [...]
 Assumptions: [...]
 ```
 
 ## Direction Intake
 
-`Plan` is not a complete redo of `brainstorm`.
+`Plan` is not a second brainstorm.
 
-Plan should only continue when one of two things happen:
-- already has `direction brief` from `brainstorm`
-- or brief/spec/user input has direction locked clearly enough, no longer 2+ materially different directions
+Continue only when one of these is true:
+- a `direction brief` already exists from `brainstorm`
+- or the brief/spec/user input already locks the direction clearly enough
 
 Rules:
-- If you enter `plan` and there is still a real debate about the approach, return to `brainstorm`
-- `Plan` is allowed to summarize the chosen approach, but should not rerun the full option comparison + scoring loop
-- If `brainstorm` already has `reversal signal`, only reopen direction when that signal actually occurs or there is new evidence that materially changes the tradeoff
+- if the approach is still genuinely contested, go back to `brainstorm`
+- plan may summarize the chosen approach, but should not rerun a full option comparison
+- only reopen a locked direction when the reversal signal fires or new evidence changes the tradeoff materially
 
 ## Feature Discovery
 
 Always check:
-- Auth / roles
-- Validation / error states
-- Search / filter / pagination
-- Import / export / audit trail
-- Offline / concurrency / approval flow if the domain is at risk
+- auth and roles
+- validation and error states
+- search, filter, and pagination
+- import, export, and audit trail
+- offline, concurrency, and approval flows where the domain makes them risky
 
 ## Phase Generation
 
 |Complexity | Pattern|
-|------------|---------|
-|**small** | Skip planning, just restore scope + verification|
+|------------|--------|
+|**small** | Skip formal planning; restore scope and verification only|
 |**medium** | Setup -> core backend/data -> UI/integration -> test/review|
 |**large** | Discovery -> architecture -> implementation phases -> integration -> deploy prep|
 
-Phase >20 tasks -> smaller split.
+If a phase grows beyond 20 tasks, split it.
 
 ## Implementation-Ready Plan Packet
 
-With task `medium/large`, the plan must not stop at the "reasonable idea" level. It should be enough that the implementation doesn't have to guess the important part.
+For medium and large work, the plan must be concrete enough that implementation does not have to guess.
 
-Each plan should lock in at least:
-- `Source of truth`: which brief/spec/direction is being used
-- `File or surface map`: module, boundary, contract, or main file will be touched
-- `Task slices`: each slice has a clear goal and can be verified independently
-- `Acceptance & proof`: each slice is proven by which test/check
-- `Dependencies & order`: order to do and what to expect
+Lock at least:
+- `Source of truth`: which brief/spec/direction is authoritative
+- `File or surface map`: the modules, boundaries, or contracts likely to change
+- `Task slices`: each slice has a clear goal and an independent proof
+- `Acceptance & proof`: which test or check proves each slice
+- `Dependencies & order`: what must happen first and what follows
 - `Reopen conditions`: when to return to `brainstorm`, `plan`, or `architect`
 
-Short templates:
+Template:
 
 ```text
 Implementation-ready packet:
@@ -165,72 +153,69 @@ Implementation-ready packet:
 - Reopen only if: [...]
 ```
 
-Rule:
-- If the implementer still has to guess the main scope, sequence, or proof file, the plan is not ready
-- Do not force all files to be listed correctly when the repo is too early; but must indicate boundaries and change surfaces
-- If the plan is too large to describe in a short packet, divide it into smaller phases
+Rules:
+- if the implementer still has to guess the main scope, sequence, or proof, the plan is not ready
+- you do not need a perfect file list early on, but you do need clear boundaries
+- if the plan is too large for a compact packet, split it into phases
 
 ## Plan Review Loop
 
-Before handoff to `architect`, `spec-review`, or `build`, reread the plan like a reviewer:
+Before handing off to `architect`, `spec-review`, or `build`, reread the plan like a reviewer.
 
 ### Pass 1: Scope & Sequence
-- Is the scope in/out locked?
-- Can Phases be built step by step or are they mixing many concerns?
-- Are there any slices that must be done at the same time because the contract is unclear?
+- Is scope in/out clearly locked?
+- Can the work be built slice by slice?
+- Are there any slices that secretly depend on each other because the contract is still unclear?
 
 ### Pass 2: Proof & Risk
-- Does each slice have a corresponding proof/check?
-- Are boundaries, migration, auth, public interface being taken too lightly?
-- Is there any assumption that if wrong will ruin the whole plan?
+- Does each slice have a real proof/check?
+- Are migration, auth, public interface, or boundary risks understated?
+- Is there any assumption that would invalidate the whole plan if wrong?
 
 Rules:
-- `large`, `high-risk`, `public interface`, `migration`, `auth/payment`: plan review loop is required
-- If after 2 rounds of review the plan still hasn't locked the sequence or proof, go back to `brainstorm` or `architect`, don't push the build forward by feeling.
-- Plan review does not replace `spec-review`; It is a cleaning step before going to that gate
+- this review loop is required for large work and for public-interface, migration, auth, or payment changes
+- if two review passes still cannot lock sequence or proof, go back to `brainstorm` or `architect`
+- plan review does not replace `spec-review`
 
 ## Output Files
 
-Priority to stay at:
+Prefer:
 
-```
+```text
 docs/plans/[YYYY-MM-DD]-[feature]-plan.md
 docs/specs/[feature]-spec.md
 ```
 
-Plan should have:
-- Qualified problem statement
-- Options considered (if task is medium/large)
-- Problem / goal
-- Scope in/out
-- File/surface map
-- Task slices with proof per slice
-- Risks / assumptions
-- Spec-review need: [required / not required + why]
-- Phases / tasks
-- Verification strategy
+A plan should include:
+- qualified problem statement
+- options considered for medium/large work
+- goal and success signal
+- scope in/out
+- file/surface map
+- task slices with proof per slice
+- risks and assumptions
+- spec-review requirement: required / not required + why
+- phases/tasks
+- verification strategy
 
 ## Handover
 
-Before moving on to build or architect, summarize:
-```
+Before moving to `build` or `architect`, summarize:
+
+```text
 Plan ready:
 - Problem statement: [...]
 - Chosen approach: [...]
 - Why this direction now: [...]
-- File/surface map: [...]
+- Scope in/out: [...]
 - Task slices: [...]
-- First proof milestone: [...]
-- Revisit only if: [...]
-- Spec-review: [required / not required + why]
-- Scope: [...]
-- Risks: [...]
-- Outputs: [plan/spec files]
-- Next: [architect/spec-review/build]
+- Verification strategy: [...]
+- Reopen only if: [...]
+- Next workflow: [architect / spec-review / build]
 ```
 
 ## Activation Announcement
 
-```
-Forge: plan | lock scope, assumptions, verification before build
+```text
+Forge: plan | lock scope, slices, and proof before build
 ```

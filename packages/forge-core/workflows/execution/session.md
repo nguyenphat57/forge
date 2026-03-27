@@ -77,7 +77,7 @@ Payload resolved:
 - program proposed next step
 - pace / feedback / personality of phrasing
 
-It is not possible to dump raw schema for users unless otherwise requested; The main source of data is style, there is no way to restore it with preferences.
+Do not dump the raw preference schema to the user unless they explicitly ask for it. The useful continuity signal is the resolved style, not the raw schema.
 
 ### Scope-Filtered Continuity
 
@@ -89,7 +89,7 @@ When `.brain` has enough data, drag only the relevant part:
 3. From `.brain/session.json`, priority:
    - working_on
    - pending_tasks
-   - verification. verification
+   - verification
    - decisions_made
 4. From `.brain/decisions.json`, only get the entry but also `active` and match the current scope
 5. From `.brain/learnings.json`, only get items from repeated failures, incidents, or repeated patterns
@@ -116,9 +116,9 @@ If there is appropriate continuity, add:
 ```
 
 ### Fallback (without `.brain`)
-- Scan manifest and key entrypoints: `package.json`, `pyproject.toml`, `go.mod`, `pom.xml`, `build.gradle`, `*.csproj`, `docs/`, `src/`, `app/`, `README`
+- Scan manifest and key entry points: `package.json`, `pyproject.toml`, `go.mod`, `pom.xml`, `build.gradle`, `*.csproj`, `docs/`, `src/`, `app/`, `README`
 - Provide summary from real artifact
-- Don't stop just because of lack of memory files
+- Do not stop just because memory files are missing
 
 ---
 
@@ -144,7 +144,7 @@ Minor:
 ### Priority data
 - `.brain/handover.md` for short handover
 - `.brain/session.json` for dynamic state
-- `.brain/decisions.json` for decision to be valid according to scope
+- `.brain/decisions.json` for decisions that remain valid within the current scope
 - `.brain/learnings.json` for repeated failure or reusable pattern
 - `.brain/brain.json` only when there is a structural change
 

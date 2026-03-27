@@ -7,7 +7,7 @@
     "expected_stage": "session-active",
     "expected_workflow": "session",
     "expected_focus": "Session task: Finish loyalty verification matrix",
-    "expected_recommended_action": "Resume the highest-signal pending task: Write migration verification notes."
+    "expected_recommended_action": "Resume the highest-priority pending task: Write migration verification notes."
   },
   {
     "name": "next_from_plan_context",
@@ -26,7 +26,7 @@
     "expected_status": "WARN",
     "expected_stage": "unscoped",
     "expected_workflow": "review",
-    "expected_focus": "No active slice detected from repo state.",
+    "expected_focus": "No active work slice detected from repo state.",
     "expected_recommended_action": "Start from README, package manifests, and docs/plans to identify the active workflow.",
     "expected_warning_contains": [
       "No active plan",

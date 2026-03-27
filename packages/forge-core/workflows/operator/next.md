@@ -17,7 +17,7 @@ quality_gates:
 <HARD-GATE>
 - Do not give vague next steps like "continue doing".
 - Do not propose new scopes if the state repo does not support it.
-- Do not include more than 1 main next step; alternatives are just secondary.
+- Do not include more than one main next step. Alternatives are secondary.
 </HARD-GATE>
 
 ## Process

@@ -89,7 +89,7 @@ Problem:
 Good:
 
 ```text
-Keep existing tokens and typography; Only open new visual directions if the brief clearly states why.
+Keep the existing tokens and typography. Open a new visual direction only when the brief clearly explains why.
 ```
 
 ## Dense Dashboard Layout

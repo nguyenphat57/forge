@@ -53,7 +53,7 @@ flowchart TD
 
 ## Identity & Target Check
 
-Before every deployment, properly latch:
+Before every deployment, confirm:
 
 ```text
 - Is Git identity / remote the correct repo and branch?
@@ -100,7 +100,7 @@ If an early step fails, don't jump to testing just to "see what else fails".
 ```
 
 Any item fails -> block deployment.
-This checklist does not replace ordered gates; it is a summary view of the same decision.
+This checklist does not replace the ordered gates. It summarizes the same decision.
 
 ## Production Readiness
 

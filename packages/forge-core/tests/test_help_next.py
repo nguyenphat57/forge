@@ -31,7 +31,7 @@ class HelpNextTests(unittest.TestCase):
         self.assertEqual(report["current_focus"], "Session task: Finish loyalty verification matrix")
         self.assertEqual(
             report["recommended_action"],
-            "Resume the highest-signal pending task: Write migration verification notes.",
+            "Resume the highest-priority pending task: Write migration verification notes.",
         )
         self.assertEqual(report["response_style"]["teaching_mode"], "explain-why")
 

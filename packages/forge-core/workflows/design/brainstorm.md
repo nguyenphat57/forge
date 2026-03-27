@@ -8,7 +8,7 @@ quality_gates:
   - Qualified problem statement created
   - 2-3 options compared when more than one viable direction exists
   - Recommended direction chosen with why-now, why-not-others, first proof, and reversal signal
-  - If no direction can be chosen, exactly one decision open question recorded
+  - If no direction can be chosen, exactly one open decision question recorded
 ---
 
 # Brainstorm - Direction Selection
@@ -19,36 +19,34 @@ quality_gates:
 NO AMBIGUOUS MEDIUM/LARGE WORK WITHOUT CHOOSING A DIRECTION FIRST
 ```
 
-> Brainstorm is not for scope expansion. Brainstorming is just to choose a clear enough direction before planning.
+> Brainstorm is for choosing a direction, not for expanding scope.
 
 <HARD-GATE>
-Applicable when:
-- task medium/large but problem statement is still vague
-- There are 2+ materially different solutions
-- user asks "which direction should I choose", "compare options", "brainstorm", "explore"
-- the initial decision will change the scope, UX shape, or blast radius
+Use this workflow when:
+- the task is medium or large and the problem statement is still vague
+- there are 2+ materially different solutions
+- the user asks to compare options, explore directions, or choose an approach
+- the initial decision changes scope, UX shape, ownership, or blast radius
 
-Not applicable when:
-- small, clear task
-- The only thing left to do is convert the finalized directions into phases/tasks
-- only lacks implementation details but not lacks strategic direction
+Do not use this workflow when:
+- the task is small and clear
+- the direction is already locked and only execution planning remains
+- only implementation details are missing, not strategic direction
 </HARD-GATE>
 
 ## Completion Rule
 
-Brainstorm is only considered finished when it falls into one of two states:
+Brainstorm ends in exactly one of these states:
 
-1. `Direction locked`: there is a strong enough recommendation to move to `plan`
-2. `Decision blocked`: there is still **one** decided question that cannot be finalized
+1. `direction-locked`: the recommendation is strong enough to move into `plan`
+2. `decision-blocked`: exactly one unresolved question prevents a safe decision
 
-Must not end in the state:
-- "needs further consideration"
-- "some directions are fine"
-- "let the plan decide further"
+Do not end with:
+- "needs more thought"
+- "several directions could work"
+- "let the plan decide"
 
-If a direction has not been chosen and there is still more than one open question, the brainstorm is incomplete.
-
----
+If more than one decision question remains open, the brainstorm is incomplete.
 
 ## Process
 
@@ -59,9 +57,9 @@ flowchart TD
     C --> D[Generate 2-3 materially different options]
     D --> E[Compare tradeoffs]
     E --> F{Direction clear enough?}
-    F -->|No| G[One decisive question]
-    F -->|Yes| H[Recommendation + proof checkpoint]
-    G --> I[Handover to user or back to clarify]
+    F -->|No| G[Record one decisive question]
+    F -->|Yes| H[Recommendation + first proof]
+    G --> I[Clarify with user]
     H --> J[Direction brief]
     J --> K[-> plan]
 ```
@@ -74,65 +72,66 @@ Who: [pain, unmet need, or job-to-be-done]
 That: [desired outcome, business impact, or success signal]
 ```
 
-If you can't write these 3 lines, you can't continue.
+If you cannot write these three lines, you are not ready to compare options.
 
 ## Decision Criteria
 
-Determine 3-5 criteria to avoid choosing options based on emotions:
+Choose 3-5 criteria so the decision is grounded in tradeoffs instead of instinct.
 
-- Speed ​​to ship
-- Blast radius
-- Maintainability
+Common criteria:
+- speed to ship
+- blast radius
+- maintainability
 - UX clarity
-- Migration safety
-- Operational simplicity
+- migration safety
+- operational simplicity
 
-You don't need to use everything; Choose which one is really important for the problem.
+Pick only the criteria that matter for this problem.
 
 ## Lightweight Scoring
 
-When 2-3 options are feasible, give a quick score instead of a long debate:
+When 2-3 options are viable, use quick scoring instead of a long debate.
 
 |Criteria | How to read scores|
-|----------|---------------|
-|Feasibility | `1` is difficult to implement, `2` is possible with caveats, `3` is easy to implement with current repo/team|
-|Impact | `1` small impact, `2` moderate improvement, `3` clear impact on main outcome|
+|----------|-------------------|
+|Feasibility | `1` hard with the current repo/team, `2` possible with caveats, `3` straightforward|
+|Impact | `1` small impact, `2` moderate improvement, `3` strong effect on the main outcome|
 |Effort | `1` low effort, `2` medium effort, `3` high effort|
 
-Templates:
+Template:
 
 ```text
 Approach A
 - Feasibility: [1-3]
 - Impact: [1-3]
 - Effort: [1-3]
-- Read: [...]
+- Notes: [...]
 ```
 
-Rule:
-- Do not turn scoring into pseudo-science; This is just a shortcut to fix the directions
-- Prioritize options with high enough `impact` and good `feasibility`
-- `effort` is used to see winning tradeoff, not automatically/losing alone
-- If scoring and decision criteria conflict, briefly explain and then choose
+Rules:
+- do not turn scoring into pseudo-science
+- prefer options with strong impact and acceptable feasibility
+- use `effort` to compare tradeoffs, not as an automatic veto
+- if the scores and the chosen direction differ, explain why
 
-## Decision Forcing Rules
+## Decision Rules
 
-- Maximum 3 options. More often dilutes the decision.
-- Each option must be different in actual shape: rollout model, UX model, data flow, ownership, or blast radius.
-- Each option must clearly state the main tradeoff being accepted, not just list general pros/cons.
-- If one option is just a slight variation of another option, combine it.
-- By default, the simpler direction is preferred if it still reaches the success signal and reduces the blast radius.
-- If there is not enough data to choose from, do not expand research indefinitely; Record exactly 1 decision question that needs the user to answer.
+- compare at most 3 options
+- each option must differ in real shape: rollout model, UX model, data flow, ownership, or blast radius
+- each option must state its core tradeoff, not just generic pros and cons
+- merge options that differ only superficially
+- default toward the simpler direction if it still reaches the success signal and reduces blast radius
+- if there is not enough information to decide, record exactly one user-facing decision question
 
 ## Options Comparison
 
-Minimum 2 options when:
-- there is more than one possible direction
-- or the user wants to choose a direction
+Compare at least 2 options when:
+- more than one direction is plausible
+- or the user explicitly asks to choose between directions
 
-This is the main place for Forge to do a full options comparison. Once the direction is locked, `plan` should just inherit and not repeat this entire round of comparisons.
+This is the main place where Forge should compare options. Once the direction is locked, `plan` should inherit it instead of repeating the same comparison.
 
-Templates:
+Template:
 
 ```text
 Approach A - [name]
@@ -152,55 +151,77 @@ Approach C - [optional]
 
 Recommendation:
 - Choose: [A/B/C]
-- Why: [briefly, according to decision criteria]
+- Why: [briefly, using the decision criteria]
 ```
 
-Rule:
-- Options must be different in shape, not just renamed
-- If 2 options are almost the same, combine them
-- If there is only one reasonable direction, it must be clearly stated why the other directions are not worth considering
+Rules:
+- options must be genuinely different
+- combine options that are nearly identical
+- if there is only one reasonable direction, say explicitly why the others are not worth pursuing
 
 ## Recommendation Quality
 
-Each recommendation must answer the following 4 points:
+Every recommendation must answer all four points below:
 
 ```text
-- Why now: why is this direction suitable for the current problem?
-- Why not the others: why the remaining directions are not worth choosing right now
-- First proof: smallest milestone to prove this direction is correct
-- Reversal signal: which signal is strong enough to return to open decision
+- Why now: why this direction fits the current problem
+- Why not the others: why the remaining options lose right now
+- First proof: the smallest milestone that validates the direction
+- Reversal signal: what would justify reopening the decision
 ```
 
-If one of the above 4 points is missing, the recommendation is not strong enough to handoff to `plan`.
+If any of these are missing, the recommendation is not ready for handoff to `plan`.
 
 ## Direction Brief
 
-Brief output before handoff to `plan`:
+Before handing off to `plan`, produce:
 
 ```text
 Direction ready:
 - Problem statement: [...]
 - Decision criteria: [...]
 - Options considered: [A/B/C]
-- Recommended directions: [...]
+- Recommended direction: [...]
 - Key tradeoff accepted: [...]
 - Why not the others: [...]
 - First proof: [...]
 - Revisit only if: [...]
-- Open questions: [none or 1 decision question]
+- Open questions: [none or exactly 1]
 - Next: plan
 ```
 
 ## Anti-Patterns
 
-- Brainstorm to stretch the scope wider than required
-- List 5-7 options to make it seem like a lot without material difference
-- Choose options according to "sounds good" instead of decision criteria
-- Brainstormed but still don't dare recommend
-- Handoff to plan when there is no `why not the others` or no `first proof`
+- using brainstorm to widen scope beyond the request
+- listing many small variations instead of materially different options
+- deferring the choice to `plan`
+- calling a direction "good enough" without explaining the tradeoff
+- reopening the same debate without new evidence
+
+## Handover
+
+If the direction is locked, hand off:
+
+```text
+Brainstorm complete:
+- Chosen direction: [...]
+- Why this direction wins now: [...]
+- First proof: [...]
+- Reversal signal: [...]
+- Next workflow: plan
+```
+
+If the decision is blocked, hand off:
+
+```text
+Decision blocked:
+- Missing answer: [...]
+- Why it matters: [...]
+- Next step: clarify with user
+```
 
 ## Activation Announcement
 
 ```text
-Forge: brainstorm | Set directions first, then make a plan
+Forge: brainstorm | choose a direction before planning
 ```

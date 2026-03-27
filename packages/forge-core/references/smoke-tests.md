@@ -5,9 +5,9 @@ Goal: quickly check that the host runtime is routing correctly to Forge and that
 ## How to use
 
 - Run each prompt in a new thread or as clean a state as possible.
-- Do not tell the agent in advance what to "expect"; Just send prompt as real user.
+- Do not tell the agent what route to "expect" ahead of time. Send the prompt as a real user would.
 - You can open `smoke-test-checklist.md` in parallel to fill in results right after testing.
-- With the entrypoint-level route/router section having automation, you can run `python scripts/run_smoke_matrix.py` to catch drift quickly before doing manual host smoke.
+- If the route/router layer is already covered by automation, run `python scripts/run_smoke_matrix.py` to catch drift before doing manual host smoke.
 - Record:
   - Is skill/flow selected correctly?
   - Does the agent hold evidence-first?
@@ -18,9 +18,9 @@ Goal: quickly check that the host runtime is routing correctly to Forge and that
 
 - Route the correct skill or skill chain in Forge.
 - Does not fabricate verification, token usage, or context percentage.
-- For behavioral task: prompt for failing test/reproduction or clear state why there is no harness.
-- With review: findings come first, summary comes last.
-- For sessions: prioritize repo/docs first, `.brain` is just an additional class.
+- For behavioral tasks, ask for a failing test or reproduction first, or clearly state why no harness exists.
+- For review tasks, findings come first and the summary comes last.
+- For session work, prioritize repo and docs first; `.brain` is only a secondary signal.
 
 ## Prompt set
 
@@ -83,7 +83,7 @@ Continue from the previous day, quickly remind yourself what you are doing and t
 **Fail if**
 
 - Returns a lengthy recap but no next step
-- Ignore current state repo
+- Ignore current repo state
 
 ---
 
@@ -263,7 +263,7 @@ The default is to explain more thoroughly, give more direct feedback, and go fas
 
 **Fail if**
 
-- Adapter to edit file with wrong schema
+- Tells the adapter to edit a file with the wrong schema
 - Only change the prompt temporarily without a clear contract
 - Fork key names or meanings from `forge-core`
 

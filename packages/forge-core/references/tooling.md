@@ -1,6 +1,6 @@
 # Forge Tooling
 
-> Used when you want to turn Forge's routing/verification from prose to runnable testing.
+> Use this when you want to turn Forge routing and verification from prose into runnable checks.
 
 ## Registry Canonical Source
 
@@ -37,9 +37,9 @@ Strict validation:
 python scripts/resolve_preferences.py --workspace C:\path\to\workspace --strict
 ```
 
-The script will return:
+The script returns:
 - source of preferences (explicit, global, workspace-legacy, or defaults)
-- canonical preferences after normalize
+- canonical preferences after normalization
 - response-style contract resolved
 - warnings if the payload has strange fields or invalid values
 
@@ -54,11 +54,11 @@ python scripts/write_preferences.py --technical-level newbie --pace fast
 python scripts/write_preferences.py --feedback-style direct --apply
 ```
 
-The script will:
+The script:
 - merge update into existing preferences by default
 - reuse legacy `.brain/preferences.json` as migration base if adapter-global file does not exist and passes `--workspace`
 - support `--replace` to reset fields without returning to defaults
-- returns `changed_fields`, target preferences, and response-style contract after normalization
+- return `changed_fields`, target preferences, and the response-style contract after normalization
 
 Detailed semantics: see `personalization.md`.
 
@@ -71,7 +71,7 @@ python scripts/initialize_workspace.py --workspace C:\path\to\workspace
 python scripts/initialize_workspace.py --workspace C:\path\to\workspace --seed-preferences --apply
 ```
 
-The script will:
+The script:
 - classify workspace to `greenfield` or `existing`
 - create `.brain/`, `docs/plans/`, `docs/specs/`, and `.brain/session.json`
 - optionally seed adapter-global split preferences state (`state/preferences.json` + `state/extra_preferences.json`)
@@ -95,7 +95,7 @@ Script to read:
 - `README`
 - adapter-global split preferences state via `resolve_preferences.py` to adapt response style
 
-Script will check:
+The script checks:
 - `current_stage`
 - `current_focus`
 - `suggested_workflow`
@@ -103,7 +103,7 @@ Script will check:
 - Maximum 2 alternatives
 - evidence and warnings
 
-Detailed Semantics: see `help-next.md`.
+Detailed semantics: see `help-next.md`.
 
 ## Run Guidance
 
@@ -114,7 +114,7 @@ python scripts/run_with_guidance.py --workspace C:\path\to\workspace --timeout-m
 python scripts/run_with_guidance.py --workspace C:\path\to\workspace --format json -- python -m pytest tests/unit
 ```
 
-The script will return:
+The script returns:
 - `state`
 - `command_kind`
 - `suggested_workflow`
@@ -140,17 +140,17 @@ python scripts/translate_error.py --error-text "Module not found: payments.servi
 python scripts/translate_error.py --input-file C:\path\to\stderr.txt --format json
 ```
 
-The script will:
+The script:
 - Sanitize tokens, secrets, and basic sensitive paths
-- match into pattern database deterministic
-- returns `human_message`, `suggested_action`, and `category`
+- match the input against the deterministic pattern database
+- return `human_message`, `suggested_action`, and `category`
 - generic fallback if there is no suitable pattern
 
 Detailed semantics: see `error-translation.md`.
 
 ## Bump Preparation
 
-When it is necessary to finalize a new version according to the release flow requested by the user:
+When you need to finalize a new version in the user-requested release flow:
 
 ```powershell
 python scripts/prepare_bump.py --workspace C:\path\to\workspace
@@ -158,8 +158,8 @@ python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump minor
 python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump 2.0.0 --apply --release-ready
 ```
 
-The script will:
-- read`VERSION`
+The script:
+- read `VERSION`
 - infer or get explicit semver bump
 - calculate `target_version`
 - preview or update `VERSION` + `CHANGELOG.md`
@@ -176,12 +176,12 @@ python scripts/resolve_rollback.py --scope deploy --customer-impact broad --has-
 python scripts/resolve_rollback.py --scope migration --data-risk high
 ```
 
-Script:
+The script:
 - select recovery strategy according to scope/risk
 - warn of data-loss risk when needed
-- Check suggested workflow and verification checklist
+- return the suggested workflow and verification checklist
 
-Detailed Semantics: see `rollback-guidance.md`.
+Detailed semantics: see `rollback-guidance.md`.
 
 ## UI Brief Generator
 
@@ -314,8 +314,8 @@ python scripts/route_preview.py "..." `
 
 `--workspace-router` accepts both `AGENTS.md` and the resolved router map.
 
-The script will return:
-- intent. intent
+The script returns:
+- intent
 - complexity
 - Forge skills
 - host skills exposed by the current bundle (if any)
@@ -505,7 +505,7 @@ python scripts/run_smoke_matrix.py --suite route-preview
 python scripts/run_smoke_matrix.py --suite router-check --format json
 ```
 
-This runner reads the fixture from `tests/fixtures/` and calls CLI scripts to catch drift at the entrypoint level.
+This runner reads the fixture from `tests/fixtures/` and calls CLI scripts to catch drift at the entry point level.
 Smoke suite currently covers:
 - route preview
 - workspace router check
@@ -581,7 +581,7 @@ Detailed runbook: see `canary-rollout.md`.
 - Check overall chain/go-no-go: `track_chain_status.py` + `quality-gate.md`
 - Track checkpoint for long builds: `track_execution_progress.py`
 - Full chain track length: `track_chain_status.py`
-- Run smoke suite entrypoint-level: `run_smoke_matrix.py`
+- Run smoke suite entry-point: `run_smoke_matrix.py`
 - Run full release gate locally/CI: `verify_bundle.py`
 - Run canary pack automatically on real workspace: `run_workspace_canary.py`
 - Record soak/canary artifact from real workspace: `record_canary_result.py`

@@ -20,28 +20,28 @@ quality_gates:
 NO HIGH-RISK BUILD WITHOUT A BUILD-READINESS REVIEW FIRST
 ```
 
-> What does `plan` do? `architect` how to do it. `spec-review` Is the latch clear enough for construction?
+> `plan` defines what to build. `architect` defines how it should work. `spec-review` decides whether the packet is clear enough to implement safely.
 
 <HARD-GATE>
-Applicable when:
-- task `large`
-- task `medium` but touches contract, schema, migration, auth, payment, webhook, public API, integration boundary, or high blast radius
-- direction/spec has just changed drastically after brainstorm/architect and there is a risk of implementation misunderstanding
+Use this workflow when:
+- the task is `large`
+- the task is `medium` and touches contract, schema, migration, auth, payment, webhook, public API, or another high-risk boundary
+- the direction/spec changed materially and implementation drift is now likely
 
-Not applicable when:
-- task `small`, clear, narrow blast radius
-- Only minor text/style/config changes, no behavior or contract changes
+Do not use this workflow when:
+- the task is `small`, clear, and narrowly scoped
+- the change is minor text/style/config work with no behavior or contract impact
 
-If `spec-review` returns `revise` or `blocked`, do not jump to `build`.
-`Revise` cannot loop indefinitely. Default maximum `3` revision rounds for the same spec packet; If you exceed this threshold, you must switch `blocked` and turn upstream.
+If `spec-review` returns `revise` or `blocked`, do not proceed to `build`.
+Cap the `revise` loop at `3` rounds for the same packet; round `4` becomes `blocked`.
 </HARD-GATE>
 
 ## Process
 
 ```mermaid
 flowchart TD
-    A[Read existing plan/spec/design] --> B[Check scope + success criteria]
-    B --> C[Check boundary/contracts]
+    A[Read plan/spec/design] --> B[Check scope + success criteria]
+    B --> C[Check boundaries + contracts]
     C --> D[Check edge cases + failure paths]
     D --> E[Check verification readiness]
     E --> F{Clear enough to build?}
@@ -54,50 +54,50 @@ flowchart TD
 ## Review Lenses
 
 ### 1. Scope & Outcome
-- Is the scope in/out clear enough?
+- Is scope in/out clear?
 - Are success criteria measurable?
-- Are there any assumptions that are still "left to build to understand"?
+- Are assumptions still being deferred to implementation?
 
 ### 2. Contract & Compatibility
-- Which API/schema/event/consumer boundary was changed?
-- Is the Compatibility window clear?
-- Which caller/consumer must update at the same time?
+- Which API/schema/event/consumer boundary changes?
+- Is the compatibility window explicit?
+- Which callers or consumers must update in lockstep?
 
 ### 3. Failure Paths & Ops
-- Have major error states been thought about?
-- Is rollback, fallback, or kill switch necessary?
-- Are there any irreversible steps that don't have a guardrail?
+- Are major error states and operator actions covered?
+- Is rollback, fallback, or a kill switch needed?
+- Are any irreversible steps still missing a guardrail?
 
 ### 4. Verification Readiness
-- Have you thought about failing test/repro path yet?
+- Is there a concrete failing test or reproduction path?
 - Are acceptance checks close enough to the blast radius?
-- Are there any parts that won't be verified if you jump into the code right away?
+- What would remain unverified if implementation started now?
 
 ## Build-Readiness Decisions
 
 |Decision | Use when|
-|----------|----------|
-|`go` | Scope, contracts, edge cases, and verification are clear enough to build|
-|`revise` | The direction is correct but there are still some specific areas missing that need to be added before building|
-|`blocked` | There are big gaps in shape, ownership, rollback, or success criteria|
+|----------|---------|
+|`go` | Scope, boundaries, edge cases, and verification are clear enough to build|
+|`revise` | The direction is sound, but specific gaps must be fixed before implementation|
+|`blocked` | Major gaps remain in shape, ownership, rollback, or success criteria|
 
-Rule:
-- `go` is only used when the implementation team does not have to guess important parts
-- `revise` must indicate the correct part to be added
-- `blocked` is used when if you code right away, it will be easy to drift or create a large rework
+Rules:
+- use `go` only when the implementer does not need to guess the important parts
+- `revise` must list the exact deltas required
+- use `blocked` when coding now would likely cause drift or major rework
 
 ## Review Loop Discipline
 
-`Spec-review` is an implementation-independent lane, not an implementer extension.
+`spec-review` is an implementation-independent lane.
 
 Rules:
-- If the host supports subagent/reviewer lane, priority should be given to using an independent spec-reviewer lane
-- If the host does not support it, you still have to run spec-review as a separate pass after plan/architect
-- Maximum `3` round `revise` for the same spec packet
-- Each revision round must indicate the specific delta to be corrected; Do not repeat vague feedback
-- Round `4` onwards -> `blocked` and back to `plan` or `architect`
+- if the host supports reviewer lanes or subagents, prefer an independent spec-reviewer
+- otherwise, still run spec-review as a distinct pass after `plan` or `architect`
+- allow at most `3` `revise` rounds for the same packet
+- every revision round must call out concrete deltas, not vague feedback
+- round `4+` becomes `blocked` and returns upstream
 
-Iteration template:
+Template:
 
 ```text
 Spec-review iteration:
@@ -107,23 +107,22 @@ Spec-review iteration:
 - Re-review after: [...]
 ```
 
-## What Must Be Explicit
+## What Must Be Explicit Before `go`
 
-Before `go`, spec-review must clearly see:
-- Current source of truth: which plan/spec/design is being used
-- What is first implementation slice?
-- Which file/surface map or boundary map will be touched first
-- Where does the boundary change?
-- Which acceptance criteria will be proven?
-- What proof/check must appear before saying the first slice is done?
-- Which main edge case must be kept?
-- When will the spec be reopened?
+- current source of truth: which plan/spec/design packet is authoritative
+- first implementation slice
+- first file/surface/boundary map
+- exact boundary change
+- acceptance criteria to prove
+- proof/check required before declaring the slice complete
+- key edge cases to preserve
+- reopen conditions
 
 ## Implementation-Ready Packet Check
 
-`Go` doesn't just mean "correct idea". It should mean "can be constructed without guessing the important part".
+`Go` means more than "the idea is reasonable". It means the work can start without guessing the critical parts.
 
-Spec-review should examine the following short packets:
+Review this packet shape:
 
 ```text
 Implementation-ready:
@@ -136,20 +135,20 @@ Implementation-ready:
 ```
 
 Rules:
-- If you can't say `first slice` yet, the build is very easy to drift right from the first edit
-- If you cannot say `proof before progress`, verification will be pushed to the end
-- If the boundary map is ambiguous in the contract/schema/public interface, the decision cannot be `go`
+- if you cannot name the first slice, the build is likely to drift immediately
+- if you cannot name the proof before progress, verification will get pushed to the end
+- if the boundary map is ambiguous for contracts, schema, or public interfaces, the decision cannot be `go`
 
 ## Spec Review Checklist
 
-- [ ] Problem statement and chosen direction are clear
-- [ ] Scope in/out is no longer ambiguous
+- [ ] Problem statement and direction are clear
+- [ ] Scope in/out is explicit
 - [ ] Affected boundaries/contracts are stated
-- [ ] First slice and file/surface map are clear enough to start building
-- [ ] Edge cases, failure paths, or rollback concerns have been reached
-- [ ] Verification strategy is close enough to blast radius
-- [ ] Yes decision `go / revise / blocked`
-- [ ] If not `go`, the correct step back to `plan` or `architect` is indicated
+- [ ] First slice and file/surface map are specific enough to start build
+- [ ] Edge cases, failure paths, and rollback concerns are covered
+- [ ] Verification strategy is close enough to the blast radius
+- [ ] Decision is explicit: `go`, `revise`, or `blocked`
+- [ ] If not `go`, the correct step back to `plan` or `architect` is named
 
 ## Output
 
@@ -158,16 +157,14 @@ Spec review:
 - Review iteration: [n/3]
 - Sources: [plan/spec/design files]
 - Decision: [go / revise / blocked]
-- Build-ready because: [...]
-- Missing or weak spots: [...]
-- Edge cases to preserve: [...]
-- Verification must prove: [...]
+- Exact deltas required: [...]
+- First slice: [...]
+- Proof before progress: [...]
 - Reopen only if: [...]
-- Next: [build / plan / architect]
 ```
 
 ## Activation Announcement
 
 ```text
-Forge: spec-review | Lock build-readiness before entering high-risk implementation
+Forge: spec-review | confirm build readiness before implementation
 ```

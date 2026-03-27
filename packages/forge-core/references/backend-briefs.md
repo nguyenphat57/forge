@@ -1,10 +1,10 @@
 # Backend Briefs
 
-> Used when the backend task is medium/large, touches contract/schema/job/event, or caller impact is unclear.
+> Use this when the backend task is medium/large, touches contracts, schema, jobs, or events, or has unclear caller impact.
 
 ## Why This Exists
 
-`backend` needs a first artifact like `frontend`, but focuses on:
+`backend` needs an initial artifact, just as `frontend` does, but it focuses on:
 
 - contract or surface in scope
 - validation and authorization boundary
@@ -59,7 +59,7 @@ When the task is long or has many APIs/jobs/events:
 python scripts/generate_backend_brief.py "..." --persist --project-name "Example Project" --surface cancel-orders
 ```
 
-Artifact generates:
+Generated artifacts:
 
 ```text
 .forge-artifacts/backend-briefs/<project-slug>/MASTER.md
@@ -73,11 +73,11 @@ Reading order:
 
 ## Minimum Brief Quality
 
-- Has a clear contract/surface
-- There is clear compatibility and caller impact
-- There is a note about migration or persistence impact if data is touched
-- There is a note about idempotency/retry/replay if async or evented
-- There is a note about observability or rollback risk
+- Clear contract or surface definition
+- Clear compatibility and caller impact
+- A note on migration or persistence impact when data changes
+- A note on idempotency/retry/replay for async or evented work
+- A note on observability or rollback risk
 
 ## Validate A Persisted Brief
 

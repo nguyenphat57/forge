@@ -1,15 +1,15 @@
 # UI Progress Tracking
 
-> Used for long frontend/visualize tasks, multiple screens, or multiple handoffs.
+> Use this for long frontend/visualize tasks, multiple screens, or repeated handoffs.
 
 ## Why
 
-Forge route is good but long UI tasks often drift easily:
-- Have you finalized the brief yet?
-- Are you in interaction model or implementation?
-- Have you reviewed responsive/a11y yet?
+Forge routes well, but long UI tasks drift easily:
+- Has the brief been finalized?
+- Are you still in interaction-model work, or already in implementation?
+- Has responsive/accessibility review happened yet?
 
-Artifact progress helps avoid ambiguity without the need for a large dashboard.
+Progress artifacts reduce ambiguity without requiring a large dashboard.
 
 ## Command
 
@@ -25,7 +25,7 @@ python scripts/track_ui_progress.py "Checkout tablet refresh" --mode frontend --
 python scripts/track_ui_progress.py "Kitchen dashboard exploration" --mode visualize --stage interaction-model --status active
 ```
 
-Default Artifact:
+Default artifacts:
 
 ```text
 .forge-artifacts/ui-progress/<mode>/<task>.md
@@ -53,4 +53,4 @@ Default Artifact:
 ## Use Rule
 
 - Not required for small tasks.
-- Should be used when the UI task spans multiple messages, multiple screens, or is easy to handoff between design and implementation.
+- Use it when the UI task spans multiple messages, multiple screens, or is likely to hand off between design and implementation.

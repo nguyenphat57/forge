@@ -16,7 +16,7 @@ description: "Forge Core - host-neutral orchestrator source-of-truth for intent 
 The tree below reflects the current source layout of the core bundle.
 For the most up-to-date inventory of scripts, tests, references, and data files, use the package directories and the `Executable Tooling` section below.
 
-- `SKILL.md`: entrypoint to route intent, pair skills, and hold delivery guardrails
+- `SKILL.md`: entry point for intent routing, skill composition, and delivery guardrails
 - `workflows/design/`: planning, architecture, spec-review, visualization
 - `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session
 - `workflows/operator/`: help, next, and host-neutral operator workflows
@@ -142,7 +142,7 @@ forge-core/
 - Forge is **global-first orchestrator**.
 - New repos, small repos, or repos without local skills still have to use Forge normally using the workflows/domain skills of this bundle.
 - Companion skills and workspace routers are **optional augmentation**, not default dependencies.
-- If there is no clear companion/local skill, Forge cannot hesitate or wait for the "full skill set" before working.
+- If there is no clear companion or local skill, Forge must still proceed with the core bundle instead of waiting for a fuller setup.
 
 ---
 
@@ -168,7 +168,7 @@ forge-core/
 - UI brief checker for persisted frontend/visualize artifacts: `scripts/check_ui_brief.py`
 - UI progress tracker for long-running frontend/visualize tasks: `scripts/track_ui_progress.py`
 - Automated smoke matrix runner for route/router cases: `scripts/run_smoke_matrix.py`
-- Canonical release/CI verification entrypoint: `scripts/verify_bundle.py`
+- Canonical release/CI verification entry point: `scripts/verify_bundle.py`
 - Automated workspace canary runner for real repo rollout: `scripts/run_workspace_canary.py`
 - Canary result recorder for real workspace rollout: `scripts/record_canary_result.py`
 - Canary readiness evaluator for rollout verdicts: `scripts/evaluate_canary_readiness.py`
@@ -190,7 +190,7 @@ When you need detailed command examples or artifact behavior, read `references/t
 
 ## Response Personalization
 
-- Forge resolves preferences through `scripts/resolve_preferences.py` from adapter-global split state: canonical fields in `state/preferences.json`, adapter extras in `state/extra_preferences.json`, and only falls back to `.brain/preferences.json` when the old workspace has not migrated.
+- Forge resolves preferences through `scripts/resolve_preferences.py` from adapter-global split state: canonical fields in `state/preferences.json`, adapter extras in `state/extra_preferences.json`, and falls back to `.brain/preferences.json` only for legacy workspaces that have not migrated yet.
 - Core schema includes `technical_level`, `detail_level`, `autonomy_level`, `pace`, `feedback_style`, and `personality`.
 - The adapter can persist preferences via `scripts/write_preferences.py`, but cannot change key names or validation rules.
 - Adapters can add UX wrappers like `customize`, but cannot fork the schema or change the meaning of the response-style contract.
@@ -201,12 +201,12 @@ When you need detailed command examples or artifact behavior, read `references/t
 
 - `help` and `next` live in `workflows/operator/` and share the same navigator `scripts/resolve_help_next.py`.
 - Repo-first is a hard rule: `git status`, plans/specs, then `.brain`.
-- Adapters can add slash alias or natural-language wrappers, but cannot change the stage model or repo-first contract.
+- Adapters can add slash aliases or natural-language wrappers, but cannot change the stage model or repo-first contract.
 - `run` lives in `workflows/operator/` and uses `scripts/run_with_guidance.py` to turn real output into clear next workflow.
-- Error translation is a core helper shared by `run`, `build`, `debug`, and `test`; raw errors need to be sanitized before summarizing.
-- `bump` and `rollback` live in `workflows/operator/` and only activate when the user explicitly releases intent.
+- Error translation is a core helper shared by `run`, `build`, `debug`, and `test`. Raw errors must be sanitized before they are summarized.
+- `bump` and `rollback` live in `workflows/operator/` and should activate only when the user explicitly asks for release work.
 - The adapter can add `/init` or slim onboarding, but the reusable skeleton workspace must go through `scripts/initialize_workspace.py`.
-- The adapter can add a `/run` wrapper or natural-language entrypoint, but cannot change the meaning of `state`, `command_kind`, or `suggested_workflow`.
+- Adapters can add a `/run` wrapper or natural-language entry point, but cannot change the meaning of `state`, `command_kind`, or `suggested_workflow`.
 
 ---
 
@@ -217,7 +217,7 @@ When receiving a prompt from the user, classify the intent:
 |Intent | Trigger keywords | For example|
 |--------|------------------|-------|
 |**BUILD** | add, create, implement, feature, code | "Add payment feature"|
-|**DEBUG** | error, bug, fix, fix, error, crash | "Fix error of not being able to log in"|
+|**DEBUG** | error, bug, fix, fix, error, crash | "Fix the login failure"|
 |**OPTIMIZE** | refactor, optimize, clean, tidy up | "Refactor file is too long"|
 |**DEPLOY** | deploy, release, production, rollout | "Deploy to Vercel"|
 |**REVIEW** | review, evaluate, check, audit | "Review code before merging"|
@@ -227,7 +227,7 @@ When receiving a prompt from the user, classify the intent:
 **When user uses `/shortcut`:** Map according to the action surface of the host adapter, regardless of the local files in this core folder.
 Canonical source for intent keywords and chains: `data/orchestrator-registry.json`.
 
-Signals like `brainstorm`, locale-specific brainstorming phrases configured in active routing locales, `options`, `approach`, and `tradeoff` do not create new intents; they turn on **brainstorm gate** before `plan` when the task is vague or complex enough.
+Signals like `brainstorm`, locale-specific brainstorming phrases in active routing locales, `options`, `approach`, and `tradeoff` do not create new intents. They activate the **brainstorm gate** before `plan` when the task is vague or complex enough.
 
 ---
 
@@ -239,7 +239,7 @@ Signals like `brainstorm`, locale-specific brainstorming phrases configured in a
 |**medium** | 3-10 files, with behavioral changes or need for assumption | Add filter, CRUD endpoint|
 |**large** | >10 new files or features/modules, wide data flow | Payment, auth flow, new modules|
 
-Doubt small or medium -> default **medium**.
+If you are unsure whether the task is small or medium, default to **medium**.
 Canonical source for hints and thresholds: `data/orchestrator-registry.json`.
 
 ---
@@ -248,7 +248,7 @@ Canonical source for hints and thresholds: `data/orchestrator-registry.json`.
 
 Intent + Complexity -> skills can load:
 
-|Intent | small. small | medium | large. large|
+|Intent | small | medium | large|
 |--------|-------|--------|-------|
 |**BUILD** | `build` | `plan` -> `build` -> `test` -> `quality-gate` | `plan` -> `architect` -> `spec-review` -> `build` -> `test` -> `quality-gate`|
 |**DEBUG** | `debug` | `debug` -> `test` | `debug` -> `plan` -> `build` -> `test`|
@@ -258,16 +258,16 @@ Intent + Complexity -> skills can load:
 |**VISUALIZE** | `visualize` | `plan` -> `visualize` | `plan` -> `architect` -> `visualize`|
 |**SESSION** | `session` | `session` | `session`|
 
-**Ambguity gate:** with `BUILD` or `VISUALIZE` at medium/large level, if the prompt is ambiguous or balancing multiple solutions, insert `brainstorm` before `plan`. `Brainstorm` doesn't just list options; it must lock in a recommendation direction strong enough for `plan` to inherit, or correctly record a missing decision question.
-**Spec-review gate:** with `BUILD large`, or `BUILD medium` touches contract/schema/migration/auth/payment/public interface/high-risk boundary, insert `spec-review` before `build`.
-**Execution pipeline gate:** with large size `BUILD/DEBUG/OPTIMIZE` or more powerful profile than `standard`, by default add independent reviewer lane; with `BUILD` there is `spec-review`, leaning towards `implementer -> spec-reviewer -> quality-reviewer` pipeline.
+**Ambiguity gate:** for medium/large `BUILD` or `VISUALIZE`, if the prompt is ambiguous or balances multiple solutions, insert `brainstorm` before `plan`. `Brainstorm` must do more than list options: it should lock a recommendation that `plan` can inherit, or clearly record the unresolved decision.
+**Spec-review gate:** for `BUILD large`, or for `BUILD medium` that touches contracts, schema, migration, auth, payment, public interfaces, or another high-risk boundary, insert `spec-review` before `build`.
+**Execution pipeline gate:** for large `BUILD/DEBUG/OPTIMIZE`, or for profiles stronger than `standard`, add an independent reviewer lane by default. When `BUILD` already includes `spec-review`, prefer the `implementer -> spec-reviewer -> quality-reviewer` pipeline.
 **Lane model policy:** use abstract tier `cheap / standard / capable` according to lane instead of pushing every step to the same capacity level.
 
 **Domain skills** (`frontend`, `backend`) added when the task involves UI or API/database/service layer.
-**Companion runtime/language skills** (Python, Java, Go,.NET, framework-specific) is an optional augmentation when the repo/framework is already known. Forge should still run fine without them.
+**Companion runtime/language skills** (Python, Java, Go, .NET, framework-specific) are optional augmentations when the repo/framework is already known. Forge should still run well without them.
 Companion skill contract: see `references/companion-skill-contract.md` when you are actually adding a runtime/framework layer.
-If the workspace has `AGENTS.md` or a router doc pointing to local skills, use that router as the source-of-truth for this extension class; If not, Forge continues with its own bundle.
-To preview deterministic for a specific prompt: run `scripts/route_preview.py`.
+If the workspace has `AGENTS.md` or a router doc that points to local skills, use that router as the source of truth for this extension layer. If not, Forge should continue with its own bundle.
+To preview routing deterministically for a specific prompt, run `scripts/route_preview.py`.
 
 ### How to load skills
 
@@ -285,8 +285,8 @@ To preview deterministic for a specific prompt: run `scripts/route_preview.py`.
 11. Just move on to the next skill if needed
 ```
 
-There is no need to fully load the line if the task was safely resolved earlier.
-Companion/local skills cannot override Forge's verification/evidence gate.
+You do not need to load the full chain if the task is already resolved safely.
+Companion and local skills cannot override Forge's verification/evidence gate.
 
 **Minimal routing policy:** For `REVIEW`, `SESSION`, and task `small`, Forge prioritizes prompt-led routing. Repo signals at this time will not automatically pull additional domain skills, local companions, or escalation profiles if the prompt does not clearly state the need.
 
@@ -308,35 +308,35 @@ Verification profiles canonical live in `data/orchestrator-registry.json`.
 - Forge uses `execution pipeline` to avoid implementing and reviewing in the same lane.
 - Forge uses `lane model tiers` to optimize cost: navigation/triage can be cheaper than spec-review or release gates.
 - Forge uses `quality-gate` as canonical source for evidence response contract and anti-rationalization.
-- `spec-review` loop is blocked up to `3` revision loop for the same packet; beyond this threshold must be `blocked`.
+- The `spec-review` loop allows at most `3` revision rounds for the same packet. Beyond that threshold, the status must become `blocked`.
 
 ---
 
 ## Skill Registry
 
-|Skills | File | Type | Iron Law|
-|-------|------|------|----------|
-|brainstorm | `workflows/design/brainstorm.md` | flexible. flexible | NO AMBIGUOUS MEDIUM/LARGE WORK WITHOUT CHOOSING A DIRECTION FIRST|
-|plan. plan | `workflows/design/plan.md` | flexible. flexible | NO MEDIUM/LARGE BUILD WITHOUT A CONFIRMED PLAN|
-|architect | `workflows/design/architect.md` | flexible. flexible | NO LARGE IMPLEMENTATION WITHOUT ARCHITECTURE DECISIONS DOCUMENTED|
+|Skill | File | Type | Iron Law|
+|------|------|------|----------|
+|brainstorm | `workflows/design/brainstorm.md` | flexible | NO AMBIGUOUS MEDIUM/LARGE WORK WITHOUT CHOOSING A DIRECTION FIRST|
+|plan | `workflows/design/plan.md` | flexible | NO MEDIUM/LARGE BUILD WITHOUT A CONFIRMED PLAN|
+|architect | `workflows/design/architect.md` | flexible | NO LARGE IMPLEMENTATION WITHOUT ARCHITECTURE DECISIONS DOCUMENTED|
 |spec-review | `workflows/design/spec-review.md` | rigid | NO HIGH-RISK BUILD WITHOUT A BUILD-READINESS REVIEW FIRST|
 |build | `workflows/execution/build.md` | rigid | NO BEHAVIORAL CHANGE WITHOUT DEFINING VERIFICATION FIRST|
-|frontend | `domains/frontend.md` | flexible. flexible | PRESERVE THE EXISTING DESIGN SYSTEM BEFORE INVENTING A NEW ONE|
-|backend | `domains/backend.md` | flexible. flexible | VALIDATE AT THE BOUNDARY, KEEP LOGIC OUT OF TRANSPORT|
+|frontend | `domains/frontend.md` | flexible | PRESERVE THE EXISTING DESIGN SYSTEM BEFORE INVENTING A NEW ONE|
+|backend | `domains/backend.md` | flexible | VALIDATE AT THE BOUNDARY, KEEP LOGIC OUT OF TRANSPORT|
 |debug | `workflows/execution/debug.md` | rigid | NO FIXES WITHOUT ROOT-CAUSE INVESTIGATION|
-|test. test | `workflows/execution/test.md` | rigid | USE FAILING TESTS FIRST WHEN A HARNESS EXISTS|
-|secure. secure | `workflows/execution/secure.md` | rigid | NO RELEASE WITHOUT EXPLICIT SECURITY REVIEW|
-|deploy.deploy | `workflows/execution/deploy.md` | rigid | NO DEPLOY WITHOUT VERIFIED QUALITY GATES|
+|test | `workflows/execution/test.md` | rigid | USE FAILING TESTS FIRST WHEN A HARNESS EXISTS|
+|secure | `workflows/execution/secure.md` | rigid | NO RELEASE WITHOUT EXPLICIT SECURITY REVIEW|
+|deploy | `workflows/execution/deploy.md` | rigid | NO DEPLOY WITHOUT VERIFIED QUALITY GATES|
 |quality-gate | `workflows/execution/quality-gate.md` | rigid | NO CLAIMS, HANDOFFS, OR DEPLOYS WITHOUT A FRESH GO / NO-GO DECISION|
-|review | `workflows/execution/review.md` | flexible. flexible | FINDINGS FIRST, SUMMARY SECOND|
+|review | `workflows/execution/review.md` | flexible | FINDINGS FIRST, SUMMARY SECOND|
 |refactor | `workflows/execution/refactor.md` | rigid | NO REFACTOR WITHOUT BASELINE AND AFTER VERIFICATION|
-|visualize | `workflows/design/visualize.md` | flexible. flexible | DO NOT CODE UI BEFORE THE INTERACTION MODEL IS CLEAR|
-|session. session | `workflows/execution/session.md` | flexible. flexible | REBUILD CONTEXT FROM REAL ARTIFACTS BEFORE WRITING MEMORY|
-|help. help | `workflows/operator/help.md` | flexible. flexible | REPO-FIRST GUIDANCE, NOT RECAP THEATER|
-|next. next | `workflows/operator/next.md` | flexible. flexible | ONE CONCRETE NEXT STEP, NOT VAGUE MOMENTUM TALK|
-|tremble | `workflows/operator/run.md` | flexible. flexible | EXECUTE THE REAL COMMAND, THEN ROUTE FROM EVIDENCE|
-|bump. bump | `workflows/operator/bump.md` | flexible. flexible | VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION|
-|rollback | `workflows/operator/rollback.md` | flexible. flexible | DO NOT BLINDLY ROLL BACK WITHOUT SCOPE, RISK, AND POST-ROLLBACK VERIFICATION|
+|visualize | `workflows/design/visualize.md` | flexible | DO NOT CODE UI BEFORE THE INTERACTION MODEL IS CLEAR|
+|session | `workflows/execution/session.md` | flexible | REBUILD CONTEXT FROM REAL ARTIFACTS BEFORE WRITING MEMORY|
+|help | `workflows/operator/help.md` | flexible | REPO-FIRST GUIDANCE, NOT RECAP THEATER|
+|next | `workflows/operator/next.md` | flexible | ONE CONCRETE NEXT STEP, NOT VAGUE MOMENTUM TALK|
+|run | `workflows/operator/run.md` | flexible | EXECUTE THE REAL COMMAND, THEN ROUTE FROM EVIDENCE|
+|bump | `workflows/operator/bump.md` | flexible | VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION|
+|rollback | `workflows/operator/rollback.md` | flexible | DO NOT BLINDLY ROLL BACK WITHOUT SCOPE, RISK, AND POST-ROLLBACK VERIFICATION|
 
 **Rigid skills:** do not ignore evidence and quality gate.
 **Flexible skills:** adapt according to context, but still have to be clear about output and next step.

@@ -1,23 +1,23 @@
 # UI Briefs
 
-> Use when the task is `frontend` or `visualize` at a medium/large level, or when the visual instructions are ambiguous.
+> Use this file when the task is `frontend` or `visualize` at medium or large scope, or when the visual direction is still ambiguous.
 
 ## Why This Exists
 
-`frontend` and `visualize` both need a clear first artifact before diving into the component or mockup:
+`frontend` and `visualize` both need a clear artifact before jumping into components or mockups:
 
-- `frontend`: frontend brief
-- `visualize`: visual brief
+- `frontend`: a frontend brief
+- `visualize`: a visual brief
 
-This brief did not change the project's design system. It just latches:
-- scope. scope
+The brief does not redefine the project's design system. It locks:
+- scope
 - visual direction
 - interaction model
-- states. states
-- responsive/a11y boundaries
-- stack/platform lens
+- states
+- responsive and accessibility boundaries
+- stack and platform lens
 
-## Generate A Brief
+## Generate a Brief
 
 ### Frontend brief
 
@@ -47,7 +47,7 @@ When the task spans multiple steps or screens, add `--persist`:
 python scripts/generate_ui_brief.py "..." --mode frontend --persist --project-name "LamDiFood POS" --screen checkout
 ```
 
-Artifact generates:
+Generated artifacts:
 
 ```text
 .forge-artifacts/ui-briefs/<project-slug>/<mode>/MASTER.md
@@ -57,30 +57,30 @@ Artifact generates:
 
 Reading order:
 1. `MASTER.md`
-2. `pages/<screen>.md` if screen has override
+2. `pages/<screen>.md` when that screen has an override
 
-## When To Reuse vs Regenerate
+## When to Reuse vs Regenerate
 
-Reuse brief is available when:
-- visual direction remains unchanged
-- same screen family
-- same stack/platform constraints
+Reuse an existing brief when:
+- the visual direction is unchanged
+- the task stays within the same screen family
+- stack and platform constraints are unchanged
 
-Regenerate or update brief when:
-- added new screens
-- change visual direction
-- change lens platform
-- task moves from concept to implementation or vice versa
+Regenerate or update the brief when:
+- you add new screens
+- the visual direction changes
+- the platform lens changes
+- the task moves from concept to implementation, or the reverse
 
 ## Minimum Brief Quality
 
-- Have a clear scope
-- Have clear states: default/loading/empty/error
-- Have responsive or platform notes
-- Has accessibility boundary
-- Has stack-specific focus or watchouts
+- Clear scope
+- Explicit states: default, loading, empty, error
+- Responsive or platform notes
+- Accessibility boundaries
+- Stack-specific focus areas or watchouts
 
-## Validate A Persisted Brief
+## Validate a Persisted Brief
 
 ```powershell
 python scripts/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/frontend --mode frontend --screen checkout

@@ -26,7 +26,7 @@ Optional aliases:
 
 ## Codex Rules
 
-- Natural language is the primary surface; aliases are optional.
+- Natural language is the primary surface. Aliases are optional.
 - Wrapper docs may clarify output shape, but they must not fork core semantics.
 - Do not add heavy session wrappers or onboarding ceremony here.
 - `AGENTS.md` should stay thin and point back to Forge instead of duplicating logic.

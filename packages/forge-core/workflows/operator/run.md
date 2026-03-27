@@ -5,7 +5,7 @@ triggers:
   - shortcut: /run
   - user asks to run the app, a script, or a verification command
 quality_gates:
-  - Command actually runs; do not just restore it
+  - Command actually runs; do not just restate it
   - Report the key output or failure signal
   - End with the next workflow (`test`, `debug`, or `deploy`) when useful
 ---

@@ -1,12 +1,12 @@
 # Forge Canary Rollout
 
-> Goal: turn the question "is it production-ready?" into a canary gate with artifact, clear threshold, and repeatable verdict.
+> Goal: replace "is it production-ready?" with a canary gate backed by artifacts, explicit thresholds, and a repeatable verdict.
 
 ## When to read this file
 
-- When Forge core has passed `verify_bundle.py` but you still lack proof of operation on the real host
-- When preparing the Forge rollout for the first 2-3 workspaces
-- When you need to latch `controlled-rollout ready` or `broad ready`
+- When `verify_bundle.py` passes but you still need proof on the real host
+- When preparing the first 2-3 real workspaces for rollout
+- When deciding whether Forge is `controlled-rollout ready` or `broad ready`
 
 ## Rollout Stages
 
@@ -15,9 +15,9 @@
 Target:
 - At least 2 real workspaces
 - At least 1 day of observation
-- There is no `fail` tremor
-- Maximum 1 workspace is in `warn` state
-- No more blocker in latest run
+- No `fail` results
+- At most 1 workspace in `warn` state
+- No unresolved blocker in the latest run
 
 Evaluation command:
 
@@ -29,11 +29,11 @@ python scripts/evaluate_canary_readiness.py .forge-artifacts/canary-runs --profi
 
 Target:
 - At least 3 real workspaces
-- At least 6 canary runs total
-- At least 2 different observation days
-- There is no `fail` tremor
-- There is no latest run workspace in state `warn`
-- No more blocker in latest run
+- At least 6 canary runs in total
+- At least 2 distinct observation days
+- No `fail` results
+- No workspace in `warn` state in the latest run
+- No unresolved blocker in the latest run
 
 Evaluation command:
 
@@ -43,39 +43,41 @@ python scripts/evaluate_canary_readiness.py .forge-artifacts/canary-runs --profi
 
 ## Workspace Selection
 
-Prioritize 3 types of workspaces:
-- 1 workspace has a local router/companion layer
-- 1 workspace mainly uses Forge core, no local layer
-- 1 workspace has a more high-risk flow: build/debug/deploy/review interwoven
+Prioritize three different workspace shapes:
+- One workspace with a local router or companion layer
+- One workspace that mostly uses Forge core with no local layer
+- One workspace with a higher-risk flow where build/debug/deploy/review overlap
 
-Do not select all 3 workspaces of the same shape; The goal is to catch misroute and fallback behavior on different surfaces.
+Do not choose three workspaces with the same shape. The goal is to catch routing drift and fallback behavior across different surfaces.
 
 ## Scenario Pack Suggestions
 
-Each workspace should run at least:
+Each workspace should cover at least:
 - natural-language review
-- session/continue natural-language
-- build medium or large
-- debug regression-style
-- deploy readiness
+- natural-language session or continue flow
+- medium or large build flow
+- regression-style debug flow
+- deploy readiness flow
 
-If the workspace has local companions:
-- runtime-signal-only selection
-- router checker after changing docs/local skill inventory
+If the workspace has local companions, also cover:
+- runtime-signal-only companion selection
+- router checker after changing docs or local skill inventory
 
 ## Canonical Workspace Runner
 
-Prioritize using automatic runner first, then add `record_canary_result.py` when needed. Note manual:
+Prefer the automatic runner first. Use `record_canary_result.py` directly only when you need to record a manual result.
 
 ```powershell
 python scripts/run_workspace_canary.py C:\path\to\workspace --persist
 ```
 
-Runner self persists:
+The runner persists to:
 - `.forge-artifacts/workspace-canaries/`
 - `.forge-artifacts/canary-runs/`
 
-## How to score a canary run
+## Recording a Canary Result
+
+Successful run:
 
 ```powershell
 python scripts/record_canary_result.py "Core prompts stable on POS workspace" `
@@ -88,7 +90,7 @@ python scripts/record_canary_result.py "Core prompts stable on POS workspace" `
   --persist
 ```
 
-If there is a warning:
+Warning-level run:
 
 ```powershell
 python scripts/record_canary_result.py "1 warn on companion fallback wording" `
@@ -100,7 +102,7 @@ python scripts/record_canary_result.py "1 warn on companion fallback wording" `
   --persist
 ```
 
-If there is a blocker:
+Blocked run:
 
 ```powershell
 python scripts/record_canary_result.py "Router drift broke local skill selection" `
@@ -114,14 +116,14 @@ python scripts/record_canary_result.py "Router drift broke local skill selection
 
 ## Canonical Gate
 
-Before saying Forge "production-ready":
+Before calling Forge production-ready:
 
 ```powershell
 python scripts/verify_bundle.py
 python scripts/evaluate_canary_readiness.py .forge-artifacts/canary-runs --profile controlled-rollout
 ```
 
-When you want a wider latch:
+For the broader gate:
 
 ```powershell
 python scripts/verify_bundle.py --include-canary --canary-profile broad
@@ -129,21 +131,21 @@ python scripts/verify_bundle.py --include-canary --canary-profile broad
 
 ## Verdict Language
 
-Use only 1 of 3 verdicts:
-- `not-ready`: verify bundle failed or canary profile failed
-- `controlled-rollout ready`: verify bundle pass + canary controlled-rollout pass
-- `broad ready`: verify bundle pass + canary broad pass
+Use exactly one of these verdicts:
+- `not-ready`: `verify_bundle` failed or the canary profile failed
+- `controlled-rollout ready`: `verify_bundle` passed and the controlled-rollout profile passed
+- `broad ready`: `verify_bundle` passed and the broad profile passed
 
-Don't use vague sentences like:
+Avoid vague verdicts such as:
 - "almost production"
-- "sure it's okay"
+- "probably okay"
 - "basically usable"
 
 ## Failure Handling
 
-If canary fails:
-1. Burn artifact using `record_canary_result.py`
-2. Fix drift or blocker in bundle
+If a canary fails:
+1. Record the result with `record_canary_result.py`
+2. Fix the drift or blocker in the bundle
 3. Run `verify_bundle.py` again
-4. Rerun workspace canary failed
-5. Only raise verdict when the latest run is clean
+4. Rerun the failed workspace canary
+5. Raise the verdict only after the latest run is clean

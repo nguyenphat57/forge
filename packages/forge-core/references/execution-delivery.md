@@ -1,58 +1,58 @@
 # Forge Execution Delivery
 
-> Use when you need to deploy code after `plan`/`architect` in a way that has checkpoints, completion states, and less drift.
+> Use this when implementation needs checkpoints, clear ownership, and less drift after `plan` or `architect`.
 
 ## Target
 
-- Choose the correct execution mode before batch coding
-- Close execution pipeline and reviewer lane for medium/large or high-risk work
-- Choose a lane-based tier model instead of pushing everything to the same capacity level
-- Lock `spec-review` before building if boundary/risk is not locked enough
-- The execution packet latch is clear enough to execute each slice without guessing
-- Track progress using short artifacts that do not rely on session memory
-- End with a clear completion state, without using vague language
+- choose the right execution mode before batch coding
+- define the execution pipeline and reviewer lane for medium/large or high-risk work
+- choose lane tiers instead of pushing every lane to the same capability level
+- require `spec-review` before build when boundary or risk is still unclear
+- make the execution packet explicit enough to run each slice without guessing
+- track progress with short artifacts instead of relying on session memory
+- end with a clear completion state instead of vague status language
 
 ## Execution Modes
 
-|Mode | When to use | Identification signs|
-|------|--------------|--------------------|
-|`single-track` | A main critical path | High coupling, thick context, boundary not clear enough to separate|
-|`checkpoint-batch` | Many steps are consecutive but still in the same direction | The `done -> next -> blocker` milestone can be locked in short phases|
-|`parallel-safe` | Multiple independent slices | Boundary/interface is clear, each slice can be verified separately|
+|Mode | Use when | Signals|
+|------|----------|--------|
+|`single-track` | One primary critical path | High coupling, dense context, boundaries not cleanly separable|
+|`checkpoint-batch` | Several sequential steps in the same direction | `done -> next -> blocker` checkpoints can be locked phase by phase|
+|`parallel-safe` | Multiple independent slices | Boundaries are clear and each slice can be verified independently|
 
-## Rules for mode selection
+## Mode Selection Rules
 
 1. `small` -> almost always `single-track`
-2. `medium` -> default `single-track`
-3. `large` -> requires choosing a mode
-4. If you are not sure whether parallelism is safe -> do not choose `parallel-safe`
-5. If the task has many steps but the same blast radius -> prioritize `checkpoint-batch`
+2. `medium` -> default to `single-track`
+3. `large` -> choose a mode explicitly
+4. if parallelism might be unsafe, stay on `single-track`
+5. if the task has many steps with the same blast radius, prefer `checkpoint-batch`
 
 ## Execution Pipelines
 
-Forge does not assume that every host has real subagents. `Lane` is the logical concept:
+Forge does not assume that every host supports true subagents. A `lane` is a logical role:
 
-- host has subagents -> can run independent lane
-- Host does not have subagents -> must still keep separate lanes for each pass
+- if the host supports subagents, lanes can run independently
+- if it does not, keep the lanes separate as sequential passes
 
-|Pipelines | Use when | Lanes|
-|----------|----------|-------|
-|`single-lane` | Small or medium low-risk | `implementer`|
-|`implementer-quality` | Medium/large has clear enough specs but still needs an independent quality pass | `implementer` -> `quality-reviewer`|
-|`implementer-spec-quality` | Build large or medium/high-risk has `spec-review` | `implementer` -> `spec-reviewer` -> `quality-reviewer`|
-|`deploy-gate` | Deploy medium/large or release-sensitive | `deploy-reviewer` -> `quality-reviewer`|
+|Pipeline | Use when | Lanes|
+|---------|----------|------|
+|`single-lane` | Small or medium low-risk work | `implementer`|
+|`implementer-quality` | Medium/large work with clear enough specs but still needing independent quality review | `implementer` -> `quality-reviewer`|
+|`implementer-spec-quality` | Large work, or medium/high-risk work gated by `spec-review` | `implementer` -> `spec-reviewer` -> `quality-reviewer`|
+|`deploy-gate` | Medium/large deploy or release-sensitive work | `deploy-reviewer` -> `quality-reviewer`|
 
 Rules:
-- `BUILD` has `spec-review` -> defaults to `implementer-spec-quality`
-- `large` or stronger profile than `standard` -> must have at least `quality-reviewer`
-- Pipeline should not be just for "show"; Each lane must have its own input/output
+- if `BUILD` includes `spec-review`, default to `implementer-spec-quality`
+- `large` work or profiles stronger than `standard` must include at least `quality-reviewer`
+- every lane needs its own real input and output
 
 ## Lane Model Tiers
 
-Forge uses an abstract tier, not a hardcode vendor model:
+Forge uses abstract tiers instead of hard-coding vendor models:
 
-|Tier | Used for|
-|------|----------|
+|Tier | Use for|
+|------|--------|
 |`cheap` | navigation, triage, artifact reading, status formatting|
 |`standard` | bounded implementation slices, standard review, day-to-day execution|
 |`capable` | high-risk implementation, spec review, release gates, migration/auth/payment review|
@@ -65,33 +65,33 @@ Default stance:
 - `deploy-reviewer` -> `standard`
 
 Upgrade rules:
-- `large` -> implement/review lanes leaning towards `capable`
-- `release-critical`, `migration-critical`, `external-interface`, `regression-recovery` -> upgrade related review lane to `capable`
-- Do not push every lane to `capable` if the task is just a low-risk slice
+- `large` -> implementation and review lanes lean toward `capable`
+- `release-critical`, `migration-critical`, `external-interface`, `regression-recovery` -> upgrade the relevant review lane to `capable`
+- do not force every lane to `capable` for a low-risk slice
 
-## Isolation & Reviewer Recommendation
+## Isolation & Reviewer Recommendations
 
-For task `large`, `release-critical`, or `high-risk`, add:
+For `large`, `release-critical`, or `high-risk` work, choose from:
 
-|Recommendation | When to use|
-|----------------|--------------|
-|`same-tree` | Clean repo, narrow scope, simple rollback|
-|`worktree` | Dirty repo, high-risk changes, or need to isolate change set|
-|`subagent-split` | Host supports subagents and boundaries clearly enough|
-|`independent-reviewer` | Need independent review lane after implementation|
+|Recommendation | Use when|
+|----------------|--------|
+|`same-tree` | Clean repo, narrow scope, easy rollback|
+|`worktree` | Dirty repo, high-risk change set, or explicit isolation needed|
+|`subagent-split` | The host supports subagents and boundaries are clearly separable|
+|`independent-reviewer` | The work needs an independent review lane after implementation|
 
 Rules:
-- Dirty repo + large/high-risk -> default towards `worktree`
-- Multiple independent slices + host support -> can add `subagent-split`
-- Auth/payment/migration/release-critical -> leaning towards `independent-reviewer`
-- If you don't justify the boundary clearly, don't divide the subagent
+- dirty repo + large/high-risk work -> default toward `worktree`
+- multiple independent slices + host support -> `subagent-split` can be appropriate
+- auth/payment/migration/release-critical work -> lean toward `independent-reviewer`
+- if the boundary is not justified clearly, do not split the work
 
 ## Delegation Packet
 
-If execution chooses `subagent-split` or a truly independent reviewer lane, the controller must prepare enough packets for each lane instead of forcing the lane to re-read the entire thread:
+If execution chooses `subagent-split` or an independent reviewer lane, the controller must prepare explicit packets instead of forcing every lane to reread the full thread.
 
 ```text
-Delegation packets:
+Delegation packet:
 - Goal: [...]
 - Owned files / write scope: [...]
 - Allowed reads / shared artifacts: [...]
@@ -101,14 +101,14 @@ Delegation packets:
 ```
 
 Rules:
-- Each packet has only one owner responsible for write scope
-- Do not allow two lanes to edit the same file without a clear merge plan
-- Reviewer lane must review from packet + evidence, not absorb the entire context implementer
-- If the host does not have subagents, still use this packet to keep sequential passwords separate
+- each packet has one write owner
+- do not let two lanes edit the same file without a merge plan
+- reviewer lanes should review from packet + evidence, not by replaying the implementer's full context
+- if the host has no subagents, use the same packet shape to keep sequential passes clean
 
 ## Checkpoint Artifact
 
-Short Artifact should have:
+A short progress artifact should contain:
 
 ```text
 Execution progress:
@@ -126,24 +126,11 @@ Execution progress:
 - Risks: [...]
 ```
 
-If the task lasts more than one phase or has multiple checkpoints, persist the artifact with `scripts/track_execution_progress.py`.
-
-For example:
-
-```powershell
-python scripts/track_execution_progress.py "Checkout retry ordering" `
-  --mode checkpoint-batch `
-  --stage implement-slice-1 `
-  --lane implementer `
-  --model-tier capable `
-  --proof "failing retry reproduction" `
-  --done "packet locked" `
-  --next "rerun targeted queue scenario"
-```
+If the work spans multiple phases or checkpoints, persist it with `scripts/track_execution_progress.py`.
 
 ## Execution Packet
 
-Before editing a medium/large slice, the minimum packet should have:
+Before editing a medium/large slice, the minimum packet should contain:
 
 ```text
 Execution packet:
@@ -159,15 +146,15 @@ This packet is the bridge between `plan/architect/spec-review` and `build`.
 
 ## Stage Exit Criteria
 
-A stage or slice should only be considered complete when:
-- The proof of that slice has passed
-- The relevant boundary has not been breached
-- checkpoint clearly says next slice or blocker
-- No more silent assumptions are pushed to the next stage
+A stage or slice is complete only when:
+- its proof has passed
+- the relevant boundary has not been breached
+- the checkpoint states the next slice or blocker explicitly
+- no silent assumptions are being pushed downstream
 
 ## Chain Visibility
 
-When the task is no longer a single execution checkpoint but a long chain:
+When work becomes a long-running chain instead of a single checkpoint, use:
 
 ```text
 Chain status:
@@ -185,53 +172,36 @@ Chain status:
 - Risks: [...]
 ```
 
-Persist equals `scripts/track_chain_status.py` when:
-- chain goes through 3+ stages
-- There are many skills involved
-- need to pause/resume but still see the status immediately
-- There are many lanes such as implement/review/gate that need to be looked at separately
-
-For example:
-
-```powershell
-python scripts/track_chain_status.py "Checkout rewrite flow" `
-  --project-name example-project `
-  --current-stage spec-review `
-  --active-skill build `
-  --active-skill spec-review `
-  --active-lane implementer `
-  --active-lane spec-reviewer `
-  --lane-model implementer=capable `
-  --lane-model spec-reviewer=capable `
-  --review-iteration 2 `
-  --max-review-iterations 3 `
-  --gate-decision conditional
-```
+Persist this with `scripts/track_chain_status.py` when:
+- the chain has 3+ stages
+- many skills are active
+- the work must pause/resume cleanly
+- multiple lanes need independent visibility
 
 ## Bounded Review Loops
 
-Spec-review and review lanes cannot be revised indefinitely.
+Spec-review and review lanes cannot loop forever.
 
 Default rules:
-- `spec-review` maximum `3` round `revise`
-- exceed threshold -> `blocked` and return to `plan` or `architect`
-- Each round of revision must indicate the correct part that needs fixing, without repeating vague feedback
+- `spec-review` allows at most `3` `revise` rounds
+- exceeding that threshold becomes `blocked` and returns to `plan` or `architect`
+- every revision round must name the exact fix, not repeat vague feedback
 
-This keeps execution from devolving into endless review theater.
+This keeps execution from degrading into endless review churn.
 
 ## Completion States
 
 |State | Meaning|
-|-------|---------|
-|`in-progress` | Not enough evidence to handoff|
-|`ready-for-review` | Verified the implementation and waiting for the final review|
-|`ready-for-merge` | Only use when the scope is small or the review is clear|
-|`blocked-by-residual-risk` | The risk or blocker is still large, not considered done yet|
+|-------|--------|
+|`in-progress` | Not enough evidence for handoff|
+|`ready-for-review` | Implementation is verified and waiting for final review|
+|`ready-for-merge` | Use only when scope is small or review is decisively clean|
+|`blocked-by-residual-risk` | Risk or blockers are still too large to call the work done|
 
 ## Anti-Patterns
 
-- Use `parallel-safe` when the boundary is unclear
-- Start coding from "what's easiest" instead of from the execution packet
-- Do not record checkpoints for large work and then summarize from memory at the end of the session
-- Use `ready-for-merge` while there is still unverified risk
-- Handoff only says "almost done" without a clear state
+- using `parallel-safe` when the boundary is unclear
+- coding from "what seems easiest" instead of from the execution packet
+- skipping checkpoints on large work and reconstructing status from memory at the end
+- using `ready-for-merge` while unverified risk still exists
+- handing off with language such as "almost done" instead of a concrete state

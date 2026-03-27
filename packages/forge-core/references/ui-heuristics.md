@@ -11,7 +11,7 @@
 ## Dense Data UI
 
 - Group information into eye-catching semantic blocks, usually 5-9 main items per cluster.
-- Primary KPI must stand out first; Secondary metrics can go to tabs, filters, or secondary rows.
+- The primary KPI should stand out first. Secondary metrics can live in tabs, filters, or secondary rows.
 - Avoid noise such as heavy box-shadows, too bold borders, or every card "demanding attention".
 
 ## Dashboard UI
@@ -28,8 +28,8 @@
 ## Decision Architecture
 
 - Avoid "wall of buttons".
-- 1 or maximum 2 main CTAs per view is a safe default; the rest downgrade or progressive disclosure.
+- A safe default is 1, or at most 2, primary CTAs per view. Downgrade the rest or reveal them progressively.
 
 ## Accessibility Defaults
 
-- Don't wait until the end to think about accessibility; focus order, contrast, labels, and motion boundaries must appear immediately from the brief/spec.
+- Do not leave accessibility until the end. Focus order, contrast, labels, and motion boundaries should be visible from the brief/spec from the start.
