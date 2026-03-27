@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.10.0 - 2026-03-27
+
+- Tách logic preferences trong `forge-core` khỏi `common.py` sang các module chuyên biệt như `preferences.py`, `compat.py`, `style_maps.py`, `skill_routing.py`, `text_utils.py`, và `error_translation.py`, đồng thời giữ `common.py` như shim re-export để không làm vỡ entrypoints hiện có.
+- Đơn giản hóa persistence preferences theo split-file adapter-global state với canonical fields ở `state/preferences.json`, extras ở `state/extra_preferences.json`, giữ nguyên `output_contract`, và chỉ migrate legacy single-file state trên write/apply flows.
+- Rút `forge-antigravity` compat config về read/migration-only, cập nhật docs/workflows/contracts của `forge-core`, `forge-codex`, và `forge-antigravity` cho semantics mới, và mở rộng regression/release verification để khóa split-file behavior từ source bundle tới dist bundle.
+
+
 ## 0.9.0 - 2026-03-26
 
 - Describe release changes.
