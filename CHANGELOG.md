@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0 - 2026-03-28
+
+- Sửa độ ổn định của `forge-codex` release bundle verification, gồm xử lý đúng materialized bundle layout trong `support.py` và tránh import lệch `support` trong suite dist.
+- Chuẩn hóa prose agent-facing cho `forge-antigravity` trên `SKILL.md`, `GEMINI.global.md`, operator wrappers, và operator-surface reference để đạt mức native-clear hơn mà không đổi workflow semantics.
+- Cập nhật smoke contract cho `prepare_bump.py` để case auto-preview không có git context chấp nhận `inferred_from = no-git-context`, đồng thời giữ full release verification xanh sau bump.
+
+
 ## 1.1.0 - 2026-03-27
 
 - Nâng độ native-clear cho `forge-core` và `forge-codex` trên các workflow, reference, operator wrapper, và host docs để Codex đọc routing/gate/proof rõ hơn và ít ambiguity hơn.

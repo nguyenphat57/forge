@@ -14,14 +14,14 @@ quality_gates:
 
 # Customize - Antigravity Preference Wrapper
 
-> Goal: give Antigravity users a clear `/customize` surface, while all durable changes still go through the canonical Forge contract.
+> Goal: give Antigravity users a clear `/customize` surface while keeping durable changes on the canonical Forge contract.
 
 <HARD-GATE>
 - Do not create Antigravity-specific keys in adapter-global state.
 - Do not overwrite all preferences if the user only changes a few fields.
 - Do not change routing or gate logic; this workflow only changes response style.
 - Reading via `resolve_preferences.py` is read-only; do not mutate state to "preview".
-- Legacy single-file state from Antigravity may be migrated on the write/apply path; after migration canonical and extras are split into separate files.
+- Legacy single-file Antigravity state may be migrated on the write/apply path; after migration, canonical fields and extras are split into separate files.
 - Workspace `.brain/preferences.json` is only for legacy fallback or per-repo overrides, not the default destination for durable language rules.
 </HARD-GATE>
 
@@ -31,7 +31,7 @@ Fast path for language requests:
 
 - If the user only asks how to set language, diacritics, or writing conventions:
   - point directly to a durable adapter-global update via `scripts/write_preferences.py`
-  - only point to workspace `.brain/preferences.json` when they want a rule that applies to the current repo only
+  - only point to workspace `.brain/preferences.json` when the rule should apply to the current repo only
   - reuse the short template in `references/personalization.md`
 
 1. Read current preferences:
@@ -65,7 +65,7 @@ python scripts/write_preferences.py --language vi --orthography vietnamese_diacr
    - which preference changed
    - how the response style will feel different
    - if there is a workspace-only override, state that it remains separate from adapter-global state
-   - if legacy state was migrated, note that canonical and extras are now split
+   - if legacy state was migrated, note that canonical fields and extras are now split
 
 ## Output Contract
 

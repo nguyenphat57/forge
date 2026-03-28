@@ -4,10 +4,10 @@ Antigravity adapter overlay for Forge.
 
 Contents:
 
-- Antigravity-oriented `SKILL.md`
-- `agents/openai.yaml`
-- operator wrapper workflows cho `help/next/run/bump/rollback/customize/init`
-- session ergonomics wrappers va compatibility aliases (`/recap`, `/save-brain`, `/handover`)
+- Antigravity-specific `SKILL.md`
+- `agents/openai.yaml` for host UI metadata
+- Operator wrapper workflows for `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`
+- Session-oriented wrappers and compatibility aliases: `/recap`, `/save-brain`, and `/handover`
 - Antigravity operator surface reference
 
-Build output is produced by overlaying these files on top of `forge-core`.
+The build overlays these files on top of `forge-core`.

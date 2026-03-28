@@ -12,7 +12,7 @@ quality_gates:
 
 # Rollback - Antigravity Operator Wrapper
 
-> Goal: keep `/rollback` clear for Antigravity users while maintaining the risk-first contract of core.
+> Goal: make `/rollback` clear for Antigravity users while preserving the core risk-first contract.
 
 ## Process
 

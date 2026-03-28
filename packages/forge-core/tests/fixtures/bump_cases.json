@@ -26,6 +26,7 @@
     "expected_bump_source": "inferred",
     "expected_inference_confidence": "low",
     "expected_inferred_from_any": [
+      "no-git-context",
       "since-last-version-change",
       "working-tree-only"
     ]

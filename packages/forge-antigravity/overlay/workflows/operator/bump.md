@@ -12,11 +12,11 @@ quality_gates:
 
 # Bump - Antigravity Operator Wrapper
 
-> Goal: keep `/bump` clear for Antigravity users, while semver math and the release checklist still go through core.
+> Goal: make `/bump` clear for Antigravity users while keeping semver logic and the release checklist in core.
 
 ## Process
 
-1. If the user has not specified a bump level, infer from the repo diff and state the reasoning briefly.
+1. If the user has not specified a bump level, infer it from the repo diff and state the reasoning briefly.
 2. Preview or apply using:
 
 ```powershell

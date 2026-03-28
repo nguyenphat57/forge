@@ -12,7 +12,7 @@ quality_gates:
 
 # Run - Antigravity Operator Wrapper
 
-> Goal: keep `/run` clear for Antigravity users, while still routing from the real output of core `run_with_guidance.py`.
+> Goal: make `/run` clear for Antigravity users while still routing from the real output of core `run_with_guidance.py`.
 
 ## Process
 

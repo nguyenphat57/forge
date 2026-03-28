@@ -12,14 +12,14 @@ quality_gates:
 
 # Handover - Antigravity Session Wrapper
 
-> Goal: give Antigravity a clear handover surface on top of the Forge session contract.
+> Goal: provide a clear Antigravity handover surface on top of the Forge session contract.
 
 ## Process
 
 1. Enter `workflows/execution/session.md` in handover mode.
 2. Summarize:
    - what is in progress
-   - what is completed
+   - what is complete
    - what remains
    - important files
    - verification already run

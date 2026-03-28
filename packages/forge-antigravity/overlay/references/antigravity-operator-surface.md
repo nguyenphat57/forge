@@ -1,6 +1,6 @@
 # Antigravity Operator Surface
 
-## Primary Surface
+## Primary Wrappers
 
 | Surface | Wrapper | Core contract |
 |---------|---------|---------------|
@@ -12,7 +12,7 @@
 | `/customize` | `workflows/operator/customize.md` | `scripts/resolve_preferences.py` + `scripts/write_preferences.py` |
 | `/init` | `workflows/operator/init.md` | `scripts/initialize_workspace.py` |
 
-## Session Alias Shortcuts
+## Session Wrappers
 
 | Alias | Wrapper | Core contract |
 |-------|---------|---------------|
@@ -22,6 +22,6 @@
 
 ## Compatibility Rules
 
-- Wrapper docs may change presentation to be more operator-friendly.
+- Wrapper docs may use a more operator-friendly presentation.
 - Core semantics, schema, and deterministic scripts must not be forked.
-- Aliases exist only to reduce friction when migrating from AWF or older Antigravity versions, not to create new intents.
+- Aliases exist only to reduce migration friction from AWF or older Antigravity versions; they do not create new intents.

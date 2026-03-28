@@ -12,7 +12,7 @@ quality_gates:
 
 # Help - Antigravity Operator Wrapper
 
-> Goal: keep `/help` clear for Antigravity users, while still using the core navigator from Forge.
+> Goal: make `/help` clear for Antigravity users while still using Forge's core navigator.
 
 ## Process
 
@@ -22,10 +22,10 @@ quality_gates:
 python scripts/resolve_help_next.py --workspace <workspace> --mode help
 ```
 
-2. Present in an operator-friendly style:
-   - where you are
+2. Present the result in an operator-friendly format:
+   - current state
    - primary direction
-   - at most 2 alternatives
+   - at most two alternatives
 
 ## Activation Announcement
 

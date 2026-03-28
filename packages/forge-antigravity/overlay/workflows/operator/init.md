@@ -12,7 +12,7 @@ quality_gates:
 
 # Init - Antigravity Workspace Bootstrap
 
-> Goal: give Antigravity a clear `/init` to use Forge on a new workspace without embedding host ceremony into core.
+> Goal: make `/init` a clean way to bootstrap Forge in a workspace without pushing host ceremony into core.
 
 <HARD-GATE>
 - Do not overwrite existing files.

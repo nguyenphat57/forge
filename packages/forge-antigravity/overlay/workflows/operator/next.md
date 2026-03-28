@@ -12,7 +12,7 @@ quality_gates:
 
 # Next - Antigravity Operator Wrapper
 
-> Goal: keep `/next` clear for Antigravity users while maintaining the repo-first contract of core.
+> Goal: make `/next` clear for Antigravity users while preserving the core repo-first contract.
 
 ## Process
 

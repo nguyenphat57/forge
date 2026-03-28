@@ -13,7 +13,7 @@ quality_gates:
 
 # Recap - Antigravity Restore Wrapper
 
-> Goal: keep `/recap` and its variants familiar for Antigravity users, while still routing to the `session` restore mode of Forge core.
+> Goal: keep `/recap` and its variants familiar for Antigravity users while still routing to Forge core `session` restore mode.
 
 ## Process
 

@@ -14,17 +14,17 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 ## Bundle Layout
 
 The tree below reflects the Antigravity bundle after overlaying this adapter on top of `forge-core`.
-Files inherited from core and files added by the adapter both appear in a single runtime layout.
+Core files and adapter files appear together in a single runtime layout.
 
 - `SKILL.md`: entrypoint to route intent, pair skills, and hold delivery guardrails
-- `workflows/design/`: planning, architecture, spec-review, visualize
+- `workflows/design/`: planning, architecture, spec-review, and visualize
 - `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session
-- `workflows/operator/`: help, next, run, bump, rollback, and Antigravity wrappers like customize/init/recap/save-brain/handover
+- `workflows/operator/`: help, next, run, bump, rollback, and Antigravity wrappers such as customize/init/recap/save-brain/handover
 - `domains/`: core domain guidance for frontend and backend
 - `data/`: machine-readable registry for intent, matrix, verification profiles, quality profiles, execution pipelines, and lane model policy
 - `scripts/`: deterministic tooling for route preview, scoped continuity capture, and optional checks for workspaces with local layers
-- `tests/`: regression tests for deterministic scripts and router/tooling contracts
-- `references/`: smoke tests, companion contract, and read-only reference documentation when needed
+- `tests/`: regression tests for deterministic scripts and routing/tooling contracts
+- `references/`: smoke tests, the companion contract, and read-only reference documentation when needed
 - `agents/openai.yaml`: UI metadata for hosts that support skill list/chips
 
 ```text
@@ -152,14 +152,14 @@ forge-antigravity/
 
 ## Host Boundary
 
-- Antigravity host rules live at a scope above this folder.
-- The root `GEMINI.md` at Antigravity scope, if the host is using it, is a **host rule file** and not part of this skill bundle.
+- Antigravity host rules live above this folder.
+- The root `GEMINI.md` at Antigravity scope, when the host uses it, is a **host rule file** and not part of this skill bundle.
 - `AGENTS.md` at the workspace root is a **router/instruction file** for the workspace, not `SKILL.md`.
-- `forge-antigravity` may read host/workspace rules for better routing, but does not depend on a local `GEMINI.md` inside this skill folder.
+- `forge-antigravity` can use host or workspace rules when present, but it does not depend on a local `GEMINI.md` inside this folder.
 
 ## Antigravity Protocol Bridge
 
-Forge concepts map directly to Antigravity host tools. Use Antigravity tools natively instead of duplicating ceremony.
+Forge concepts map directly to Antigravity host tools. Use native Antigravity tools instead of duplicating ceremony.
 
 | Forge concept | Antigravity tool | Mapping |
 |--------------|-----------------|--------|
@@ -179,7 +179,7 @@ Mode mapping from Forge skills:
 | `session`, `visualize` | Use the mode that matches current activity |
 
 Rules:
-- Do **not** emit a separate Forge activation line AND a `task_boundary` call — the `task_boundary` call IS the activation.
+- Do **not** emit a separate Forge activation line and a `task_boundary` call; the `task_boundary` call is the activation.
 - Forge skill chain progress updates go through `task_boundary(TaskStatus)`, not through inline messages.
 - When Forge completes a skill and moves to the next in the chain, update `TaskName` to reflect the new skill.
 - Evidence and verification results that need user review go through `notify_user`, not inline.
@@ -265,10 +265,10 @@ For detailed command examples or artifact behavior, read `references/tooling.md`
 
 ## Operator Guidance
 
-- `forge-antigravity` may explicitly expose `/help` and `/next`, but guidance must still resolve from the core navigator `scripts/resolve_help_next.py`.
+- `forge-antigravity` may expose `/help` and `/next`, but guidance must still resolve from the core navigator `scripts/resolve_help_next.py`.
 - Repo-first remains a hard rule: `git status`, plans/specs, then `.brain`.
 - Wrapper UX may be more operator-friendly, but must not turn guidance into recap theater.
-- `forge-antigravity` may explicitly expose `/run`, but results must still resolve from the core `scripts/run_with_guidance.py`.
+- `forge-antigravity` may expose `/run`, but results must still resolve from the core `scripts/run_with_guidance.py`.
 - Error translation still reads from the core helper `scripts/translate_error.py`; this adapter only changes presentation, not the pattern database.
 - `/bump` and `/rollback` may be explicitly exposed in Antigravity, but must still maintain the user-requested/inference-justified and risk-first contract of core.
 - `/init` may be richer in onboarding, but the reusable workspace skeleton must still go through `scripts/initialize_workspace.py`.
@@ -321,10 +321,10 @@ When receiving a prompt from the user, classify the intent:
 | **VISUALIZE** | ui, ux, mockup, wireframe, screen, layout | "Sketch checkout screen" |
 | **SESSION** | recap, continue, resume, save, context | "Continue unfinished work" |
 
-**When user uses `/shortcut`:** Map according to the shortcut registry of the Antigravity host, not dependent on local files in this skill folder.
+**When the user uses `/shortcut`:** Map according to the Antigravity host shortcut registry, not local files in this skill folder.
 Canonical source for intent keywords and chains: `data/orchestrator-registry.json`.
 
-Signals like `brainstorm`, `options`, `approach`, `tradeoff` do not create new intents; they activate the **brainstorm gate** before `plan` when the task is ambiguous/complex enough.
+Signals like `brainstorm`, `options`, `approach`, and `tradeoff` do not create new intents; they activate the **brainstorm gate** before `plan` when the task is ambiguous or complex enough.
 
 ---
 
@@ -382,7 +382,7 @@ To preview deterministic routing for a specific prompt: run `scripts/route_previ
 11. Move to the next skill only if needed
 ```
 
-No need to fully load the chain if the task was safely resolved earlier.
+Do not load the full chain if an earlier step resolves the task safely.
 Companion/local skills must not override Forge's verification/evidence gates.
 
 **Minimal routing policy:** For `REVIEW`, `SESSION`, and `small` tasks, Forge prioritizes prompt-led routing. Repo signals must not automatically pull additional domain skills, local companions, or escalation profiles unless the prompt clearly states the need.

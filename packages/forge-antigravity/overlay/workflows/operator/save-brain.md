@@ -12,7 +12,7 @@ quality_gates:
 
 # Save-Brain - Antigravity Continuity Wrapper
 
-> Goal: keep `/save-brain` for users familiar with AWF/Antigravity, without turning it into a mandatory memory ritual.
+> Goal: keep `/save-brain` for users familiar with AWF or Antigravity without turning it into a mandatory memory ritual.
 
 ## Process
 

@@ -21,7 +21,7 @@ Use `forge-antigravity` as the global orchestrator for Gemini workspaces.
 
 ## Scope Of This File
 
-- This file is the global bootstrap layer, not the full process manual.
+- This file is the global bootstrap layer; it is not the full process manual.
 - Keep detailed routing, workflow logic, and quality gates in the Forge bundle files.
 - Update this file only when the host bindings, precedence rules, or top-level alias surface changes.
 
@@ -46,7 +46,7 @@ Before the first substantive reply in every new conversation:
 - Workspace-local routers may extend Forge, but they do not replace Forge's verification, evidence, scope-control, or reporting rules.
 - If local guidance conflicts with Forge, Forge wins on verification and scope; local guidance may refine repo-specific conventions and stack-specific commands.
 - Prefer repo state, plans, specs, and scoped `.brain/` artifacts over session ceremony.
-- If there is no memory data, continue from repo state instead of stopping.
+- If no memory data is available, continue from repo state instead of stopping.
 - Keep scope minimal; ask before new dependencies, schema changes, or folder-structure changes.
 - Do not fabricate telemetry, token counters, or progress percentages.
 - Durable preferences live in Antigravity-global adapter state `{{FORGE_ANTIGRAVITY_STATE_ROOT}}`, with canonical fields in `{{FORGE_ANTIGRAVITY_PREFERENCES_PATH}}` and adapter extras in `{{FORGE_ANTIGRAVITY_EXTRA_PREFERENCES_PATH}}`.
