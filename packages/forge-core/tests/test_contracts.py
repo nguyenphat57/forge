@@ -162,6 +162,7 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("resolve_preferences.py", tooling)
         self.assertIn("resolve_help_next.py", tooling)
         self.assertIn("run_with_guidance.py", tooling)
+        self.assertIn("record_quality_gate.py", tooling)
         self.assertIn("translate_error.py", tooling)
         self.assertIn("prepare_bump.py", tooling)
         self.assertIn("resolve_rollback.py", tooling)
@@ -176,6 +177,29 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("state/extra_preferences.json", session)
         self.assertIn("resolve_preferences.py", session)
         self.assertIn("Response Personalization", session)
+        self.assertIn("workflow-state", session)
+
+    def test_tooling_docs_mention_workflow_state_artifacts(self) -> None:
+        tooling = (ROOT_DIR / "references" / "tooling.md").read_text(encoding="utf-8")
+        self.assertIn("workflow-state", tooling)
+        self.assertIn("latest.json", tooling)
+        self.assertIn("events.jsonl", tooling)
+
+    def test_architecture_layers_reference_describes_four_layers(self) -> None:
+        architecture = (ROOT_DIR / "references" / "architecture-layers.md").read_text(encoding="utf-8")
+        self.assertIn("core", architecture)
+        self.assertIn("generated artifacts", architecture)
+        self.assertIn("workflow state", architecture)
+        self.assertIn("runtime tools", architecture)
+        self.assertIn("generate_host_artifacts.py", architecture)
+
+    def test_architecture_layers_reference_mentions_four_layers(self) -> None:
+        layers = (ROOT_DIR / "references" / "architecture-layers.md").read_text(encoding="utf-8")
+        self.assertIn("core", layers)
+        self.assertIn("generated artifacts", layers)
+        self.assertIn("workflow state", layers)
+        self.assertIn("runtime tools", layers)
+        self.assertIn("Dependency Direction", layers)
 
 
 if __name__ == "__main__":

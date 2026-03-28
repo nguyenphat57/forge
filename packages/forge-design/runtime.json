@@ -1,0 +1,15 @@
+{
+  "name": "forge-design",
+  "kind": "runtime-tool",
+  "host": "runtime",
+  "description": "Optional design packet runtime for Forge",
+  "state": {
+    "scope": "runtime-tool-global",
+    "dev_root": {
+      "strategy": "bundle-parent-relative",
+      "path_relative": "forge-design-state"
+    },
+    "renders_relative_path": "state/renders.jsonl",
+    "packets_relative_dir": "packets"
+  }
+}

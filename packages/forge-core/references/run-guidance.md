@@ -19,6 +19,7 @@ python scripts/run_with_guidance.py --workspace C:\path\to\workspace --format js
 ## Input Contract
 
 - `--workspace`: root in which the command will run
+- `--project-name`: optional workflow-state grouping label when persisting
 - `--timeout-ms`: timeout budget
 - command must be passed after `--`
 
@@ -48,6 +49,8 @@ If you use `--persist`, the default artifact path is:
 
 ```text
 .forge-artifacts/run-reports/
+.forge-artifacts/workflow-state/<project-slug>/latest.json
+.forge-artifacts/workflow-state/<project-slug>/events.jsonl
 ```
 
 ## Adapter Boundary

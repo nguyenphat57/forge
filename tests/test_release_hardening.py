@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 import unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -20,7 +22,7 @@ import install_bundle  # noqa: E402
 class ReleaseHardeningTests(unittest.TestCase):
     def test_build_release_excludes_cached_python_artifacts(self) -> None:
         build_release.build_all()
-        for bundle_name in ("forge-antigravity", "forge-codex"):
+        for bundle_name in ("forge-antigravity", "forge-codex", "forge-browse", "forge-design"):
             with self.subTest(bundle=bundle_name):
                 dist_root = ROOT_DIR / "dist" / bundle_name
                 self.assertFalse(any(dist_root.rglob("__pycache__")))
@@ -59,11 +61,37 @@ class ReleaseHardeningTests(unittest.TestCase):
         build_release.build_all()
         self.assertTrue((ROOT_DIR / "dist" / "forge-antigravity" / "BUILD-MANIFEST.json").exists())
         self.assertTrue((ROOT_DIR / "dist" / "forge-codex" / "BUILD-MANIFEST.json").exists())
+        self.assertTrue((ROOT_DIR / "dist" / "forge-browse" / "BUILD-MANIFEST.json").exists())
+        self.assertTrue((ROOT_DIR / "dist" / "forge-design" / "BUILD-MANIFEST.json").exists())
 
     def test_verify_repo_pipeline_includes_secret_scan(self) -> None:
         verify_repo = (ROOT_DIR / "scripts" / "verify_repo.py").read_text(encoding="utf-8")
         self.assertIn("repo.secret_scan", verify_repo)
+        self.assertIn("repo.generated_host_artifacts", verify_repo)
+        self.assertIn("install_dry_run.forge-browse", verify_repo)
+        self.assertIn("install_dry_run.forge-design", verify_repo)
         self.assertTrue((ROOT_DIR / "scripts" / "scan_repo_secrets.py").exists())
+        self.assertTrue((ROOT_DIR / "scripts" / "generate_host_artifacts.py").exists())
+
+    def test_build_release_requires_fresh_generated_host_artifacts(self) -> None:
+        build_script = (ROOT_DIR / "scripts" / "build_release.py").read_text(encoding="utf-8")
+        self.assertIn("ensure_generated_host_artifacts(check=True)", build_script)
+
+    def test_install_bundle_rejects_custom_source_with_drifted_fingerprint(self) -> None:
+        build_release.build_all()
+        with TemporaryDirectory() as temp_dir:
+            temp_root = Path(temp_dir)
+            source = temp_root / "forge-codex"
+            shutil.copytree(ROOT_DIR / "dist" / "forge-codex", source)
+            (source / "SKILL.md").write_text("drifted bundle\n", encoding="utf-8")
+
+            with self.assertRaises(ValueError):
+                install_bundle.install_bundle(
+                    "forge-codex",
+                    source=str(source),
+                    target=str(temp_root / "runtime" / "forge-codex"),
+                    dry_run=True,
+                )
 
 
 if __name__ == "__main__":

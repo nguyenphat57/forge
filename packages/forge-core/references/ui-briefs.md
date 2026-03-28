@@ -91,3 +91,20 @@ Or:
 ```powershell
 python scripts/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/visualize --mode visualize --screen dashboard
 ```
+
+## Optional Design Packet Runtime
+
+If `forge-design` is installed, a persisted brief can be turned into a reviewable HTML artifact:
+
+```powershell
+python C:\tools\forge-design\scripts\forge_design.py render-brief .forge-artifacts/ui-briefs/<project-slug>/visualize --screen dashboard
+```
+
+The resulting packet is useful for review, handoff, or capture with `forge-browse`.
+
+If both runtime tools are installed, a minimal capture loop is:
+
+```powershell
+python C:\tools\forge-browse\scripts\forge_browse.py session-create --label "design-review" --format json
+python C:\tools\forge-browse\scripts\forge_browse.py snapshot --session <session-id> --url file:///C:/path/to/review-packet.html --output C:\path\to\review-packet.png
+```

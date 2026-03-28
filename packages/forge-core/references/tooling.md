@@ -79,6 +79,30 @@ The script:
 
 Detailed semantics: see `workspace-init.md`.
 
+## Host Artifact Generator
+
+When host-global templates need to stay generated from a canonical source instead of hand-maintained overlays:
+
+```powershell
+python scripts/generate_host_artifacts.py --check --format json
+python scripts/generate_host_artifacts.py --apply
+```
+
+Canonical source currently lives in:
+
+```text
+scripts/host_artifact_specs.py
+```
+
+Current generated outputs:
+
+```text
+packages/forge-codex/overlay/AGENTS.global.md
+packages/forge-antigravity/overlay/GEMINI.global.md
+```
+
+If `--check` fails, refresh the generated files before running `build_release.py` or `verify_repo.py`.
+
 ## Help/Next Navigator
 
 When you need to resolve operator based on repo state instead of guidance recap ritual:
@@ -91,6 +115,7 @@ python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode next
 Script to read:
 - `git status` if that workspace is a private git root
 - `docs/plans/` and `docs/specs/`
+- `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, UI, run, or quality-gate tools have already persisted state
 - `.brain/session.json` and `.brain/handover.md` if available
 - `README`
 - adapter-global split preferences state via `resolve_preferences.py` to adapt response style
@@ -112,6 +137,7 @@ When you need to run the actual command and route the next step from the output:
 ```powershell
 python scripts/run_with_guidance.py --workspace C:\path\to\workspace --timeout-ms 20000 -- npm run dev
 python scripts/run_with_guidance.py --workspace C:\path\to\workspace --format json -- python -m pytest tests/unit
+python scripts/run_with_guidance.py --workspace C:\path\to\workspace --project-name "Example Project" --persist --output-dir C:\path\to\workspace -- npm run build
 ```
 
 The script returns:
@@ -127,9 +153,39 @@ If using `--persist`, the default artifact is located at:
 
 ```text
 .forge-artifacts/run-reports/
+.forge-artifacts/workflow-state/<project-slug>/latest.json
+.forge-artifacts/workflow-state/<project-slug>/events.jsonl
 ```
 
 Detailed semantics: see `run-guidance.md`.
+
+## Quality Gate Recorder
+
+When you need to close a go / no-go decision from fresh evidence and carry that decision into `help/next`:
+
+```powershell
+python scripts/record_quality_gate.py --workspace C:\path\to\workspace --profile standard --target-claim ready-for-merge --decision conditional --evidence "pytest tests/test_checkout.py" --response "I verified: ..." --why "..." --next-evidence "Run merge-readiness smoke" --persist --output-dir C:\path\to\workspace
+python scripts/record_quality_gate.py --workspace C:\path\to\workspace --profile release-critical --target-claim deploy --decision go --evidence "python scripts/build_release.py --format json" --response "I verified: ..." --why "..." --persist
+```
+
+The script returns:
+- `status`
+- `profile`
+- `target_claim`
+- `decision`
+- `evidence_read`
+- `response`
+- `why`
+- `next_evidence`
+- `risks`
+
+If using `--persist`, the default artifacts are:
+
+```text
+.forge-artifacts/quality-gates/<project-slug>/
+.forge-artifacts/workflow-state/<project-slug>/latest.json
+.forge-artifacts/workflow-state/<project-slug>/events.jsonl
+```
 
 ## Error Translation
 
@@ -295,6 +351,13 @@ Default Artifact:
 .forge-artifacts/ui-progress/<mode>/
 ```
 
+The tracker also refreshes:
+
+```text
+.forge-artifacts/workflow-state/<project-slug>/latest.json
+.forge-artifacts/workflow-state/<project-slug>/events.jsonl
+```
+
 ## Route Preview
 
 When you want to preview the route for a prompt before loading the skill chain:
@@ -403,6 +466,13 @@ Default Artifact:
 .forge-artifacts/execution-progress/<project-slug>/
 ```
 
+The tracker also refreshes:
+
+```text
+.forge-artifacts/workflow-state/<project-slug>/latest.json
+.forge-artifacts/workflow-state/<project-slug>/events.jsonl
+```
+
 Important new fields:
 - `lane`
 - `model-tier`
@@ -441,6 +511,13 @@ Default Artifact:
 
 ```text
 .forge-artifacts/chain-status/<project-slug>/
+```
+
+The tracker also refreshes:
+
+```text
+.forge-artifacts/workflow-state/<project-slug>/latest.json
+.forge-artifacts/workflow-state/<project-slug>/events.jsonl
 ```
 
 Important new fields:
@@ -578,7 +655,7 @@ Detailed runbook: see `canary-rollout.md`.
 - Audit drift of workspace router: `check_workspace_router.py` when workspace has local layer
 - Capture decision/learning scoped, evidence-backed: `capture_continuity.py`
 - Create or check first artifact for backend: `generate_backend_brief.py` / `check_backend_brief.py`
-- Check overall chain/go-no-go: `track_chain_status.py` + `quality-gate.md`
+- Check overall chain/go-no-go: `track_chain_status.py` + `record_quality_gate.py` + `quality-gate.md`
 - Track checkpoint for long builds: `track_execution_progress.py`
 - Full chain track length: `track_chain_status.py`
 - Run smoke suite entry-point: `run_smoke_matrix.py`

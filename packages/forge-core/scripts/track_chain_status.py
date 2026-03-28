@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 from common import configure_stdio, default_artifact_dir, slugify, timestamp_slug
+from workflow_state_support import record_workflow_event
 
 
 VALID_STATUSES = ("active", "paused", "completed", "blocked")
@@ -88,6 +89,7 @@ def persist_report(report: dict, output_dir: str | None) -> tuple[Path, Path]:
     md_path = artifact_dir / f"{stem}.md"
     json_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     md_path.write_text(format_text(report), encoding="utf-8")
+    record_workflow_event("chain-status", report, output_dir=output_dir, source_path=json_path)
     return json_path, md_path
 
 

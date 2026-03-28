@@ -23,6 +23,7 @@ quality_gates:
 ## Process
 
 1. Inspect workspace state:
+   - persisted workflow state under `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, UI, run, or quality-gate artifacts are available
    - active plan/spec
    - current working tree changes
    - session or handover artifacts if any

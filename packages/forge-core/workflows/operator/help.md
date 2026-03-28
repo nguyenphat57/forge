@@ -25,6 +25,7 @@ quality_gates:
 1. Read the most useful state repo:
    - `git status`
    - Latest plans/spec docs
+   - `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, UI, run, or quality-gate artifacts have already persisted state
    - `.brain/session.json` or `.brain/handover.md` if available
 2. Resolve with:
 

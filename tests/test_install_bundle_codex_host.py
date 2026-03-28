@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 import unittest
@@ -93,6 +94,7 @@ class CodexHostInstallTests(unittest.TestCase):
             self.assertIn(expected_extra_preferences, agents_text)
             self.assertIn(f"python {target.resolve() / 'scripts' / 'resolve_preferences.py'}", agents_text)
             self.assertNotIn("{{FORGE_CODEX_SKILL}}", agents_text)
+            self.assertNotRegex(agents_text, re.compile(r"\{\{[A-Z0-9_]+\}\}"))
 
             host_backup_path = Path(report["codex_host_activation"]["host_backup_path"])
             self.assertTrue(host_backup_path.exists())
@@ -107,6 +109,19 @@ class CodexHostInstallTests(unittest.TestCase):
             self.assertEqual(
                 manifest["state"]["preferences_path"],
                 str((codex_home / "forge-codex" / "state" / "preferences.json").resolve()),
+            )
+            self.assertTrue(manifest["bundle_fingerprint"]["host_mutation_expected"])
+            self.assertTrue(manifest["bundle_fingerprint"]["matches_source"])
+            self.assertEqual(len(manifest["bundle_fingerprint"]["installed"]["sha256"]), 64)
+            self.assertEqual(
+                manifest["bundle_fingerprint"]["source"]["sha256"],
+                report["source_build_manifest"]["bundle_fingerprint"]["sha256"],
+            )
+            self.assertEqual(report["source_build_manifest"]["state"]["dev_root"]["env_var"], "CODEX_HOME")
+            self.assertEqual(report["source_build_manifest"]["state"]["dev_root"]["path_relative"], "forge-codex")
+            self.assertEqual(
+                report["source_build_manifest"]["generated_artifacts"]["artifacts"][0]["name"],
+                "forge-codex-global-agents",
             )
             self.assertTrue((codex_home / "forge-codex").is_dir())
             self.assertTrue((codex_home / "forge-codex" / "state").is_dir())

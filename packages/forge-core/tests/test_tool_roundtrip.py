@@ -9,6 +9,7 @@ from tempfile import TemporaryDirectory
 from support import ROOT_DIR, run_python_script
 
 import common  # noqa: E402
+import workflow_state_support  # noqa: E402
 import track_chain_status  # noqa: E402
 import track_execution_progress  # noqa: E402
 import track_ui_progress  # noqa: E402
@@ -168,6 +169,7 @@ class ToolRoundTripTests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             payload = track_ui_progress.build_payload(
                 Namespace(
+                    project_name="workspace",
                     mode="frontend",
                     task="Checkout tablet refresh",
                     stage="implementation",
@@ -182,6 +184,119 @@ class ToolRoundTripTests(unittest.TestCase):
 
         self.assertEqual(persisted["remaining_stages"], ["responsive-a11y-review", "handover"])
         self.assertIn("Waiting on responsive review", markdown)
+
+    def test_progress_trackers_update_unified_workflow_state(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+
+            chain_report = track_chain_status.build_report(
+                Namespace(
+                    chain="Checkout rewrite",
+                    project_name="Example Project",
+                    status="active",
+                    current_stage="implementation",
+                    completed_stage=["plan"],
+                    next_stage=["quality-gate"],
+                    active_skill=["build"],
+                    active_lane=["implementer"],
+                    lane_model=["implementer=capable"],
+                    blocker=[],
+                    risk=["Merge verification still pending"],
+                    gate_decision=None,
+                    review_iteration=1,
+                    max_review_iterations=3,
+                )
+            )
+            chain_json_path, _ = track_chain_status.persist_report(chain_report, str(workspace))
+
+            execution_report = track_execution_progress.build_report(
+                Namespace(
+                    task="Offline reconciliation",
+                    mode="checkpoint-batch",
+                    stage="integration",
+                    status="active",
+                    completion_state="in-progress",
+                    project_name="Example Project",
+                    lane="implementer",
+                    model_tier="capable",
+                    proof=["failing reconciliation reproduction"],
+                    done=["Added reconciliation service skeleton"],
+                    next_step=["Wire retry policy into sync manager"],
+                    blocker=[],
+                    risk=["End-to-end verification still pending"],
+                )
+            )
+            execution_json_path, _ = track_execution_progress.persist_report(execution_report, str(workspace))
+
+            ui_payload = track_ui_progress.build_payload(
+                Namespace(
+                    project_name="Example Project",
+                    mode="frontend",
+                    task="Checkout tablet refresh",
+                    stage="responsive-a11y-review",
+                    status="active",
+                    note=["Keyboard navigation review pending"],
+                )
+            )
+            ui_json_path, _ = track_ui_progress.persist_payload(ui_payload, str(workspace))
+
+            workflow_state_path = (
+                workspace
+                / ".forge-artifacts"
+                / "workflow-state"
+                / common.slugify("Example Project")
+                / "latest.json"
+            )
+            self.assertTrue(workflow_state_path.exists())
+            state = json.loads(workflow_state_path.read_text(encoding="utf-8"))
+
+            self.assertEqual(state["latest_chain"]["source_path"], str(chain_json_path))
+            self.assertEqual(state["latest_execution"]["source_path"], str(execution_json_path))
+            self.assertEqual(state["latest_ui"]["source_path"], str(ui_json_path))
+            self.assertEqual(state["summary"]["primary_kind"], "execution-progress")
+            self.assertEqual(state["summary"]["current_focus"], "Execution task: Offline reconciliation")
+
+            run_report = {
+                "status": "PASS",
+                "recorded_at": "2026-03-28T10:00:00+00:00",
+                "project": "Example Project",
+                "command_display": "python build_fixture.py",
+                "command_kind": "build",
+                "state": "completed",
+                "suggested_workflow": "test",
+                "recommended_action": "Build passed. Run the nearest targeted test or smoke check before claiming the slice is done.",
+                "warnings": [],
+            }
+            run_json_path = workspace / ".forge-artifacts" / "run-reports" / "build.json"
+            run_json_path.parent.mkdir(parents=True, exist_ok=True)
+            run_json_path.write_text(json.dumps(run_report, indent=2, ensure_ascii=False), encoding="utf-8")
+            workflow_state_support.record_workflow_event("run-report", run_report, output_dir=str(workspace), source_path=run_json_path)
+
+            gate_report = {
+                "status": "WARN",
+                "recorded_at": "2026-03-28T10:05:00+00:00",
+                "project": "Example Project",
+                "profile": "standard",
+                "target_claim": "ready-for-merge",
+                "decision": "conditional",
+                "evidence_read": ["pytest tests/test_checkout.py"],
+                "response": "I verified: checkout regression passed. Correct because the retry path now stays stable. Fixed: yes.",
+                "why": "Residual merge risk remains until one more smoke pass runs.",
+                "next_evidence": ["Run merge-readiness smoke on checkout flow"],
+                "risks": ["One manual smoke is still pending"],
+            }
+            gate_json_path = workspace / ".forge-artifacts" / "quality-gates" / common.slugify("Example Project") / "gate.json"
+            gate_json_path.parent.mkdir(parents=True, exist_ok=True)
+            gate_json_path.write_text(json.dumps(gate_report, indent=2, ensure_ascii=False), encoding="utf-8")
+            workflow_state_support.record_workflow_event("quality-gate", gate_report, output_dir=str(workspace), source_path=gate_json_path)
+
+            state = json.loads(workflow_state_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(state["latest_run"]["source_path"], str(run_json_path))
+        self.assertEqual(state["latest_gate"]["source_path"], str(gate_json_path))
+        self.assertEqual(state["last_recorded_kind"], "quality-gate")
+        self.assertEqual(state["summary"]["primary_kind"], "quality-gate")
+        self.assertEqual(state["summary"]["current_focus"], "Conditional gate: ready-for-merge")
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 
+from package_matrix import bundle_names
 from install_bundle_host import (
     apply_codex_host_activation,
     apply_gemini_host_activation,
@@ -91,7 +92,7 @@ __all__ = [
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Install a built Forge bundle into a host runtime path.")
-    parser.add_argument("bundle", choices=["forge-core", "forge-antigravity", "forge-codex"], help="Bundle name")
+    parser.add_argument("bundle", choices=tuple(bundle_names()), help="Bundle name")
     parser.add_argument("--source", help="Override bundle source path (defaults to dist/<bundle>)")
     parser.add_argument("--target", help="Override install target path")
     parser.add_argument("--build", action="store_true", help="Build dist bundles before installing")

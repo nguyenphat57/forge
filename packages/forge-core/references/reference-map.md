@@ -18,6 +18,7 @@
 |`ui-good-bad-examples.md` | Concrete good/bad patterns so the agent does not have to infer anti-patterns alone|
 |`ui-heuristics.md` | Global heuristics for touch-heavy, dashboard, dense-data UI|
 |`ui-progress.md` | Track progress for long UI tasks|
+|`architecture-layers.md` | When deciding whether a capability belongs in core, generated artifacts, workflow state, or runtime tools|
 |`tooling.md` | When you need to run route preview, capture continuity, router checker, or find artifact paths|
 |`personalization.md` | When editing response-style preferences, adaptive language, or adapter wrappers for customization|
 |`workspace-init.md` | When editing the skeleton workspace, init flow, or onboarding wrapper while preserving the repo-neutral contract|
@@ -36,18 +37,19 @@
 
 ```text
 1. SKILL.md
-2. tooling.md if you need deterministic preview/check instead of reading plain prose
-3. personalization.md if you are editing response style or preference engine
-4. workspace-init.md if editing init/onboarding skeleton logic
-5. help-next.md if editing navigator help/next
-6. run-guidance.md if editing run/execute-then-route
-7. error-translation.md if you are editing error translator/helper layer
-8. bump-release.md or rollback-guidance.md if editing release operators
-9. backend-briefs.md or execution-delivery.md depending on the layer being edited
-10. smoke-tests.md / smoke-test-checklist.md if needed to verify host behavior
-11. canary-rollout.md if preparing a real rollout
-12. companion-skill-contract.md only when editing the companion/runtime layer
-13. companion-routing-smoke-tests.md only when testing the companion/runtime layer
+2. architecture-layers.md before moving ownership between core, generated artifacts, workflow state, and runtime tools
+3. tooling.md if you need deterministic preview/check instead of reading plain prose
+4. personalization.md if you are editing response style or preference engine
+5. workspace-init.md if editing init/onboarding skeleton logic
+6. help-next.md if editing navigator help/next
+7. run-guidance.md if editing run/execute-then-route
+8. error-translation.md if you are editing error translator/helper layer
+9. bump-release.md or rollback-guidance.md if editing release operators
+10. backend-briefs.md or execution-delivery.md depending on the layer being edited
+11. smoke-tests.md / smoke-test-checklist.md if needed to verify host behavior
+12. canary-rollout.md if preparing a real rollout
+13. companion-skill-contract.md only when editing the companion/runtime layer
+14. companion-routing-smoke-tests.md only when testing the companion/runtime layer
 ```
 
 ### When the repo does not have local skills

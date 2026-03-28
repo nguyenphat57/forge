@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import build_release
+from bundle_fingerprint import compute_bundle_fingerprint
 from install_bundle_host import (
     apply_codex_host_activation,
     apply_gemini_host_activation,
@@ -22,6 +23,7 @@ from install_bundle_paths import (
     resolve_install_target,
     validate_install_paths,
 )
+from package_matrix import resolve_default_install_target
 from release_fs import copy_tree, remove_path, sync_tree
 
 
@@ -33,11 +35,12 @@ def _resolve_requested_target(
 ) -> str | None:
     if target is not None:
         return target
-    if bundle_name == "forge-codex" and codex_home:
-        return str(resolve_codex_home(codex_home) / "skills" / "forge-codex")
-    if bundle_name == "forge-antigravity" and gemini_home:
-        return str(resolve_gemini_home(gemini_home) / "antigravity" / "skills" / "forge-antigravity")
-    return None
+    default_target = resolve_default_install_target(
+        bundle_name,
+        codex_home=resolve_codex_home(codex_home),
+        gemini_home=resolve_gemini_home(gemini_home),
+    )
+    return str(default_target) if default_target is not None else None
 
 
 def write_install_manifest(target: Path, report: dict) -> None:
@@ -52,6 +55,7 @@ def write_install_manifest(target: Path, report: dict) -> None:
         "backup_path": report["backup_path"],
         "source_build_manifest": report["source_build_manifest"],
         "state": report["state"],
+        "bundle_fingerprint": report["bundle_fingerprint"],
     }
     if report["codex_host_activation"]["enabled"]:
         activation = report["codex_host_activation"]
@@ -138,24 +142,40 @@ def plan_install(
         "backup_enabled": backup,
         "backup_path": str(backup_path) if backup_path else None,
         "source_build_manifest": build_manifest,
+        "bundle_fingerprint": {
+            "source": build_manifest.get("bundle_fingerprint"),
+            "installed": None,
+            "matches_source": None,
+            "host_mutation_expected": activate_codex or activate_gemini,
+        },
         "codex_host_activation": codex_host_activation,
         "gemini_host_activation": gemini_host_activation,
-        "state": build_state_metadata(target_path),
+        "state": build_state_metadata(
+            bundle_name,
+            target_path,
+            build_manifest,
+            codex_home=codex_home,
+            gemini_home=gemini_home,
+        ),
     }
 
 
 def ensure_state_layout(report: dict) -> None:
     state = report.get("state") or {}
     root_value = state.get("root")
-    preferences_value = state.get("preferences_path")
     if not isinstance(root_value, str) or not root_value.strip():
         return
 
     state_root = Path(root_value)
     state_root.mkdir(parents=True, exist_ok=True)
 
-    if isinstance(preferences_value, str) and preferences_value.strip():
-        Path(preferences_value).parent.mkdir(parents=True, exist_ok=True)
+    for key, value in state.items():
+        if key == "root" or not isinstance(value, str) or not value.strip():
+            continue
+        if key.endswith("_path"):
+            Path(value).parent.mkdir(parents=True, exist_ok=True)
+        elif key.endswith("_dir"):
+            Path(value).mkdir(parents=True, exist_ok=True)
 
 
 def install_from_plan(report: dict) -> dict:
@@ -177,6 +197,18 @@ def install_from_plan(report: dict) -> dict:
     ensure_state_layout(report)
     apply_codex_host_activation(report)
     apply_gemini_host_activation(report)
+    installed_fingerprint = compute_bundle_fingerprint(target_path)
+    source_fingerprint = report["source_build_manifest"].get("bundle_fingerprint")
+    report["bundle_fingerprint"] = {
+        "source": source_fingerprint,
+        "installed": installed_fingerprint,
+        "matches_source": (
+            isinstance(source_fingerprint, dict)
+            and source_fingerprint.get("sha256") == installed_fingerprint["sha256"]
+            and source_fingerprint.get("file_count") == installed_fingerprint["file_count"]
+        ),
+        "host_mutation_expected": report["codex_host_activation"]["enabled"] or report["gemini_host_activation"]["enabled"],
+    }
     write_install_manifest(target_path, report)
     return report
 

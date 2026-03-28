@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import json
+import re
 
 from release_repo_test_support import ROOT_DIR, ReleaseRepoTestSupport, build_release
+import install_bundle_host  # noqa: E402
 
 
 class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
@@ -41,6 +43,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "GEMINI.global.md",
             label="forge-antigravity overlay gemini",
         )
+        self.assertIn("GENERATED FILE", (overlay_root / "GEMINI.global.md").read_text(encoding="utf-8"))
 
     def test_build_release_preserves_antigravity_wave_b_overlay(self) -> None:
         build_release.build_all()
@@ -54,6 +57,23 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertTrue((dist_root / "data" / "routing-locales.json").exists())
         self.assertTrue((dist_root / "data" / "routing-locales" / "vi.json").exists())
         self.assertTrue((dist_root / "data" / "output-contracts.json").exists())
+        self.assertIn("GENERATED FILE", (dist_root / "GEMINI.global.md").read_text(encoding="utf-8"))
+        build_manifest = json.loads((dist_root / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
+        self.assertEqual(build_manifest["state"]["dev_root"]["env_var"], "GEMINI_HOME")
+        self.assertEqual(build_manifest["state"]["dev_root"]["path_relative"], "forge-antigravity")
+        self.assertEqual(build_manifest["packaging"]["default_target_strategy"], "gemini_home_skill")
+        self.assertIn("GEMINI.global.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertEqual(build_manifest["generated_artifacts"]["manifest_path"], "docs/architecture/host-artifacts-manifest.json")
+        self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["name"], "forge-antigravity-global-gemini")
+        self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["bundle_output"], "GEMINI.global.md")
+        self.assertEqual(len(build_manifest["generated_artifacts"]["artifacts"][0]["source_sha256"]), 64)
+        self.assertEqual(len(build_manifest["generated_artifacts"]["artifacts"][0]["output_sha256"]), 64)
+        rendered = install_bundle_host.render_antigravity_global_gemini(
+            (dist_root / "GEMINI.global.md").read_text(encoding="utf-8"),
+            dist_root.parent,
+            dist_root,
+        )
+        self.assertNotRegex(rendered, re.compile(r"\{\{[A-Z0-9_]+\}\}"))
         self.assert_antigravity_skill_bootstraps_preferences(
             dist_root / "SKILL.md",
             label="dist forge-antigravity skill",
@@ -108,6 +128,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "AGENTS.global.md",
             label="forge-codex overlay agents",
         )
+        self.assertIn("GENERATED FILE", (overlay_root / "AGENTS.global.md").read_text(encoding="utf-8"))
         self.assertNotIn("/save-brain", (overlay_root / "workflows" / "execution" / "session.md").read_text(encoding="utf-8"))
         self.assert_session_restores_preferences(
             overlay_root / "workflows" / "execution" / "session.md",
@@ -128,6 +149,23 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "help.md").exists())
         self.assertTrue((dist_root / "references" / "codex-operator-surface.md").exists())
+        self.assertIn("GENERATED FILE", (dist_root / "AGENTS.global.md").read_text(encoding="utf-8"))
+        build_manifest = json.loads((dist_root / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
+        self.assertEqual(build_manifest["state"]["dev_root"]["env_var"], "CODEX_HOME")
+        self.assertEqual(build_manifest["state"]["dev_root"]["path_relative"], "forge-codex")
+        self.assertEqual(build_manifest["packaging"]["default_target_strategy"], "codex_home_skill")
+        self.assertIn("AGENTS.global.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertEqual(build_manifest["generated_artifacts"]["manifest_path"], "docs/architecture/host-artifacts-manifest.json")
+        self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["name"], "forge-codex-global-agents")
+        self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["bundle_output"], "AGENTS.global.md")
+        self.assertEqual(len(build_manifest["generated_artifacts"]["artifacts"][0]["source_sha256"]), 64)
+        self.assertEqual(len(build_manifest["generated_artifacts"]["artifacts"][0]["output_sha256"]), 64)
+        rendered = install_bundle_host.render_codex_global_agents(
+            (dist_root / "AGENTS.global.md").read_text(encoding="utf-8"),
+            dist_root.parent,
+            dist_root,
+        )
+        self.assertNotRegex(rendered, re.compile(r"\{\{[A-Z0-9_]+\}\}"))
         self.assert_routing_locale_config(dist_root / "data" / "routing-locales.json", label="dist forge-codex")
         self.assert_output_contract_profiles(dist_root / "data" / "output-contracts.json", label="dist forge-codex")
         self.assert_codex_global_agents_bootstraps_preferences(

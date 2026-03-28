@@ -7,6 +7,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from package_matrix import bundle_names
+
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 PACKAGES_DIR = ROOT_DIR / "packages"
@@ -70,6 +72,11 @@ def main() -> int:
 
     steps = [
         run_step(
+            "repo.generated_host_artifacts",
+            [sys.executable, str(ROOT_DIR / "scripts" / "generate_host_artifacts.py"), "--check", "--format", "json"],
+            ROOT_DIR,
+        ),
+        run_step(
             "repo.py_compile",
             [sys.executable, "-m", "py_compile", *python_files],
             ROOT_DIR,
@@ -115,9 +122,33 @@ def main() -> int:
             ],
             ROOT_DIR,
         ),
+        run_step(
+            "install_dry_run.forge-browse",
+            [
+                sys.executable,
+                str(ROOT_DIR / "scripts" / "install_bundle.py"),
+                "forge-browse",
+                "--dry-run",
+                "--target",
+                str((Path.home() / ".forge" / "tools" / "forge-browse").resolve()),
+            ],
+            ROOT_DIR,
+        ),
+        run_step(
+            "install_dry_run.forge-design",
+            [
+                sys.executable,
+                str(ROOT_DIR / "scripts" / "install_bundle.py"),
+                "forge-design",
+                "--dry-run",
+                "--target",
+                str((Path.home() / ".forge" / "tools" / "forge-design").resolve()),
+            ],
+            ROOT_DIR,
+        ),
     ]
 
-    for bundle_name in ("forge-core", "forge-antigravity", "forge-codex"):
+    for bundle_name in bundle_names():
         steps.append(
             run_step(
                 f"dist.{bundle_name}.verify_bundle",

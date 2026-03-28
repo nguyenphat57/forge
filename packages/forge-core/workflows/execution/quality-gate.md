@@ -141,6 +141,12 @@ If the current conclusion is based on one of the above statements, the decision 
 
 ## Process
 
+Deterministic recorder:
+
+```powershell
+python scripts/record_quality_gate.py --workspace <workspace> --profile standard --target-claim ready-for-merge --decision conditional --evidence "pytest tests/test_checkout.py" --response "I verified: ..." --why "..." --next-evidence "Run merge-readiness smoke" --persist --output-dir <workspace>
+```
+
 ```mermaid
 flowchart TD
     A[Collect fresh evidence] --> B[Check claim or release target]
@@ -204,6 +210,14 @@ Quality gates:
 - Decision: [go / conditional / blocked]
 - Why: [...]
 - Next evidence needed: [...]
+```
+
+If persisted, the gate should refresh:
+
+```text
+.forge-artifacts/quality-gates/<project-slug>/
+.forge-artifacts/workflow-state/<project-slug>/latest.json
+.forge-artifacts/workflow-state/<project-slug>/events.jsonl
 ```
 
 ## Activation Announcement

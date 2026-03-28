@@ -51,6 +51,14 @@ If the task concept spans a long time or multiple screens:
 python ../../scripts/track_ui_progress.py "Task summary" --mode visualize --stage interaction-model --status active
 ```
 
+If a persisted brief already exists and `forge-design` is installed, you can materialize a review packet before mockup handoff:
+
+```powershell
+python C:\tools\forge-design\scripts\forge_design.py render-brief .forge-artifacts/ui-briefs/<project-slug>/visualize --screen <screen>
+```
+
+If `forge-browse` is also available, capture the packet into review evidence instead of leaving it as an unverified HTML artifact.
+
 ## Process
 
 ```mermaid

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import shlex
+from datetime import datetime, timezone
 from pathlib import Path
 
 from common import (
@@ -21,6 +22,7 @@ from run_guidance_support import (
     determine_guidance,
     execute_command,
 )
+from workflow_state_support import record_workflow_event
 
 
 def normalize_command(command: list[str]) -> list[str]:
@@ -72,6 +74,8 @@ def build_report(args: argparse.Namespace) -> dict:
     command_display = quote_command(command)
     return {
         "status": status,
+        "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "project": args.project_name,
         "workspace": str(workspace),
         "command": command,
         "command_display": command_display,
@@ -145,6 +149,7 @@ def persist_report(report: dict, output_dir: str | None) -> tuple[Path, Path]:
     md_path = artifact_dir / f"{stem}.md"
     json_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     md_path.write_text(format_text(report), encoding="utf-8")
+    record_workflow_event("run-report", report, output_dir=output_dir, source_path=json_path)
     return json_path, md_path
 
 
@@ -155,6 +160,7 @@ def main() -> int:
     parser.add_argument("--workspace", type=Path, default=Path.cwd(), help="Workspace root where the command should run")
     parser.add_argument("--timeout-ms", type=int, default=20000, help="Timeout budget for the command")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
+    parser.add_argument("--project-name", default="workspace", help="Project or workspace name for workflow-state grouping")
     parser.add_argument("--persist", action="store_true", help="Persist the report under .forge-artifacts/run-reports")
     parser.add_argument("--output-dir", default=None, help="Base directory for persisted artifacts")
     parser.add_argument("command", nargs=argparse.REMAINDER, help="Command to run, passed after `--`")

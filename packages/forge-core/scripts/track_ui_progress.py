@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 from common import configure_stdio, default_artifact_dir, slugify
+from workflow_state_support import record_workflow_event
 
 
 STAGES = {
@@ -28,6 +29,7 @@ STAGES = {
 
 def build_payload(args: argparse.Namespace) -> dict:
     return {
+        "project": args.project_name,
         "mode": args.mode,
         "task": args.task,
         "stage": args.stage,
@@ -55,6 +57,7 @@ def persist_payload(payload: dict, output_dir: str | None) -> tuple[Path, Path]:
     md_path = artifact_dir / f"{stem}.md"
     json_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     md_path.write_text(format_markdown(payload), encoding="utf-8")
+    record_workflow_event("ui-progress", payload, output_dir=output_dir, source_path=json_path)
     return json_path, md_path
 
 
@@ -62,6 +65,7 @@ def format_markdown(payload: dict) -> str:
     lines = [
         f"# UI Progress: {payload['task']}",
         "",
+        f"- Project: {payload['project']}",
         f"- Mode: {payload['mode']}",
         f"- Current stage: {payload['stage']}",
         f"- Status: {payload['status']}",
@@ -92,6 +96,7 @@ def main() -> int:
 
     parser = argparse.ArgumentParser(description="Persist lightweight UI progress for frontend/visualize work.")
     parser.add_argument("task", help="Task or screen summary")
+    parser.add_argument("--project-name", default="workspace", help="Project or workspace name for workflow-state grouping")
     parser.add_argument("--mode", choices=sorted(STAGES.keys()), required=True, help="frontend or visualize")
     parser.add_argument("--stage", required=True, help="Current workflow stage")
     parser.add_argument("--status", choices=["active", "blocked", "done"], default="active", help="Stage status")

@@ -38,6 +38,7 @@ quality_gates:
 - Global preferences live in adapter-global split state: canonical fields in `state/preferences.json`, adapter extras in `state/extra_preferences.json`, and only fall back to `.brain/preferences.json` for legacy workspaces that still need migration.
 
 - Repo-first: priority `git status`, changed files, docs, plans, task notes.
+- Prefer `.forge-artifacts/workflow-state/<project>/latest.json` when trackers have already recorded execution, chain, or UI progress.
 - `.brain` is opt-in: only read/write when the user requests or handover really reduces risk.
 - Do not make `/save-brain` a mandatory end-of-task ritual.
 - If you have memory, read according to the smallest scope enough to use: global -> module -> current task, do not load it everywhere.
@@ -55,12 +56,13 @@ In the host there is an equivalent shortcut:
 ```
 1. docs/plans/, docs/specs/, open task notes
 2. git status / changed files / recent commits (if git exists)
-3. Adapter-global split preferences state (`state/preferences.json` + `state/extra_preferences.json`) via `python scripts/resolve_preferences.py --workspace <workspace> --format json`
-4. .brain/handover.md
-5. .brain/session.json
-6. .brain/decisions.json
-7. .brain/learnings.json
-8. .brain/brain.json
+3. `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, or UI trackers have already persisted state
+4. Adapter-global split preferences state (`state/preferences.json` + `state/extra_preferences.json`) via `python scripts/resolve_preferences.py --workspace <workspace> --format json`
+5. .brain/handover.md
+6. .brain/session.json
+7. .brain/decisions.json
+8. .brain/learnings.json
+9. .brain/brain.json
 ```
 
 ### Response Personalization
@@ -85,16 +87,17 @@ When `.brain` has enough data, drag only the relevant part:
 
 ```text
 1. Determine the current scope: feature, module, subsystem, or file cluster
-2. Read `.brain/handover.md` first if there is an unfinished task
-3. From `.brain/session.json`, priority:
+2. Read `.forge-artifacts/workflow-state/<project>/latest.json` first when the repo already has a persisted execution/chain/UI slice
+3. Read `.brain/handover.md` first if there is an unfinished task beyond the tracked slice
+4. From `.brain/session.json`, priority:
    - working_on
    - pending_tasks
    - verification
    - decisions_made
-4. From `.brain/decisions.json`, only get the entry but also `active` and match the current scope
-5. From `.brain/learnings.json`, only get items from repeated failures, incidents, or repeated patterns
-6. From `.brain/brain.json`, only get decisions/patterns that match the current scope
-7. If memory and repo state conflict -> repo state wins
+5. From `.brain/decisions.json`, only get the entry but also `active` and match the current scope
+6. From `.brain/learnings.json`, only get items from repeated failures, incidents, or repeated patterns
+7. From `.brain/brain.json`, only get decisions/patterns that match the current scope
+8. If memory and repo state conflict -> repo state wins
 ```
 
 The goal is lightweight continuity: getting the right parts helps resume work, not dragging along monolithic "project memory".

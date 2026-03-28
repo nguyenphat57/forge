@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from install_bundle_paths import (
@@ -11,6 +12,9 @@ from install_bundle_paths import (
     resolve_gemini_home,
 )
 from release_fs import copy_file, copy_tree, remove_path
+
+
+UNRESOLVED_TEMPLATE_PATTERN = re.compile(r"\{\{[A-Z0-9_]+\}\}")
 
 
 def _render_paths(target_path: Path) -> dict[str, str]:
@@ -33,9 +37,16 @@ def _render_template(template_text: str, replacements: dict[str, str]) -> str:
     return rendered.rstrip() + "\n"
 
 
+def _ensure_rendered_template_is_clean(rendered_text: str, label: str) -> None:
+    unresolved = sorted(set(UNRESOLVED_TEMPLATE_PATTERN.findall(rendered_text)))
+    if unresolved:
+        joined = ", ".join(unresolved)
+        raise ValueError(f"Unresolved placeholders remain in {label}: {joined}")
+
+
 def render_codex_global_agents(template_text: str, codex_home: Path, target_path: Path) -> str:
     paths = _render_paths(target_path)
-    return _render_template(
+    rendered = _render_template(
         template_text,
         {
             "{{CODEX_HOME}}": str(codex_home),
@@ -48,11 +59,13 @@ def render_codex_global_agents(template_text: str, codex_home: Path, target_path
             "{{FORGE_CODEX_RESOLVER}}": paths["resolver"],
         },
     )
+    _ensure_rendered_template_is_clean(rendered, "Codex global AGENTS template")
+    return rendered
 
 
 def render_antigravity_global_gemini(template_text: str, gemini_home: Path, target_path: Path) -> str:
     paths = _render_paths(target_path)
-    return _render_template(
+    rendered = _render_template(
         template_text,
         {
             "{{GEMINI_HOME}}": str(gemini_home),
@@ -65,6 +78,8 @@ def render_antigravity_global_gemini(template_text: str, gemini_home: Path, targ
             "{{FORGE_ANTIGRAVITY_RESOLVER}}": paths["resolver"],
         },
     )
+    _ensure_rendered_template_is_clean(rendered, "Antigravity global GEMINI template")
+    return rendered
 
 
 def plan_codex_host_activation(

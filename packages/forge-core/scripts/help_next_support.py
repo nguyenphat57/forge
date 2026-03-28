@@ -4,6 +4,9 @@ import json
 import subprocess
 from pathlib import Path
 
+from workflow_state_summary import summary_items, summary_text, workflow_summary
+
+
 MARKER_FILES = ("README.md", "README", "package.json", "pyproject.toml", "go.mod", "pom.xml", "build.gradle", "Cargo.toml")
 MARKER_DIRS = ("docs", "src", "app", "tests")
 
@@ -27,10 +30,7 @@ def read_json_object(path: Path, label: str, warnings: list[str]) -> dict | None
     except json.JSONDecodeError:
         warnings.append(f"Invalid JSON in {label}: {path}.")
         return None
-    if not isinstance(payload, dict):
-        warnings.append(f"{label} must contain a JSON object: {path}.")
-        return None
-    return payload
+    return payload if isinstance(payload, dict) else None
 
 
 def first_existing_file(workspace: Path, names: tuple[str, ...]) -> Path | None:
@@ -41,7 +41,7 @@ def first_existing_file(workspace: Path, names: tuple[str, ...]) -> Path | None:
     return None
 
 
-def _markdown_rank(path: Path) -> tuple[float, str]:
+def _mtime_rank(path: Path) -> tuple[float, str]:
     try:
         return path.stat().st_mtime, str(path).lower()
     except OSError:
@@ -55,7 +55,7 @@ def find_latest_markdown(workspace: Path, relative_dir: str) -> Path | None:
     latest_path: Path | None = None
     latest_rank = (float("-inf"), "")
     for candidate in base_dir.rglob("*.md"):
-        rank = _markdown_rank(candidate)
+        rank = _mtime_rank(candidate)
         if rank > latest_rank:
             latest_path = candidate
             latest_rank = rank
@@ -69,9 +69,7 @@ def extract_markdown_title(path: Path | None) -> str | None:
         stripped = line.strip()
         if stripped.startswith("# "):
             title = stripped[2:].strip()
-            if title.lower().startswith("plan:"):
-                return title.split(":", 1)[1].strip()
-            if title.lower().startswith("spec:"):
+            if ":" in title and title.split(":", 1)[0].lower() in {"plan", "spec"}:
                 return title.split(":", 1)[1].strip()
             return title
     return path.stem
@@ -82,9 +80,8 @@ def read_handover_excerpt(path: Path | None) -> str | None:
         return None
     for line in path.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
-        if not stripped or stripped.upper() == "HANDOVER":
-            continue
-        return stripped[2:].strip() if stripped.startswith("- ") else stripped
+        if stripped and stripped.upper() != "HANDOVER":
+            return stripped[2:].strip() if stripped.startswith("- ") else stripped
     return None
 
 
@@ -103,19 +100,18 @@ def read_git_status(workspace: Path) -> dict:
     changed_files: list[str] = []
     untracked_files: list[str] = []
     for line in completed.stdout.splitlines():
-        entry = line.rstrip()
-        if len(entry) < 4:
+        if len(line) < 4:
             continue
-        path = entry[3:].strip().split(" -> ", 1)[-1]
-        if entry[:2] == "??":
-            untracked_files.append(path)
+        relative = line[3:].strip().split(" -> ", 1)[-1]
+        if line[:2] == "??":
+            untracked_files.append(relative)
         else:
-            changed_files.append(path)
+            changed_files.append(relative)
     return {"available": True, "changed_files": changed_files, "untracked_files": untracked_files}
 
 
 def session_task(session: dict | None) -> str | None:
-    if not session:
+    if not isinstance(session, dict):
         return None
     working_on = session.get("working_on")
     if isinstance(working_on, dict):
@@ -127,7 +123,7 @@ def session_task(session: dict | None) -> str | None:
 
 
 def session_blocker(session: dict | None) -> str | None:
-    if not session:
+    if not isinstance(session, dict):
         return None
     for key in ("blocker", "blockers"):
         value = session.get(key)
@@ -141,7 +137,7 @@ def session_blocker(session: dict | None) -> str | None:
 
 
 def pending_tasks(session: dict | None) -> list[str]:
-    if not session:
+    if not isinstance(session, dict):
         return []
     values = session.get("pending_tasks")
     if not isinstance(values, list):
@@ -149,12 +145,18 @@ def pending_tasks(session: dict | None) -> list[str]:
     return [item.strip() for item in values if isinstance(item, str) and item.strip()]
 
 
-def determine_stage(*, session: dict | None, git_state: dict, latest_plan: Path | None, latest_spec: Path | None) -> str:
+def determine_stage(*, session: dict | None, git_state: dict, latest_plan: Path | None, latest_spec: Path | None, workflow_state: dict | None = None) -> str:
+    summary = workflow_summary(workflow_state)
+    status = summary_text(summary, "status")
+    if status == "blocked":
+        return "blocked"
+    if status == "review-ready":
+        return "review-ready"
+    if status == "active":
+        return "session-active"
     working_on = session.get("working_on") if isinstance(session, dict) else None
-    if isinstance(working_on, dict):
-        status = working_on.get("status")
-        if isinstance(status, str) and status.strip().lower() == "blocked":
-            return "blocked"
+    if isinstance(working_on, dict) and isinstance(working_on.get("status"), str) and working_on["status"].strip().lower() == "blocked":
+        return "blocked"
     if session_blocker(session):
         return "blocked"
     if session_task(session) or pending_tasks(session):
@@ -166,11 +168,15 @@ def determine_stage(*, session: dict | None, git_state: dict, latest_plan: Path 
     return "unscoped"
 
 
-def build_focus(stage: str, *, session: dict | None, latest_plan: Path | None, latest_spec: Path | None, git_state: dict) -> str:
+def build_focus(stage: str, *, session: dict | None, latest_plan: Path | None, latest_spec: Path | None, git_state: dict, workflow_state: dict | None = None) -> str:
+    summary = workflow_summary(workflow_state)
+    workflow_focus = summary_text(summary, "current_focus")
     if stage == "blocked":
-        return f"Blocked: {session_blocker(session)}"
+        return workflow_focus or f"Blocked: {session_blocker(session)}"
+    if stage == "review-ready":
+        return workflow_focus or "Work slice is ready for review."
     if stage == "session-active":
-        return f"Session task: {session_task(session) or pending_tasks(session)[0]}"
+        return workflow_focus or f"Session task: {session_task(session) or pending_tasks(session)[0]}"
     if stage == "active-changes":
         total = len(git_state["changed_files"]) + len(git_state["untracked_files"])
         return f"Working tree contains {total} changed file(s)."
@@ -179,24 +185,20 @@ def build_focus(stage: str, *, session: dict | None, latest_plan: Path | None, l
     return "No active work slice detected from repo state."
 
 
-def build_recommendations(
-    *,
-    mode: str,
-    stage: str,
-    session: dict | None,
-    latest_plan: Path | None,
-    latest_spec: Path | None,
-    handover_excerpt: str | None,
-) -> tuple[str, str, list[str]]:
+def build_recommendations(*, mode: str, stage: str, session: dict | None, latest_plan: Path | None, latest_spec: Path | None, handover_excerpt: str | None, workflow_state: dict | None = None) -> tuple[str, str, list[str]]:
+    summary = workflow_summary(workflow_state)
+    workflow_name = summary_text(summary, "suggested_workflow")
+    workflow_action = summary_text(summary, "recommended_action")
+    workflow_alternatives = summary_items(summary, "alternatives")
+    if summary and stage in {"blocked", "review-ready", "session-active"} and workflow_name and workflow_action:
+        return workflow_name, workflow_action, workflow_alternatives[:1] if mode == "next" else workflow_alternatives[:2]
     plan_path = latest_plan or latest_spec
     plan_kind = "plan" if latest_plan is not None else "spec"
     plan_title = extract_markdown_title(plan_path)
     pending = pending_tasks(session)
     if stage == "blocked":
         blocker = session_blocker(session) or handover_excerpt or "Validate the current blocker."
-        alternatives = []
-        if plan_title:
-            alternatives.append(f"Re-open the latest {plan_kind} '{plan_title}' to confirm the intended recovery path.")
+        alternatives = [f"Re-open the latest {plan_kind} '{plan_title}' to confirm the intended recovery path."] if plan_title else []
         alternatives.append("If the blocker keeps drifting, capture a fresh handover with the missing evidence.")
         return "debug", f"Resolve the blocker first: {blocker}.", alternatives[:2]
     if stage == "session-active":
@@ -207,36 +209,23 @@ def build_recommendations(
         if plan_title:
             alternatives.append(f"Re-open the latest {plan_kind} '{plan_title}' if priorities changed.")
         return "session", primary, alternatives[:1] if mode == "next" else alternatives[:2]
+    if stage == "review-ready":
+        alternatives = [f"Re-open the latest {plan_kind} '{plan_title}' if the review uncovered scope drift."] if plan_title else []
+        alternatives.append("If review passes cleanly, advance to the next recorded stage instead of opening new scope.")
+        return "review", "Run review and the nearest verification pass before resuming implementation.", alternatives[:1] if mode == "next" else alternatives[:2]
     if stage == "active-changes":
-        alternatives = []
-        if plan_title:
-            alternatives.append(f"Update the latest {plan_kind} '{plan_title}' if the current diff drifted from the intended slice.")
+        alternatives = [f"Update the latest {plan_kind} '{plan_title}' if the current diff drifted from the intended slice."] if plan_title else []
         alternatives.append("If the slice is already complete, run a review pass and decide whether to merge or continue.")
         return "review", "Review the current changed files and run the nearest verification before adding new edits.", alternatives[:1] if mode == "next" else alternatives[:2]
     if stage == "planned":
         label = plan_title or "the latest plan"
-        alternatives = [
-            "If scope is still fuzzy, tighten the plan before writing code.",
-            "If repo health is unclear, run a review-style scan before implementation.",
-        ]
+        alternatives = ["If scope is still fuzzy, tighten the plan before writing code.", "If repo health is unclear, run a review-style scan before implementation."]
         return "plan", f"Start the first concrete slice from {plan_kind} '{label}'.", alternatives[:1] if mode == "next" else alternatives[:2]
-    alternatives = [
-        "If you already know the task, state it directly and let Forge route the right workflow.",
-        "If the repo feels unhealthy, run a review-style scan before new implementation.",
-    ]
+    alternatives = ["If you already know the task, state it directly and let Forge route the right workflow.", "If the repo feels unhealthy, run a review-style scan before new implementation."]
     return "review", "Start from README, package manifests, and docs/plans to identify the active workflow.", alternatives[:1] if mode == "next" else alternatives[:2]
 
 
-def build_evidence(
-    *,
-    readme: Path | None,
-    latest_plan: Path | None,
-    latest_spec: Path | None,
-    session_path: Path | None,
-    handover_path: Path | None,
-    git_state: dict,
-    preferences_source: dict,
-) -> list[str]:
+def build_evidence(*, readme: Path | None, latest_plan: Path | None, latest_spec: Path | None, session_path: Path | None, handover_path: Path | None, git_state: dict, preferences_source: dict, workflow_source: dict) -> list[str]:
     evidence: list[str] = []
     if readme is not None:
         evidence.append(f"readme: {readme}")
@@ -249,8 +238,9 @@ def build_evidence(
     if handover_path is not None and handover_path.exists():
         evidence.append(f"handover: {handover_path}")
     if git_state["changed_files"] or git_state["untracked_files"]:
-        count = len(git_state["changed_files"]) + len(git_state["untracked_files"])
-        evidence.append(f"git: {count} working tree item(s)")
+        evidence.append(f"git: {len(git_state['changed_files']) + len(git_state['untracked_files'])} working tree item(s)")
     if preferences_source["path"]:
         evidence.append(f"preferences: {preferences_source['path']}")
+    if workflow_source.get("path"):
+        evidence.append(f"workflow-state: {workflow_source['path']}")
     return evidence

@@ -98,6 +98,9 @@ class AntigravityHostInstallTests(unittest.TestCase):
             manifest = json.loads((target / "INSTALL-MANIFEST.json").read_text(encoding="utf-8"))
             self.assertTrue(manifest["gemini_host_activation"]["enabled"])
             self.assertEqual(manifest["gemini_host_activation"]["gemini_md_path"], str(gemini_md_path.resolve()))
+            self.assertTrue(manifest["bundle_fingerprint"]["host_mutation_expected"])
+            self.assertTrue(manifest["bundle_fingerprint"]["matches_source"])
+            self.assertEqual(len(manifest["bundle_fingerprint"]["installed"]["sha256"]), 64)
 
     def run_installed_script(self, script_path: Path, *args: str) -> subprocess.CompletedProcess[str]:
         env = os.environ.copy()

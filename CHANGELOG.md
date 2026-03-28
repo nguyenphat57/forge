@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.0 - 2026-03-28
+
+- Absorb the planned gstack-inspired improvements into Forge: generated host artifacts with freshness gates, unified workflow state, hardened packaging manifests, runtime actuators, and design runtime tooling.
+- Add real runtime verification for `forge-browse` and `forge-design`, including live Playwright smoke, installed bundle integration smoke, and persisted brief to capture evidence flows.
+- Expand release and contract coverage so Codex host wrappers are generated from canonical sources, package matrix metadata stays authoritative, and `verify_repo.py` remains the single repo gate before promotion.
+
+
 ## 1.2.0 - 2026-03-28
 
 - Sửa độ ổn định của `forge-codex` release bundle verification, gồm xử lý đúng materialized bundle layout trong `support.py` và tránh import lệch `support` trong suite dist.

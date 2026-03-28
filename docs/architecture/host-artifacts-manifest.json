@@ -1,0 +1,64 @@
+{
+  "artifacts": [
+    {
+      "name": "forge-codex-global-agents",
+      "bundle": "forge-codex",
+      "source": "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
+      "output": "packages/forge-codex/overlay/AGENTS.global.md"
+    },
+    {
+      "name": "forge-codex-session-wrapper",
+      "bundle": "forge-codex",
+      "source": "docs/architecture/generated-host-artifacts/codex/workflows/execution/session.md",
+      "output": "packages/forge-codex/overlay/workflows/execution/session.md"
+    },
+    {
+      "name": "forge-codex-help-wrapper",
+      "bundle": "forge-codex",
+      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/help.md",
+      "output": "packages/forge-codex/overlay/workflows/operator/help.md"
+    },
+    {
+      "name": "forge-codex-next-wrapper",
+      "bundle": "forge-codex",
+      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/next.md",
+      "output": "packages/forge-codex/overlay/workflows/operator/next.md"
+    },
+    {
+      "name": "forge-codex-run-wrapper",
+      "bundle": "forge-codex",
+      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/run.md",
+      "output": "packages/forge-codex/overlay/workflows/operator/run.md"
+    },
+    {
+      "name": "forge-codex-bump-wrapper",
+      "bundle": "forge-codex",
+      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/bump.md",
+      "output": "packages/forge-codex/overlay/workflows/operator/bump.md"
+    },
+    {
+      "name": "forge-codex-rollback-wrapper",
+      "bundle": "forge-codex",
+      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/rollback.md",
+      "output": "packages/forge-codex/overlay/workflows/operator/rollback.md"
+    },
+    {
+      "name": "forge-codex-customize-wrapper",
+      "bundle": "forge-codex",
+      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/customize.md",
+      "output": "packages/forge-codex/overlay/workflows/operator/customize.md"
+    },
+    {
+      "name": "forge-codex-init-wrapper",
+      "bundle": "forge-codex",
+      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/init.md",
+      "output": "packages/forge-codex/overlay/workflows/operator/init.md"
+    },
+    {
+      "name": "forge-antigravity-global-gemini",
+      "bundle": "forge-antigravity",
+      "source": "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
+      "output": "packages/forge-antigravity/overlay/GEMINI.global.md"
+    }
+  ]
+}

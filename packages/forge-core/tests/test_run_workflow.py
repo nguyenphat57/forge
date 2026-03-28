@@ -2,8 +2,12 @@ from __future__ import annotations
 
 import json
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from support import FIXTURES_DIR, run_python_script, workspace_fixture
+
+import common  # noqa: E402
 
 
 class RunWorkflowTests(unittest.TestCase):
@@ -117,6 +121,40 @@ class RunWorkflowTests(unittest.TestCase):
         self.assertEqual(report["state"], "running")
         self.assertTrue(report["readiness_detected"])
         self.assertLessEqual(len(report["stdout_excerpt"]), 500)
+
+    def test_persisted_run_report_refreshes_unified_workflow_state(self) -> None:
+        helper = FIXTURES_DIR / "run_helpers" / "build_fixture.py"
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            result = run_python_script(
+                "run_with_guidance.py",
+                "--workspace",
+                str(workspace_fixture("run_workspace")),
+                "--project-name",
+                "Example Project",
+                "--timeout-ms",
+                "1000",
+                "--persist",
+                "--output-dir",
+                str(workspace),
+                "--format",
+                "json",
+                "--",
+                "python",
+                str(helper),
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            state_path = workspace / ".forge-artifacts" / "workflow-state" / common.slugify("Example Project") / "latest.json"
+            self.assertTrue(state_path.exists())
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(report["project"], "Example Project")
+        self.assertEqual(state["last_recorded_kind"], "run-report")
+        self.assertEqual(state["latest_run"]["source_path"], report["artifacts"]["json"])
+        self.assertEqual(state["summary"]["primary_kind"], "run-report")
+        self.assertEqual(state["summary"]["suggested_workflow"], "test")
 
 
 if __name__ == "__main__":

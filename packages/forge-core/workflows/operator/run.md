@@ -27,6 +27,7 @@ quality_gates:
 
 ```powershell
 python scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>
+python scripts/run_with_guidance.py --workspace <workspace> --project-name "Example Project" --persist --output-dir <workspace> -- <command>
 ```
 
 3. Read the report:
@@ -39,6 +40,7 @@ python scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -
    - command was run
    - main output/failure signal
    - the next workflow should be entered
+   - if `--persist` was used, mention that workflow-state was refreshed for `help/next`
 
 ## Output Contract
 

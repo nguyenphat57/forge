@@ -1,21 +1,22 @@
 # Forge Monorepo
 
-Source monorepo for Forge as `core + host adapters`.
+Source monorepo for Forge as `core + host adapters + runtime tools`.
 
 ## Packages
 
 - `packages/forge-core`: canonical source-of-truth for routing, registry, scripts, tests, and shared docs.
 - `packages/forge-antigravity`: Antigravity adapter overlay and host metadata.
 - `packages/forge-codex`: Codex adapter overlay and host-specific entry guidance.
+- `packages/forge-browse`: optional runtime browse tool package for persistent snapshots and assertions.
 
 ## Release model
 
 Do not edit installed runtime bundles directly.
 
-1. Edit `forge-core` and adapter overlays here.
+1. Edit `forge-core`, adapter overlays, and runtime tool packages here.
 2. Run `python scripts/verify_repo.py`.
 3. Build release bundles into `dist/`.
-4. Install or publish from `dist/forge-antigravity` or `dist/forge-codex`.
+4. Install or publish from `dist/forge-antigravity`, `dist/forge-codex`, or `dist/forge-browse`.
 
 ## Commands
 
@@ -24,6 +25,7 @@ python scripts/verify_repo.py
 python scripts/build_release.py
 python scripts/install_bundle.py forge-antigravity --build
 python scripts/install_bundle.py forge-codex --activate-codex
+python scripts/install_bundle.py forge-browse --target C:\path\to\runtime\forge-browse
 ```
 
 ## Documentation Language Policy
@@ -39,7 +41,8 @@ forge/
 |-- packages/
 |   |-- forge-core/
 |   |-- forge-antigravity/
-|   `-- forge-codex/
+|   |-- forge-codex/
+|   `-- forge-browse/
 |-- docs/
 |   |-- architecture/
 |   `-- release/
