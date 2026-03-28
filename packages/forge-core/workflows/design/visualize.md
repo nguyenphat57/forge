@@ -54,7 +54,7 @@ python ../../scripts/track_ui_progress.py "Task summary" --mode visualize --stag
 If a persisted brief already exists and `forge-design` is installed, you can materialize a review packet before mockup handoff:
 
 ```powershell
-python C:\tools\forge-design\scripts\forge_design.py render-brief .forge-artifacts/ui-briefs/<project-slug>/visualize --screen <screen>
+python ../../scripts/invoke_runtime_tool.py forge-design render-brief .forge-artifacts/ui-briefs/<project-slug>/visualize --screen <screen>
 ```
 
 If `forge-browse` is also available, capture the packet into review evidence instead of leaving it as an unverified HTML artifact.

@@ -166,6 +166,8 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("translate_error.py", tooling)
         self.assertIn("prepare_bump.py", tooling)
         self.assertIn("resolve_rollback.py", tooling)
+        self.assertIn("resolve_runtime_tool.py", tooling)
+        self.assertIn("invoke_runtime_tool.py", tooling)
         self.assertIn("write_preferences.py", tooling)
         self.assertIn("initialize_workspace.py", tooling)
 

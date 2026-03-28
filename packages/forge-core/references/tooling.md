@@ -103,6 +103,28 @@ packages/forge-antigravity/overlay/GEMINI.global.md
 
 If `--check` fails, refresh the generated files before running `build_release.py` or `verify_repo.py`.
 
+## Runtime Tool Resolver
+
+When a host bundle needs to call `forge-browse` or `forge-design` without hardcoding the install path:
+
+```powershell
+python scripts/resolve_runtime_tool.py forge-browse --format json
+python scripts/invoke_runtime_tool.py forge-design render-brief .forge-artifacts/ui-briefs/<project-slug>/visualize --screen dashboard
+```
+
+The resolver checks:
+- explicit `--tool-target` override
+- tool-specific env override such as `FORGE_BROWSE_ROOT`
+- adapter-global runtime tool registry in `state/runtime-tools.json`
+- local sibling bundle path in `packages/` or `dist/` when running from source
+
+Register runtime tool targets during install with:
+
+```powershell
+python scripts/install_bundle.py forge-browse --target C:\tools\forge-browse --register-codex-runtime --register-gemini-runtime
+python scripts/install_bundle.py forge-design --target C:\tools\forge-design --register-codex-runtime --register-gemini-runtime
+```
+
 ## Help/Next Navigator
 
 When you need to resolve operator based on repo state instead of guidance recap ritual:
@@ -663,4 +685,5 @@ Detailed runbook: see `canary-rollout.md`.
 - Run canary pack automatically on real workspace: `run_workspace_canary.py`
 - Record soak/canary artifact from real workspace: `record_canary_result.py`
 - Final verdict rollout from real artifact: `evaluate_canary_readiness.py`
+- Resolve or invoke registered runtime tools: `resolve_runtime_tool.py` / `invoke_runtime_tool.py`
 - Only read policy and examples: return to `SKILL.md` or `references/companion-skill-contract.md`

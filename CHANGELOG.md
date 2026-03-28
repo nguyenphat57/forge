@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.0 - 2026-03-28
+
+- Add runtime-tool resolution and invocation to Forge host bundles, so `forge-codex` and `forge-antigravity` can call `forge-browse` and `forge-design` through registry-backed wrappers instead of hardcoded install paths.
+- Register runtime-tool targets during install, persist them in adapter-global state, and surface the new contract in release docs, packaging metadata, and host-facing design guidance.
+- Expand regression coverage for runtime-tool resolution, installed host invocation, and release/install flows so the new host-runtime boundary remains verified by `verify_repo.py`.
+
+
 ## 1.3.0 - 2026-03-28
 
 - Absorb the planned gstack-inspired improvements into Forge: generated host artifacts with freshness gates, unified workflow state, hardened packaging manifests, runtime actuators, and design runtime tooling.

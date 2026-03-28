@@ -21,8 +21,8 @@ python scripts/verify_repo.py
 python scripts/build_release.py
 python scripts/install_bundle.py forge-antigravity --build
 python scripts/install_bundle.py forge-codex --activate-codex
-python scripts/install_bundle.py forge-browse --target C:\tools\forge-browse
-python scripts/install_bundle.py forge-design --target C:\tools\forge-design
+python scripts/install_bundle.py forge-browse --target C:\tools\forge-browse --register-codex-runtime --register-gemini-runtime
+python scripts/install_bundle.py forge-design --target C:\tools\forge-design --register-codex-runtime --register-gemini-runtime
 ```
 
 If Windows Codex is expected to reply in Vietnamese with full diacritics, run the bundled UTF-8 helper after `--activate-codex`:
@@ -47,8 +47,8 @@ The UTF-8 helper is only needed when preferences explicitly set `language=vi`.
 python scripts/install_bundle.py forge-antigravity --dry-run
 python scripts/install_bundle.py forge-codex --dry-run
 python scripts/install_bundle.py forge-codex --dry-run --activate-codex
-python scripts/install_bundle.py forge-browse --dry-run --target C:\tools\forge-browse
-python scripts/install_bundle.py forge-design --dry-run --target C:\tools\forge-design
+python scripts/install_bundle.py forge-browse --dry-run --target C:\tools\forge-browse --register-codex-runtime --register-gemini-runtime
+python scripts/install_bundle.py forge-design --dry-run --target C:\tools\forge-design --register-codex-runtime --register-gemini-runtime
 ```
 
 ## Safety
@@ -65,6 +65,6 @@ python scripts/install_bundle.py forge-design --dry-run --target C:\tools\forge-
 ```powershell
 python scripts/install_bundle.py forge-core --target C:\path\to\custom\runtime
 python scripts/install_bundle.py forge-antigravity --target C:\path\to\sandbox\forge-antigravity
-python scripts/install_bundle.py forge-browse --target C:\path\to\tools\forge-browse
-python scripts/install_bundle.py forge-design --target C:\path\to\tools\forge-design
+python scripts/install_bundle.py forge-browse --target C:\path\to\tools\forge-browse --register-codex-runtime
+python scripts/install_bundle.py forge-design --target C:\path\to\tools\forge-design --register-gemini-runtime
 ```

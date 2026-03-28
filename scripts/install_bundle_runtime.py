@@ -25,6 +25,7 @@ from install_bundle_paths import (
 )
 from package_matrix import resolve_default_install_target
 from release_fs import copy_tree, remove_path, sync_tree
+from runtime_tool_install_support import apply_runtime_tool_registrations, plan_runtime_tool_registrations
 
 
 def _resolve_requested_target(
@@ -73,6 +74,10 @@ def write_install_manifest(target: Path, report: dict) -> None:
             "gemini_md_path": activation["gemini_md_path"],
             "host_backup_path": activation["host_backup_path"],
         }
+    if report["codex_runtime_registration"]["enabled"]:
+        manifest["codex_runtime_registration"] = report["codex_runtime_registration"]
+    if report["gemini_runtime_registration"]["enabled"]:
+        manifest["gemini_runtime_registration"] = report["gemini_runtime_registration"]
     (target / "INSTALL-MANIFEST.json").write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False),
         encoding="utf-8",
@@ -92,6 +97,8 @@ def plan_install(
     codex_home: str | None = None,
     activate_gemini: bool = False,
     gemini_home: str | None = None,
+    register_codex_runtime: bool = False,
+    register_gemini_runtime: bool = False,
 ) -> dict:
     source_path = resolve_bundle_source(bundle_name, source)
     if build:
@@ -105,6 +112,8 @@ def plan_install(
     ensure_bundle_source_ready(bundle_name, source_path)
 
     build_manifest = load_build_manifest(source_path)
+    if (register_codex_runtime or register_gemini_runtime) and build_manifest.get("host") != "runtime":
+        raise ValueError("Runtime-tool registration is only supported for bundles with host=runtime.")
     install_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     backup_root = Path(backup_dir).expanduser().resolve() if backup_dir else DEFAULT_BACKUP_DIR.resolve()
     backup_path = backup_root / f"{bundle_name}-{install_id}" if backup and target_path.exists() else None
@@ -129,6 +138,13 @@ def plan_install(
         activate_gemini=activate_gemini,
         gemini_home=gemini_home,
     )
+    runtime_registrations = plan_runtime_tool_registrations(
+        bundle_name,
+        register_codex_runtime=register_codex_runtime,
+        codex_home=codex_home,
+        register_gemini_runtime=register_gemini_runtime,
+        gemini_home=gemini_home,
+    )
 
     return {
         "bundle": bundle_name,
@@ -150,6 +166,8 @@ def plan_install(
         },
         "codex_host_activation": codex_host_activation,
         "gemini_host_activation": gemini_host_activation,
+        "codex_runtime_registration": runtime_registrations["codex"],
+        "gemini_runtime_registration": runtime_registrations["gemini"],
         "state": build_state_metadata(
             bundle_name,
             target_path,
@@ -197,6 +215,7 @@ def install_from_plan(report: dict) -> dict:
     ensure_state_layout(report)
     apply_codex_host_activation(report)
     apply_gemini_host_activation(report)
+    apply_runtime_tool_registrations(report)
     installed_fingerprint = compute_bundle_fingerprint(target_path)
     source_fingerprint = report["source_build_manifest"].get("bundle_fingerprint")
     report["bundle_fingerprint"] = {
@@ -226,6 +245,8 @@ def install_bundle(
     codex_home: str | None = None,
     activate_gemini: bool = False,
     gemini_home: str | None = None,
+    register_codex_runtime: bool = False,
+    register_gemini_runtime: bool = False,
 ) -> dict:
     report = plan_install(
         bundle_name,
@@ -239,6 +260,8 @@ def install_bundle(
         codex_home=codex_home,
         activate_gemini=activate_gemini,
         gemini_home=gemini_home,
+        register_codex_runtime=register_codex_runtime,
+        register_gemini_runtime=register_gemini_runtime,
     )
     return install_from_plan(report)
 
@@ -267,4 +290,10 @@ def format_text(report: dict) -> str:
         lines.append(f"- Gemini home: {activation['gemini_home']}")
         lines.append(f"- Global GEMINI: {activation['gemini_md_path']}")
         lines.append(f"- Host backup: {activation['host_backup_path'] or '(not needed)'}")
+    if report["codex_runtime_registration"]["enabled"]:
+        lines.append("- Codex runtime registration: yes")
+        lines.append(f"- Codex runtime registry: {report['codex_runtime_registration']['registry_path']}")
+    if report["gemini_runtime_registration"]["enabled"]:
+        lines.append("- Gemini runtime registration: yes")
+        lines.append(f"- Gemini runtime registry: {report['gemini_runtime_registration']['registry_path']}")
     return "\n".join(lines)
