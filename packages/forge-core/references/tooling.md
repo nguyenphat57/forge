@@ -88,7 +88,13 @@ python scripts/generate_host_artifacts.py --check --format json
 python scripts/generate_host_artifacts.py --apply
 ```
 
-Canonical source currently lives in:
+Canonical inventory lives in:
+
+```text
+docs/architecture/host-artifacts-manifest.json
+```
+
+The loader entry point used by the generator lives in:
 
 ```text
 scripts/host_artifact_specs.py
@@ -98,6 +104,14 @@ Current generated outputs:
 
 ```text
 packages/forge-codex/overlay/AGENTS.global.md
+packages/forge-codex/overlay/workflows/execution/session.md
+packages/forge-codex/overlay/workflows/operator/help.md
+packages/forge-codex/overlay/workflows/operator/next.md
+packages/forge-codex/overlay/workflows/operator/run.md
+packages/forge-codex/overlay/workflows/operator/bump.md
+packages/forge-codex/overlay/workflows/operator/rollback.md
+packages/forge-codex/overlay/workflows/operator/customize.md
+packages/forge-codex/overlay/workflows/operator/init.md
 packages/forge-antigravity/overlay/GEMINI.global.md
 ```
 
@@ -116,6 +130,7 @@ The resolver checks:
 - explicit `--tool-target` override
 - tool-specific env override such as `FORGE_BROWSE_ROOT`
 - adapter-global runtime tool registry in `state/runtime-tools.json`
+- `runtime_tools_relative_path` from bundle build/install manifest when present
 - local sibling bundle path in `packages/` or `dist/` when running from source
 
 Register runtime tool targets during install with:

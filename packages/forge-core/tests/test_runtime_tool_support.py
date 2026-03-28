@@ -66,6 +66,30 @@ class RuntimeToolSupportTests(unittest.TestCase):
         self.assertEqual(payload["status"], "PASS")
         self.assertEqual(payload["tool"], "ok")
 
+    def test_resolve_runtime_tools_registry_path_uses_manifest_relative_path(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            temp_root = Path(temp_dir)
+            bundle_root = temp_root / "forge-codex"
+            registry_path = bundle_root / "state" / "runtime-tools.json"
+            bundle_root.mkdir(parents=True, exist_ok=True)
+            (bundle_root / "BUILD-MANIFEST.json").write_text(
+                json.dumps(
+                    {
+                        "state": {
+                            "scope": "adapter-global",
+                            "runtime_tools_relative_path": "state/runtime-tools.json",
+                        }
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            resolved = runtime_tool_support.resolve_runtime_tools_registry_path(bundle_root)
+
+        self.assertEqual(resolved, registry_path.resolve())
+
 
 if __name__ == "__main__":
     unittest.main()

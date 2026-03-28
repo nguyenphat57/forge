@@ -168,6 +168,8 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("resolve_rollback.py", tooling)
         self.assertIn("resolve_runtime_tool.py", tooling)
         self.assertIn("invoke_runtime_tool.py", tooling)
+        self.assertIn("host-artifacts-manifest.json", tooling)
+        self.assertIn("forge-codex/overlay/workflows/operator/run.md", tooling)
         self.assertIn("write_preferences.py", tooling)
         self.assertIn("initialize_workspace.py", tooling)
 

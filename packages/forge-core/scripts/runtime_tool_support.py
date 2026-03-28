@@ -58,10 +58,15 @@ def resolve_runtime_tools_registry_path(bundle_root: Path | None = None) -> Path
     if isinstance(env_value, str) and env_value.strip():
         return Path(env_value).expanduser().resolve()
 
-    state = _load_manifest_state(bundle_root or ROOT_DIR)
+    resolved_bundle_root = (bundle_root or ROOT_DIR).resolve()
+    state = _load_manifest_state(resolved_bundle_root)
     registry_value = state.get("runtime_tools_path")
     if isinstance(registry_value, str) and registry_value.strip():
         return Path(registry_value).expanduser().resolve()
+
+    relative_value = state.get("runtime_tools_relative_path")
+    if isinstance(relative_value, str) and relative_value.strip():
+        return (resolved_bundle_root / relative_value).resolve()
 
     root_value = state.get("root")
     if isinstance(root_value, str) and root_value.strip():

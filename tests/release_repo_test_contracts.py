@@ -190,6 +190,32 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         finally:
             shutil.rmtree(expected_state_root, ignore_errors=True)
 
+    def test_uninstalled_dist_host_bundle_reads_runtime_registry_path_from_manifest(self) -> None:
+        build_release.build_all()
+        script_path = ROOT_DIR / "dist" / "forge-codex" / "scripts" / "resolve_runtime_tool.py"
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(script_path),
+                "forge-browse",
+                "--format",
+                "json",
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+
+        self.assertEqual(
+            payload["registry_path"],
+            str((ROOT_DIR / "dist" / "forge-codex" / "state" / "runtime-tools.json").resolve()),
+        )
+        self.assertEqual(payload["resolution_source"], "bundle-neighbor")
+
     def test_adapter_bump_contracts_stay_aligned_with_core(self) -> None:
         core_bump = ROOT_DIR / "packages" / "forge-core" / "workflows" / "operator" / "bump.md"
         core_skill = ROOT_DIR / "packages" / "forge-core" / "SKILL.md"

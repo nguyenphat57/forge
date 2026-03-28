@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.1 - 2026-03-28
+
+- Tighten runtime-tool consistency by teaching host bundles to consume `runtime_tools_relative_path` from build/install manifests instead of relying only on registry or sibling-bundle fallback.
+- Add end-to-end host-wrapper coverage for `forge-design -> forge-browse`, so Codex and Antigravity both verify the real wrapper path used to render and capture review artifacts.
+- Refresh tooling docs and contract tests so the generated host-artifact inventory and runtime-tool resolution surface stay aligned with the implementation.
+
+
 ## 1.4.0 - 2026-03-28
 
 - Add runtime-tool resolution and invocation to Forge host bundles, so `forge-codex` and `forge-antigravity` can call `forge-browse` and `forge-design` through registry-backed wrappers instead of hardcoded install paths.
