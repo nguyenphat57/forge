@@ -1,7 +1,7 @@
 # Forge Product Thesis
 
 Date: 2026-03-28
-Status: current policy baseline
+Status: historical, superseded by `docs/PRODUCT_THESIS_2026-03-29.md`
 Inputs:
 - `docs/plans/2026-03-28-forge-solo-dev-roadmap.md`
 - `docs/PROJECT_PHASE1_REPORT_2026-03-28.md`
@@ -14,7 +14,9 @@ Forge should become the most dependable assistant for a solo developer who needs
 
 Forge is not a monolithic framework and not a generic skill warehouse. It is an orchestrator kernel with strong shipping discipline, durable artifacts, runtime-tool boundaries, and first-party companions that provide optimized product paths for selected stacks.
 
-When older roadmap or report wording differs, this thesis is the canonical policy document.
+Historical note:
+- this document captured the lane-first thesis that followed the first three implementation phases
+- current policy lives in `docs/PRODUCT_THESIS_2026-03-29.md`
 
 ## User And Problem
 

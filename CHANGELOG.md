@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.1 - 2026-03-29
+
+- Recenter Forge's canonical strategy on a process-first, stack-agnostic execution model by adding the new thesis and roadmap, and by marking the prior lane-first thesis, roadmap, backlog, and normalization docs as historical or superseded.
+- Add a current implementation plan that translates the new process-first roadmap into concrete build order, file or surface boundaries, and verification slices across `forge-core`, runtime tools, host adapters, and the reference companion.
+
+
 ## 1.6.0 - 2026-03-29
 
 - Normalize Forge's product policy so the thesis, roadmap, audit, backlog, and delivery reports agree on one committed first-party lane, historical vs current decisions, and what counts as shipped vs planned absorption.

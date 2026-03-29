@@ -1,8 +1,8 @@
 # Forge Absorption Consistency Report
 
 Date: 2026-03-29
-Status: current
-Goal: normalize the repo narrative after the roadmap, thesis, and multi-phase delivery reports diverged on lane policy, governance artifacts, and risk-guard scope.
+Status: historical normalization report, superseded as current policy by `docs/PRODUCT_THESIS_2026-03-29.md`
+Goal: record the normalization pass that aligned the previous lane-first thesis after the roadmap, thesis, and multi-phase delivery reports diverged on lane policy, governance artifacts, and risk-guard scope.
 
 ## Scope
 

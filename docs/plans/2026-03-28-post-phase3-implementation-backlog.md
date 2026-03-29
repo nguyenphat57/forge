@@ -1,6 +1,6 @@
 # Post-Phase-3 Implementation Backlog
 Date: 2026-03-28
-Status: proposed
+Status: historical backlog for the previous lane-first direction; see `docs/plans/2026-03-29-forge-process-first-roadmap.md` for current policy
 Inputs:
 - `docs/PRODUCT_THESIS_2026-03-28.md`
 - `docs/plans/2026-03-28-forge-solo-dev-roadmap.md`
