@@ -14,14 +14,34 @@ from common import configure_stdio, slugify
 def _start_change(workspace: Path, summary: str, slug: str | None, tasks: list[str], risks: list[str], verification: list[str]) -> dict:
     paths = resolve_change_paths(workspace, summary=summary, slug=slug)
     paths["active_root"].mkdir(parents=True, exist_ok=True)
-    proposal = "\n".join(["# Proposal", "", f"- Why: {summary}", "- Scope: medium or large work slice", "- Non-goals: expand scope without updating artifacts"])
+    proposal = "\n".join(
+        [
+            "# Proposal",
+            "",
+            f"- Why: {summary}",
+            "- Scope: medium or large work slice",
+            "- Non-goals: expand scope without updating artifacts",
+            "- Resume rule: keep the smallest coherent slice visible in the active artifacts.",
+        ]
+    )
     design = "\n".join(["# Design", "", "- Affected areas: confirm during implementation", "- Approach: update the smallest coherent slice first", "- Risks:", *[f"  - {item}" for item in (risks or ['Scope drift if artifacts are not updated.'])]])
-    task_lines = tasks or ["Define the first implementation step.", "Define the verification method before editing."]
+    task_lines = tasks or ["Identify the first concrete slice before editing.", "Record the nearest verification command before implementation."]
     task_text = "\n".join(["# Tasks", "", *[f"- [ ] {item}" for item in task_lines]])
     verification_lines = verification or ["Verification method not recorded yet."]
     verification_text = "\n".join(["# Verification", "", *[f"- {item}" for item in verification_lines]])
+    resume_text = "\n".join(
+        [
+            "# Resume",
+            "",
+            f"- Summary: {summary}",
+            f"- Active slug: {slugify(slug or summary)}",
+            f"- First step: {task_lines[0]}",
+            f"- Verification: {verification_lines[0]}",
+        ]
+    )
     for path, content in ((paths["proposal"], proposal), (paths["design"], design), (paths["tasks"], task_text), (paths["verification"], verification_text)):
         path.write_text(content, encoding="utf-8")
+    (paths["active_root"] / "resume.md").write_text(resume_text, encoding="utf-8")
     status = update_change_status(
         status_path=paths["status"],
         verification_path=paths["verification"],

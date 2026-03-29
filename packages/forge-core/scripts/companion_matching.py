@@ -1,24 +1,20 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from common import keyword_in_text, normalize_text
 from companion_catalog import load_companion_specs
+from workspace_signals import load_package_json, package_dependency_groups
 
 
 def _workspace_dependencies(workspace: Path | None) -> tuple[set[str], set[str]]:
     if workspace is None:
         return set(), set()
-    package_json = workspace / "package.json"
-    if not package_json.exists():
-        return set(), set()
-    payload = json.loads(package_json.read_text(encoding="utf-8"))
-    dependencies = payload.get("dependencies")
-    dev_dependencies = payload.get("devDependencies")
+    payload = load_package_json(workspace)
+    groups = package_dependency_groups(payload)
     return (
-        set(dependencies) if isinstance(dependencies, dict) else set(),
-        set(dev_dependencies) if isinstance(dev_dependencies, dict) else set(),
+        groups.get("dependencies", set()),
+        groups.get("devDependencies", set()),
     )
 
 

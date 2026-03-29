@@ -99,11 +99,33 @@ class DashboardTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             report = json.loads(result.stdout)
             self.assertEqual(report["next_workflow"], "review")
+            self.assertTrue(report["brownfield"]["mapped"])
             self.assertEqual(report["continuity"]["decisions"], 1)
             self.assertEqual(report["continuity"]["learnings"], 1)
             self.assertTrue(any(item["id"] == "nextjs-typescript-postgres" for item in report["companions"]))
             self.assertTrue(any(item["profile"] == "nextjs-prisma-app-router" for item in report["companions"]))
             self.assertTrue((workspace / ".forge-artifacts" / "dashboard" / "latest.json").exists())
+
+    def test_dashboard_prefers_brownfield_entry_for_unscoped_repo(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir) / "workspace"
+            workspace.mkdir(parents=True, exist_ok=True)
+            (workspace / "README.md").write_text("# Demo\n", encoding="utf-8")
+            (workspace / "package.json").write_text('{"name":"demo-app"}\n', encoding="utf-8")
+
+            result = run_python_script(
+                "dashboard.py",
+                "--workspace",
+                str(workspace),
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["next_workflow"], "map-codebase")
+        self.assertFalse(report["brownfield"]["mapped"])
+        self.assertIn("Run `doctor` and `map-codebase`", report["recommended_action"])
 
 
 if __name__ == "__main__":

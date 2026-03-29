@@ -223,6 +223,77 @@ class ReleaseReadinessTests(unittest.TestCase):
             self.assertEqual(report["effective_profile"], "auth")
             self.assertIn("review-pack", report["missing_evidence"])
 
+    def test_release_readiness_auto_uses_billing_profile_from_generic_repo_markers(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir) / "billing-worker"
+            workspace.mkdir(parents=True, exist_ok=True)
+            (workspace / "package.json").write_text(
+                json.dumps(
+                    {
+                        "name": "billing-worker",
+                        "dependencies": {"stripe": "17.0.0"},
+                    },
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+            (workspace / "src" / "billing").mkdir(parents=True)
+            (workspace / "src" / "billing" / "stripe.ts").write_text("export const stripe = {};\n", encoding="utf-8")
+
+            gate = run_python_script(
+                "record_quality_gate.py",
+                "--workspace",
+                str(workspace),
+                "--project-name",
+                "billing-worker",
+                "--profile",
+                "standard",
+                "--target-claim",
+                "deploy",
+                "--decision",
+                "go",
+                "--evidence",
+                "test",
+                "--response",
+                "Gate is green.",
+                "--why",
+                "Checks passed.",
+                "--persist",
+                "--output-dir",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(gate.returncode, 0, gate.stderr)
+
+            docs = run_python_script(
+                "release_doc_sync.py",
+                "--workspace",
+                str(workspace),
+                "--changed-path",
+                "src/billing/stripe.ts",
+                "--changed-path",
+                "docs/release/notes.md",
+                "--changed-path",
+                "docs/architecture/billing.md",
+                "--changed-path",
+                "docs/plans/billing.md",
+                "--format",
+                "json",
+            )
+            self.assertEqual(docs.returncode, 0, docs.stderr)
+            _write_workspace_canary(workspace, "pass", "Workspace canary clean.")
+            canary_root = workspace / ".forge-artifacts" / "canary-runs"
+            for workspace_name, day in (("billing-worker", "2026-03-27"), ("ops-console", "2026-03-27"), ("checkout-web", "2026-03-28"), ("billing-worker", "2026-03-28"), ("ops-console", "2026-03-28"), ("checkout-web", "2026-03-27")):
+                _write_canary_run(canary_root, workspace_name, "pass", f"{day}T10:00:00")
+
+            result = run_python_script("release_readiness.py", "--workspace", str(workspace), "--profile", "auto", "--format", "json")
+
+            self.assertEqual(result.returncode, 1, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["effective_profile"], "billing")
+            self.assertIn("review-pack", report["missing_evidence"])
+
 
 if __name__ == "__main__":
     unittest.main()

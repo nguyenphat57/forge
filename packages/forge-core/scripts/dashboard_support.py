@@ -12,28 +12,14 @@ from help_next_support import (
     collect_repo_signals,
     determine_stage,
     extract_markdown_title,
+    find_latest_json,
     find_latest_markdown,
+    find_latest_named_file,
     read_git_status,
     read_json_object,
 )
 from runtime_tool_support import available_runtime_tool_names, resolve_runtime_tool
 from workflow_state_support import resolve_workflow_state
-
-
-def _latest_json(base_dir: Path) -> Path | None:
-    if not base_dir.exists():
-        return None
-    latest: Path | None = None
-    best = (float("-inf"), "")
-    for candidate in base_dir.rglob("*.json"):
-        try:
-            rank = (candidate.stat().st_mtime, str(candidate).lower())
-        except OSError:
-            continue
-        if rank > best:
-            latest = candidate
-            best = rank
-    return latest
 
 
 def _load_json_array_count(path: Path) -> int:
@@ -44,8 +30,7 @@ def _load_json_array_count(path: Path) -> int:
 
 
 def _active_change(workspace: Path, warnings: list[str]) -> dict | None:
-    base_dir = workspace / ".forge-artifacts" / "changes" / "active"
-    latest_path = _latest_json(base_dir)
+    latest_path = find_latest_named_file(workspace, ".forge-artifacts/changes/active", "status.json")
     if latest_path is None:
         return None
     payload = read_json_object(latest_path, "active change status", warnings)
@@ -56,7 +41,7 @@ def _active_change(workspace: Path, warnings: list[str]) -> dict | None:
 
 
 def _latest_release_report(workspace: Path, category: str, warnings: list[str]) -> dict | None:
-    latest_path = _latest_json(workspace / ".forge-artifacts" / category)
+    latest_path = find_latest_json(workspace, f".forge-artifacts/{category}")
     if latest_path is None:
         return None
     payload = read_json_object(latest_path, category, warnings)
@@ -139,6 +124,11 @@ def build_dashboard_report(workspace: Path) -> dict:
     release_doc_sync = _latest_release_report(workspace, "release-doc-sync", warnings)
     workspace_canary = _latest_release_report(workspace, "workspace-canaries", warnings)
     release_readiness = _latest_release_report(workspace, "release-readiness", warnings)
+    brownfield = {
+        "mapped": codebase_path is not None,
+        "planned": bool(latest_plan or latest_spec),
+        "active_change": active_change is not None,
+    }
     report = {
         "status": "PASS",
         "workspace": str(workspace),
@@ -170,6 +160,7 @@ def build_dashboard_report(workspace: Path) -> dict:
         "plan": {"path": str(latest_plan) if latest_plan else None, "title": extract_markdown_title(latest_plan)},
         "spec": {"path": str(latest_spec) if latest_spec else None, "title": extract_markdown_title(latest_spec)},
         "codebase": {"path": str(codebase_path) if codebase_path else None},
+        "brownfield": brownfield,
         "active_change": active_change,
         "workflow_state": {"path": workflow_source.get("path"), "summary": (workflow_state or {}).get("summary")},
         "latest_verification": _latest_verification(workflow_state, active_change),
@@ -210,12 +201,13 @@ def format_dashboard_text(report: dict) -> str:
         f"- Learnings: {report['continuity']['learnings']}",
         f"- Plan: {report['plan']['title'] or '(none)'}",
         f"- Spec: {report['spec']['title'] or '(none)'}",
+        f"- Codebase map: {'ready' if report['brownfield']['mapped'] else 'missing'}",
         f"- Latest verification: {(report['latest_verification'] or {}).get('kind') or '(none)'}",
-        f"- Companions: {', '.join(item['id'] for item in report['companions']) or '(none)'}",
+        f"- Optional companions: {', '.join(item['id'] for item in report['companions']) or '(none)'}",
         "- Runtime tools:",
     ]
     if report["companions"]:
-        lines.append("- Companion operator context:")
+        lines.append("- Optional companion context:")
         for item in report["companions"]:
             lines.append(f"  - {item['id']}: profile={item.get('profile') or '(none)'}, pack={item.get('verification_pack') or '(none)'}")
     for item in report["runtime_tools"]:

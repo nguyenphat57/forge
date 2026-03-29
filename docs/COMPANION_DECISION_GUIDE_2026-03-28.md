@@ -1,12 +1,13 @@
 # Forge Companion Decision Guide
 
 Date: 2026-03-28
+Status: current decision guide, aligned to the 2026-03-29 process-first thesis
 
 ## Goal
 
 Make it obvious when Forge is operating as:
 - core only
-- core plus a first-party companion
+- core plus an optional companion
 
 ## How To Tell
 
@@ -20,7 +21,7 @@ If a companion is active, Forge now reports:
 
 ## Choose Core Only When
 
-- the repo does not match a first-party companion
+- the repo does not show a confident companion match
 - the stack is unusual or mixed enough that generic orchestration is safer
 - you need diagnosis, planning, change artifacts, and verification discipline more than stack-specific scaffolding
 
@@ -28,11 +29,11 @@ If a companion is active, Forge now reports:
 
 - the repo clearly matches the companion markers
 - the companion verification pack matches the work you are doing
-- you want faster defaults for commands, risk notes, and review focus
+- you want faster defaults for commands, risk notes, and review focus without changing core routing or evidence policy
 
-## Current First-Party Companion
+## Current Reference Companion
 
-`nextjs-typescript-postgres`
+`nextjs-typescript-postgres` remains a reference companion, not the identity of Forge.
 
 Use it when the repo shows signals such as:
 - `next`
@@ -64,6 +65,7 @@ A companion must not replace:
 
 ## Practical Rule
 
-If Forge shows a companion match and a verification pack, use it.
+The user chooses the stack.
+If Forge shows a confident companion match and a verification pack, use it as an accelerator.
 
 If Forge does not show a confident match, stay on the core path and do not force a lane assumption.

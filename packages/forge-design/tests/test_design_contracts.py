@@ -23,6 +23,8 @@ class DesignContractTests(unittest.TestCase):
         verify_bundle = (ROOT_DIR / "scripts" / "verify_bundle.py").read_text(encoding="utf-8")
 
         self.assertIn("forge-browse", readme)
+        self.assertIn("optional stack-agnostic runtime tool", readme)
+        self.assertIn("It is for design artifacts, not runtime QA.", readme)
         self.assertIn("support an env-gated live smoke", readme)
         self.assertIn("FORGE_DESIGN_RUN_BROWSE_SMOKE", verify_bundle)
         self.assertIn("FORGE_BROWSE_RUN_PLAYWRIGHT_SMOKE", verify_bundle)

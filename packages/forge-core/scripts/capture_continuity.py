@@ -33,17 +33,20 @@ def load_entries(path: Path) -> list[dict]:
 
 
 def build_entry(args: argparse.Namespace) -> dict:
+    next_steps = [item for item in args.next_step if isinstance(item, str) and item.strip()]
+    summary = args.summary.strip()
     return {
         "id": timestamp_slug(),
         "kind": args.kind,
         "scope": args.scope,
-        "summary": args.summary,
+        "summary": summary,
         "status": args.status,
         "evidence": args.evidence,
-        "next": args.next_step,
+        "next": next_steps,
         "tags": args.tag,
         "revisit_if": args.revisit_if,
         "trigger": args.trigger,
+        "resume_hint": next_steps[0] if next_steps else args.revisit_if or "Re-open this item when the work slice resumes.",
     }
 
 
@@ -55,6 +58,7 @@ def format_text(path: Path, entry: dict, total: int) -> str:
         f"- Scope: {entry['scope']}",
         f"- Status: {entry['status']}",
         f"- Summary: {entry['summary']}",
+        f"- Resume hint: {entry['resume_hint']}",
         f"- Total entries: {total}",
     ]
     for label, values in (
@@ -80,7 +84,7 @@ def main() -> int:
     parser.add_argument("summary", help="Short decision or learning summary")
     parser.add_argument("--kind", required=True, choices=VALID_KINDS, help="Entry kind")
     parser.add_argument("--scope", required=True, help="Module, feature, or subsystem scope")
-    parser.add_argument("--status", default="active", choices=VALID_STATUSES, help="Entry status")
+    parser.add_argument("--status", default="resolved", choices=VALID_STATUSES, help="Entry status")
     parser.add_argument("--evidence", action="append", default=[], help="Evidence source or verification note. Repeatable.")
     parser.add_argument("--next", dest="next_step", action="append", default=[], help="Next action linked to this entry. Repeatable.")
     parser.add_argument("--tag", action="append", default=[], help="Optional tag. Repeatable.")

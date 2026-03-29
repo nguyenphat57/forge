@@ -12,13 +12,16 @@ import threading
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 SCRIPTS_DIR = ROOT_DIR / "scripts"
+TESTS_DIR = Path(__file__).resolve().parent
 
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
+if str(TESTS_DIR) not in sys.path:
+    sys.path.insert(0, str(TESTS_DIR))
 
 import browse_packets  # noqa: E402
 import browse_support  # noqa: E402
-from support import serve_directory  # noqa: E402
+from browse_test_support import serve_directory  # noqa: E402
 
 
 class BrowsePacketTests(unittest.TestCase):

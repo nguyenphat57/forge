@@ -2,14 +2,12 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 import subprocess
 import time
 import unittest
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
-from support import run_python_script, workspace_fixture
+from support import copied_workspace_fixture, run_python_script, temporary_workspace, workspace_fixture
 
 
 class HelpNextTests(unittest.TestCase):
@@ -56,9 +54,7 @@ class HelpNextTests(unittest.TestCase):
         self.assertEqual(report["recommended_action"], "Start the first concrete slice from plan 'Checkout Rollout'.")
 
     def test_next_uses_codebase_map_when_repo_is_mapped_but_not_planned(self) -> None:
-        with TemporaryDirectory() as temp_dir:
-            workspace = Path(temp_dir) / "mapped-workspace"
-            shutil.copytree(workspace_fixture("map_codebase_next_workspace"), workspace)
+        with copied_workspace_fixture("map_codebase_next_workspace", target_name="mapped-workspace") as workspace:
             mapped = run_python_script("map_codebase.py", "--workspace", str(workspace), "--format", "json")
             self.assertEqual(mapped.returncode, 0, mapped.stderr)
 
@@ -76,12 +72,11 @@ class HelpNextTests(unittest.TestCase):
 
         self.assertEqual(report["current_stage"], "mapped")
         self.assertTrue(str(report["signals"]["codebase_summary"]).endswith("summary.md"))
-        self.assertIn("mapped repo summary", report["recommended_action"])
+        self.assertEqual(report["suggested_workflow"], "plan")
+        self.assertIn("brownfield codebase map", report["recommended_action"])
 
     def test_next_prefers_active_change_artifact_when_no_session_exists(self) -> None:
-        with TemporaryDirectory() as temp_dir:
-            workspace = Path(temp_dir) / "change-workspace"
-            workspace.mkdir()
+        with temporary_workspace("change-workspace") as workspace:
             (workspace / "README.md").write_text("# Change Workspace\n", encoding="utf-8")
             started = run_python_script(
                 "change_artifacts.py",
@@ -124,12 +119,12 @@ class HelpNextTests(unittest.TestCase):
 
         self.assertEqual(report["status"], "WARN")
         self.assertEqual(report["current_stage"], "unscoped")
-        self.assertEqual(report["suggested_workflow"], "review")
+        self.assertEqual(report["suggested_workflow"], "map-codebase")
+        self.assertIn("Run `doctor` and `map-codebase`", report["recommended_action"])
         self.assertTrue(any("No active plan" in warning for warning in report["warnings"]))
 
     def test_next_detects_git_changes_and_recommends_verification(self) -> None:
-        with TemporaryDirectory() as temp_dir:
-            workspace = Path(temp_dir)
+        with temporary_workspace() as workspace:
             subprocess.run(["git", "init"], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
             (workspace / "README.md").write_text("# Temp Workspace\n", encoding="utf-8")
             (workspace / "package.json").write_text('{"name":"temp-workspace"}\n', encoding="utf-8")
@@ -155,8 +150,7 @@ class HelpNextTests(unittest.TestCase):
         self.assertIn("README.md", report["signals"]["untracked_files"])
 
     def test_next_detects_git_changes_from_nested_workspace(self) -> None:
-        with TemporaryDirectory() as temp_dir:
-            repo_root = Path(temp_dir)
+        with temporary_workspace("repo-root") as repo_root:
             nested_workspace = repo_root / "packages" / "forge-core"
             nested_workspace.mkdir(parents=True)
             subprocess.run(["git", "init"], cwd=repo_root, check=True, capture_output=True, text=True, encoding="utf-8")
@@ -183,8 +177,7 @@ class HelpNextTests(unittest.TestCase):
         self.assertIn("README.md", report["signals"]["untracked_files"])
 
     def test_next_uses_latest_nested_plan_by_mtime(self) -> None:
-        with TemporaryDirectory() as temp_dir:
-            workspace = Path(temp_dir)
+        with temporary_workspace() as workspace:
             plans_dir = workspace / "docs" / "plans"
             nested_dir = plans_dir / "nested"
             nested_dir.mkdir(parents=True)

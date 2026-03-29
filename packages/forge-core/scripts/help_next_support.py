@@ -48,32 +48,30 @@ def _mtime_rank(path: Path) -> tuple[float, str]:
         return float("-inf"), ""
 
 
-def find_latest_markdown(workspace: Path, relative_dir: str) -> Path | None:
+def find_latest_file(workspace: Path, relative_dir: str, pattern: str) -> Path | None:
     base_dir = workspace / relative_dir
     if not base_dir.exists():
         return None
     latest_path: Path | None = None
     latest_rank = (float("-inf"), "")
-    for candidate in base_dir.rglob("*.md"):
+    for candidate in base_dir.rglob(pattern):
         rank = _mtime_rank(candidate)
         if rank > latest_rank:
             latest_path = candidate
             latest_rank = rank
     return latest_path
+
+
+def find_latest_markdown(workspace: Path, relative_dir: str) -> Path | None:
+    return find_latest_file(workspace, relative_dir, "*.md")
 
 
 def find_latest_named_file(workspace: Path, relative_dir: str, filename: str) -> Path | None:
-    base_dir = workspace / relative_dir
-    if not base_dir.exists():
-        return None
-    latest_path: Path | None = None
-    latest_rank = (float("-inf"), "")
-    for candidate in base_dir.rglob(filename):
-        rank = _mtime_rank(candidate)
-        if rank > latest_rank:
-            latest_path = candidate
-            latest_rank = rank
-    return latest_path
+    return find_latest_file(workspace, relative_dir, filename)
+
+
+def find_latest_json(workspace: Path, relative_dir: str) -> Path | None:
+    return find_latest_file(workspace, relative_dir, "*.json")
 
 
 def extract_markdown_title(path: Path | None) -> str | None:
@@ -254,10 +252,10 @@ def build_recommendations(*, mode: str, stage: str, session: dict | None, latest
         alternatives = ["If scope is still fuzzy, tighten the plan before writing code.", "If repo health is unclear, run a review-style scan before implementation."]
         return "plan", f"Start the first concrete slice from {plan_kind} '{label}'.", alternatives[:1] if mode == "next" else alternatives[:2]
     if stage == "mapped":
-        alternatives = ["Refresh the codebase map if the repo changed materially.", "Capture a plan before editing if the next slice is not obvious."]
-        return "review", "Start from the mapped repo summary and choose the first concrete slice before editing.", alternatives[:1] if mode == "next" else alternatives[:2]
-    alternatives = ["Run `doctor` first if Forge or runtime wiring feels broken.", "If you already know the task, state it directly and let Forge route the right workflow."]
-    return "review", "Start from `map-codebase` or README and package manifests to identify the first concrete slice.", alternatives[:1] if mode == "next" else alternatives[:2]
+        alternatives = ["Refresh the codebase map if the repo changed materially.", "Use `review` only after a concrete slice is already active or review-ready."]
+        return "plan", "Use the brownfield codebase map to choose the first concrete slice, then record a plan or change artifact before editing.", alternatives[:1] if mode == "next" else alternatives[:2]
+    alternatives = ["If Forge wiring feels broken, run `doctor` first to confirm runtime and workspace health.", "If you already know the task, state it directly and let Forge route the right workflow after the repo is mapped."]
+    return "map-codebase", "Run `doctor` and `map-codebase` to establish repo health and a durable brownfield summary before editing.", alternatives[:1] if mode == "next" else alternatives[:2]
 
 
 def build_evidence(*, readme: Path | None, latest_plan: Path | None, latest_spec: Path | None, session_path: Path | None, handover_path: Path | None, git_state: dict, preferences_source: dict, workflow_source: dict, codebase_summary: Path | None = None) -> list[str]:

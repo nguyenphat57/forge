@@ -6,20 +6,8 @@ from pathlib import Path
 
 from common import configure_stdio, default_artifact_dir, timestamp_slug
 from companion_matching import match_companions
-
-
-def _feature_set(matches: list[dict]) -> set[str]:
-    features: set[str] = set()
-    for item in matches:
-        for feature, matched in item.get("features", {}).items():
-            if matched:
-                features.add(feature)
-    return features
-
-
-def _env_text(workspace: Path) -> str:
-    env_path = workspace / ".env.example"
-    return env_path.read_text(encoding="utf-8") if env_path.exists() else ""
+from release_feature_detection import detect_release_context
+from workspace_signals import read_env_example
 
 
 def _has_any_key(env_text: str, keys: tuple[str, ...]) -> bool:
@@ -28,9 +16,9 @@ def _has_any_key(env_text: str, keys: tuple[str, ...]) -> bool:
 
 def build_report(workspace: Path, profile: str, public_surface: bool | None) -> dict:
     matches = match_companions(workspace=workspace)
-    features = _feature_set(matches)
-    env_text = _env_text(workspace)
-    inferred_public = bool(public_surface) if public_surface is not None else any(feature in features for feature in ("nextjs", "auth", "billing"))
+    features, detected_public_surface = detect_release_context(workspace, matches=matches)
+    env_text = read_env_example(workspace)
+    inferred_public = bool(public_surface) if public_surface is not None else detected_public_surface
     focus = [
         "Findings first, summary second.",
         "Separate verified behavior from static review gaps.",
@@ -100,7 +88,7 @@ def build_report(workspace: Path, profile: str, public_surface: bool | None) -> 
         "adversarial_checks": adversarial_checks,
         "findings": findings,
         "recommended_follow_ups": ["Document missing env keys before release."] if findings else [],
-        "summary": "Review pack is ready." if status == "PASS" else "Review pack found release or security follow-up.",
+        "summary": "Core review pack is ready." if status == "PASS" else "Review pack found release or security follow-up.",
     }
 
 
@@ -124,7 +112,7 @@ def format_text(report: dict) -> str:
         f"- Workspace: {report['workspace']}",
         f"- Profile: {report['profile']}",
         f"- Public surface: {'yes' if report['public_surface'] else 'no'}",
-        f"- Companions: {', '.join(report['companions']) or '(none)'}",
+        f"- Optional companions: {', '.join(report['companions']) or '(none)'}",
         f"- Features: {', '.join(report['features']) or '(none)'}",
         f"- Summary: {report['summary']}",
         "- Review focus:",
@@ -153,7 +141,7 @@ def format_text(report: dict) -> str:
 def main() -> int:
     configure_stdio()
 
-    parser = argparse.ArgumentParser(description="Create a lane-aware solo-dev review pack for release-oriented work.")
+    parser = argparse.ArgumentParser(description="Create a stack-agnostic solo-dev review pack for release-oriented work.")
     parser.add_argument("--workspace", type=Path, default=Path.cwd(), help="Workspace root")
     parser.add_argument("--profile", choices=["standard", "adversarial"], default="standard", help="Review pack profile")
     parser.add_argument("--public", dest="public_surface", action="store_true", help="Force public-surface checks on")

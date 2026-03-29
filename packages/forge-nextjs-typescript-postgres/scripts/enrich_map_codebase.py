@@ -56,7 +56,7 @@ def build_report(workspace: Path) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Emit map-codebase enrichments for the Next.js TypeScript Postgres companion.")
+    parser = argparse.ArgumentParser(description="Emit map-codebase enrichments for the optional Next.js TypeScript Postgres companion.")
     parser.add_argument("--workspace", type=Path, default=Path.cwd(), help="Workspace root")
     parser.add_argument("--format", choices=["text", "json"], default="json", help="Output format")
     args = parser.parse_args()

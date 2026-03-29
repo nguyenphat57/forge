@@ -1,6 +1,6 @@
 # __FORGE_PROJECT_NAME__
 
-Minimal Forge companion preset for a Next.js + TypeScript + Postgres product.
+Minimal Forge reference companion preset for a Next.js + TypeScript + Postgres product.
 
 Included baseline:
 - App Router shell

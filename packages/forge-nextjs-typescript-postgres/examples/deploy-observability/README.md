@@ -1,6 +1,6 @@
 # Deploy Observability Example
 
-This is the reference surface for the deploy-observability preset.
+This is the reference surface for the optional deploy-observability preset.
 
 Use it when:
 - the app already has working product flows

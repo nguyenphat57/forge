@@ -1,14 +1,23 @@
 # Forge Browse
 
-`forge-browse` is the first Forge runtime tool bundle.
+`forge-browse` is an optional stack-agnostic Forge runtime tool for browser QA.
 
 ## Goal
 
-Provide a browser-side actuator without pushing browser automation into `forge-core`.
+Provide a reusable browser-side actuator without pushing browser automation into `forge-core`.
+
+This tool should stay useful whether the repo is running on the core-only path or with an optional companion active.
+It is not tied to one framework or one companion.
 
 `forge_browse.py` is the canonical operator entrypoint.
 
 `browse_server.py` is an optional local HTTP control plane for deterministic smoke checks and installed-bundle assertions.
+
+## Boundary
+
+- `forge-core` owns routing, verification policy, release verdicts, and durable work state.
+- `forge-browse` owns browser execution, persisted sessions, QA packets, and capture artifacts.
+- `forge-design` can produce review packets, but `forge-browse` stays the runtime QA executor.
 
 ## MVP
 

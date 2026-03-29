@@ -2,7 +2,7 @@
 name: review-pack
 type: flexible
 quality_gates:
-  - Lane-aware checklist generated
+  - Repo-aware checklist generated
   - Security-minded focus included for public release surfaces
 ---
 
@@ -15,9 +15,9 @@ Generate a repeatable pre-release review pack for a solo dev instead of relying 
 ## What It Should Include
 
 - findings-first review stance
-- release checklist
+- core release checklist that still works without a companion
 - security-minded checks for public surfaces
-- lane-aware checks inferred from repo signals and first-party companions
+- stack-aware checks inferred from repo signals and optional companions
 - optional adversarial prompts for higher-risk work
 
 ## Examples
@@ -29,6 +29,7 @@ Generate a repeatable pre-release review pack for a solo dev instead of relying 
 ## Rules
 
 - the pack is not the review itself; it prepares the review
+- repo-visible signals should be enough to produce a usable pack even when no companion matches
 - missing env docs for sensitive features should appear as findings
 - adversarial mode should raise the bar instead of repeating the standard checklist
 

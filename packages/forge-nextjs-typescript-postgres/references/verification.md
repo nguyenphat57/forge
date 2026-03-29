@@ -1,6 +1,6 @@
 # Verification
 
-Default verification pack:
+Default verification pack for the optional companion:
 - lint
 - typecheck
 - test

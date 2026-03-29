@@ -1,9 +1,15 @@
 from __future__ import annotations
 
 import json
+import sys
 import unittest
+from pathlib import Path
 
-from support import TEMPLATES_DIR, run_python_script
+TESTS_DIR = Path(__file__).resolve().parent
+if str(TESTS_DIR) not in sys.path:
+    sys.path.insert(0, str(TESTS_DIR))
+
+from companion_test_support import TEMPLATES_DIR, run_python_script
 
 
 class CompanionCommandTests(unittest.TestCase):

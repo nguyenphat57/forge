@@ -1,6 +1,6 @@
 # Billing SaaS Example
 
-Reference shape for the `billing-saas` preset.
+Reference shape for the optional `billing-saas` preset.
 
 Included surfaces:
 - auth baseline

@@ -93,6 +93,30 @@ class ReviewPackTests(unittest.TestCase):
             report = json.loads(result.stdout)
             self.assertTrue(any("webhook route" in item for item in report["findings"]))
 
+    def test_review_pack_detects_billing_markers_without_companion_match(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            (workspace / "package.json").write_text(
+                json.dumps(
+                    {
+                        "name": "generic-billing-service",
+                        "dependencies": {"stripe": "17.0.0"},
+                    },
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+            (workspace / "src" / "billing").mkdir(parents=True)
+            (workspace / "src" / "billing" / "stripe.ts").write_text("export const stripe = {};\n", encoding="utf-8")
+            (workspace / ".env.example").write_text("DATABASE_URL=\n", encoding="utf-8")
+
+            result = run_python_script("review_pack.py", "--workspace", str(workspace), "--format", "json")
+
+            self.assertEqual(result.returncode, 1, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertIn("billing", report["features"])
+            self.assertTrue(any("STRIPE_SECRET_KEY" in item for item in report["findings"]))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,13 +1,14 @@
 # Forge Nextjs Typescript Postgres
 
-First-party Forge companion for the `nextjs + typescript + postgres` product path.
+Optional Forge adaptation layer for the `nextjs + typescript + postgres` stack path.
 
-This package is not an orchestrator. `forge-core` stays responsible for routing,
-verification policy, change-artifact gates, and reporting. This companion only
-supplies stack-specific presets, commands, doctor checks, map enrichers, and
-verification data.
+This package is a reference companion, not Forge identity. `forge-core` still
+owns routing, verification policy, change-artifact gates, and reporting.
 
-Current first-party presets:
+This companion only supplies stack-specific presets, commands, doctor checks,
+map enrichers, and verification data when the repo clearly wants that stack.
+
+Reference presets:
 - baseline SaaS
 - auth SaaS
 - billing SaaS

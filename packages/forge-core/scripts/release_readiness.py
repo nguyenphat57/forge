@@ -7,7 +7,8 @@ from pathlib import Path
 import evaluate_canary_readiness
 from common import configure_stdio, default_artifact_dir, timestamp_slug
 from companion_matching import match_companions
-from help_next_support import read_json_object
+from help_next_support import find_latest_json, read_json_object
+from release_feature_detection import detect_release_context
 from workflow_state_support import resolve_workflow_state
 
 
@@ -41,23 +42,6 @@ PROFILE_RULES = {
     },
 }
 
-
-def _latest_json(base_dir: Path) -> Path | None:
-    if not base_dir.exists():
-        return None
-    latest: Path | None = None
-    best = (float("-inf"), "")
-    for candidate in base_dir.rglob("*.json"):
-        try:
-            rank = (candidate.stat().st_mtime, str(candidate).lower())
-        except OSError:
-            continue
-        if rank > best:
-            latest = candidate
-            best = rank
-    return latest
-
-
 def _load_report(path: Path | None, label: str, warnings: list[str]) -> dict | None:
     if path is None:
         return None
@@ -65,15 +49,6 @@ def _load_report(path: Path | None, label: str, warnings: list[str]) -> dict | N
     if isinstance(payload, dict):
         payload["path"] = str(path)
     return payload if isinstance(payload, dict) else None
-
-
-def _detected_features(workspace: Path) -> set[str]:
-    features: set[str] = set()
-    for match in match_companions(workspace=workspace):
-        for feature, matched in match.get("features", {}).items():
-            if matched:
-                features.add(feature)
-    return features
 
 
 def _effective_profile(profile: str, features: set[str]) -> str:
@@ -87,7 +62,8 @@ def _effective_profile(profile: str, features: set[str]) -> str:
 
 
 def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict:
-    features = _detected_features(workspace)
+    matches = match_companions(workspace=workspace)
+    features, _ = detect_release_context(workspace, matches=matches)
     effective_profile = _effective_profile(profile, features)
     rules = PROFILE_RULES[effective_profile]
     warnings: list[str] = []
@@ -105,7 +81,7 @@ def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict
             gate_status = "FAIL"
     checks.append({"id": "quality-gate", "status": gate_status, "detail": gate_detail})
 
-    docs_sync = _load_report(_latest_json(workspace / ".forge-artifacts" / "release-doc-sync"), "release-doc-sync", warnings)
+    docs_sync = _load_report(find_latest_json(workspace, ".forge-artifacts/release-doc-sync"), "release-doc-sync", warnings)
     if docs_sync is None:
         docs_status = "FAIL" if rules["require_docs_sync"] else "WARN"
         docs_detail = "No release-doc sync report found."
@@ -118,7 +94,7 @@ def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict
             docs_status = "FAIL"
     checks.append({"id": "release-doc-sync", "status": docs_status, "detail": docs_detail})
 
-    workspace_canary = _load_report(_latest_json(workspace / ".forge-artifacts" / "workspace-canaries"), "workspace-canary", warnings)
+    workspace_canary = _load_report(find_latest_json(workspace, ".forge-artifacts/workspace-canaries"), "workspace-canary", warnings)
     if workspace_canary is None:
         canary_status = "FAIL" if rules["require_workspace_canary"] else "WARN"
         canary_detail = "No workspace canary report found."
@@ -133,7 +109,7 @@ def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict
             canary_status = "FAIL"
     checks.append({"id": "workspace-canary", "status": canary_status, "detail": canary_detail})
 
-    review_pack = _load_report(_latest_json(workspace / ".forge-artifacts" / "review-packs"), "review-pack", warnings)
+    review_pack = _load_report(find_latest_json(workspace, ".forge-artifacts/review-packs"), "review-pack", warnings)
     if review_pack is None:
         review_status = "FAIL" if rules["require_review_pack"] else "WARN"
         review_detail = "No review pack report found."
@@ -179,7 +155,7 @@ def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict
         "workspace_canary": workspace_canary,
         "review_pack": review_pack,
         "rollout_readiness": readiness_report,
-        "summary": "Release looks ready." if status == "PASS" else "Release readiness still has unresolved gaps.",
+        "summary": "Core release contract looks ready." if status == "PASS" else "Release readiness still has unresolved gaps.",
     }
 
 

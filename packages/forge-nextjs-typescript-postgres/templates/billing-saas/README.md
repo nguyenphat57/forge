@@ -1,6 +1,6 @@
 # __FORGE_PROJECT_NAME__
 
-Forge billing preset for a Next.js + TypeScript + Postgres product.
+Forge billing reference companion preset for a Next.js + TypeScript + Postgres product.
 
 Included baseline:
 - auth-ready entry surfaces

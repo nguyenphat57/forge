@@ -46,14 +46,18 @@ def _format_text(report: dict) -> str:
         f"- Project: {report['project_name']}",
         f"- Languages: {', '.join(report['stack']['languages']) or '(none)'}",
         f"- Frameworks: {', '.join(report['stack']['frameworks']) or '(none)'}",
-        f"- Companions: {', '.join(item['id'] for item in report.get('companions', [])) or '(none)'}",
-        f"- Verification packs: {', '.join(item['verification_pack'] or '(none)' for item in report.get('companion_operator', [])) or '(none)'}",
-        "- Next actions:",
+        f"- Entrypoints: {', '.join(report['brownfield']['entrypoints']) or '(none)'}",
+        f"- Optional companions: {', '.join(item['id'] for item in report.get('companions', [])) or '(none)'}",
+        f"- Optional verification packs: {', '.join(item['verification_pack'] or '(none)' for item in report.get('companion_operator', [])) or '(none)'}",
+        "- Brownfield next actions:",
     ]
-    for item in report["structure"]["next_actions"]:
+    for item in report["brownfield"]["next_actions"]:
+        lines.append(f"  - {item}")
+    lines.append("- Open questions:")
+    for item in report["brownfield"]["open_questions"] or ["(none)"]:
         lines.append(f"  - {item}")
     lines.append("- Risks:")
-    for item in report["structure"]["risks"] or ["(none)"]:
+    for item in report["brownfield"]["risks"] or ["(none)"]:
         lines.append(f"  - {item}")
     return "\n".join(lines)
 
@@ -92,6 +96,13 @@ def main() -> int:
         "project_name": stack["project_name"],
         "stack": stack,
         "structure": structure,
+        "brownfield": {
+            "core_only_ready": True,
+            "entrypoints": structure["entrypoints"],
+            "next_actions": structure["next_actions"],
+            "open_questions": structure["open_questions"],
+            "risks": structure["risks"],
+        },
         "companions": companion_summaries,
         "companion_operator": [operator_context[item["id"]] for item in companion_summaries if item["id"] in operator_context],
     }

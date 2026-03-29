@@ -1,6 +1,7 @@
 # Forge Troubleshooting
 
 Date: 2026-03-28
+Status: current troubleshooting, aligned to the 2026-03-29 process-first thesis
 
 ## Doctor Warns About Runtime Tools
 
@@ -16,12 +17,12 @@ What to do:
 
 Meaning:
 - the repo matches a companion broadly
-- the repo is still missing enough markers for a stronger command profile
+- the repo is still missing enough markers for a stronger stack-specific command profile
 
 What to do:
 - inspect `package.json`
 - inspect `.env.example`
-- add the expected stack markers for that lane
+- add the expected stack markers for that companion profile
 - re-run `doctor` and `map-codebase`
 
 ## Map-Codebase Shows The Wrong Verification Pack
@@ -54,11 +55,12 @@ What to do:
 - confirm `login_url` is set
 - confirm the session has a persisted storage state when the packet requires it
 
-## Lane 2 Gate Fails
+## Companion Expansion Stays Deferred
 
 Meaning:
-- Forge is not ready to open a second first-party lane yet
+- Forge is still prioritizing universal workflow quality over more companion breadth
 
 What to do:
-- continue hardening lane 1
-- use the lane score output only as prioritization input, not as permission to expand early
+- continue hardening the core workflow and brownfield operator surfaces
+- use companion demand and evidence only as prioritization input, not as permission to expand early
+- do not treat a candidate companion as current policy until the docs and workflow contracts say so

@@ -94,8 +94,8 @@ When `.brain` has enough data, drag only the relevant part:
    - pending_tasks
    - verification
    - decisions_made
-5. From `.brain/decisions.json`, only get the entry but also `active` and match the current scope
-6. From `.brain/learnings.json`, only get items from repeated failures, incidents, or repeated patterns
+5. From `.brain/decisions.json`, only pull entries that still match the current scope and remain valid or resume-relevant
+6. From `.brain/learnings.json`, prefer repeated-failure patterns, incidents, or reusable lessons that can change the next step
 7. From `.brain/brain.json`, only get decisions/patterns that match the current scope
 8. If memory and repo state conflict -> repo state wins
 ```

@@ -22,10 +22,12 @@ def persist_map_report(report: dict, output_dir: str | None, focus: str | None) 
             f"- Project: {report['project_name']}",
             f"- Languages: {', '.join(report['stack']['languages']) or '(none)'}",
             f"- Frameworks: {', '.join(report['stack']['frameworks']) or '(none)'}",
-            f"- Companions: {', '.join(item['id'] for item in report.get('companions', [])) or '(none)'}",
-            f"- Verification packs: {', '.join(item['verification_pack'] or '(none)' for item in report.get('companion_operator', [])) or '(none)'}",
+            f"- Entrypoints: {', '.join(report['brownfield']['entrypoints']) or '(none)'}",
+            f"- Optional companions: {', '.join(item['id'] for item in report.get('companions', [])) or '(none)'}",
+            f"- Optional verification packs: {', '.join(item['verification_pack'] or '(none)' for item in report.get('companion_operator', [])) or '(none)'}",
             f"- Package managers: {', '.join(report['stack']['package_managers']) or '(none)'}",
-            f"- Next actions: {', '.join(report['structure']['next_actions'])}",
+            f"- Brownfield next actions: {', '.join(report['brownfield']['next_actions']) or '(none)'}",
+            f"- Open questions: {', '.join(report['brownfield']['open_questions']) or '(none)'}",
         ]
     )
     architecture_md = "\n".join(["# Architecture", "", f"- Entrypoints: {', '.join(report['structure']['entrypoints']) or '(none)'}", f"- Top-level directories: {', '.join(report['structure']['top_level_dirs']) or '(none)'}"])

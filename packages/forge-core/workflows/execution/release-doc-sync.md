@@ -28,6 +28,7 @@ Check whether release-facing docs drifted away from the changed code or config s
 ## Rules
 
 - docs drift is allowed to remain a warning, but it must not be hidden
+- the rule set must stay repo-visible and stack-agnostic instead of depending on companion-only metadata
 - database or migration changes should push attention toward architecture and release notes
 - runtime/config changes should push attention toward README or release docs
 - product surface changes should push attention toward README, architecture, or plan/spec surfaces

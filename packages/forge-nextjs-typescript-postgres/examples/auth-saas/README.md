@@ -1,6 +1,6 @@
 # Auth SaaS Example
 
-Reference shape for the `auth-saas` preset.
+Reference shape for the optional `auth-saas` preset.
 
 Included surfaces:
 - signup and login routes

@@ -3,9 +3,8 @@ from __future__ import annotations
 import json
 import unittest
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
-from support import run_python_script, workspace_fixture
+from support import copied_workspace_fixture, run_python_script, temporary_workspace
 
 
 def _fake_runtime_tool(root: Path, bundle_name: str, *, doctor_status: str | None = None) -> Path:
@@ -35,14 +34,13 @@ def _fake_runtime_tool(root: Path, bundle_name: str, *, doctor_status: str | Non
 
 class DoctorTests(unittest.TestCase):
     def test_doctor_passes_with_registered_runtime_tools(self) -> None:
-        with TemporaryDirectory() as temp_dir:
-            workspace = Path(temp_dir) / "workspace"
-            registry_path = Path(temp_dir) / "runtime-tools.json"
-            workspace.mkdir()
+        with temporary_workspace() as workspace:
+            temp_root = workspace.parent
+            registry_path = temp_root / "runtime-tools.json"
             (workspace / "README.md").write_text("# Workspace\n", encoding="utf-8")
             (workspace / "package.json").write_text('{"name":"doctor-workspace"}\n', encoding="utf-8")
-            browse_root = _fake_runtime_tool(Path(temp_dir), "forge-browse", doctor_status="PASS")
-            design_root = _fake_runtime_tool(Path(temp_dir), "forge-design", doctor_status="PASS")
+            browse_root = _fake_runtime_tool(temp_root, "forge-browse", doctor_status="PASS")
+            design_root = _fake_runtime_tool(temp_root, "forge-design", doctor_status="PASS")
             registry_payload = {
                 "version": 1,
                 "tools": {
@@ -63,16 +61,19 @@ class DoctorTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             report = json.loads(result.stdout)
             self.assertEqual(report["status"], "PASS")
+            self.assertTrue(report["core_only_ready"])
+            self.assertTrue(any("map_codebase.py" in item for item in report["next_actions"]))
             self.assertTrue((workspace / ".forge-artifacts" / "doctor" / "latest.json").exists())
 
     def test_doctor_warns_when_optional_runtime_tools_are_missing(self) -> None:
-        with TemporaryDirectory() as temp_dir:
-            workspace = Path(temp_dir)
+        with temporary_workspace() as workspace:
             (workspace / "README.md").write_text("# Workspace\n", encoding="utf-8")
             result = run_python_script("doctor.py", "--workspace", str(workspace), "--format", "json")
 
             self.assertEqual(result.returncode, 0, result.stderr)
             report = json.loads(result.stdout)
+            self.assertTrue(report["core_only_ready"])
+            self.assertTrue(any("map_codebase.py" in item for item in report["next_actions"]))
             self.assertIn(report["status"], {"PASS", "WARN"})
             if report["status"] == "WARN":
                 self.assertIn("Runtime tool registry", report["warnings"])
@@ -80,8 +81,7 @@ class DoctorTests(unittest.TestCase):
                 self.assertEqual(report["warnings"], [])
 
     def test_doctor_strict_fails_on_warning(self) -> None:
-        with TemporaryDirectory() as temp_dir:
-            workspace = Path(temp_dir)
+        with temporary_workspace() as workspace:
             (workspace / "README.md").write_text("# Workspace\n", encoding="utf-8")
             result = run_python_script("doctor.py", "--workspace", str(workspace), "--format", "json", "--strict")
 
@@ -91,8 +91,7 @@ class DoctorTests(unittest.TestCase):
             self.assertIn(report["status"], {"PASS", "WARN"})
 
     def test_doctor_fails_when_artifact_root_is_not_writable_directory(self) -> None:
-        with TemporaryDirectory() as temp_dir:
-            workspace = Path(temp_dir)
+        with temporary_workspace() as workspace:
             (workspace / "README.md").write_text("# Workspace\n", encoding="utf-8")
             (workspace / ".forge-artifacts").write_text("not-a-directory\n", encoding="utf-8")
             result = run_python_script("doctor.py", "--workspace", str(workspace), "--format", "json")
@@ -103,22 +102,22 @@ class DoctorTests(unittest.TestCase):
             self.assertIn("Artifact write access", report["blockers"])
 
     def test_doctor_detects_first_party_companion_checks(self) -> None:
-        workspace = workspace_fixture("nextjs_postgres_workspace")
-        result = run_python_script("doctor.py", "--workspace", str(workspace), "--format", "json")
+        with copied_workspace_fixture("nextjs_postgres_workspace") as workspace:
+            result = run_python_script("doctor.py", "--workspace", str(workspace), "--format", "json")
 
-        self.assertEqual(result.returncode, 0, result.stderr)
-        report = json.loads(result.stdout)
-        self.assertEqual(report["companions"][0]["id"], "nextjs-typescript-postgres")
-        self.assertEqual(report["companions"][0]["operator_profile"], "nextjs-prisma-app-router")
-        self.assertEqual(report["companions"][0]["verification_pack"], "nextjs-production-ready")
-        labels = {item["label"] for item in report["checks"]}
-        self.assertIn("Next.js package", labels)
-        self.assertIn("Postgres adapter", labels)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["companions"][0]["id"], "nextjs-typescript-postgres")
+            self.assertEqual(report["companions"][0]["operator_profile"], "nextjs-prisma-app-router")
+            self.assertEqual(report["companions"][0]["verification_pack"], "nextjs-production-ready")
+            labels = {item["label"] for item in report["checks"]}
+            self.assertIn("Next.js package", labels)
+            self.assertIn("Postgres adapter", labels)
 
     def test_doctor_reports_registered_companion_state(self) -> None:
-        with TemporaryDirectory() as temp_dir:
-            workspace = workspace_fixture("nextjs_postgres_workspace")
-            registry_path = Path(temp_dir) / "companions.json"
+        with copied_workspace_fixture("nextjs_postgres_workspace") as workspace:
+            temp_root = workspace.parent
+            registry_path = temp_root / "companions.json"
             companion_root = Path(__file__).resolve().parents[2] / "forge-nextjs-typescript-postgres"
             registry_payload = {
                 "version": 1,

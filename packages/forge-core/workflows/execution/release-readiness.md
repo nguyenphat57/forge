@@ -38,6 +38,7 @@ Aggregate the latest release signals into one explicit readiness verdict.
 - blockers
 - warnings
 - per-check detail
+- verdict must remain useful on a repo with no companion active
 
 ## Verification
 

@@ -6,6 +6,21 @@ from pathlib import Path
 from common import default_artifact_dir, timestamp_slug
 
 
+def _core_only_ready(checks: list[dict]) -> bool:
+    return not any(check["status"] == "FAIL" for check in checks)
+
+
+def _doctor_next_actions(workspace: Path, report: dict) -> list[str]:
+    actions: list[str] = []
+    if report["status"] == "FAIL":
+        actions.append("Resolve the current doctor blockers, then rerun `doctor.py`.")
+    elif report["warnings"]:
+        actions.append("Resolve the current warnings that affect this repo, then rerun `doctor.py`.")
+    actions.append(f"Run `map_codebase.py --workspace {workspace}` to capture a durable brownfield summary before editing.")
+    actions.append("Use `help` or `next` after the map is recorded to choose the first concrete slice.")
+    return actions
+
+
 def build_doctor_report(workspace: Path, checks: list[dict]) -> dict:
     blockers = [check["label"] for check in checks if check["status"] == "FAIL"]
     warnings = [check["label"] for check in checks if check["status"] == "WARN"]
@@ -16,7 +31,7 @@ def build_doctor_report(workspace: Path, checks: list[dict]) -> dict:
             if check["status"] == status and remediation and remediation not in remediations:
                 remediations.append(remediation)
     status = "FAIL" if blockers else "WARN" if warnings else "PASS"
-    return {
+    report = {
         "status": status,
         "workspace": str(workspace),
         "checks": checks,
@@ -25,6 +40,9 @@ def build_doctor_report(workspace: Path, checks: list[dict]) -> dict:
         "remediations": remediations,
         "timestamp": timestamp_slug(),
     }
+    report["core_only_ready"] = _core_only_ready(checks)
+    report["next_actions"] = _doctor_next_actions(workspace, report)
+    return report
 
 
 def format_doctor_text(report: dict) -> str:
@@ -32,6 +50,7 @@ def format_doctor_text(report: dict) -> str:
         "Forge Doctor",
         f"- Status: {report['status']}",
         f"- Workspace: {report['workspace']}",
+        f"- Core-only path: {'ready' if report.get('core_only_ready') else 'blocked'}",
         "- Checks:",
     ]
     for check in report["checks"]:
@@ -45,7 +64,7 @@ def format_doctor_text(report: dict) -> str:
             lines.append(f"- {label}: (none)")
     companions = report.get("companions")
     if isinstance(companions, list):
-        lines.append("- Companions:")
+        lines.append("- Optional companions:")
         if companions:
             for item in companions:
                 install_state = "registered" if item.get("registered") else "local"
@@ -56,13 +75,16 @@ def format_doctor_text(report: dict) -> str:
             lines.append("  - (none)")
     companion_registry = report.get("companion_registry")
     if isinstance(companion_registry, dict):
-        lines.append(f"- Companion registry path: {companion_registry['path']}")
+        lines.append(f"- Optional companion registry path: {companion_registry['path']}")
         registered = companion_registry.get("registered_companions")
-        lines.append(f"- Registered companions: {len(registered) if isinstance(registered, list) else 0}")
+        lines.append(f"- Registered optional companions: {len(registered) if isinstance(registered, list) else 0}")
     artifacts = report.get("artifacts")
     if isinstance(artifacts, dict):
         lines.append("- Artifacts:")
         lines.append(f"  - JSON: {artifacts['json']}")
+    lines.append("- Brownfield next steps:")
+    for item in report.get("next_actions", []):
+        lines.append(f"  - {item}")
     return "\n".join(lines)
 
 

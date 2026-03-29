@@ -1,6 +1,6 @@
 # __FORGE_PROJECT_NAME__
 
-Forge deploy-observability preset for a Next.js + TypeScript + Postgres product.
+Forge deploy-observability reference companion preset for a Next.js + TypeScript + Postgres product.
 
 Included baseline:
 - health probe route

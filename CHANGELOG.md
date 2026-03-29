@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.0 - 2026-03-29
+
+- Finish the process-first implementation batch by hardening brownfield operator flows, change and continuity artifacts, release readiness, workspace canaries, and stack-aware review signals across `forge-core`.
+- Reframe current shipping surfaces around a stack-agnostic Forge identity, clarify that companions are optional adaptation layers, and downgrade `forge-nextjs-typescript-postgres` to an optional reference companion instead of the product center of gravity.
+- Refactor shared repo-signal and test-support helpers, remove stale fixture snapshots and obsolete delivery docs, and keep the repo cleaner while preserving current release verification coverage.
+
 ## 1.6.1 - 2026-03-29
 
 - Recenter Forge's canonical strategy on a process-first, stack-agnostic execution model by adding the new thesis and roadmap, and by marking the prior lane-first thesis, roadmap, backlog, and normalization docs as historical or superseded.

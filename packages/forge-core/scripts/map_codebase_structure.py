@@ -46,8 +46,11 @@ def scan_structure(workspace: Path, stack: dict) -> dict:
     if "github-actions" not in integrations:
         open_questions.append("CI or release automation is not obvious from root markers.")
     next_actions = [
-        "Confirm the first active work slice before editing.",
-        "Run the nearest verification command before large changes.",
+        "Read README, manifests, and detected entrypoints to confirm the primary app shell before editing."
+        if entrypoints
+        else "Confirm the primary runtime entrypoint or app shell before editing.",
+        "Use `help` or `next` to choose the first concrete slice before editing.",
+        "Start a change artifact for medium or large work once the slice is clear.",
     ]
     return {
         "top_level_dirs": top_level_dirs,

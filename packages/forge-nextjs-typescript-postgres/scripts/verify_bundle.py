@@ -31,7 +31,7 @@ def _run_step(name: str, command: list[str]) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Verify the Next.js TypeScript Postgres companion bundle.")
+    parser = argparse.ArgumentParser(description="Verify the optional Next.js TypeScript Postgres companion bundle.")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     args = parser.parse_args()
 

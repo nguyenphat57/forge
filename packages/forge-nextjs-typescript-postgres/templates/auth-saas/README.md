@@ -1,6 +1,6 @@
 # __FORGE_PROJECT_NAME__
 
-Forge auth preset for a Next.js + TypeScript + Postgres product.
+Forge auth reference companion preset for a Next.js + TypeScript + Postgres product.
 
 Included baseline:
 - signup and login screens

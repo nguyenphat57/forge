@@ -1,6 +1,7 @@
 # Forge Solo-Dev Shipping Quickstart
 
 Date: 2026-03-28
+Status: current quickstart, aligned to the 2026-03-29 process-first thesis
 Audience: one solo developer who wants a dependable path from repo onboarding to release checks
 
 ## 1. Start With Core Diagnosis
@@ -11,24 +12,25 @@ Run:
 
 What this gives you:
 - environment and runtime health
-- matched companion summary
-- active operator profile and verification pack when a first-party companion applies
+- matched optional companion summary when relevant
+- active operator profile and verification pack when a confident optional companion match applies
 - a durable brownfield map under `.forge-artifacts/codebase/`
 
 ## 2. Decide Whether To Stay Core-Only Or Use A Companion
 
 Stay on core only when:
-- the repo does not match a first-party companion
-- you are exploring a stack that Forge can route but not optimize deeply yet
+- the repo does not show a confident companion match
+- you are exploring a stack that Forge can route but not enrich deeply yet
+- you need diagnosis, planning, change artifacts, and release discipline before any stack-specific acceleration
 
 Use a companion when:
-- `doctor` or `map-codebase` shows a matched companion
+- `doctor` or `map-codebase` shows a confident companion match
 - the companion exposes a verification pack that fits the repo
-- you want a faster path for known stack conventions and risk checks
+- you want faster defaults for known stack conventions and risk checks without changing the core workflow contract
 
-## 3. For Next.js + TypeScript + Postgres
+## 3. If A Reference Companion Matches
 
-If the repo matches `nextjs-typescript-postgres`, Forge will surface:
+If the repo matches a reference companion such as `nextjs-typescript-postgres`, Forge may surface:
 - companion id
 - operator profile
 - verification pack
@@ -41,6 +43,9 @@ Typical path:
 5. run `review_pack`
 6. run `release_doc_sync`
 7. run `release_readiness`
+
+This is an accelerator, not a required path.
+If no companion matches confidently, use the same flow with core checks and repo evidence.
 
 ## 4. Use Change Artifacts For Medium And Large Work
 
@@ -70,10 +75,11 @@ For authenticated app flows:
 
 This is the intended path for product-facing web verification, not one-off screenshots only.
 
-## 7. Do Not Open Lane 2 Prematurely
+## 7. Do Not Treat Companion Breadth As Product Identity
 
-Forge is intentionally shallow in first-party breadth.
+Forge is process-first.
 
 Current rule:
-- harden lane 1 on real repos first
-- only then score and gate a second lane such as Electron or Vite + Capacitor + Supabase
+- harden the universal workflow on real repos first
+- keep companions optional and user-chosen
+- add or deepen companions only when they strengthen the workflow without becoming the center of product identity

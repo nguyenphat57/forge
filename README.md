@@ -1,13 +1,22 @@
 # Forge Monorepo
 
-Source monorepo for Forge as `core + host adapters + runtime tools`.
+Source monorepo for Forge as `core + host adapters + runtime tools + optional companions`.
 
 ## Packages
 
 - `packages/forge-core`: canonical source-of-truth for routing, registry, scripts, tests, and shared docs.
 - `packages/forge-antigravity`: Antigravity adapter overlay and host metadata.
 - `packages/forge-codex`: Codex adapter overlay and host-specific entry guidance.
-- `packages/forge-browse`: optional runtime browse tool package for persistent snapshots and assertions.
+- `packages/forge-browse`: optional stack-agnostic browser QA runtime for persistent sessions, snapshots, and assertions.
+- `packages/forge-design`: optional design-artifact runtime for rendering persisted UI briefs into review packets.
+- `packages/forge-nextjs-typescript-postgres`: reference companion that proves the adaptation-layer contract without defining Forge's identity.
+
+## Product Direction
+
+- `forge-core` stays the orchestrator kernel.
+- The user chooses the stack.
+- Runtime tools stay separate from core orchestration.
+- Companions are optional adaptation layers, not the center of product identity.
 
 ## Release model
 
@@ -16,7 +25,7 @@ Do not edit installed runtime bundles directly.
 1. Edit `forge-core`, adapter overlays, and runtime tool packages here.
 2. Run `python scripts/verify_repo.py`.
 3. Build release bundles into `dist/`.
-4. Install or publish from `dist/forge-antigravity`, `dist/forge-codex`, or `dist/forge-browse`.
+4. Install or publish from `dist/forge-antigravity`, `dist/forge-codex`, `dist/forge-browse`, or `dist/forge-design`.
 
 ## Commands
 
@@ -26,6 +35,7 @@ python scripts/build_release.py
 python scripts/install_bundle.py forge-antigravity --build
 python scripts/install_bundle.py forge-codex --activate-codex
 python scripts/install_bundle.py forge-browse --target C:\path\to\runtime\forge-browse
+python scripts/install_bundle.py forge-design --target C:\path\to\runtime\forge-design
 ```
 
 ## Documentation Language Policy
@@ -42,7 +52,9 @@ forge/
 |   |-- forge-core/
 |   |-- forge-antigravity/
 |   |-- forge-codex/
-|   `-- forge-browse/
+|   |-- forge-browse/
+|   |-- forge-design/
+|   `-- forge-nextjs-typescript-postgres/
 |-- docs/
 |   |-- architecture/
 |   `-- release/

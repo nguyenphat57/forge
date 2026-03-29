@@ -9,7 +9,7 @@ def resolve_change_paths(workspace: Path, *, summary: str | None = None, slug: s
     change_slug = slugify(slug or summary or "change")
     root = default_artifact_dir(str(workspace), "changes")
     active_root = root / "active" / change_slug
-    archive_root = root / "archive" / f"{timestamp_slug().split('-', 1)[0]}-{change_slug}"
+    archive_root = root / "archive" / f"{timestamp_slug()}-{change_slug}"
     return {
         "root": root,
         "active_root": active_root,

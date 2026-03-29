@@ -60,7 +60,7 @@ def build_report(workspace: Path, preset_id: str, project_name: str, apply: bool
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Scaffold a Next.js TypeScript Postgres companion preset.")
+    parser = argparse.ArgumentParser(description="Scaffold an optional reference companion preset for Next.js TypeScript Postgres.")
     parser.add_argument("--workspace", type=Path, default=Path.cwd(), help="Workspace root")
     parser.add_argument("--preset", default="minimal-saas", help="Preset id")
     parser.add_argument("--project-name", default="Forge App", help="Project name placeholder")

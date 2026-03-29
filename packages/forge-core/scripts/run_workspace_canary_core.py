@@ -62,11 +62,11 @@ def build_route_args(prompt: str, repo_signals: list[str], workspace_router: Pat
 
 
 def default_scenarios(runtimes: list[str], can_check_local_companions: bool) -> list[dict]:
-    build_prompt = "Implement endpoint with auth" if "python" in runtimes else "Implement new feature with auth and tests"
+    build_prompt = "Implement tested API endpoint" if "python" in runtimes else "Implement a tested feature with clear verification"
     debug_prompt = (
         "Debug failing pytest flow after parser refactor"
         if "python" in runtimes
-        else "Fix regression where the app crashes after release"
+        else "Fix regression where the app crashes after a recent change"
     )
     scenarios = [
         {

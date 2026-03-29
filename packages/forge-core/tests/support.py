@@ -3,10 +3,13 @@ from __future__ import annotations
 import copy
 import json
 import os
+import shutil
 import subprocess
 import sys
 from argparse import Namespace
+from contextlib import contextmanager
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -47,6 +50,22 @@ def load_json_fixture(name: str) -> list[dict]:
 
 def workspace_fixture(name: str) -> Path:
     return WORKSPACES_DIR / name
+
+
+@contextmanager
+def temporary_workspace(name: str = "workspace"):
+    with TemporaryDirectory() as temp_dir:
+        workspace = Path(temp_dir) / name
+        workspace.mkdir(parents=True, exist_ok=True)
+        yield workspace
+
+
+@contextmanager
+def copied_workspace_fixture(name: str, *, target_name: str = "workspace"):
+    with TemporaryDirectory() as temp_dir:
+        workspace = Path(temp_dir) / target_name
+        shutil.copytree(workspace_fixture(name), workspace)
+        yield workspace
 
 
 def forge_home_fixture(name: str) -> Path:

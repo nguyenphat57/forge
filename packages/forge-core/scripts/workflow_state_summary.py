@@ -212,8 +212,8 @@ def summarize_workflow_state(
         "primary_kind": None,
         "current_focus": "No workflow state recorded.",
         "current_stage": None,
-        "suggested_workflow": "review",
-        "recommended_action": "Inspect README, plans, and current repo state to identify the next slice.",
+        "suggested_workflow": "map-codebase",
+        "recommended_action": "Run `doctor` and `map-codebase` to establish repo health and a durable brownfield summary before editing.",
         "alternatives": [],
     }
 
