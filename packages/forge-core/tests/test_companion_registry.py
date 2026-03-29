@@ -7,13 +7,13 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from support import ROOT_DIR
+from support import resolve_reference_companion_package
 
 import companion_catalog  # noqa: E402
 import companion_registry  # noqa: E402
 
 
-COMPANION_PACKAGE = ROOT_DIR.parent / "forge-nextjs-typescript-postgres"
+COMPANION_PACKAGE = resolve_reference_companion_package()
 
 
 class CompanionRegistryTests(unittest.TestCase):

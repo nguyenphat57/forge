@@ -77,6 +77,10 @@ def _route_command(case: dict) -> tuple[list[str], dict[str, str] | None]:
     command = [sys.executable, str(route_script), case["prompt"], "--format", "json"]
     for signal in case.get("repo_signals", []):
         command.extend(["--repo-signal", signal])
+    if "changed_files" in case:
+        command.extend(["--changed-files", str(case["changed_files"])])
+    if "has_harness" in case:
+        command.extend(["--has-harness", case["has_harness"]])
     if case.get("workspace_fixture") and case.get("workspace_router"):
         router_path = workspace_path(case["workspace_fixture"]) / case["workspace_router"]
         command.extend(["--workspace-router", str(router_path)])

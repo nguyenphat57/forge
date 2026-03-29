@@ -47,6 +47,17 @@ class DashboardTests(unittest.TestCase):
             (workspace / ".forge-artifacts" / "codebase").mkdir(parents=True)
             (workspace / ".forge-artifacts" / "codebase" / "summary.md").write_text("# Codebase Summary\n", encoding="utf-8")
 
+            started = run_python_script(
+                "change_artifacts.py",
+                "start",
+                "Checkout review slice",
+                "--workspace",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(started.returncode, 0, started.stderr)
+
             gate = run_python_script(
                 "record_quality_gate.py",
                 "--workspace",

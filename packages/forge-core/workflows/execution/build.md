@@ -26,10 +26,13 @@ NO BEHAVIORAL CHANGE WITHOUT DEFINING VERIFICATION FIRST
 ```
 
 <HARD-GATE>
+- Before any behavior-changing edit, run a process precheck: repo state, plan/spec/change artifact, and the baseline verification path.
+- Small creative work still needs an approved quick plan/design packet before build.
 - Medium/large tasks: must have impact analysis before editing.
 - Large tasks: must select execution mode before batch coding.
 - Medium/large or high-risk work: must close the execution pipeline before expanding.
-- High-risk or dirty-repo work: isolation stance must be locked (`same tree`, `worktree`, or host-supported subagent split) before modifying.
+- Medium+ work in a dirty repo should default toward `worktree` and a clean baseline before modifying.
+- High-risk or dirty-repo work: isolation stance must be locked (`same tree`, `worktree`, or host-supported subagent split`) before modifying.
 - Large/high-risk implementation: if `spec-review` applicable, build only starts when readiness is `go`.
 - Behavioral changes: prioritize failing test or reproduce before editing.
 - If there is no viable harness, you must clearly state why and use the strongest remaining verification method.
@@ -90,7 +93,8 @@ Before editing `medium/large`, the build must close the slice under construction
 Execution packet:
 - Sources: [plan/spec/design/spec-review]
 - Current slice: [...]
-- Files/boundaries in scope now: [...]
+- Baseline: [...]
+- Exact files / path scope: [...]
 - Proof before progress: [...]
 - Out of scope for this slice: [...]
 - Reopen if: [...]
@@ -98,6 +102,7 @@ Execution packet:
 
 Rules:
 - Do not edit until `current slice` is finalized
+- Do not edit until the baseline command or check is named.
 - Don't combine multiple slices into one edit just because it's "convenient".
 - If you need to touch a file/boundary outside the packet to save the design, stop and reopen `plan`, `architect`, or `spec-review`
 
@@ -116,6 +121,7 @@ Rule:
 - `medium` -> default `single-track`, only raised to `checkpoint-batch` when there are 2+ clear intersections
 - `large` -> forced to select a mode
 - If in doubt whether it is safe to parallelize or not, return to `single-track`
+- If the repo is dirty or the slice is behavior-changing, favor `worktree` and a clean baseline before modifying.
 
 If the task is long, log the checkpoint artifact with script `scripts/track_execution_progress.py`.
 To see the mode chooser and complete states more concisely, read `references/execution-delivery.md`.
@@ -135,6 +141,7 @@ Rules:
 - `large` or stronger profile `standard` -> must have at least `quality-reviewer`
 - Host has subagents -> lane can run independently
 - Host does not have subagents -> still has to run sequentially in lanes, not combining thoughts into a single pass
+- Reviewer lanes must close the slice explicitly before the implementer moves on.
 
 ## Lane Model Stance
 
@@ -151,6 +158,7 @@ Rules:
 - `large` -> implement/review tilted lanes `capable`
 - `release-critical`, `migration-critical`, `external-interface`, `regression-recovery` -> related review lane must go to `capable`
 - If the task is just a bounded low-risk slice, keeping the cheaper lane is the right choice
+- Medium+ slices with behavior changes should favor the stronger review lane when the baseline is not trivial.
 
 ## Isolation Recommendation
 
@@ -164,6 +172,7 @@ For multi-step `large` or `high-risk` work, lock the isolation stance before sta
 
 Rule:
 - If the repo is dirty and the task is not small -> prioritize `worktree`
+- If the task is medium+ and behavior-changing, prefer `worktree` unless the scope is already isolated and the baseline is clean.
 - If the boundary is unclear -> do not use `subagent-split`
 - If `subagent-split` is selected, there must be a clear enough chain status or checkpoint to merge the results
 

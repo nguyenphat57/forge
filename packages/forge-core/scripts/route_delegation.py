@@ -3,9 +3,14 @@ from __future__ import annotations
 
 REVIEW_PIPELINES = {"implementer-quality", "implementer-spec-quality", "deploy-gate"}
 DELEGATION_PACKET_FIELDS = [
+    "source_of_truth",
     "goal",
     "current_slice_or_review_question",
+    "exact_files_or_paths_in_scope",
     "owned_files_or_write_scope",
+    "baseline_or_clean_start_proof",
+    "out_of_scope_for_this_slice",
+    "reopen_conditions",
     "files_to_avoid",
     "allowed_reads_or_supporting_artifacts",
     "proof_before_progress",
@@ -38,12 +43,12 @@ def choose_execution_pipeline(
     if intent == "BUILD":
         if spec_review_required:
             pipeline_key = "implementer-spec-quality"
-        elif complexity == "large" or quality_profile_key in high_risk_profiles:
+        elif complexity in {"medium", "large"} or quality_profile_key in high_risk_profiles:
             pipeline_key = "implementer-quality"
         else:
             pipeline_key = rules.get("default", "single-lane")
     elif intent in {"DEBUG", "OPTIMIZE"}:
-        if complexity == "large" or quality_profile_key in high_risk_profiles:
+        if complexity in {"medium", "large"} or quality_profile_key in high_risk_profiles:
             pipeline_key = "implementer-quality"
         else:
             pipeline_key = rules.get("default", "single-lane")

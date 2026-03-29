@@ -101,6 +101,19 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
             "evidence_read": as_string_list(report.get("evidence_read")),
             "risks": as_string_list(report.get("risks")),
         }
+    if kind == "review-state":
+        return {
+            **common_fields,
+            "label": report.get("scope") or report.get("review_kind", "review"),
+            "review_kind": report.get("review_kind", "quality-pass"),
+            "disposition": report.get("disposition", "changes-required"),
+            "branch_state": report.get("branch_state", "unknown"),
+            "findings": as_string_list(report.get("findings")),
+            "testing_gaps": as_string_list(report.get("testing_gaps")),
+            "evidence": as_string_list(report.get("evidence")),
+            "next_steps": as_string_list(report.get("next_actions")),
+            "no_finding_rationale": report.get("no_finding_rationale"),
+        }
     return {
         **common_fields,
         "label": report.get("task", "Unnamed UI task"),
@@ -112,7 +125,18 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
     }
 
 
-def _build_state(*, project: str, preferred_kind: str, latest_chain: dict | None, latest_execution: dict | None, latest_ui: dict | None, latest_run: dict | None, latest_gate: dict | None, updated_at: str) -> dict:
+def _build_state(
+    *,
+    project: str,
+    preferred_kind: str,
+    latest_chain: dict | None,
+    latest_execution: dict | None,
+    latest_ui: dict | None,
+    latest_run: dict | None,
+    latest_gate: dict | None,
+    latest_review: dict | None,
+    updated_at: str,
+) -> dict:
     return {
         "project": project,
         "updated_at": updated_at,
@@ -122,12 +146,14 @@ def _build_state(*, project: str, preferred_kind: str, latest_chain: dict | None
         "latest_ui": latest_ui,
         "latest_run": latest_run,
         "latest_gate": latest_gate,
+        "latest_review": latest_review,
         "summary": summarize_workflow_state(
             latest_chain,
             latest_execution,
             latest_ui,
             latest_run,
             latest_gate,
+            latest_review,
             preferred_kind=preferred_kind,
         ),
     }
@@ -149,6 +175,7 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
         latest_ui=entry if kind == "ui-progress" else current.get("latest_ui"),
         latest_run=entry if kind == "run-report" else current.get("latest_run"),
         latest_gate=entry if kind == "quality-gate" else current.get("latest_gate"),
+        latest_review=entry if kind == "review-state" else current.get("latest_review"),
         updated_at=entry["recorded_at"],
     )
     latest_path.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -175,6 +202,7 @@ def resolve_workflow_state(workspace: Path, warnings: list[str] | None = None) -
         "ui-progress": _pick_latest_json(workspace / ".forge-artifacts" / "ui-progress"),
         "run-report": _pick_latest_json(workspace / ".forge-artifacts" / "run-reports"),
         "quality-gate": _pick_latest_json(workspace / ".forge-artifacts" / "quality-gates"),
+        "review-state": _pick_latest_json(workspace / ".forge-artifacts" / "reviews"),
     }
     if not any(sources.values()):
         return {"state": None, "path": None, "source": None}
@@ -187,6 +215,7 @@ def resolve_workflow_state(workspace: Path, warnings: list[str] | None = None) -
         latest_ui=_entry("ui-progress", _read_json_object(sources["ui-progress"], "ui progress", local_warnings), sources["ui-progress"]),
         latest_run=_entry("run-report", _read_json_object(sources["run-report"], "run report", local_warnings), sources["run-report"]),
         latest_gate=_entry("quality-gate", _read_json_object(sources["quality-gate"], "quality gate", local_warnings), sources["quality-gate"]),
+        latest_review=_entry("review-state", _read_json_object(sources["review-state"], "review state", local_warnings), sources["review-state"]),
         updated_at=_now_iso(),
     )
     project_entry = next((value for value in state.values() if isinstance(value, dict) and value.get("project")), None)

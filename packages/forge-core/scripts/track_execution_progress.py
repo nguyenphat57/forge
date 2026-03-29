@@ -18,9 +18,17 @@ VALID_COMPLETION_STATES = (
 )
 VALID_LANES = ("navigator", "implementer", "spec-reviewer", "quality-reviewer", "deploy-reviewer")
 VALID_MODEL_TIERS = ("cheap", "standard", "capable")
+VALID_HARNESS_STATES = ("auto", "yes", "no")
 
 
 def build_report(args: argparse.Namespace) -> dict:
+    source_of_truth = list(getattr(args, "source", []) or [])
+    scope_paths = list(getattr(args, "scope_path", []) or [])
+    baseline_proof = list(getattr(args, "baseline", []) or [])
+    out_of_scope = list(getattr(args, "out_of_scope", []) or [])
+    reopen_conditions = list(getattr(args, "reopen_if", []) or [])
+    harness_available = getattr(args, "harness_available", "auto")
+    red_proof = list(getattr(args, "red", []) or [])
     report = {
         "task": args.task,
         "mode": args.mode,
@@ -29,6 +37,13 @@ def build_report(args: argparse.Namespace) -> dict:
         "completion_state": args.completion_state,
         "lane": args.lane,
         "model_tier": args.model_tier,
+        "source_of_truth": source_of_truth,
+        "scope_paths": scope_paths,
+        "baseline_proof": baseline_proof,
+        "out_of_scope": out_of_scope,
+        "reopen_conditions": reopen_conditions,
+        "harness_available": harness_available,
+        "red_proof": red_proof,
         "proof_before_progress": args.proof,
         "done": args.done,
         "next": args.next_step,
@@ -46,6 +61,9 @@ def build_report(args: argparse.Namespace) -> dict:
     if report["completion_state"] in {"ready-for-review", "ready-for-merge"} and not report["proof_before_progress"]:
         raise ValueError("Ready states require at least one proof-before-progress item.")
 
+    if report["completion_state"] in {"ready-for-review", "ready-for-merge"} and report["harness_available"] == "yes" and not report["red_proof"]:
+        raise ValueError("Harness-backed ready states require persisted RED proof before progress.")
+
     return report
 
 
@@ -60,14 +78,21 @@ def format_text(report: dict) -> str:
         f"- Completion state: {report['completion_state']}",
         f"- Lane: {report['lane'] or '(none)'}",
         f"- Model tier: {report['model_tier'] or '(none)'}",
+        f"- Harness available: {report['harness_available']}",
     ]
 
     for label, items in (
+        ("Source of truth", report["source_of_truth"]),
+        ("Scope paths", report["scope_paths"]),
+        ("Baseline proof", report["baseline_proof"]),
+        ("RED proof", report["red_proof"]),
         ("Proof before progress", report["proof_before_progress"]),
         ("Done", report["done"]),
         ("Next", report["next"]),
         ("Blockers", report["blockers"]),
         ("Risks", report["risks"]),
+        ("Out of scope", report["out_of_scope"]),
+        ("Reopen conditions", report["reopen_conditions"]),
     ):
         if items:
             lines.append(f"- {label}:")
@@ -113,6 +138,18 @@ def main() -> int:
         default=None,
         help="Recommended model tier for the active lane",
     )
+    parser.add_argument("--source", action="append", default=[], help="Source-of-truth artifact or note. Repeatable.")
+    parser.add_argument("--scope-path", action="append", default=[], help="Exact file/path scope for the current slice. Repeatable.")
+    parser.add_argument("--baseline", action="append", default=[], help="Baseline or clean-start proof. Repeatable.")
+    parser.add_argument("--out-of-scope", action="append", default=[], help="Known out-of-scope boundary. Repeatable.")
+    parser.add_argument("--reopen-if", action="append", default=[], help="Condition that re-opens this slice. Repeatable.")
+    parser.add_argument(
+        "--harness-available",
+        choices=VALID_HARNESS_STATES,
+        default="auto",
+        help="Whether a usable harness exists for this slice",
+    )
+    parser.add_argument("--red", action="append", default=[], help="Failing RED proof observed before implementation. Repeatable.")
     parser.add_argument("--proof", action="append", default=[], help="Proof-before-progress item. Repeatable.")
     parser.add_argument("--done", action="append", default=[], help="Completed item. Repeatable.")
     parser.add_argument("--next", dest="next_step", action="append", default=[], help="Next item. Repeatable.")

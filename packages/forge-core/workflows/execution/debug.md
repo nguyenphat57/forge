@@ -25,6 +25,7 @@ NO FIXES WITHOUT ROOT-CAUSE INVESTIGATION FIRST
 <HARD-GATE>
 - Do not propose fix before completing root-cause investigation.
 - Don't fix many things at the same time.
+- For dirty repos or medium/high-risk regressions, lock a worktree and a baseline reproduction before editing.
 - Large/high-risk/regression debug: must close the execution pipeline before extensive editing.
 - Prioritize failing test or reproduction before editing.
 - If there is no harness, there must be equivalent evidence after the fix.
@@ -84,6 +85,8 @@ Only test 1 variable at a time.
 |**Large** | >=3 files, change logic/data flow | Debug -> plan -> fix -> verify|
 
 Small or large doubt -> default **large**.
+
+For large regressions, capture the clean baseline and choose `worktree` unless there is a clear reason not to.
 
 ## Debug Pipeline Selection
 

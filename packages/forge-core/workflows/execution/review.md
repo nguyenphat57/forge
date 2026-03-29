@@ -72,6 +72,19 @@ High-risk signals:
 - difficult production rollback
 - a recent regression in the same area
 
+## Medium+ Closure
+
+Medium and larger slices do not end with an implied thumbs-up.
+
+Before handoff, the review must close the slice explicitly with a disposition and a branch state:
+- `ready-for-merge` plus `merge` when the slice is clean
+- `changes-required` plus `continue-on-branch` when follow-up edits are needed
+- `blocked-by-residual-risk` plus `stop-on-risk` when the evidence is still too weak
+
+If the review has no findings, the no-finding rationale still has to name the scope, the closed slice, and any residual risk.
+
+For medium+ slices, do not leave closure implied in a summary paragraph. The review must say what was closed, what remains open, and which branch state follows from that decision.
+
 ## Avoid Empty Agreement
 
 Reject review language such as:

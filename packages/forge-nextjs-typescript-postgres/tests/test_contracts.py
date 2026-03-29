@@ -16,15 +16,15 @@ class CompanionContractTests(unittest.TestCase):
     def test_companion_manifest_and_capabilities_exist(self) -> None:
         manifest = json.loads((ROOT_DIR / "companion.json").read_text(encoding="utf-8"))
         capabilities = json.loads((ROOT_DIR / "data" / "companion-capabilities.json").read_text(encoding="utf-8"))
-        repo_version = (ROOT_DIR.parents[1] / "VERSION").read_text(encoding="utf-8").strip()
 
         self.assertEqual(manifest["name"], "forge-nextjs-typescript-postgres")
         self.assertEqual(manifest["kind"], "companion")
+        self.assertEqual(manifest["distribution"], "example")
         self.assertEqual(capabilities["id"], "nextjs-typescript-postgres")
-        self.assertEqual(capabilities["version"], repo_version)
-        self.assertEqual(capabilities["compatibility"]["forge_core_min"], repo_version)
+        self.assertEqual(capabilities["version"], "0.1.0")
+        self.assertEqual(capabilities["compatibility"]["forge_core_min"], "1.0.0")
         self.assertEqual(capabilities["compatibility"]["forge_core_max"], "1.x")
-        self.assertIn("optional", manifest["description"].lower())
+        self.assertIn("example", manifest["description"].lower())
         self.assertIn("reference", manifest["description"].lower())
         self.assertTrue((ROOT_DIR / capabilities["init_presets"][0]["template_dir"]).exists())
         self.assertEqual(

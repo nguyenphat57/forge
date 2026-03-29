@@ -71,6 +71,16 @@ Read from real artifact or new command output:
 - Deploy target readiness
 - Residual risk notes
 
+## Durable Artifacts
+
+Fresh command output is necessary, but medium+ or behavior-changing work also needs a durable process artifact before it can be marked ready:
+- plan, spec, or design packet
+- change artifact or execution checkpoint
+- workflow-state record when the work has already been tracked there
+- review pack or disposition artifact when the slice is entering handoff
+
+Do not mark a medium+ slice ready from command output alone.
+
 ## Evidence Response Contract
 
 All completed claims, feedback, or gate conclusions must follow this contract:
@@ -113,6 +123,7 @@ If the current conclusion is based on one of the above statements, the decision 
 
 ### `standard`
 - Focused verification or smoke evidence
+- Durable process artifact when the slice is medium+ or behavior-changing
 - Review/residual-risk note if the task is not small
 - Claim target clearly
 
@@ -194,6 +205,7 @@ When blocked but the way out is unclear, read `references/failure-recovery-playb
 - [ ] Verification matches blast radius
 - [ ] Review/security disposition is clear if the task is reached
 - [ ] Residual risk was read, not just copied
+- [ ] A durable process artifact exists for medium+ or behavior-changing work
 - [ ] Evidence response contract has been kept, no empty agreement is used
 - [ ] Gate decision is explicit
 - [ ] If release-critical, ordered gates have been fully read and `go` is truly justified

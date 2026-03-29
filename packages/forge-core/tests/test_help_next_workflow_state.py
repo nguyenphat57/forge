@@ -64,6 +64,17 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
             (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
             (workspace / "package.json").write_text('{"name":"workflow-workspace"}\n', encoding="utf-8")
 
+            started = run_python_script(
+                "change_artifacts.py",
+                "start",
+                "Checkout rollback slice",
+                "--workspace",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(started.returncode, 0, started.stderr)
+
             gate = run_python_script(
                 "record_quality_gate.py",
                 "--workspace",
@@ -114,6 +125,29 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
             workspace = Path(temp_dir)
             (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
             (workspace / "package.json").write_text('{"name":"workflow-workspace"}\n', encoding="utf-8")
+
+            started = run_python_script(
+                "change_artifacts.py",
+                "start",
+                "Deploy readiness slice",
+                "--workspace",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(started.returncode, 0, started.stderr)
+
+            review_pack = run_python_script(
+                "review_pack.py",
+                "--workspace",
+                str(workspace),
+                "--persist",
+                "--output-dir",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertIn(review_pack.returncode, {0, 1}, review_pack.stderr)
 
             run_result = run_python_script(
                 "run_with_guidance.py",

@@ -146,18 +146,6 @@ def main() -> int:
             ],
             ROOT_DIR,
         ),
-        run_step(
-            "install_dry_run.forge-nextjs-typescript-postgres",
-            [
-                sys.executable,
-                str(ROOT_DIR / "scripts" / "install_bundle.py"),
-                "forge-nextjs-typescript-postgres",
-                "--dry-run",
-                "--target",
-                str((Path.home() / ".forge" / "companions" / "forge-nextjs-typescript-postgres").resolve()),
-            ],
-            ROOT_DIR,
-        ),
     ]
 
     for bundle_name in bundle_names():

@@ -53,10 +53,15 @@ def _latest_release_report(workspace: Path, category: str, warnings: list[str]) 
 
 def _latest_verification(workflow_state: dict | None, active_change: dict | None) -> dict | None:
     if isinstance(workflow_state, dict):
-        for key, kind in (("latest_gate", "quality-gate"), ("latest_run", "run-report")):
+        for key, kind in (("latest_gate", "quality-gate"), ("latest_review", "review-state"), ("latest_run", "run-report")):
             item = workflow_state.get(key)
             if isinstance(item, dict):
-                status = item.get("decision") if kind == "quality-gate" else item.get("status")
+                if kind == "quality-gate":
+                    status = item.get("decision")
+                elif kind == "review-state":
+                    status = item.get("disposition")
+                else:
+                    status = item.get("status")
                 return {
                     "kind": kind,
                     "label": item.get("label"),

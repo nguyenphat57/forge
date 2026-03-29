@@ -14,6 +14,7 @@ from common import configure_stdio, slugify
 def _start_change(workspace: Path, summary: str, slug: str | None, tasks: list[str], risks: list[str], verification: list[str]) -> dict:
     paths = resolve_change_paths(workspace, summary=summary, slug=slug)
     paths["active_root"].mkdir(parents=True, exist_ok=True)
+    active_slug = slugify(slug or summary)
     proposal = "\n".join(
         [
             "# Proposal",
@@ -29,24 +30,44 @@ def _start_change(workspace: Path, summary: str, slug: str | None, tasks: list[s
     task_text = "\n".join(["# Tasks", "", *[f"- [ ] {item}" for item in task_lines]])
     verification_lines = verification or ["Verification method not recorded yet."]
     verification_text = "\n".join(["# Verification", "", *[f"- {item}" for item in verification_lines]])
+    implementation_packet = "\n".join(
+        [
+            "# Implementation Packet",
+            "",
+            f"- Source of truth: proposal.md, design.md, tasks.md, verification.md, resume.md under `{active_slug}`",
+            f"- Current slice: {task_lines[0]}",
+            "- Exact files/paths in scope: record before editing",
+            "- Baseline / clean start proof: record clean worktree, worktree path, or isolated branch before editing",
+            f"- Proof before progress: {verification_lines[0]}",
+            "- Out of scope: expand scope without updating the packet first",
+            "- Reopen conditions: failing verification, scope drift, or review findings",
+            "- Review closure note: record review disposition before any merge or deploy claim",
+        ]
+    )
     resume_text = "\n".join(
         [
             "# Resume",
             "",
             f"- Summary: {summary}",
-            f"- Active slug: {slugify(slug or summary)}",
+            f"- Active slug: {active_slug}",
             f"- First step: {task_lines[0]}",
             f"- Verification: {verification_lines[0]}",
         ]
     )
-    for path, content in ((paths["proposal"], proposal), (paths["design"], design), (paths["tasks"], task_text), (paths["verification"], verification_text)):
+    for path, content in (
+        (paths["proposal"], proposal),
+        (paths["design"], design),
+        (paths["implementation_packet"], implementation_packet),
+        (paths["tasks"], task_text),
+        (paths["verification"], verification_text),
+    ):
         path.write_text(content, encoding="utf-8")
-    (paths["active_root"] / "resume.md").write_text(resume_text, encoding="utf-8")
+    paths["resume"].write_text(resume_text, encoding="utf-8")
     status = update_change_status(
         status_path=paths["status"],
         verification_path=paths["verification"],
         summary=summary,
-        slug=slugify(slug or summary),
+        slug=active_slug,
         state="proposed",
         note="Change created.",
         verified=None,

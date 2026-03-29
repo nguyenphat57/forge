@@ -123,6 +123,34 @@
     "expected_verification_profile": null
   },
   {
+    "name": "small_non_behavioral_build_routes_through_plan_first",
+    "prompt": "Update checkout docs",
+    "changed_files": 2,
+    "expected_intent": "BUILD",
+    "expected_complexity": "small",
+    "expected_skills": ["plan", "build", "test", "quality-gate"],
+    "expected_verification_profile": "non_behavioral",
+    "expected_process_precheck_required": false,
+    "expected_baseline_proof_required": false,
+    "expected_review_artifact_required": true,
+    "expected_durable_process_artifacts_required": false,
+    "expected_isolation_recommendation": "same-tree"
+  },
+  {
+    "name": "small_visualize_routes_through_plan_first",
+    "prompt": "Sketch a small checkout layout tweak",
+    "changed_files": 1,
+    "expected_intent": "VISUALIZE",
+    "expected_complexity": "small",
+    "expected_skills": ["plan", "visualize"],
+    "expected_verification_profile": null,
+    "expected_process_precheck_required": true,
+    "expected_baseline_proof_required": false,
+    "expected_review_artifact_required": false,
+    "expected_durable_process_artifacts_required": false,
+    "expected_isolation_recommendation": null
+  },
+  {
     "name": "deploy_release_readiness",
     "prompt": "Deploy the app to production",
     "expected_intent": "DEPLOY",

@@ -32,6 +32,7 @@ The canonical boundary policy lives in `docs/architecture/adapter-boundary.md`.
 - The canonical version lives in `VERSION`.
 - `build_release.py` writes `version` and `git_revision` into `BUILD-MANIFEST.json`.
 - `docs/release/package-matrix.json` defines the default target strategy and required bundle paths for each shipped bundle.
+- Source-only example companions stay outside `docs/release/package-matrix.json` and do not need to track the monorepo release version.
 - Runtime-tool bundles such as `forge-browse` and `forge-design` ship as direct package copies with their own verify/install path instead of inheriting `forge-core`.
 - `install_bundle.py` writes `INSTALL-MANIFEST.json` into the installed runtime.
 

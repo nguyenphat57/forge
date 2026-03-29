@@ -24,6 +24,7 @@ NO AMBIGUOUS MEDIUM/LARGE WORK WITHOUT CHOOSING A DIRECTION FIRST
 <HARD-GATE>
 Use this workflow when:
 - the task is medium or large and the problem statement is still vague
+- the task is small but still contains a meaningful design, UX, or behavior choice
 - there are 2+ materially different solutions
 - the user asks to compare options, explore directions, or choose an approach
 - the initial decision changes scope, UX shape, ownership, or blast radius
@@ -33,6 +34,12 @@ Do not use this workflow when:
 - the direction is already locked and only execution planning remains
 - only implementation details are missing, not strategic direction
 </HARD-GATE>
+
+## Small Creative Work
+
+Small does not mean unreviewed.
+
+If the slice still changes behavior, UX, flow, or ownership, write a compact direction brief, get approval, and only then move into build. Keep the packet short, but do not skip the approval step just because the slice is small.
 
 ## Completion Rule
 

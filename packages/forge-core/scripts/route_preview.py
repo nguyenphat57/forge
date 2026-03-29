@@ -16,12 +16,16 @@ from common import (
     timestamp_slug,
 )
 from route_analysis import (
+    baseline_required,
     choose_execution_mode,
     choose_quality_profile,
     choose_verification_profile,
     detect_complexity,
     detect_domain_skills,
     detect_intent,
+    process_precheck_required,
+    recommended_isolation_stance,
+    review_artifact_required,
     requires_change_artifacts,
 )
 from route_delegation import (
@@ -37,6 +41,7 @@ from route_risk import should_insert_brainstorm, should_insert_spec_review
 def build_report(args: argparse.Namespace) -> dict:
     registry = load_registry()
     host_capabilities = registry.get("host_capabilities", {})
+    host_supports_subagents = bool(host_capabilities.get("supports_subagents", False))
     intent, intent_config = detect_intent(args.prompt, registry)
     complexity = detect_complexity(args.prompt, args.changed_files, registry)
     workspace_router = resolve_workspace_router(args.workspace_router)
@@ -94,6 +99,15 @@ def build_report(args: argparse.Namespace) -> dict:
     runtimes = detect_runtimes(args.repo_signal, registry)
     active_routing_locales = routing_locale_names()
     change_artifacts_required = requires_change_artifacts(intent, complexity)
+    precheck_required = process_precheck_required(intent, args.prompt, registry)
+    baseline_proof_required = baseline_required(intent, complexity)
+    review_state_required = review_artifact_required(intent, complexity, execution_pipeline_key)
+    isolation_recommendation = recommended_isolation_stance(
+        intent,
+        complexity,
+        execution_mode,
+        host_supports_subagents,
+    )
 
     return {
         "prompt": args.prompt,
@@ -104,7 +118,7 @@ def build_report(args: argparse.Namespace) -> dict:
             "complexity": complexity,
             "forge_skills": forge_skills,
             "host_skills": host_skills,
-            "host_supports_subagents": bool(host_capabilities.get("supports_subagents", False)),
+            "host_supports_subagents": host_supports_subagents,
             "domain_skills": domain_skills,
             "first_party_companions": [item["id"] for item in first_party_companions],
             "local_companions": local_companions,
@@ -117,6 +131,11 @@ def build_report(args: argparse.Namespace) -> dict:
             "quality_profile": quality_profile_key,
             "delegation_strategy": delegation_strategy,
             "change_artifacts_required": change_artifacts_required,
+            "process_precheck_required": precheck_required,
+            "baseline_proof_required": baseline_proof_required,
+            "review_artifact_required": review_state_required,
+            "durable_process_artifacts_required": change_artifacts_required,
+            "isolation_recommendation": isolation_recommendation,
         },
         "verification": verification,
         "execution_pipeline": execution_pipeline,
@@ -152,6 +171,11 @@ def format_text(report: dict) -> str:
         f"- Routing locales: {', '.join(detected['routing_locales']) or '(none)'}",
         f"- Verification profile: {report['verification']['label'] if report['verification'] else '(n/a)'}",
         f"- Change artifacts required: {'yes' if detected['change_artifacts_required'] else 'no'}",
+        f"- Process precheck required: {'yes' if detected['process_precheck_required'] else 'no'}",
+        f"- Baseline proof required: {'yes' if detected['baseline_proof_required'] else 'no'}",
+        f"- Review artifact required: {'yes' if detected['review_artifact_required'] else 'no'}",
+        f"- Durable process artifacts required: {'yes' if detected['durable_process_artifacts_required'] else 'no'}",
+        f"- Isolation recommendation: {detected['isolation_recommendation'] or '(n/a)'}",
         "- Lane model tiers:",
     ]
     if detected["lane_model_assignments"]:

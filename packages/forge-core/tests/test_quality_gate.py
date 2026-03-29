@@ -10,25 +10,55 @@ from support import run_python_script
 
 class QualityGateTests(unittest.TestCase):
     def test_release_critical_deploy_rejects_conditional_decision(self) -> None:
-        result = run_python_script(
-            "record_quality_gate.py",
-            "--profile",
-            "release-critical",
-            "--target-claim",
-            "deploy",
-            "--decision",
-            "conditional",
-            "--evidence",
-            "python scripts/build_release.py --format json",
-            "--response",
-            "I verified: release bundle build passed. Correct because the bundle rendered cleanly. Fixed: yes.",
-            "--why",
-            "The release still needs one more smoke pass.",
-            "--next-evidence",
-            "Run release smoke on production-like target",
-            "--format",
-            "json",
-        )
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            (workspace / "README.md").write_text("# Release candidate\n", encoding="utf-8")
+            (workspace / "package.json").write_text('{"name":"release-candidate"}\n', encoding="utf-8")
+
+            started = run_python_script(
+                "change_artifacts.py",
+                "start",
+                "Release candidate hardening",
+                "--workspace",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(started.returncode, 0, started.stderr)
+
+            review_pack = run_python_script(
+                "review_pack.py",
+                "--workspace",
+                str(workspace),
+                "--persist",
+                "--output-dir",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertIn(review_pack.returncode, {0, 1}, review_pack.stderr)
+
+            result = run_python_script(
+                "record_quality_gate.py",
+                "--workspace",
+                str(workspace),
+                "--profile",
+                "release-critical",
+                "--target-claim",
+                "deploy",
+                "--decision",
+                "conditional",
+                "--evidence",
+                "python scripts/build_release.py --format json",
+                "--response",
+                "I verified: release bundle build passed. Correct because the bundle rendered cleanly. Fixed: yes.",
+                "--why",
+                "The release still needs one more smoke pass.",
+                "--next-evidence",
+                "Run release smoke on production-like target",
+                "--format",
+                "json",
+            )
 
         self.assertEqual(result.returncode, 1)
         report = json.loads(result.stdout)
@@ -38,6 +68,17 @@ class QualityGateTests(unittest.TestCase):
     def test_persisted_quality_gate_writes_workflow_state(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
+            started = run_python_script(
+                "change_artifacts.py",
+                "start",
+                "Checkout review slice",
+                "--workspace",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(started.returncode, 0, started.stderr)
+
             result = run_python_script(
                 "record_quality_gate.py",
                 "--workspace",

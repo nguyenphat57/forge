@@ -61,7 +61,46 @@ class RoutePreviewTests(unittest.TestCase):
         )
 
         self.assertEqual(report["detected"]["complexity"], "medium")
+        self.assertEqual(report["detected"]["execution_pipeline"], "implementer-spec-quality")
         self.assertTrue(report["detected"]["change_artifacts_required"])
+        self.assertTrue(report["detected"]["durable_process_artifacts_required"])
+        self.assertTrue(report["detected"]["process_precheck_required"])
+        self.assertTrue(report["detected"]["baseline_proof_required"])
+        self.assertTrue(report["detected"]["review_artifact_required"])
+        self.assertEqual(report["detected"]["isolation_recommendation"], "worktree")
+
+    def test_small_non_behavioral_build_routes_through_plan_before_build(self) -> None:
+        report = route_preview.build_report(self.build_args("Update checkout docs", changed_files=2))
+
+        self.assertEqual(report["detected"]["intent"], "BUILD")
+        self.assertEqual(report["detected"]["complexity"], "small")
+        self.assertEqual(report["detected"]["forge_skills"], ["plan", "build", "test", "quality-gate"])
+        self.assertFalse(report["detected"]["durable_process_artifacts_required"])
+        self.assertFalse(report["detected"]["process_precheck_required"])
+        self.assertFalse(report["detected"]["baseline_proof_required"])
+        self.assertTrue(report["detected"]["review_artifact_required"])
+        self.assertEqual(report["detected"]["isolation_recommendation"], "same-tree")
+
+    def test_small_visualize_routes_through_plan_before_visualize(self) -> None:
+        report = route_preview.build_report(self.build_args("Sketch a small checkout layout tweak", changed_files=1))
+
+        self.assertEqual(report["detected"]["intent"], "VISUALIZE")
+        self.assertEqual(report["detected"]["complexity"], "small")
+        self.assertEqual(report["detected"]["forge_skills"], ["plan", "visualize"])
+        self.assertFalse(report["detected"]["durable_process_artifacts_required"])
+        self.assertTrue(report["detected"]["process_precheck_required"])
+        self.assertFalse(report["detected"]["baseline_proof_required"])
+        self.assertFalse(report["detected"]["review_artifact_required"])
+        self.assertIsNone(report["detected"]["isolation_recommendation"])
+
+    def test_small_behavioral_build_requires_process_precheck(self) -> None:
+        report = route_preview.build_report(self.build_args("Add a small checkout endpoint", changed_files=2))
+
+        self.assertEqual(report["detected"]["intent"], "BUILD")
+        self.assertEqual(report["detected"]["complexity"], "small")
+        self.assertTrue(report["detected"]["process_precheck_required"])
+        self.assertFalse(report["detected"]["baseline_proof_required"])
+        self.assertFalse(report["detected"]["durable_process_artifacts_required"])
 
     def test_session_prompt_skips_edit_verification_profile(self) -> None:
         report = route_preview.build_report(self.build_args("Continue the task in progress"))
@@ -195,9 +234,14 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(
             report["delegation_plan"]["packet_template"]["required_fields"],
             [
+                "source_of_truth",
                 "goal",
                 "current_slice_or_review_question",
+                "exact_files_or_paths_in_scope",
                 "owned_files_or_write_scope",
+                "baseline_or_clean_start_proof",
+                "out_of_scope_for_this_slice",
+                "reopen_conditions",
                 "files_to_avoid",
                 "allowed_reads_or_supporting_artifacts",
                 "proof_before_progress",

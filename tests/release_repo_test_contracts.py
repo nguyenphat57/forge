@@ -81,19 +81,13 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertIn("scripts/design_packet.py", manifest["packaging"]["required_bundle_paths"])
         self.assertTrue((ROOT_DIR / "dist" / "forge-design" / "runtime.json").exists())
 
-    def test_build_release_includes_nextjs_companion_bundle(self) -> None:
+    def test_build_release_skips_source_only_example_companion(self) -> None:
+        stale_dist = ROOT_DIR / "dist" / "forge-nextjs-typescript-postgres"
+        stale_dist.mkdir(parents=True, exist_ok=True)
+        (stale_dist / "stale.txt").write_text("stale", encoding="utf-8")
         build_release.build_all()
-        manifest = json.loads((ROOT_DIR / "dist" / "forge-nextjs-typescript-postgres" / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(manifest["version"], build_release.read_version())
-        self.assertEqual(manifest["package"], "forge-nextjs-typescript-postgres")
-        self.assertEqual(manifest["host"], "companion")
-        self.assertEqual(manifest["packaging"]["default_target_strategy"], "explicit")
-        self.assertIn("companion.json", manifest["packaging"]["required_bundle_paths"])
-        self.assertIn("scripts/scaffold_preset.py", manifest["packaging"]["required_bundle_paths"])
-        self.assertIn("templates/auth-saas/package.json", manifest["packaging"]["required_bundle_paths"])
-        self.assertIn("templates/billing-saas/package.json", manifest["packaging"]["required_bundle_paths"])
-        self.assertTrue((ROOT_DIR / "dist" / "forge-nextjs-typescript-postgres" / "companion.json").exists())
+        self.assertFalse(stale_dist.exists())
 
     def test_build_release_includes_codex_generated_wrapper_artifacts(self) -> None:
         build_release.build_all()

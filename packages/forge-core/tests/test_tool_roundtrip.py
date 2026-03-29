@@ -298,6 +298,48 @@ class ToolRoundTripTests(unittest.TestCase):
         self.assertEqual(state["summary"]["primary_kind"], "quality-gate")
         self.assertEqual(state["summary"]["current_focus"], "Conditional gate: ready-for-merge")
 
+    def test_ready_for_merge_execution_progress_updates_review_ready_summary(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+
+            execution_report = track_execution_progress.build_report(
+                Namespace(
+                    task="Offline reconciliation",
+                    mode="checkpoint-batch",
+                    stage="integration",
+                    status="completed",
+                    completion_state="ready-for-merge",
+                    project_name="Example Project",
+                    lane="implementer",
+                    model_tier="capable",
+                    proof=["failing reconciliation reproduction"],
+                    done=["Added reconciliation service skeleton"],
+                    next_step=["Run merge readiness smoke"],
+                    blocker=[],
+                    risk=["End-to-end verification still pending"],
+                )
+            )
+            execution_json_path, _ = track_execution_progress.persist_report(execution_report, str(workspace))
+
+            workflow_state_path = (
+                workspace
+                / ".forge-artifacts"
+                / "workflow-state"
+                / common.slugify("Example Project")
+                / "latest.json"
+            )
+            state = json.loads(workflow_state_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(state["latest_execution"]["source_path"], str(execution_json_path))
+        self.assertEqual(state["latest_execution"]["completion_state"], "ready-for-merge")
+        self.assertEqual(state["latest_execution"]["next_steps"], ["Run merge readiness smoke"])
+        self.assertEqual(state["latest_execution"]["risks"], ["End-to-end verification still pending"])
+        self.assertEqual(execution_report["lane"], "implementer")
+        self.assertEqual(execution_report["model_tier"], "capable")
+        self.assertEqual(state["summary"]["status"], "review-ready")
+        self.assertEqual(state["summary"]["suggested_workflow"], "review")
+        self.assertEqual(state["summary"]["current_focus"], "Review ready: Offline reconciliation")
+
 
 if __name__ == "__main__":
     unittest.main()

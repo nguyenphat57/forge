@@ -25,6 +25,7 @@ quality_gates:
 1. Read the most useful state repo:
    - `git status`
    - Latest plans/spec docs
+   - Active change artifact or persisted workflow-state when it exists
    - `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, UI, run, or quality-gate artifacts have already persisted state
    - `.brain/session.json` or `.brain/handover.md` if available
 2. Resolve with:
@@ -37,6 +38,8 @@ python scripts/resolve_help_next.py --workspace <workspace> --mode help
    - Where are you?
    - What's the best thing to do next?
    - Maximum 2 alternatives if needed
+
+For medium+ slices, the main recommendation should point at the durable artifact that needs to be created, refreshed, or consulted next.
 
 ## Output Contract
 

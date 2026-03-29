@@ -27,8 +27,9 @@ For medium, large, or vague tasks:
 - call out whether `spec-review` is required before build
 
 For small, clear tasks:
-- skip ceremony
-- do a quick scope reset plus a verification plan, then build
+- skip formal phase generation
+- do a quick scope reset plus a verification plan, then build only after a compact approval
+- if the slice is creative or behavior-changing, keep the packet short but still get explicit sign-off before build
 
 Quick path:
 - use it only for clearly small, low-risk work
@@ -97,6 +98,10 @@ Suggested stack: [...]
 Assumptions: [...]
 ```
 
+## Quick Approval
+
+For small creative work, the plan may be just one compact packet. It still needs the same essentials: chosen direction, exact scope, baseline proof, and explicit approval before build.
+
 ## Direction Intake
 
 `Plan` is not a second brainstorm.
@@ -135,9 +140,11 @@ For medium and large work, the plan must be concrete enough that implementation 
 
 Lock at least:
 - `Source of truth`: which brief/spec/direction is authoritative
-- `File or surface map`: the modules, boundaries, or contracts likely to change
+- `File or surface map`: the exact files, modules, boundaries, or contracts likely to change
+- `Baseline`: the current command or check that proves the slice is starting from a known state
 - `Task slices`: each slice has a clear goal and an independent proof
 - `Acceptance & proof`: which test or check proves each slice
+- `Out of scope`: what not to touch in this slice
 - `Dependencies & order`: what must happen first and what follows
 - `Reopen conditions`: when to return to `brainstorm`, `plan`, or `architect`
 
@@ -147,8 +154,10 @@ Template:
 Implementation-ready packet:
 - Sources: [...]
 - File/surface map: [...]
+- Baseline: [...]
 - Slice 1: [goal] | Files/boundary: [...] | Proof: [...]
 - Slice 2: [goal] | Files/boundary: [...] | Proof: [...]
+- Out of scope: [...]
 - Dependencies/order: [...]
 - Reopen only if: [...]
 ```

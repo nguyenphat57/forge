@@ -52,6 +52,16 @@ def workspace_fixture(name: str) -> Path:
     return WORKSPACES_DIR / name
 
 
+def resolve_reference_companion_package() -> Path:
+    candidates = [ROOT_DIR.parent / "forge-nextjs-typescript-postgres"]
+    if len(ROOT_DIR.parents) >= 2:
+        candidates.append(ROOT_DIR.parents[1] / "packages" / "forge-nextjs-typescript-postgres")
+    for candidate in candidates:
+        if (candidate / "companion.json").exists():
+            return candidate.resolve()
+    return candidates[0].resolve()
+
+
 @contextmanager
 def temporary_workspace(name: str = "workspace"):
     with TemporaryDirectory() as temp_dir:

@@ -14,7 +14,11 @@
       ],
       "chains": {
         "small": [
+          "plan",
           "build"
+          ,
+          "test",
+          "quality-gate"
         ],
         "medium": [
           "plan",
@@ -155,6 +159,7 @@
       ],
       "chains": {
         "small": [
+          "plan",
           "visualize"
         ],
         "medium": [
@@ -244,6 +249,7 @@
       "VISUALIZE"
     ],
     "eligible_complexities": [
+      "small",
       "medium",
       "large"
     ],

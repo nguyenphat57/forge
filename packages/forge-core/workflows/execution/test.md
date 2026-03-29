@@ -24,6 +24,7 @@ TESTS MUST PROOVE BEHAVIOR, NOT DECORATE FINISHED CODE
 
 <HARD-GATE>
 - If the task changes behavior and has a viable harness, prioritize RED before GREEN.
+- If the harness is available and RED was not observed, reset the packet instead of moving forward.
 - If there is no harness, it must be clearly stated and use verification instead.
 - Do not report test pass/coverage if it has not been run yet.
 - Do not artificially force TDD for task docs/config/release chores.
@@ -81,6 +82,7 @@ Rules:
 - If level 1 or 2 is feasible but omitted, specific technical reasons must be stated
 - "This repo has little testing" is not enough reason to jump down to manual
 - When manual is the best choice, the scenario must be described in enough detail for others to rerun
+- If a harness exists and RED was skipped, the test packet is invalid and must be rewritten.
 
 ## RED-GREEN-REFACTOR
 

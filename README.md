@@ -9,7 +9,7 @@ Source monorepo for Forge as `core + host adapters + runtime tools + optional co
 - `packages/forge-codex`: Codex adapter overlay and host-specific entry guidance.
 - `packages/forge-browse`: optional stack-agnostic browser QA runtime for persistent sessions, snapshots, and assertions.
 - `packages/forge-design`: optional design-artifact runtime for rendering persisted UI briefs into review packets.
-- `packages/forge-nextjs-typescript-postgres`: reference companion that proves the adaptation-layer contract without defining Forge's identity.
+- `packages/forge-nextjs-typescript-postgres`: source-only example companion that proves the adaptation-layer contract without defining Forge's identity.
 
 ## Product Direction
 

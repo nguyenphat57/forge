@@ -5,6 +5,8 @@
 ## Target
 
 - choose the right execution mode before batch coding
+- run a process precheck before any behavior-changing edit
+- require a quick plan/design approval path for small creative work
 - define the execution pipeline and reviewer lane for medium/large or high-risk work
 - choose lane tiers instead of pushing every lane to the same capability level
 - require `spec-review` before build when boundary or risk is still unclear
@@ -23,7 +25,7 @@
 ## Mode Selection Rules
 
 1. `small` -> almost always `single-track`
-2. `medium` -> default to `single-track`
+2. `medium` -> default to `single-track`, but behavior-changing slices should still carry a clean baseline and may need a worktree
 3. `large` -> choose a mode explicitly
 4. if parallelism might be unsafe, stay on `single-track`
 5. if the task has many steps with the same blast radius, prefer `checkpoint-batch`
@@ -81,7 +83,8 @@ For `large`, `release-critical`, or `high-risk` work, choose from:
 |`independent-reviewer` | The work needs an independent review lane after implementation|
 
 Rules:
-- dirty repo + large/high-risk work -> default toward `worktree`
+- dirty repo + medium/large/high-risk work -> default toward `worktree`
+- behavior-changing medium+ work -> default toward a clean baseline and usually a worktree unless the repo is already isolated and clean
 - multiple independent slices + host support -> `subagent-split` can be appropriate
 - auth/payment/migration/release-critical work -> lean toward `independent-reviewer`
 - if the boundary is not justified clearly, do not split the work
@@ -137,6 +140,7 @@ Execution packet:
 - Sources: [plan/spec/design/spec-review]
 - Current slice: [...]
 - File/surface scope: [...]
+- Baseline: [...]
 - Proof before progress: [...]
 - Out of scope: [...]
 - Reopen if: [...]

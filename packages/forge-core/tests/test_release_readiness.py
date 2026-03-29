@@ -34,11 +34,66 @@ def _write_review_pack(workspace: Path, status: str, summary: str) -> None:
     (review_dir / "latest.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
+def _record_gate_prerequisites(workspace: Path, project_name: str, scope: str = "Release slice") -> None:
+    execution = run_python_script(
+        "track_execution_progress.py",
+        scope,
+        "--mode",
+        "checkpoint-batch",
+        "--stage",
+        "release-checks",
+        "--status",
+        "completed",
+        "--completion-state",
+        "ready-for-merge",
+        "--project-name",
+        project_name,
+        "--harness-available",
+        "no",
+        "--proof",
+        "release verification packet",
+        "--persist",
+        "--output-dir",
+        str(workspace),
+        "--format",
+        "json",
+        cwd=workspace,
+    )
+    if execution.returncode != 0:
+        raise AssertionError(execution.stderr or execution.stdout)
+
+    review = run_python_script(
+        "record_review_state.py",
+        "--workspace",
+        str(workspace),
+        "--project-name",
+        project_name,
+        "--scope",
+        scope,
+        "--disposition",
+        "ready-for-merge",
+        "--branch-state",
+        "clean baseline confirmed",
+        "--evidence",
+        "release verification packet",
+        "--no-finding-rationale",
+        "Fresh review found no blocking issues.",
+        "--persist",
+        "--output-dir",
+        str(workspace),
+        "--format",
+        "json",
+    )
+    if review.returncode != 0:
+        raise AssertionError(review.stderr or review.stdout)
+
+
 class ReleaseReadinessTests(unittest.TestCase):
     def test_release_readiness_passes_for_clean_standard_slice(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir) / "checkout-web"
             workspace.mkdir(parents=True, exist_ok=True)
+            _record_gate_prerequisites(workspace, "checkout-web")
 
             gate = run_python_script(
                 "record_quality_gate.py",
@@ -106,6 +161,7 @@ class ReleaseReadinessTests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir) / "checkout-web"
             workspace.mkdir(parents=True, exist_ok=True)
+            _record_gate_prerequisites(workspace, "checkout-web")
 
             gate = run_python_script(
                 "record_quality_gate.py",
@@ -188,6 +244,7 @@ class ReleaseReadinessTests(unittest.TestCase):
             (workspace / "lib" / "auth" / "password.ts").write_text("export const hash = async () => '';\n", encoding="utf-8")
             (workspace / "prisma").mkdir()
             (workspace / "prisma" / "schema.prisma").write_text("generator client { provider = \"prisma-client-js\" }\n", encoding="utf-8")
+            _record_gate_prerequisites(workspace, "auth-web")
 
             gate = run_python_script(
                 "record_quality_gate.py",
@@ -239,6 +296,7 @@ class ReleaseReadinessTests(unittest.TestCase):
             )
             (workspace / "src" / "billing").mkdir(parents=True)
             (workspace / "src" / "billing" / "stripe.ts").write_text("export const stripe = {};\n", encoding="utf-8")
+            _record_gate_prerequisites(workspace, "billing-worker")
 
             gate = run_python_script(
                 "record_quality_gate.py",

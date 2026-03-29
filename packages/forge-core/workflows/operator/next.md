@@ -25,6 +25,7 @@ quality_gates:
 1. Inspect workspace state:
    - persisted workflow state under `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, UI, run, or quality-gate artifacts are available
    - active plan/spec
+   - active change artifact or checkpoint artifact when the work is medium+ or already tracked
    - current working tree changes
    - session or handover artifacts if any
 2. Resolve with:
@@ -37,6 +38,8 @@ python scripts/resolve_help_next.py --workspace <workspace> --mode next
    - current focus
    - specific next step
    - Maximum 1-2 alternatives when needed
+
+For medium+ slices, the next step usually favors creating or refreshing the durable artifact before more editing when no such artifact is present yet.
 
 ## Output Contract
 

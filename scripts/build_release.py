@@ -272,8 +272,14 @@ def build_all() -> list[dict]:
             f"Run `python scripts/generate_host_artifacts.py --apply`. First stale output: {first_stale}"
         )
     metadata = {"version": read_version(), "git_revision": resolve_git_revision()}
+    all_specs = discover_package_specs(PACKAGES_DIR, include_examples=True)
+    release_specs = [spec for spec in all_specs if spec.get("distribution") != "example"]
+    release_bundle_names = {"forge-core", *(spec["name"] for spec in release_specs)}
+    for spec in all_specs:
+        if spec["name"] not in release_bundle_names:
+            clean_dir(DIST_DIR / spec["name"])
     outputs = [build_core_bundle(metadata)]
-    for spec in discover_package_specs(PACKAGES_DIR):
+    for spec in release_specs:
         if spec["kind"] == "adapter":
             outputs.append(build_adapter_bundle(spec, metadata))
             continue

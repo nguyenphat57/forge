@@ -4,7 +4,7 @@ import json
 import unittest
 from pathlib import Path
 
-from support import copied_workspace_fixture, run_python_script, temporary_workspace
+from support import copied_workspace_fixture, resolve_reference_companion_package, run_python_script, temporary_workspace
 
 
 def _fake_runtime_tool(root: Path, bundle_name: str, *, doctor_status: str | None = None) -> Path:
@@ -118,7 +118,7 @@ class DoctorTests(unittest.TestCase):
         with copied_workspace_fixture("nextjs_postgres_workspace") as workspace:
             temp_root = workspace.parent
             registry_path = temp_root / "companions.json"
-            companion_root = Path(__file__).resolve().parents[2] / "forge-nextjs-typescript-postgres"
+            companion_root = resolve_reference_companion_package()
             registry_payload = {
                 "version": 1,
                 "companions": {

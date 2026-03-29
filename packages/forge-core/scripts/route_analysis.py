@@ -278,3 +278,36 @@ def choose_quality_profile(
 
 def requires_change_artifacts(intent: str, complexity: str) -> bool:
     return intent in EDITING_INTENTS and complexity in {"medium", "large"}
+
+
+def process_precheck_required(intent: str, prompt_text: str, registry: dict) -> bool:
+    if intent == "VISUALIZE":
+        return True
+    if intent not in EDITING_INTENTS:
+        return False
+    return infer_change_type(prompt_text, registry) == "behavioral"
+
+
+def baseline_required(intent: str, complexity: str) -> bool:
+    return intent in EDITING_INTENTS and complexity in {"medium", "large"}
+
+
+def review_artifact_required(intent: str, complexity: str, execution_pipeline_key: str | None) -> bool:
+    return intent in EDITING_INTENTS and (
+        complexity in {"medium", "large"} or execution_pipeline_key in {"implementer-quality", "implementer-spec-quality"}
+    )
+
+
+def recommended_isolation_stance(
+    intent: str,
+    complexity: str,
+    execution_mode: str | None,
+    host_supports_subagents: bool,
+) -> str | None:
+    if intent not in EDITING_INTENTS:
+        return None
+    if complexity == "small":
+        return "same-tree"
+    if execution_mode == "parallel-safe" and host_supports_subagents:
+        return "subagent-split"
+    return "worktree"

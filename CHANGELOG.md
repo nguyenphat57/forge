@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.8.0 - 2026-03-29
+
+- Harden Forge's process-first execution model by routing small build and visualize work through planning, persisting richer execution and review state, and enforcing durable process artifacts plus RED-proof quality gates.
+- Downgrade `forge-nextjs-typescript-postgres` to a source-only example companion, remove it from shipped bundle and install surfaces, and decouple its local reference contract from the monorepo release version.
+- Refresh release, install, and bundle verification coverage so example companions remain discoverable from source while `build_release.py` and `verify_repo.py` only govern shipped bundles.
+
+
 ## 1.7.0 - 2026-03-29
 
 - Finish the process-first implementation batch by hardening brownfield operator flows, change and continuity artifacts, release readiness, workspace canaries, and stack-aware review signals across `forge-core`.

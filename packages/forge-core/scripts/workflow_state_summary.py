@@ -3,6 +3,7 @@ from __future__ import annotations
 
 EVENT_ORDER = (
     "quality-gate",
+    "review-state",
     "execution-progress",
     "run-report",
     "ui-progress",
@@ -36,16 +37,20 @@ def summarize_workflow_state(
     latest_ui: dict | None,
     latest_run: dict | None,
     latest_gate: dict | None,
+    latest_review: dict | None,
     *,
     preferred_kind: str | None = None,
 ) -> dict:
     blockers = combine_unique(as_string_list((latest_execution or {}).get("blockers")), as_string_list((latest_chain or {}).get("blockers")))
     risks = combine_unique(
+        as_string_list((latest_review or {}).get("testing_gaps")),
+        as_string_list((latest_review or {}).get("findings")),
         as_string_list((latest_gate or {}).get("risks")),
         as_string_list((latest_execution or {}).get("risks")),
         as_string_list((latest_chain or {}).get("risks")),
     )
     next_steps = combine_unique(
+        as_string_list((latest_review or {}).get("next_steps")),
         as_string_list((latest_gate or {}).get("next_evidence")),
         as_string_list((latest_execution or {}).get("next_steps")),
         as_string_list((latest_ui or {}).get("next_steps")),
@@ -53,12 +58,13 @@ def summarize_workflow_state(
     )
     entries = {
         "quality-gate": latest_gate,
+        "review-state": latest_review,
         "execution-progress": latest_execution,
         "run-report": latest_run,
         "ui-progress": latest_ui,
         "chain-status": latest_chain,
     }
-    preferred_order = [preferred_kind] if preferred_kind in {"run-report", "quality-gate"} else []
+    preferred_order = [preferred_kind] if preferred_kind in {"run-report", "quality-gate", "review-state"} else []
     ordered_kinds = [kind for kind in (*preferred_order, *EVENT_ORDER) if kind and kind in entries]
     seen: set[str] = set()
     for kind in ordered_kinds:
@@ -102,6 +108,42 @@ def summarize_workflow_state(
                 "suggested_workflow": workflow,
                 "recommended_action": approved_action,
                 "alternatives": risks[:1] or as_string_list(entry.get("evidence_read"))[:1],
+            }
+        if kind == "review-state":
+            disposition = entry.get("disposition")
+            review_items = combine_unique(
+                as_string_list(entry.get("findings")),
+                as_string_list(entry.get("testing_gaps")),
+                as_string_list(entry.get("next_steps")),
+            )
+            if disposition in {"changes-required", "blocked-by-residual-risk"}:
+                label = "Blocked review" if disposition == "blocked-by-residual-risk" else "Review follow-up"
+                action = (
+                    f"Address the review follow-up first: {review_items[0]}."
+                    if review_items
+                    else f"Address the review follow-up for '{entry['label']}' before advancing."
+                )
+                return {
+                    "status": "blocked",
+                    "primary_kind": kind,
+                    "current_focus": f"{label}: {entry['label']}",
+                    "current_stage": "review",
+                    "suggested_workflow": "build",
+                    "recommended_action": action,
+                    "alternatives": review_items[1:3] or as_string_list(entry.get("evidence"))[:1],
+                }
+            alternatives = as_string_list(entry.get("evidence"))[:2]
+            branch_state = entry.get("branch_state")
+            if not alternatives and isinstance(branch_state, str) and branch_state.strip():
+                alternatives = [f"Branch state: {branch_state.strip()}"]
+            return {
+                "status": "active",
+                "primary_kind": kind,
+                "current_focus": f"Review cleared: {entry['label']}",
+                "current_stage": "review",
+                "suggested_workflow": "quality-gate",
+                "recommended_action": "Refresh the quality gate from the persisted review evidence before claiming merge readiness.",
+                "alternatives": alternatives,
             }
         if kind == "execution-progress":
             completion_state = entry.get("completion_state")

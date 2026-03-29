@@ -51,6 +51,19 @@ class RoutePreviewSmokeMatrixTests(unittest.TestCase):
                     self.assertEqual(detected["host_skills"], case["expected_host_skills"])
                 if "expected_host_skills_when_subagents" in case and host_supports_subagents:
                     self.assertEqual(detected["host_skills"], case["expected_host_skills_when_subagents"])
+                if "expected_process_precheck_required" in case:
+                    self.assertEqual(detected["process_precheck_required"], case["expected_process_precheck_required"])
+                if "expected_baseline_proof_required" in case:
+                    self.assertEqual(detected["baseline_proof_required"], case["expected_baseline_proof_required"])
+                if "expected_review_artifact_required" in case:
+                    self.assertEqual(detected["review_artifact_required"], case["expected_review_artifact_required"])
+                if "expected_durable_process_artifacts_required" in case:
+                    self.assertEqual(
+                        detected["durable_process_artifacts_required"],
+                        case["expected_durable_process_artifacts_required"],
+                    )
+                if "expected_isolation_recommendation" in case:
+                    self.assertEqual(detected["isolation_recommendation"], case["expected_isolation_recommendation"])
 
 
 if __name__ == "__main__":

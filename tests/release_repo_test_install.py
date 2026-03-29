@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from release_repo_test_support import ReleaseRepoTestSupport, build_release, install_bundle
+from release_repo_test_support import ROOT_DIR, ReleaseRepoTestSupport, build_release, install_bundle
 
 
 class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
@@ -161,36 +161,24 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
             self.assertEqual(payload["state"]["root"], expected_root)
             self.assertTrue(Path(payload["state"]["sessions_path"]).exists())
 
-    def test_install_companion_bundle_writes_manifest_without_state_root(self) -> None:
+    def test_source_only_example_companion_is_not_installable_bundle(self) -> None:
         with TemporaryDirectory() as temp_dir:
             temp_root = Path(temp_dir)
             target = temp_root / "companions" / "forge-nextjs-typescript-postgres"
 
-            report = install_bundle.install_bundle(
-                "forge-nextjs-typescript-postgres",
-                target=str(target),
-                backup_dir=str(temp_root / "backups"),
-            )
-
-            manifest = json.loads((target / "INSTALL-MANIFEST.json").read_text(encoding="utf-8"))
-            self.assertEqual(manifest["bundle"], "forge-nextjs-typescript-postgres")
-            self.assertEqual(manifest["host"], "companion")
-            self.assertEqual(manifest["mode"], "install")
-            self.assertIn("compatibility", manifest)
-            self.assertEqual(manifest["compatibility"]["status"], "PASS")
-            self.assertTrue(manifest["compatibility"]["compatible"])
-            self.assertIn("is compatible", manifest["compatibility"]["message"])
-            self.assertIn("transition", manifest)
-            self.assertEqual(manifest["transition"]["status"], "new-install")
-            self.assertTrue((target / "companion.json").exists())
-            self.assertEqual(report["state"]["root"], str((temp_root / "companions" / "forge-nextjs-typescript-postgres-state").resolve()))
+            with self.assertRaises(FileNotFoundError):
+                install_bundle.install_bundle(
+                    "forge-nextjs-typescript-postgres",
+                    target=str(target),
+                    backup_dir=str(temp_root / "backups"),
+                )
 
     def test_installed_codex_bundle_can_discover_registered_companion(self) -> None:
         with TemporaryDirectory() as temp_dir:
             temp_root = Path(temp_dir)
             codex_home = temp_root / "codex-home"
             codex_target = codex_home / "skills" / "forge-codex"
-            companion_target = temp_root / "companions" / "forge-nextjs-typescript-postgres"
+            companion_target = (ROOT_DIR / "packages" / "forge-nextjs-typescript-postgres").resolve()
             workspace = temp_root / "workspace"
             workspace.mkdir(parents=True, exist_ok=True)
             (workspace / "package.json").write_text(
@@ -220,20 +208,27 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
                 codex_home=str(codex_home),
                 backup_dir=str(temp_root / "backups"),
             )
-            companion_report = install_bundle.install_bundle(
-                "forge-nextjs-typescript-postgres",
-                target=str(companion_target),
-                codex_home=str(codex_home),
-                register_codex_companion=True,
-                backup_dir=str(temp_root / "backups"),
-            )
-
             registry_path = codex_home / "forge-codex" / "state" / "companions.json"
-            self.assertTrue(registry_path.exists())
-            self.assertEqual(
-                companion_report["codex_companion_registration"]["registry_path"],
-                str(registry_path.resolve()),
+            registry_path.parent.mkdir(parents=True, exist_ok=True)
+            registry_path.write_text(
+                json.dumps(
+                    {
+                        "version": 1,
+                        "companions": {
+                            "forge-nextjs-typescript-postgres": {
+                                "id": "nextjs-typescript-postgres",
+                                "package": "forge-nextjs-typescript-postgres",
+                                "target": str(companion_target),
+                                "version": "0.1.0",
+                                "registered_at": "2026-03-29T00:00:00+00:00",
+                            }
+                        },
+                    },
+                    indent=2,
+                ),
+                encoding="utf-8",
             )
+            self.assertTrue(registry_path.exists())
 
             result = subprocess.run(
                 [
@@ -254,5 +249,5 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
 
             self.assertEqual(report["companions"][0]["id"], "nextjs-typescript-postgres")
             self.assertTrue(report["companions"][0]["registered"])
-            self.assertEqual(report["companions"][0]["registered_target"], str(companion_target.resolve()))
-            self.assertEqual(report["companions"][0]["local_root"], str(companion_target.resolve()))
+            self.assertEqual(report["companions"][0]["registered_target"], str(companion_target))
+            self.assertEqual(report["companions"][0]["local_root"], str(companion_target))
