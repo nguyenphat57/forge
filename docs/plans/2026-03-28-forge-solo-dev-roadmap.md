@@ -1,15 +1,20 @@
 # Forge Solo-Dev Roadmap
-**Status:** proposed
+**Status:** historical roadmap, partially superseded by `docs/PRODUCT_THESIS_2026-03-28.md` and later delivery reports
 **Date:** 2026-03-28
 **Input:** [2026-03-28-solo-dev-ecosystem-review.md](C:\Users\Admin\.gemini\forge\docs\audits\2026-03-28-solo-dev-ecosystem-review.md)
 **Goal:** make Forge dependable for one solo dev from brainstorm to product-ready shipping
 **Non-goal:** do not chase equal support for every stack, do not become a generic skill warehouse, do not add content-marketing scope
 
+Current policy note:
+- one first-party companion lane is committed today: `nextjs-typescript-postgres`
+- lane 2 is candidate-only until lane 1 is hardened and a separate product-pull decision is made
+- governance artifacts beyond `docs/`, `docs/plans/`, `docs/specs/`, and decisions or learnings are still planned, not shipped
+
 ## Product Shape
 - `Forge Core`: orchestration, verification, adapters, runtime-tool boundaries
 - `Forge Ops`: doctor, codebase mapping, continuity, QA, release, dashboard, canary
 - `Forge Lanes`: first-party opinionated paths for selected product types
-- `Forge Artifacts`: durable change folders, protected intent docs, and human-owned backlog surfaces
+- `Forge Artifacts`: durable change folders, repo-visible planning artifacts, and decisions or learnings; protected intent docs and human-owned backlog surfaces remain planned
 - Gate 1: Phase 2 starts only after Phase 1 is usable on real repos
 - Gate 2: Phase 3 starts only after at least one lane works end to end
 - Gate 3: no lane ships without verification plus an example path
@@ -61,24 +66,25 @@
 - change artifacts survive after the chat window is gone
 - Forge feels materially helpful before any first-party lane exists
 
-## Phase 2: First-Party Lanes
-**Intent:** stop being generic on the surface and go deep on a very small number of lanes.
+## Phase 2: First-Party Companion Depth
+**Intent:** stop being generic on the surface and go deep on one committed lane before investing in another.
 **Why now:** after the foundation exists, depth is more valuable than more abstractions.
 **Window:** 3 to 6 weeks
 
 ### Lane Choice
-1. `lane-nextjs-saas`: Next.js + TypeScript + Postgres
-2. `lane-fastapi-api`: FastAPI + Postgres
+1. committed lane: `lane-nextjs-saas` = Next.js + TypeScript + Postgres
+2. early candidate only: `lane-fastapi-api` = FastAPI + Postgres
 
 ### Outcomes
 - `init` becomes preset-driven instead of minimal skeleton only.
-- Forge can scaffold real project spines in two lanes.
-- Each lane includes conventions for auth, data access, testing, deploy, env setup, docs updates, and protected intent artifacts.
+- Forge can scaffold a real project spine in one committed lane.
+- Forge gets one optimized product path without turning `forge-core` into a stack-specific framework.
+- Governance artifacts beyond the current docs or plans scaffolding are tracked as follow-up work, not counted as Phase 2 proof.
 - Forge gets first-class depth somewhere instead of weak breadth everywhere.
 
 ### Build Order
 1. preset-aware `init`
-   Deliver: lane selection or inference; generated project spine with docs structure, planning state, lane metadata, verification defaults, deploy assumptions, protected product-intent docs, document ownership rules, and human-owned backlog conventions.
+   Deliver: lane selection or inference; generated project spine with docs structure, planning state, lane metadata, verification defaults, and deploy assumptions. Protected product-intent docs, document ownership rules, and human-owned backlog conventions are follow-up governance work, not Phase 2 completion criteria.
    Repo areas: `packages/forge-core/references/workspace-init.md`, `packages/forge-core/scripts/initialize_workspace.py`, lane registry, tests.
    Verify: each lane initializes from scratch; generated artifacts are consistent; lane defaults are visible to later workflows.
    Exit: `init` becomes the first real step of a product path, not just a skeleton dump.
@@ -88,7 +94,7 @@
    Verify: lane metadata resolves deterministically; workflows can read lane-specific commands without ad-hoc branching.
    Exit: Forge can reason about a lane from declared metadata instead of brittle heuristics.
 3. starter templates
-   Deliver: `lane-nextjs-saas` gets auth shell, layout shell, database wiring, testing baseline, deploy baseline; `lane-fastapi-api` gets app factory, health endpoint, DB session wiring, test baseline, migration baseline, deploy baseline.
+   Deliver: `lane-nextjs-saas` gets auth shell, layout shell, database wiring, testing baseline, deploy baseline. Lane 2 remains candidate-only until the lane expansion rule is satisfied.
    Repo areas: starter template packages or fixtures, init wiring, docs.
    Verify: templates boot locally, pass default verify flow, and absorb small feature work without immediate restructuring.
    Exit: a solo dev can start from a real template instead of assembling their own base stack.
@@ -98,7 +104,7 @@
    Verify: seeded lane-specific failures are caught in fixtures.
    Exit: quality does not collapse back into generic verification.
 5. lane docs and example repos
-   Deliver: one example repo per lane, one quickstart per lane, one "ship a v1" walkthrough per lane.
+   Deliver: one example repo for the committed lane, one quickstart for that lane, and one "ship a v1" walkthrough. Lane-2 docs stay exploratory until the expansion rule is explicitly passed.
    Repo areas: docs, examples, release checks.
    Verify: each example repo passes verify; docs and examples stay in sync; each lane has one end-to-end path from brainstorm to ship.
    Exit: lanes become repeatable product paths instead of theory.
@@ -110,7 +116,7 @@
 - a giant template matrix
 
 ### Exit Criteria
-- at least one solo dev can start a product in one lane without assembling a custom process
+- at least one solo dev can start a product in one committed lane without assembling a custom process
 - `init` no longer feels generic
 - Forge has first-class support somewhere, not weak support everywhere
 

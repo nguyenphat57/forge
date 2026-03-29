@@ -3,6 +3,7 @@
 Date: 2026-03-28
 Reviewer: Codex
 Goal: review external repos as input for shaping Forge into a solo-dev assistant that helps ship real products from brainstorm to product-ready.
+Status note: this audit is landscape input, not the current product policy. Later repo decisions narrowed first-party investment to one committed companion lane first; lane 2 remains a candidate chosen by evidence plus product pull, not by this audit alone.
 
 ## Scope And Method
 
@@ -272,9 +273,9 @@ Highest-fit absorptions:
 - from `gstack`: shipping loop completeness, browser QA, docs sync, deploy confidence
 - from `orchestrated-project-template`: onboarding, living docs, protected intent artifacts, human-owned backlog
 
-Recommended Forge direction:
+Recommended Forge direction at audit time:
 - `Forge Core`: orchestration, verification, adapters, runtime tools
-- `Forge Lanes`: first-party solo-dev lanes such as `nextjs-saas` and `fastapi-api`
+- `Forge Lanes`: first-party solo-dev lanes, starting with a web-product lane and leaving lane 2 intentionally open until later evidence arrives
 - `Forge Ops`: `doctor`, `map-codebase`, `verify`, `ship`, `release-doc`, `dashboard`, `canary`
 - `Forge Memory`: continuity, decisions, learnings, searchable project intelligence
 - `Forge Artifacts`: durable change folders for medium and large work
@@ -284,7 +285,7 @@ Concrete next steps:
 2. Build `forge map-codebase`.
 3. Add continuity plus decisions and learnings schema upgrades.
 4. Extend `init` into lane-aware presets, not just skeleton folders.
-5. Create two first-party lanes: Next.js + TypeScript + Postgres, and FastAPI + Postgres.
+5. Commit to one first-party lane first: Next.js + TypeScript + Postgres. Treat FastAPI + Postgres as an early candidate, not a committed second lane.
 6. Add change-artifact and archive flows for medium and large work.
 7. Strengthen `forge-browse` for persistent authenticated QA sessions.
 8. Add release-doc drift correction after ship.

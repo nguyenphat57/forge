@@ -55,6 +55,31 @@ class LaneDecisionTests(unittest.TestCase):
         self.assertEqual(report["status"], "FAIL")
         self.assertTrue(any("real repo" in item for item in report["blockers"]))
 
+    def test_lane_gate_requires_strategic_pull_confirmation(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            score_path = Path(temp_dir) / "vite.json"
+            score_path.write_text(json.dumps({"total": 78.0}, indent=2), encoding="utf-8")
+
+            result = run_python_script(
+                "lane_gate.py",
+                "--candidate",
+                "vite-capacitor-supabase",
+                "--score-path",
+                str(score_path),
+                "--real-repo-count",
+                "3",
+                "--example-app-complete",
+                "--operator-ux-ready",
+                "--shipping-intelligence-tuned",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 1, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["status"], "FAIL")
+        self.assertTrue(any("product pull" in item for item in report["blockers"]))
+
 
 if __name__ == "__main__":
     unittest.main()

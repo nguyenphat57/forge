@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.0 - 2026-03-29
+
+- Normalize Forge's product policy so the thesis, roadmap, audit, backlog, and delivery reports agree on one committed first-party lane, historical vs current decisions, and what counts as shipped vs planned absorption.
+- Tighten the lane-2 decision contract in `forge-core` by requiring explicit strategic product-pull confirmation instead of treating rollout evidence alone as automatic approval.
+- Add a repo-visible absorption consistency report and clarify that governance artifacts beyond current planning docs plus the initial `change_guard` privacy or risk rail remain partial or planned follow-up work.
+
+
 ## 1.5.0 - 2026-03-29
 
 - Turn Forge into a stronger solo-dev execution platform by adding brownfield `doctor`, `map-codebase`, change-artifact flows, dashboard, release-doc sync, release readiness, review packs, and lane scoring or gating across `forge-core`.

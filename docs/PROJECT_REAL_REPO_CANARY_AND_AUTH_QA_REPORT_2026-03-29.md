@@ -165,10 +165,15 @@ Result:
 - `shipping_intelligence_tuned = true`
 - `candidate_score = 78.0`
 
-Interpretation:
+Interpretation at the time of this run:
 
-- after the new real-repo evidence and authenticated QA runtime fix, the previous blocker is no longer present;
-- the lane-2 gate now passes according to the current gate contract.
+- after the new real-repo evidence and authenticated QA runtime fix, the previous evidence blocker was no longer present;
+- the then-current lane-2 gate returned `PASS`.
+
+Superseding policy note:
+
+- the repo later narrowed this contract so that evidence alone is not enough;
+- lane 2 now also requires explicit confirmation that product pull is stronger than more hardening on lane 1.
 
 ## Verification
 
@@ -210,9 +215,9 @@ This batch cleared the open items from the previous follow-up:
 - lane 1 now has more than one real repo in controlled-rollout evidence;
 - release readiness now passes on the external auth-shaped repo;
 - authenticated QA now applies session storage at runtime;
-- the lane-2 gate now passes under the current decision contract.
+- the historical lane-2 evidence gate passed under the contract that existed at the time of this run.
 
-The remaining question is no longer whether the current lane-1 evidence is enough to open lane 2 according to the repo rules.
+The remaining question is no longer only whether the current lane-1 evidence is enough.
 
 The remaining question is product strategy:
 

@@ -1,9 +1,9 @@
 {
   "id": "nextjs-typescript-postgres",
   "package": "forge-nextjs-typescript-postgres",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "compatibility": {
-    "forge_core_min": "1.5.0",
+  "forge_core_min": "1.6.0",
     "forge_core_max": "1.x"
   },
   "feature_rules": {

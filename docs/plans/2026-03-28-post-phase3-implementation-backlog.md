@@ -18,6 +18,7 @@ This backlog is ordered by product leverage:
 2. Do not add more abstraction layers before the current operator surface is easier to use.
 3. Prefer real-repo evidence over synthetic completeness.
 4. Every new preset or release check needs a matching verification path.
+5. A passing lane-evidence gate is necessary but not sufficient; lane 2 still needs an explicit product-pull decision.
 ## Stage A: Harden Lane 1 On Real Repos
 ### A1. Real-repo canary for the Next.js companion
 Why:
@@ -139,6 +140,25 @@ Verify:
 Exit:
 - a new user can choose the right path without reading the whole repo
 
+### B4. Governance artifact surfaces
+
+Why:
+- current repo-visible planning surfaces stop at `docs/`, `docs/plans/`, `docs/specs/`, and decisions or learnings
+- the external audit also called for protected product intent and human-owned backlog patterns, but those are not yet shipped clearly
+
+Deliver:
+- one protected product-intent document template for lane-driven work
+- document ownership notes that distinguish human-owned backlog surfaces from generated state
+- one simple backlog convention that stays repo-visible and reviewable
+- report evidence showing where these surfaces are created and how they are meant to be maintained
+
+Verify:
+- `init` or companion preset generation creates the promised governance files deterministically
+- docs checks confirm those files are linked from the quickstart and decision guide
+
+Exit:
+- governance absorptions move from narrative-only to shipped evidence
+
 ## Stage C: Strengthen Shipping Intelligence
 
 ### C1. Authenticated `forge-browse` QA flows
@@ -203,6 +223,24 @@ Verify:
 
 Exit:
 - review pack becomes sharper through actual shipping feedback
+
+### C5. Strengthen the risk guard beyond the initial keyword pass
+
+Why:
+- the current `change_guard` is useful, but it is still only a first guardrail
+- the audit chose privacy or risk guard behavior as a meaningful absorption, and the repo should either deepen it or keep calling it partial
+
+Deliver:
+- clearer rule groups for destructive filesystem actions, deploy actions, and secret-bearing changes
+- report output that explains why an action was classified as `allow`, `warn`, or `block`
+- updated docs that show this is a safety rail in the shipping system, not an invisible helper
+
+Verify:
+- seeded deploy, secret, and destructive-action cases classify deterministically in tests
+- workflow docs and operator docs describe the same contract
+
+Exit:
+- the risk-guard absorption becomes explicit, test-backed, and no longer easy to miss in the product narrative
 
 ## Stage D: Decide Whether To Open Lane 2
 

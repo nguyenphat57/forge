@@ -21,6 +21,7 @@ def build_report(
     example_app_complete: bool,
     operator_ux_ready: bool,
     shipping_intelligence_tuned: bool,
+    strategic_pull_confirmed: bool,
     candidate_score: float | None,
     minimum_score: float,
 ) -> dict:
@@ -33,6 +34,8 @@ def build_report(
         blockers.append("Operator UX is not yet clear enough.")
     if not shipping_intelligence_tuned:
         blockers.append("Shipping intelligence has not been tuned from real usage yet.")
+    if not strategic_pull_confirmed:
+        blockers.append("Candidate lane has not yet shown stronger product pull than further hardening on lane 1.")
     if candidate_score is None:
         blockers.append("No candidate lane score was provided.")
     elif candidate_score < minimum_score:
@@ -45,22 +48,24 @@ def build_report(
         "example_app_complete": example_app_complete,
         "operator_ux_ready": operator_ux_ready,
         "shipping_intelligence_tuned": shipping_intelligence_tuned,
+        "strategic_pull_confirmed": strategic_pull_confirmed,
         "candidate_score": candidate_score,
         "minimum_score": minimum_score,
         "blockers": blockers,
-        "next_action": f"Open lane 2 for {candidate}." if status == "PASS" else "Continue hardening lane 1.",
+        "next_action": f"Open lane 2 for {candidate}." if status == "PASS" else "Continue hardening lane 1 or gather stronger lane-2 evidence.",
     }
 
 
 def main() -> int:
     configure_stdio()
 
-    parser = argparse.ArgumentParser(description="Apply the Forge lane-2 gate decision.")
+    parser = argparse.ArgumentParser(description="Apply the Forge lane-2 evidence and strategy gate.")
     parser.add_argument("--candidate", required=True, help="Candidate lane id")
     parser.add_argument("--real-repo-count", type=int, default=0, help="Number of real repos with lane-1 evidence")
     parser.add_argument("--example-app-complete", action="store_true", help="Mark the lane-1 example app as complete")
     parser.add_argument("--operator-ux-ready", action="store_true", help="Mark operator UX as ready")
     parser.add_argument("--shipping-intelligence-tuned", action="store_true", help="Mark shipping intelligence as tuned from real use")
+    parser.add_argument("--strategic-pull-confirmed", action="store_true", help="Mark that the candidate lane has stronger product pull than more hardening on lane 1")
     parser.add_argument("--candidate-score", type=float, default=None, help="Explicit candidate score")
     parser.add_argument("--score-path", type=Path, default=None, help="Optional path to a lane-score JSON report")
     parser.add_argument("--minimum-score", type=float, default=70.0, help="Minimum score required to open lane 2")
@@ -75,6 +80,7 @@ def main() -> int:
         example_app_complete=args.example_app_complete,
         operator_ux_ready=args.operator_ux_ready,
         shipping_intelligence_tuned=args.shipping_intelligence_tuned,
+        strategic_pull_confirmed=args.strategic_pull_confirmed,
         candidate_score=candidate_score,
         minimum_score=args.minimum_score,
     )

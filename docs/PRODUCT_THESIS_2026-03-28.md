@@ -1,7 +1,7 @@
 # Forge Product Thesis
 
 Date: 2026-03-28
-Status: proposed
+Status: current policy baseline
 Inputs:
 - `docs/plans/2026-03-28-forge-solo-dev-roadmap.md`
 - `docs/PROJECT_PHASE1_REPORT_2026-03-28.md`
@@ -13,6 +13,8 @@ Inputs:
 Forge should become the most dependable assistant for a solo developer who needs to move from idea to product-ready shipping in a real repo.
 
 Forge is not a monolithic framework and not a generic skill warehouse. It is an orchestrator kernel with strong shipping discipline, durable artifacts, runtime-tool boundaries, and first-party companions that provide optimized product paths for selected stacks.
+
+When older roadmap or report wording differs, this thesis is the canonical policy document.
 
 ## User And Problem
 
@@ -117,6 +119,19 @@ A solo developer should be able to inspect project state, QA state, release stat
 
 Protected product intent, decisions, and backlog surfaces should stay legible and reviewable by the developer, not be buried inside generated output.
 
+Current status note:
+- decisions and learnings are already durable and shipped
+- `docs/`, `docs/plans/`, and `docs/specs/` scaffolding already exists
+- protected product-intent docs and human-owned backlog conventions are still planned follow-up work, not completed absorption
+
+### Guardrails Stay Explicit
+
+Forge already ships an initial risk guard through `change_guard` with `allow`, `warn`, and `block` outcomes for destructive or sensitive actions.
+
+Current status note:
+- this is a foundational safety rail, not a full privacy mesh or policy engine
+- it should be treated as a partial absorption from the external review set, not as a fully matured product pillar
+
 ## What Forge Is Not
 
 Forge is not:
@@ -135,6 +150,10 @@ After the completed Phase 1 to Phase 3 work, Forge already has credible building
 - Phase 3 added shipping intelligence through `dashboard`, reusable QA packets, release-doc sync, release readiness, and review pack surfaces.
 
 This means Forge now has more than an orchestration story. It has a repo-visible shipping system.
+
+Important narrowing:
+- governance-style product-intent or backlog surfaces are not yet fully absorbed
+- the shipped risk guard is intentionally narrow and keyword-based today
 
 ## Current Golden Path
 
@@ -167,6 +186,8 @@ Forge should open a second first-party lane only when all of the following are t
 - verification packs catch real seeded failures
 - release and QA surfaces are used as part of normal work, not demo-only work
 - the new lane has a stronger product pull than more hardening on the existing lane
+
+Passing the lane gate is necessary evidence, not automatic authorization. Opening lane 2 still requires an explicit product decision on product pull.
 
 Until then, breadth should remain companion-friendly in architecture but intentionally narrow in first-party investment.
 
