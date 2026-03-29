@@ -22,12 +22,14 @@ from route_analysis import (
     detect_complexity,
     detect_domain_skills,
     detect_intent,
+    requires_change_artifacts,
 )
 from route_delegation import (
     choose_delegation_plan,
     choose_execution_pipeline,
     choose_lane_model_assignments,
 )
+from companion_matching import match_companions
 from route_local_companions import infer_local_companions, resolve_workspace_router
 from route_risk import should_insert_brainstorm, should_insert_spec_review
 
@@ -88,8 +90,10 @@ def build_report(args: argparse.Namespace) -> dict:
         complexity,
         registry,
     )
+    first_party_companions = match_companions(args.prompt, args.repo_signal)
     runtimes = detect_runtimes(args.repo_signal, registry)
     active_routing_locales = routing_locale_names()
+    change_artifacts_required = requires_change_artifacts(intent, complexity)
 
     return {
         "prompt": args.prompt,
@@ -102,6 +106,7 @@ def build_report(args: argparse.Namespace) -> dict:
             "host_skills": host_skills,
             "host_supports_subagents": bool(host_capabilities.get("supports_subagents", False)),
             "domain_skills": domain_skills,
+            "first_party_companions": [item["id"] for item in first_party_companions],
             "local_companions": local_companions,
             "runtimes": runtimes,
             "routing_locales": active_routing_locales,
@@ -111,6 +116,7 @@ def build_report(args: argparse.Namespace) -> dict:
             "lane_model_assignments": lane_model_assignments,
             "quality_profile": quality_profile_key,
             "delegation_strategy": delegation_strategy,
+            "change_artifacts_required": change_artifacts_required,
         },
         "verification": verification,
         "execution_pipeline": execution_pipeline,
@@ -119,7 +125,7 @@ def build_report(args: argparse.Namespace) -> dict:
         "activation_line": "Forge: {intent} | {complexity} | Skills: {skills}".format(
             intent=intent,
             complexity=complexity,
-            skills=" + ".join([*forge_skills, *host_skills, *domain_skills, *local_companions])
+            skills=" + ".join([*forge_skills, *host_skills, *domain_skills, *[item["id"] for item in first_party_companions], *local_companions])
             or current_bundle_skill_name(),
         ),
         "registry_source": " + ".join(registry_sources()),
@@ -140,10 +146,12 @@ def format_text(report: dict) -> str:
         f"- Quality profile: {report['quality_profile']['label']}",
         f"- Host skills: {', '.join(detected['host_skills']) or '(none)'}",
         f"- Domain skills: {', '.join(detected['domain_skills']) or '(none)'}",
+        f"- First-party companions: {', '.join(detected['first_party_companions']) or '(none)'}",
         f"- Local companions: {', '.join(detected['local_companions']) or '(none)'}",
         f"- Runtimes from repo signals: {', '.join(detected['runtimes']) or '(none)'}",
         f"- Routing locales: {', '.join(detected['routing_locales']) or '(none)'}",
         f"- Verification profile: {report['verification']['label'] if report['verification'] else '(n/a)'}",
+        f"- Change artifacts required: {'yes' if detected['change_artifacts_required'] else 'no'}",
         "- Lane model tiers:",
     ]
     if detected["lane_model_assignments"]:

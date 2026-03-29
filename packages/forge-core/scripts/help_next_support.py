@@ -62,6 +62,20 @@ def find_latest_markdown(workspace: Path, relative_dir: str) -> Path | None:
     return latest_path
 
 
+def find_latest_named_file(workspace: Path, relative_dir: str, filename: str) -> Path | None:
+    base_dir = workspace / relative_dir
+    if not base_dir.exists():
+        return None
+    latest_path: Path | None = None
+    latest_rank = (float("-inf"), "")
+    for candidate in base_dir.rglob(filename):
+        rank = _mtime_rank(candidate)
+        if rank > latest_rank:
+            latest_path = candidate
+            latest_rank = rank
+    return latest_path
+
+
 def extract_markdown_title(path: Path | None) -> str | None:
     if path is None or not path.exists():
         return None
@@ -103,6 +117,8 @@ def read_git_status(workspace: Path) -> dict:
         if len(line) < 4:
             continue
         relative = line[3:].strip().split(" -> ", 1)[-1]
+        if relative.startswith(".forge-artifacts/") or relative.startswith(".forge-artifacts\\"):
+            continue
         if line[:2] == "??":
             untracked_files.append(relative)
         else:
@@ -145,7 +161,7 @@ def pending_tasks(session: dict | None) -> list[str]:
     return [item.strip() for item in values if isinstance(item, str) and item.strip()]
 
 
-def determine_stage(*, session: dict | None, git_state: dict, latest_plan: Path | None, latest_spec: Path | None, workflow_state: dict | None = None) -> str:
+def determine_stage(*, session: dict | None, git_state: dict, latest_plan: Path | None, latest_spec: Path | None, workflow_state: dict | None = None, codebase_summary: Path | None = None, active_change: dict | None = None) -> str:
     summary = workflow_summary(workflow_state)
     status = summary_text(summary, "status")
     if status == "blocked":
@@ -161,14 +177,18 @@ def determine_stage(*, session: dict | None, git_state: dict, latest_plan: Path 
         return "blocked"
     if session_task(session) or pending_tasks(session):
         return "session-active"
+    if isinstance(active_change, dict) and str(active_change.get("state") or "").lower() not in {"archived", "done", "closed"}:
+        return "change-active"
     if git_state["changed_files"] or git_state["untracked_files"]:
         return "active-changes"
     if latest_plan or latest_spec:
         return "planned"
+    if codebase_summary is not None:
+        return "mapped"
     return "unscoped"
 
 
-def build_focus(stage: str, *, session: dict | None, latest_plan: Path | None, latest_spec: Path | None, git_state: dict, workflow_state: dict | None = None) -> str:
+def build_focus(stage: str, *, session: dict | None, latest_plan: Path | None, latest_spec: Path | None, git_state: dict, workflow_state: dict | None = None, codebase_summary: Path | None = None, active_change: dict | None = None) -> str:
     summary = workflow_summary(workflow_state)
     workflow_focus = summary_text(summary, "current_focus")
     if stage == "blocked":
@@ -177,15 +197,22 @@ def build_focus(stage: str, *, session: dict | None, latest_plan: Path | None, l
         return workflow_focus or "Work slice is ready for review."
     if stage == "session-active":
         return workflow_focus or f"Session task: {session_task(session) or pending_tasks(session)[0]}"
+    if stage == "change-active":
+        return "Active change: {0} ({1})".format(
+            active_change.get("summary", active_change.get("slug", "change")),
+            active_change.get("state", "active"),
+        )
     if stage == "active-changes":
         total = len(git_state["changed_files"]) + len(git_state["untracked_files"])
         return f"Working tree contains {total} changed file(s)."
     if stage == "planned":
         return f"Plan: {extract_markdown_title(latest_plan)}" if latest_plan is not None else f"Spec: {extract_markdown_title(latest_spec)}"
+    if stage == "mapped":
+        return f"Codebase map: {codebase_summary}" if codebase_summary is not None else "Mapped repo summary available."
     return "No active work slice detected from repo state."
 
 
-def build_recommendations(*, mode: str, stage: str, session: dict | None, latest_plan: Path | None, latest_spec: Path | None, handover_excerpt: str | None, workflow_state: dict | None = None) -> tuple[str, str, list[str]]:
+def build_recommendations(*, mode: str, stage: str, session: dict | None, latest_plan: Path | None, latest_spec: Path | None, handover_excerpt: str | None, workflow_state: dict | None = None, codebase_summary: Path | None = None, active_change: dict | None = None) -> tuple[str, str, list[str]]:
     summary = workflow_summary(workflow_state)
     workflow_name = summary_text(summary, "suggested_workflow")
     workflow_action = summary_text(summary, "recommended_action")
@@ -209,6 +236,11 @@ def build_recommendations(*, mode: str, stage: str, session: dict | None, latest
         if plan_title:
             alternatives.append(f"Re-open the latest {plan_kind} '{plan_title}' if priorities changed.")
         return "session", primary, alternatives[:1] if mode == "next" else alternatives[:2]
+    if stage == "change-active":
+        summary = active_change.get("summary", active_change.get("slug", "change")) if isinstance(active_change, dict) else "active change"
+        state = active_change.get("state", "active") if isinstance(active_change, dict) else "active"
+        alternatives = ["Update the change status before new edits if reality drifted.", "Archive the change if the slice is already complete."]
+        return "session", f"Resume the active change '{summary}' from state '{state}'.", alternatives[:1] if mode == "next" else alternatives[:2]
     if stage == "review-ready":
         alternatives = [f"Re-open the latest {plan_kind} '{plan_title}' if the review uncovered scope drift."] if plan_title else []
         alternatives.append("If review passes cleanly, advance to the next recorded stage instead of opening new scope.")
@@ -221,14 +253,19 @@ def build_recommendations(*, mode: str, stage: str, session: dict | None, latest
         label = plan_title or "the latest plan"
         alternatives = ["If scope is still fuzzy, tighten the plan before writing code.", "If repo health is unclear, run a review-style scan before implementation."]
         return "plan", f"Start the first concrete slice from {plan_kind} '{label}'.", alternatives[:1] if mode == "next" else alternatives[:2]
-    alternatives = ["If you already know the task, state it directly and let Forge route the right workflow.", "If the repo feels unhealthy, run a review-style scan before new implementation."]
-    return "review", "Start from README, package manifests, and docs/plans to identify the active workflow.", alternatives[:1] if mode == "next" else alternatives[:2]
+    if stage == "mapped":
+        alternatives = ["Refresh the codebase map if the repo changed materially.", "Capture a plan before editing if the next slice is not obvious."]
+        return "review", "Start from the mapped repo summary and choose the first concrete slice before editing.", alternatives[:1] if mode == "next" else alternatives[:2]
+    alternatives = ["Run `doctor` first if Forge or runtime wiring feels broken.", "If you already know the task, state it directly and let Forge route the right workflow."]
+    return "review", "Start from `map-codebase` or README and package manifests to identify the first concrete slice.", alternatives[:1] if mode == "next" else alternatives[:2]
 
 
-def build_evidence(*, readme: Path | None, latest_plan: Path | None, latest_spec: Path | None, session_path: Path | None, handover_path: Path | None, git_state: dict, preferences_source: dict, workflow_source: dict) -> list[str]:
+def build_evidence(*, readme: Path | None, latest_plan: Path | None, latest_spec: Path | None, session_path: Path | None, handover_path: Path | None, git_state: dict, preferences_source: dict, workflow_source: dict, codebase_summary: Path | None = None) -> list[str]:
     evidence: list[str] = []
     if readme is not None:
         evidence.append(f"readme: {readme}")
+    if codebase_summary is not None:
+        evidence.append(f"codebase-summary: {codebase_summary}")
     if latest_plan is not None:
         evidence.append(f"plan: {latest_plan}")
     if latest_spec is not None:

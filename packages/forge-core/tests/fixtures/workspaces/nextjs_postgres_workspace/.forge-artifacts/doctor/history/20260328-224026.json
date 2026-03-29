@@ -1,0 +1,214 @@
+{
+  "status": "WARN",
+  "workspace": "C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-core\\tests\\fixtures\\workspaces\\nextjs_postgres_workspace",
+  "checks": [
+    {
+      "id": "python",
+      "label": "Python runtime",
+      "category": "environment",
+      "status": "PASS",
+      "detail": "Python 3.13.3",
+      "remediation": ""
+    },
+    {
+      "id": "git",
+      "label": "Git CLI",
+      "category": "environment",
+      "status": "PASS",
+      "detail": "git version 2.52.0.windows.1",
+      "remediation": ""
+    },
+    {
+      "id": "node",
+      "label": "Node runtime",
+      "category": "environment",
+      "status": "PASS",
+      "detail": "v24.13.0",
+      "remediation": ""
+    },
+    {
+      "id": "workspace-root",
+      "label": "Workspace root",
+      "category": "workspace",
+      "status": "PASS",
+      "detail": "Workspace: C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-core\\tests\\fixtures\\workspaces\\nextjs_postgres_workspace",
+      "remediation": ""
+    },
+    {
+      "id": "workspace-markers",
+      "label": "Workspace markers",
+      "category": "workspace",
+      "status": "PASS",
+      "detail": "README.md, package.json, app",
+      "remediation": ""
+    },
+    {
+      "id": "preferences-state",
+      "label": "Preferences state",
+      "category": "workspace",
+      "status": "PASS",
+      "detail": "Source: defaults",
+      "remediation": ""
+    },
+    {
+      "id": "bundle-registry",
+      "label": "Forge bundle registry",
+      "category": "workspace",
+      "status": "PASS",
+      "detail": "Loaded registry with 7 intents.",
+      "remediation": ""
+    },
+    {
+      "id": "artifact-write-access",
+      "label": "Artifact write access",
+      "category": "workspace",
+      "status": "PASS",
+      "detail": "Writable: C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-core\\tests\\fixtures\\workspaces\\nextjs_postgres_workspace\\.forge-artifacts",
+      "remediation": ""
+    },
+    {
+      "id": "runtime-tool-registry",
+      "label": "Runtime tool registry",
+      "category": "runtime",
+      "status": "WARN",
+      "detail": "No runtime tool registry path resolved.",
+      "remediation": "Configure a runtime tool registry if you want optional runtime bundles to resolve automatically."
+    },
+    {
+      "id": "forge-browse-resolution",
+      "label": "forge-browse resolution",
+      "category": "runtime",
+      "status": "PASS",
+      "detail": "Resolved via bundle-neighbor: C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-browse",
+      "remediation": ""
+    },
+    {
+      "id": "forge-browse-health",
+      "label": "forge-browse runtime health",
+      "category": "runtime",
+      "status": "PASS",
+      "detail": "{\"node\": {\"command\": [\"node\", \"-v\"], \"returncode\": 0, \"stdout\": \"v24.13.0\", \"stderr\": \"\", \"status\": \"PASS\"}, \"playwright_cli\": {\"command\": [\"C:\\\\Program Files\\\\nodejs\\\\npx.cmd\", \"playwright\", \"--version\"], \"returncode\": 0, \"stdout\": \"Version 1.58.2\", \"stderr\": \"\", \"status\": \"PASS\"}}",
+      "remediation": ""
+    },
+    {
+      "id": "forge-design-resolution",
+      "label": "forge-design resolution",
+      "category": "runtime",
+      "status": "PASS",
+      "detail": "Resolved via bundle-neighbor: C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-design",
+      "remediation": ""
+    },
+    {
+      "id": "forge-design-health",
+      "label": "forge-design runtime health",
+      "category": "runtime",
+      "status": "PASS",
+      "detail": "Resolved at C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-design",
+      "remediation": ""
+    },
+    {
+      "id": "companion-registry",
+      "label": "Companion registry",
+      "category": "companion",
+      "status": "PASS",
+      "detail": "C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-core\\tests\\fixtures\\forge-homes\\empty\\state\\companions.json",
+      "remediation": ""
+    },
+    {
+      "id": "nextjs-package",
+      "label": "Next.js package",
+      "category": "companion",
+      "status": "PASS",
+      "detail": "Detected `next` dependency.",
+      "remediation": ""
+    },
+    {
+      "id": "typescript-config",
+      "label": "TypeScript config",
+      "category": "companion",
+      "status": "PASS",
+      "detail": "Found tsconfig.json.",
+      "remediation": ""
+    },
+    {
+      "id": "app-router-root",
+      "label": "App Router root",
+      "category": "companion",
+      "status": "PASS",
+      "detail": "Found app/layout.tsx.",
+      "remediation": ""
+    },
+    {
+      "id": "postgres-adapter",
+      "label": "Postgres adapter",
+      "category": "companion",
+      "status": "PASS",
+      "detail": "Detected a Postgres-oriented adapter.",
+      "remediation": ""
+    },
+    {
+      "id": "env-example",
+      "label": "Environment example",
+      "category": "companion",
+      "status": "PASS",
+      "detail": "Found .env.example.",
+      "remediation": ""
+    },
+    {
+      "id": "companion-nextjs-typescript-postgres",
+      "label": "Matched companion nextjs-typescript-postgres",
+      "category": "companion",
+      "status": "PASS",
+      "detail": "C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-nextjs-typescript-postgres",
+      "remediation": ""
+    }
+  ],
+  "blockers": [],
+  "warnings": [
+    "Runtime tool registry"
+  ],
+  "remediations": [
+    "Configure a runtime tool registry if you want optional runtime bundles to resolve automatically."
+  ],
+  "timestamp": "20260328-224026",
+  "companions": [
+    {
+      "id": "nextjs-typescript-postgres",
+      "package": "forge-nextjs-typescript-postgres",
+      "strength": "strong",
+      "features": {
+        "nextjs": true,
+        "typescript": true,
+        "postgres": true,
+        "auth": false,
+        "billing": false,
+        "observability": false
+      },
+      "reasons": [
+        "dependency:next",
+        "file:next.config.ts",
+        "devDependency:typescript",
+        "file:tsconfig.json",
+        "dependency:@prisma/client",
+        "devDependency:prisma",
+        "file:prisma/schema.prisma"
+      ],
+      "registered": false,
+      "registered_target": null,
+      "local_root": "C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-nextjs-typescript-postgres",
+      "operator_profile": "nextjs-prisma-app-router",
+      "verification_pack": "nextjs-production-ready",
+      "verification_steps": [
+        "lint",
+        "typecheck",
+        "test",
+        "build",
+        "db_generate"
+      ]
+    }
+  ],
+  "companion_registry": {
+    "path": "C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-core\\tests\\fixtures\\forge-homes\\empty\\state\\companions.json",
+    "registered_companions": []
+  }
+}

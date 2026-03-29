@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
+from browse_packets import create_packet, list_packets as list_qa_packets, run_packet
 from browse_support import (
     append_event,
     close_session,
@@ -125,6 +126,42 @@ def main(argv: list[str] | None = None) -> int:
     record_parser.add_argument("--timeout-ms", type=int)
     record_parser.add_argument("--format", **format_kwargs)
 
+    qa_create_parser = subparsers.add_parser("qa-create", help="Persist a reusable QA packet for a session")
+    qa_create_parser.add_argument("--session", required=True)
+    qa_create_parser.add_argument("--name", required=True)
+    qa_create_parser.add_argument("--url", required=True)
+    qa_create_parser.add_argument("--mode", choices=["html-smoke", "playwright-snapshot"], default="html-smoke")
+    qa_create_parser.add_argument("--auth-required", action="store_true", help="Mark the packet as requiring an authenticated session")
+    qa_create_parser.add_argument("--login-url", help="Optional login entrypoint for authenticated packets")
+    qa_create_parser.add_argument(
+        "--storage-state-required",
+        dest="storage_state_required",
+        action="store_true",
+        help="Require a persisted storage state file before running the packet",
+    )
+    qa_create_parser.add_argument(
+        "--no-storage-state-required",
+        dest="storage_state_required",
+        action="store_false",
+        help="Allow the packet to run without a persisted storage state file",
+    )
+    qa_create_parser.set_defaults(storage_state_required=None)
+    qa_create_parser.add_argument("--expect-text", action="append", default=[])
+    qa_create_parser.add_argument("--note", action="append", default=[])
+    qa_create_parser.add_argument("--wait-for-selector")
+    qa_create_parser.add_argument("--wait-for-timeout", type=int)
+    qa_create_parser.add_argument("--full-page", action="store_true")
+    qa_create_parser.add_argument("--format", **format_kwargs)
+
+    qa_list_parser = subparsers.add_parser("qa-list", help="List persisted QA packets for a session")
+    qa_list_parser.add_argument("--session", required=True)
+    qa_list_parser.add_argument("--format", **format_kwargs)
+
+    qa_run_parser = subparsers.add_parser("qa-run", help="Run a persisted QA packet")
+    qa_run_parser.add_argument("--session", required=True)
+    qa_run_parser.add_argument("--name", required=True)
+    qa_run_parser.add_argument("--format", **format_kwargs)
+
     args = parser.parse_args(argv)
     try:
         if args.command == "doctor":
@@ -140,6 +177,27 @@ def main(argv: list[str] | None = None) -> int:
             return _emit(_runtime_payload(paths, get_session(paths, args.session)), args.format)
         if args.command == "session-close":
             return _emit(_runtime_payload(paths, close_session(paths, args.session)), args.format)
+        if args.command == "qa-create":
+            payload = create_packet(
+                paths=paths,
+                session_id=args.session,
+                name=args.name,
+                url=args.url,
+                mode=args.mode,
+                expected_text=args.expect_text,
+                note=args.note,
+                wait_for_selector=args.wait_for_selector,
+                wait_for_timeout=args.wait_for_timeout,
+                full_page=args.full_page,
+                auth_required=args.auth_required,
+                login_url=args.login_url,
+                storage_state_required=args.storage_state_required,
+            )
+            return _emit({"status": "PASS", "state": paths, **payload}, args.format)
+        if args.command == "qa-list":
+            return _emit({"status": "PASS", "state": paths, "packets": list_qa_packets(paths=paths, session_id=args.session)}, args.format)
+        if args.command == "qa-run":
+            return _emit({"state": paths, **run_packet(paths=paths, session_id=args.session, name=args.name)}, args.format)
 
         session = get_session(paths, args.session)
         browser = _session_browser(session, getattr(args, "browser", None))

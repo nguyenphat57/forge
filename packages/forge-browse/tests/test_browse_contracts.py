@@ -14,6 +14,8 @@ class BrowseContractTests(unittest.TestCase):
 
         self.assertIn("`forge_browse.py` is the canonical operator entrypoint.", readme)
         self.assertIn("`browse_server.py` is an optional local HTTP control plane", readme)
+        self.assertIn("reusable QA packets", readme)
+        self.assertIn("login-aware QA packets", readme)
         self.assertIn("FORGE_BROWSE_RUN_PLAYWRIGHT_SMOKE", readme)
 
     def test_runtime_manifest_and_verify_script_share_live_smoke_contract(self) -> None:

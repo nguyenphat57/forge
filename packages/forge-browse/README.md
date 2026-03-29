@@ -15,10 +15,20 @@ Provide a browser-side actuator without pushing browser automation into `forge-c
 - one shared persistent state contract across CLI, server, build manifests, and installed bundles
 - deterministic `open` / `snapshot` / `assert-text` through the local HTTP control plane
 - persistent logical sessions backed by bundle state
+- reusable QA packets for repeatable smoke and screenshot flows on top of persistent sessions
+- login-aware QA packets with preflight checks and runtime storage-state reuse for authenticated flows
 - optional Playwright CLI health check
 - optional Playwright-backed screenshot capture with persisted storage state
 - optional Playwright-backed PDF export with persisted storage state
 - optional interactive `open` and `record` entry points using the same session data
+
+Example authenticated packet:
+
+```powershell
+python scripts/forge_browse.py qa-create --session <session-id> --name auth-smoke --url https://example.test/app --auth-required --login-url https://example.test/login --expect-text "Welcome back"
+```
+
+Authenticated packets fail fast when the session does not have the required storage state file or the packet omits a login URL. When the storage state contains matching cookies for the target URL, the runtime reuses those cookies during the HTML smoke itself instead of treating auth as preflight-only metadata.
 
 ## Failure Model
 

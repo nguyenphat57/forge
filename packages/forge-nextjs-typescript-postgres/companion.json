@@ -1,0 +1,7 @@
+{
+  "name": "forge-nextjs-typescript-postgres",
+  "kind": "companion",
+  "host": "companion",
+  "description": "First-party Next.js + TypeScript + Postgres companion for Forge, including auth, billing, and deploy-observability presets",
+  "capabilities_path": "data/companion-capabilities.json"
+}

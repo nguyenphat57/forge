@@ -1,5 +1,7 @@
 dist/
 .install-backups/
+/.forge-artifacts/
+/.tmp/
 packages/forge-core/.forge-artifacts/
 packages/forge-antigravity/.forge-artifacts/
 packages/forge-codex/.forge-artifacts/

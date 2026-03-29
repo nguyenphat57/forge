@@ -274,3 +274,7 @@ def choose_quality_profile(
             best_rank = rank
 
     return best_name, profiles[best_name]
+
+
+def requires_change_artifacts(intent: str, complexity: str) -> bool:
+    return intent in EDITING_INTENTS and complexity in {"medium", "large"}

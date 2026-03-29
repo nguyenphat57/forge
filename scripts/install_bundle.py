@@ -121,8 +121,23 @@ def main() -> int:
         action="store_true",
         help="For runtime-tool bundles: register the installed target in Antigravity adapter state.",
     )
+    parser.add_argument(
+        "--register-codex-companion",
+        action="store_true",
+        help="For companion bundles: register the installed target in Codex adapter state.",
+    )
+    parser.add_argument(
+        "--register-gemini-companion",
+        action="store_true",
+        help="For companion bundles: register the installed target in Antigravity adapter state.",
+    )
+    parser.add_argument("--inspect", action="store_true", help="Inspect the bundle or installed target without changing files.")
+    parser.add_argument("--upgrade", action="store_true", help="Treat the run as an explicit upgrade of an existing target.")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     args = parser.parse_args()
+    if args.inspect and args.upgrade:
+        parser.error("--inspect and --upgrade cannot be used together.")
+    intent = "inspect" if args.inspect else "upgrade" if args.upgrade else "install"
 
     report = install_bundle(
         args.bundle,
@@ -138,6 +153,9 @@ def main() -> int:
         gemini_home=args.gemini_home,
         register_codex_runtime=args.register_codex_runtime,
         register_gemini_runtime=args.register_gemini_runtime,
+        register_codex_companion=args.register_codex_companion,
+        register_gemini_companion=args.register_gemini_companion,
+        intent=intent,
     )
     if args.format == "json":
         print(json.dumps(report, indent=2, ensure_ascii=False))

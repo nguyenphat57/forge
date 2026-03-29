@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime, timezone
 from pathlib import Path
 
 import build_release
 from bundle_fingerprint import compute_bundle_fingerprint
+from companion_install_support import apply_companion_registrations, plan_companion_registrations
 from install_bundle_host import (
     apply_codex_host_activation,
     apply_gemini_host_activation,
@@ -23,6 +23,7 @@ from install_bundle_paths import (
     resolve_install_target,
     validate_install_paths,
 )
+from install_bundle_report import build_companion_compatibility, build_install_transition, format_text, load_companion_compatibility, load_install_manifest, write_install_manifest
 from package_matrix import resolve_default_install_target
 from release_fs import copy_tree, remove_path, sync_tree
 from runtime_tool_install_support import apply_runtime_tool_registrations, plan_runtime_tool_registrations
@@ -44,46 +45,6 @@ def _resolve_requested_target(
     return str(default_target) if default_target is not None else None
 
 
-def write_install_manifest(target: Path, report: dict) -> None:
-    manifest = {
-        "bundle": report["bundle"],
-        "target": report["target"],
-        "installed_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "version": report["version"],
-        "git_revision": report["git_revision"],
-        "host": report["host"],
-        "source": report["source"],
-        "backup_path": report["backup_path"],
-        "source_build_manifest": report["source_build_manifest"],
-        "state": report["state"],
-        "bundle_fingerprint": report["bundle_fingerprint"],
-    }
-    if report["codex_host_activation"]["enabled"]:
-        activation = report["codex_host_activation"]
-        manifest["codex_host_activation"] = {
-            "enabled": True,
-            "codex_home": activation["codex_home"],
-            "agents_path": activation["agents_path"],
-            "host_backup_path": activation["host_backup_path"],
-        }
-    if report["gemini_host_activation"]["enabled"]:
-        activation = report["gemini_host_activation"]
-        manifest["gemini_host_activation"] = {
-            "enabled": True,
-            "gemini_home": activation["gemini_home"],
-            "gemini_md_path": activation["gemini_md_path"],
-            "host_backup_path": activation["host_backup_path"],
-        }
-    if report["codex_runtime_registration"]["enabled"]:
-        manifest["codex_runtime_registration"] = report["codex_runtime_registration"]
-    if report["gemini_runtime_registration"]["enabled"]:
-        manifest["gemini_runtime_registration"] = report["gemini_runtime_registration"]
-    (target / "INSTALL-MANIFEST.json").write_text(
-        json.dumps(manifest, indent=2, ensure_ascii=False),
-        encoding="utf-8",
-    )
-
-
 def plan_install(
     bundle_name: str,
     *,
@@ -99,6 +60,9 @@ def plan_install(
     gemini_home: str | None = None,
     register_codex_runtime: bool = False,
     register_gemini_runtime: bool = False,
+    register_codex_companion: bool = False,
+    register_gemini_companion: bool = False,
+    intent: str = "install",
 ) -> dict:
     source_path = resolve_bundle_source(bundle_name, source)
     if build:
@@ -114,9 +78,24 @@ def plan_install(
     build_manifest = load_build_manifest(source_path)
     if (register_codex_runtime or register_gemini_runtime) and build_manifest.get("host") != "runtime":
         raise ValueError("Runtime-tool registration is only supported for bundles with host=runtime.")
+    if intent == "inspect":
+        register_codex_runtime = False
+        register_gemini_runtime = False
+        register_codex_companion = False
+        register_gemini_companion = False
     install_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     backup_root = Path(backup_dir).expanduser().resolve() if backup_dir else DEFAULT_BACKUP_DIR.resolve()
-    backup_path = backup_root / f"{bundle_name}-{install_id}" if backup and target_path.exists() else None
+    backup_path = backup_root / f"{bundle_name}-{install_id}" if backup and target_path.exists() and intent != "inspect" else None
+    existing_install = load_install_manifest(target_path)
+    transition = build_install_transition(existing_install, current_version=str(build_manifest.get("version") or "unknown"), intent=intent)
+    compatibility = None
+    if build_manifest.get("host") == "companion":
+        companion_version, companion_bounds = load_companion_compatibility(source_path)
+        compatibility = build_companion_compatibility(
+            core_version=build_release.read_version(),
+            companion_version=companion_version or str(build_manifest.get("version") or "unknown"),
+            bounds=companion_bounds,
+        )
 
     codex_host_activation = plan_codex_host_activation(
         bundle_name=bundle_name,
@@ -145,6 +124,14 @@ def plan_install(
         register_gemini_runtime=register_gemini_runtime,
         gemini_home=gemini_home,
     )
+    companion_registrations = plan_companion_registrations(
+        bundle_name,
+        bundle_host=build_manifest.get("host"),
+        register_codex_companion=register_codex_companion,
+        codex_home=codex_home,
+        register_gemini_companion=register_gemini_companion,
+        gemini_home=gemini_home,
+    )
 
     return {
         "bundle": bundle_name,
@@ -153,11 +140,14 @@ def plan_install(
         "version": build_manifest.get("version"),
         "git_revision": build_manifest.get("git_revision"),
         "host": build_manifest.get("host"),
+        "mode": intent,
         "build_requested": build,
-        "dry_run": dry_run,
-        "backup_enabled": backup,
+        "dry_run": dry_run or intent == "inspect",
+        "backup_enabled": backup and intent != "inspect",
         "backup_path": str(backup_path) if backup_path else None,
         "source_build_manifest": build_manifest,
+        "compatibility": compatibility,
+        "transition": transition,
         "bundle_fingerprint": {
             "source": build_manifest.get("bundle_fingerprint"),
             "installed": None,
@@ -168,6 +158,8 @@ def plan_install(
         "gemini_host_activation": gemini_host_activation,
         "codex_runtime_registration": runtime_registrations["codex"],
         "gemini_runtime_registration": runtime_registrations["gemini"],
+        "codex_companion_registration": companion_registrations["codex"],
+        "gemini_companion_registration": companion_registrations["gemini"],
         "state": build_state_metadata(
             bundle_name,
             target_path,
@@ -216,6 +208,7 @@ def install_from_plan(report: dict) -> dict:
     apply_codex_host_activation(report)
     apply_gemini_host_activation(report)
     apply_runtime_tool_registrations(report)
+    apply_companion_registrations(report)
     installed_fingerprint = compute_bundle_fingerprint(target_path)
     source_fingerprint = report["source_build_manifest"].get("bundle_fingerprint")
     report["bundle_fingerprint"] = {
@@ -247,6 +240,9 @@ def install_bundle(
     gemini_home: str | None = None,
     register_codex_runtime: bool = False,
     register_gemini_runtime: bool = False,
+    register_codex_companion: bool = False,
+    register_gemini_companion: bool = False,
+    intent: str = "install",
 ) -> dict:
     report = plan_install(
         bundle_name,
@@ -262,38 +258,10 @@ def install_bundle(
         gemini_home=gemini_home,
         register_codex_runtime=register_codex_runtime,
         register_gemini_runtime=register_gemini_runtime,
+        register_codex_companion=register_codex_companion,
+        register_gemini_companion=register_gemini_companion,
+        intent=intent,
     )
+    if intent == "inspect":
+        return report
     return install_from_plan(report)
-
-
-def format_text(report: dict) -> str:
-    lines = [f"Forge Install ({report['bundle']})"]
-    lines.append(f"- Version: {report['version']}")
-    lines.append(f"- Host: {report['host']}")
-    lines.append(f"- Source: {report['source']}")
-    lines.append(f"- Target: {report['target']}")
-    lines.append(f"- Dry run: {'yes' if report['dry_run'] else 'no'}")
-    if report["backup_enabled"]:
-        lines.append(f"- Backup: {report['backup_path'] or '(not needed)'}")
-    if report["codex_host_activation"]["enabled"]:
-        activation = report["codex_host_activation"]
-        lines.append("- Codex host activation: yes")
-        lines.append(f"- Codex home: {activation['codex_home']}")
-        lines.append(f"- Global AGENTS: {activation['agents_path']}")
-        lines.append(f"- Retire legacy runtime: {activation['legacy_runtime_path']}")
-        if activation["legacy_skill_paths"]:
-            lines.append(f"- Retire legacy skills: {', '.join(activation['legacy_skill_paths'])}")
-        lines.append(f"- Host backup: {activation['host_backup_path'] or '(not needed)'}")
-    if report["gemini_host_activation"]["enabled"]:
-        activation = report["gemini_host_activation"]
-        lines.append("- Gemini host activation: yes")
-        lines.append(f"- Gemini home: {activation['gemini_home']}")
-        lines.append(f"- Global GEMINI: {activation['gemini_md_path']}")
-        lines.append(f"- Host backup: {activation['host_backup_path'] or '(not needed)'}")
-    if report["codex_runtime_registration"]["enabled"]:
-        lines.append("- Codex runtime registration: yes")
-        lines.append(f"- Codex runtime registry: {report['codex_runtime_registration']['registry_path']}")
-    if report["gemini_runtime_registration"]["enabled"]:
-        lines.append("- Gemini runtime registration: yes")
-        lines.append(f"- Gemini runtime registry: {report['gemini_runtime_registration']['registry_path']}")
-    return "\n".join(lines)

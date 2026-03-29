@@ -1,0 +1,19 @@
+{
+  "project_name": "billing-api",
+  "languages": [
+    "python"
+  ],
+  "frameworks": [
+    "fastapi",
+    "sqlalchemy"
+  ],
+  "package_managers": [
+    "pip"
+  ],
+  "test_tools": [
+    "pytest"
+  ],
+  "manifests": [
+    "C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-core\\tests\\fixtures\\workspaces\\map_codebase_python_workspace\\pyproject.toml"
+  ]
+}

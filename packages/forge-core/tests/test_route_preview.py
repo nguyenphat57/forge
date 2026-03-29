@@ -52,6 +52,17 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["intent"], "BUILD")
         self.assertIn("build", report["detected"]["forge_skills"])
 
+    def test_medium_build_requires_change_artifacts(self) -> None:
+        report = route_preview.build_report(
+            self.build_args(
+                "Implement a new checkout feature",
+                changed_files=3,
+            )
+        )
+
+        self.assertEqual(report["detected"]["complexity"], "medium")
+        self.assertTrue(report["detected"]["change_artifacts_required"])
+
     def test_session_prompt_skips_edit_verification_profile(self) -> None:
         report = route_preview.build_report(self.build_args("Continue the task in progress"))
         active_routing_locales = common.routing_locale_names()
@@ -143,6 +154,17 @@ class RoutePreviewTests(unittest.TestCase):
 
         self.assertEqual(report["detected"]["intent"], "REVIEW")
         self.assertIn("capacitor-android", report["detected"]["local_companions"])
+
+    def test_route_preview_detects_first_party_nextjs_companion(self) -> None:
+        report = route_preview.build_report(
+            self.build_args(
+                "Add a new Next.js checkout page with Prisma-backed persistence",
+                repo_signals=["package.json", "tsconfig.json", "next.config.ts", "prisma/schema.prisma"],
+            )
+        )
+
+        self.assertIn("nextjs-typescript-postgres", report["detected"]["first_party_companions"])
+        self.assertIn("nextjs-typescript-postgres", report["activation_line"])
 
     def test_parallel_safe_host_can_activate_subagent_dispatch_skill(self) -> None:
         registry = copy.deepcopy(route_preview.load_registry())

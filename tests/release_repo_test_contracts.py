@@ -63,6 +63,7 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertEqual(manifest["host"], "runtime")
         self.assertEqual(manifest["packaging"]["default_target_strategy"], "explicit")
         self.assertIn("scripts/forge_browse.py", manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("scripts/browse_packets.py", manifest["packaging"]["required_bundle_paths"])
         self.assertIn("scripts/browse_runtime.py", manifest["packaging"]["required_bundle_paths"])
         self.assertEqual(manifest["generated_artifacts"]["artifacts"], [])
         self.assertTrue((ROOT_DIR / "dist" / "forge-browse" / "runtime.json").exists())
@@ -79,6 +80,20 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertIn("scripts/design_browse_live_smoke.py", manifest["packaging"]["required_bundle_paths"])
         self.assertIn("scripts/design_packet.py", manifest["packaging"]["required_bundle_paths"])
         self.assertTrue((ROOT_DIR / "dist" / "forge-design" / "runtime.json").exists())
+
+    def test_build_release_includes_nextjs_companion_bundle(self) -> None:
+        build_release.build_all()
+        manifest = json.loads((ROOT_DIR / "dist" / "forge-nextjs-typescript-postgres" / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(manifest["version"], build_release.read_version())
+        self.assertEqual(manifest["package"], "forge-nextjs-typescript-postgres")
+        self.assertEqual(manifest["host"], "companion")
+        self.assertEqual(manifest["packaging"]["default_target_strategy"], "explicit")
+        self.assertIn("companion.json", manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("scripts/scaffold_preset.py", manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("templates/auth-saas/package.json", manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("templates/billing-saas/package.json", manifest["packaging"]["required_bundle_paths"])
+        self.assertTrue((ROOT_DIR / "dist" / "forge-nextjs-typescript-postgres" / "companion.json").exists())
 
     def test_build_release_includes_codex_generated_wrapper_artifacts(self) -> None:
         build_release.build_all()

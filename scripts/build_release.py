@@ -258,6 +258,10 @@ def build_runtime_bundle(spec: dict, metadata: dict[str, str | None]) -> dict:
     return {"name": spec["name"], "path": str(destination), "host": spec["host"], "version": metadata["version"]}
 
 
+def build_companion_bundle(spec: dict, metadata: dict[str, str | None]) -> dict:
+    return build_runtime_bundle(spec, metadata)
+
+
 def build_all() -> list[dict]:
     DIST_DIR.mkdir(parents=True, exist_ok=True)
     host_artifact_report = ensure_generated_host_artifacts(check=True)
@@ -272,6 +276,9 @@ def build_all() -> list[dict]:
     for spec in discover_package_specs(PACKAGES_DIR):
         if spec["kind"] == "adapter":
             outputs.append(build_adapter_bundle(spec, metadata))
+            continue
+        if spec["kind"] == "companion":
+            outputs.append(build_companion_bundle(spec, metadata))
             continue
         outputs.append(build_runtime_bundle(spec, metadata))
     return outputs

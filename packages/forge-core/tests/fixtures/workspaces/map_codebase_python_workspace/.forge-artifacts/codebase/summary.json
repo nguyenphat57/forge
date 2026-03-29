@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "workspace": "C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-core\\tests\\fixtures\\workspaces\\map_codebase_python_workspace",
+  "project_name": "billing-api",
+  "stack": {
+    "project_name": "billing-api",
+    "languages": [
+      "python"
+    ],
+    "frameworks": [
+      "fastapi",
+      "sqlalchemy"
+    ],
+    "package_managers": [
+      "pip"
+    ],
+    "test_tools": [
+      "pytest"
+    ],
+    "manifests": [
+      "C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-core\\tests\\fixtures\\workspaces\\map_codebase_python_workspace\\pyproject.toml"
+    ]
+  },
+  "structure": {
+    "top_level_dirs": [
+      "tests"
+    ],
+    "entrypoints": [
+      "main.py"
+    ],
+    "integrations": [],
+    "testing_paths": [
+      "tests"
+    ],
+    "risks": [],
+    "open_questions": [
+      "CI or release automation is not obvious from root markers."
+    ],
+    "next_actions": [
+      "Confirm the first active work slice before editing.",
+      "Run the nearest verification command before large changes."
+    ]
+  },
+  "companions": [],
+  "companion_operator": []
+}

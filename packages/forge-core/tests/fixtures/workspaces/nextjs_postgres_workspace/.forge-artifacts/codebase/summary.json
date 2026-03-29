@@ -1,0 +1,116 @@
+{
+  "status": "PASS",
+  "workspace": "C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-core\\tests\\fixtures\\workspaces\\nextjs_postgres_workspace",
+  "project_name": "lane-fixture",
+  "stack": {
+    "project_name": "lane-fixture",
+    "languages": [
+      "typescript"
+    ],
+    "frameworks": [
+      "nextjs",
+      "react",
+      "prisma",
+      "nextjs-app-router"
+    ],
+    "package_managers": [
+      "npm"
+    ],
+    "test_tools": [
+      "vitest"
+    ],
+    "manifests": [
+      "C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-core\\tests\\fixtures\\workspaces\\nextjs_postgres_workspace\\package.json"
+    ],
+    "companion_family": "nextjs-typescript-postgres",
+    "render_surface": "web",
+    "database_adapters": [
+      "prisma"
+    ],
+    "product_features": []
+  },
+  "structure": {
+    "top_level_dirs": [
+      "app",
+      "prisma"
+    ],
+    "entrypoints": [
+      "app/page.tsx",
+      "app/layout.tsx",
+      "prisma/schema.prisma"
+    ],
+    "integrations": [
+      "prisma",
+      "env-example"
+    ],
+    "testing_paths": [],
+    "risks": [],
+    "open_questions": [
+      "CI or release automation is not obvious from root markers."
+    ],
+    "next_actions": [
+      "Confirm the first active work slice before editing.",
+      "Run the nearest verification command before large changes.",
+      "Verify lint, typecheck, test, and build before large Next.js changes.",
+      "Confirm schema ownership before editing database access paths."
+    ],
+    "stack_notes": [
+      "App Router markers detected.",
+      "Prisma schema detected."
+    ]
+  },
+  "companions": [
+    {
+      "id": "nextjs-typescript-postgres",
+      "strength": "strong",
+      "features": {
+        "nextjs": true,
+        "typescript": true,
+        "postgres": true,
+        "auth": false,
+        "billing": false,
+        "observability": false
+      },
+      "reasons": [
+        "dependency:next",
+        "file:next.config.ts",
+        "devDependency:typescript",
+        "file:tsconfig.json",
+        "dependency:@prisma/client",
+        "devDependency:prisma",
+        "file:prisma/schema.prisma"
+      ]
+    }
+  ],
+  "companion_operator": [
+    {
+      "id": "nextjs-typescript-postgres",
+      "package": "forge-nextjs-typescript-postgres",
+      "strength": "strong",
+      "features": [
+        "nextjs",
+        "postgres",
+        "typescript"
+      ],
+      "profile": "nextjs-prisma-app-router",
+      "package_manager": "npm",
+      "commands": {
+        "dev": "npm run dev",
+        "build": "npm run build",
+        "lint": "npm run lint",
+        "typecheck": "npm run typecheck",
+        "test": "npm run test",
+        "db_generate": "npm run db:generate",
+        "db_push": "npm run db:push"
+      },
+      "verification_pack": "nextjs-production-ready",
+      "verification_steps": [
+        "lint",
+        "typecheck",
+        "test",
+        "build",
+        "db_generate"
+      ]
+    }
+  ]
+}

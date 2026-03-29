@@ -13,6 +13,7 @@ from help_next_support import (
     determine_stage,
     extract_markdown_title,
     find_latest_markdown,
+    find_latest_named_file,
     first_existing_file,
     read_git_status,
     read_handover_excerpt,
@@ -30,6 +31,10 @@ def build_report(workspace: Path, mode: str) -> dict:
     readme = first_existing_file(workspace, ("README.md", "README"))
     latest_plan = find_latest_markdown(workspace, "docs/plans")
     latest_spec = find_latest_markdown(workspace, "docs/specs")
+    codebase_summary = workspace / ".forge-artifacts" / "codebase" / "summary.md"
+    codebase_summary = codebase_summary if codebase_summary.exists() else None
+    active_change_path = find_latest_named_file(workspace, ".forge-artifacts/changes/active", "status.json")
+    active_change = read_json_object(active_change_path, "active change status", warnings) if active_change_path else None
     session_path = workspace / ".brain" / "session.json"
     session = read_json_object(session_path, "session context", warnings)
     handover_path = workspace / ".brain" / "handover.md"
@@ -45,6 +50,8 @@ def build_report(workspace: Path, mode: str) -> dict:
         latest_plan=latest_plan,
         latest_spec=latest_spec,
         workflow_state=workflow_state,
+        codebase_summary=codebase_summary,
+        active_change=active_change,
     )
     if stage == "unscoped":
         warnings.append("No session context found.")
@@ -57,6 +64,8 @@ def build_report(workspace: Path, mode: str) -> dict:
         latest_spec=latest_spec,
         git_state=git_state,
         workflow_state=workflow_state,
+        codebase_summary=codebase_summary,
+        active_change=active_change,
     )
     suggested_workflow, recommended_action, alternatives = build_recommendations(
         mode=mode,
@@ -66,6 +75,8 @@ def build_report(workspace: Path, mode: str) -> dict:
         latest_spec=latest_spec,
         handover_excerpt=handover_excerpt,
         workflow_state=workflow_state,
+        codebase_summary=codebase_summary,
+        active_change=active_change,
     )
 
     return {
@@ -88,6 +99,8 @@ def build_report(workspace: Path, mode: str) -> dict:
             "session_file": str(session_path) if session_path.exists() else None,
             "handover_file": str(handover_path) if handover_path.exists() else None,
             "readme": str(readme) if readme else None,
+            "codebase_summary": str(codebase_summary) if codebase_summary else None,
+            "active_change_status": str(active_change_path) if active_change_path else None,
             "workflow_state_file": workflow_report["path"],
             "workflow_state_source": workflow_report["source"],
             "workflow_summary": workflow_state.get("summary") if isinstance(workflow_state, dict) else None,
@@ -101,6 +114,7 @@ def build_report(workspace: Path, mode: str) -> dict:
             git_state=git_state,
             preferences_source=preferences_report["source"],
             workflow_source=workflow_report,
+            codebase_summary=codebase_summary,
         ),
         "response_style": response_style,
         "warnings": warnings,

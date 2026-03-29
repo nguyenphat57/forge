@@ -1,0 +1,27 @@
+{
+  "project_name": "lane-fixture",
+  "languages": [
+    "typescript"
+  ],
+  "frameworks": [
+    "nextjs",
+    "react",
+    "prisma",
+    "nextjs-app-router"
+  ],
+  "package_managers": [
+    "npm"
+  ],
+  "test_tools": [
+    "vitest"
+  ],
+  "manifests": [
+    "C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-core\\tests\\fixtures\\workspaces\\nextjs_postgres_workspace\\package.json"
+  ],
+  "companion_family": "nextjs-typescript-postgres",
+  "render_surface": "web",
+  "database_adapters": [
+    "prisma"
+  ],
+  "product_features": []
+}

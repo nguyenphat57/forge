@@ -87,6 +87,54 @@ class InitializeWorkspaceTests(unittest.TestCase):
             self.assertEqual(report["workspace_mode"], "existing")
             self.assertGreaterEqual(len(report["reused_paths"]), 1)
 
+    def test_initialize_workspace_can_apply_companion_preset(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir) / "preset"
+            result = run_python_script(
+                "initialize_workspace.py",
+                "--workspace",
+                str(workspace),
+                "--project-name",
+                "Preset Demo",
+                "--preset",
+                "nextjs-typescript-postgres/minimal-saas",
+                "--apply",
+                "--format",
+                "json",
+                env={"FORGE_HOME": str(Path(temp_dir) / "forge-home")},
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["preset"], "nextjs-typescript-postgres/minimal-saas")
+            self.assertEqual(report["recommended_next_workflow"], "plan")
+            self.assertTrue((workspace / "package.json").exists())
+            self.assertTrue((workspace / "prisma" / "schema.prisma").exists())
+
+    def test_initialize_workspace_can_apply_billing_companion_preset(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir) / "preset"
+            result = run_python_script(
+                "initialize_workspace.py",
+                "--workspace",
+                str(workspace),
+                "--project-name",
+                "Billing Demo",
+                "--preset",
+                "nextjs-typescript-postgres/billing-saas",
+                "--apply",
+                "--format",
+                "json",
+                env={"FORGE_HOME": str(Path(temp_dir) / "forge-home")},
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["preset"], "nextjs-typescript-postgres/billing-saas")
+            self.assertEqual(report["recommended_next_workflow"], "plan")
+            self.assertTrue((workspace / "app" / "(app)" / "billing" / "page.tsx").exists())
+            self.assertTrue((workspace / "app" / "api" / "webhooks" / "stripe" / "route.ts").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

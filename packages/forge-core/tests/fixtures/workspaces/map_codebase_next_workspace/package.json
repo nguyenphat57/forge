@@ -1,0 +1,11 @@
+{
+  "name": "storefront-app",
+  "dependencies": {
+    "next": "15.0.0",
+    "react": "19.0.0",
+    "prisma": "5.0.0"
+  },
+  "devDependencies": {
+    "vitest": "2.0.0"
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "profiles": [
+    {
+      "id": "nextjs-billing-prisma-app-router",
+      "default_package_manager": "npm",
+      "match_all_features": [
+        "nextjs",
+        "typescript",
+        "postgres",
+        "auth",
+        "billing"
+      ],
+      "commands": {
+        "dev": "run dev",
+        "build": "run build",
+        "lint": "run lint",
+        "typecheck": "run typecheck",
+        "test": "run test",
+        "test_auth": "run test:auth",
+        "test_billing": "run test:billing",
+        "db_generate": "run db:generate",
+        "db_push": "run db:push"
+      }
+    },
+    {
+      "id": "nextjs-auth-prisma-app-router",
+      "default_package_manager": "npm",
+      "match_all_features": [
+        "nextjs",
+        "typescript",
+        "postgres",
+        "auth"
+      ],
+      "commands": {
+        "dev": "run dev",
+        "build": "run build",
+        "lint": "run lint",
+        "typecheck": "run typecheck",
+        "test": "run test",
+        "test_auth": "run test:auth",
+        "db_generate": "run db:generate",
+        "db_push": "run db:push"
+      }
+    },
+    {
+      "id": "nextjs-observability-prisma-app-router",
+      "default_package_manager": "npm",
+      "match_all_features": [
+        "nextjs",
+        "typescript",
+        "postgres",
+        "observability"
+      ],
+      "commands": {
+        "dev": "run dev",
+        "build": "run build",
+        "lint": "run lint",
+        "typecheck": "run typecheck",
+        "test": "run test",
+        "test_observability": "run test:observability",
+        "db_generate": "run db:generate",
+        "db_push": "run db:push"
+      }
+    },
+    {
+      "id": "nextjs-prisma-app-router",
+      "default_package_manager": "npm",
+      "match_all_features": [
+        "nextjs",
+        "typescript",
+        "postgres"
+      ],
+      "commands": {
+        "dev": "run dev",
+        "build": "run build",
+        "lint": "run lint",
+        "typecheck": "run typecheck",
+        "test": "run test",
+        "db_generate": "run db:generate",
+        "db_push": "run db:push"
+      }
+    },
+    {
+      "id": "nextjs-typescript-baseline",
+      "default_package_manager": "npm",
+      "match_all_features": [
+        "nextjs",
+        "typescript"
+      ],
+      "commands": {
+        "dev": "run dev",
+        "build": "run build",
+        "lint": "run lint",
+        "typecheck": "run typecheck",
+        "test": "run test"
+      }
+    }
+  ]
+}

@@ -55,8 +55,12 @@ def persist_report(report: dict, output_dir: str | None) -> tuple[Path, Path]:
     stem = f"{timestamp_slug()}-{slugify(report['workspace_name'])}"
     json_path = artifact_dir / f"{stem}.json"
     md_path = artifact_dir / f"{stem}.md"
+    latest_json = artifact_dir / "latest.json"
+    latest_md = artifact_dir / "latest.md"
     json_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     md_path.write_text(format_text(report), encoding="utf-8")
+    latest_json.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+    latest_md.write_text(format_text(report), encoding="utf-8")
     return json_path, md_path
 
 

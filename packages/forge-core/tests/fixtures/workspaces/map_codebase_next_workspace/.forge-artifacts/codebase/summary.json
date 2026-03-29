@@ -1,0 +1,108 @@
+{
+  "status": "PASS",
+  "workspace": "C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-core\\tests\\fixtures\\workspaces\\map_codebase_next_workspace",
+  "project_name": "storefront-app",
+  "stack": {
+    "project_name": "storefront-app",
+    "languages": [
+      "typescript"
+    ],
+    "frameworks": [
+      "nextjs",
+      "react",
+      "prisma"
+    ],
+    "package_managers": [
+      "npm"
+    ],
+    "test_tools": [
+      "vitest"
+    ],
+    "manifests": [
+      "C:\\Users\\Admin\\.gemini\\forge\\packages\\forge-core\\tests\\fixtures\\workspaces\\map_codebase_next_workspace\\package.json"
+    ],
+    "companion_family": "nextjs-typescript-postgres",
+    "render_surface": "web",
+    "database_adapters": [
+      "prisma"
+    ],
+    "product_features": []
+  },
+  "structure": {
+    "top_level_dirs": [
+      "app",
+      "tests"
+    ],
+    "entrypoints": [
+      "app/page.tsx"
+    ],
+    "integrations": [
+      "prisma"
+    ],
+    "testing_paths": [
+      "tests"
+    ],
+    "risks": [
+      "Missing .env.example can hide required deployment env keys."
+    ],
+    "open_questions": [
+      "CI or release automation is not obvious from root markers."
+    ],
+    "next_actions": [
+      "Confirm the first active work slice before editing.",
+      "Run the nearest verification command before large changes.",
+      "Verify lint, typecheck, test, and build before large Next.js changes.",
+      "Confirm schema ownership before editing database access paths."
+    ],
+    "stack_notes": [
+      "App Router markers are weak.",
+      "No Prisma schema detected."
+    ]
+  },
+  "companions": [
+    {
+      "id": "nextjs-typescript-postgres",
+      "strength": "baseline",
+      "features": {
+        "nextjs": true,
+        "typescript": true,
+        "postgres": false,
+        "auth": false,
+        "billing": false,
+        "observability": false
+      },
+      "reasons": [
+        "dependency:next",
+        "file:app/page.tsx",
+        "file:tsconfig.json"
+      ]
+    }
+  ],
+  "companion_operator": [
+    {
+      "id": "nextjs-typescript-postgres",
+      "package": "forge-nextjs-typescript-postgres",
+      "strength": "baseline",
+      "features": [
+        "nextjs",
+        "typescript"
+      ],
+      "profile": "nextjs-typescript-baseline",
+      "package_manager": "npm",
+      "commands": {
+        "dev": "npm run dev",
+        "build": "npm run build",
+        "lint": "npm run lint",
+        "typecheck": "npm run typecheck",
+        "test": "npm run test"
+      },
+      "verification_pack": "nextjs-baseline",
+      "verification_steps": [
+        "lint",
+        "typecheck",
+        "test",
+        "build"
+      ]
+    }
+  ]
+}

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.0 - 2026-03-29
+
+- Turn Forge into a stronger solo-dev execution platform by adding brownfield `doctor`, `map-codebase`, change-artifact flows, dashboard, release-doc sync, release readiness, review packs, and lane scoring or gating across `forge-core`.
+- Add the first-party `forge-nextjs-typescript-postgres` companion with companion-aware install or init flows, stack-specific command and verification packs, and presets for minimal SaaS, auth, billing, and deploy-observability paths.
+- Strengthen real-world delivery evidence with multi-repo canaries, authenticated runtime QA improvements in `forge-browse`, and the supporting release or audit docs needed to steer lane-1 hardening and future lane decisions.
+
+
 ## 1.4.1 - 2026-03-28
 
 - Tighten runtime-tool consistency by teaching host bundles to consume `runtime_tools_relative_path` from build/install manifests instead of relying only on registry or sibling-bundle fallback.

@@ -7,6 +7,7 @@ from pathlib import Path
 MANIFEST_FILES = (
     ("adapter", "adapter.json"),
     ("runtime", "runtime.json"),
+    ("companion", "companion.json"),
 )
 
 
