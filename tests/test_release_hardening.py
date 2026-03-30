@@ -20,6 +20,44 @@ import install_bundle  # noqa: E402
 
 
 class ReleaseHardeningTests(unittest.TestCase):
+    def test_public_repo_docs_exist(self) -> None:
+        required_paths = [
+            ROOT_DIR / "LICENSE",
+            ROOT_DIR / "CONTRIBUTING.md",
+            ROOT_DIR / "SECURITY.md",
+            ROOT_DIR / "CODE_OF_CONDUCT.md",
+            ROOT_DIR / "docs" / "release" / "public-readiness.md",
+        ]
+        for path in required_paths:
+            with self.subTest(path=path):
+                self.assertTrue(path.exists(), f"Missing public repo doc: {path}")
+
+    def test_public_docs_do_not_embed_repo_absolute_path(self) -> None:
+        repo_root_text = str(ROOT_DIR)
+        docs_to_check = [ROOT_DIR / "README.md"]
+        docs_to_check.extend(sorted((ROOT_DIR / "docs").rglob("*.md")))
+        docs_to_check.extend(sorted((ROOT_DIR / "packages").glob("*/README.md")))
+        for path in docs_to_check:
+            with self.subTest(path=path):
+                text = path.read_text(encoding="utf-8")
+                self.assertNotIn(repo_root_text, text)
+
+    def test_release_facing_docs_do_not_require_host_soak(self) -> None:
+        banned_phrases = [
+            "soak time on a real Codex host",
+            "host-specific smoke or canary checks before broad promotion",
+        ]
+        docs_to_check = [
+            ROOT_DIR / "README.md",
+            ROOT_DIR / "docs" / "release" / "public-readiness.md",
+            ROOT_DIR / "docs" / "release" / "release-process.md",
+        ]
+        for path in docs_to_check:
+            text = path.read_text(encoding="utf-8")
+            for phrase in banned_phrases:
+                with self.subTest(path=path, phrase=phrase):
+                    self.assertNotIn(phrase, text)
+
     def test_build_release_excludes_cached_python_artifacts(self) -> None:
         build_release.build_all()
         for bundle_name in ("forge-antigravity", "forge-codex", "forge-browse", "forge-design"):

@@ -1,8 +1,8 @@
 # Phase 1 Build Spec: Doctor, Map-Codebase, Change Artifacts
 Created: 2026-03-28 | Status: Proposed
 Inputs:
-- [2026-03-28-forge-solo-dev-roadmap.md](C:\Users\Admin\.gemini\forge\docs\plans\2026-03-28-forge-solo-dev-roadmap.md)
-- [2026-03-28-solo-dev-ecosystem-review.md](C:\Users\Admin\.gemini\forge\docs\audits\2026-03-28-solo-dev-ecosystem-review.md)
+- [2026-03-28-forge-solo-dev-roadmap.md](../plans/2026-03-28-forge-solo-dev-roadmap.md)
+- [2026-03-28-solo-dev-ecosystem-review.md](../audits/2026-03-28-solo-dev-ecosystem-review.md)
 
 ## Purpose
 

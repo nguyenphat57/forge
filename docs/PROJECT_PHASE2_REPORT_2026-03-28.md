@@ -8,8 +8,8 @@ Scope:
 - release, install, and verification pipeline support for the new companion bundle
 
 Inputs:
-- [2026-03-28-forge-solo-dev-roadmap.md](C:\Users\Admin\.gemini\forge\docs\plans\2026-03-28-forge-solo-dev-roadmap.md)
-- [2026-03-28-nextjs-typescript-postgres-companion.md](C:\Users\Admin\.gemini\forge\docs\specs\2026-03-28-nextjs-typescript-postgres-companion.md)
+- [2026-03-28-forge-solo-dev-roadmap.md](plans/2026-03-28-forge-solo-dev-roadmap.md)
+- [2026-03-28-nextjs-typescript-postgres-companion.md](specs/2026-03-28-nextjs-typescript-postgres-companion.md)
 
 ## Summary
 
@@ -139,14 +139,14 @@ Behavior covered:
 Primary core verification:
 
 ```text
-python -m pytest C:\Users\Admin\.gemini\forge\packages\forge-core\tests -q
+python -m pytest packages/forge-core/tests -q
 Result: 111 passed, 5 skipped, 192 subtests passed in 15.33s
 ```
 
 Companion bundle verification:
 
 ```text
-python C:\Users\Admin\.gemini\forge\packages\forge-nextjs-typescript-postgres\scripts\verify_bundle.py --format json
+python packages/forge-nextjs-typescript-postgres/scripts/verify_bundle.py --format json
 Result: PASS
 Details: py_compile PASS, unittest PASS, 6 tests passed
 ```
@@ -154,7 +154,7 @@ Details: py_compile PASS, unittest PASS, 6 tests passed
 Release and install regression verification:
 
 ```text
-python -m unittest C:\Users\Admin\.gemini\forge\tests\test_release_repo.py -v
+python -m unittest tests/test_release_repo.py -v
 Result: PASS
 Details: 21 tests passed
 ```
@@ -162,7 +162,7 @@ Details: 21 tests passed
 Dist core verification after release build:
 
 ```text
-python C:\Users\Admin\.gemini\forge\dist\forge-core\scripts\verify_bundle.py --format json
+python dist/forge-core/scripts/verify_bundle.py --format json
 Result: PASS
 Details: py_compile PASS, unittest PASS, smoke_matrix PASS
 ```
@@ -170,7 +170,7 @@ Details: py_compile PASS, unittest PASS, smoke_matrix PASS
 Repo-level verification:
 
 ```text
-python C:\Users\Admin\.gemini\forge\scripts\verify_repo.py --format json
+python scripts/verify_repo.py --format json
 Result: PASS
 Details: generated_host_artifacts PASS, repo.py_compile PASS, repo.unittest PASS, forge-core.verify_bundle PASS, build_release PASS, install dry runs PASS, dist bundle verification PASS
 ```

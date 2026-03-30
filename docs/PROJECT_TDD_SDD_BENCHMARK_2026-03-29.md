@@ -1,7 +1,7 @@
 # Forge TDD/SDD Benchmark Report
 
 Date: 2026-03-29
-Workspace: `C:\Users\Admin\.gemini\forge`
+Workspace: `forge/`
 Purpose: Benchmark three strong external repos on TDD and SDD, then extract what is genuinely useful for Forge.
 
 ## Inputs Reviewed

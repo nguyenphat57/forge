@@ -1,8 +1,8 @@
 # Phase 1 Issue Breakdown
 Created: 2026-03-28 | Status: Proposed
 Inputs:
-- [2026-03-28-phase-1-build-spec.md](C:\Users\Admin\.gemini\forge\docs\specs\2026-03-28-phase-1-build-spec.md)
-- [2026-03-28-forge-solo-dev-roadmap.md](C:\Users\Admin\.gemini\forge\docs\plans\2026-03-28-forge-solo-dev-roadmap.md)
+- [2026-03-28-phase-1-build-spec.md](2026-03-28-phase-1-build-spec.md)
+- [2026-03-28-forge-solo-dev-roadmap.md](../plans/2026-03-28-forge-solo-dev-roadmap.md)
 
 ## Purpose
 

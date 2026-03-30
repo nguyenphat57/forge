@@ -1,7 +1,7 @@
 # Forge Solo-Dev Roadmap
 **Status:** historical roadmap, superseded by `docs/PRODUCT_THESIS_2026-03-29.md` and `docs/plans/2026-03-29-forge-process-first-roadmap.md`
 **Date:** 2026-03-28
-**Input:** [2026-03-28-solo-dev-ecosystem-review.md](C:\Users\Admin\.gemini\forge\docs\audits\2026-03-28-solo-dev-ecosystem-review.md)
+**Input:** [2026-03-28-solo-dev-ecosystem-review.md](../audits/2026-03-28-solo-dev-ecosystem-review.md)
 **Goal:** make Forge dependable for one solo dev from brainstorm to product-ready shipping
 **Non-goal:** do not chase equal support for every stack, do not become a generic skill warehouse, do not add content-marketing scope
 

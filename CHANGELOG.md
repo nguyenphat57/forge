@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.10.0 - 2026-03-30
+
+- Add the public-release groundwork for Forge, including `MIT` licensing, root contribution or conduct or security docs, and a repo-visible public-readiness checklist.
+- Rewrite the root README so Forge is introduced as a process-first orchestration system with detailed install guidance for Codex, Antigravity, runtime tools, and explicit core installs.
+- Clean maintainer-local paths out of release-facing docs, remove host soak as a release precondition from the current policy, and add release-hardening regression checks to keep the public release contract stable.
+
+
 ## 1.9.0 - 2026-03-30
 
 - Adopt an artifact-driven TDD/SDD rollout across `forge-core`, including `verify-change`, requirements/spec packet checks, worktree preparation, stronger quality-gate enforcement, and sharper route/execution policy for medium or risky work.

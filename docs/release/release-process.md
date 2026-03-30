@@ -13,7 +13,7 @@
    This gate now includes the repo secret scan.
 3. Build artifacts with `python scripts/build_release.py`.
 4. Install or publish from `dist/`.
-5. Run host-specific smoke or canary checks before broad promotion.
+5. Optionally run extra smoke checks for changed runtime surfaces when additional confidence is useful.
 
 ## Core Purity Gate
 
@@ -38,8 +38,10 @@ The canonical boundary policy lives in `docs/architecture/adapter-boundary.md`.
 
 ## Promotion
 
+- Public preview is acceptable after `verify_repo.py` passes, public-facing root docs exist, and public docs have been scrubbed of maintainer-local paths.
+- General public release uses the canonical verification gate above; extra runtime evidence is optional hardening, not a release precondition.
 - `forge-antigravity` is currently the most mature adapter for real rollout.
-- `forge-codex` has passed internal verification, but broad rollout still needs soak time on a real Codex host.
+- `forge-codex` has passed internal verification and is eligible for release under the current policy.
 - `forge-codex` host wrappers and global entry files should stay generated from canonical host-artifact sources instead of being maintained by hand.
 - `forge-browse` is an optional runtime actuator and now ships with a live smoke path in source, dist, and repo verification.
 - `forge-design` is an optional runtime design tool and should ship with persisted brief plus browse-capture smoke in place.

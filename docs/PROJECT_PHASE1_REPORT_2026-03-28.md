@@ -9,9 +9,9 @@ Scope:
 - continuity and routing integration needed to make those surfaces usable
 
 Inputs:
-- [2026-03-28-forge-solo-dev-roadmap.md](C:\Users\Admin\.gemini\forge\docs\plans\2026-03-28-forge-solo-dev-roadmap.md)
-- [2026-03-28-phase-1-build-spec.md](C:\Users\Admin\.gemini\forge\docs\specs\2026-03-28-phase-1-build-spec.md)
-- [2026-03-28-phase-1-issue-breakdown.md](C:\Users\Admin\.gemini\forge\docs\specs\2026-03-28-phase-1-issue-breakdown.md)
+- [2026-03-28-forge-solo-dev-roadmap.md](plans/2026-03-28-forge-solo-dev-roadmap.md)
+- [2026-03-28-phase-1-build-spec.md](specs/2026-03-28-phase-1-build-spec.md)
+- [2026-03-28-phase-1-issue-breakdown.md](specs/2026-03-28-phase-1-issue-breakdown.md)
 
 ## Summary
 
@@ -106,14 +106,14 @@ Behavior:
 Primary verification:
 
 ```text
-python -m pytest C:\Users\Admin\.gemini\forge\packages\forge-core\tests -q
+python -m pytest packages/forge-core/tests -q
 Result: 107 passed, 5 skipped, 189 subtests passed in 12.31s
 ```
 
 Targeted smoke checks:
 
 ```text
-python packages/forge-core/scripts/doctor.py --workspace C:\Users\Admin\.gemini\forge --format json
+python packages/forge-core/scripts/doctor.py --workspace . --format json
 Result: WARN
 Reason: runtime tool registry path is not configured, but bundle-neighbor runtime resolution and browse health both passed
 ```
