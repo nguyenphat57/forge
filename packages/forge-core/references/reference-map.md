@@ -9,6 +9,9 @@
 |`smoke-tests.md` | Smoke-test host routing and Forge's general behavior|
 |`smoke-test-checklist.md` | Record smoke-test results for each case|
 |`backend-briefs.md` | Create or reuse a backend brief for medium/large API, job, event, or data changes|
+|`artifact-driven-change-flow.md` | Run the full P1-P3 artifact-driven flow for medium/risky build work|
+|`constitution-lite.md` | Record or reuse repo-local principles without adding a heavier governance artifact|
+|`target-state.md` | Re-anchor Forge maintenance and operator choices to the north-star product target state|
 |`execution-delivery.md` | Select execution mode, checkpoint, and completion state for large builds|
 |`failure-recovery-playbooks.md` | Use when the chain is stalled, a gate is blocked, review is deadlocked, or deployment fails and you need a clear recovery path|
 |`ui-briefs.md` | Use when frontend/visualize needs a first artifact before coding or mockups|
@@ -38,18 +41,20 @@
 ```text
 1. SKILL.md
 2. architecture-layers.md before moving ownership between core, generated artifacts, workflow state, and runtime tools
-3. tooling.md if you need deterministic preview/check instead of reading plain prose
-4. personalization.md if you are editing response style or preference engine
-5. workspace-init.md if editing init/onboarding skeleton logic
-6. help-next.md if editing navigator help/next
-7. run-guidance.md if editing run/execute-then-route
-8. error-translation.md if you are editing error translator/helper layer
-9. bump-release.md or rollback-guidance.md if editing release operators
-10. backend-briefs.md or execution-delivery.md depending on the layer being edited
-11. smoke-tests.md / smoke-test-checklist.md if needed to verify host behavior
-12. canary-rollout.md if preparing a real rollout
-13. companion-skill-contract.md only when editing the companion/runtime layer
-14. companion-routing-smoke-tests.md only when testing the companion/runtime layer
+3. target-state.md if the change affects Forge strategy, process weight, verification strictness, or core identity
+4. tooling.md if you need deterministic preview/check instead of reading plain prose
+5. personalization.md if you are editing response style or preference engine
+6. workspace-init.md if editing init/onboarding skeleton logic
+7. help-next.md if editing navigator help/next
+8. run-guidance.md if editing run/execute-then-route
+9. error-translation.md if you are editing error translator/helper layer
+10. bump-release.md or rollback-guidance.md if editing release operators
+11. artifact-driven-change-flow.md if validating the medium/risky implementation path end-to-end
+12. backend-briefs.md or execution-delivery.md depending on the layer being edited
+13. smoke-tests.md / smoke-test-checklist.md if needed to verify host behavior
+14. canary-rollout.md if preparing a real rollout
+15. companion-skill-contract.md only when editing the companion/runtime layer
+16. companion-routing-smoke-tests.md only when testing the companion/runtime layer
 ```
 
 ### When the repo does not have local skills
@@ -91,12 +96,14 @@
 ### When doing implementation after plan/design
 
 ```text
-1. execution-delivery.md
-2. failure-recovery-playbooks.md if the chain has risk stall/block
-3. tooling.md if checkpoint artifact is needed
-4. build.md
-5. review.md if you need to clear disposition last
-6. quality-gate.md if you need to go/no-go clearly before claiming or deploying
+1. artifact-driven-change-flow.md
+2. target-state.md if the change affects Forge process direction or strictness
+3. execution-delivery.md
+4. failure-recovery-playbooks.md if the chain has risk stall/block
+5. tooling.md if checkpoint artifact is needed
+6. build.md
+7. review.md if you need to clear disposition last
+8. quality-gate.md if you need to go/no-go clearly before claiming or deploying
 ```
 
 ### When doing release-critical flow

@@ -141,6 +141,8 @@ Rules:
 - `large` or stronger profile `standard` -> must have at least `quality-reviewer`
 - Host has subagents -> lane can run independently
 - Host does not have subagents -> still has to run sequentially in lanes, not combining thoughts into a single pass
+- `implementer-spec-quality` must run `spec-compliance` before `quality-pass`
+- If `spec-compliance` finds drift, return to implementer and do not advance to `quality-reviewer`
 - Reviewer lanes must close the slice explicitly before the implementer moves on.
 
 ## Lane Model Stance
@@ -175,6 +177,17 @@ Rule:
 - If the task is medium+ and behavior-changing, prefer `worktree` unless the scope is already isolated and the baseline is clean.
 - If the boundary is unclear -> do not use `subagent-split`
 - If `subagent-split` is selected, there must be a clear enough chain status or checkpoint to merge the results
+
+When `worktree` is selected, bootstrap it explicitly:
+
+```powershell
+python scripts/prepare_worktree.py --workspace <workspace> --name <slice> --baseline-command "<baseline>"
+```
+
+The packet should keep:
+- worktree path
+- ignore-safety proof for project-local worktree roots
+- baseline result from that isolated tree
 
 ## Subagent Split Packet
 
@@ -287,7 +300,7 @@ Rules:
 
 ## Two-Stage Review
 
-### Stage 1: Requirement Compliance
+### Stage 1: Spec Compliance
 - Correct scope the user requested?
 - Are there any unstated assumptions?
 - Are there excess features or missing requirements?
@@ -299,6 +312,7 @@ Rules:
 - Verification is enough for blast radius?
 
 If the execution pipeline has `quality-reviewer`, this pass must be read as a separate lane, not just looking at the code itself in the same execution rhythm.
+If the execution pipeline has `spec-reviewer`, it runs first as the `spec-compliance` lane and must close cleanly before `quality-reviewer` starts.
 If the host supports subagents, the reviewer lane should receive a shortened controller packet: scope, evidence, changed files/diff, and the specific review question. Do not force the reviewer to reconstruct intent from the full session.
 
 ## Drift / Reopen Rules

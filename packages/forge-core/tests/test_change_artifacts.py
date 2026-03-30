@@ -27,6 +27,7 @@ class ChangeArtifactsTests(unittest.TestCase):
             started_report = json.loads(started.stdout)
             slug = started_report["change"]["slug"]
             self.assertTrue((workspace / ".forge-artifacts" / "changes" / "active" / slug / "resume.md").exists())
+            self.assertTrue((workspace / ".forge-artifacts" / "changes" / "active" / slug / "specs" / slug / "spec.md").exists())
 
             updated = run_python_script(
                 "change_artifacts.py",
@@ -71,11 +72,14 @@ class ChangeArtifactsTests(unittest.TestCase):
             self.assertIn("archived_from", archive_report["change"])
             self.assertTrue((workspace / ".brain" / "decisions.json").exists())
             self.assertTrue((workspace / ".brain" / "learnings.json").exists())
+            self.assertTrue((workspace / "docs" / "specs" / "change-index.json").exists())
             decisions = json.loads((workspace / ".brain" / "decisions.json").read_text(encoding="utf-8"))
             learnings = json.loads((workspace / ".brain" / "learnings.json").read_text(encoding="utf-8"))
+            spec_index = json.loads((workspace / "docs" / "specs" / "change-index.json").read_text(encoding="utf-8"))
             self.assertEqual(decisions[0]["status"], "resolved")
             self.assertEqual(learnings[0]["status"], "resolved")
             self.assertTrue(decisions[0]["evidence"][0].startswith("Archived change:"))
+            self.assertEqual(spec_index[0]["slug"], slug)
 
     def test_capture_continuity_defaults_to_resolved_with_resume_hint(self) -> None:
         with TemporaryDirectory() as temp_dir:

@@ -155,6 +155,14 @@ class BundleContractTests(unittest.TestCase):
 
     def test_tooling_docs_mention_verify_entrypoints(self) -> None:
         tooling = (ROOT_DIR / "references" / "tooling.md").read_text(encoding="utf-8")
+        self.assertIn("change_artifacts.py", tooling)
+        self.assertIn("generate_requirements_checklist.py", tooling)
+        self.assertIn("check_spec_packet.py", tooling)
+        self.assertIn("prepare_worktree.py", tooling)
+        self.assertIn("verify_change.py", tooling)
+        self.assertIn("dashboard.py", tooling)
+        self.assertIn("doctor.py", tooling)
+        self.assertIn("map_codebase.py", tooling)
         self.assertIn("run_smoke_matrix.py", tooling)
         self.assertIn("verify_bundle.py", tooling)
         self.assertIn("record_canary_result.py", tooling)
@@ -188,6 +196,30 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("workflow-state", tooling)
         self.assertIn("latest.json", tooling)
         self.assertIn("events.jsonl", tooling)
+
+    def test_reference_map_mentions_artifact_driven_change_flow(self) -> None:
+        reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
+        self.assertIn("artifact-driven-change-flow.md", reference_map)
+        self.assertIn("constitution-lite.md", reference_map)
+        self.assertIn("target-state.md", reference_map)
+
+    def test_help_next_reference_mentions_mapped_stage_and_current_stage(self) -> None:
+        help_next = (ROOT_DIR / "references" / "help-next.md").read_text(encoding="utf-8")
+        self.assertIn("`mapped`", help_next)
+        self.assertIn("`current_stage`", help_next)
+        self.assertIn("target-state.md", help_next)
+
+    def test_help_and_next_workflows_reference_target_state_for_forge_maintenance(self) -> None:
+        help_workflow = (ROOT_DIR / "workflows" / "operator" / "help.md").read_text(encoding="utf-8")
+        next_workflow = (ROOT_DIR / "workflows" / "operator" / "next.md").read_text(encoding="utf-8")
+        self.assertIn("references/target-state.md", help_workflow)
+        self.assertIn("references/target-state.md", next_workflow)
+
+    def test_run_guidance_reference_mentions_error_translation(self) -> None:
+        run_guidance = (ROOT_DIR / "references" / "run-guidance.md").read_text(encoding="utf-8")
+        run_workflow = (ROOT_DIR / "workflows" / "operator" / "run.md").read_text(encoding="utf-8")
+        self.assertIn("error_translation", run_guidance)
+        self.assertIn("Error translation:", run_workflow)
 
     def test_architecture_layers_reference_describes_four_layers(self) -> None:
         architecture = (ROOT_DIR / "references" / "architecture-layers.md").read_text(encoding="utf-8")

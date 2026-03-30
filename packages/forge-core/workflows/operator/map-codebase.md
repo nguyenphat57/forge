@@ -30,6 +30,18 @@ python scripts/map_codebase.py --workspace <workspace> --format json
    - integrations
    - risks and open questions
 
+Persisted artifacts:
+- `.forge-artifacts/codebase/summary.json`
+- `.forge-artifacts/codebase/summary.md`
+- `.forge-artifacts/codebase/architecture.md`
+- `.forge-artifacts/codebase/testing.md`
+- `.forge-artifacts/codebase/focus/<area>.md` when focus mode is used
+
+After running:
+- use `plan` if the first slice is still ambiguous
+- use `spec-review` when the map shows risky boundaries
+- use `build` only after the first coherent slice is named
+
 ## Output Contract
 
 ```text

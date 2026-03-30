@@ -30,17 +30,37 @@ def _start_change(workspace: Path, summary: str, slug: str | None, tasks: list[s
     task_text = "\n".join(["# Tasks", "", *[f"- [ ] {item}" for item in task_lines]])
     verification_lines = verification or ["Verification method not recorded yet."]
     verification_text = "\n".join(["# Verification", "", *[f"- {item}" for item in verification_lines]])
+    spec_text = "\n".join(
+        [
+            "# Change Spec Delta",
+            "",
+            f"- Topic: {active_slug}",
+            f"- Summary: {summary}",
+            "",
+            "## Added Behavior",
+            f"- Describe the new behavior introduced by `{active_slug}`.",
+            "",
+            "## Modified Behavior",
+            "- Record the existing behavior or boundary that changes.",
+            "",
+            "## Acceptance Scenarios",
+            f"- Scenario: `{active_slug}` succeeds when the chosen proof passes.",
+            "",
+            "## Non-goals",
+            "- Do not widen scope without updating this spec delta first.",
+        ]
+    )
     implementation_packet = "\n".join(
         [
             "# Implementation Packet",
             "",
-            f"- Source of truth: proposal.md, design.md, tasks.md, verification.md, resume.md under `{active_slug}`",
+            f"- Source of truth: proposal.md, design.md, tasks.md, verification.md, resume.md, specs/{active_slug}/spec.md under `{active_slug}`",
             f"- Current slice: {task_lines[0]}",
             "- Exact files/paths in scope: record before editing",
             "- Baseline / clean start proof: record clean worktree, worktree path, or isolated branch before editing",
             f"- Proof before progress: {verification_lines[0]}",
             "- Out of scope: expand scope without updating the packet first",
-            "- Reopen conditions: failing verification, scope drift, or review findings",
+            "- Reopen only if: failing verification, scope drift, or review findings",
             "- Review closure note: record review disposition before any merge or deploy claim",
         ]
     )
@@ -62,6 +82,8 @@ def _start_change(workspace: Path, summary: str, slug: str | None, tasks: list[s
         (paths["verification"], verification_text),
     ):
         path.write_text(content, encoding="utf-8")
+    paths["spec_topic_root"].mkdir(parents=True, exist_ok=True)
+    paths["spec"].write_text(spec_text, encoding="utf-8")
     paths["resume"].write_text(resume_text, encoding="utf-8")
     status = update_change_status(
         status_path=paths["status"],

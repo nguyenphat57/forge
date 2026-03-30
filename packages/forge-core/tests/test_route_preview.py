@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import copy
+import os
 import sys
 import unittest
 from argparse import Namespace
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
+
+from support import reference_companion_environment
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -66,8 +69,19 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertTrue(report["detected"]["durable_process_artifacts_required"])
         self.assertTrue(report["detected"]["process_precheck_required"])
         self.assertTrue(report["detected"]["baseline_proof_required"])
+        self.assertTrue(report["detected"]["verify_change_required"])
         self.assertTrue(report["detected"]["review_artifact_required"])
         self.assertEqual(report["detected"]["isolation_recommendation"], "worktree")
+        self.assertIsNotNone(report["detected"]["baseline_verification"])
+        self.assertEqual(report["detected"]["worktree_bootstrap"]["helper"], "prepare_worktree.py")
+        self.assertEqual(
+            report["detected"]["review_sequence"],
+            [
+                {"sequence_index": 1, "lane": "implementer", "review_kind": None, "depends_on": []},
+                {"sequence_index": 2, "lane": "spec-reviewer", "review_kind": "spec-compliance", "depends_on": ["implementer"]},
+                {"sequence_index": 3, "lane": "quality-reviewer", "review_kind": "quality-pass", "depends_on": ["spec-reviewer"]},
+            ],
+        )
 
     def test_small_non_behavioral_build_routes_through_plan_before_build(self) -> None:
         report = route_preview.build_report(self.build_args("Update checkout docs", changed_files=2))
@@ -78,8 +92,11 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertFalse(report["detected"]["durable_process_artifacts_required"])
         self.assertFalse(report["detected"]["process_precheck_required"])
         self.assertFalse(report["detected"]["baseline_proof_required"])
+        self.assertFalse(report["detected"]["verify_change_required"])
         self.assertTrue(report["detected"]["review_artifact_required"])
         self.assertEqual(report["detected"]["isolation_recommendation"], "same-tree")
+        self.assertIsNone(report["detected"]["baseline_verification"])
+        self.assertIsNone(report["detected"]["worktree_bootstrap"])
 
     def test_small_visualize_routes_through_plan_before_visualize(self) -> None:
         report = route_preview.build_report(self.build_args("Sketch a small checkout layout tweak", changed_files=1))
@@ -90,8 +107,11 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertFalse(report["detected"]["durable_process_artifacts_required"])
         self.assertTrue(report["detected"]["process_precheck_required"])
         self.assertFalse(report["detected"]["baseline_proof_required"])
+        self.assertFalse(report["detected"]["verify_change_required"])
         self.assertFalse(report["detected"]["review_artifact_required"])
         self.assertIsNone(report["detected"]["isolation_recommendation"])
+        self.assertIsNone(report["detected"]["baseline_verification"])
+        self.assertIsNone(report["detected"]["worktree_bootstrap"])
 
     def test_small_behavioral_build_requires_process_precheck(self) -> None:
         report = route_preview.build_report(self.build_args("Add a small checkout endpoint", changed_files=2))
@@ -100,6 +120,7 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["complexity"], "small")
         self.assertTrue(report["detected"]["process_precheck_required"])
         self.assertFalse(report["detected"]["baseline_proof_required"])
+        self.assertFalse(report["detected"]["verify_change_required"])
         self.assertFalse(report["detected"]["durable_process_artifacts_required"])
 
     def test_session_prompt_skips_edit_verification_profile(self) -> None:
@@ -195,15 +216,17 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertIn("capacitor-android", report["detected"]["local_companions"])
 
     def test_route_preview_detects_first_party_nextjs_companion(self) -> None:
-        report = route_preview.build_report(
-            self.build_args(
-                "Add a new Next.js checkout page with Prisma-backed persistence",
-                repo_signals=["package.json", "tsconfig.json", "next.config.ts", "prisma/schema.prisma"],
-            )
-        )
+        with reference_companion_environment() as (_, env):
+            with patch.dict(os.environ, env):
+                report = route_preview.build_report(
+                    self.build_args(
+                        "Add a new Next.js checkout page with Prisma-backed persistence",
+                        repo_signals=["package.json", "tsconfig.json", "next.config.ts", "prisma/schema.prisma"],
+                    )
+                )
 
-        self.assertIn("nextjs-typescript-postgres", report["detected"]["first_party_companions"])
-        self.assertIn("nextjs-typescript-postgres", report["activation_line"])
+            self.assertIn("nextjs-typescript-postgres", report["detected"]["first_party_companions"])
+            self.assertIn("nextjs-typescript-postgres", report["activation_line"])
 
     def test_parallel_safe_host_can_activate_subagent_dispatch_skill(self) -> None:
         registry = copy.deepcopy(route_preview.load_registry())
@@ -261,6 +284,9 @@ class RoutePreviewTests(unittest.TestCase):
                     "runtime_role": "worker",
                     "read_only": False,
                     "scope_rule": "One packet per independent slice with non-overlapping write ownership.",
+                    "review_kind": None,
+                    "sequence_index": 1,
+                    "depends_on": [],
                 }
             ],
         )
@@ -297,6 +323,9 @@ class RoutePreviewTests(unittest.TestCase):
                     "runtime_role": "worker",
                     "read_only": False,
                     "scope_rule": "Owns the implementation slice with explicit file scope.",
+                    "review_kind": None,
+                    "sequence_index": 1,
+                    "depends_on": [],
                 },
                 {
                     "lane": "quality-reviewer",
@@ -304,6 +333,9 @@ class RoutePreviewTests(unittest.TestCase):
                     "runtime_role": "default",
                     "read_only": True,
                     "scope_rule": "Read-only findings pass over implementer evidence and changed files.",
+                    "review_kind": "quality-pass",
+                    "sequence_index": 2,
+                    "depends_on": ["implementer"],
                 },
             ],
         )

@@ -132,6 +132,7 @@
     "expected_verification_profile": "non_behavioral",
     "expected_process_precheck_required": false,
     "expected_baseline_proof_required": false,
+    "expected_verify_change_required": false,
     "expected_review_artifact_required": true,
     "expected_durable_process_artifacts_required": false,
     "expected_isolation_recommendation": "same-tree"
@@ -146,6 +147,7 @@
     "expected_verification_profile": null,
     "expected_process_precheck_required": true,
     "expected_baseline_proof_required": false,
+    "expected_verify_change_required": false,
     "expected_review_artifact_required": false,
     "expected_durable_process_artifacts_required": false,
     "expected_isolation_recommendation": null
@@ -171,9 +173,10 @@
     "workspace_router": ".agent/router.md",
     "expected_intent": "BUILD",
     "expected_complexity": "medium",
-    "expected_skills": ["plan", "build", "test", "quality-gate"],
+    "expected_skills": ["plan", "build", "test", "verify-change", "quality-gate"],
     "expected_local_companions": ["python-fastapi"],
-    "expected_verification_profile": "behavioral_reproduction_first"
+    "expected_verification_profile": "behavioral_reproduction_first",
+    "expected_verify_change_required": true
   },
   {
     "name": "agents_entrypoint_resolves_router_for_local_companion",
@@ -183,8 +186,9 @@
     "workspace_router": "AGENTS.md",
     "expected_intent": "BUILD",
     "expected_complexity": "medium",
-    "expected_skills": ["plan", "build", "test", "quality-gate"],
+    "expected_skills": ["plan", "build", "test", "verify-change", "quality-gate"],
     "expected_local_companions": ["python-fastapi"],
-    "expected_verification_profile": "behavioral_reproduction_first"
+    "expected_verification_profile": "behavioral_reproduction_first",
+    "expected_verify_change_required": true
   }
 ]

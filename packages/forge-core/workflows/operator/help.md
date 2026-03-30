@@ -28,6 +28,7 @@ quality_gates:
    - Active change artifact or persisted workflow-state when it exists
    - `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, UI, run, or quality-gate artifacts have already persisted state
    - `.brain/session.json` or `.brain/handover.md` if available
+   - `references/target-state.md` if the repo under maintenance is Forge itself or if multiple valid directions need a policy tie-break
 2. Resolve with:
 
 ```powershell
@@ -40,6 +41,7 @@ python scripts/resolve_help_next.py --workspace <workspace> --mode help
    - Maximum 2 alternatives if needed
 
 For medium+ slices, the main recommendation should point at the durable artifact that needs to be created, refreshed, or consulted next.
+For Forge-maintenance choices, prefer the recommendation that best preserves the target-state contract.
 
 ## Output Contract
 

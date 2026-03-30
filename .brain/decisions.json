@@ -1,0 +1,18 @@
+[
+  {
+    "id": "20260330-082442",
+    "kind": "decision",
+    "scope": "forge-self-hosted-tdd-sdd-adoption",
+    "summary": "Forge now ships the artifact-driven TDD/SDD rollout as the canonical medium-risk implementation path.",
+    "status": "resolved",
+    "evidence": [
+      "Archived change: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\changes\\archive\\20260330-082442-forge-self-hosted-tdd-sdd-adoption"
+    ],
+    "next": [],
+    "tags": [
+      "change-archive"
+    ],
+    "revisit_if": null,
+    "trigger": "change-archive"
+  }
+]

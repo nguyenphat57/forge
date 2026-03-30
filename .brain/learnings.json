@@ -19,5 +19,21 @@
     ],
     "revisit_if": null,
     "trigger": null
+  },
+  {
+    "id": "20260330-082442",
+    "kind": "learning",
+    "scope": "forge-self-hosted-tdd-sdd-adoption",
+    "summary": "Target-state and workflow-contract changes must be mirrored across Codex and Antigravity host wrappers before release verification.",
+    "status": "resolved",
+    "evidence": [
+      "Archived change: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\changes\\archive\\20260330-082442-forge-self-hosted-tdd-sdd-adoption"
+    ],
+    "next": [],
+    "tags": [
+      "change-archive"
+    ],
+    "revisit_if": null,
+    "trigger": "change-archive"
   }
 ]

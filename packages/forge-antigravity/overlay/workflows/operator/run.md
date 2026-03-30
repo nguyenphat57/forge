@@ -26,6 +26,7 @@ python scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -
 3. Report:
    - command that ran
    - key signal
+   - Error translation: include it when the command failed or timed out
    - next workflow
 
 ## Activation Announcement

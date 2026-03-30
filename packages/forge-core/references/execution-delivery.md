@@ -89,6 +89,12 @@ Rules:
 - auth/payment/migration/release-critical work -> lean toward `independent-reviewer`
 - if the boundary is not justified clearly, do not split the work
 
+Worktree bootstrap helper:
+
+```powershell
+python scripts/prepare_worktree.py --workspace <workspace> --name <slice> --baseline-command "<baseline>"
+```
+
 ## Delegation Packet
 
 If execution chooses `subagent-split` or an independent reviewer lane, the controller must prepare explicit packets instead of forcing every lane to reread the full thread.
@@ -141,6 +147,7 @@ Execution packet:
 - Current slice: [...]
 - File/surface scope: [...]
 - Baseline: [...]
+- Worktree path / ignore-safety proof: [...]
 - Proof before progress: [...]
 - Out of scope: [...]
 - Reopen if: [...]
@@ -190,6 +197,7 @@ Default rules:
 - `spec-review` allows at most `3` `revise` rounds
 - exceeding that threshold becomes `blocked` and returns to `plan` or `architect`
 - every revision round must name the exact fix, not repeat vague feedback
+- `implementer-spec-quality` runs as `implementer -> spec-compliance -> quality-pass`
 
 This keeps execution from degrading into endless review churn.
 

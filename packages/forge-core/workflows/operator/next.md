@@ -28,6 +28,7 @@ quality_gates:
    - active change artifact or checkpoint artifact when the work is medium+ or already tracked
    - current working tree changes
    - session or handover artifacts if any
+   - `references/target-state.md` if working on Forge itself and the next move changes process direction or strictness
 2. Resolve with:
 
 ```powershell
@@ -40,6 +41,7 @@ python scripts/resolve_help_next.py --workspace <workspace> --mode next
    - Maximum 1-2 alternatives when needed
 
 For medium+ slices, the next step usually favors creating or refreshing the durable artifact before more editing when no such artifact is present yet.
+For Forge-maintenance work, the next step should not optimize local convenience at the cost of target-state discipline.
 
 ## Output Contract
 
