@@ -23,7 +23,8 @@ python scripts/change_artifacts.py start "feature summary" --workspace <workspac
 ```
 
 2. Update status as implementation and verification move forward.
-3. Archive the change once the slice is shipped or intentionally paused.
+3. Run `verify-change` before final merge/deploy-quality claims for medium or large build work.
+4. Archive the change once the slice is shipped or intentionally paused.
 
 ## Required Artifacts
 
@@ -32,3 +33,10 @@ python scripts/change_artifacts.py start "feature summary" --workspace <workspac
 - `tasks.md`
 - `status.json`
 - `verification.md`
+- `specs/<topic>/spec.md`
+
+## Artifact Check
+
+```powershell
+python scripts/verify_change.py --workspace <workspace> --slug <change-slug> --persist --output-dir <workspace>
+```

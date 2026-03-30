@@ -29,6 +29,15 @@ python scripts/doctor.py --workspace <workspace> --format json
    - warnings
    - next remediation steps
 
+Persisted artifacts:
+- `.forge-artifacts/doctor/latest.json`
+- `.forge-artifacts/doctor/history/`
+
+After running:
+- rerun `doctor` after remediation if blockers or warnings changed
+- run `map-codebase` once core health is usable and you still need a brownfield summary
+- return to `help` or `next` after the repo has both health and map signals
+
 ## Output Contract
 
 ```text

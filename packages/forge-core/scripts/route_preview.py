@@ -24,14 +24,22 @@ from route_analysis import (
     detect_domain_skills,
     detect_intent,
     process_precheck_required,
-    recommended_isolation_stance,
-    review_artifact_required,
-    requires_change_artifacts,
 )
 from route_delegation import (
     choose_delegation_plan,
     choose_execution_pipeline,
     choose_lane_model_assignments,
+)
+from route_execution_advice import (
+    build_baseline_verification,
+    build_review_sequence,
+    build_worktree_bootstrap,
+)
+from route_process_requirements import (
+    recommended_isolation_stance,
+    review_artifact_required,
+    requires_change_artifacts,
+    verify_change_required,
 )
 from companion_matching import match_companions
 from route_local_companions import infer_local_companions, resolve_workspace_router
@@ -101,6 +109,7 @@ def build_report(args: argparse.Namespace) -> dict:
     change_artifacts_required = requires_change_artifacts(intent, complexity)
     precheck_required = process_precheck_required(intent, args.prompt, registry)
     baseline_proof_required = baseline_required(intent, complexity)
+    verify_change_gate_required = verify_change_required(intent, complexity)
     review_state_required = review_artifact_required(intent, complexity, execution_pipeline_key)
     isolation_recommendation = recommended_isolation_stance(
         intent,
@@ -108,6 +117,9 @@ def build_report(args: argparse.Namespace) -> dict:
         execution_mode,
         host_supports_subagents,
     )
+    baseline_verification = build_baseline_verification(baseline_proof_required, verification)
+    worktree_bootstrap = build_worktree_bootstrap(isolation_recommendation)
+    review_sequence = build_review_sequence(execution_pipeline_key)
 
     return {
         "prompt": args.prompt,
@@ -133,9 +145,13 @@ def build_report(args: argparse.Namespace) -> dict:
             "change_artifacts_required": change_artifacts_required,
             "process_precheck_required": precheck_required,
             "baseline_proof_required": baseline_proof_required,
+            "verify_change_required": verify_change_gate_required,
             "review_artifact_required": review_state_required,
             "durable_process_artifacts_required": change_artifacts_required,
             "isolation_recommendation": isolation_recommendation,
+            "baseline_verification": baseline_verification,
+            "worktree_bootstrap": worktree_bootstrap,
+            "review_sequence": review_sequence,
         },
         "verification": verification,
         "execution_pipeline": execution_pipeline,
@@ -173,9 +189,12 @@ def format_text(report: dict) -> str:
         f"- Change artifacts required: {'yes' if detected['change_artifacts_required'] else 'no'}",
         f"- Process precheck required: {'yes' if detected['process_precheck_required'] else 'no'}",
         f"- Baseline proof required: {'yes' if detected['baseline_proof_required'] else 'no'}",
+        f"- Verify-change required: {'yes' if detected['verify_change_required'] else 'no'}",
         f"- Review artifact required: {'yes' if detected['review_artifact_required'] else 'no'}",
         f"- Durable process artifacts required: {'yes' if detected['durable_process_artifacts_required'] else 'no'}",
         f"- Isolation recommendation: {detected['isolation_recommendation'] or '(n/a)'}",
+        f"- Baseline verification packet: {detected['baseline_verification']['proof_target'] if detected['baseline_verification'] else '(n/a)'}",
+        f"- Worktree bootstrap helper: {detected['worktree_bootstrap']['helper'] if detected['worktree_bootstrap'] else '(n/a)'}",
         "- Lane model tiers:",
     ]
     if detected["lane_model_assignments"]:
@@ -183,6 +202,12 @@ def format_text(report: dict) -> str:
             lines.append(f"  - {lane}: {tier}")
     else:
         lines.append("  - (none)")
+    if detected["review_sequence"]:
+        lines.append("- Review sequence:")
+        for item in detected["review_sequence"]:
+            review_kind = item["review_kind"] or "implementation"
+            dependency = ", ".join(item["depends_on"]) or "none"
+            lines.append(f"  - {item['sequence_index']}. {item['lane']} | {review_kind} | depends on: {dependency}")
     if detected["execution_pipeline"] == "implementer-spec-quality":
         max_revisions = report["execution_pipeline"].get("max_revisions") if report["execution_pipeline"] else None
         if max_revisions is None:

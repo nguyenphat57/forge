@@ -47,6 +47,7 @@ python scripts/run_with_guidance.py --workspace <workspace> --project-name "Exam
 ```text
 Ran: [...]
 Primary signal: [...]
+Error translation: [...] when the command failed or timed out
 Next step: [...]
 ```
 

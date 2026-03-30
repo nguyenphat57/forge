@@ -66,6 +66,7 @@ If the flow touches multiple profiles, select the profile with the higher blast 
 
 Read from real artifact or new command output:
 - Verification/test output
+- Verify-change artifact for medium or large build work
 - Review disposition
 - Security decision
 - Deploy target readiness
@@ -76,6 +77,7 @@ Read from real artifact or new command output:
 Fresh command output is necessary, but medium+ or behavior-changing work also needs a durable process artifact before it can be marked ready:
 - plan, spec, or design packet
 - change artifact or execution checkpoint
+- verify-change artifact before final merge/deploy claims on active change work
 - workflow-state record when the work has already been tracked there
 - review pack or disposition artifact when the slice is entering handoff
 

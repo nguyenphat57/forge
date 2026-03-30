@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.9.0 - 2026-03-30
+
+- Adopt an artifact-driven TDD/SDD rollout across `forge-core`, including `verify-change`, requirements/spec packet checks, worktree preparation, stronger quality-gate enforcement, and sharper route/execution policy for medium or risky work.
+- Add strategic product-policy docs and operator references for the new target state, benchmark, roadmap, and self-hosted change flow so future Forge changes can be evaluated against an explicit north-star instead of drifting by local convenience.
+- Sync Codex and Antigravity host wrappers, release fixtures, archive the self-hosted exemplar packet, and keep full repo plus dist-bundle verification green after the release bump.
+
+
 ## 1.8.0 - 2026-03-29
 
 - Harden Forge's process-first execution model by routing small build and visualize work through planning, persisting richer execution and review state, and enforcing durable process artifacts plus RED-proof quality gates.

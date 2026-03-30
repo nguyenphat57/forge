@@ -1,0 +1,15 @@
+[
+  {
+    "slug": "forge-self-hosted-tdd-sdd-adoption",
+    "summary": "Self-host Forge TDD/SDD adoption workflow",
+    "topic": "forge-self-hosted-tdd-sdd-adoption",
+    "archived_at": "20260330-082442",
+    "archive_path": "C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\changes\\archive\\20260330-082442-forge-self-hosted-tdd-sdd-adoption\\specs\\forge-self-hosted-tdd-sdd-adoption\\spec.md",
+    "change_root": "C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\changes\\archive\\20260330-082442-forge-self-hosted-tdd-sdd-adoption",
+    "latest_verify_change": {
+      "path": "C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\verify-change\\forge-self-hosted-tdd-sdd-adoption\\20260329-215055-self-host-forge-tdd-sdd-adoption-workflow.json",
+      "status": "PASS",
+      "decision": "ready"
+    }
+  }
+]

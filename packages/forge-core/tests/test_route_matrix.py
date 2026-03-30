@@ -55,6 +55,8 @@ class RoutePreviewSmokeMatrixTests(unittest.TestCase):
                     self.assertEqual(detected["process_precheck_required"], case["expected_process_precheck_required"])
                 if "expected_baseline_proof_required" in case:
                     self.assertEqual(detected["baseline_proof_required"], case["expected_baseline_proof_required"])
+                if "expected_verify_change_required" in case:
+                    self.assertEqual(detected["verify_change_required"], case["expected_verify_change_required"])
                 if "expected_review_artifact_required" in case:
                     self.assertEqual(detected["review_artifact_required"], case["expected_review_artifact_required"])
                 if "expected_durable_process_artifacts_required" in case:

@@ -35,6 +35,9 @@ def load_entries(path: Path) -> list[dict]:
 def build_entry(args: argparse.Namespace) -> dict:
     next_steps = [item for item in args.next_step if isinstance(item, str) and item.strip()]
     summary = args.summary.strip()
+    tags = list(args.tag)
+    if args.constitution and "constitution-lite" not in tags:
+        tags.append("constitution-lite")
     return {
         "id": timestamp_slug(),
         "kind": args.kind,
@@ -43,7 +46,7 @@ def build_entry(args: argparse.Namespace) -> dict:
         "status": args.status,
         "evidence": args.evidence,
         "next": next_steps,
-        "tags": args.tag,
+        "tags": tags,
         "revisit_if": args.revisit_if,
         "trigger": args.trigger,
         "resume_hint": next_steps[0] if next_steps else args.revisit_if or "Re-open this item when the work slice resumes.",
@@ -88,6 +91,7 @@ def main() -> int:
     parser.add_argument("--evidence", action="append", default=[], help="Evidence source or verification note. Repeatable.")
     parser.add_argument("--next", dest="next_step", action="append", default=[], help="Next action linked to this entry. Repeatable.")
     parser.add_argument("--tag", action="append", default=[], help="Optional tag. Repeatable.")
+    parser.add_argument("--constitution", action="store_true", help="Also tag this decision as constitution-lite")
     parser.add_argument("--revisit-if", default=None, help="Condition that should reopen or invalidate this item")
     parser.add_argument("--trigger", default=None, help="Trigger or repeated failure pattern that produced this item")
     parser.add_argument("--brain-dir", type=Path, default=Path.cwd() / ".brain", help="Target .brain directory")

@@ -216,12 +216,14 @@
       "plan",
       "build",
       "test",
+      "verify-change",
       "quality-gate"
     ],
     "expected_local_companions": [
       "python-fastapi"
     ],
-    "expected_verification_profile": "behavioral_reproduction_first"
+    "expected_verification_profile": "behavioral_reproduction_first",
+    "expected_verify_change_required": true
   },
   {
     "name": "agents_entrypoint_resolves_router_for_local_companion",
@@ -237,11 +239,13 @@
       "plan",
       "build",
       "test",
+      "verify-change",
       "quality-gate"
     ],
     "expected_local_companions": [
       "python-fastapi"
     ],
-    "expected_verification_profile": "behavioral_reproduction_first"
+    "expected_verification_profile": "behavioral_reproduction_first",
+    "expected_verify_change_required": true
   }
 ]

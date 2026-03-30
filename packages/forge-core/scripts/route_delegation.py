@@ -92,6 +92,15 @@ def lane_runtime_role(lane: str) -> str:
     return "default"
 
 
+def lane_review_kind(lane: str) -> str | None:
+    mapping = {
+        "spec-reviewer": "spec-compliance",
+        "quality-reviewer": "quality-pass",
+        "deploy-reviewer": "release-review",
+    }
+    return mapping.get(lane)
+
+
 def build_delegation_packet_template() -> dict:
     return {
         "required_fields": list(DELEGATION_PACKET_FIELDS),
@@ -115,6 +124,9 @@ def build_delegation_packet_blueprints(
                 "runtime_role": "worker",
                 "read_only": False,
                 "scope_rule": "One packet per independent slice with non-overlapping write ownership.",
+                "review_kind": None,
+                "sequence_index": 1,
+                "depends_on": [],
             }
         ]
 
@@ -123,7 +135,8 @@ def build_delegation_packet_blueprints(
 
     lanes = registry.get("execution_pipelines", {}).get(execution_pipeline_key, {}).get("lanes", [])
     blueprints: list[dict] = []
-    for lane in lanes:
+    previous_lane: str | None = None
+    for index, lane in enumerate(lanes, start=1):
         if lane == "navigator":
             continue
         runtime_role = lane_runtime_role(lane)
@@ -140,12 +153,16 @@ def build_delegation_packet_blueprints(
                 "runtime_role": runtime_role,
                 "read_only": read_only,
                 "scope_rule": scope_rule,
+                "review_kind": lane_review_kind(lane),
+                "sequence_index": index,
+                "depends_on": [previous_lane] if previous_lane else [],
             }
         )
+        previous_lane = lane
     return blueprints
 
 
-def build_delegation_controller_steps(strategy_key: str) -> list[str]:
+def build_delegation_controller_steps(strategy_key: str, execution_pipeline_key: str | None) -> list[str]:
     if strategy_key == "parallel-split":
         return [
             "Lock independent slice boundaries before spawning.",
@@ -154,6 +171,13 @@ def build_delegation_controller_steps(strategy_key: str) -> list[str]:
             "Integrate results and rerun shared verification after the merge.",
         ]
     if strategy_key == "independent-reviewer":
+        if execution_pipeline_key == "implementer-spec-quality":
+            return [
+                "Let the implementer finish its slice and verification first.",
+                "Dispatch the spec-reviewer as a spec-compliance lane with packet, changed files, and evidence.",
+                "Only dispatch the quality-reviewer after spec-compliance returns clean.",
+                "If spec-compliance finds drift, hand ownership back to the implementer before quality review.",
+            ]
         return [
             "Let the implementer finish its slice and verification first.",
             "Dispatch reviewer packets with spec, changed files, and evidence.",
@@ -230,7 +254,7 @@ def choose_delegation_plan(
         ),
         "activation_skill": activation_skill if host_skills else None,
         "controller_contract": controller_contract,
-        "controller_steps": build_delegation_controller_steps(key),
+        "controller_steps": build_delegation_controller_steps(key, execution_pipeline_key),
         "packet_template": build_delegation_packet_template(),
         "packet_blueprints": build_delegation_packet_blueprints(key, execution_pipeline_key, registry),
     }

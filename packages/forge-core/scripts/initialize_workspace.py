@@ -63,6 +63,13 @@ def build_plan(args: argparse.Namespace) -> dict:
             json.dumps(build_session_payload(args.project_name), indent=2, ensure_ascii=False) + "\n",
         )
     ]
+    if args.seed_continuity:
+        files.extend(
+            [
+                (workspace / ".brain" / "decisions.json", "[]\n"),
+                (workspace / ".brain" / "learnings.json", "[]\n"),
+            ]
+        )
     if args.seed_preferences:
         files.append(
             (
@@ -111,6 +118,8 @@ def build_plan(args: argparse.Namespace) -> dict:
         if mode == "greenfield"
         else "Start with `plan` against the current repo state before editing."
     )
+    if args.seed_continuity:
+        recommended_action += " After direction lock, capture any repo-local rules with `capture_continuity.py --constitution`."
     if preset_report is not None:
         recommended_next_workflow = "plan"
         recommended_action = "Run `doctor`, then use `plan` against the scaffolded preset before extending scope."
@@ -123,6 +132,7 @@ def build_plan(args: argparse.Namespace) -> dict:
         "forge_home": str(resolve_forge_home(args.forge_home)),
         "applied": args.apply,
         "seed_preferences": args.seed_preferences,
+        "seed_continuity": args.seed_continuity,
         "created_directories": created_directories,
         "created_files": created_files,
         "reused_paths": reused_paths,
@@ -191,6 +201,7 @@ def main() -> int:
     parser.add_argument("--mode", choices=["auto", "greenfield", "existing"], default="auto", help="Override workspace classification")
     parser.add_argument("--preset", default=None, help="Optional companion preset such as nextjs-typescript-postgres/minimal-saas")
     parser.add_argument("--seed-preferences", action="store_true", help="Also create the adapter-global Forge preferences file with schema defaults")
+    parser.add_argument("--seed-continuity", action="store_true", help="Also create empty decisions/learnings continuity files")
     parser.add_argument("--apply", action="store_true", help="Create the planned directories/files")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     args = parser.parse_args()

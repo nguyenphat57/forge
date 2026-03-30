@@ -55,3 +55,18 @@ The dashboard should show:
 - dashboard reflects a real workspace without manual editing
 - dashboard can run on a workspace with only partial artifacts
 - release state appears when release-doc sync or canary artifacts exist
+
+## How To Run
+
+```powershell
+python scripts/dashboard.py --workspace <workspace> --persist --format json
+```
+
+Persisted artifacts:
+- `.forge-artifacts/dashboard/latest.json`
+- `.forge-artifacts/dashboard/history/`
+
+After running:
+- use `next` if the dashboard shows a concrete active slice
+- use `doctor` if the dashboard suggests runtime or workspace health is suspect
+- use `map-codebase` if the repo is still effectively unscoped

@@ -10,6 +10,7 @@ def resolve_change_paths(workspace: Path, *, summary: str | None = None, slug: s
     root = default_artifact_dir(str(workspace), "changes")
     active_root = root / "active" / change_slug
     archive_root = root / "archive" / f"{timestamp_slug()}-{change_slug}"
+    spec_topic_root = active_root / "specs" / change_slug
     return {
         "root": root,
         "active_root": active_root,
@@ -21,4 +22,7 @@ def resolve_change_paths(workspace: Path, *, summary: str | None = None, slug: s
         "resume": active_root / "resume.md",
         "status": active_root / "status.json",
         "verification": active_root / "verification.md",
+        "specs_root": active_root / "specs",
+        "spec_topic_root": spec_topic_root,
+        "spec": spec_topic_root / "spec.md",
     }

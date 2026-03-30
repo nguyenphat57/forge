@@ -21,6 +21,7 @@ quality_gates:
 1. Resolve with:
 
 The resolver will prefer `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, UI, run, or quality-gate tools have already persisted a current slice.
+If the repo under maintenance is Forge itself or multiple valid directions are available, use `references/target-state.md` as the policy tie-break before answering.
 
 ```powershell
 python scripts/resolve_help_next.py --workspace <workspace> --mode help

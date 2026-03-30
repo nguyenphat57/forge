@@ -43,7 +43,7 @@ Quick path:
 flowchart TD
     A[Input] --> B{Brief/spec already exists?}
     B -->|Yes| C[Extract scope + assumptions]
-    B -->|No| D[Ask 3 framing questions]
+    B -->|No| D[Ask 1 decisive framing question]
     D --> E[Qualified problem statement]
     C --> E
     E --> F{Direction locked?}
@@ -63,15 +63,19 @@ flowchart TD
     Q -->|No| S[-> build]
 ```
 
-## 3 Framing Questions
+## Framing Question Discipline
 
 ```text
-1. What are we building or managing?
-2. Who uses it?
-3. If only one thing works perfectly, what must it be?
+Ask one decisive question at a time:
+- What are we building or managing?
+- Who uses it?
+- If only one thing works perfectly, what must it be?
 ```
 
-If the user says "you decide", you may make a controlled assumption, but you must state it explicitly.
+Rules:
+- ask the smallest question that unlocks the next planning decision
+- if the user says "you decide", you may make a controlled assumption, but you must state it explicitly
+- do not batch multiple open clarification questions into one handoff
 
 ## Qualified Problem Statement
 
@@ -166,6 +170,7 @@ Rules:
 - if the implementer still has to guess the main scope, sequence, or proof, the plan is not ready
 - you do not need a perfect file list early on, but you do need clear boundaries
 - if the plan is too large for a compact packet, split it into phases
+- if the requirements still feel vague, run `python scripts/generate_requirements_checklist.py ...` before handoff
 
 ## Plan Review Loop
 
@@ -185,6 +190,7 @@ Rules:
 - this review loop is required for large work and for public-interface, migration, auth, or payment changes
 - if two review passes still cannot lock sequence or proof, go back to `brainstorm` or `architect`
 - plan review does not replace `spec-review`
+- if packet readiness is unclear, run `python scripts/check_spec_packet.py --source <plan-or-spec>` and surface only the first clarification question
 
 ## Output Files
 

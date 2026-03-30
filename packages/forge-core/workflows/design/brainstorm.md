@@ -54,6 +54,7 @@ Do not end with:
 - "let the plan decide"
 
 If more than one decision question remains open, the brainstorm is incomplete.
+When blocked, surface exactly one precise clarification question instead of a list.
 
 ## Process
 
@@ -224,6 +225,7 @@ If the decision is blocked, hand off:
 Decision blocked:
 - Missing answer: [...]
 - Why it matters: [...]
+- Clarification needed: [one precise question]
 - Next step: clarify with user
 ```
 

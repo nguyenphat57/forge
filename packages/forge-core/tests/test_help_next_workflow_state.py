@@ -168,6 +168,36 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
             )
             self.assertEqual(run_result.returncode, 0, run_result.stderr)
 
+            updated = run_python_script(
+                "change_artifacts.py",
+                "status",
+                "--workspace",
+                str(workspace),
+                "--slug",
+                "deploy-readiness-slice",
+                "--state",
+                "ready-for-review",
+                "--verified",
+                "python scripts/build_release.py --format json",
+                "--format",
+                "json",
+            )
+            self.assertEqual(updated.returncode, 0, updated.stderr)
+
+            verify_change = run_python_script(
+                "verify_change.py",
+                "--workspace",
+                str(workspace),
+                "--slug",
+                "deploy-readiness-slice",
+                "--persist",
+                "--output-dir",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(verify_change.returncode, 0, verify_change.stderr)
+
             gate = run_python_script(
                 "record_quality_gate.py",
                 "--workspace",

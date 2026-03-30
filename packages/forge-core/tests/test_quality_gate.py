@@ -114,6 +114,108 @@ class QualityGateTests(unittest.TestCase):
         self.assertEqual(state["latest_gate"]["decision"], "go")
         self.assertEqual(state["summary"]["suggested_workflow"], "review")
 
+    def test_ready_for_merge_requires_persisted_verify_change(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            started = run_python_script(
+                "change_artifacts.py",
+                "start",
+                "Checkout merge readiness",
+                "--workspace",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(started.returncode, 0, started.stderr)
+            slug = json.loads(started.stdout)["change"]["slug"]
+
+            updated = run_python_script(
+                "change_artifacts.py",
+                "status",
+                "--workspace",
+                str(workspace),
+                "--slug",
+                slug,
+                "--state",
+                "ready-for-review",
+                "--verified",
+                "pytest tests/test_checkout.py",
+                "--format",
+                "json",
+            )
+            self.assertEqual(updated.returncode, 0, updated.stderr)
+
+            review_pack = run_python_script(
+                "review_pack.py",
+                "--workspace",
+                str(workspace),
+                "--persist",
+                "--output-dir",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(review_pack.returncode, 0, review_pack.stderr)
+
+            missing_verify = run_python_script(
+                "record_quality_gate.py",
+                "--workspace",
+                str(workspace),
+                "--profile",
+                "standard",
+                "--target-claim",
+                "ready-for-merge",
+                "--decision",
+                "go",
+                "--evidence",
+                "pytest tests/test_checkout.py",
+                "--response",
+                "I verified: checkout regression passed. Correct because merge blockers were cleared. Fixed: yes.",
+                "--why",
+                "Fresh test evidence and review pack are available.",
+                "--format",
+                "json",
+            )
+            self.assertEqual(missing_verify.returncode, 1)
+            self.assertIn("verify-change", json.loads(missing_verify.stdout)["error"])
+
+            verify_change = run_python_script(
+                "verify_change.py",
+                "--workspace",
+                str(workspace),
+                "--slug",
+                slug,
+                "--persist",
+                "--output-dir",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(verify_change.returncode, 0, verify_change.stderr)
+
+            ready = run_python_script(
+                "record_quality_gate.py",
+                "--workspace",
+                str(workspace),
+                "--profile",
+                "standard",
+                "--target-claim",
+                "ready-for-merge",
+                "--decision",
+                "go",
+                "--evidence",
+                "pytest tests/test_checkout.py",
+                "--response",
+                "I verified: checkout regression passed. Correct because merge blockers were cleared. Fixed: yes.",
+                "--why",
+                "Fresh test evidence, verify-change, and review pack are aligned.",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(ready.returncode, 0, ready.stderr)
+        self.assertEqual(json.loads(ready.stdout)["status"], "PASS")
+
 
 if __name__ == "__main__":
     unittest.main()

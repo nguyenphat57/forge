@@ -125,6 +125,7 @@ For important `medium/large` or verification tasks, write a short packet:
 ```text
 Test packets:
 - Behavior under proof: [...]
+- Baseline verification: [current command/reproduction before edit]
 - RED proof: [test/command/scenario]
 - Expected failure signal: [...]
 - GREEN proof: [test/command/scenario]
@@ -136,6 +137,7 @@ Test packets:
 Rules:
 - If you can't write `Expected fail signal`, RED is too vague
 - If you can't write `Boundary checks` for public interface/migration/auth, verification is too weak
+- If RED was skipped while the harness was viable, `Baseline verification` alone does not save the packet; rewrite it correctly
 
 ## Evidence Response Contract
 
@@ -205,6 +207,7 @@ Good (harness available):
 Testing must be stopped and reset when:
 - RED fails because the setup is wrong or the test writes the wrong intent
 - GREEN was achieved but RED was never observed in the harness-capable task
+- baseline verification was never captured before editing and the report is reconstructing proof after the fact
 - The boundary has just changed but the test packet still only has targeted happy path
 - suite pass but original reproduction has not been proven yet
 

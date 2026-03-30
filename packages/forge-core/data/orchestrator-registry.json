@@ -24,6 +24,7 @@
           "plan",
           "build",
           "test",
+          "verify-change",
           "quality-gate"
         ],
         "large": [
@@ -32,6 +33,7 @@
           "spec-review",
           "build",
           "test",
+          "verify-change",
           "quality-gate"
         ]
       }

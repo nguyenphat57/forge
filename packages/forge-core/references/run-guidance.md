@@ -32,6 +32,7 @@ Script returns:
 - `command_kind`: `build`, `serve`, `deploy`, `generic`
 - `suggested_workflow`
 - `recommended_action`
+- `error_translation` when the command fails or times out without a ready signal
 - `stdout_excerpt` / `stderr_excerpt`
 - `evidence`
 - `readiness_detected`
@@ -41,7 +42,7 @@ Script returns:
 - `build` successful -> `test`
 - `serve` has ready-signal and is alive after timeout -> `test`
 - `deploy` successful -> `deploy` to continue post-deploy verification
-- command failure or timeout without ready-signal -> `debug`
+- command failure or timeout without ready-signal -> `debug`, with `error_translation` preserved for the handoff
 
 ## Persisted Artifacts
 

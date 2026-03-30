@@ -34,6 +34,7 @@ Do not use this workflow when:
 
 If `spec-review` returns `revise` or `blocked`, do not proceed to `build`.
 Cap the `revise` loop at `3` rounds for the same packet; round `4` becomes `blocked`.
+This is the pre-build readiness review. It is different from the post-build `spec-compliance` lane.
 </HARD-GATE>
 
 ## Process
@@ -72,6 +73,7 @@ flowchart TD
 - Is there a concrete failing test or reproduction path?
 - Are acceptance checks close enough to the blast radius?
 - What would remain unverified if implementation started now?
+- If packet readiness is fuzzy, run `python scripts/check_spec_packet.py --source <plan-or-spec>` and keep only the first clarification question
 
 ## Build-Readiness Decisions
 
@@ -85,6 +87,7 @@ Rules:
 - use `go` only when the implementer does not need to guess the important parts
 - `revise` must list the exact deltas required
 - use `blocked` when coding now would likely cause drift or major rework
+- if the only blocker is missing user intent, `blocked` should carry one precise clarification question, not a questionnaire
 
 ## Review Loop Discipline
 
@@ -112,10 +115,12 @@ Spec-review iteration:
 - current source of truth: which plan/spec/design packet is authoritative
 - first implementation slice
 - first file/surface/boundary map
+- baseline verification path
 - exact boundary change
 - acceptance criteria to prove
 - proof/check required before declaring the slice complete
 - key edge cases to preserve
+- worktree bootstrap or other isolation plan when build will run in `worktree`
 - reopen conditions
 
 ## Implementation-Ready Packet Check
@@ -129,13 +134,16 @@ Implementation-ready:
 - Sources: [...]
 - First slice: [...]
 - File/surface map: [...]
+- Baseline verification path: [...]
 - Proof before progress: [...]
+- Worktree bootstrap / isolation plan: [...]
 - Must-preserve edges: [...]
 - Reopen only if: [...]
 ```
 
 Rules:
 - if you cannot name the first slice, the build is likely to drift immediately
+- if the build will use `worktree` but the bootstrap plan is still implicit, the decision cannot be `go`
 - if you cannot name the proof before progress, verification will get pushed to the end
 - if the boundary map is ambiguous for contracts, schema, or public interfaces, the decision cannot be `go`
 
