@@ -1,25 +1,29 @@
 # Changelog
 
+## 1.10.1 - 2026-03-30
+
+- Normalize `CHANGELOG.md` to English-first public prose across the full release history so the public release surface stays readable and encoding-safe.
+- Expand the GitHub Actions verify workflow to a Windows, Ubuntu, and macOS matrix while keeping the canonical repo verification command unchanged.
+- Materialize empty `forge-design-state` layout up front, including `state/renders.jsonl`, and add regression coverage for that contract.
+- Add an explicit maintainer contact path in `SECURITY.md`, refresh release notes for the patch snapshot, and ship a paste-ready GitHub Release body.
+
 ## 1.10.0 - 2026-03-30
 
 - Add the public-release groundwork for Forge, including `MIT` licensing, root contribution or conduct or security docs, and a repo-visible public-readiness checklist.
 - Rewrite the root README so Forge is introduced as a process-first orchestration system with detailed install guidance for Codex, Antigravity, runtime tools, and explicit core installs.
 - Clean maintainer-local paths out of release-facing docs, remove host soak as a release precondition from the current policy, and add release-hardening regression checks to keep the public release contract stable.
 
-
 ## 1.9.0 - 2026-03-30
 
 - Adopt an artifact-driven TDD/SDD rollout across `forge-core`, including `verify-change`, requirements/spec packet checks, worktree preparation, stronger quality-gate enforcement, and sharper route/execution policy for medium or risky work.
-- Add strategic product-policy docs and operator references for the new target state, benchmark, roadmap, and self-hosted change flow so future Forge changes can be evaluated against an explicit north-star instead of drifting by local convenience.
+- Add strategic product-policy docs and operator references for the new target state, benchmark, roadmap, and self-hosted change flow so future Forge changes can be evaluated against an explicit north star instead of drifting by local convenience.
 - Sync Codex and Antigravity host wrappers, release fixtures, archive the self-hosted exemplar packet, and keep full repo plus dist-bundle verification green after the release bump.
-
 
 ## 1.8.0 - 2026-03-29
 
 - Harden Forge's process-first execution model by routing small build and visualize work through planning, persisting richer execution and review state, and enforcing durable process artifacts plus RED-proof quality gates.
 - Downgrade `forge-nextjs-typescript-postgres` to a source-only example companion, remove it from shipped bundle and install surfaces, and decouple its local reference contract from the monorepo release version.
 - Refresh release, install, and bundle verification coverage so example companions remain discoverable from source while `build_release.py` and `verify_repo.py` only govern shipped bundles.
-
 
 ## 1.7.0 - 2026-03-29
 
@@ -32,13 +36,11 @@
 - Recenter Forge's canonical strategy on a process-first, stack-agnostic execution model by adding the new thesis and roadmap, and by marking the prior lane-first thesis, roadmap, backlog, and normalization docs as historical or superseded.
 - Add a current implementation plan that translates the new process-first roadmap into concrete build order, file or surface boundaries, and verification slices across `forge-core`, runtime tools, host adapters, and the reference companion.
 
-
 ## 1.6.0 - 2026-03-29
 
-- Normalize Forge's product policy so the thesis, roadmap, audit, backlog, and delivery reports agree on one committed first-party lane, historical vs current decisions, and what counts as shipped vs planned absorption.
+- Normalize Forge's product policy so the thesis, roadmap, audit, backlog, and delivery reports agree on one committed first-party lane, historical versus current decisions, and what counts as shipped versus planned absorption.
 - Tighten the lane-2 decision contract in `forge-core` by requiring explicit strategic product-pull confirmation instead of treating rollout evidence alone as automatic approval.
 - Add a repo-visible absorption consistency report and clarify that governance artifacts beyond current planning docs plus the initial `change_guard` privacy or risk rail remain partial or planned follow-up work.
-
 
 ## 1.5.0 - 2026-03-29
 
@@ -46,162 +48,145 @@
 - Add the first-party `forge-nextjs-typescript-postgres` companion with companion-aware install or init flows, stack-specific command and verification packs, and presets for minimal SaaS, auth, billing, and deploy-observability paths.
 - Strengthen real-world delivery evidence with multi-repo canaries, authenticated runtime QA improvements in `forge-browse`, and the supporting release or audit docs needed to steer lane-1 hardening and future lane decisions.
 
-
 ## 1.4.1 - 2026-03-28
 
-- Tighten runtime-tool consistency by teaching host bundles to consume `runtime_tools_relative_path` from build/install manifests instead of relying only on registry or sibling-bundle fallback.
+- Tighten runtime-tool consistency by teaching host bundles to consume `runtime_tools_relative_path` from build and install manifests instead of relying only on registry or sibling-bundle fallback.
 - Add end-to-end host-wrapper coverage for `forge-design -> forge-browse`, so Codex and Antigravity both verify the real wrapper path used to render and capture review artifacts.
 - Refresh tooling docs and contract tests so the generated host-artifact inventory and runtime-tool resolution surface stay aligned with the implementation.
-
 
 ## 1.4.0 - 2026-03-28
 
 - Add runtime-tool resolution and invocation to Forge host bundles, so `forge-codex` and `forge-antigravity` can call `forge-browse` and `forge-design` through registry-backed wrappers instead of hardcoded install paths.
 - Register runtime-tool targets during install, persist them in adapter-global state, and surface the new contract in release docs, packaging metadata, and host-facing design guidance.
-- Expand regression coverage for runtime-tool resolution, installed host invocation, and release/install flows so the new host-runtime boundary remains verified by `verify_repo.py`.
-
+- Expand regression coverage for runtime-tool resolution, installed host invocation, and release or install flows so the new host-runtime boundary remains verified by `verify_repo.py`.
 
 ## 1.3.0 - 2026-03-28
 
 - Absorb the planned gstack-inspired improvements into Forge: generated host artifacts with freshness gates, unified workflow state, hardened packaging manifests, runtime actuators, and design runtime tooling.
-- Add real runtime verification for `forge-browse` and `forge-design`, including live Playwright smoke, installed bundle integration smoke, and persisted brief to capture evidence flows.
+- Add real runtime verification for `forge-browse` and `forge-design`, including live Playwright smoke, installed bundle integration smoke, and persisted brief capture evidence flows.
 - Expand release and contract coverage so Codex host wrappers are generated from canonical sources, package matrix metadata stays authoritative, and `verify_repo.py` remains the single repo gate before promotion.
-
 
 ## 1.2.0 - 2026-03-28
 
-- Sửa độ ổn định của `forge-codex` release bundle verification, gồm xử lý đúng materialized bundle layout trong `support.py` và tránh import lệch `support` trong suite dist.
-- Chuẩn hóa prose agent-facing cho `forge-antigravity` trên `SKILL.md`, `GEMINI.global.md`, operator wrappers, và operator-surface reference để đạt mức native-clear hơn mà không đổi workflow semantics.
-- Cập nhật smoke contract cho `prepare_bump.py` để case auto-preview không có git context chấp nhận `inferred_from = no-git-context`, đồng thời giữ full release verification xanh sau bump.
-
+- Fix release-bundle verification stability for `forge-codex`, including correct handling of the materialized bundle layout in `support.py` and avoiding a skewed `support` import in the dist suite.
+- Normalize agent-facing prose for `forge-antigravity` across `SKILL.md`, `GEMINI.global.md`, operator wrappers, and the operator-surface reference so it reads more natively without changing workflow semantics.
+- Update the smoke contract for `prepare_bump.py` so auto-preview cases without git context accept `inferred_from = no-git-context`, and keep full release verification green after the bump.
 
 ## 1.1.0 - 2026-03-27
 
-- Nâng độ native-clear cho `forge-core` và `forge-codex` trên các workflow, reference, operator wrapper, và host docs để Codex đọc routing/gate/proof rõ hơn và ít ambiguity hơn.
-- Sửa adapter locale/runtime contract cho `forge-codex`, gồm locale pack tiếng Việt UTF-8 chuẩn, bundle-aware loading qua `FORGE_BUNDLE_ROOT`, và support shim để overlay tests chạy đúng cả khi chạy riêng lẫn khi chạy chung với `forge-core`.
-- Mở rộng regression coverage và giữ release evidence xanh sau thay đổi, đồng thời bump version theo semver `minor` vì repo có thêm capability mới ở lớp adapter/runtime support.
-
+- Raise the native-clear quality of `forge-core` and `forge-codex` across workflows, references, operator wrappers, and host docs so Codex reads routing, gates, and proof requirements with less ambiguity.
+- Fix the locale and runtime contract for `forge-codex`, including a UTF-8 Vietnamese locale pack, bundle-aware loading through `FORGE_BUNDLE_ROOT`, and a support shim so overlay tests pass both in isolation and alongside `forge-core`.
+- Expand regression coverage and keep release evidence green after the change, while bumping version by minor semver because the adapter and runtime support layer gained new capability.
 
 ## 1.0.0 - 2026-03-27
 
-- Hoàn tất đợt refactor agent-health trên toàn repo: tách các script và test hotspot thành module nhỏ theo chức năng, giữ các entrypoint ổn định, và đưa toàn bộ source Python ngoài `dist/` cùng `.install-backups/` về dưới ngưỡng 300 dòng mỗi file.
-- Chuẩn hóa release/runtime contracts bằng cách materialize overlay registry khi build, siết verify pipeline với secret scan và release hardening coverage, đồng thời giữ nguyên các flow cài bundle, preferences, help-next, route preview, smoke matrix, và workspace canary sau khi tách lớp.
-- Giảm nhiễu khi agent đọc workspace bằng `.ignore`, bổ sung báo cáo remediation/review, và chốt full verification cho source bundle lẫn dist bundle trước khi phát hành.
-
+- Complete the repo-wide agent-health refactor by splitting script and test hotspots into smaller modules, keeping stable entrypoints, and bringing all Python source outside `dist/` plus `.install-backups/` under the 300-line per-file target.
+- Normalize release and runtime contracts by materializing the overlay registry during build, tightening the verify pipeline with secret scan and release-hardening coverage, and preserving bundle install, preferences, help-next, route preview, smoke matrix, and workspace canary flows through the split.
+- Reduce workspace-reading noise with `.ignore`, add remediation or review reporting, and lock in full verification for both source and dist bundles before release.
 
 ## 0.14.0 - 2026-03-27
 
-- Mở rộng bootstrap host-level cho `forge-codex` và `forge-antigravity`, thêm global templates rõ state root, hai file preferences tách riêng, resolver tuyệt đối, và activation flow để render đúng `AGENTS.md` với `GEMINI.md`.
-- Thêm self-healing cho extra preferences khi gặp mojibake có thể phục hồi an toàn, đồng thời siết `response_contract` để bắt sai `tone_detail` như trường hợp phải gọi `Sếp`, xưng `Em`.
-- Tăng release/install regression coverage để khóa contract bootstrap preferences, host activation, và release overlays trên cả source bundle lẫn dist bundle trước khi phát hành.
-
+- Expand host-level bootstrap for `forge-codex` and `forge-antigravity`, adding global templates that spell out the state root, split preference files, the absolute resolver, and the activation flow used to render `AGENTS.md` and `GEMINI.md`.
+- Add self-healing for extra preferences when recoverable mojibake appears, and tighten `response_contract` to catch invalid `tone_detail` cases such as losing the expected user and assistant forms of address.
+- Increase release and install regression coverage to lock bootstrap preferences, host activation, and release overlays across both source and dist bundles.
 
 ## 0.13.0 - 2026-03-27
 
-- Khôi phục response personalization tự động ở đầu mỗi thread mới cho `forge-codex` và `forge-antigravity`, bao gồm bootstrap instructions trong host entrypoints và prompt mặc định của Antigravity.
-- Bổ sung bundle-native dev state fallback qua build metadata để `forge-core`, `forge-codex`, và `forge-antigravity` tự tìm đúng adapter-global state root ngay cả khi chưa có install manifest.
-- Mở rộng release regression tests để khóa behavior bootstrap preferences và state-root resolution trên cả overlay source lẫn dist bundles trước khi phát hành.
-
+- Restore automatic response personalization at the start of each new thread for `forge-codex` and `forge-antigravity`, including bootstrap instructions in host entrypoints and the default Antigravity prompt.
+- Add bundle-native dev-state fallback through build metadata so `forge-core`, `forge-codex`, and `forge-antigravity` can resolve the correct adapter-global state root even before an install manifest exists.
+- Expand release regression tests to lock bootstrap preferences and state-root resolution across both source overlays and dist bundles before release.
 
 ## 0.12.0 - 2026-03-27
 
-- Tăng độ native tiếng Việt cho `forge-codex` bằng cách làm sạch `locale/vi` về UTF-8 chuẩn, thêm regression cho prompt Việt tự nhiên hơn, và chặn lại lỗi mojibake ở asset bundle.
-- Bổ sung response-contract validator cùng smoke/tests để `forge-codex` bám chặt hơn vào contract output tiếng Việt và evidence response.
-- Siết adapter boundary để shared core không nhúng trực tiếp assumption của `.codex`, đồng thời giữ các tối ưu host-specific ở đúng lớp `forge-codex`.
-
+- Improve native Vietnamese quality in `forge-codex` by cleaning `locale/vi` back to proper UTF-8, adding regression coverage for more natural Vietnamese prompts, and blocking mojibake from re-entering bundle assets.
+- Add a response-contract validator plus smoke and tests so `forge-codex` adheres more tightly to the Vietnamese output and evidence contract.
+- Tighten adapter boundaries so shared core code does not embed `.codex` assumptions directly, while keeping host-specific optimizations inside `forge-codex`.
 
 ## 0.11.0 - 2026-03-27
 
-- Tách hoàn toàn locale routing và output contract khỏi `forge-core`, giữ core EN-only và chuyển ownership sang adapter overlays.
-- Thêm locale pack tiếng Việt và output-contract profiles cho `forge-antigravity` và `forge-codex`, kèm regression tests adapter-level và release checks tương ứng.
-- Chuẩn hóa personalization/docs/test fixtures sang English-first ở core, đồng thời bổ sung verify để dist bundles vẫn pass với bundle-aware contracts.
-
+- Fully separate locale routing and output-contract ownership from `forge-core`, keeping core EN-only and moving locale ownership to adapter overlays.
+- Add Vietnamese locale packs and output-contract profiles for `forge-antigravity` and `forge-codex`, with adapter-level regression tests and matching release checks.
+- Normalize personalization, docs, and test fixtures to English-first in core, while adding verify coverage so dist bundles still pass with bundle-aware contracts.
 
 ## 0.10.0 - 2026-03-27
 
-- Tách logic preferences trong `forge-core` khỏi `common.py` sang các module chuyên biệt như `preferences.py`, `compat.py`, `style_maps.py`, `skill_routing.py`, `text_utils.py`, và `error_translation.py`, đồng thời giữ `common.py` như shim re-export để không làm vỡ entrypoints hiện có.
-- Đơn giản hóa persistence preferences theo split-file adapter-global state với canonical fields ở `state/preferences.json`, extras ở `state/extra_preferences.json`, giữ nguyên `output_contract`, và chỉ migrate legacy single-file state trên write/apply flows.
-- Rút `forge-antigravity` compat config về read/migration-only, cập nhật docs/workflows/contracts của `forge-core`, `forge-codex`, và `forge-antigravity` cho semantics mới, và mở rộng regression/release verification để khóa split-file behavior từ source bundle tới dist bundle.
-
+- Split preference logic in `forge-core` out of `common.py` into focused modules such as `preferences.py`, `compat.py`, `style_maps.py`, `skill_routing.py`, `text_utils.py`, and `error_translation.py`, while keeping `common.py` as a re-export shim so existing entrypoints do not break.
+- Simplify preference persistence around split-file adapter-global state with canonical fields in `state/preferences.json`, extras in `state/extra_preferences.json`, preserving `output_contract`, and only migrating legacy single-file state on write or apply flows.
+- Reduce `forge-antigravity` compat config to read or migration-only, update docs, workflows, and contracts across `forge-core`, `forge-codex`, and `forge-antigravity` for the new semantics, and expand regression plus release verification to lock split-file behavior from source bundles through dist bundles.
 
 ## 0.9.0 - 2026-03-26
 
-- Đồng bộ test, docs, và release verification cho split-file preferences sau refactor v0.8.0.
-- Cập nhật regression tests để khóa behavior canonical + extras persistence trên cả source bundle lẫn dist bundle.
-- Clean up residual doc drift giữa `forge-core`, `forge-antigravity`, và `forge-codex` sau đợt thêm `output_contract`.
-
+- Sync tests, docs, and release verification for split-file preferences after the v0.8.0 refactor.
+- Update regression tests to lock canonical-plus-extras persistence across both source and dist bundles.
+- Clean up residual doc drift between `forge-core`, `forge-antigravity`, and `forge-codex` after adding `output_contract`.
 
 ## 0.8.0 - 2026-03-26
 
-- Thêm `output_contract` trong `forge-core` để suy ra policy hiển thị từ workspace extras như `language`, `orthography`, `tone_detail`, và `custom_rules`.
-- Bổ sung template `extra preferences` trong tài liệu personalization để user tự thiết lập ngôn ngữ nhanh qua `.brain/preferences.json`.
-- Cập nhật flow `customize` của `forge-codex` và `forge-antigravity` để request về ngôn ngữ được trả lời ngắn, trỏ thẳng tới template extras thay vì giải thích dài về canonical preferences.
-- Thêm helper PowerShell `enable_windows_utf8.ps1` cho `forge-codex` để giảm lỗi vỡ dấu tiếng Việt trên Windows.
-
+- Add `output_contract` in `forge-core` to infer display policy from workspace extras such as `language`, `orthography`, `tone_detail`, and `custom_rules`.
+- Add an `extra preferences` template to personalization docs so users can set language quickly through `.brain/preferences.json`.
+- Update the `customize` flow in `forge-codex` and `forge-antigravity` so language requests get short, direct responses that point to the extras template instead of long explanations about canonical preferences.
+- Add the PowerShell helper `enable_windows_utf8.ps1` for `forge-codex` to reduce Vietnamese mojibake on Windows.
 
 ## 0.7.2 - 2026-03-25
 
-- Sửa contract `session` của `forge-core` để restore flow nạp `.brain/preferences.json` qua `resolve_preferences.py` trước khi tóm tắt context.
-- Cập nhật `forge-codex` session override để recap/next step bám theo response preferences của workspace thay vì bỏ qua personalization.
-- Thêm regression test ở `forge-core` và release repo để khóa yêu cầu preferences restore cho source bundle lẫn dist bundle của `forge-codex` và `forge-antigravity`.
-
+- Fix the `session` contract in `forge-core` so restore flow loads `.brain/preferences.json` via `resolve_preferences.py` before summarizing context.
+- Update the `forge-codex` session override so recap and next-step output follows workspace response preferences instead of skipping personalization.
+- Add regression tests in `forge-core` and the release repo to lock preference restore for both source and dist bundles of `forge-codex` and `forge-antigravity`.
 
 ## 0.7.1 - 2026-03-24
 
-- Đồng bộ contract `/bump` của `forge-antigravity` và `forge-codex` theo `forge-core`, để cả hai host đều dùng wording và guardrail semver mới.
-- Thêm regression test ở release repo để chặn việc wrapper/skill của adapter lệch contract bump của core trong các lần cập nhật sau.
-- Rebuild và tái cài đặt bundle host từ commit sạch để manifest, version, và nội dung cài đặt của `.codex` và `.gemini` khớp nhau.
+- Sync the `/bump` contract in `forge-antigravity` and `forge-codex` with `forge-core`, so both hosts use the new wording and semver guardrails.
+- Add a release-repo regression test to prevent adapter wrappers or skills from drifting away from the core bump contract in future updates.
+- Rebuild and reinstall host bundles from a clean commit so the manifest, version, and installed `.codex` or `.gemini` content stay aligned.
 
 ## 0.7.0 - 2026-03-24
 
-- Thêm host-aware delegation cho Forge, gồm routing `parallel-split`/`independent-reviewer`, workflow `dispatch-subagents`, và wiring Codex để bật delegation runtime khi host hỗ trợ subagent thật.
-- Nâng cấp flow `bump` để có thể tự suy luận semver từ git diff theo workspace, trả thêm lý do và độ tự tin, đồng thời nhận đúng thay đổi capability trong cấu trúc monorepo.
-- Đồng bộ lại contract, docs, smoke tests, và release verification giữa `forge-core` với `forge-codex` để natural-language bump vẫn giữ guardrail release rõ ràng.
-
+- Add host-aware delegation to Forge, including `parallel-split` and `independent-reviewer` routing, the `dispatch-subagents` workflow, and Codex wiring that enables delegation runtime when the host truly supports subagents.
+- Upgrade the `bump` flow to infer semver from workspace git diff, return reasoning plus confidence, and detect capability changes correctly in a monorepo.
+- Resync contracts, docs, smoke tests, and release verification across `forge-core` and `forge-codex` so natural-language bump retains explicit release guardrails.
 
 ## 0.6.0 - 2026-03-24
 
-- Thêm Codex host takeover cho `forge-codex` qua `AGENTS.global.md` và `install_bundle.py --activate-codex`, đồng thời backup rồi retire `~/.codex/awf-codex` và các skill legacy `awf-*`.
-- Bổ sung Wave C artifacts còn thiếu cho `forge-codex`: session workflow riêng cho Codex, smoke references, registry override, và release/install verification cho host activation path.
-- Chuẩn hóa lại narrative của Forge theo hướng natural-language first cho Codex và giữ `SESSION` của `forge-codex` nhất quán với registry, wrapper, docs, và dist output.
-
+- Add Codex host takeover for `forge-codex` via `AGENTS.global.md` and `install_bundle.py --activate-codex`, with backup-and-retire handling for `~/.codex/awf-codex` and legacy `awf-*` skills.
+- Add the missing Wave C artifacts for `forge-codex`: a Codex-specific session workflow, smoke references, registry override, and release or install verification for the host activation path.
+- Normalize the Forge narrative toward a natural-language-first Codex experience and keep the `forge-codex` `SESSION` contract consistent with registry, wrapper, docs, and dist output.
 
 ## 0.5.1 - 2026-03-24
 
-- Chuẩn hóa lại prose tiếng Việt có dấu trên toàn bộ source Markdown của `forge-core`, `forge-antigravity`, và `forge-codex`.
-- Dọn các residue lỗi dấu kiểu `kh?ng/???c` trong docs, workflow wrappers, plan, và release references để source repo sạch hơn.
-- Rebuild `dist/` từ source đã chuẩn hóa và verify lại toàn bộ repo để bảo đảm bundle phát hành bám đúng nội dung mới.
+- Normalize fully accented Vietnamese prose across the Markdown source for `forge-core`, `forge-antigravity`, and `forge-codex`.
+- Clean up residual broken-accent forms like `kh?ng` or `???c` in docs, workflow wrappers, plans, and release references so the source repo reads cleanly.
+- Rebuild `dist/` from the normalized source and re-verify the full repo so release bundles match the new text.
 
 ## 0.5.0 - 2026-03-24
 
-- Thêm Wave C cho `forge-codex` với thin wrappers cho `help`, `next`, `run`, `bump`, `rollback`, `customize`, và `init`.
-- Cập nhật `AGENTS.example.md` và adapter docs để Codex giữ natural-language first, slash chỉ là alias optional, và không duplicate orchestration rules của Forge.
-- Bổ sung `codex-operator-surface.md` và release tests để build/install giữ nguyên Codex overlay sau mỗi lần release.
+- Add Wave C to `forge-codex` with thin wrappers for `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`.
+- Update `AGENTS.example.md` and adapter docs so Codex stays natural-language first, slash commands remain optional aliases, and Forge orchestration rules are not duplicated.
+- Add `codex-operator-surface.md` and release tests so build and install preserve the Codex overlay across each release.
 
 ## 0.4.0 - 2026-03-24
 
-- Thêm Wave B cho `forge-antigravity` với operator wrappers cho `help`, `next`, `run`, `bump`, `rollback`, `customize`, `init`, và session handover flows.
-- Mở rộng `forge-core` với preference persistence qua `write_preferences.py`, thêm `pace` và `feedback_style`, và workspace bootstrap reusable qua `initialize_workspace.py`.
-- Hardening `install_bundle.py` theo hướng sync in-place để rollout an toàn trên Windows ngay cả khi thư mục runtime đang bị host lock.
-- Tăng verify coverage cho release/install và bổ sung regression, smoke, và overlay checks cho Wave B.
+- Add Wave B to `forge-antigravity` with operator wrappers for `help`, `next`, `run`, `bump`, `rollback`, `customize`, `init`, and session handover flows.
+- Expand `forge-core` with preference persistence via `write_preferences.py`, add `pace` and `feedback_style`, and add reusable workspace bootstrap through `initialize_workspace.py`.
+- Harden `install_bundle.py` around in-place sync so rollouts stay safe on Windows even when the runtime directory is locked by the host.
+- Increase verify coverage and add regression, smoke, and overlay checks for Wave B.
 
 ## 0.3.0 - 2026-03-24
 
-- Thêm Wave A / P1.1 với error translator host-neutral và nối trực tiếp vào `run` để biến lỗi kỹ thuật thành guidance dễ đọc và xử lý.
-- Thêm Wave A / P1.2 với bump workflow dùng chung qua `prepare_bump.py`, cập nhật `VERSION`, changelog, và release checklist theo một contract duy nhất.
-- Thêm Wave A / P1.3 với rollback guidance engine qua `resolve_rollback.py`, phân loại deploy/config/migration/code-change và đề xuất bước xử lý an toàn.
-- Nâng full regression, smoke matrix, và adapter wiring để Antigravity runtime và Codex runtime cùng kế thừa trọn bộ Wave A từ core.
+- Add Wave A / P1.1 with a host-neutral error translator wired directly into `run`, turning raw technical failures into readable guidance and recovery paths.
+- Add Wave A / P1.2 with a shared bump workflow through `prepare_bump.py` that updates `VERSION`, changelog, and release checklist under one contract.
+- Add Wave A / P1.3 with a rollback guidance engine through `resolve_rollback.py`, classifying deploy, config, migration, and code-change issues and proposing safe recovery steps.
+- Upgrade full regression, smoke matrix, and adapter wiring so both Antigravity and Codex runtimes inherit the entire Wave A surface from core.
 
 ## 0.2.0 - 2026-03-24
 
-- Thêm Wave A / P0.1 với preferences engine host-neutral cho `technical_level`, `detail_level`, `autonomy_level`, và `personality`.
-- Thêm Wave A / P0.2 với help-next navigator repo-first dùng chung cho `forge-antigravity` và `forge-codex`.
-- Thêm Wave A / P0.3 với run-guidance engine để chạy lệnh thật, detect ready-signal, và route tiếp sang `test`, `debug`, hoặc `deploy`.
-- Mở rộng regression, smoke matrix, và adapter wiring để cả Antigravity runtime lẫn Codex runtime đều kế thừa cùng contract của core.
+- Add Wave A / P0.1 with a host-neutral preferences engine for `technical_level`, `detail_level`, `autonomy_level`, and `personality`.
+- Add Wave A / P0.2 with a repo-first help and next navigator shared by `forge-antigravity` and `forge-codex`.
+- Add Wave A / P0.3 with a run-guidance engine that executes real commands, detects ready signals, and routes onward to `test`, `debug`, or `deploy`.
+- Expand regression, smoke matrix, and adapter wiring so both Antigravity and Codex runtimes inherit the same core contract.
 
 ## 0.1.0 - 2026-03-24
 
-- Tách Forge thành monorepo `forge-core + forge-antigravity + forge-codex`.
-- Thêm release pipeline chuẩn với `build_release.py`, `verify_repo.py`, và `install_bundle.py`.
-- Chuẩn hóa `forge-core` theo hướng host-neutral, giữ host-specific entrypoints trong adapter overlays.
-- Thêm test cấp monorepo cho build/install/version flow và release documentation.
+- Split Forge into the `forge-core + forge-antigravity + forge-codex` monorepo.
+- Add the standard release pipeline with `build_release.py`, `verify_repo.py`, and `install_bundle.py`.
+- Normalize `forge-core` around a host-neutral design while keeping host-specific entrypoints in adapter overlays.
+- Add monorepo-level tests for build, install, version flow, and release documentation.

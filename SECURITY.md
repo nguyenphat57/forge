@@ -3,7 +3,8 @@
 ## Reporting
 
 If Forge is hosted on a platform that supports private vulnerability reporting, use that channel first.
-If no private channel is available yet, open an issue with sanitized details only and avoid posting secrets, tokens, or full exploit instructions in public.
+If no private channel is available yet, contact the maintainer through GitHub at `@nguyenphat57` (`https://github.com/nguyenphat57`) or open an issue with sanitized details only.
+Do not post secrets, tokens, or full exploit instructions in public.
 
 Include:
 
@@ -12,6 +13,7 @@ Include:
 - reproduction steps
 - version or commit
 - any mitigation already known
+- preferred follow-up channel if a maintainer needs more detail
 
 ## Response Expectations
 

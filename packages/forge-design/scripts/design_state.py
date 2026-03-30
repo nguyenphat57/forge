@@ -71,8 +71,10 @@ def resolve_state_paths(explicit_root: str | None = None) -> dict[str, str]:
 
 def ensure_state_layout(paths: dict[str, str]) -> dict[str, str]:
     Path(paths["root"]).mkdir(parents=True, exist_ok=True)
-    Path(paths["renders_path"]).parent.mkdir(parents=True, exist_ok=True)
+    renders_path = Path(paths["renders_path"])
+    renders_path.parent.mkdir(parents=True, exist_ok=True)
     Path(paths["packets_dir"]).mkdir(parents=True, exist_ok=True)
+    renders_path.touch(exist_ok=True)
     return paths
 
 

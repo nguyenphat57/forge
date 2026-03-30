@@ -58,6 +58,24 @@ class ReleaseHardeningTests(unittest.TestCase):
                 with self.subTest(path=path, phrase=phrase):
                     self.assertNotIn(phrase, text)
 
+    def test_changelog_is_english_first_public_text(self) -> None:
+        changelog = (ROOT_DIR / "CHANGELOG.md").read_text(encoding="utf-8")
+        self.assertTrue(changelog.isascii(), "CHANGELOG.md should stay ASCII and English-first for public release surfaces.")
+
+    def test_security_policy_includes_direct_contact_path(self) -> None:
+        security = (ROOT_DIR / "SECURITY.md").read_text(encoding="utf-8")
+        self.assertIn("@nguyenphat57", security)
+        self.assertIn("https://github.com/nguyenphat57", security)
+
+    def test_verify_workflow_uses_cross_platform_matrix(self) -> None:
+        workflow = (ROOT_DIR / ".github" / "workflows" / "verify.yml").read_text(encoding="utf-8")
+        self.assertIn("strategy:", workflow)
+        self.assertIn("matrix:", workflow)
+        self.assertIn("windows-latest", workflow)
+        self.assertIn("ubuntu-latest", workflow)
+        self.assertIn("macos-latest", workflow)
+        self.assertIn("python-version: ${{ matrix.python-version }}", workflow)
+
     def test_build_release_excludes_cached_python_artifacts(self) -> None:
         build_release.build_all()
         for bundle_name in ("forge-antigravity", "forge-codex", "forge-browse", "forge-design"):
