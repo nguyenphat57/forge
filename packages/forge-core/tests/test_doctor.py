@@ -4,7 +4,7 @@ import json
 import unittest
 from pathlib import Path
 
-from support import copied_workspace_fixture, resolve_reference_companion_package, run_python_script, temporary_workspace
+from support import copied_workspace_fixture, reference_companion_environment, run_python_script, temporary_workspace
 
 
 def _fake_runtime_tool(root: Path, bundle_name: str, *, doctor_status: str | None = None) -> Path:
@@ -102,8 +102,8 @@ class DoctorTests(unittest.TestCase):
             self.assertIn("Artifact write access", report["blockers"])
 
     def test_doctor_detects_first_party_companion_checks(self) -> None:
-        with copied_workspace_fixture("nextjs_postgres_workspace") as workspace:
-            result = run_python_script("doctor.py", "--workspace", str(workspace), "--format", "json")
+        with copied_workspace_fixture("nextjs_postgres_workspace") as workspace, reference_companion_environment() as (_, companion_env):
+            result = run_python_script("doctor.py", "--workspace", str(workspace), "--format", "json", env=companion_env)
 
             self.assertEqual(result.returncode, 0, result.stderr)
             report = json.loads(result.stdout)
@@ -115,10 +115,9 @@ class DoctorTests(unittest.TestCase):
             self.assertIn("Postgres adapter", labels)
 
     def test_doctor_reports_registered_companion_state(self) -> None:
-        with copied_workspace_fixture("nextjs_postgres_workspace") as workspace:
+        with copied_workspace_fixture("nextjs_postgres_workspace") as workspace, reference_companion_environment() as (companion_root, _):
             temp_root = workspace.parent
             registry_path = temp_root / "companions.json"
-            companion_root = resolve_reference_companion_package()
             registry_payload = {
                 "version": 1,
                 "companions": {

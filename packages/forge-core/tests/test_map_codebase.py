@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import unittest
 
-from support import copied_workspace_fixture, run_python_script
+from support import copied_workspace_fixture, reference_companion_environment, run_python_script
 
 
 class MapCodebaseTests(unittest.TestCase):
@@ -30,8 +30,8 @@ class MapCodebaseTests(unittest.TestCase):
             self.assertTrue((workspace / ".forge-artifacts" / "codebase" / "focus" / "api.md").exists())
 
     def test_map_codebase_applies_nextjs_companion_enrichment(self) -> None:
-        with copied_workspace_fixture("nextjs_postgres_workspace") as workspace:
-            result = run_python_script("map_codebase.py", "--workspace", str(workspace), "--format", "json")
+        with copied_workspace_fixture("nextjs_postgres_workspace") as workspace, reference_companion_environment() as (_, companion_env):
+            result = run_python_script("map_codebase.py", "--workspace", str(workspace), "--format", "json", env=companion_env)
 
             self.assertEqual(result.returncode, 0, result.stderr)
             report = json.loads(result.stdout)

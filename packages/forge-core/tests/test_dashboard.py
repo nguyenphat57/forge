@@ -5,12 +5,12 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from support import run_python_script
+from support import reference_companion_environment, run_python_script
 
 
 class DashboardTests(unittest.TestCase):
     def test_dashboard_reflects_active_review_ready_workspace(self) -> None:
-        with TemporaryDirectory() as temp_dir:
+        with TemporaryDirectory() as temp_dir, reference_companion_environment() as (_, companion_env):
             workspace = Path(temp_dir) / "workspace"
             workspace.mkdir(parents=True, exist_ok=True)
             (workspace / "README.md").write_text("# Demo\n", encoding="utf-8")
@@ -105,6 +105,7 @@ class DashboardTests(unittest.TestCase):
                 "--persist",
                 "--format",
                 "json",
+                env=companion_env,
             )
 
             self.assertEqual(result.returncode, 0, result.stderr)
