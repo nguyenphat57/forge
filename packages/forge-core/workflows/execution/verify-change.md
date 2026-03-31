@@ -29,6 +29,7 @@ NO FINAL MERGE OR DEPLOY CLAIM FROM TEST OUTPUT ALONE WHEN THE CHANGE HAS DURABL
 - the work is `medium` or `large`
 - `change_artifacts.py start` created a durable change folder
 - the slice is about to claim `ready-for-merge`, `done`, or `deploy`
+- the workflow-state record needs to be checked against the active change so stage state is not inferred from memory
 
 ## What It Checks
 
@@ -37,6 +38,7 @@ NO FINAL MERGE OR DEPLOY CLAIM FROM TEST OUTPUT ALONE WHEN THE CHANGE HAS DURABL
 - coherence: proposal, design, tasks, packet, and spec delta still describe the same change
 - evidence strength: current verification is strong enough to trust
 - residual risk: remaining gaps are explicit
+- workflow-state coherence: active stages use the canonical status vocabulary and carry activation or skip reasons
 
 ## Required Artifact Shape
 
@@ -66,6 +68,7 @@ python scripts/verify_change.py --workspace <workspace> --slug <change-slug> --p
 
 Rule:
 - `ready-for-merge`, `done`, and `deploy` should not use `go` at quality gate if the latest `verify-change` is not `PASS`
+- if the change is represented in workflow-state, `PASS` also means the workflow-state stage records match the current slice
 
 ## Output
 

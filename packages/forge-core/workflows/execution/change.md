@@ -26,6 +26,8 @@ python scripts/change_artifacts.py start "feature summary" --workspace <workspac
 3. Run `verify-change` before final merge/deploy-quality claims for medium or large build work.
 4. Archive the change once the slice is shipped or intentionally paused.
 
+If the work is being tracked in workflow-state, keep the stage status vocabulary explicit: `pending`, `required`, `active`, `completed`, `skipped`, or `blocked`. Attach activation reasons and skip reasons instead of leaving the state implied.
+
 ## Required Artifacts
 
 - `proposal.md`
@@ -40,3 +42,5 @@ python scripts/change_artifacts.py start "feature summary" --workspace <workspac
 ```powershell
 python scripts/verify_change.py --workspace <workspace> --slug <change-slug> --persist --output-dir <workspace>
 ```
+
+The change folder and workflow-state should agree on which stages are active and why.

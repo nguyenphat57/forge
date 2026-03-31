@@ -3,10 +3,14 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from common import load_registry
+from workflow_state_support import resolve_workflow_state
+
 
 TARGETS_REQUIRING_PROCESS_ARTIFACT = {"done", "ready-for-review", "ready-for-merge", "deploy"}
 TARGETS_REQUIRING_REVIEW_ARTIFACT = {"ready-for-merge", "done", "deploy"}
 TARGETS_REQUIRING_VERIFY_CHANGE = {"ready-for-merge", "done", "deploy"}
+VALID_COMPLETED_STAGE_STATUSES = {"completed", "skipped"}
 
 
 def _mtime_rank(path: Path | None) -> tuple[float, str]:
@@ -58,6 +62,40 @@ def _artifact_ref(kind: str, path: Path, payload: dict, *, summary_key: str, sta
         "summary": payload.get(summary_key),
         "state": payload.get(state_key),
     }
+
+
+def _validate_required_stage_state(workspace: Path, decision: str) -> None:
+    if decision != "go":
+        return
+    workflow_state = resolve_workflow_state(workspace).get("state")
+    if not isinstance(workflow_state, dict):
+        return
+    stages = workflow_state.get("stages")
+    if not isinstance(stages, dict) or not stages:
+        return
+    required_stage_chain = workflow_state.get("required_stage_chain")
+    stage_names = [name for name in required_stage_chain if isinstance(name, str)] if isinstance(required_stage_chain, list) else []
+    if "quality-gate" in stage_names:
+        stage_names = stage_names[: stage_names.index("quality-gate")]
+    elif not stage_names:
+        stage_names = [name for name, payload in stages.items() if isinstance(payload, dict)]
+    valid_skip_reasons = set(load_registry().get("solo_profiles", {}).get("skip_reasons", []))
+    pending: list[str] = []
+    for stage_name in stage_names:
+        payload = stages.get(stage_name)
+        if not isinstance(payload, dict):
+            pending.append(stage_name)
+            continue
+        status = payload.get("status")
+        if status == "completed":
+            continue
+        if status == "skipped" and payload.get("skip_reason") in valid_skip_reasons:
+            continue
+        pending.append(stage_name)
+    if pending:
+        raise ValueError(
+            "Quality gate cannot return 'go' while required stages are incomplete: {0}.".format(", ".join(pending))
+        )
 
 
 def collect_process_artifacts(workspace: Path) -> tuple[list[dict], dict]:
@@ -138,6 +176,7 @@ def collect_review_artifacts(workspace: Path) -> tuple[list[dict], tuple[str, di
 
 def validate_supporting_artifacts(args) -> tuple[list[dict], list[dict]]:
     workspace = args.workspace.resolve()
+    _validate_required_stage_state(workspace, args.decision)
     process_artifacts, context = collect_process_artifacts(workspace)
     latest_execution = context["latest_execution"]
     latest_change = context["latest_change"]
