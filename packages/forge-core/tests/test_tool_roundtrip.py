@@ -340,6 +340,155 @@ class ToolRoundTripTests(unittest.TestCase):
         self.assertEqual(state["summary"]["suggested_workflow"], "review")
         self.assertEqual(state["summary"]["current_focus"], "Review ready: Offline reconciliation")
 
+    def test_solo_profile_recorders_update_workflow_state_spine(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            required_stage_chain = [
+                "brainstorm",
+                "plan",
+                "spec-review",
+                "build",
+                "test",
+                "quality-gate",
+                "release-readiness",
+                "adoption-check",
+            ]
+            required_stage_args: list[str] = []
+            for stage in required_stage_chain:
+                required_stage_args.extend(["--required-stage", stage])
+
+            direction = run_python_script(
+                "record_direction_state.py",
+                "--workspace",
+                str(workspace),
+                "--project-name",
+                "Example Project",
+                "--profile",
+                "solo-internal",
+                "--intent",
+                "new feature direction",
+                *required_stage_args,
+                "--stage-status",
+                "completed",
+                "--mode",
+                "discovery-lite",
+                "--decision-state",
+                "direction-locked",
+                "--activation-reason",
+                "Greenfield feature needs an explicit direction brief.",
+                "--summary",
+                "Direction locked for the checkout flow.",
+                "--note",
+                "Discovery-lite confirms the path before implementation.",
+                "--next-action",
+                "Move into plan with the locked direction.",
+                "--persist",
+                "--output-dir",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(direction.returncode, 0, direction.stderr)
+            direction_report = json.loads(direction.stdout)
+
+            spec_review = run_python_script(
+                "record_spec_review_state.py",
+                "--workspace",
+                str(workspace),
+                "--project-name",
+                "Example Project",
+                "--profile",
+                "solo-internal",
+                "--intent",
+                "new feature direction",
+                *required_stage_args,
+                "--stage-status",
+                "completed",
+                "--decision",
+                "go",
+                "--activation-reason",
+                "Boundary risk was reviewed before build.",
+                "--summary",
+                "Spec review cleared the implementation packet.",
+                "--review-iteration",
+                "1",
+                "--max-review-iterations",
+                "3",
+                "--note",
+                "Packet is clear enough for build.",
+                "--next-action",
+                "Start implementation with the reviewed spec.",
+                "--persist",
+                "--output-dir",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(spec_review.returncode, 0, spec_review.stderr)
+            spec_review_report = json.loads(spec_review.stdout)
+
+            adoption_check = run_python_script(
+                "record_adoption_check.py",
+                "--workspace",
+                str(workspace),
+                "--project-name",
+                "Example Project",
+                "--profile",
+                "solo-internal",
+                "--intent",
+                "new feature direction",
+                *required_stage_args,
+                "--stage-status",
+                "completed",
+                "--activation-reason",
+                "Shared-env release needs a final adoption pass.",
+                "--target",
+                "shared env release",
+                "--summary",
+                "Adoption check confirms the release was taken up.",
+                "--signal",
+                "Users completed the new flow without follow-up issues.",
+                "--next-action",
+                "Monitor the release after rollout.",
+                "--persist",
+                "--output-dir",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(adoption_check.returncode, 0, adoption_check.stderr)
+            adoption_check_report = json.loads(adoption_check.stdout)
+
+            workflow_state_path = (
+                workspace
+                / ".forge-artifacts"
+                / "workflow-state"
+                / common.slugify("Example Project")
+                / "latest.json"
+            )
+            self.assertTrue(workflow_state_path.exists())
+            state = json.loads(workflow_state_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(state["profile"], "solo-internal")
+        self.assertEqual(state["intent"], "new feature direction")
+        self.assertEqual(state["required_stage_chain"], required_stage_chain)
+        self.assertEqual(state["current_stage"], "adoption-check")
+
+        self.assertEqual(state["latest_direction"]["current_stage"], "brainstorm")
+        self.assertEqual(state["latest_spec_review"]["current_stage"], "spec-review")
+        self.assertEqual(state["latest_adoption_check"]["current_stage"], "adoption-check")
+
+        self.assertEqual(state["latest_direction"]["source_path"], direction_report["artifacts"]["json"])
+        self.assertEqual(state["latest_spec_review"]["source_path"], spec_review_report["artifacts"]["json"])
+        self.assertEqual(state["latest_adoption_check"]["source_path"], adoption_check_report["artifacts"]["json"])
+
+        self.assertEqual(state["stages"]["brainstorm"]["status"], "completed")
+        self.assertEqual(state["stages"]["spec-review"]["status"], "completed")
+        self.assertEqual(state["stages"]["adoption-check"]["status"], "completed")
+        self.assertEqual(state["stages"]["brainstorm"]["source_path"], direction_report["artifacts"]["json"])
+        self.assertEqual(state["stages"]["spec-review"]["source_path"], spec_review_report["artifacts"]["json"])
+        self.assertEqual(state["stages"]["adoption-check"]["source_path"], adoption_check_report["artifacts"]["json"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -47,6 +47,44 @@ def _pick_latest_json(base_dir: Path) -> Path | None:
     return latest_path
 
 
+def _string_list(value: object) -> list[str]:
+    return [item for item in value if isinstance(item, str) and item.strip()] if isinstance(value, list) else []
+
+
+def _stage_entry(kind: str, report: dict, source_path: Path | None = None) -> tuple[str, dict] | None:
+    stage_name = report.get("stage_name")
+    if not isinstance(stage_name, str) or not stage_name.strip():
+        return None
+    entry = {
+        "status": report.get("stage_status", "required"),
+        "updated_at": report.get("recorded_at") or report.get("updated_at") or _now_iso(),
+        "source_path": str(source_path) if source_path else None,
+    }
+    for key in (
+        "mode",
+        "activation_reason",
+        "skip_reason",
+        "artifact",
+        "decision",
+        "decision_state",
+        "target",
+        "summary",
+    ):
+        value = report.get(key)
+        if value is not None:
+            entry[key] = value
+    if kind == "direction-state":
+        entry["decision_state"] = report.get("decision_state")
+    if kind == "spec-review-state":
+        entry["decision"] = report.get("decision")
+        entry["review_iteration"] = report.get("review_iteration")
+        entry["max_review_iterations"] = report.get("max_review_iterations")
+    if kind == "adoption-check":
+        entry["signals"] = _string_list(report.get("signals"))
+        entry["next_actions"] = _string_list(report.get("next_actions"))
+    return stage_name, entry
+
+
 def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> dict | None:
     if not isinstance(report, dict):
         return None
@@ -114,6 +152,37 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
             "next_steps": as_string_list(report.get("next_actions")),
             "no_finding_rationale": report.get("no_finding_rationale"),
         }
+    if kind == "direction-state":
+        return {
+            **common_fields,
+            "label": report.get("summary", "direction"),
+            "status": report.get("stage_status", "required"),
+            "current_stage": report.get("stage_name", "brainstorm"),
+            "mode": report.get("mode", "discovery-lite"),
+            "decision_state": report.get("decision_state", "direction-locked"),
+            "next_steps": as_string_list(report.get("next_actions")),
+            "notes": as_string_list(report.get("notes")),
+        }
+    if kind == "spec-review-state":
+        return {
+            **common_fields,
+            "label": report.get("summary", "spec-review"),
+            "status": report.get("stage_status", "required"),
+            "current_stage": report.get("stage_name", "spec-review"),
+            "decision": report.get("decision", "go"),
+            "next_steps": as_string_list(report.get("next_actions")),
+            "notes": as_string_list(report.get("notes")),
+        }
+    if kind == "adoption-check":
+        return {
+            **common_fields,
+            "label": report.get("summary", "adoption-check"),
+            "status": report.get("stage_status", "completed"),
+            "current_stage": report.get("stage_name", "adoption-check"),
+            "target": report.get("target", "unknown"),
+            "next_steps": as_string_list(report.get("next_actions")),
+            "notes": as_string_list(report.get("signals")),
+        }
     return {
         **common_fields,
         "label": report.get("task", "Unnamed UI task"),
@@ -135,18 +204,34 @@ def _build_state(
     latest_run: dict | None,
     latest_gate: dict | None,
     latest_review: dict | None,
+    latest_direction: dict | None,
+    latest_spec_review: dict | None,
+    latest_adoption_check: dict | None,
+    profile: str | None,
+    intent: str | None,
+    current_stage: str | None,
+    required_stage_chain: list[str],
+    stages: dict,
     updated_at: str,
 ) -> dict:
     return {
         "project": project,
         "updated_at": updated_at,
         "last_recorded_kind": preferred_kind,
+        "profile": profile,
+        "intent": intent,
+        "current_stage": current_stage,
+        "required_stage_chain": required_stage_chain,
+        "stages": stages,
         "latest_chain": latest_chain,
         "latest_execution": latest_execution,
         "latest_ui": latest_ui,
         "latest_run": latest_run,
         "latest_gate": latest_gate,
         "latest_review": latest_review,
+        "latest_direction": latest_direction,
+        "latest_spec_review": latest_spec_review,
+        "latest_adoption_check": latest_adoption_check,
         "summary": summarize_workflow_state(
             latest_chain,
             latest_execution,
@@ -167,6 +252,13 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
     root.mkdir(parents=True, exist_ok=True)
     latest_path = root / "latest.json"
     current = _read_json_object(latest_path, "workflow state", []) if latest_path.exists() else {}
+    stages = dict(current.get("stages", {})) if isinstance(current.get("stages"), dict) else {}
+    stage_snapshot = _stage_entry(kind, report, source_path)
+    if stage_snapshot is not None:
+        stage_name, snapshot = stage_snapshot
+        existing = stages.get(stage_name, {})
+        stages[stage_name] = {**existing, **snapshot}
+    required_stage_chain = _string_list(report.get("required_stage_chain")) or _string_list(current.get("required_stage_chain"))
     state = _build_state(
         project=entry["project"],
         preferred_kind=kind,
@@ -176,6 +268,14 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
         latest_run=entry if kind == "run-report" else current.get("latest_run"),
         latest_gate=entry if kind == "quality-gate" else current.get("latest_gate"),
         latest_review=entry if kind == "review-state" else current.get("latest_review"),
+        latest_direction=entry if kind == "direction-state" else current.get("latest_direction"),
+        latest_spec_review=entry if kind == "spec-review-state" else current.get("latest_spec_review"),
+        latest_adoption_check=entry if kind == "adoption-check" else current.get("latest_adoption_check"),
+        profile=report.get("profile") or current.get("profile"),
+        intent=report.get("intent") or current.get("intent"),
+        current_stage=report.get("current_stage") or (stage_snapshot[0] if stage_snapshot else current.get("current_stage")),
+        required_stage_chain=required_stage_chain,
+        stages=stages,
         updated_at=entry["recorded_at"],
     )
     latest_path.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -203,6 +303,9 @@ def resolve_workflow_state(workspace: Path, warnings: list[str] | None = None) -
         "run-report": _pick_latest_json(workspace / ".forge-artifacts" / "run-reports"),
         "quality-gate": _pick_latest_json(workspace / ".forge-artifacts" / "quality-gates"),
         "review-state": _pick_latest_json(workspace / ".forge-artifacts" / "reviews"),
+        "direction-state": _pick_latest_json(workspace / ".forge-artifacts" / "direction"),
+        "spec-review-state": _pick_latest_json(workspace / ".forge-artifacts" / "spec-review"),
+        "adoption-check": _pick_latest_json(workspace / ".forge-artifacts" / "adoption-check"),
     }
     if not any(sources.values()):
         return {"state": None, "path": None, "source": None}
@@ -216,6 +319,14 @@ def resolve_workflow_state(workspace: Path, warnings: list[str] | None = None) -
         latest_run=_entry("run-report", _read_json_object(sources["run-report"], "run report", local_warnings), sources["run-report"]),
         latest_gate=_entry("quality-gate", _read_json_object(sources["quality-gate"], "quality gate", local_warnings), sources["quality-gate"]),
         latest_review=_entry("review-state", _read_json_object(sources["review-state"], "review state", local_warnings), sources["review-state"]),
+        latest_direction=_entry("direction-state", _read_json_object(sources["direction-state"], "direction state", local_warnings), sources["direction-state"]),
+        latest_spec_review=_entry("spec-review-state", _read_json_object(sources["spec-review-state"], "spec review state", local_warnings), sources["spec-review-state"]),
+        latest_adoption_check=_entry("adoption-check", _read_json_object(sources["adoption-check"], "adoption check", local_warnings), sources["adoption-check"]),
+        profile=None,
+        intent=None,
+        current_stage=None,
+        required_stage_chain=[],
+        stages={},
         updated_at=_now_iso(),
     )
     project_entry = next((value for value in state.values() if isinstance(value, dict) and value.get("project")), None)

@@ -32,8 +32,11 @@ def build_report(args: argparse.Namespace) -> dict:
     return {
         "chain": args.chain,
         "project": args.project_name,
+        "profile": getattr(args, "profile", None),
+        "intent": getattr(args, "intent", None),
         "status": args.status,
         "current_stage": args.current_stage,
+        "required_stage_chain": list(getattr(args, "required_stage", []) or []),
         "completed_stages": args.completed_stage,
         "next_stages": args.next_stage,
         "active_skills": args.active_skill,
@@ -101,6 +104,9 @@ def main() -> int:
     parser.add_argument("--project-name", default="workspace", help="Project or workspace name")
     parser.add_argument("--status", choices=VALID_STATUSES, default="active", help="Chain status")
     parser.add_argument("--current-stage", required=True, help="Current stage in the chain")
+    parser.add_argument("--profile", default=None, help="Optional operating profile for workflow-state")
+    parser.add_argument("--intent", default=None, help="Optional intent for workflow-state")
+    parser.add_argument("--required-stage", action="append", default=[], help="Required stage in order. Repeatable.")
     parser.add_argument("--completed-stage", action="append", default=[], help="Completed stage. Repeatable.")
     parser.add_argument("--next-stage", action="append", default=[], help="Next stage. Repeatable.")
     parser.add_argument("--active-skill", action="append", default=[], help="Currently active skill. Repeatable.")

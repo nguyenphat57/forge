@@ -35,6 +35,9 @@ def build_report(args: argparse.Namespace) -> dict:
         "stage": args.stage,
         "status": args.status,
         "completion_state": args.completion_state,
+        "profile": getattr(args, "profile", None),
+        "intent": getattr(args, "intent", None),
+        "required_stage_chain": list(getattr(args, "required_stage", []) or []),
         "lane": args.lane,
         "model_tier": args.model_tier,
         "source_of_truth": source_of_truth,
@@ -130,6 +133,9 @@ def main() -> int:
         choices=VALID_COMPLETION_STATES,
         help="Delivery state at this checkpoint",
     )
+    parser.add_argument("--profile", default=None, help="Optional operating profile for workflow-state")
+    parser.add_argument("--intent", default=None, help="Optional intent for workflow-state")
+    parser.add_argument("--required-stage", action="append", default=[], help="Required stage in order. Repeatable.")
     parser.add_argument("--project-name", default="workspace", help="Project or workspace name for artifact grouping")
     parser.add_argument("--lane", choices=VALID_LANES, default=None, help="Active execution lane for this checkpoint")
     parser.add_argument(
