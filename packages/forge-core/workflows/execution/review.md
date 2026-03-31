@@ -24,6 +24,7 @@ FINDINGS FIRST, SUMMARY SECOND
 - Do not approve a patch, branch, or work item without either a finding, a no-finding rationale, or an explicit testing gap.
 - If the conclusion is "no findings", state the review scope and any residual risk clearly.
 - Every review must move through three stages: request -> receive -> close the review.
+- For solo-dev flows, the review is still findings-first, but the reviewer role is `self-review` rather than pretending there was a separate human reviewer.
 </HARD-GATE>
 
 ## Process
@@ -53,6 +54,7 @@ flowchart TD
 - set a clear review disposition: `ready-for-merge`, `changes-required`, or `blocked-by-residual-risk`
 - state what happens next: merge, keep editing, or stop because of risk
 - avoid vague endings such as "looks good"
+- if the work is release-sensitive, ensure the review-pack tail already exists or is being generated before the final disposition
 
 ## Large-Task Review Discipline
 
@@ -65,6 +67,14 @@ For `large`, `release-critical`, or `high-risk` work:
   - final disposition
 - do not implement and declare merge-ready in the same pass
 - if the build chain used `implementer-quality` or `implementer-spec-quality`, the reviewer lane must remain independent in tone and judgment
+
+## Solo Self-Review
+
+When the same person implements and reviews:
+- label the pass as `self-review`
+- keep the same findings-first structure and evidence standard
+- do not downgrade the bar because no separate reviewer is available
+- use `review-pack` first when the slice is release-sensitive or public-facing
 
 High-risk signals:
 - auth, payment, or data migration
@@ -84,6 +94,7 @@ Before handoff, the review must close the slice explicitly with a disposition an
 If the review has no findings, the no-finding rationale still has to name the scope, the closed slice, and any residual risk.
 
 For medium+ slices, do not leave closure implied in a summary paragraph. The review must say what was closed, what remains open, and which branch state follows from that decision.
+For solo-dev medium+ slices, the closure still needs a clear `self-review` disposition, not a vague personal note.
 
 ## Avoid Empty Agreement
 

@@ -24,6 +24,7 @@ NO DEPLOY WITHOUT VERIFIED QUALITY GATES
 - Do not deploy if env/config is not enough for the target environment.
 - Do not rely on `session.json` or handwritten notes as a substitute for real evidence.
 - Do not deploy without properly verifying identity, account, project, and target environment.
+- For solo-profile release-sensitive work, do not deploy until `review-pack` has been used and the final pass is explicitly a `self-review`.
 </HARD-GATE>
 
 ---
@@ -101,6 +102,17 @@ If an early step fails, don't jump to testing just to "see what else fails".
 
 Any item fails -> block deployment.
 This checklist does not replace the ordered gates. It summarizes the same decision.
+
+## Solo Release Tail
+
+For solo-internal and solo-public releases, keep the tail explicit:
+
+1. `review-pack`
+2. `self-review`
+3. `quality-gate`
+4. `deploy`
+
+If the slice is public-facing or release-sensitive, treat the tail as mandatory evidence, not as optional hygiene.
 
 ## Production Readiness
 

@@ -10,7 +10,7 @@ quality_gates:
 
 ## Intent
 
-Generate a repeatable pre-release review pack for a solo dev instead of relying on ad-hoc memory.
+Generate a repeatable pre-release review pack for a solo dev instead of relying on ad-hoc memory. The pack is the tail that feeds `self-review`, `quality-gate`, and release-facing handoff.
 
 ## What It Should Include
 
@@ -19,6 +19,7 @@ Generate a repeatable pre-release review pack for a solo dev instead of relying 
 - security-minded checks for public surfaces
 - stack-aware checks inferred from repo signals and optional companions
 - optional adversarial prompts for higher-risk work
+- explicit tail ordering: implementation -> review-pack -> self-review -> quality-gate -> deploy when the slice is release-sensitive
 
 ## Examples
 
@@ -32,6 +33,7 @@ Generate a repeatable pre-release review pack for a solo dev instead of relying 
 - repo-visible signals should be enough to produce a usable pack even when no companion matches
 - missing env docs for sensitive features should appear as findings
 - adversarial mode should raise the bar instead of repeating the standard checklist
+- if the work is solo-public or otherwise release-sensitive, the pack should call out `review-pack` as a required tail rather than optional reassurance
 
 ## Verification
 
