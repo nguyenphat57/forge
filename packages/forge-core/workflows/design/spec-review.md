@@ -20,13 +20,14 @@ quality_gates:
 NO HIGH-RISK BUILD WITHOUT A BUILD-READINESS REVIEW FIRST
 ```
 
-> `plan` defines what to build. `architect` defines how it should work. `spec-review` decides whether the packet is clear enough to implement safely.
+> `plan` defines what to build. `architect` defines how it should work. `spec-review` is the risk gate that decides whether the packet is clear enough to implement safely.
 
 <HARD-GATE>
 Use this workflow when:
 - the task is `large`
 - the task is `medium` and touches contract, schema, migration, auth, payment, webhook, public API, or another high-risk boundary
 - the direction/spec changed materially and implementation drift is now likely
+- the packet is unclear enough that an implementer would have to guess the boundary, even if the task sounds small
 
 Do not use this workflow when:
 - the task is `small`, clear, and narrowly scoped
@@ -35,6 +36,8 @@ Do not use this workflow when:
 If `spec-review` returns `revise` or `blocked`, do not proceed to `build`.
 Cap the `revise` loop at `3` rounds for the same packet; round `4` becomes `blocked`.
 This is the pre-build readiness review. It is different from the post-build `spec-compliance` lane.
+
+For solo-profile work, treat `spec-review` as the explicit boundary check before implementation, not as a size-based formality.
 </HARD-GATE>
 
 ## Process
@@ -75,6 +78,11 @@ flowchart TD
 - What would remain unverified if implementation started now?
 - If packet readiness is fuzzy, run `python scripts/check_spec_packet.py --source <plan-or-spec>` and keep only the first clarification question
 
+### 5. Risk Gate Fit
+- Does the packet need a risk gate because it crosses a contract, boundary, or release surface?
+- Is the first implementation slice specific enough to avoid drift?
+- Would a solo-dev implementation be forced to infer policy from chat memory?
+
 ## Build-Readiness Decisions
 
 |Decision | Use when|
@@ -109,6 +117,8 @@ Spec-review iteration:
 - Exact deltas required: [...]
 - Re-review after: [...]
 ```
+
+If the answer depends on public surface, release surface, or unclear packet shape, keep the gate conservative and return `revise` until the boundary is explicit.
 
 ## What Must Be Explicit Before `go`
 
