@@ -17,6 +17,7 @@ PROFILE_RULES = {
         "require_docs_sync": False,
         "require_workspace_canary": False,
         "require_rollout_readiness": False,
+        "require_review_pack": False,
         "canary_profile": "controlled-rollout",
     },
     "production": {
@@ -40,6 +41,20 @@ PROFILE_RULES = {
         "require_review_pack": True,
         "canary_profile": "broad",
     },
+    "solo-internal": {
+        "require_docs_sync": False,
+        "require_workspace_canary": True,
+        "require_rollout_readiness": False,
+        "require_review_pack": False,
+        "canary_profile": "controlled-rollout",
+    },
+    "solo-public": {
+        "require_docs_sync": True,
+        "require_workspace_canary": True,
+        "require_rollout_readiness": True,
+        "require_review_pack": True,
+        "canary_profile": "broad",
+    },
 }
 
 def _load_report(path: Path | None, label: str, warnings: list[str]) -> dict | None:
@@ -51,25 +66,58 @@ def _load_report(path: Path | None, label: str, warnings: list[str]) -> dict | N
     return payload if isinstance(payload, dict) else None
 
 
-def _effective_profile(profile: str, features: set[str]) -> str:
+def _stage_required(workflow_state: dict | None, stage_name: str) -> bool:
+    if not isinstance(workflow_state, dict):
+        return False
+    stages = workflow_state.get("stages")
+    if not isinstance(stages, dict):
+        return False
+    payload = stages.get(stage_name)
+    return isinstance(payload, dict) and payload.get("status") != "skipped"
+
+
+def _effective_profile(profile: str, features: set[str], workflow_state: dict | None) -> str:
     if profile != "auto":
         return profile
+    if isinstance(workflow_state, dict):
+        resolved = workflow_state.get("profile")
+        if isinstance(resolved, str) and resolved in {"solo-internal", "solo-public"}:
+            return resolved
     if "billing" in features:
         return "billing"
     if "auth" in features:
         return "auth"
+    if isinstance(workflow_state, dict):
+        resolved = workflow_state.get("profile")
+        if isinstance(resolved, str) and resolved in PROFILE_RULES and resolved != "standard":
+            return resolved
     return "standard"
+
+
+def _resolved_rules(effective_profile: str, workflow_state: dict | None) -> dict:
+    rules = dict(PROFILE_RULES[effective_profile])
+    if effective_profile == "solo-internal":
+        rules["require_docs_sync"] = _stage_required(workflow_state, "release-doc-sync")
+        rules["require_workspace_canary"] = _stage_required(workflow_state, "deploy") or _stage_required(workflow_state, "review-pack")
+        rules["require_rollout_readiness"] = _stage_required(workflow_state, "release-readiness")
+        rules["require_review_pack"] = _stage_required(workflow_state, "review-pack")
+    if effective_profile == "solo-public":
+        rules["require_docs_sync"] = True
+        rules["require_workspace_canary"] = True
+        rules["require_rollout_readiness"] = True
+        rules["require_review_pack"] = True
+    return rules
 
 
 def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict:
     matches = match_companions(workspace=workspace)
     features, _ = detect_release_context(workspace, matches=matches)
-    effective_profile = _effective_profile(profile, features)
-    rules = PROFILE_RULES[effective_profile]
     warnings: list[str] = []
     missing_evidence: list[str] = []
     checks: list[dict] = []
     workflow_state = resolve_workflow_state(workspace, warnings).get("state")
+    effective_profile = _effective_profile(profile, features, workflow_state)
+    rules = _resolved_rules(effective_profile, workflow_state)
     latest_gate = (workflow_state or {}).get("latest_gate") if isinstance(workflow_state, dict) else None
     gate_status = "FAIL"
     gate_detail = "No quality gate found."
@@ -77,7 +125,7 @@ def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict
         decision = str(latest_gate.get("decision") or "")
         gate_status = "PASS" if decision == "go" else "WARN" if decision == "conditional" else "FAIL"
         gate_detail = f"{decision}: {latest_gate.get('why') or latest_gate.get('response') or latest_gate.get('label')}"
-        if profile == "production" and decision == "conditional":
+        if effective_profile in {"production", "solo-public"} and decision == "conditional":
             gate_status = "FAIL"
     checks.append({"id": "quality-gate", "status": gate_status, "detail": gate_detail})
 
@@ -90,7 +138,7 @@ def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict
     else:
         docs_status = docs_sync["status"]
         docs_detail = docs_sync.get("summary", docs_sync["status"])
-        if effective_profile in {"production", "auth", "billing"} and docs_status == "WARN":
+        if (effective_profile in {"production", "auth", "billing", "solo-public"} or rules["require_docs_sync"]) and docs_status == "WARN":
             docs_status = "FAIL"
     checks.append({"id": "release-doc-sync", "status": docs_status, "detail": docs_detail})
 
@@ -105,7 +153,7 @@ def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict
         canary_detail = workspace_canary.get("summary", "Workspace canary report loaded.")
         if canary_status == "PASS":
             canary_status = "PASS"
-        elif canary_status == "WARN" and effective_profile in {"production", "billing"}:
+        elif canary_status == "WARN" and (effective_profile in {"production", "billing", "solo-public"} or rules["require_workspace_canary"]):
             canary_status = "FAIL"
     checks.append({"id": "workspace-canary", "status": canary_status, "detail": canary_detail})
 
@@ -118,7 +166,7 @@ def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict
     else:
         review_status = review_pack["status"]
         review_detail = review_pack.get("summary", review_pack["status"])
-        if effective_profile in {"auth", "billing"} and review_status == "WARN":
+        if (effective_profile in {"auth", "billing", "solo-public"} or rules["require_review_pack"]) and review_status == "WARN":
             review_status = "FAIL"
     checks.append({"id": "review-pack", "status": review_status, "detail": review_detail})
 

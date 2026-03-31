@@ -11,6 +11,7 @@ quality_gates:
 ## Intent
 
 Check whether release-facing docs drifted away from the changed code or config surface.
+For solo-profile work, this is the doc gate that keeps `solo-internal` and `solo-public` releases from shipping with hidden knowledge gaps.
 
 ## Typical Triggers
 
@@ -24,6 +25,7 @@ Check whether release-facing docs drifted away from the changed code or config s
 - doc categories already touched
 - missing doc coverage
 - suggested doc update surfaces
+- release profile observed: `solo-internal`, `solo-public`, or other release target
 
 ## Rules
 
@@ -32,6 +34,7 @@ Check whether release-facing docs drifted away from the changed code or config s
 - database or migration changes should push attention toward architecture and release notes
 - runtime/config changes should push attention toward README or release docs
 - product surface changes should push attention toward README, architecture, or plan/spec surfaces
+- if the changed surface is release-facing, missing docs are a finding for the release tail, not just an optional note
 
 ## Verification
 
