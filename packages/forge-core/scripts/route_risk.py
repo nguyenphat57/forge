@@ -115,9 +115,29 @@ def should_insert_brainstorm(prompt_text: str, intent: str, complexity: str, reg
     if complexity not in gate.get("eligible_complexities", []):
         return False
     normalized = normalize_text(prompt_text)
+    if score_keywords(
+        normalized,
+        ["existing clients", "existing client", "backward compatibility", "keep backward", "compatibility"],
+    ) > 0:
+        greenfield_score = 0
+    else:
+        greenfield_score = score_keywords(
+            normalized,
+            [
+                "new feature",
+                "new flow",
+                "new screen",
+                "new endpoint",
+                "new module",
+                "add a new",
+                "create a new",
+                "greenfield",
+            ],
+        )
     return (
         score_keywords(normalized, gate.get("prompt_keywords", [])) > 0
         or looks_like_direction_selection_request(prompt_text)
+        or (intent == "BUILD" and complexity in {"medium", "large"} and greenfield_score > 0)
     )
 
 
@@ -131,12 +151,18 @@ def should_insert_spec_review(
     gate = registry.get("spec_review_gate", {})
     if intent not in gate.get("eligible_intents", []):
         return False
-    if complexity not in gate.get("eligible_complexities", []):
-        return False
     if complexity == "large" and gate.get("always_large", False):
         return True
 
     haystack = normalize_text(" ".join([prompt_text, *repo_signals]))
+    non_behavioral = score_keywords(haystack, registry.get("change_type_hints", {}).get("non_behavioral_keywords", [])) > 0
     keyword_score = score_keywords(haystack, gate.get("prompt_keywords", []))
     signal_score = score_keywords(haystack, gate.get("repo_signals", []))
-    return (keyword_score + signal_score) > 0 or looks_like_high_risk_boundary_change(prompt_text, repo_signals)
+    packet_unclear = score_keywords(
+        haystack,
+        ["unclear", "ambiguous", "tbd", "to decide", "not sure", "figure out", "explore while building"],
+    ) > 0
+    boundary_risk = (keyword_score + signal_score) > 0 or looks_like_high_risk_boundary_change(prompt_text, repo_signals)
+    if non_behavioral and not packet_unclear:
+        return False
+    return boundary_risk or packet_unclear

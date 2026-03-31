@@ -43,6 +43,8 @@ If the slice still changes behavior, UX, flow, or ownership, write a compact dir
 
 ## Completion Rule
 
+Brainstorm starts with `discovery-lite` and only escalates to `discovery-full` when the first pass still leaves boundary risk, conflicting options, or an unresolved decision that would change scope.
+
 Brainstorm ends in exactly one of these states:
 
 1. `direction-locked`: the recommendation is strong enough to move into `plan`
@@ -61,15 +63,19 @@ When blocked, surface exactly one precise clarification question instead of a li
 ```mermaid
 flowchart TD
     A[Input / brief / prompt] --> B[Qualified problem statement]
-    B --> C[Decision criteria]
-    C --> D[Generate 2-3 materially different options]
-    D --> E[Compare tradeoffs]
-    E --> F{Direction clear enough?}
-    F -->|No| G[Record one decisive question]
-    F -->|Yes| H[Recommendation + first proof]
-    G --> I[Clarify with user]
-    H --> J[Direction brief]
-    J --> K[-> plan]
+    B --> C[Discovery-lite]
+    C --> D{More clarity needed?}
+    D -->|Yes| E[Discovery-full]
+    D -->|No| F[Decision criteria]
+    E --> F
+    F --> G[Generate 2-3 materially different options]
+    G --> H[Compare tradeoffs]
+    H --> I{Direction clear enough?}
+    I -->|No| J[Record one decisive question]
+    I -->|Yes| K[Recommendation + first proof]
+    J --> L[Clarify with user]
+    K --> M[Direction brief]
+    M --> N[-> plan]
 ```
 
 ## Qualified Problem Statement
@@ -81,6 +87,8 @@ That: [desired outcome, business impact, or success signal]
 ```
 
 If you cannot write these three lines, you are not ready to compare options.
+
+`discovery-lite` should make these lines crisp enough for a safe recommendation. `discovery-full` is for the cases where the first pass cannot safely lock scope, boundaries, or tradeoffs.
 
 ## Decision Criteria
 
