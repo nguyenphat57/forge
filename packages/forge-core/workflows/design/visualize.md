@@ -32,6 +32,8 @@ Visual brief must be finalized first:
 - responsive/platform constraints
 - accessibility and motion boundaries
 
+For ambiguous UI prompts, start with `discovery-lite` to lock the interaction model. Escalate to `discovery-full` before mockup work if there are still multiple plausible layouts, state models, or platform constraints.
+
 If the brief is not available:
 
 ```powershell
@@ -64,12 +66,16 @@ If `forge-browse` is also available, capture the packet into review evidence ins
 ```mermaid
 flowchart TD
     A[Read requirements/spec] --> B[Define products, screens, and user tasks]
-    B --> C[Create or reuse visual brief]
-    C --> D[Lock interaction model]
-    D --> E[Select stack/platform lens if implementation stack is clear]
-    E --> F[Create wireframe/mockup/spec]
-    F --> G[Review states + accessibility + responsive]
-    G --> H[Handover for user or dev]
+    B --> C[Discovery-lite]
+    C --> D{Need more clarity?}
+    D -->|Yes| E[Discovery-full]
+    D -->|No| F[Create or reuse visual brief]
+    E --> F
+    F --> G[Lock interaction model]
+    G --> H[Select stack/platform lens if implementation stack is clear]
+    H --> I[Create wireframe/mockup/spec]
+    I --> J[Review states + accessibility + responsive]
+    J --> K[Handover for user or dev]
 ```
 
 ## Deliverables

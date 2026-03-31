@@ -97,6 +97,7 @@ Heuristics for touch/dense-data/dashboard UI: `../references/ui-heuristics.md`
 - Every medium/large screen/component must think clearly about loading/empty/error
 - Don't let important interactions exist only in the happy path
 - Layout and state ownership must be consistent with the stack in use
+- For solo-dev release-sensitive UI, the tail should be `FE self-review -> review-pack -> quality-gate`, not memory or chat recollection
 ```
 
 ### Interaction Quality
@@ -220,6 +221,7 @@ When the UI task is no longer a one-shot edit, track stage with `../references/u
 - [ ] Dense-data / dashboard / touch-heavy heuristics were seen if the task was of that type
 - [ ] Frontend integrity checklist has no obvious regressions
 - [ ] There is no explicit anti-pattern in `ui-quality-checklist.md`
+- [ ] If the surface is release-sensitive, the review-pack tail has been considered before handoff
 
 ## Handover
 

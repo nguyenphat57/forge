@@ -25,6 +25,7 @@ For medium, large, or vague tasks:
 - the plan may be short, but it must be specific enough to prevent guesswork
 - if the task came from `brainstorm`, inherit the locked direction unless new evidence forces a reversal
 - call out whether `spec-review` is required before build
+- for solo-profile work, make the discovery path explicit: `discovery-lite` for the first pass, `discovery-full` only when ambiguity or boundary risk remains
 
 For small, clear tasks:
 - skip formal phase generation
@@ -51,16 +52,19 @@ flowchart TD
     F -->|Yes| H[Recommended scope and stack]
     H --> I{User confirms?}
     I -->|Edit| G
-    I -->|OK| J[Feature discovery]
-    J --> K[Data flow + user flow]
-    K --> L[Phase generation]
-    L --> M[Create plan/spec]
-    M --> N[Plan readiness review]
-    N --> O{Need architect?}
-    O -->|Yes| P[-> architect]
-    O -->|No| Q{Need spec-review?}
-    Q -->|Yes| R[-> spec-review]
-    Q -->|No| S[-> build]
+    I -->|OK| J[Discovery-lite]
+    J --> K{Need discovery-full?}
+    K -->|Yes| L[Discovery-full]
+    K -->|No| M[Data flow + user flow]
+    L --> M
+    M --> N[Phase generation]
+    N --> O[Create plan/spec]
+    O --> P[Plan readiness review]
+    P --> Q{Need architect?}
+    Q -->|Yes| R[-> architect]
+    Q -->|No| S{Need spec-review?}
+    S -->|Yes| T[-> spec-review]
+    S -->|No| U[-> build]
 ```
 
 ## Framing Question Discipline
@@ -127,6 +131,8 @@ Always check:
 - search, filter, and pagination
 - import, export, and audit trail
 - offline, concurrency, and approval flows where the domain makes them risky
+
+Use `discovery-lite` to collect only the facts needed to lock the recommendation. Escalate to `discovery-full` when the first pass cannot answer the release, boundary, or UX tradeoff safely.
 
 ## Phase Generation
 
@@ -203,13 +209,13 @@ docs/specs/[feature]-spec.md
 
 A plan should include:
 - qualified problem statement
-- options considered for medium/large work
+- discovery path: `discovery-lite` only, or `discovery-lite` -> `discovery-full` when needed
 - goal and success signal
 - scope in/out
 - file/surface map
 - task slices with proof per slice
 - risks and assumptions
-- spec-review requirement: required / not required + why
+- spec-review requirement: required / not required + why, with boundary-risk rationale when relevant
 - phases/tasks
 - verification strategy
 
