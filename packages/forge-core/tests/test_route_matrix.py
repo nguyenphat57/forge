@@ -30,12 +30,19 @@ class RoutePreviewSmokeMatrixTests(unittest.TestCase):
                 self.assertEqual(detected["intent"], case["expected_intent"])
                 self.assertEqual(detected["complexity"], case["expected_complexity"])
                 self.assertEqual(detected["verification_profile"], case.get("expected_verification_profile"))
+                if "expected_profile" in case:
+                    self.assertEqual(detected["profile"], case["expected_profile"])
 
                 if "expected_skills" in case:
                     self.assertEqual(detected["forge_skills"], case["expected_skills"])
                 if "expected_skill_prefix" in case:
                     expected_prefix = case["expected_skill_prefix"]
                     self.assertEqual(detected["forge_skills"][: len(expected_prefix)], expected_prefix)
+                if "expected_required_stage_chain" in case:
+                    self.assertEqual(detected["required_stage_chain"], case["expected_required_stage_chain"])
+                if "expected_required_stage_prefix" in case:
+                    expected_prefix = case["expected_required_stage_prefix"]
+                    self.assertEqual(detected["required_stage_chain"][: len(expected_prefix)], expected_prefix)
                 if "expected_domain_skills" in case:
                     self.assertEqual(detected["domain_skills"], case["expected_domain_skills"])
                 if "expected_local_companions" in case:

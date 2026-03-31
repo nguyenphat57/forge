@@ -47,7 +47,9 @@ class RoutePreviewTests(unittest.TestCase):
         report = route_preview.build_report(self.build_args("Review code before merge"))
 
         self.assertEqual(report["detected"]["intent"], "REVIEW")
+        self.assertEqual(report["detected"]["profile"], "solo-internal")
         self.assertEqual(report["detected"]["forge_skills"], ["review", "secure"])
+        self.assertEqual(report["detected"]["required_stage_chain"], ["review"])
 
     def test_build_prompt_routes_to_build_intent(self) -> None:
         report = route_preview.build_report(self.build_args("Add a new checkout endpoint"))
@@ -64,12 +66,17 @@ class RoutePreviewTests(unittest.TestCase):
         )
 
         self.assertEqual(report["detected"]["complexity"], "medium")
+        self.assertEqual(report["detected"]["profile"], "solo-internal")
+        self.assertEqual(
+            report["detected"]["required_stage_chain"],
+            ["plan", "spec-review", "build", "test", "self-review", "secure", "quality-gate"],
+        )
         self.assertEqual(report["detected"]["execution_pipeline"], "implementer-spec-quality")
-        self.assertTrue(report["detected"]["change_artifacts_required"])
+        self.assertFalse(report["detected"]["change_artifacts_required"])
         self.assertTrue(report["detected"]["durable_process_artifacts_required"])
         self.assertTrue(report["detected"]["process_precheck_required"])
         self.assertTrue(report["detected"]["baseline_proof_required"])
-        self.assertTrue(report["detected"]["verify_change_required"])
+        self.assertFalse(report["detected"]["verify_change_required"])
         self.assertTrue(report["detected"]["review_artifact_required"])
         self.assertEqual(report["detected"]["isolation_recommendation"], "worktree")
         self.assertIsNotNone(report["detected"]["baseline_verification"])
@@ -88,12 +95,13 @@ class RoutePreviewTests(unittest.TestCase):
 
         self.assertEqual(report["detected"]["intent"], "BUILD")
         self.assertEqual(report["detected"]["complexity"], "small")
-        self.assertEqual(report["detected"]["forge_skills"], ["plan", "build", "test", "quality-gate"])
+        self.assertEqual(report["detected"]["forge_skills"], ["plan", "build", "test"])
+        self.assertEqual(report["detected"]["required_stage_chain"], ["plan", "build", "test"])
         self.assertFalse(report["detected"]["durable_process_artifacts_required"])
         self.assertFalse(report["detected"]["process_precheck_required"])
         self.assertFalse(report["detected"]["baseline_proof_required"])
         self.assertFalse(report["detected"]["verify_change_required"])
-        self.assertTrue(report["detected"]["review_artifact_required"])
+        self.assertFalse(report["detected"]["review_artifact_required"])
         self.assertEqual(report["detected"]["isolation_recommendation"], "same-tree")
         self.assertIsNone(report["detected"]["baseline_verification"])
         self.assertIsNone(report["detected"]["worktree_bootstrap"])
@@ -104,6 +112,7 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["intent"], "VISUALIZE")
         self.assertEqual(report["detected"]["complexity"], "small")
         self.assertEqual(report["detected"]["forge_skills"], ["plan", "visualize"])
+        self.assertEqual(report["detected"]["required_stage_chain"], ["plan", "visualize"])
         self.assertFalse(report["detected"]["durable_process_artifacts_required"])
         self.assertTrue(report["detected"]["process_precheck_required"])
         self.assertFalse(report["detected"]["baseline_proof_required"])
@@ -140,6 +149,7 @@ class RoutePreviewTests(unittest.TestCase):
 
         self.assertEqual(report["detected"]["intent"], "REVIEW")
         self.assertEqual(report["detected"]["forge_skills"], ["review", "secure"])
+        self.assertEqual(report["detected"]["required_stage_chain"], ["review"])
 
     def test_direction_question_inserts_brainstorm_without_explicit_keyword(self) -> None:
         report = route_preview.build_report(
@@ -159,6 +169,22 @@ class RoutePreviewTests(unittest.TestCase):
 
         self.assertEqual(report["detected"]["intent"], "BUILD")
         self.assertIn("spec-review", report["detected"]["forge_skills"])
+
+    def test_public_release_resolves_solo_public_profile(self) -> None:
+        report = route_preview.build_report(
+            self.build_args("Deploy the app to external users with a public launch")
+        )
+
+        self.assertEqual(report["detected"]["intent"], "DEPLOY")
+        self.assertEqual(report["detected"]["profile"], "solo-public")
+        self.assertEqual(
+            report["detected"]["required_stage_chain"],
+            ["review-pack", "self-review", "secure", "quality-gate", "release-doc-sync", "release-readiness", "deploy", "adoption-check"],
+        )
+        self.assertEqual(
+            report["detected"]["forge_skills"],
+            ["review-pack", "review", "secure", "quality-gate", "release-doc-sync", "release-readiness", "deploy", "adoption-check"],
+        )
 
     def test_runtime_signal_can_select_local_companion(self) -> None:
         with TemporaryDirectory() as temp_dir:

@@ -41,9 +41,9 @@ from route_process_requirements import (
     requires_change_artifacts,
     verify_change_required,
 )
+from route_stage_contract import build_required_stages
 from companion_matching import match_companions
 from route_local_companions import infer_local_companions, resolve_workspace_router
-from route_risk import should_insert_brainstorm, should_insert_spec_review
 
 
 def build_report(args: argparse.Namespace) -> dict:
@@ -53,12 +53,6 @@ def build_report(args: argparse.Namespace) -> dict:
     intent, intent_config = detect_intent(args.prompt, registry)
     complexity = detect_complexity(args.prompt, args.changed_files, registry)
     workspace_router = resolve_workspace_router(args.workspace_router)
-    forge_skills = list(intent_config["chains"][complexity])
-    if should_insert_brainstorm(args.prompt, intent, complexity, registry) and "brainstorm" not in forge_skills:
-        forge_skills.insert(0, "brainstorm")
-    if should_insert_spec_review(args.prompt, args.repo_signal, intent, complexity, registry) and "spec-review" not in forge_skills:
-        build_index = forge_skills.index("build") if "build" in forge_skills else len(forge_skills)
-        forge_skills.insert(build_index, "spec-review")
     domain_skills = detect_domain_skills(args.prompt, args.repo_signal, intent, complexity, registry)
     verification_key, verification = choose_verification_profile(
         intent,
@@ -67,7 +61,6 @@ def build_report(args: argparse.Namespace) -> dict:
         registry,
         args.has_harness,
     )
-    execution_mode = choose_execution_mode(args.prompt, intent, complexity, registry)
     quality_profile_key, quality_profile = choose_quality_profile(
         args.prompt,
         args.repo_signal,
@@ -75,6 +68,19 @@ def build_report(args: argparse.Namespace) -> dict:
         complexity,
         registry,
     )
+    required_stage_contract = build_required_stages(
+        args.prompt,
+        args.repo_signal,
+        intent,
+        complexity,
+        domain_skills,
+        quality_profile_key,
+        registry,
+    )
+    forge_skills = list(required_stage_contract["workflow_chain"]) or list(intent_config["chains"][complexity])
+    if intent in {"REVIEW", "SESSION"}:
+        forge_skills = list(intent_config["chains"][complexity])
+    execution_mode = choose_execution_mode(args.prompt, intent, complexity, registry)
     execution_pipeline_key, execution_pipeline = choose_execution_pipeline(
         intent,
         complexity,
@@ -106,11 +112,18 @@ def build_report(args: argparse.Namespace) -> dict:
     first_party_companions = match_companions(args.prompt, args.repo_signal)
     runtimes = detect_runtimes(args.repo_signal, registry)
     active_routing_locales = routing_locale_names()
-    change_artifacts_required = requires_change_artifacts(intent, complexity)
+    required_stages = required_stage_contract["required_stages"]
+    change_artifacts_required = requires_change_artifacts(intent, complexity, required_stages)
     precheck_required = process_precheck_required(intent, args.prompt, registry)
     baseline_proof_required = baseline_required(intent, complexity)
-    verify_change_gate_required = verify_change_required(intent, complexity)
-    review_state_required = review_artifact_required(intent, complexity, execution_pipeline_key)
+    verify_change_gate_required = verify_change_required(intent, complexity, required_stages)
+    review_state_required = review_artifact_required(intent, complexity, execution_pipeline_key, required_stages)
+    durable_process_artifacts_required = change_artifacts_required or any(
+        isinstance(item, dict)
+        and item.get("status") != "skipped"
+        and item.get("stage") in {"brainstorm", "spec-review", "review-pack", "self-review", "quality-gate", "release-doc-sync", "release-readiness", "adoption-check"}
+        for item in required_stages
+    )
     isolation_recommendation = recommended_isolation_stance(
         intent,
         complexity,
@@ -128,7 +141,10 @@ def build_report(args: argparse.Namespace) -> dict:
         "detected": {
             "intent": intent,
             "complexity": complexity,
+            "profile": required_stage_contract["profile"],
             "forge_skills": forge_skills,
+            "required_stage_chain": required_stage_contract["required_stage_chain"],
+            "required_stages": required_stages,
             "host_skills": host_skills,
             "host_supports_subagents": host_supports_subagents,
             "domain_skills": domain_skills,
@@ -147,7 +163,7 @@ def build_report(args: argparse.Namespace) -> dict:
             "baseline_proof_required": baseline_proof_required,
             "verify_change_required": verify_change_gate_required,
             "review_artifact_required": review_state_required,
-            "durable_process_artifacts_required": change_artifacts_required,
+            "durable_process_artifacts_required": durable_process_artifacts_required,
             "isolation_recommendation": isolation_recommendation,
             "baseline_verification": baseline_verification,
             "worktree_bootstrap": worktree_bootstrap,
@@ -157,9 +173,10 @@ def build_report(args: argparse.Namespace) -> dict:
         "execution_pipeline": execution_pipeline,
         "delegation_plan": delegation_plan,
         "quality_profile": quality_profile,
-        "activation_line": "Forge: {intent} | {complexity} | Skills: {skills}".format(
+        "activation_line": "Forge: {intent} | {complexity} | Profile: {profile} | Skills: {skills}".format(
             intent=intent,
             complexity=complexity,
+            profile=required_stage_contract["profile"],
             skills=" + ".join([*forge_skills, *host_skills, *domain_skills, *[item["id"] for item in first_party_companions], *local_companions])
             or current_bundle_skill_name(),
         ),
@@ -174,7 +191,9 @@ def format_text(report: dict) -> str:
         f"- Prompt: {report['prompt']}",
         f"- Intent: {detected['intent']}",
         f"- Complexity: {detected['complexity']}",
+        f"- Profile: {detected['profile']}",
         f"- Forge skills: {' -> '.join(detected['forge_skills'])}",
+        f"- Required stage chain: {' -> '.join(detected['required_stage_chain']) or '(none)'}",
         f"- Execution mode: {detected['execution_mode'] or '(n/a)'}",
         f"- Execution pipeline: {report['execution_pipeline']['label'] if report['execution_pipeline'] else '(n/a)'}",
         f"- Delegation strategy: {report['delegation_plan']['label'] if report['delegation_plan'] else '(n/a)'}",
@@ -195,8 +214,27 @@ def format_text(report: dict) -> str:
         f"- Isolation recommendation: {detected['isolation_recommendation'] or '(n/a)'}",
         f"- Baseline verification packet: {detected['baseline_verification']['proof_target'] if detected['baseline_verification'] else '(n/a)'}",
         f"- Worktree bootstrap helper: {detected['worktree_bootstrap']['helper'] if detected['worktree_bootstrap'] else '(n/a)'}",
-        "- Lane model tiers:",
+        "- Required stages:",
     ]
+    if detected["required_stages"]:
+        for item in detected["required_stages"]:
+            reason = item.get("activation_reason") or item.get("skip_reason") or "(none)"
+            qualifier = f" | mode: {item['mode']}" if item.get("mode") else ""
+            lines.append(
+                "  - {stage} -> {workflow} | {status} | {reason_type}: {reason}{qualifier}".format(
+                    stage=item["stage"],
+                    workflow=item["workflow"],
+                    status=item["status"],
+                    reason_type="activation" if item["status"] != "skipped" else "skip",
+                    reason=reason,
+                    qualifier=qualifier,
+                )
+            )
+    else:
+        lines.append("  - (none)")
+    lines.extend([
+        "- Lane model tiers:",
+    ])
     if detected["lane_model_assignments"]:
         for lane, tier in detected["lane_model_assignments"].items():
             lines.append(f"  - {lane}: {tier}")
