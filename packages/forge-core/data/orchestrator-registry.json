@@ -369,6 +369,305 @@
       ]
     }
   },
+  "solo_profiles": {
+    "default_profile": "solo-internal",
+    "public_markers": [
+      "public",
+      "publish",
+      "external users",
+      "launch",
+      "external customers",
+      "app store"
+    ],
+    "public_repo_signals": [
+      "public/",
+      "marketing/",
+      "landing/",
+      "docs/release/public"
+    ],
+    "release_markers": [
+      "deploy",
+      "release",
+      "rollout",
+      "ship",
+      "publish",
+      "launch",
+      "production",
+      "staging",
+      "shared env",
+      "shared environment"
+    ],
+    "critical_internal_markers": [
+      "production",
+      "critical",
+      "incident",
+      "shared env",
+      "shared environment"
+    ],
+    "release_surface_prompt_keywords": [
+      "release",
+      "deploy",
+      "production",
+      "config",
+      "schema",
+      "migration",
+      "launch",
+      "publish"
+    ],
+    "release_surface_repo_signals": [
+      "app/",
+      "api/",
+      "pages/",
+      "components/",
+      "package.json",
+      "pyproject.toml",
+      "prisma/",
+      "migrations/",
+      "supabase/migrations/",
+      ".env.example"
+    ],
+    "change_artifact_markers": [
+      "checkpoint",
+      "phase",
+      "resume",
+      "pause",
+      "handover",
+      "change artifact",
+      "multi-slice"
+    ],
+    "packet_unclear_markers": [
+      "unclear",
+      "ambiguous",
+      "tbd",
+      "to decide",
+      "not sure",
+      "figure out",
+      "explore while building"
+    ],
+    "activation_reasons": [
+      "default_chain",
+      "greenfield_feature",
+      "ui_medium_plus",
+      "interaction_model_change",
+      "boundary_risk",
+      "packet_unclear",
+      "shared_env_release",
+      "public_release",
+      "change_artifact_present",
+      "critical_internal_release"
+    ],
+    "skip_reasons": [
+      "non_ui",
+      "direction_locked",
+      "packet_clear",
+      "low_risk_boundary",
+      "no_change_artifact",
+      "no_shared_env",
+      "no_release_surface",
+      "not_public_release"
+    ],
+    "stage_statuses": [
+      "pending",
+      "required",
+      "active",
+      "completed",
+      "skipped",
+      "blocked"
+    ],
+    "stages": {
+      "brainstorm": {
+        "workflow": "brainstorm"
+      },
+      "plan": {
+        "workflow": "plan"
+      },
+      "visualize": {
+        "workflow": "visualize"
+      },
+      "architect": {
+        "workflow": "architect"
+      },
+      "spec-review": {
+        "workflow": "spec-review"
+      },
+      "change": {
+        "workflow": "change"
+      },
+      "build": {
+        "workflow": "build"
+      },
+      "test": {
+        "workflow": "test"
+      },
+      "review-pack": {
+        "workflow": "review-pack"
+      },
+      "self-review": {
+        "workflow": "review"
+      },
+      "secure": {
+        "workflow": "secure"
+      },
+      "verify-change": {
+        "workflow": "verify-change"
+      },
+      "quality-gate": {
+        "workflow": "quality-gate"
+      },
+      "release-doc-sync": {
+        "workflow": "release-doc-sync"
+      },
+      "release-readiness": {
+        "workflow": "release-readiness"
+      },
+      "deploy": {
+        "workflow": "deploy"
+      },
+      "adoption-check": {
+        "workflow": "adoption-check"
+      },
+      "debug": {
+        "workflow": "debug"
+      },
+      "refactor": {
+        "workflow": "refactor"
+      },
+      "review": {
+        "workflow": "review"
+      },
+      "session": {
+        "workflow": "session"
+      }
+    },
+    "profiles": {
+      "solo-internal": {
+        "intent_orders": {
+          "BUILD": [
+            "brainstorm",
+            "plan",
+            "visualize",
+            "architect",
+            "spec-review",
+            "change",
+            "build",
+            "test",
+            "review-pack",
+            "self-review",
+            "secure",
+            "verify-change",
+            "quality-gate",
+            "release-doc-sync",
+            "deploy",
+            "adoption-check"
+          ],
+          "DEBUG": [
+            "debug",
+            "plan",
+            "spec-review",
+            "build",
+            "test",
+            "self-review",
+            "quality-gate",
+            "deploy"
+          ],
+          "OPTIMIZE": [
+            "refactor",
+            "test",
+            "self-review",
+            "quality-gate"
+          ],
+          "DEPLOY": [
+            "review-pack",
+            "self-review",
+            "secure",
+            "quality-gate",
+            "release-doc-sync",
+            "release-readiness",
+            "deploy",
+            "adoption-check"
+          ],
+          "VISUALIZE": [
+            "brainstorm",
+            "plan",
+            "visualize",
+            "architect"
+          ],
+          "REVIEW": [
+            "review"
+          ],
+          "SESSION": [
+            "session"
+          ]
+        }
+      },
+      "solo-public": {
+        "intent_orders": {
+          "BUILD": [
+            "brainstorm",
+            "plan",
+            "visualize",
+            "architect",
+            "spec-review",
+            "change",
+            "build",
+            "test",
+            "review-pack",
+            "self-review",
+            "secure",
+            "verify-change",
+            "quality-gate",
+            "release-doc-sync",
+            "release-readiness",
+            "deploy",
+            "adoption-check"
+          ],
+          "DEBUG": [
+            "debug",
+            "plan",
+            "spec-review",
+            "build",
+            "test",
+            "review-pack",
+            "self-review",
+            "secure",
+            "quality-gate",
+            "release-doc-sync",
+            "release-readiness",
+            "deploy",
+            "adoption-check"
+          ],
+          "OPTIMIZE": [
+            "refactor",
+            "test",
+            "self-review",
+            "quality-gate"
+          ],
+          "DEPLOY": [
+            "review-pack",
+            "self-review",
+            "secure",
+            "quality-gate",
+            "release-doc-sync",
+            "release-readiness",
+            "deploy",
+            "adoption-check"
+          ],
+          "VISUALIZE": [
+            "brainstorm",
+            "plan",
+            "visualize",
+            "architect"
+          ],
+          "REVIEW": [
+            "review"
+          ],
+          "SESSION": [
+            "session"
+          ]
+        }
+      }
+    }
+  },
   "minimal_routing_policy": {
     "prompt_only_domain_intents": [
       "REVIEW",

@@ -18,7 +18,7 @@ For the most up-to-date inventory of scripts, tests, references, and data files,
 
 - `SKILL.md`: entry point for intent routing, skill composition, and delivery guardrails
 - `workflows/design/`: planning, architecture, spec-review, visualization
-- `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session
+- `workflows/execution/`: build, debug, test, review, review-pack, change, verify-change, refactor, secure, deploy, release-doc-sync, release-readiness, adoption-check, session
 - `workflows/operator/`: help, next, and host-neutral operator workflows
 - `domains/`: core domain guidance for frontend and backend
 - `data/`: machine-readable registry for intent, matrix, verification profiles, quality profiles, execution pipelines, lane model policy, and personalization schema
@@ -309,6 +309,17 @@ Verification profiles canonical live in `data/orchestrator-registry.json`.
 - Forge uses `lane model tiers` to optimize cost: navigation/triage can be cheaper than spec-review or release gates.
 - Forge uses `quality-gate` as canonical source for evidence response contract and anti-rationalization.
 - The `spec-review` loop allows at most `3` revision rounds for the same packet. Beyond that threshold, the status must become `blocked`.
+
+## Solo Profile And Workflow-State Contract
+
+- `solo-internal` and `solo-public` are profile overlays for a single operator, not separate orchestration systems.
+- `brainstorm` should begin with `discovery-lite` and only escalate to `discovery-full` when the first pass still leaves scope or boundary risk unclear.
+- `spec-review` is a risk gate, not a size gate: if the packet is ambiguous, contract-boundary heavy, or release-sensitive, review it before build even when the task sounds small.
+- `review` becomes `self-review` for solo-dev flows, but the findings-first bar does not relax.
+- `review-pack` is the pre-release tail for release-sensitive work and should feed `self-review`, then `quality-gate`, then `deploy`.
+- `release-doc-sync`, `release-readiness`, and `adoption-check` are release-surface gates that must remain visible when the slice affects docs, rollout confidence, or post-deploy usage.
+- workflow-state records should use the canonical stage status vocabulary: `pending`, `required`, `active`, `completed`, `skipped`, `blocked`.
+- workflow-state entries should carry activation reasons and skip reasons so the gate does not have to reconstruct intent from chat memory.
 
 ---
 

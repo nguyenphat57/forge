@@ -42,6 +42,56 @@ class BundleContractTests(unittest.TestCase):
                 with self.subTest(intent=intent, complexity=complexity):
                     self.assertTrue(set(chain).issubset(known_skills), chain)
 
+    def test_solo_profile_stage_contract_references_known_workflows(self) -> None:
+        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
+        known_skills = {path.stem for path in (ROOT_DIR / "domains").glob("*.md")}
+        known_skills.update(path.stem for path in (ROOT_DIR / "workflows" / "design").glob("*.md"))
+        known_skills.update(path.stem for path in (ROOT_DIR / "workflows" / "execution").glob("*.md"))
+        profile_contract = registry["solo_profiles"]
+
+        self.assertEqual(
+            profile_contract["activation_reasons"],
+            [
+                "default_chain",
+                "greenfield_feature",
+                "ui_medium_plus",
+                "interaction_model_change",
+                "boundary_risk",
+                "packet_unclear",
+                "shared_env_release",
+                "public_release",
+                "change_artifact_present",
+                "critical_internal_release",
+            ],
+        )
+        self.assertEqual(
+            profile_contract["skip_reasons"],
+            [
+                "non_ui",
+                "direction_locked",
+                "packet_clear",
+                "low_risk_boundary",
+                "no_change_artifact",
+                "no_shared_env",
+                "no_release_surface",
+                "not_public_release",
+            ],
+        )
+        self.assertEqual(
+            profile_contract["stage_statuses"],
+            ["pending", "required", "active", "completed", "skipped", "blocked"],
+        )
+
+        for stage_name, stage in profile_contract["stages"].items():
+            with self.subTest(stage=stage_name):
+                self.assertIn(stage["workflow"], known_skills)
+
+        for profile_name, profile in profile_contract["profiles"].items():
+            for intent, order in profile["intent_orders"].items():
+                with self.subTest(profile=profile_name, intent=intent):
+                    self.assertTrue(order)
+                    self.assertTrue(set(order).issubset(set(profile_contract["stages"])))
+
     def test_canonical_registry_stays_ascii_only(self) -> None:
         registry_text = (ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8")
         self.assertTrue(registry_text.isascii())
