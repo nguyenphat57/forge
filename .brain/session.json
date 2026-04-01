@@ -1,12 +1,15 @@
 {
-  "updated_at": "2026-04-01T14:51:18.0841039Z",
+  "updated_at": "2026-04-01T15:05:00Z",
   "working_on": {
-    "feature": "release-1.12.0",
-    "task": "Prepare the 1.12.0 minor release for the 1.12.x maturation roadmap",
+    "feature": "stable-1.12.0",
+    "task": "Mark 1.12.0 as the current stable release in repo-facing docs and continuity state",
     "status": "completed",
     "files": [
       "VERSION",
       "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
       "docs/plans/2026-04-01-forge-1.12.x-maturation-roadmap.md",
       "docs/plans/2026-04-01-forge-1.12.x-maturation-implementation-plan.md",
       "docs/plans/2026-04-01-forge-1.12.x-maturation-execution-report.md",
@@ -26,20 +29,16 @@
   },
   "pending_tasks": [],
   "recent_changes": [
-    "Forge 1.12.0 now freezes one canonical four-tier release contract and feeds bounded adoption signals back into release readiness and follow-up packets.",
-    "Help, next, and dashboard now read release-tail state directly, including workflow stage, release tier, latest gate, and latest adoption signal.",
-    "Roadmap, implementation plan, execution report, and target-state references now share explicit closure rules, including a separate roadmap-complete sweep beyond the 1.12.0 cut.",
-    "VERSION plus CHANGELOG.md were bumped to 1.12.0, verify_repo passed, and build_release materialized fresh dist bundles at 1.12.0."
+    "Forge 1.12.0 remains the canonical four-tier maturation release with the roadmap-complete closure rules already locked in.",
+    "README and release-facing docs now state that 1.12.0 is the current stable Forge release.",
+    "Continuity state now records the stable designation alongside the release gates and roadmap-complete closure proof."
   ],
   "verification": [
-    "python scripts/verify_repo.py -> PASS",
-    "python scripts/build_release.py --format json -> PASS",
-    "Roadmap closure checks -> PASS",
-    "Implementation-plan alignment checks -> PASS",
-    "Deferred-boundary rationale checks -> PASS"
+    "python -m pytest tests/test_release_hardening.py tests/release_repo_test_contracts.py -q -> 26 passed, 82 subtests passed",
+    "Stable release content checks -> PASS"
   ],
   "decisions_made": [
-    "Ship 1.12.0 as a minor release because the maturation roadmap adds capability-bearing release-state, operator-guidance, and dashboard behavior.",
-    "Keep the canonical 1.12.0 release vocabulary at four tiers and require a separate roadmap-complete sweep before claiming the later maturation commits are also closed."
+    "Treat 1.12.0 as the current stable release because the canonical release gate and the separate roadmap-complete sweep are both green.",
+    "Keep the canonical 1.12.0 release vocabulary at four tiers and require the roadmap-complete sweep before weakening or renaming that stable contract."
   ]
 }

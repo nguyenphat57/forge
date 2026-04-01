@@ -1,13 +1,13 @@
 # Forge Public Readiness
 
 Date: 2026-04-01
-Status: Release ready after this hardening pass.
+Status: `1.12.0` is the current stable release after this hardening pass.
 
 ## What This Checklist Covers
 
 This checklist is for publishing the Forge monorepo to a public audience without presenting it as broadly proven production software.
 
-## Public Preview Gate
+## Public Release Gate
 
 - root README explains the release model and current maturity
 - contributor, security, and conduct docs exist at the repo root
@@ -28,5 +28,5 @@ This checklist is for publishing the Forge monorepo to a public audience without
 
 ## Verdict
 
-Forge is in a reasonable state for public release under the current policy.
+Forge `1.12.0` is in a reasonable state for public stable release under the current policy.
 The hardening item above is optional evidence, not a release precondition.

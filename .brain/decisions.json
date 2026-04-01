@@ -80,5 +80,24 @@
     "revisit_if": "A future release changes the canonical tier behavior bar or collapses the roadmap-complete sweep back into the 1.12.0 cut.",
     "trigger": "minor-release",
     "resume_hint": "A future release changes the canonical tier behavior bar or collapses the roadmap-complete sweep back into the 1.12.0 cut."
+  },
+  {
+    "id": "20260401-220924",
+    "kind": "decision",
+    "scope": "forge-1-12-stable-status",
+    "summary": "Treat 1.12.0 as the current stable Forge release because both the canonical release gate and the roadmap-complete closure sweep are green.",
+    "status": "resolved",
+    "evidence": [
+      "python -m pytest tests/test_release_hardening.py tests/release_repo_test_contracts.py -q -> 26 passed, 82 subtests passed",
+      "README.md and docs/release now declare 1.12.0 as the current stable release"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable"
+    ],
+    "revisit_if": "A later release changes the stable line, reopens the roadmap-complete sweep, or invalidates the current release verification evidence.",
+    "trigger": null,
+    "resume_hint": "A later release changes the stable line, reopens the roadmap-complete sweep, or invalidates the current release verification evidence."
   }
 ]

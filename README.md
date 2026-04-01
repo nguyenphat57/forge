@@ -26,10 +26,11 @@ The goal is to make agent-assisted delivery more reliable across hosts and proje
 ## Current Status
 
 - License: `MIT`
-- Repo maturity: release ready
+- Repo maturity: stable release available
+- Current stable release: `1.12.0`
 - Canonical verification gate: `python scripts/verify_repo.py`
 - `forge-antigravity` is currently the most mature adapter for real rollout
-- `forge-codex` has passed internal verification and is eligible for release under the current policy
+- `forge-codex` ships in the current stable release after passing the canonical release gates
 
 Public-readiness notes live in `docs/release/public-readiness.md`.
 

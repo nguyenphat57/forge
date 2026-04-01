@@ -1,7 +1,7 @@
 HANDOVER
-- Current task: Prepare the 1.12.0 minor release for the 1.12.x maturation roadmap.
-- Done: Froze the canonical four-tier release contract, bounded adoption-check and release follow-up, made `help`/`next`/dashboard read release-tail state, hardened roadmap closure rules, and bumped `VERSION` plus `CHANGELOG.md` to `1.12.0`.
+- Current task: Mark `1.12.0` as the current stable Forge release in repo-facing docs and continuity state.
+- Done: Updated `CHANGELOG.md`, `README.md`, `docs/release/public-readiness.md`, and `docs/release/release-process.md` so they explicitly treat `1.12.0` as stable after the release and roadmap-complete gates passed.
 - Remaining: none for the repo release slice.
-- Important decisions: Keep `1.12.0` on one canonical four-tier vocabulary and require a separate roadmap-complete sweep before claiming Commits 6 to 10 are also closed.
-- Verification run: `python scripts/verify_repo.py` -> PASS; `python scripts/build_release.py --format json` -> PASS; roadmap closure checks -> PASS; implementation-plan alignment checks -> PASS; deferred-boundary rationale checks -> PASS.
-- Next step: Refresh installed `.codex` and `.gemini` runtimes from the fresh `dist/` bundles if local host rollout is needed.
+- Important decisions: Keep `1.12.0` on one canonical four-tier vocabulary, and treat it as stable only because both the canonical release gate and the roadmap-complete sweep are green.
+- Verification run: `python -m pytest tests/test_release_hardening.py tests/release_repo_test_contracts.py -q` -> `26 passed, 82 subtests passed`; stable release content checks -> PASS.
+- Next step: Optional only, if Sếp muốn sync local release messaging into a Git tag or GitHub release body.
