@@ -15,6 +15,7 @@ Bundle-layer ownership reference: see `packages/forge-core/references/architectu
 - `dist/` is generated release output built either from `forge-core` plus one adapter overlay delta, or from a standalone runtime tool package.
 - Do not treat `dist/` as an independent source tree; fixes belong in `packages/` and are verified again after rebuild.
 - Materialized adapter registries under `dist/<adapter>/data/orchestrator-registry.json` are release-contract outputs, not source-edit targets.
+- Release-tail workflow docs such as `release-readiness.md` and `adoption-check.md` are canonical in `forge-core`; adapters should surface them, not fork them into local release semantics.
 
 ## Four-Layer Model
 
@@ -116,3 +117,4 @@ This avoids three drifting copies of the same logic.
 - Canonical version lives in `/VERSION`, not in installed runtimes.
 - `forge-core` must stay clean enough for future adapters such as `forge-claude`.
 - If a feature is host-shaped, keep the engine in core only when it is truly reusable, and keep the wrapper in the adapter.
+- If a feature changes release posture or post-release follow-up, keep the contract in core and let adapters mirror it through wording only.

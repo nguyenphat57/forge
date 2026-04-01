@@ -56,5 +56,29 @@
     ],
     "revisit_if": "The release pipeline stops materializing in-repo dist bundles or help and next no longer consume workflow-state as the durable source of truth.",
     "trigger": "minor-release"
+  },
+  {
+    "id": "20260401-215058",
+    "kind": "decision",
+    "scope": "forge-1-12-maturation-release",
+    "summary": "Forge 1.12.0 should ship with one canonical four-tier release contract plus a separate roadmap-complete closure sweep for the later maturation commits.",
+    "status": "resolved",
+    "evidence": [
+      "docs/plans/2026-04-01-forge-1.12.x-maturation-roadmap.md",
+      "packages/forge-core/scripts/release_profile_contract.py",
+      "packages/forge-core/scripts/release_readiness.py",
+      "packages/forge-core/tests/test_help_next.py",
+      "packages/forge-core/tests/test_dashboard.py"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "roadmap",
+      "workflow-state",
+      "help-next"
+    ],
+    "revisit_if": "A future release changes the canonical tier behavior bar or collapses the roadmap-complete sweep back into the 1.12.0 cut.",
+    "trigger": "minor-release",
+    "resume_hint": "A future release changes the canonical tier behavior bar or collapses the roadmap-complete sweep back into the 1.12.0 cut."
   }
 ]

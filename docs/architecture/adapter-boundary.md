@@ -49,6 +49,7 @@ Adapters own:
 - host metadata and installation surfaces
 - thin mapping from host surface to Forge core capabilities
 - adapter docs that describe how overlay deltas become materialized release bundles
+- host-specific wording for the same core release-tail contract, not new release-tier semantics
 
 Examples of adapter-only wrappers:
 
@@ -75,3 +76,4 @@ If questions `1` and `4` are weak, or `2` is yes, the change should stay out of 
 - no new dependency on one host's instruction surface is introduced
 - the change would still be valid for a future `forge-claude` adapter
 - the materialized `dist/<adapter>/` bundle still reads as a thin, reproducible composition of core plus overlay
+- release-tier and post-release wording matches the core `release-readiness` and `adoption-check` contract instead of inventing adapter-local posture names

@@ -6,6 +6,7 @@ from pathlib import Path
 from companion_operator_context import collect_operator_context
 from companion_matching import match_companions
 from help_next_support import (
+    adoption_signal_label,
     build_evidence,
     build_focus,
     build_recommendations,
@@ -15,6 +16,7 @@ from help_next_support import (
     find_latest_json,
     find_latest_markdown,
     find_latest_named_file,
+    release_tier_label,
     read_git_status,
     read_json_object,
 )
@@ -93,6 +95,8 @@ def build_dashboard_report(workspace: Path) -> dict:
     workflow_state = workflow_source.get("state")
     active_change = _active_change(workspace, warnings)
     git_state = read_git_status(workspace)
+    release_readiness = _latest_release_report(workspace, "release-readiness", warnings)
+    adoption_check = _latest_release_report(workspace, "adoption-check", warnings)
     stage = determine_stage(
         session=session,
         git_state=git_state,
@@ -111,6 +115,8 @@ def build_dashboard_report(workspace: Path) -> dict:
         workflow_state=workflow_state,
         codebase_summary=codebase_path,
         active_change=active_change,
+        release_readiness=release_readiness,
+        latest_adoption_check=adoption_check,
     )
     next_workflow, recommended_action, alternatives = build_recommendations(
         mode="help",
@@ -122,7 +128,13 @@ def build_dashboard_report(workspace: Path) -> dict:
         workflow_state=workflow_state,
         codebase_summary=codebase_path,
         active_change=active_change,
+        release_readiness=release_readiness,
+        latest_adoption_check=adoption_check,
     )
+    latest_verification = _latest_verification(workflow_state, active_change)
+    latest_gate = (workflow_state or {}).get("latest_gate") if isinstance(workflow_state, dict) else None
+    if not isinstance(latest_gate, dict) and isinstance(latest_verification, dict) and latest_verification.get("kind") == "quality-gate":
+        latest_gate = latest_verification
     runtime_tools = [resolve_runtime_tool(bundle_name) for bundle_name in available_runtime_tool_names()]
     companions = match_companions(workspace=workspace)
     operator_context = {item["id"]: item for item in collect_operator_context(companions, workspace)}
@@ -137,6 +149,7 @@ def build_dashboard_report(workspace: Path) -> dict:
     report = {
         "status": "PASS",
         "workspace": str(workspace),
+        "current_stage": stage,
         "stage": stage,
         "focus": focus,
         "next_workflow": next_workflow,
@@ -168,7 +181,10 @@ def build_dashboard_report(workspace: Path) -> dict:
         "brownfield": brownfield,
         "active_change": active_change,
         "workflow_state": {"path": workflow_source.get("path"), "summary": (workflow_state or {}).get("summary")},
-        "latest_verification": _latest_verification(workflow_state, active_change),
+        "release_tier": release_tier_label(release_readiness),
+        "latest_gate": latest_gate,
+        "latest_adoption_signal": adoption_signal_label(adoption_check),
+        "latest_verification": latest_verification,
         "repo_signals": collect_repo_signals(workspace),
         "git": git_state,
         "runtime_tools": runtime_tools,
@@ -186,6 +202,7 @@ def build_dashboard_report(workspace: Path) -> dict:
             "release_doc_sync": release_doc_sync,
             "workspace_canary": workspace_canary,
             "release_readiness": release_readiness,
+            "latest_adoption_check": adoption_check,
         },
         "warnings": warnings,
     }
@@ -196,7 +213,8 @@ def format_dashboard_text(report: dict) -> str:
     lines = [
         "Forge Dashboard",
         f"- Workspace: {report['workspace']}",
-        f"- Stage: {report['stage']}",
+        f"- Current stage: {report['current_stage']}",
+        f"- Release tier: {report.get('release_tier') or '(none)'}",
         f"- Focus: {report['focus']}",
         f"- Next workflow: {report['next_workflow']}",
         f"- Recommended action: {report['recommended_action']}",
@@ -207,6 +225,8 @@ def format_dashboard_text(report: dict) -> str:
         f"- Plan: {report['plan']['title'] or '(none)'}",
         f"- Spec: {report['spec']['title'] or '(none)'}",
         f"- Codebase map: {'ready' if report['brownfield']['mapped'] else 'missing'}",
+        f"- Latest gate: {(report.get('latest_gate') or {}).get('decision') or (report['latest_verification'] or {}).get('kind') or '(none)'}",
+        f"- Latest adoption signal: {report.get('latest_adoption_signal') or '(none)'}",
         f"- Latest verification: {(report['latest_verification'] or {}).get('kind') or '(none)'}",
         f"- Optional companions: {', '.join(item['id'] for item in report['companions']) or '(none)'}",
         "- Runtime tools:",
@@ -226,6 +246,11 @@ def format_dashboard_text(report: dict) -> str:
         status = item.get("status") if isinstance(item, dict) else None
         summary = item.get("summary") if isinstance(item, dict) else None
         lines.append(f"  - {label}: {status or '(none)'}{f' | {summary}' if summary else ''}")
+    adoption_item = release.get("latest_adoption_check")
+    if isinstance(adoption_item, dict):
+        lines.append(
+            f"  - latest adoption check: {adoption_item.get('impact') or '(none)'} | {adoption_item.get('summary') or adoption_item.get('label') or '(none)'}"
+        )
     if report["alternatives"]:
         lines.append("- Alternatives:")
         for item in report["alternatives"]:

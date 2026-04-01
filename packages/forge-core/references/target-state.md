@@ -45,3 +45,25 @@ Challenge a change when it mainly adds:
 - Verification language must be earned with fresh proof.
 - Companions may accelerate delivery, but they must not become core crutches.
 - Brownfield safety matters more than greenfield spectacle.
+
+## 1.12.x Target
+
+`1.12.x` should make Forge feel operationally mature for a solo developer without changing the product thesis:
+
+- workflow-state should become the default backbone for medium+ and release-sensitive work
+- release posture should be explicit, but not over-fragmented into tiers that do not change behavior
+- adoption-check should remain a bounded post-release signal, not an analytics layer
+- help and next should read the actual operating state instead of inventing guidance from repo shape alone
+- adapter surfaces should tell one coherent story about routing, gates, and aliases
+
+## Deferred Boundary
+
+The following belong to `1.13+` unless a later `1.12.x` slice explicitly promotes them:
+
+- installed-runtime health or doctor-style live host verification: defer because `1.12.x` is about operating-model maturity, not adding new live-host trust surfaces.
+- host rollout ledgers: defer because the current release-tail contract already records enough state for solo-dev maturity without introducing a second tracking system.
+- runtime canary expansion beyond the release contract already in place: defer because `1.12.x` should strengthen the existing release loop before widening the canary surface.
+- generated release publish packets: defer because publish automation is packaging acceleration, not a blocker for the `1.12.x` operating model.
+- deeper companion acceleration or broader companion breadth: defer because `1.12.x` must keep core solo-dev behavior coherent before adding more companion-dependent leverage.
+
+If a proposed release tier does not change the behavior bar, keep the canonical tier list smaller and preserve compatibility aliases instead of creating new posture names.

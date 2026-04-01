@@ -228,6 +228,7 @@ When you need detailed command examples or artifact behavior, read `references/t
 - `review-pack` is the pre-release tail for release-sensitive work and should feed `self-review`, then `quality-gate`, then `deploy`.
 - Release-tail stages stay explicit: `review-pack` -> `self-review` -> `quality-gate` -> `release-doc-sync` -> `release-readiness` -> `deploy` -> `adoption-check`.
 - `release-doc-sync`, `release-readiness`, and `adoption-check` are release-surface gates that must remain visible when the slice affects docs, rollout confidence, or post-deploy usage.
+- Release-tier language should stay compatible with the core release contract; host-specific wording is allowed, but new posture names are not if they change the behavior bar.
 - workflow-state records should use the canonical stage status vocabulary: `pending`, `required`, `active`, `completed`, `skipped`, `blocked`.
 - workflow-state entries should carry activation reasons and skip reasons so the gate does not have to reconstruct intent from chat memory.
 - There is no `/gate` alias; `quality-gate` stays the stage name.

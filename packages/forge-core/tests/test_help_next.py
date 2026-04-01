@@ -6,8 +6,14 @@ import subprocess
 import time
 import unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from support import copied_workspace_fixture, run_python_script, temporary_workspace, workspace_fixture
+
+
+def _write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
 class HelpNextTests(unittest.TestCase):
@@ -207,6 +213,94 @@ class HelpNextTests(unittest.TestCase):
         self.assertEqual(report["current_stage"], "planned")
         self.assertEqual(report["signals"]["latest_plan_title"], "Newer Slice")
         self.assertEqual(report["current_focus"], "Plan: Newer Slice")
+
+    def test_next_is_release_tail_aware_from_workflow_state_and_readiness(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir) / "workspace"
+            workspace.mkdir(parents=True, exist_ok=True)
+            _write_json(
+                workspace / ".forge-artifacts" / "workflow-state" / "checkout" / "latest.json",
+                {
+                    "project": "checkout",
+                    "profile": "solo-public",
+                    "intent": "DEPLOY",
+                    "current_stage": "adoption-check",
+                    "required_stage_chain": [
+                        "review-pack",
+                        "self-review",
+                        "quality-gate",
+                        "release-doc-sync",
+                        "release-readiness",
+                        "deploy",
+                        "adoption-check",
+                    ],
+                    "stages": {
+                        "review-pack": {"status": "completed"},
+                        "self-review": {"status": "completed"},
+                        "quality-gate": {"status": "completed"},
+                        "release-doc-sync": {"status": "completed"},
+                        "release-readiness": {"status": "completed"},
+                        "deploy": {"status": "completed"},
+                        "adoption-check": {"status": "required"},
+                    },
+                    "summary": {
+                        "status": "active",
+                        "primary_kind": "route-preview",
+                        "current_focus": "Recorded workflow stage: adoption-check",
+                        "current_stage": "adoption-check",
+                        "suggested_workflow": "adoption-check",
+                        "recommended_action": "Continue the recorded release tail before opening new scope.",
+                        "alternatives": ["Keep the release tail visible."],
+                    },
+                    "latest_gate": {
+                        "decision": "go",
+                        "why": "Release gate is green.",
+                    },
+                },
+            )
+            _write_json(
+                workspace / ".forge-artifacts" / "release-readiness" / "checkout" / "latest.json",
+                {
+                    "status": "PASS",
+                    "release_tier": "public-broad",
+                    "summary": "Core release contract looks ready.",
+                },
+            )
+            _write_json(
+                workspace / ".forge-artifacts" / "adoption-check" / "checkout" / "latest.json",
+                {
+                    "recorded_at": "2026-04-01T00:00:00+00:00",
+                    "project": "checkout",
+                    "summary": "Adoption signal shows a stable launch.",
+                    "impact": "supports",
+                    "confidence": "high",
+                    "target": "public launch",
+                    "stage_name": "adoption-check",
+                    "stage_status": "completed",
+                    "signals": ["Conversion is stable after launch."],
+                    "next_actions": ["Keep monitoring the release tail."],
+                },
+            )
+            (workspace / "README.md").write_text("# Checkout\n", encoding="utf-8")
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+
+        self.assertEqual(report["current_stage"], "change-active")
+        self.assertIn("Release tail: adoption-check (public-broad)", report["current_focus"])
+        self.assertIn("Release tier: public-broad", report["recommended_action"])
+        self.assertEqual(report["signals"]["release_readiness_tier"], "public-broad")
+        self.assertIn("supports / high", report["signals"]["latest_adoption_signal"])
 
 if __name__ == "__main__":
     unittest.main()

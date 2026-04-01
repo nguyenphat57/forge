@@ -465,6 +465,8 @@ class ToolRoundTripTests(unittest.TestCase):
                 "Adoption check confirms the release was taken up.",
                 "--signal",
                 "Users completed the new flow without follow-up issues.",
+                "--release-action",
+                "monitor",
                 "--next-action",
                 "Monitor the release after rollout.",
                 "--persist",
@@ -494,6 +496,8 @@ class ToolRoundTripTests(unittest.TestCase):
         self.assertEqual(state["latest_direction"]["current_stage"], "brainstorm")
         self.assertEqual(state["latest_spec_review"]["current_stage"], "spec-review")
         self.assertEqual(state["latest_adoption_check"]["current_stage"], "adoption-check")
+        self.assertEqual(state["latest_adoption_check"]["release_actions"], ["monitor"])
+        self.assertEqual(state["latest_adoption_check"]["friction_categories"], [])
 
         self.assertEqual(state["latest_direction"]["source_path"], direction_report["artifacts"]["json"])
         self.assertEqual(state["latest_spec_review"]["source_path"], spec_review_report["artifacts"]["json"])

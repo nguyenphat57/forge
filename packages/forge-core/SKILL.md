@@ -319,6 +319,7 @@ Verification profiles canonical live in `data/orchestrator-registry.json`.
 - `review-pack` is the pre-release tail for release-sensitive work and should feed `self-review`, then `quality-gate`, then `deploy`.
 - Release-tail stages stay explicit: `review-pack` -> `self-review` -> `quality-gate` -> `release-doc-sync` -> `release-readiness` -> `deploy` -> `adoption-check`.
 - `release-doc-sync`, `release-readiness`, and `adoption-check` are release-surface gates that must remain visible when the slice affects docs, rollout confidence, or post-deploy usage.
+- Release-tier language should stay compatible with the core release contract; adapters may present host-specific wording, but they must not invent separate posture names that change the behavior bar.
 - workflow-state records should use the canonical stage status vocabulary: `pending`, `required`, `active`, `completed`, `skipped`, `blocked`.
 - workflow-state entries should carry activation reasons and skip reasons so the gate does not have to reconstruct intent from chat memory.
 

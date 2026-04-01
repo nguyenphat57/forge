@@ -194,6 +194,11 @@ class ReleaseReadinessTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             report = json.loads(result.stdout)
             self.assertEqual(report["status"], "PASS")
+            self.assertEqual(report["release_story"]["posture"], "internal")
+            self.assertIn("canonical release tiers", report["release_story"]["canonical_tier_policy"])
+            self.assertIn("compatibility profile `standard`", report["rollback_guidance"])
+            self.assertEqual(report["follow_up_packet"]["status"], "planned")
+            self.assertEqual(report["follow_up_packet"]["name"], "internal-shared-follow-up")
             self.assertTrue((workspace / ".forge-artifacts" / "release-readiness" / "latest.json").exists())
 
     def test_release_readiness_fails_for_production_when_docs_sync_warns(self) -> None:
@@ -319,6 +324,7 @@ class ReleaseReadinessTests(unittest.TestCase):
             self.assertEqual(report["effective_profile"], "solo-public")
             self.assertEqual(report["compatibility_profile"], "auth")
             self.assertEqual(report["release_tier"], "public-controlled")
+            self.assertIn("Compatibility profile `auth`", " ".join(report["release_story"]["compatibility_notes"]))
             self.assertIn("review-pack", report["missing_evidence"])
             self.assertNotIn("rollout-readiness", report["missing_evidence"])
 
@@ -394,6 +400,7 @@ class ReleaseReadinessTests(unittest.TestCase):
             self.assertEqual(report["effective_profile"], "solo-public")
             self.assertEqual(report["compatibility_profile"], "billing")
             self.assertEqual(report["release_tier"], "public-broad")
+            self.assertEqual(report["follow_up_packet"]["name"], "public-broad-follow-up")
             self.assertIn("review-pack", report["missing_evidence"])
 
     def test_release_readiness_explicit_standard_cannot_downscope_solo_public_workflow_state(self) -> None:
@@ -509,6 +516,7 @@ class ReleaseReadinessTests(unittest.TestCase):
             self.assertEqual(report["effective_profile"], "solo-internal")
             self.assertEqual(report["compatibility_profile"], "production")
             self.assertEqual(report["release_tier"], "internal-critical")
+            self.assertIn("Compatibility profile `production`", " ".join(report["release_story"]["compatibility_notes"]))
             self.assertIn("release-doc-sync", report["missing_evidence"])
             self.assertNotIn("rollout-readiness", report["missing_evidence"])
 
@@ -575,6 +583,7 @@ class ReleaseReadinessTests(unittest.TestCase):
             report = json.loads(result.stdout)
             self.assertEqual(report["status"], "WARN")
             self.assertIn("adoption-check", report["missing_evidence"])
+            self.assertEqual(report["follow_up_packet"]["status"], "pending-adoption")
             self.assertTrue(any(item["id"] == "adoption-check" and item["status"] == "WARN" for item in report["checks"]))
 
     def test_release_readiness_fails_when_adoption_check_contradicts_live_release(self) -> None:
@@ -654,6 +663,10 @@ class ReleaseReadinessTests(unittest.TestCase):
                 "Conversion dropped sharply after launch.",
                 "--friction",
                 "Users are abandoning checkout after the new step.",
+                "--friction-category",
+                "regression",
+                "--release-action",
+                "rollback",
                 "--next-action",
                 "Rollback the public launch while triaging the regression.",
                 "--persist",
@@ -677,6 +690,10 @@ class ReleaseReadinessTests(unittest.TestCase):
             self.assertEqual(result.returncode, 1, result.stderr)
             report = json.loads(result.stdout)
             self.assertEqual(report["status"], "FAIL")
+            self.assertEqual(report["follow_up_packet"]["status"], "needs-attention")
+            self.assertIn("rollback", report["follow_up_packet"]["recorded_actions"])
+            self.assertIn("regression", report["follow_up_packet"]["friction_categories"])
+            self.assertIn("categories: regression", next(item["detail"] for item in report["checks"] if item["id"] == "adoption-check"))
             self.assertTrue(any(item["id"] == "adoption-check" and item["status"] == "FAIL" for item in report["checks"]))
 
 

@@ -1,7 +1,7 @@
 HANDOVER
-- Current task: Prepare the 1.11.0 minor release for the 1.11.x hardening roadmap.
-- Done: Hardened secret scan, dirty-tree release provenance, solo-profile and release-tail docs, materialized overlay contract checks, route-preview workflow-state round-tripping, and bumped `VERSION` plus `CHANGELOG.md` to `1.11.0`.
-- Remaining: none.
-- Important decisions: Treat fresh dist-bundle verification and workflow-state round-tripping as release-blocking contracts before shipping `1.11.0`.
-- Verification run: `PYTHONPATH='packages/forge-core/scripts;packages/forge-core/tests' python -m unittest packages/forge-core/tests/test_help_next_workflow_state.py packages/forge-core/tests/test_tool_roundtrip.py packages/forge-core/tests/test_help_next.py packages/forge-core/tests/test_route_preview.py -v` -> PASS; `PYTHONPATH='tests' python -m unittest tests.test_secret_scan tests.release_repo_test_contracts tests.release_repo_test_overlays -v` -> PASS; `python scripts/verify_repo.py` -> PASS.
-- Next step: Continue from `1.11.0` only if a post-release rollout note or follow-up hardening slice is needed.
+- Current task: Prepare the 1.12.0 minor release for the 1.12.x maturation roadmap.
+- Done: Froze the canonical four-tier release contract, bounded adoption-check and release follow-up, made `help`/`next`/dashboard read release-tail state, hardened roadmap closure rules, and bumped `VERSION` plus `CHANGELOG.md` to `1.12.0`.
+- Remaining: none for the repo release slice.
+- Important decisions: Keep `1.12.0` on one canonical four-tier vocabulary and require a separate roadmap-complete sweep before claiming Commits 6 to 10 are also closed.
+- Verification run: `python scripts/verify_repo.py` -> PASS; `python scripts/build_release.py --format json` -> PASS; roadmap closure checks -> PASS; implementation-plan alignment checks -> PASS; deferred-boundary rationale checks -> PASS.
+- Next step: Refresh installed `.codex` and `.gemini` runtimes from the fresh `dist/` bundles if local host rollout is needed.

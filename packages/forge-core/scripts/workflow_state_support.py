@@ -137,6 +137,8 @@ def _stage_entry(kind: str, report: dict, source_path: Path | None = None) -> tu
         entry["confidence"] = report.get("confidence")
         entry["evidence_sources"] = _string_list(report.get("evidence_sources"))
         entry["frictions"] = _string_list(report.get("frictions"))
+        entry["friction_categories"] = _string_list(report.get("friction_categories"))
+        entry["release_actions"] = _string_list(report.get("release_actions"))
         entry["metrics"] = _string_list(report.get("metrics"))
     return stage_name, entry
 
@@ -244,6 +246,8 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
             "confidence": report.get("confidence", "medium"),
             "evidence_sources": as_string_list(report.get("evidence_sources")),
             "frictions": as_string_list(report.get("frictions")),
+            "friction_categories": as_string_list(report.get("friction_categories")),
+            "release_actions": as_string_list(report.get("release_actions")),
             "metrics": as_string_list(report.get("metrics")),
         }
     if kind == "route-preview":

@@ -74,5 +74,28 @@
     ],
     "revisit_if": null,
     "trigger": "release-review"
+  },
+  {
+    "id": "20260401-215058",
+    "kind": "learning",
+    "scope": "forge-1-12-roadmap-closure",
+    "summary": "Roadmap closure claims stay trustworthy only when the roadmap, implementation plan, execution report, and deferred-boundary reference are all checked together instead of relying on one release cut sweep.",
+    "status": "resolved",
+    "evidence": [
+      "docs/plans/2026-04-01-forge-1.12.x-maturation-roadmap.md",
+      "docs/plans/2026-04-01-forge-1.12.x-maturation-implementation-plan.md",
+      "docs/plans/2026-04-01-forge-1.12.x-maturation-execution-report.md",
+      "packages/forge-core/references/target-state.md"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "docs",
+      "roadmap",
+      "closure"
+    ],
+    "revisit_if": null,
+    "trigger": "release-review",
+    "resume_hint": "Re-open this item when the work slice resumes."
   }
 ]

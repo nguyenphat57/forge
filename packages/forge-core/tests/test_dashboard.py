@@ -8,6 +8,11 @@ from tempfile import TemporaryDirectory
 from support import reference_companion_environment, run_python_script
 
 
+def _write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
 class DashboardTests(unittest.TestCase):
     def test_dashboard_reflects_active_review_ready_workspace(self) -> None:
         with TemporaryDirectory() as temp_dir, reference_companion_environment() as (_, companion_env):
@@ -46,43 +51,74 @@ class DashboardTests(unittest.TestCase):
             (workspace / "docs" / "plans" / "checkout.md").write_text("# Plan: Checkout\n", encoding="utf-8")
             (workspace / ".forge-artifacts" / "codebase").mkdir(parents=True)
             (workspace / ".forge-artifacts" / "codebase" / "summary.md").write_text("# Codebase Summary\n", encoding="utf-8")
-
-            started = run_python_script(
-                "change_artifacts.py",
-                "start",
-                "Checkout review slice",
-                "--workspace",
-                str(workspace),
-                "--format",
-                "json",
+            _write_json(
+                workspace / ".forge-artifacts" / "release-readiness" / "checkout" / "latest.json",
+                {
+                    "status": "PASS",
+                    "release_tier": "public-broad",
+                    "summary": "Release posture is ready.",
+                },
             )
-            self.assertEqual(started.returncode, 0, started.stderr)
-
-            gate = run_python_script(
-                "record_quality_gate.py",
-                "--workspace",
-                str(workspace),
-                "--project-name",
-                "demo",
-                "--profile",
-                "standard",
-                "--target-claim",
-                "ready-for-review",
-                "--decision",
-                "go",
-                "--evidence",
-                "pytest tests/test_checkout.py",
-                "--response",
-                "Fresh evidence is sufficient for review.",
-                "--why",
-                "Focused verification passed for the active slice.",
-                "--persist",
-                "--output-dir",
-                str(workspace),
-                "--format",
-                "json",
+            _write_json(
+                workspace / ".forge-artifacts" / "adoption-check" / "checkout" / "latest.json",
+                {
+                    "recorded_at": "2026-04-01T00:00:00+00:00",
+                    "project": "checkout",
+                    "summary": "Adoption signal supports the launch.",
+                    "impact": "supports",
+                    "confidence": "high",
+                    "target": "public launch",
+                    "stage_name": "adoption-check",
+                    "stage_status": "completed",
+                    "signals": ["Conversion remains stable after rollout."],
+                    "next_actions": ["Keep monitoring the release tail."],
+                },
             )
-            self.assertEqual(gate.returncode, 0, gate.stderr)
+            _write_json(
+                workspace / ".forge-artifacts" / "workflow-state" / "checkout" / "latest.json",
+                {
+                    "project": "checkout",
+                    "profile": "solo-public",
+                    "intent": "DEPLOY",
+                    "current_stage": "quality-gate",
+                    "required_stage_chain": [
+                        "review-pack",
+                        "self-review",
+                        "quality-gate",
+                        "release-doc-sync",
+                        "release-readiness",
+                        "deploy",
+                        "adoption-check",
+                    ],
+                    "stages": {
+                        "review-pack": {"status": "completed"},
+                        "self-review": {"status": "completed"},
+                        "quality-gate": {"status": "completed"},
+                        "release-doc-sync": {"status": "completed"},
+                        "release-readiness": {"status": "completed"},
+                        "deploy": {"status": "completed"},
+                        "adoption-check": {"status": "required"},
+                    },
+                    "summary": {
+                        "status": "review-ready",
+                        "primary_kind": "quality-gate",
+                        "current_focus": "Conditional gate: ready-for-review",
+                        "current_stage": "quality-gate",
+                        "suggested_workflow": "review",
+                        "recommended_action": "Address the follow-up before claiming ready-for-review.",
+                        "alternatives": ["Keep the release tail visible."],
+                    },
+                    "latest_gate": {
+                        "decision": "go",
+                        "why": "Focused verification passed for the active slice.",
+                    },
+                    "latest_adoption_check": {
+                        "impact": "supports",
+                        "confidence": "high",
+                        "summary": "Adoption signal supports the launch.",
+                    },
+                },
+            )
 
             docs_sync = run_python_script(
                 "release_doc_sync.py",
@@ -114,6 +150,10 @@ class DashboardTests(unittest.TestCase):
             self.assertTrue(report["brownfield"]["mapped"])
             self.assertEqual(report["continuity"]["decisions"], 1)
             self.assertEqual(report["continuity"]["learnings"], 1)
+            self.assertEqual(report["current_stage"], "review-ready")
+            self.assertEqual(report["release_tier"], "public-broad")
+            self.assertEqual(report["latest_gate"]["decision"], "go")
+            self.assertIn("supports / high", report["latest_adoption_signal"])
             self.assertTrue(any(item["id"] == "nextjs-typescript-postgres" for item in report["companions"]))
             self.assertTrue(any(item["profile"] == "nextjs-prisma-app-router" for item in report["companions"]))
             self.assertTrue((workspace / ".forge-artifacts" / "dashboard" / "latest.json").exists())

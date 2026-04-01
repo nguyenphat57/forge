@@ -6,6 +6,7 @@ from pathlib import Path
 
 from common import configure_stdio, load_preferences, resolve_response_style
 from help_next_support import (
+    adoption_signal_label,
     build_evidence,
     build_focus,
     build_recommendations,
@@ -13,8 +14,10 @@ from help_next_support import (
     determine_stage,
     extract_markdown_title,
     find_latest_markdown,
+    find_latest_json,
     find_latest_named_file,
     first_existing_file,
+    release_tier_label,
     read_git_status,
     read_handover_excerpt,
     read_json_object,
@@ -43,6 +46,10 @@ def build_report(workspace: Path, mode: str) -> dict:
     repo_signals = collect_repo_signals(workspace)
     workflow_report = resolve_workflow_state(workspace, warnings)
     workflow_state = workflow_report["state"]
+    release_readiness_path = find_latest_json(workspace, ".forge-artifacts/release-readiness")
+    release_readiness = read_json_object(release_readiness_path, "release-readiness", warnings) if release_readiness_path else None
+    latest_adoption_path = find_latest_json(workspace, ".forge-artifacts/adoption-check")
+    latest_adoption_check = read_json_object(latest_adoption_path, "adoption-check", warnings) if latest_adoption_path else None
 
     stage = determine_stage(
         session=session,
@@ -66,6 +73,8 @@ def build_report(workspace: Path, mode: str) -> dict:
         workflow_state=workflow_state,
         codebase_summary=codebase_summary,
         active_change=active_change,
+        release_readiness=release_readiness,
+        latest_adoption_check=latest_adoption_check,
     )
     suggested_workflow, recommended_action, alternatives = build_recommendations(
         mode=mode,
@@ -77,6 +86,8 @@ def build_report(workspace: Path, mode: str) -> dict:
         workflow_state=workflow_state,
         codebase_summary=codebase_summary,
         active_change=active_change,
+        release_readiness=release_readiness,
+        latest_adoption_check=latest_adoption_check,
     )
 
     return {
@@ -104,6 +115,11 @@ def build_report(workspace: Path, mode: str) -> dict:
             "workflow_state_file": workflow_report["path"],
             "workflow_state_source": workflow_report["source"],
             "workflow_summary": workflow_state.get("summary") if isinstance(workflow_state, dict) else None,
+            "release_readiness_file": str(release_readiness_path) if release_readiness_path else None,
+            "release_tier": release_tier_label(release_readiness),
+            "release_readiness_tier": release_tier_label(release_readiness),
+            "latest_adoption_check_file": str(latest_adoption_path) if latest_adoption_path else None,
+            "latest_adoption_signal": adoption_signal_label(latest_adoption_check),
         },
         "evidence": build_evidence(
             readme=readme,

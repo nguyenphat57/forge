@@ -36,6 +36,57 @@ RELEASE_TIER_RULES = {
     },
 }
 
+CANONICAL_TIER_POLICY = (
+    "1.12.x keeps four canonical release tiers until a new name carries a materially different evidence bar."
+)
+
+RELEASE_TIER_METADATA = {
+    "internal-shared": {
+        "posture": "internal",
+        "summary": "Shared internal release with controlled rollout pressure and lighter release-tail obligations.",
+        "migration_guidance": "Use `internal-shared` as the canonical 1.12.x tier when the old internal path would have behaved like `standard`.",
+        "rollback_guidance": "If the tier wording causes confusion, fall back to `solo-internal` plus compatibility profile `standard` without changing gate behavior.",
+        "follow_up_packet": {
+            "name": "internal-shared-follow-up",
+            "focus": "Confirm shared internal uptake and capture concrete friction quickly.",
+            "default_actions": ["monitor", "follow-up-fix"],
+        },
+    },
+    "internal-critical": {
+        "posture": "internal",
+        "summary": "Internal release with strict docs, canary, and rollout-readiness expectations.",
+        "migration_guidance": "Use `internal-critical` when the old internal path needed production-like evidence or boundary-sensitive rollout controls.",
+        "rollback_guidance": "If the strict internal tier naming causes friction, keep `solo-internal` and compatibility profile `production` or `auth` while preserving the same checks.",
+        "follow_up_packet": {
+            "name": "internal-critical-follow-up",
+            "focus": "Track critical internal rollout health and revisit readiness if adoption weakens.",
+            "default_actions": ["monitor", "re-run-readiness", "follow-up-fix"],
+        },
+    },
+    "public-controlled": {
+        "posture": "public",
+        "summary": "Public release with review-pack and canary pressure, but without the broadest rollout-readiness bar.",
+        "migration_guidance": "Use `public-controlled` for 1.12.x public releases that need a controlled rollout but do not justify a separate `public-patch` or `public-feature` taxonomy yet.",
+        "rollback_guidance": "If the public controlled tier wording is unclear, fall back to `solo-public` plus compatibility profile `standard` while keeping the same gate shape.",
+        "follow_up_packet": {
+            "name": "public-controlled-follow-up",
+            "focus": "Monitor the controlled public rollout and record an adoption signal before widening confidence.",
+            "default_actions": ["monitor", "re-run-readiness", "follow-up-fix"],
+        },
+    },
+    "public-broad": {
+        "posture": "public",
+        "summary": "Broad public release with the strictest canary and rollout-readiness expectations in the current model.",
+        "migration_guidance": "Use `public-broad` when the old public path needed production-like breadth; defer finer names such as `critical-rollout` until they change the evidence bar materially.",
+        "rollback_guidance": "If this tier naming causes confusion during rollout, keep `solo-public` plus compatibility profile `production` or `billing` and preserve the same release checks.",
+        "follow_up_packet": {
+            "name": "public-broad-follow-up",
+            "focus": "Keep live public rollout evidence, adoption, and rollback readiness visible in one packet.",
+            "default_actions": ["monitor", "re-run-readiness", "rollback"],
+        },
+    },
+}
+
 BASE_PROFILE_RULES = {
     "solo-internal": dict(RELEASE_TIER_RULES["internal-shared"]),
     "solo-public": dict(RELEASE_TIER_RULES["public-broad"]),
@@ -182,3 +233,31 @@ def resolve_profile_rules(
     rules["canary_profile"] = "broad" if stage_required(workflow_state, "release-readiness") else "controlled-rollout"
     rules["strict_deploy_gate"] = state_profile == "solo-public"
     return rules
+
+
+def resolve_release_tier_story(
+    effective_profile: str,
+    compatibility_profile: str | None,
+    release_tier: str,
+) -> dict:
+    metadata = dict(RELEASE_TIER_METADATA[release_tier])
+    follow_up_packet = dict(metadata["follow_up_packet"])
+    compatibility_notes = [
+        CANONICAL_TIER_POLICY,
+        f"Effective profile `{effective_profile}` resolves to canonical tier `{release_tier}`.",
+    ]
+    if compatibility_profile:
+        compatibility_notes.append(
+            f"Compatibility profile `{compatibility_profile}` maps into `{release_tier}` for legacy or shorthand release requests."
+        )
+    return {
+        "tier": release_tier,
+        "posture": metadata["posture"],
+        "summary": metadata["summary"],
+        "canonical_tier_policy": CANONICAL_TIER_POLICY,
+        "compatibility_profile": compatibility_profile,
+        "compatibility_notes": compatibility_notes,
+        "migration_guidance": metadata["migration_guidance"],
+        "rollback_guidance": metadata["rollback_guidance"],
+        "follow_up_packet": follow_up_packet,
+    }

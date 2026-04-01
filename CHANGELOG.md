@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.12.0 - 2026-04-01
+
+- Mature Forge into a stronger solo-dev operating model by freezing a canonical four-tier release contract, feeding bounded adoption signals back into release readiness, and keeping release follow-up packets explicit instead of ad hoc.
+- Make `help`, `next`, and dashboard summaries read real release-tail state, including workflow stage, release tier, latest gate, and latest adoption signal, so long-running release work no longer depends on operator memory.
+- Align core, Codex, and Antigravity release-surface wording with the same contract, harden the `1.12.x` roadmap closure rules, and keep architecture plus target-state references explicit enough to close the roadmap with tracked evidence.
+
+
 ## 1.11.0 - 2026-04-01
 
 - Harden Forge's routing and release contracts by scanning untracked secrets, recording dirty-tree provenance in `BUILD-MANIFEST.json`, and requiring fresh `dist/` adapter registries to prove the full inherited solo-profile contract.

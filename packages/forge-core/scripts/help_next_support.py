@@ -194,6 +194,28 @@ def workflow_state_follow_on_stages(workflow_state: dict | None) -> list[str]:
     return required_stage_chain
 
 
+def release_tier_label(release_readiness: dict | None) -> str | None:
+    if not isinstance(release_readiness, dict):
+        return None
+    tier = release_readiness.get("release_tier")
+    return tier.strip() if isinstance(tier, str) and tier.strip() else None
+
+
+def adoption_signal_label(latest_adoption_check: dict | None) -> str | None:
+    if not isinstance(latest_adoption_check, dict):
+        return None
+    impact = latest_adoption_check.get("impact")
+    confidence = latest_adoption_check.get("confidence")
+    summary = latest_adoption_check.get("summary") or latest_adoption_check.get("label")
+    parts = [item for item in (impact, confidence) if isinstance(item, str) and item.strip()]
+    if not parts and not isinstance(summary, str):
+        return None
+    prefix = " / ".join(parts)
+    if isinstance(summary, str) and summary.strip():
+        return f"{prefix}: {summary.strip()}" if prefix else summary.strip()
+    return prefix or None
+
+
 def determine_stage(*, session: dict | None, git_state: dict, latest_plan: Path | None, latest_spec: Path | None, workflow_state: dict | None = None, codebase_summary: Path | None = None, active_change: dict | None = None) -> str:
     summary = workflow_summary(workflow_state)
     status = summary_text(summary, "status")
@@ -225,10 +247,31 @@ def determine_stage(*, session: dict | None, git_state: dict, latest_plan: Path 
     return "unscoped"
 
 
-def build_focus(stage: str, *, session: dict | None, latest_plan: Path | None, latest_spec: Path | None, git_state: dict, workflow_state: dict | None = None, codebase_summary: Path | None = None, active_change: dict | None = None) -> str:
+def build_focus(
+    stage: str,
+    *,
+    session: dict | None,
+    latest_plan: Path | None,
+    latest_spec: Path | None,
+    git_state: dict,
+    workflow_state: dict | None = None,
+    codebase_summary: Path | None = None,
+    active_change: dict | None = None,
+    release_readiness: dict | None = None,
+    latest_adoption_check: dict | None = None,
+) -> str:
     summary = workflow_summary(workflow_state)
     workflow_focus = summary_text(summary, "current_focus")
     workflow_stage = workflow_state_stage(workflow_state)
+    release_tier = release_tier_label(release_readiness)
+    release_signal = adoption_signal_label(latest_adoption_check)
+    if workflow_stage in {"release-doc-sync", "release-readiness", "adoption-check"}:
+        label = f"Release tail: {workflow_stage}"
+        if release_tier:
+            label = f"{label} ({release_tier})"
+        if workflow_stage == "adoption-check" and release_signal:
+            return f"{label} | {release_signal}"
+        return label
     if stage == "blocked":
         return workflow_focus or f"Blocked: {session_blocker(session)}"
     if stage == "review-ready":
@@ -254,13 +297,28 @@ def build_focus(stage: str, *, session: dict | None, latest_plan: Path | None, l
     return "No active work slice detected from repo state."
 
 
-def build_recommendations(*, mode: str, stage: str, session: dict | None, latest_plan: Path | None, latest_spec: Path | None, handover_excerpt: str | None, workflow_state: dict | None = None, codebase_summary: Path | None = None, active_change: dict | None = None) -> tuple[str, str, list[str]]:
+def build_recommendations(
+    *,
+    mode: str,
+    stage: str,
+    session: dict | None,
+    latest_plan: Path | None,
+    latest_spec: Path | None,
+    handover_excerpt: str | None,
+    workflow_state: dict | None = None,
+    codebase_summary: Path | None = None,
+    active_change: dict | None = None,
+    release_readiness: dict | None = None,
+    latest_adoption_check: dict | None = None,
+) -> tuple[str, str, list[str]]:
     summary = workflow_summary(workflow_state)
     workflow_name = summary_text(summary, "suggested_workflow")
     workflow_action = summary_text(summary, "recommended_action")
     workflow_alternatives = summary_items(summary, "alternatives")
     workflow_stage = workflow_state_stage(workflow_state)
     workflow_follow_on = workflow_state_follow_on_stages(workflow_state)
+    release_tier = release_tier_label(release_readiness)
+    release_signal = adoption_signal_label(latest_adoption_check)
     if summary and stage in {"blocked", "review-ready", "session-active"} and workflow_name and workflow_action:
         return workflow_name, workflow_action, workflow_alternatives[:1] if mode == "next" else workflow_alternatives[:2]
     plan_path = latest_plan or latest_spec
@@ -281,6 +339,20 @@ def build_recommendations(*, mode: str, stage: str, session: dict | None, latest
             alternatives.append(f"Re-open the latest {plan_kind} '{plan_title}' if priorities changed.")
         return "session", primary, alternatives[:1] if mode == "next" else alternatives[:2]
     if stage == "change-active":
+        if workflow_stage in {"release-doc-sync", "release-readiness", "adoption-check"}:
+            alternatives = list(workflow_alternatives)
+            if release_signal:
+                alternatives.append(f"Keep the latest adoption signal visible: {release_signal}.")
+            if release_tier:
+                alternatives.append(f"Release tier in effect: {release_tier}.")
+            action = workflow_action or f"Continue the recorded release tail at '{workflow_stage}'."
+            if release_tier and release_tier not in action:
+                action = f"{action} Release tier: {release_tier}."
+            if workflow_stage == "adoption-check" and latest_adoption_check:
+                impact = latest_adoption_check.get("impact")
+                if isinstance(impact, str) and impact in {"neutral", "contradicts"}:
+                    action = f"{action} Feed the signal back into release-readiness before opening new scope."
+            return workflow_name or workflow_stage, action, alternatives[:1] if mode == "next" else alternatives[:2]
         if workflow_name and workflow_action:
             return workflow_name, workflow_action, workflow_alternatives[:1] if mode == "next" else workflow_alternatives[:2]
         if workflow_stage:

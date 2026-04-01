@@ -15,6 +15,7 @@ from release_profile_contract import (
     resolve_effective_profile,
     resolve_profile_rules,
     resolve_release_tier,
+    resolve_release_tier_story,
 )
 from release_feature_detection import detect_release_context
 from workflow_state_support import resolve_workflow_state
@@ -54,6 +55,7 @@ def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict
     )
     release_tier = resolve_release_tier(effective_profile, compatibility_profile, workflow_state)
     rules = resolve_profile_rules(effective_profile, workflow_state, compatibility_profile=compatibility_profile)
+    release_story = resolve_release_tier_story(effective_profile, compatibility_profile, release_tier)
     latest_gate = (workflow_state or {}).get("latest_gate") if isinstance(workflow_state, dict) else None
     latest_adoption_check = (workflow_state or {}).get("latest_adoption_check") if isinstance(workflow_state, dict) else None
     gate_status = "FAIL"
@@ -128,13 +130,40 @@ def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict
             impact = str(latest_adoption_check.get("impact") or "neutral")
             confidence = str(latest_adoption_check.get("confidence") or "medium")
             detail = latest_adoption_check.get("label") or latest_adoption_check.get("summary") or "Adoption check recorded."
+            friction_categories = latest_adoption_check.get("friction_categories") or []
+            release_actions = latest_adoption_check.get("release_actions") or []
             detail = f"{impact} ({confidence} confidence): {detail}"
+            if friction_categories:
+                detail = f"{detail} | categories: {', '.join(friction_categories)}"
+            if release_actions:
+                detail = f"{detail} | actions: {', '.join(release_actions)}"
             adoption_status = {"supports": "PASS", "neutral": "WARN", "contradicts": "FAIL"}.get(impact, "WARN")
         else:
             adoption_status = "WARN"
             detail = "Release appears live but no adoption-check signal is recorded yet."
             missing_evidence.append("adoption-check")
         checks.append({"id": "adoption-check", "status": adoption_status, "detail": detail})
+    else:
+        adoption_status = None
+
+    follow_up_packet = dict(release_story["follow_up_packet"])
+    if not release_live:
+        follow_up_packet["status"] = "planned"
+        follow_up_packet["recorded_actions"] = []
+        follow_up_packet["friction_categories"] = []
+    elif isinstance(latest_adoption_check, dict):
+        follow_up_packet["status"] = {"PASS": "supported", "WARN": "monitoring", "FAIL": "needs-attention"}.get(
+            adoption_status or "WARN",
+            "monitoring",
+        )
+        follow_up_packet["recorded_actions"] = latest_adoption_check.get("release_actions") or latest_adoption_check.get(
+            "next_actions"
+        ) or []
+        follow_up_packet["friction_categories"] = latest_adoption_check.get("friction_categories") or []
+    else:
+        follow_up_packet["status"] = "pending-adoption"
+        follow_up_packet["recorded_actions"] = []
+        follow_up_packet["friction_categories"] = []
 
     blockers = [item["detail"] for item in checks if item["status"] == "FAIL"]
     warns = [item["detail"] for item in checks if item["status"] == "WARN"]
@@ -157,6 +186,10 @@ def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict
         "review_pack": review_pack,
         "rollout_readiness": readiness_report,
         "adoption_check": latest_adoption_check,
+        "release_story": release_story,
+        "migration_guidance": release_story["migration_guidance"],
+        "rollback_guidance": release_story["rollback_guidance"],
+        "follow_up_packet": follow_up_packet,
         "summary": "Core release contract looks ready." if status == "PASS" else "Release readiness still has unresolved gaps.",
     }
 
@@ -183,6 +216,7 @@ def format_text(report: dict) -> str:
         f"- Effective profile: {report['effective_profile']}",
         f"- Compatibility profile: {report.get('compatibility_profile') or '(none)'}",
         f"- Release tier: {report['release_tier']}",
+        f"- Tier summary: {report['release_story']['summary']}",
         f"- Features: {', '.join(report['features']) or '(none)'}",
         f"- Summary: {report['summary']}",
         "- Checks:",
@@ -201,6 +235,19 @@ def format_text(report: dict) -> str:
         lines.append("- Missing evidence:")
         for item in report["missing_evidence"]:
             lines.append(f"  - {item}")
+    lines.append("- Migration guidance:")
+    lines.append(f"  - {report['migration_guidance']}")
+    lines.append("- Rollback guidance:")
+    lines.append(f"  - {report['rollback_guidance']}")
+    lines.append("- Follow-up packet:")
+    lines.append(f"  - {report['follow_up_packet']['name']} [{report['follow_up_packet']['status']}]")
+    lines.append(f"  - Focus: {report['follow_up_packet']['focus']}")
+    if report["follow_up_packet"]["recorded_actions"]:
+        lines.append(f"  - Recorded actions: {', '.join(report['follow_up_packet']['recorded_actions'])}")
+    else:
+        lines.append(
+            f"  - Default actions: {', '.join(report['follow_up_packet']['default_actions'])}"
+        )
     return "\n".join(lines)
 
 

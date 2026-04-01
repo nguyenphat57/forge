@@ -57,6 +57,18 @@ For solo-profile releases, this is the final release-surface verdict after docs 
 - live releases should keep `adoption-check` visible as the post-release tail
 - FAIL or WARN should point back to `release-doc-sync`, `quality-gate`, or both, depending on the missing evidence
 
+## Follow-Up Packet
+
+When the release is live and adoption is weak or noisy, capture one compact follow-up packet instead of leaving the verdict as a loose note:
+
+- release tier or profile in use
+- target environment or audience
+- observed adoption signal
+- concrete friction or regression
+- next action inside Forge, such as `monitor`, `follow-up fix`, `rollback`, or `re-run readiness`
+
+The packet should stay tied to the release-readiness record so later `help` or `next` calls can consume it without reconstructing context from memory.
+
 ## Verification
 
 - a clean slice can pass

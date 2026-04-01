@@ -21,6 +21,24 @@ For solo-profile work, this is the post-release tail that tells you whether the 
 4. Decide whether the signal supports or challenges the release-readiness claim.
 5. Hand the signal back to `release-readiness` if adoption is weak or noisy.
 
+## Signal Shapes
+
+Keep the recorded signal bounded to one of these concrete shapes:
+
+- `supportive` when the release is clearly being used as intended
+- `adoption lag` when usage is slower than expected but not broken
+- `confusion` when users are landing on the shipped change but do not understand it
+- `regression` when the deployed behavior is causing breakage or churn
+- `environment issue` when the problem is in the target environment rather than the release itself
+
+Each shape should map to a direct Forge action:
+
+- `supportive` -> keep the signal visible and continue monitoring
+- `adoption lag` -> keep monitoring or tighten follow-up if it persists
+- `confusion` -> clarify the release note or operator guidance
+- `regression` -> `follow-up fix` or `rollback` as needed
+- `environment issue` -> `monitor` and separate the environment from the release contract
+
 ## Output
 
 - target environment or audience

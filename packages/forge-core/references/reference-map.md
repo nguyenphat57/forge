@@ -24,6 +24,8 @@
 |`architecture-layers.md` | When deciding whether a capability belongs in core, generated artifacts, workflow state, or runtime tools|
 |`tooling.md` | When you need to run route preview, capture continuity, router checker, or find artifact paths|
 |`personalization.md` | When editing response-style preferences, adaptive language, or adapter wrappers for customization|
+|`release-readiness.md` | When changing the release verdict, rollout tiers, or post-release follow-up contract|
+|`adoption-check.md` | When changing the post-deploy signal contract or the handoff back into release-readiness|
 |`workspace-init.md` | When editing the skeleton workspace, init flow, or onboarding wrapper while preserving the repo-neutral contract|
 |`help-next.md` | When editing navigator logic for help/next, repo-state priority, or operator guidance wrappers|
 |`run-guidance.md` | When editing workflow `run`, ready-signal detection, command classification, or adapter wrappers for execute-then-route|
@@ -112,8 +114,10 @@
 1. secure.md
 2. quality-gate.md
 3. deploy.md
-4. failure-recovery-playbooks.md if gate is blocked or rollout fails
-5. execution-delivery.md if the chain is long or high-risk
+4. release-readiness.md if you need the explicit rollout verdict or follow-up packet
+5. adoption-check.md if the slice is already live and you need the post-deploy signal
+6. failure-recovery-playbooks.md if gate is blocked or rollout fails
+7. execution-delivery.md if the chain is long or high-risk
 ```
 
 ### When working on backend tasks
