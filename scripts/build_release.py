@@ -33,10 +33,10 @@ def read_version() -> str:
         raise ValueError(f"VERSION file is empty: {VERSION_FILE}")
     return version
 
-def resolve_git_revision() -> str | None:
+def resolve_git_revision(root: Path = ROOT_DIR) -> str | None:
     completed = subprocess.run(
         ["git", "rev-parse", "HEAD"],
-        cwd=str(ROOT_DIR),
+        cwd=str(root),
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -46,6 +46,54 @@ def resolve_git_revision() -> str | None:
         return None
     revision = completed.stdout.strip()
     return revision or None
+
+
+def resolve_git_tree_provenance(root: Path = ROOT_DIR) -> dict[str, object]:
+    completed = subprocess.run(
+        ["git", "status", "--short", "--untracked-files=all", "--", "."],
+        cwd=str(root),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    if completed.returncode != 0:
+        return {
+            "available": False,
+            "state": "unknown",
+            "modified_files": [],
+            "untracked_files": [],
+        }
+
+    modified_files: list[str] = []
+    untracked_files: list[str] = []
+    for line in completed.stdout.splitlines():
+        if len(line) < 3:
+            continue
+        status = line[:2]
+        relative = line[3:]
+        if " -> " in relative:
+            relative = relative.split(" -> ", 1)[-1]
+        if status == "??":
+            untracked_files.append(relative)
+        else:
+            modified_files.append(relative)
+
+    if modified_files and untracked_files:
+        state = "mixed"
+    elif modified_files:
+        state = "modified"
+    elif untracked_files:
+        state = "untracked"
+    else:
+        state = "clean"
+
+    return {
+        "available": True,
+        "state": state,
+        "modified_files": modified_files,
+        "untracked_files": untracked_files,
+    }
 
 def clean_dir(path: Path) -> None:
     if path.exists():
@@ -123,17 +171,21 @@ def write_build_manifest(
     package_name: str,
     host: str,
     source: str,
-    metadata: dict[str, str | None],
+    metadata: dict[str, object],
     *,
     state_metadata: dict | None = None,
 ) -> None:
     package_spec = bundle_package_spec(package_name)
+    git_tree = metadata.get("git_tree")
+    if not isinstance(git_tree, dict):
+        git_tree = resolve_git_tree_provenance()
     manifest = {
         "package": package_name,
         "host": host,
         "source": source,
         "version": metadata["version"],
         "git_revision": metadata["git_revision"],
+        "git_tree": git_tree,
         "built_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "packaging": {
             "matrix_path": str(PACKAGE_MATRIX_PATH.relative_to(ROOT_DIR).as_posix()),
@@ -196,7 +248,7 @@ def wait_for_bundle_ready(destination: Path, package_name: str, host: str) -> No
         raise FileNotFoundError(f"Missing build artifacts for {package_name}: {missing[0]}")
 
 
-def build_core_bundle(metadata: dict[str, str | None]) -> dict:
+def build_core_bundle(metadata: dict[str, object]) -> dict:
     destination = DIST_DIR / "forge-core"
     for attempt in range(BUNDLE_BUILD_ATTEMPTS):
         clean_dir(destination)
@@ -213,7 +265,7 @@ def build_core_bundle(metadata: dict[str, str | None]) -> dict:
     return {"name": "forge-core", "path": str(destination), "host": "generic", "version": metadata["version"]}
 
 
-def build_adapter_bundle(spec: dict, metadata: dict[str, str | None]) -> dict:
+def build_adapter_bundle(spec: dict, metadata: dict[str, object]) -> dict:
     package_dir = spec["package_dir"]
     destination = DIST_DIR / spec["name"]
     overlay_dir = package_dir / spec["overlay_dir"]
@@ -248,7 +300,7 @@ def build_adapter_bundle(spec: dict, metadata: dict[str, str | None]) -> dict:
     }
 
 
-def build_runtime_bundle(spec: dict, metadata: dict[str, str | None]) -> dict:
+def build_runtime_bundle(spec: dict, metadata: dict[str, object]) -> dict:
     package_dir = spec["package_dir"]
     destination = DIST_DIR / spec["name"]
     for attempt in range(BUNDLE_BUILD_ATTEMPTS):
@@ -273,11 +325,12 @@ def build_runtime_bundle(spec: dict, metadata: dict[str, str | None]) -> dict:
     return {"name": spec["name"], "path": str(destination), "host": spec["host"], "version": metadata["version"]}
 
 
-def build_companion_bundle(spec: dict, metadata: dict[str, str | None]) -> dict:
+def build_companion_bundle(spec: dict, metadata: dict[str, object]) -> dict:
     return build_runtime_bundle(spec, metadata)
 
 
 def build_all() -> list[dict]:
+    git_tree = resolve_git_tree_provenance(ROOT_DIR)
     DIST_DIR.mkdir(parents=True, exist_ok=True)
     host_artifact_report = ensure_generated_host_artifacts(check=True)
     if host_artifact_report["status"] != "PASS":
@@ -286,7 +339,7 @@ def build_all() -> list[dict]:
             "Generated host artifacts are stale. "
             f"Run `python scripts/generate_host_artifacts.py --apply`. First stale output: {first_stale}"
         )
-    metadata = {"version": read_version(), "git_revision": resolve_git_revision()}
+    metadata = {"version": read_version(), "git_revision": resolve_git_revision(), "git_tree": git_tree}
     all_specs = discover_package_specs(PACKAGES_DIR, include_examples=True)
     release_specs = [spec for spec in all_specs if spec.get("distribution") != "example"]
     release_bundle_names = {"forge-core", *(spec["name"] for spec in release_specs)}

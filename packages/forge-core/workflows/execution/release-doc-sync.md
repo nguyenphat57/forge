@@ -13,19 +13,22 @@ quality_gates:
 Check whether release-facing docs drifted away from the changed code or config surface.
 For solo-profile work, this is the doc gate that keeps `solo-internal` and `solo-public` releases from shipping with hidden knowledge gaps.
 
-## Typical Triggers
+## Process
 
-- after a feature ship
-- before a release readiness pass
-- when config, schema, or product surface changed materially
+1. Read the changed paths and identify which release profile is in play.
+2. Classify the touched docs surfaces and note what already changed with the slice.
+3. Report missing coverage explicitly instead of burying it in a warning.
+4. Suggest the doc update surfaces that should move next.
+5. Hand off the result to `release-readiness`, or to `adoption-check` if the release is already live.
 
-## Required Output
+## Output
 
 - changed paths
 - doc categories already touched
 - missing doc coverage
 - suggested doc update surfaces
 - release profile observed: `solo-internal`, `solo-public`, or other release target
+- whether the missing coverage is a warning or a release-tail finding
 
 ## Rules
 
@@ -35,6 +38,12 @@ For solo-profile work, this is the doc gate that keeps `solo-internal` and `solo
 - runtime/config changes should push attention toward README or release docs
 - product surface changes should push attention toward README, architecture, or plan/spec surfaces
 - if the changed surface is release-facing, missing docs are a finding for the release tail, not just an optional note
+
+## Handover
+
+- feed unresolved docs drift into `release-readiness`
+- if the change is already live, carry the signal into `adoption-check`
+- keep missing release-facing docs visible instead of folding them into deploy notes
 
 ## Verification
 

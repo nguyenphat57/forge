@@ -474,6 +474,32 @@
       "skipped",
       "blocked"
     ],
+    "release_tiers": {
+      "internal-shared": {
+        "profile": "solo-internal",
+        "requires_rollout_readiness": false,
+        "requires_review_pack": false,
+        "canary_profile": "controlled-rollout"
+      },
+      "internal-critical": {
+        "profile": "solo-internal",
+        "requires_rollout_readiness": true,
+        "requires_review_pack": false,
+        "canary_profile": "broad"
+      },
+      "public-controlled": {
+        "profile": "solo-public",
+        "requires_rollout_readiness": false,
+        "requires_review_pack": true,
+        "canary_profile": "controlled-rollout"
+      },
+      "public-broad": {
+        "profile": "solo-public",
+        "requires_rollout_readiness": true,
+        "requires_review_pack": true,
+        "canary_profile": "broad"
+      }
+    },
     "stages": {
       "brainstorm": {
         "workflow": "brainstorm"

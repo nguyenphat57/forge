@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 
-BASE_PROFILE_RULES = {
-    "solo-internal": {
+RELEASE_TIER_RULES = {
+    "internal-shared": {
         "require_docs_sync": False,
         "require_workspace_canary": False,
         "require_rollout_readiness": False,
@@ -10,7 +10,23 @@ BASE_PROFILE_RULES = {
         "canary_profile": "controlled-rollout",
         "strict_deploy_gate": False,
     },
-    "solo-public": {
+    "internal-critical": {
+        "require_docs_sync": True,
+        "require_workspace_canary": True,
+        "require_rollout_readiness": True,
+        "require_review_pack": False,
+        "canary_profile": "broad",
+        "strict_deploy_gate": True,
+    },
+    "public-controlled": {
+        "require_docs_sync": True,
+        "require_workspace_canary": True,
+        "require_rollout_readiness": False,
+        "require_review_pack": True,
+        "canary_profile": "controlled-rollout",
+        "strict_deploy_gate": True,
+    },
+    "public-broad": {
         "require_docs_sync": True,
         "require_workspace_canary": True,
         "require_rollout_readiness": True,
@@ -18,6 +34,11 @@ BASE_PROFILE_RULES = {
         "canary_profile": "broad",
         "strict_deploy_gate": True,
     },
+}
+
+BASE_PROFILE_RULES = {
+    "solo-internal": dict(RELEASE_TIER_RULES["internal-shared"]),
+    "solo-public": dict(RELEASE_TIER_RULES["public-broad"]),
 }
 
 LEGACY_PROFILE_HINTS = {
@@ -49,6 +70,24 @@ PROFILE_RULES = {
 }
 
 CANONICAL_SOLO_PROFILES = {"solo-internal", "solo-public"}
+COMPATIBILITY_TIER_HINTS = {
+    "standard": {
+        "solo-internal": "internal-shared",
+        "solo-public": "public-controlled",
+    },
+    "production": {
+        "solo-internal": "internal-critical",
+        "solo-public": "public-broad",
+    },
+    "auth": {
+        "solo-internal": "internal-critical",
+        "solo-public": "public-controlled",
+    },
+    "billing": {
+        "solo-internal": "internal-critical",
+        "solo-public": "public-broad",
+    },
+}
 
 
 def stage_required(workflow_state: dict | None, stage_name: str) -> bool:
@@ -105,21 +144,32 @@ def resolve_effective_profile(
     return "solo-public" if detected_public_surface else "solo-internal"
 
 
+def resolve_release_tier(
+    effective_profile: str,
+    compatibility_profile: str | None,
+    workflow_state: dict | None,
+) -> str:
+    state_profile = workflow_profile(workflow_state)
+    if state_profile is not None:
+        if effective_profile == "solo-public":
+            return "public-broad" if stage_required(workflow_state, "release-readiness") else "public-controlled"
+        return "internal-critical" if stage_required(workflow_state, "release-readiness") else "internal-shared"
+
+    compatibility_key = compatibility_profile or "standard"
+    hints = COMPATIBILITY_TIER_HINTS.get(compatibility_key, COMPATIBILITY_TIER_HINTS["standard"])
+    fallback = "public-controlled" if effective_profile == "solo-public" else "internal-shared"
+    return hints.get(effective_profile, fallback)
+
+
 def resolve_profile_rules(
     effective_profile: str,
     workflow_state: dict | None,
     *,
     compatibility_profile: str | None = None,
 ) -> dict:
-    rules = dict(BASE_PROFILE_RULES[effective_profile])
+    rules = dict(RELEASE_TIER_RULES[resolve_release_tier(effective_profile, compatibility_profile, workflow_state)])
     state_profile = workflow_profile(workflow_state)
     if state_profile is None:
-        hint_rules = LEGACY_PROFILE_HINTS.get(compatibility_profile or "standard", {})
-        for key in ("require_docs_sync", "require_workspace_canary", "require_rollout_readiness", "require_review_pack", "strict_deploy_gate"):
-            if hint_rules.get(key):
-                rules[key] = True
-        if hint_rules.get("canary_profile") == "broad":
-            rules["canary_profile"] = "broad"
         return rules
 
     rules["require_docs_sync"] = stage_required(workflow_state, "release-doc-sync")
@@ -129,6 +179,6 @@ def resolve_profile_rules(
         stage_required(workflow_state, stage_name)
         for stage_name in ("review-pack", "release-readiness", "deploy", "adoption-check")
     )
-    rules["canary_profile"] = "broad" if state_profile == "solo-public" else "controlled-rollout"
+    rules["canary_profile"] = "broad" if stage_required(workflow_state, "release-readiness") else "controlled-rollout"
     rules["strict_deploy_gate"] = state_profile == "solo-public"
     return rules

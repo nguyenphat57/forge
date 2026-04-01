@@ -5,10 +5,47 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from support import run_python_script, workspace_fixture
+from support import build_route_args, run_python_script, workspace_fixture
+
+import route_preview  # noqa: E402
 
 
 class HelpNextWorkflowStateTests(unittest.TestCase):
+    def test_next_uses_route_preview_seeded_workflow_state(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
+            (workspace / "package.json").write_text('{"name":"workflow-workspace"}\n', encoding="utf-8")
+
+            report = route_preview.build_report(
+                build_route_args("Deploy the app to external users with a public launch")
+            )
+            route_preview.persist_report(report, str(workspace))
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+
+        self.assertEqual(report["status"], "PASS")
+        self.assertEqual(report["current_stage"], "change-active")
+        self.assertEqual(report["suggested_workflow"], "review-pack")
+        self.assertEqual(report["current_focus"], "Recorded workflow stage: review-pack")
+        self.assertEqual(
+            report["recommended_action"],
+            "Resume the recorded workflow stage 'review-pack' before opening new scope.",
+        )
+        self.assertEqual(report["signals"]["workflow_state_source"], "workflow-state")
+        self.assertEqual(report["signals"]["workflow_summary"]["primary_kind"], "route-preview")
+
     def test_next_prefers_workflow_state_when_execution_is_review_ready(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)

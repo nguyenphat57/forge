@@ -317,6 +317,7 @@ Verification profiles canonical live in `data/orchestrator-registry.json`.
 - `spec-review` is a risk gate, not a size gate: if the packet is ambiguous, contract-boundary heavy, or release-sensitive, review it before build even when the task sounds small.
 - `review` becomes `self-review` for solo-dev flows, but the findings-first bar does not relax.
 - `review-pack` is the pre-release tail for release-sensitive work and should feed `self-review`, then `quality-gate`, then `deploy`.
+- Release-tail stages stay explicit: `review-pack` -> `self-review` -> `quality-gate` -> `release-doc-sync` -> `release-readiness` -> `deploy` -> `adoption-check`.
 - `release-doc-sync`, `release-readiness`, and `adoption-check` are release-surface gates that must remain visible when the slice affects docs, rollout confidence, or post-deploy usage.
 - workflow-state records should use the canonical stage status vocabulary: `pending`, `required`, `active`, `completed`, `skipped`, `blocked`.
 - workflow-state entries should carry activation reasons and skip reasons so the gate does not have to reconstruct intent from chat memory.

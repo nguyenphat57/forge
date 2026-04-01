@@ -1,29 +1,36 @@
 {
-  "updated_at": "2026-04-01T05:22:05.0654174Z",
+  "updated_at": "2026-04-01T07:18:41.4523459Z",
   "working_on": {
-    "feature": "release-1.10.2",
-    "task": "Prepare the 1.10.2 patch release for the tracked public-switch checklist and release-hardening guard",
+    "feature": "release-1.11.0",
+    "task": "Prepare the 1.11.0 minor release for the 1.11.x hardening roadmap",
     "status": "completed",
     "files": [
       "VERSION",
       "CHANGELOG.md",
-      "docs/release/public-readiness.md",
-      "docs/release/github-public-switch-checklist.md",
-      "tests/test_release_hardening.py"
+      "scripts/scan_repo_secrets.py",
+      "scripts/build_release.py",
+      "tests/release_repo_test_overlays.py",
+      "packages/forge-core/scripts/workflow_state_summary.py",
+      "packages/forge-core/scripts/workflow_state_support.py",
+      "packages/forge-core/scripts/help_next_support.py",
+      ".brain/decisions.json",
+      ".brain/learnings.json"
     ]
   },
   "pending_tasks": [],
   "recent_changes": [
-    "Added docs/release/github-public-switch-checklist.md as a tracked release-facing checklist.",
-    "Updated docs/release/public-readiness.md with the tracked checklist reference and 2026-04-01 verification evidence.",
-    "Hardened tests/test_release_hardening.py so the public-switch checklist is required in clean clones.",
-    "Bumped VERSION and CHANGELOG.md for the 1.10.2 patch release."
+    "Secret scanning now includes untracked non-ignored files in Git repos.",
+    "Release manifests now carry dirty-tree provenance, and materialized overlay tests rebuild dist before asserting the full inherited solo-profile contract.",
+    "Solo-profile docs, release tiers, adoption signals, and release-tail workflows were hardened across Forge core and both host adapters.",
+    "Route-preview now seeds workflow-state that help and next can resume, and VERSION plus CHANGELOG.md were bumped for the 1.11.0 minor release."
   ],
   "verification": [
-    "python -m unittest tests.test_release_hardening -v -> PASS",
+    "PYTHONPATH='packages/forge-core/scripts;packages/forge-core/tests' python -m unittest packages/forge-core/tests/test_help_next_workflow_state.py packages/forge-core/tests/test_tool_roundtrip.py packages/forge-core/tests/test_help_next.py packages/forge-core/tests/test_route_preview.py -v -> PASS",
+    "PYTHONPATH='tests' python -m unittest tests.test_secret_scan tests.release_repo_test_contracts tests.release_repo_test_overlays -v -> PASS",
     "python scripts/verify_repo.py -> PASS"
   ],
   "decisions_made": [
-    "Treat the GitHub public-switch checklist as tracked release documentation, not a local-only operator note."
+    "Treat fresh dist-bundle verification and workflow-state round-tripping as release-blocking contracts for 1.11.0.",
+    "Ship the 1.11.x hardening roadmap as a minor release because it adds capability-bearing routing, provenance, and release-tail behavior."
   ]
 }

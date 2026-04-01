@@ -7,11 +7,23 @@ import subprocess
 import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from release_repo_test_support import ROOT_DIR, ReleaseRepoTestSupport, build_release
 
 
 class ReleaseRepoContractTests(ReleaseRepoTestSupport):
+    def init_git_repo(self, root: Path) -> None:
+        subprocess.run(["git", "init"], cwd=root, capture_output=True, check=True)
+        subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=root, capture_output=True, check=True)
+        subprocess.run(["git", "config", "user.name", "Test User"], cwd=root, capture_output=True, check=True)
+
+    def commit_readme(self, root: Path) -> None:
+        readme = root / "README.md"
+        readme.write_text("safe text only\n", encoding="utf-8")
+        subprocess.run(["git", "add", "README.md"], cwd=root, capture_output=True, check=True)
+        subprocess.run(["git", "commit", "-m", "add readme"], cwd=root, capture_output=True, check=True)
+
     def test_release_docs_and_version_exist(self) -> None:
         version = (ROOT_DIR / "VERSION").read_text(encoding="utf-8").strip()
 
@@ -37,6 +49,9 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertIn("forge-claude", release_process)
         self.assertIn("core purity", release_process.lower())
         self.assertIn("package-matrix.json", release_process)
+        self.assertIn("git_tree", release_process)
+        self.assertIn("modified_files", release_process)
+        self.assertIn("untracked_files", release_process)
 
     def test_build_release_manifest_carries_version(self) -> None:
         build_release.build_all()
@@ -53,6 +68,56 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertEqual(len(manifest["bundle_fingerprint"]["sha256"]), 64)
         self.assertEqual(manifest["generated_artifacts"]["manifest_path"], "docs/architecture/host-artifacts-manifest.json")
         self.assertEqual(manifest["generated_artifacts"]["artifacts"], [])
+
+    def test_git_tree_provenance_distinguishes_clean_modified_and_untracked_states(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            self.init_git_repo(root)
+            self.commit_readme(root)
+
+            clean = build_release.resolve_git_tree_provenance(root)
+            self.assertTrue(clean["available"])
+            self.assertEqual(clean["state"], "clean")
+            self.assertEqual(clean["modified_files"], [])
+            self.assertEqual(clean["untracked_files"], [])
+
+            (root / "README.md").write_text("updated text\n", encoding="utf-8")
+            modified = build_release.resolve_git_tree_provenance(root)
+            self.assertTrue(modified["available"])
+            self.assertEqual(modified["state"], "modified")
+            self.assertIn("README.md", modified["modified_files"])
+            self.assertEqual(modified["untracked_files"], [])
+
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            self.init_git_repo(root)
+            self.commit_readme(root)
+
+            (root / "leak.env").write_text("untracked text\n", encoding="utf-8")
+            untracked = build_release.resolve_git_tree_provenance(root)
+            self.assertTrue(untracked["available"])
+            self.assertEqual(untracked["state"], "untracked")
+            self.assertEqual(untracked["modified_files"], [])
+            self.assertIn("leak.env", untracked["untracked_files"])
+
+    def test_build_release_manifest_carries_git_tree_provenance(self) -> None:
+        provenance = {
+            "available": True,
+            "state": "untracked",
+            "modified_files": ["README.md"],
+            "untracked_files": ["leak.env"],
+        }
+
+        with patch.object(build_release, "resolve_git_tree_provenance", return_value=provenance):
+            build_release.build_all()
+
+        manifest = json.loads((ROOT_DIR / "dist" / "forge-core" / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(manifest["git_tree"], provenance)
+        self.assertEqual(manifest["git_tree"]["state"], "untracked")
+        self.assertEqual(manifest["git_tree"]["modified_files"], ["README.md"])
+        self.assertEqual(manifest["git_tree"]["untracked_files"], ["leak.env"])
+        self.assertIn("git_revision", manifest)
 
     def test_build_release_includes_runtime_tool_bundle(self) -> None:
         build_release.build_all()

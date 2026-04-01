@@ -54,5 +54,25 @@
     ],
     "revisit_if": null,
     "trigger": "release-maintenance"
+  },
+  {
+    "id": "20260401-141503",
+    "kind": "learning",
+    "scope": "forge-1-11-hardening-release",
+    "summary": "A route-preview writer is not enough unless help and next can consume it, and dist-level overlay tests are not trustworthy unless they rebuild materialized artifacts first.",
+    "status": "resolved",
+    "evidence": [
+      "packages/forge-core/tests/test_help_next_workflow_state.py",
+      "packages/forge-core/tests/test_tool_roundtrip.py",
+      "tests/release_repo_test_overlays.py"
+    ],
+    "next": [],
+    "tags": [
+      "tests",
+      "workflow-state",
+      "release"
+    ],
+    "revisit_if": null,
+    "trigger": "release-review"
   }
 ]

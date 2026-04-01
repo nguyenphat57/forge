@@ -30,7 +30,13 @@ The canonical boundary policy lives in `docs/architecture/adapter-boundary.md`.
 ## Versioning
 
 - The canonical version lives in `VERSION`.
-- `build_release.py` writes `version` and `git_revision` into `BUILD-MANIFEST.json`.
+- `build_release.py` writes `version`, `git_revision`, and `git_tree` into `BUILD-MANIFEST.json`.
+- `git_revision` records the source commit at build time.
+- `git_tree` records working-tree provenance before release artifacts are materialized.
+- `git_tree.available` is `false` when the repo status cannot be read.
+- `git_tree.state` is `clean`, `modified`, `untracked`, `mixed`, or `unknown`.
+- `git_tree.modified_files` lists tracked paths with local changes.
+- `git_tree.untracked_files` lists untracked paths.
 - `docs/release/package-matrix.json` defines the default target strategy and required bundle paths for each shipped bundle.
 - Source-only example companions stay outside `docs/release/package-matrix.json` and do not need to track the monorepo release version.
 - Runtime-tool bundles such as `forge-browse` and `forge-design` ship as direct package copies with their own verify/install path instead of inheriting `forge-core`.

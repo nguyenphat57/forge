@@ -3,17 +3,24 @@ from __future__ import annotations
 import json
 import re
 
-from release_repo_test_support import ROOT_DIR, ReleaseRepoTestSupport, build_release
+from release_repo_test_support import ROOT_DIR, ReleaseRepoTestSupport
 from overlay_route_fixtures import route_preview_cases_for_bundle
+import build_release  # noqa: E402
 import install_bundle_host  # noqa: E402
 
 
 class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
-    def test_overlay_registries_inherit_core_delegation_contract(self) -> None:
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        build_release.build_all()
+
+    def test_overlay_registries_inherit_core_delegation_and_release_stage_contract(self) -> None:
         core_registry = json.loads(
             (ROOT_DIR / "packages" / "forge-core" / "data" / "orchestrator-registry.json").read_text(encoding="utf-8")
         )
         delegation_contract = core_registry["host_capabilities"]["delegation_contract"]
+        solo_profile_contract = core_registry["solo_profiles"]
 
         for bundle_name in ("forge-antigravity", "forge-codex"):
             overlay_registry = json.loads(
@@ -27,14 +34,15 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
                 ).read_text(encoding="utf-8")
             )
             self.assertNotIn("delegation_contract", overlay_registry.get("host_capabilities", {}))
+            self.assertNotIn("solo_profiles", overlay_registry)
 
-        build_release.build_all()
         for bundle_name in ("forge-antigravity", "forge-codex"):
             with self.subTest(bundle=bundle_name):
                 dist_registry = json.loads(
                     (ROOT_DIR / "dist" / bundle_name / "data" / "orchestrator-registry.json").read_text(encoding="utf-8")
                 )
                 self.assertEqual(dist_registry["host_capabilities"]["delegation_contract"], delegation_contract)
+                self.assertEqual(dist_registry["solo_profiles"], solo_profile_contract)
 
     def test_antigravity_route_preview_fixture_is_generated_from_core_contract(self) -> None:
         core_fixture = json.loads(
@@ -101,6 +109,11 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertIn("/customize", skill)
         self.assertIn("/init", skill)
         self.assertIn("/save-brain", skill)
+        self.assertIn("Solo Profile And Workflow-State Contract", skill)
+        self.assertIn("review-pack", skill)
+        self.assertIn("release-readiness", skill)
+        self.assertIn("adoption-check", skill)
+        self.assertIn("There is no `/gate` alias", skill)
         self.assert_antigravity_skill_bootstraps_preferences(
             overlay_root / "SKILL.md",
             label="forge-antigravity overlay skill",
@@ -113,10 +126,11 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "GEMINI.global.md",
             label="forge-antigravity overlay gemini",
         )
-        self.assertIn("GENERATED FILE", (overlay_root / "GEMINI.global.md").read_text(encoding="utf-8"))
+        gemini_text = (overlay_root / "GEMINI.global.md").read_text(encoding="utf-8")
+        self.assertIn("GENERATED FILE", gemini_text)
+        self.assertIn("There is no `/gate` alias", gemini_text)
 
-    def test_build_release_preserves_antigravity_wave_b_overlay(self) -> None:
-        build_release.build_all()
+    def test_materialized_antigravity_wave_b_overlay_contract(self) -> None:
         dist_root = ROOT_DIR / "dist" / "forge-antigravity"
         self.assertTrue((dist_root / "GEMINI.global.md").exists())
         self.assertTrue((dist_root / "SKILL.md").exists())
@@ -213,6 +227,11 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertIn("workflows/operator/init.md", skill)
         self.assertIn("AGENTS.global.md", skill)
         self.assertIn("At the start of each new thread, resolve preferences", skill)
+        self.assertIn("Solo Profile And Workflow-State Contract", skill)
+        self.assertIn("review-pack", skill)
+        self.assertIn("release-readiness", skill)
+        self.assertIn("adoption-check", skill)
+        self.assertIn("There is no `/gate` alias", skill)
         self.assertNotIn("save-brain", skill)
         self.assert_codex_global_agents_bootstraps_preferences(
             overlay_root / "AGENTS.global.md",
@@ -225,8 +244,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             label="forge-codex overlay session",
         )
 
-    def test_build_release_preserves_codex_wave_c_overlay(self) -> None:
-        build_release.build_all()
+    def test_materialized_codex_wave_c_overlay_contract(self) -> None:
         dist_root = ROOT_DIR / "dist" / "forge-codex"
         self.assertTrue((dist_root / "AGENTS.global.md").exists())
         self.assertTrue((dist_root / "SKILL.md").exists())
@@ -279,6 +297,11 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertEqual(registry["host_capabilities"]["subagent_dispatch_skill"], "dispatch-subagents")
         dist_skill = (dist_root / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("At the start of each new thread, resolve preferences", dist_skill)
+        self.assertIn("Solo Profile And Workflow-State Contract", dist_skill)
+        self.assertIn("review-pack", dist_skill)
+        self.assertIn("release-readiness", dist_skill)
+        self.assertIn("adoption-check", dist_skill)
+        self.assertIn("There is no `/gate` alias", dist_skill)
         self.assertNotIn("save-brain", dist_skill)
         self.assertNotIn("/save-brain", (dist_root / "workflows" / "execution" / "session.md").read_text(encoding="utf-8"))
 

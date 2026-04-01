@@ -44,6 +44,7 @@ from route_process_requirements import (
 from route_stage_contract import build_required_stages
 from companion_matching import match_companions
 from route_local_companions import infer_local_companions, resolve_workspace_router
+from workflow_state_support import record_workflow_event
 
 
 def build_report(args: argparse.Namespace) -> dict:
@@ -295,6 +296,7 @@ def persist_report(report: dict, output_dir: str | None) -> tuple[Path, Path]:
     md_path = artifact_dir / f"{stem}.md"
     json_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     md_path.write_text(format_text(report), encoding="utf-8")
+    record_workflow_event("route-preview", report, output_dir=output_dir, source_path=json_path)
     return json_path, md_path
 
 

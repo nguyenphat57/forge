@@ -10,6 +10,8 @@ from workflow_state_support import record_workflow_event
 
 
 VALID_STAGE_STATUSES = ("pending", "required", "active", "completed", "skipped", "blocked")
+VALID_IMPACTS = ("supports", "neutral", "contradicts")
+VALID_CONFIDENCE = ("low", "medium", "high")
 
 
 def build_report(args: argparse.Namespace) -> dict:
@@ -17,6 +19,8 @@ def build_report(args: argparse.Namespace) -> dict:
         raise ValueError("Skipped adoption-check state requires --skip-reason.")
     if args.stage_status != "skipped" and not args.activation_reason:
         raise ValueError("Non-skipped adoption-check state requires --activation-reason.")
+    if args.impact != "supports" and not (args.friction or args.next_action):
+        raise ValueError("Neutral or contradictory adoption checks require friction details or a next action.")
     return {
         "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "project": args.project_name,
@@ -32,7 +36,12 @@ def build_report(args: argparse.Namespace) -> dict:
         "artifact": args.artifact or None,
         "target": args.target,
         "summary": args.summary,
+        "impact": args.impact,
+        "confidence": args.confidence,
         "signals": args.signal,
+        "evidence_sources": args.evidence_source,
+        "metrics": args.metric,
+        "frictions": args.friction,
         "next_actions": args.next_action,
     }
 
@@ -46,6 +55,8 @@ def format_text(report: dict) -> str:
         f"- Stage status: {report['stage_status']}",
         f"- Target: {report['target']}",
         f"- Summary: {report['summary']}",
+        f"- Impact on readiness: {report['impact']}",
+        f"- Confidence: {report['confidence']}",
     ]
     if report.get("activation_reason"):
         lines.append(f"- Activation reason: {report['activation_reason']}")
@@ -53,7 +64,13 @@ def format_text(report: dict) -> str:
         lines.append(f"- Skip reason: {report['skip_reason']}")
     if report.get("artifact"):
         lines.append(f"- Artifact: {report['artifact']}")
-    for label, items in (("Signals", report["signals"]), ("Next actions", report["next_actions"])):
+    for label, items in (
+        ("Signals", report["signals"]),
+        ("Evidence sources", report["evidence_sources"]),
+        ("Metrics", report["metrics"]),
+        ("Frictions", report["frictions"]),
+        ("Next actions", report["next_actions"]),
+    ):
         if items:
             lines.append(f"- {label}:")
             for item in items:
@@ -95,7 +112,12 @@ def main() -> int:
     parser.add_argument("--artifact", default="", help="Optional artifact path")
     parser.add_argument("--target", required=True, help="Target environment or audience")
     parser.add_argument("--summary", required=True, help="Adoption summary")
+    parser.add_argument("--impact", choices=VALID_IMPACTS, default="supports", help="How the signal affects release readiness")
+    parser.add_argument("--confidence", choices=VALID_CONFIDENCE, default="medium", help="Confidence in the recorded signal")
     parser.add_argument("--signal", action="append", default=[], help="Observed signal. Repeatable.")
+    parser.add_argument("--evidence-source", action="append", default=[], help="Evidence source backing the signal. Repeatable.")
+    parser.add_argument("--metric", action="append", default=[], help="Concrete metric or checkpoint. Repeatable.")
+    parser.add_argument("--friction", action="append", default=[], help="Observed friction or early regression. Repeatable.")
     parser.add_argument("--next-action", action="append", default=[], help="Next action. Repeatable.")
     parser.add_argument("--persist", action="store_true", help="Persist adoption-check state")
     parser.add_argument("--output-dir", default=None, help="Base directory for persisted artifacts")

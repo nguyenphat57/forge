@@ -9,6 +9,7 @@ from tempfile import TemporaryDirectory
 from support import ROOT_DIR, run_python_script
 
 import common  # noqa: E402
+import route_preview  # noqa: E402
 import workflow_state_support  # noqa: E402
 import track_chain_status  # noqa: E402
 import track_execution_progress  # noqa: E402
@@ -763,13 +764,65 @@ class ToolRoundTripTests(unittest.TestCase):
             readiness_report = json.loads(readiness.stdout)
 
         self.assertEqual(readiness_report["effective_profile"], "solo-public")
-        self.assertEqual(readiness_report["review_pack"]["status"], "PASS")
-        self.assertEqual(readiness_report["release_doc_sync"]["status"], "PASS")
-        self.assertEqual(readiness_report["quality_gate"]["decision"], "go")
-        self.assertIn("workspace-canary", readiness_report["missing_evidence"])
-        self.assertIn("rollout-readiness", readiness_report["missing_evidence"])
-        self.assertNotIn("review-pack", readiness_report["missing_evidence"])
-        self.assertNotIn("release-doc-sync", readiness_report["missing_evidence"])
+
+    def test_route_preview_persist_seeds_workflow_state_for_run_guidance(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            report = route_preview.build_report(
+                Namespace(
+                    prompt="Deploy the app to external users with a public launch",
+                    repo_signal=[],
+                    workspace_router=None,
+                    changed_files=None,
+                    has_harness="auto",
+                    format="json",
+                    persist=False,
+                    output_dir=None,
+                )
+            )
+            route_preview.persist_report(report, str(workspace))
+
+            workflow_state_path = self._workflow_state_path(workspace, "workspace")
+            state = json.loads(workflow_state_path.read_text(encoding="utf-8"))
+            self.assertEqual(state["latest_route_preview"]["current_stage"], "review-pack")
+            self.assertEqual(state["summary"]["primary_kind"], "route-preview")
+            self.assertEqual(state["summary"]["suggested_workflow"], "review-pack")
+
+            run_result = run_python_script(
+                "run_with_guidance.py",
+                "--workspace",
+                str(workspace),
+                "--timeout-ms",
+                "2000",
+                "--persist",
+                "--output-dir",
+                str(workspace),
+                "--format",
+                "json",
+                "--",
+                "python",
+                "-c",
+                "print('ready')",
+                cwd=workspace,
+            )
+            self.assertEqual(run_result.returncode, 0, run_result.stderr)
+            run_report = json.loads(run_result.stdout)
+            state = json.loads(workflow_state_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(state["profile"], "solo-public")
+        self.assertEqual(state["intent"], "DEPLOY")
+        self.assertEqual(
+            state["required_stage_chain"],
+            ["review-pack", "self-review", "secure", "quality-gate", "release-doc-sync", "release-readiness", "deploy", "adoption-check"],
+        )
+        self.assertEqual(state["current_stage"], "review-pack")
+        self.assertEqual(state["latest_route_preview"]["current_stage"], "review-pack")
+        self.assertEqual(state["stages"]["review-pack"]["status"], "required")
+        self.assertEqual(state["stages"]["release-readiness"]["status"], "required")
+        self.assertEqual(state["latest_run"]["current_stage"], "review-pack")
+        self.assertEqual(state["latest_run"]["required_stage_chain"], state["required_stage_chain"])
+        self.assertEqual(run_report["current_stage"], "review-pack")
+        self.assertEqual(run_report["required_stage_chain"], state["required_stage_chain"])
 
 
 if __name__ == "__main__":

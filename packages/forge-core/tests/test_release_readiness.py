@@ -34,6 +34,13 @@ def _write_review_pack(workspace: Path, status: str, summary: str) -> None:
     (review_dir / "latest.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
+def _write_release_doc_sync(workspace: Path, status: str, summary: str) -> None:
+    docs_dir = workspace / ".forge-artifacts" / "release-doc-sync"
+    docs_dir.mkdir(parents=True, exist_ok=True)
+    payload = {"workspace": str(workspace), "status": status, "summary": summary}
+    (docs_dir / "latest.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
 def _record_gate_prerequisites(workspace: Path, project_name: str, scope: str = "Release slice") -> None:
     execution = run_python_script(
         "track_execution_progress.py",
@@ -311,8 +318,9 @@ class ReleaseReadinessTests(unittest.TestCase):
             report = json.loads(result.stdout)
             self.assertEqual(report["effective_profile"], "solo-public")
             self.assertEqual(report["compatibility_profile"], "auth")
+            self.assertEqual(report["release_tier"], "public-controlled")
             self.assertIn("review-pack", report["missing_evidence"])
-            self.assertIn("rollout-readiness", report["missing_evidence"])
+            self.assertNotIn("rollout-readiness", report["missing_evidence"])
 
     def test_release_readiness_auto_uses_billing_profile_from_generic_repo_markers(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -385,6 +393,7 @@ class ReleaseReadinessTests(unittest.TestCase):
             report = json.loads(result.stdout)
             self.assertEqual(report["effective_profile"], "solo-public")
             self.assertEqual(report["compatibility_profile"], "billing")
+            self.assertEqual(report["release_tier"], "public-broad")
             self.assertIn("review-pack", report["missing_evidence"])
 
     def test_release_readiness_explicit_standard_cannot_downscope_solo_public_workflow_state(self) -> None:
@@ -438,6 +447,7 @@ class ReleaseReadinessTests(unittest.TestCase):
             self.assertEqual(report["status"], "FAIL")
             self.assertEqual(report["effective_profile"], "solo-public")
             self.assertEqual(report["compatibility_profile"], "standard")
+            self.assertEqual(report["release_tier"], "public-broad")
             self.assertIn("release-doc-sync", report["missing_evidence"])
             self.assertIn("workspace-canary", report["missing_evidence"])
             self.assertIn("review-pack", report["missing_evidence"])
@@ -498,8 +508,176 @@ class ReleaseReadinessTests(unittest.TestCase):
             report = json.loads(result.stdout)
             self.assertEqual(report["effective_profile"], "solo-internal")
             self.assertEqual(report["compatibility_profile"], "production")
+            self.assertEqual(report["release_tier"], "internal-critical")
             self.assertIn("release-doc-sync", report["missing_evidence"])
             self.assertNotIn("rollout-readiness", report["missing_evidence"])
+
+    def test_release_readiness_warns_when_live_release_lacks_adoption_signal(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir) / "checkout-web"
+            workspace.mkdir(parents=True, exist_ok=True)
+            required_stage_chain = [
+                "review-pack",
+                "self-review",
+                "secure",
+                "quality-gate",
+                "release-doc-sync",
+                "release-readiness",
+                "deploy",
+                "adoption-check",
+            ]
+            self._write_workflow_state(
+                workspace,
+                "checkout-web",
+                "solo-public",
+                required_stage_chain,
+                stage_statuses={
+                    "review-pack": "completed",
+                    "self-review": "completed",
+                    "secure": "completed",
+                    "quality-gate": "completed",
+                    "release-doc-sync": "completed",
+                    "release-readiness": "completed",
+                    "deploy": "completed",
+                    "adoption-check": "required",
+                },
+                latest_gate={
+                    "decision": "go",
+                    "why": "Gate is green.",
+                    "response": "Checks passed.",
+                },
+            )
+            _write_release_doc_sync(workspace, "PASS", "Docs are aligned.")
+            _write_workspace_canary(workspace, "pass", "Workspace canary clean.")
+            _write_review_pack(workspace, "PASS", "Review pack clean.")
+            canary_root = workspace / ".forge-artifacts" / "canary-runs"
+            for workspace_name, day in (
+                ("checkout-web", "2026-03-27"),
+                ("admin-console", "2026-03-27"),
+                ("ops-console", "2026-03-27"),
+                ("checkout-web", "2026-03-28"),
+                ("admin-console", "2026-03-28"),
+                ("ops-console", "2026-03-28"),
+            ):
+                _write_canary_run(canary_root, workspace_name, "pass", f"{day}T10:00:00")
+
+            result = run_python_script(
+                "release_readiness.py",
+                "--workspace",
+                str(workspace),
+                "--profile",
+                "standard",
+                "--format",
+                "json",
+            )
+
+            self.assertEqual(result.returncode, 1, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["status"], "WARN")
+            self.assertIn("adoption-check", report["missing_evidence"])
+            self.assertTrue(any(item["id"] == "adoption-check" and item["status"] == "WARN" for item in report["checks"]))
+
+    def test_release_readiness_fails_when_adoption_check_contradicts_live_release(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir) / "checkout-web"
+            workspace.mkdir(parents=True, exist_ok=True)
+            required_stage_chain = [
+                "review-pack",
+                "self-review",
+                "secure",
+                "quality-gate",
+                "release-doc-sync",
+                "release-readiness",
+                "deploy",
+                "adoption-check",
+            ]
+            self._write_workflow_state(
+                workspace,
+                "checkout-web",
+                "solo-public",
+                required_stage_chain,
+                stage_statuses={
+                    "review-pack": "completed",
+                    "self-review": "completed",
+                    "secure": "completed",
+                    "quality-gate": "completed",
+                    "release-doc-sync": "completed",
+                    "release-readiness": "completed",
+                    "deploy": "completed",
+                    "adoption-check": "completed",
+                },
+                latest_gate={
+                    "decision": "go",
+                    "why": "Gate is green.",
+                    "response": "Checks passed.",
+                },
+            )
+            _write_release_doc_sync(workspace, "PASS", "Docs are aligned.")
+            _write_workspace_canary(workspace, "pass", "Workspace canary clean.")
+            _write_review_pack(workspace, "PASS", "Review pack clean.")
+            canary_root = workspace / ".forge-artifacts" / "canary-runs"
+            for workspace_name, day in (
+                ("checkout-web", "2026-03-27"),
+                ("admin-console", "2026-03-27"),
+                ("ops-console", "2026-03-27"),
+                ("checkout-web", "2026-03-28"),
+                ("admin-console", "2026-03-28"),
+                ("ops-console", "2026-03-28"),
+            ):
+                _write_canary_run(canary_root, workspace_name, "pass", f"{day}T10:00:00")
+
+            adoption = run_python_script(
+                "record_adoption_check.py",
+                "--workspace",
+                str(workspace),
+                "--project-name",
+                "checkout-web",
+                "--profile",
+                "solo-public",
+                "--intent",
+                "DEPLOY",
+                "--required-stage",
+                "adoption-check",
+                "--stage-status",
+                "completed",
+                "--activation-reason",
+                "Public release is live and needs a post-deploy reading.",
+                "--target",
+                "public launch",
+                "--summary",
+                "Adoption signal shows a post-release regression.",
+                "--impact",
+                "contradicts",
+                "--confidence",
+                "high",
+                "--signal",
+                "Conversion dropped sharply after launch.",
+                "--friction",
+                "Users are abandoning checkout after the new step.",
+                "--next-action",
+                "Rollback the public launch while triaging the regression.",
+                "--persist",
+                "--output-dir",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(adoption.returncode, 0, adoption.stderr)
+
+            result = run_python_script(
+                "release_readiness.py",
+                "--workspace",
+                str(workspace),
+                "--profile",
+                "standard",
+                "--format",
+                "json",
+            )
+
+            self.assertEqual(result.returncode, 1, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["status"], "FAIL")
+            self.assertTrue(any(item["id"] == "adoption-check" and item["status"] == "FAIL" for item in report["checks"]))
 
 
 if __name__ == "__main__":

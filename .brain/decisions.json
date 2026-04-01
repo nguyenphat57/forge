@@ -34,5 +34,27 @@
     ],
     "revisit_if": "The public release flow moves away from GitHub or the checklist becomes fully automated.",
     "trigger": "patch-release"
+  },
+  {
+    "id": "20260401-141503",
+    "kind": "decision",
+    "scope": "forge-1-11-hardening-release",
+    "summary": "Forge 1.11.0 must treat fresh dist-bundle verification and workflow-state round-tripping as release-blocking contracts, not best-effort checks.",
+    "status": "resolved",
+    "evidence": [
+      "docs/plans/2026-04-01-forge-1.11.x-hardening-roadmap.md",
+      "tests/release_repo_test_overlays.py",
+      "packages/forge-core/scripts/workflow_state_support.py",
+      "packages/forge-core/scripts/help_next_support.py"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "routing",
+      "workflow-state",
+      "dist"
+    ],
+    "revisit_if": "The release pipeline stops materializing in-repo dist bundles or help and next no longer consume workflow-state as the durable source of truth.",
+    "trigger": "minor-release"
   }
 ]

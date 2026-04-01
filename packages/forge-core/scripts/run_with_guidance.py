@@ -22,7 +22,7 @@ from run_guidance_support import (
     determine_guidance,
     execute_command,
 )
-from workflow_state_support import record_workflow_event
+from workflow_state_support import record_workflow_event, resolve_workflow_state
 
 
 def normalize_command(command: list[str]) -> list[str]:
@@ -36,6 +36,10 @@ def quote_command(command: list[str]) -> str:
     return " ".join(shlex.quote(part) for part in command)
 
 
+def _string_list(value: object) -> list[str]:
+    return [item for item in value if isinstance(item, str) and item.strip()] if isinstance(value, list) else []
+
+
 def build_report(args: argparse.Namespace) -> dict:
     workspace = args.workspace.resolve()
     if not workspace.exists() or not workspace.is_dir():
@@ -47,6 +51,11 @@ def build_report(args: argparse.Namespace) -> dict:
 
     preferences_report = load_preferences(workspace=workspace)
     response_style = resolve_response_style(preferences_report["preferences"])
+    workflow_state = resolve_workflow_state(workspace).get("state")
+    operating_profile = workflow_state.get("profile") if isinstance(workflow_state, dict) else None
+    intent = workflow_state.get("intent") if isinstance(workflow_state, dict) else None
+    current_stage = workflow_state.get("current_stage") if isinstance(workflow_state, dict) else None
+    required_stage_chain = _string_list(workflow_state.get("required_stage_chain")) if isinstance(workflow_state, dict) else []
     execution = execute_command(command, workspace, args.timeout_ms)
     combined_output = "\n".join(part for part in (execution["stdout"], execution["stderr"]) if part).strip()
     readiness_detected = execution["readiness_detected"]
@@ -93,6 +102,10 @@ def build_report(args: argparse.Namespace) -> dict:
         "evidence": build_evidence(command_display, execution, workspace),
         "response_style": response_style,
         "warnings": warnings,
+        "operating_profile": operating_profile,
+        "intent": intent,
+        "current_stage": current_stage,
+        "required_stage_chain": required_stage_chain,
     }
 
 

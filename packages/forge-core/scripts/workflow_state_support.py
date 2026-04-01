@@ -51,6 +51,57 @@ def _string_list(value: object) -> list[str]:
     return [item for item in value if isinstance(item, str) and item.strip()] if isinstance(value, list) else []
 
 
+def _route_preview_detected(report: dict | None) -> dict:
+    detected = report.get("detected") if isinstance(report, dict) else None
+    return detected if isinstance(detected, dict) else {}
+
+
+def _route_preview_required_stage_chain(report: dict | None) -> list[str]:
+    return _string_list(_route_preview_detected(report).get("required_stage_chain"))
+
+
+def _route_preview_current_stage(report: dict | None, fallback: str | None = None) -> str | None:
+    detected = _route_preview_detected(report)
+    required_stages = detected.get("required_stages")
+    if isinstance(required_stages, list):
+        for item in required_stages:
+            if not isinstance(item, dict):
+                continue
+            stage_name = item.get("stage")
+            if not isinstance(stage_name, str) or not stage_name.strip():
+                continue
+            if item.get("status") != "skipped":
+                return stage_name
+    required_stage_chain = _route_preview_required_stage_chain(report)
+    return required_stage_chain[0] if required_stage_chain else fallback
+
+
+def _route_preview_stage_entries(report: dict | None, *, updated_at: str, source_path: Path | None) -> dict[str, dict]:
+    detected = _route_preview_detected(report)
+    required_stages = detected.get("required_stages")
+    if not isinstance(required_stages, list):
+        return {}
+
+    stages: dict[str, dict] = {}
+    for item in required_stages:
+        if not isinstance(item, dict):
+            continue
+        stage_name = item.get("stage")
+        if not isinstance(stage_name, str) or not stage_name.strip():
+            continue
+        entry = {
+            "status": item.get("status", "required"),
+            "updated_at": updated_at,
+            "source_path": str(source_path) if source_path else None,
+        }
+        for key in ("mode", "activation_reason", "skip_reason"):
+            value = item.get(key)
+            if value is not None:
+                entry[key] = value
+        stages[stage_name] = entry
+    return stages
+
+
 def _stage_entry(kind: str, report: dict, source_path: Path | None = None) -> tuple[str, dict] | None:
     stage_name = report.get("stage_name")
     if not isinstance(stage_name, str) or not stage_name.strip():
@@ -82,6 +133,11 @@ def _stage_entry(kind: str, report: dict, source_path: Path | None = None) -> tu
     if kind == "adoption-check":
         entry["signals"] = _string_list(report.get("signals"))
         entry["next_actions"] = _string_list(report.get("next_actions"))
+        entry["impact"] = report.get("impact")
+        entry["confidence"] = report.get("confidence")
+        entry["evidence_sources"] = _string_list(report.get("evidence_sources"))
+        entry["frictions"] = _string_list(report.get("frictions"))
+        entry["metrics"] = _string_list(report.get("metrics"))
     return stage_name, entry
 
 
@@ -126,6 +182,8 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
             "suggested_workflow": report.get("suggested_workflow"),
             "recommended_action": report.get("recommended_action"),
             "warnings": as_string_list(report.get("warnings")),
+            "current_stage": report.get("current_stage"),
+            "required_stage_chain": _string_list(report.get("required_stage_chain")),
         }
     if kind == "quality-gate":
         return {
@@ -182,6 +240,23 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
             "target": report.get("target", "unknown"),
             "next_steps": as_string_list(report.get("next_actions")),
             "notes": as_string_list(report.get("signals")),
+            "impact": report.get("impact", "neutral"),
+            "confidence": report.get("confidence", "medium"),
+            "evidence_sources": as_string_list(report.get("evidence_sources")),
+            "frictions": as_string_list(report.get("frictions")),
+            "metrics": as_string_list(report.get("metrics")),
+        }
+    if kind == "route-preview":
+        detected = _route_preview_detected(report)
+        return {
+            **common_fields,
+            "label": report.get("prompt", "route-preview"),
+            "status": "PASS",
+            "current_stage": _route_preview_current_stage(report, "mapped"),
+            "profile": detected.get("profile"),
+            "intent": detected.get("intent"),
+            "required_stage_chain": _route_preview_required_stage_chain(report),
+            "summary": report.get("activation_line"),
         }
     return {
         **common_fields,
@@ -204,6 +279,7 @@ def _build_state(
     latest_run: dict | None,
     latest_gate: dict | None,
     latest_review: dict | None,
+    latest_route_preview: dict | None,
     latest_direction: dict | None,
     latest_spec_review: dict | None,
     latest_adoption_check: dict | None,
@@ -229,6 +305,7 @@ def _build_state(
         "latest_run": latest_run,
         "latest_gate": latest_gate,
         "latest_review": latest_review,
+        "latest_route_preview": latest_route_preview,
         "latest_direction": latest_direction,
         "latest_spec_review": latest_spec_review,
         "latest_adoption_check": latest_adoption_check,
@@ -239,6 +316,7 @@ def _build_state(
             latest_run,
             latest_gate,
             latest_review,
+            latest_route_preview,
             preferred_kind=preferred_kind,
         ),
     }
@@ -254,6 +332,8 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
     current = _read_json_object(latest_path, "workflow state", []) if latest_path.exists() else {}
     stages = dict(current.get("stages", {})) if isinstance(current.get("stages"), dict) else {}
     required_stage_chain = _string_list(report.get("required_stage_chain")) or _string_list(current.get("required_stage_chain"))
+    if not required_stage_chain and kind == "route-preview":
+        required_stage_chain = _route_preview_required_stage_chain(report)
     for stage_name in required_stage_chain:
         existing = stages.get(stage_name)
         if isinstance(existing, dict):
@@ -263,11 +343,28 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
             "updated_at": entry["recorded_at"],
             "source_path": None,
         }
+    if kind == "route-preview":
+        for stage_name, snapshot in _route_preview_stage_entries(
+            report,
+            updated_at=entry["recorded_at"],
+            source_path=source_path,
+        ).items():
+            existing = stages.get(stage_name, {})
+            stages[stage_name] = {**existing, **snapshot}
     stage_snapshot = _stage_entry(kind, report, source_path)
     if stage_snapshot is not None:
         stage_name, snapshot = stage_snapshot
         existing = stages.get(stage_name, {})
         stages[stage_name] = {**existing, **snapshot}
+    current_stage = report.get("current_stage")
+    profile = report.get("operating_profile") or report.get("profile")
+    intent = report.get("intent")
+    if kind == "route-preview" and not current_stage:
+        current_stage = _route_preview_current_stage(report, current.get("current_stage"))
+    if kind == "route-preview":
+        detected = _route_preview_detected(report)
+        profile = detected.get("profile") or profile
+        intent = detected.get("intent") or intent
     state = _build_state(
         project=entry["project"],
         preferred_kind=kind,
@@ -277,12 +374,13 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
         latest_run=entry if kind == "run-report" else current.get("latest_run"),
         latest_gate=entry if kind == "quality-gate" else current.get("latest_gate"),
         latest_review=entry if kind == "review-state" else current.get("latest_review"),
+        latest_route_preview=entry if kind == "route-preview" else current.get("latest_route_preview"),
         latest_direction=entry if kind == "direction-state" else current.get("latest_direction"),
         latest_spec_review=entry if kind == "spec-review-state" else current.get("latest_spec_review"),
         latest_adoption_check=entry if kind == "adoption-check" else current.get("latest_adoption_check"),
-        profile=report.get("operating_profile") or report.get("profile") or current.get("profile"),
-        intent=report.get("intent") or current.get("intent"),
-        current_stage=report.get("current_stage") or (stage_snapshot[0] if stage_snapshot else current.get("current_stage")),
+        profile=profile or current.get("profile"),
+        intent=intent or current.get("intent"),
+        current_stage=current_stage or (stage_snapshot[0] if stage_snapshot else current.get("current_stage")),
         required_stage_chain=required_stage_chain,
         stages=stages,
         updated_at=entry["recorded_at"],
@@ -312,6 +410,7 @@ def resolve_workflow_state(workspace: Path, warnings: list[str] | None = None) -
         "run-report": _pick_latest_json(workspace / ".forge-artifacts" / "run-reports"),
         "quality-gate": _pick_latest_json(workspace / ".forge-artifacts" / "quality-gates"),
         "review-state": _pick_latest_json(workspace / ".forge-artifacts" / "reviews"),
+        "route-preview": _pick_latest_json(workspace / ".forge-artifacts" / "route-previews"),
         "direction-state": _pick_latest_json(workspace / ".forge-artifacts" / "direction"),
         "spec-review-state": _pick_latest_json(workspace / ".forge-artifacts" / "spec-review"),
         "adoption-check": _pick_latest_json(workspace / ".forge-artifacts" / "adoption-check"),
@@ -328,6 +427,7 @@ def resolve_workflow_state(workspace: Path, warnings: list[str] | None = None) -
         latest_run=_entry("run-report", _read_json_object(sources["run-report"], "run report", local_warnings), sources["run-report"]),
         latest_gate=_entry("quality-gate", _read_json_object(sources["quality-gate"], "quality gate", local_warnings), sources["quality-gate"]),
         latest_review=_entry("review-state", _read_json_object(sources["review-state"], "review state", local_warnings), sources["review-state"]),
+        latest_route_preview=_entry("route-preview", _read_json_object(sources["route-preview"], "route preview", local_warnings), sources["route-preview"]),
         latest_direction=_entry("direction-state", _read_json_object(sources["direction-state"], "direction state", local_warnings), sources["direction-state"]),
         latest_spec_review=_entry("spec-review-state", _read_json_object(sources["spec-review-state"], "spec review state", local_warnings), sources["spec-review-state"]),
         latest_adoption_check=_entry("adoption-check", _read_json_object(sources["adoption-check"], "adoption check", local_warnings), sources["adoption-check"]),

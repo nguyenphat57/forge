@@ -38,7 +38,7 @@ COMPILED_SECRET_PATTERNS = [(name, re.compile(pattern)) for name, pattern in SEC
 
 def tracked_files(root: Path) -> list[Path]:
     completed = subprocess.run(
-        ["git", "ls-files", "-z"],
+        ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
         cwd=str(root),
         capture_output=True,
         check=False,

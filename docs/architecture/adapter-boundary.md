@@ -4,6 +4,14 @@
 
 Keep `forge-core` clean enough to support current adapters and future adapters such as `forge-claude` without refactoring the core story every time a new host appears.
 
+## Overlay Delta Versus Materialized Bundle
+
+- `packages/<adapter>/overlay/` is the editable adapter delta, not a full bundle.
+- `dist/<adapter>/` is the materialized bundle after core, generated artifacts, and the overlay delta are combined.
+- When a capability appears in `dist/<adapter>/` but not in `packages/<adapter>/overlay/`, it is inherited from `forge-core` rather than duplicated in adapter source.
+- Materialized adapter registries live in `dist/<adapter>/data/orchestrator-registry.json` and are the contract tests should read.
+- Overlay edits should stay small and explicit so the materialized bundle remains reproducible from source.
+
 ## Hard Rule
 
 If a capability cannot be used almost unchanged by:
@@ -40,6 +48,7 @@ Adapters own:
 - host-specific onboarding and compatibility shims
 - host metadata and installation surfaces
 - thin mapping from host surface to Forge core capabilities
+- adapter docs that describe how overlay deltas become materialized release bundles
 
 Examples of adapter-only wrappers:
 
@@ -65,3 +74,4 @@ If questions `1` and `4` are weak, or `2` is yes, the change should stay out of 
 - host-specific aliases live in adapters
 - no new dependency on one host's instruction surface is introduced
 - the change would still be valid for a future `forge-claude` adapter
+- the materialized `dist/<adapter>/` bundle still reads as a thin, reproducible composition of core plus overlay

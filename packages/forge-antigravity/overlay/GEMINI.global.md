@@ -95,6 +95,8 @@ Treat each slash command as a workflow alias, not a filesystem path. Read the ma
 | `/save-brain` | `operator/save-brain.md` |
 | `/recap` | `operator/recap.md` |
 
+There is no `/gate` alias; `quality-gate` stays the workflow stage name.
+
 ## Activation Announcement
 
 ```text

@@ -31,6 +31,39 @@ def _gate_workflow(target_claim: str) -> str:
     return "deploy" if target_claim == "deploy" else "review"
 
 
+def _route_preview_follow_on_stages(entry: dict | None) -> list[str]:
+    if not isinstance(entry, dict):
+        return []
+    required_stage_chain = as_string_list(entry.get("required_stage_chain"))
+    current_stage = entry.get("current_stage")
+    if isinstance(current_stage, str) and current_stage in required_stage_chain:
+        return required_stage_chain[required_stage_chain.index(current_stage) + 1 :]
+    return required_stage_chain
+
+
+def _route_preview_summary(entry: dict | None) -> dict | None:
+    if not isinstance(entry, dict):
+        return None
+    current_stage = entry.get("current_stage")
+    if not isinstance(current_stage, str) or not current_stage.strip():
+        current_stage = "plan"
+    follow_on = _route_preview_follow_on_stages(entry)
+    alternatives: list[str] = []
+    if follow_on:
+        alternatives.append(f"After '{current_stage}', continue into '{follow_on[0]}'.")
+    if len(follow_on) > 1:
+        alternatives.append(f"Keep the remaining recorded chain in order: {', '.join(follow_on[1:3])}.")
+    return {
+        "status": "active",
+        "primary_kind": "route-preview",
+        "current_focus": f"Recorded workflow stage: {current_stage}",
+        "current_stage": current_stage,
+        "suggested_workflow": current_stage,
+        "recommended_action": f"Resume the recorded workflow stage '{current_stage}' before opening new scope.",
+        "alternatives": alternatives,
+    }
+
+
 def summarize_workflow_state(
     latest_chain: dict | None,
     latest_execution: dict | None,
@@ -38,9 +71,15 @@ def summarize_workflow_state(
     latest_run: dict | None,
     latest_gate: dict | None,
     latest_review: dict | None,
+    latest_route_preview: dict | None = None,
     *,
     preferred_kind: str | None = None,
 ) -> dict:
+    if not any((latest_chain, latest_execution, latest_ui, latest_run, latest_gate, latest_review)):
+        route_preview_summary = _route_preview_summary(latest_route_preview)
+        if route_preview_summary is not None:
+            return route_preview_summary
+
     blockers = combine_unique(as_string_list((latest_execution or {}).get("blockers")), as_string_list((latest_chain or {}).get("blockers")))
     risks = combine_unique(
         as_string_list((latest_review or {}).get("testing_gaps")),

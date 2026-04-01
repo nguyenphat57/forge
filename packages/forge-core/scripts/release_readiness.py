@@ -10,9 +10,11 @@ from companion_matching import match_companions
 from help_next_support import find_latest_json, read_json_object
 from release_profile_contract import (
     PROFILE_RULES,
+    stage_required,
     resolve_compatibility_profile,
     resolve_effective_profile,
     resolve_profile_rules,
+    resolve_release_tier,
 )
 from release_feature_detection import detect_release_context
 from workflow_state_support import resolve_workflow_state
@@ -24,6 +26,16 @@ def _load_report(path: Path | None, label: str, warnings: list[str]) -> dict | N
     if isinstance(payload, dict):
         payload["path"] = str(path)
     return payload if isinstance(payload, dict) else None
+
+
+def _stage_completed(workflow_state: dict | None, stage_name: str) -> bool:
+    if not isinstance(workflow_state, dict):
+        return False
+    stages = workflow_state.get("stages")
+    if not isinstance(stages, dict):
+        return False
+    payload = stages.get(stage_name)
+    return isinstance(payload, dict) and payload.get("status") == "completed"
 
 
 def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict:
@@ -40,8 +52,10 @@ def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict
         workflow_state,
         detected_public_surface=detected_public_surface,
     )
+    release_tier = resolve_release_tier(effective_profile, compatibility_profile, workflow_state)
     rules = resolve_profile_rules(effective_profile, workflow_state, compatibility_profile=compatibility_profile)
     latest_gate = (workflow_state or {}).get("latest_gate") if isinstance(workflow_state, dict) else None
+    latest_adoption_check = (workflow_state or {}).get("latest_adoption_check") if isinstance(workflow_state, dict) else None
     gate_status = "FAIL"
     gate_detail = "No quality gate found."
     if isinstance(latest_gate, dict):
@@ -108,6 +122,20 @@ def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict
         missing_evidence.append("rollout-readiness")
     checks.append({"id": "rollout-readiness", "status": readiness_status, "detail": readiness_detail})
 
+    release_live = isinstance(latest_adoption_check, dict) or _stage_completed(workflow_state, "deploy")
+    if release_live:
+        if isinstance(latest_adoption_check, dict):
+            impact = str(latest_adoption_check.get("impact") or "neutral")
+            confidence = str(latest_adoption_check.get("confidence") or "medium")
+            detail = latest_adoption_check.get("label") or latest_adoption_check.get("summary") or "Adoption check recorded."
+            detail = f"{impact} ({confidence} confidence): {detail}"
+            adoption_status = {"supports": "PASS", "neutral": "WARN", "contradicts": "FAIL"}.get(impact, "WARN")
+        else:
+            adoption_status = "WARN"
+            detail = "Release appears live but no adoption-check signal is recorded yet."
+            missing_evidence.append("adoption-check")
+        checks.append({"id": "adoption-check", "status": adoption_status, "detail": detail})
+
     blockers = [item["detail"] for item in checks if item["status"] == "FAIL"]
     warns = [item["detail"] for item in checks if item["status"] == "WARN"]
     status = "FAIL" if blockers else "WARN" if warns else "PASS"
@@ -117,6 +145,7 @@ def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict
         "profile": profile,
         "effective_profile": effective_profile,
         "compatibility_profile": compatibility_profile,
+        "release_tier": release_tier,
         "features": sorted(features),
         "checks": checks,
         "warnings": warnings + warns,
@@ -127,6 +156,7 @@ def build_report(workspace: Path, profile: str, canary_dir: Path | None) -> dict
         "workspace_canary": workspace_canary,
         "review_pack": review_pack,
         "rollout_readiness": readiness_report,
+        "adoption_check": latest_adoption_check,
         "summary": "Core release contract looks ready." if status == "PASS" else "Release readiness still has unresolved gaps.",
     }
 
@@ -152,6 +182,7 @@ def format_text(report: dict) -> str:
         f"- Profile: {report['profile']}",
         f"- Effective profile: {report['effective_profile']}",
         f"- Compatibility profile: {report.get('compatibility_profile') or '(none)'}",
+        f"- Release tier: {report['release_tier']}",
         f"- Features: {', '.join(report['features']) or '(none)'}",
         f"- Summary: {report['summary']}",
         "- Checks:",

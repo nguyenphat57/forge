@@ -159,6 +159,41 @@ def pending_tasks(session: dict | None) -> list[str]:
     return [item.strip() for item in values if isinstance(item, str) and item.strip()]
 
 
+def workflow_state_stage(workflow_state: dict | None) -> str | None:
+    if not isinstance(workflow_state, dict):
+        return None
+    current_stage = workflow_state.get("current_stage")
+    return current_stage.strip() if isinstance(current_stage, str) and current_stage.strip() else None
+
+
+def workflow_state_required_chain(workflow_state: dict | None) -> list[str]:
+    if not isinstance(workflow_state, dict):
+        return []
+    required_stage_chain = workflow_state.get("required_stage_chain")
+    if not isinstance(required_stage_chain, list):
+        return []
+    return [item.strip() for item in required_stage_chain if isinstance(item, str) and item.strip()]
+
+
+def workflow_state_has_recorded_slice(workflow_state: dict | None) -> bool:
+    if not isinstance(workflow_state, dict):
+        return False
+    if workflow_state_stage(workflow_state):
+        return True
+    if workflow_state_required_chain(workflow_state):
+        return True
+    stages = workflow_state.get("stages")
+    return isinstance(stages, dict) and bool(stages)
+
+
+def workflow_state_follow_on_stages(workflow_state: dict | None) -> list[str]:
+    current_stage = workflow_state_stage(workflow_state)
+    required_stage_chain = workflow_state_required_chain(workflow_state)
+    if current_stage and current_stage in required_stage_chain:
+        return required_stage_chain[required_stage_chain.index(current_stage) + 1 :]
+    return required_stage_chain
+
+
 def determine_stage(*, session: dict | None, git_state: dict, latest_plan: Path | None, latest_spec: Path | None, workflow_state: dict | None = None, codebase_summary: Path | None = None, active_change: dict | None = None) -> str:
     summary = workflow_summary(workflow_state)
     status = summary_text(summary, "status")
@@ -167,6 +202,8 @@ def determine_stage(*, session: dict | None, git_state: dict, latest_plan: Path 
     if status == "review-ready":
         return "review-ready"
     if status == "active":
+        if summary_text(summary, "primary_kind") == "route-preview":
+            return "change-active"
         return "session-active"
     working_on = session.get("working_on") if isinstance(session, dict) else None
     if isinstance(working_on, dict) and isinstance(working_on.get("status"), str) and working_on["status"].strip().lower() == "blocked":
@@ -176,6 +213,8 @@ def determine_stage(*, session: dict | None, git_state: dict, latest_plan: Path 
     if session_task(session) or pending_tasks(session):
         return "session-active"
     if isinstance(active_change, dict) and str(active_change.get("state") or "").lower() not in {"archived", "done", "closed"}:
+        return "change-active"
+    if workflow_state_has_recorded_slice(workflow_state):
         return "change-active"
     if git_state["changed_files"] or git_state["untracked_files"]:
         return "active-changes"
@@ -189,6 +228,7 @@ def determine_stage(*, session: dict | None, git_state: dict, latest_plan: Path 
 def build_focus(stage: str, *, session: dict | None, latest_plan: Path | None, latest_spec: Path | None, git_state: dict, workflow_state: dict | None = None, codebase_summary: Path | None = None, active_change: dict | None = None) -> str:
     summary = workflow_summary(workflow_state)
     workflow_focus = summary_text(summary, "current_focus")
+    workflow_stage = workflow_state_stage(workflow_state)
     if stage == "blocked":
         return workflow_focus or f"Blocked: {session_blocker(session)}"
     if stage == "review-ready":
@@ -196,6 +236,10 @@ def build_focus(stage: str, *, session: dict | None, latest_plan: Path | None, l
     if stage == "session-active":
         return workflow_focus or f"Session task: {session_task(session) or pending_tasks(session)[0]}"
     if stage == "change-active":
+        if workflow_focus:
+            return workflow_focus
+        if workflow_stage:
+            return f"Recorded workflow stage: {workflow_stage}"
         return "Active change: {0} ({1})".format(
             active_change.get("summary", active_change.get("slug", "change")),
             active_change.get("state", "active"),
@@ -215,6 +259,8 @@ def build_recommendations(*, mode: str, stage: str, session: dict | None, latest
     workflow_name = summary_text(summary, "suggested_workflow")
     workflow_action = summary_text(summary, "recommended_action")
     workflow_alternatives = summary_items(summary, "alternatives")
+    workflow_stage = workflow_state_stage(workflow_state)
+    workflow_follow_on = workflow_state_follow_on_stages(workflow_state)
     if summary and stage in {"blocked", "review-ready", "session-active"} and workflow_name and workflow_action:
         return workflow_name, workflow_action, workflow_alternatives[:1] if mode == "next" else workflow_alternatives[:2]
     plan_path = latest_plan or latest_spec
@@ -235,6 +281,15 @@ def build_recommendations(*, mode: str, stage: str, session: dict | None, latest
             alternatives.append(f"Re-open the latest {plan_kind} '{plan_title}' if priorities changed.")
         return "session", primary, alternatives[:1] if mode == "next" else alternatives[:2]
     if stage == "change-active":
+        if workflow_name and workflow_action:
+            return workflow_name, workflow_action, workflow_alternatives[:1] if mode == "next" else workflow_alternatives[:2]
+        if workflow_stage:
+            alternatives: list[str] = []
+            if workflow_follow_on:
+                alternatives.append(f"After '{workflow_stage}', continue into '{workflow_follow_on[0]}'.")
+            if plan_title:
+                alternatives.append(f"Re-open the latest {plan_kind} '{plan_title}' if the recorded stage no longer matches the intended slice.")
+            return workflow_stage, f"Resume the recorded workflow stage '{workflow_stage}' before opening new scope.", alternatives[:1] if mode == "next" else alternatives[:2]
         summary = active_change.get("summary", active_change.get("slug", "change")) if isinstance(active_change, dict) else "active change"
         state = active_change.get("state", "active") if isinstance(active_change, dict) else "active"
         alternatives = ["Update the change status before new edits if reality drifted.", "Archive the change if the slice is already complete."]

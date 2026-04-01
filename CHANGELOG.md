@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.11.0 - 2026-04-01
+
+- Harden Forge's routing and release contracts by scanning untracked secrets, recording dirty-tree provenance in `BUILD-MANIFEST.json`, and requiring fresh `dist/` adapter registries to prove the full inherited solo-profile contract.
+- Surface solo-profile and release-tail workflow semantics across core and adapter docs, add explicit release tiers plus richer adoption signals, and clarify the architecture boundary between sparse overlays and materialized bundles.
+- Keep `route-preview` workflow state resumable through `help` or `next` and `run` guidance, explicitly reject the nonexistent `/gate` alias in host-facing docs, and extend regression coverage around workflow-state and release-tail verification.
+
+
 ## 1.10.2 - 2026-04-01
 
 - Add `docs/release/github-public-switch-checklist.md` as a tracked release-facing checklist so public readiness guidance no longer depends on an untracked local file.

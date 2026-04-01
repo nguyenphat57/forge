@@ -186,6 +186,19 @@ class RoutePreviewTests(unittest.TestCase):
             ["review-pack", "review", "secure", "quality-gate", "release-doc-sync", "release-readiness", "deploy", "adoption-check"],
         )
 
+    def test_public_release_without_broad_rollout_marker_skips_release_readiness(self) -> None:
+        report = route_preview.build_report(
+            self.build_args("Deploy the app to external users from staging")
+        )
+
+        self.assertEqual(report["detected"]["intent"], "DEPLOY")
+        self.assertEqual(report["detected"]["profile"], "solo-public")
+        self.assertEqual(
+            report["detected"]["required_stage_chain"],
+            ["review-pack", "self-review", "secure", "quality-gate", "release-doc-sync", "deploy", "adoption-check"],
+        )
+        self.assertNotIn("release-readiness", report["detected"]["forge_skills"])
+
     def test_runtime_signal_can_select_local_companion(self) -> None:
         with TemporaryDirectory() as temp_dir:
             router_path = Path(temp_dir) / "workspace-router.md"

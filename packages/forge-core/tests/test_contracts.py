@@ -92,6 +92,22 @@ class BundleContractTests(unittest.TestCase):
                     self.assertTrue(order)
                     self.assertTrue(set(order).issubset(set(profile_contract["stages"])))
 
+    def test_solo_profile_release_tiers_reference_known_profiles(self) -> None:
+        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
+        profile_contract = registry["solo_profiles"]
+        release_tiers = profile_contract["release_tiers"]
+
+        self.assertEqual(
+            set(release_tiers),
+            {"internal-shared", "internal-critical", "public-controlled", "public-broad"},
+        )
+        for tier_name, tier in release_tiers.items():
+            with self.subTest(tier=tier_name):
+                self.assertIn(tier["profile"], profile_contract["profiles"])
+                self.assertIn(tier["canary_profile"], {"controlled-rollout", "broad"})
+                self.assertIsInstance(tier["requires_rollout_readiness"], bool)
+                self.assertIsInstance(tier["requires_review_pack"], bool)
+
     def test_canonical_registry_stays_ascii_only(self) -> None:
         registry_text = (ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8")
         self.assertTrue(registry_text.isascii())

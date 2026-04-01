@@ -146,6 +146,9 @@ def _release_context(
         "public_release": public_release,
         "critical_internal_release": critical_internal_release,
         "release_surface_change": release_surface_change,
+        "broad_public_release": public_release and (
+            score_keywords(prompt_haystack, ["production", "public rollout", "broad rollout", "general availability", "ga", "launch"]) > 0
+        ),
     }
 
 
@@ -218,7 +221,7 @@ def build_required_stages(
     release_doc_sync_required = release_context["release_surface_change"] and (
         release_context["public_release"] or release_context["shared_env_release"] or release_context["critical_internal_release"]
     )
-    release_readiness_required = release_context["public_release"] or release_context["critical_internal_release"]
+    release_readiness_required = release_context["broad_public_release"] or release_context["critical_internal_release"]
     deploy_required = release_context["release_candidate"]
     adoption_check_required = release_context["public_release"] or release_context["shared_env_release"]
 
