@@ -1,6 +1,6 @@
 # Forge Public Readiness
 
-Date: 2026-03-30
+Date: 2026-04-01
 Status: Release ready after this hardening pass.
 
 ## What This Checklist Covers
@@ -21,8 +21,9 @@ This checklist is for publishing the Forge monorepo to a public audience without
 
 ## Latest Evidence
 
-- `python scripts/verify_repo.py` passed on 2026-03-30
+- `python scripts/verify_repo.py` passed on 2026-04-01
 - release and install flows are documented under `docs/release/`
+- final GitHub visibility steps are documented in `docs/release/github-public-switch-checklist.md`
 - real-repo canary and authenticated QA evidence is recorded in the 2026-03-29 project reports
 
 ## Verdict

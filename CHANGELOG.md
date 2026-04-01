@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.2 - 2026-04-01
+
+- Add `docs/release/github-public-switch-checklist.md` as a tracked release-facing checklist so public readiness guidance no longer depends on an untracked local file.
+- Harden `tests/test_release_hardening.py` to require the public-switch checklist in clean clones and CI, preventing the same release-doc drift from slipping through again.
+- Refresh `docs/release/public-readiness.md` with the tracked checklist reference and the latest 2026-04-01 verification evidence for the patch release.
+
 ## 1.10.1 - 2026-03-30
 
 - Normalize `CHANGELOG.md` to English-first public prose across the full release history so the public release surface stays readable and encoding-safe.

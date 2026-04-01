@@ -1,7 +1,7 @@
 HANDOVER
-- Current task: Fix the GitHub verify failure caused by a Windows short-path assertion in the Codex host install test.
-- Done: Read the failing GitHub Actions log, confirmed the mismatch between RUNNER~1 and the resolved runneradmin path, updated the test to use target.resolve(), verified locally, and pushed commit 4a42127 to origin/main.
-- Remaining: Confirm the verify rerun for commit 4a42127 succeeds on GitHub.
-- Important decisions: Codex host activation path assertions should compare against canonical resolved paths on Windows, not raw temp directory strings.
-- Verification run: python -m unittest discover -s tests -p 'test_install_bundle_codex_host.py' -v -> PASS; python scripts/verify_repo.py -> PASS.
-- Next step: Check the verify workflow result for commit 4a42127 and only investigate further if a fresh log shows a new failure.
+- Current task: Prepare the 1.10.2 patch release for the tracked public-switch checklist and release-hardening guard.
+- Done: Added the tracked `docs/release/github-public-switch-checklist.md`, updated `docs/release/public-readiness.md`, hardened `tests/test_release_hardening.py`, and bumped `VERSION` plus `CHANGELOG.md` to `1.10.2`.
+- Remaining: none.
+- Important decisions: Public GitHub visibility guidance should live in tracked release docs and be guarded by release-hardening tests so clean clones cannot lose it.
+- Verification run: python -m unittest tests.test_release_hardening -v -> PASS; python scripts/verify_repo.py -> PASS.
+- Next step: Continue from `1.10.2` if a follow-up release artifact or rollout note is needed.

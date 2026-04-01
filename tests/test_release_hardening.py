@@ -39,6 +39,7 @@ class ReleaseHardeningTests(unittest.TestCase):
             ROOT_DIR / "SECURITY.md",
             ROOT_DIR / "CODE_OF_CONDUCT.md",
             ROOT_DIR / "docs" / "release" / "public-readiness.md",
+            ROOT_DIR / "docs" / "release" / "github-public-switch-checklist.md",
         ]
         for path in required_paths:
             with self.subTest(path=path):

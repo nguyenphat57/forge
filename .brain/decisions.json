@@ -14,5 +14,25 @@
     ],
     "revisit_if": null,
     "trigger": "change-archive"
+  },
+  {
+    "id": "20260401-051841",
+    "kind": "decision",
+    "scope": "forge-public-release-docs",
+    "summary": "Public GitHub visibility guidance must live as tracked release documentation and be covered by release-hardening tests.",
+    "status": "resolved",
+    "evidence": [
+      "docs/release/public-readiness.md",
+      "docs/release/github-public-switch-checklist.md",
+      "tests/test_release_hardening.py"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "docs",
+      "hardening"
+    ],
+    "revisit_if": "The public release flow moves away from GitHub or the checklist becomes fully automated.",
+    "trigger": "patch-release"
   }
 ]

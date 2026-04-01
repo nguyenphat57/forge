@@ -1,28 +1,29 @@
 {
-  "updated_at": "2026-03-25T03:55:42.8640476Z",
+  "updated_at": "2026-04-01T05:22:05.0654174Z",
   "working_on": {
-    "feature": "github-verify-fix",
-    "task": "Monitor the verify rerun for commit 4a42127 after fixing the Windows path assertion",
-    "status": "active",
+    "feature": "release-1.10.2",
+    "task": "Prepare the 1.10.2 patch release for the tracked public-switch checklist and release-hardening guard",
+    "status": "completed",
     "files": [
-      "tests/test_install_bundle_codex_host.py"
+      "VERSION",
+      "CHANGELOG.md",
+      "docs/release/public-readiness.md",
+      "docs/release/github-public-switch-checklist.md",
+      "tests/test_release_hardening.py"
     ]
   },
-  "pending_tasks": [
-    "Check the GitHub verify rerun for commit 4a42127 on origin/main.",
-    "If verify is still red, pull the fresh log and compare it against the latest source state."
-  ],
+  "pending_tasks": [],
   "recent_changes": [
-    "Analyzed the GitHub Actions log and isolated the failure to test_activate_codex_rewrites_agents_and_removes_legacy_artifacts.",
-    "Updated tests/test_install_bundle_codex_host.py to compare target.resolve() so Windows short paths do not cause a false failure.",
-    "Committed and pushed 4a42127 to origin/main."
+    "Added docs/release/github-public-switch-checklist.md as a tracked release-facing checklist.",
+    "Updated docs/release/public-readiness.md with the tracked checklist reference and 2026-04-01 verification evidence.",
+    "Hardened tests/test_release_hardening.py so the public-switch checklist is required in clean clones.",
+    "Bumped VERSION and CHANGELOG.md for the 1.10.2 patch release."
   ],
   "verification": [
-    "GitHub log showed a mismatch between RUNNER~1 short path and the resolved runneradmin path rendered into AGENTS.md.",
-    "python -m unittest discover -s tests -p 'test_install_bundle_codex_host.py' -v -> PASS",
+    "python -m unittest tests.test_release_hardening -v -> PASS",
     "python scripts/verify_repo.py -> PASS"
   ],
   "decisions_made": [
-    "Treat the resolved canonical target path as the source of truth for Codex host activation assertions on Windows."
+    "Treat the GitHub public-switch checklist as tracked release documentation, not a local-only operator note."
   ]
 }

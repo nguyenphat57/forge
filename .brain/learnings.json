@@ -35,5 +35,24 @@
     ],
     "revisit_if": null,
     "trigger": "change-archive"
+  },
+  {
+    "id": "20260401-051841",
+    "kind": "learning",
+    "scope": "forge-public-release-docs",
+    "summary": "Release-facing docs can still drift when a referenced checklist exists only locally; clean-clone guards need to assert the tracked checklist file itself.",
+    "status": "resolved",
+    "evidence": [
+      "docs/release/public-readiness.md referenced docs/release/github-public-switch-checklist.md before that checklist was tracked in git.",
+      "tests/test_release_hardening.py now requires docs/release/github-public-switch-checklist.md to exist."
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "docs",
+      "tests"
+    ],
+    "revisit_if": null,
+    "trigger": "release-maintenance"
   }
 ]
