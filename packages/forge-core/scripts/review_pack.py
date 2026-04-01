@@ -7,6 +7,8 @@ from pathlib import Path
 from common import configure_stdio, default_artifact_dir, timestamp_slug
 from companion_matching import match_companions
 from release_feature_detection import detect_release_context
+from release_profile_contract import infer_public_surface, workflow_profile
+from workflow_state_support import resolve_workflow_state
 from workspace_signals import read_env_example
 
 
@@ -17,8 +19,10 @@ def _has_any_key(env_text: str, keys: tuple[str, ...]) -> bool:
 def build_report(workspace: Path, profile: str, public_surface: bool | None) -> dict:
     matches = match_companions(workspace=workspace)
     features, detected_public_surface = detect_release_context(workspace, matches=matches)
+    workflow_state = resolve_workflow_state(workspace).get("state")
+    operating_profile = workflow_profile(workflow_state)
     env_text = read_env_example(workspace)
-    inferred_public = bool(public_surface) if public_surface is not None else detected_public_surface
+    inferred_public = infer_public_surface(public_surface, detected_public_surface, workflow_state)
     focus = [
         "Findings first, summary second.",
         "Separate verified behavior from static review gaps.",
@@ -80,6 +84,7 @@ def build_report(workspace: Path, profile: str, public_surface: bool | None) -> 
         "status": status,
         "workspace": str(workspace),
         "profile": profile,
+        "operating_profile": operating_profile,
         "public_surface": inferred_public,
         "companions": [item["id"] for item in matches],
         "features": sorted(features),
@@ -111,6 +116,7 @@ def format_text(report: dict) -> str:
         f"- Status: {report['status']}",
         f"- Workspace: {report['workspace']}",
         f"- Profile: {report['profile']}",
+        f"- Operating profile: {report.get('operating_profile') or '(none)'}",
         f"- Public surface: {'yes' if report['public_surface'] else 'no'}",
         f"- Optional companions: {', '.join(report['companions']) or '(none)'}",
         f"- Features: {', '.join(report['features']) or '(none)'}",

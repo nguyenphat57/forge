@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
+from release_fs import run_with_retries
+
 
 EXCLUDED_FILE_NAMES = {"BUILD-MANIFEST.json", "INSTALL-MANIFEST.json"}
 EXCLUDED_DIR_NAMES = {"__pycache__"}
@@ -25,6 +27,19 @@ def _iter_bundle_files(root: Path) -> list[Path]:
     return files
 
 
+def _read_bytes_with_retries(path: Path) -> bytes:
+    payload: bytes | None = None
+
+    def _read() -> None:
+        nonlocal payload
+        payload = path.read_bytes()
+
+    run_with_retries(_read)
+    if payload is None:
+        raise FileNotFoundError(path)
+    return payload
+
+
 def compute_bundle_fingerprint(root: Path) -> dict[str, object]:
     normalized_root = root.resolve()
     hasher = hashlib.sha256()
@@ -34,7 +49,7 @@ def compute_bundle_fingerprint(root: Path) -> dict[str, object]:
         hasher.update(relative.encode("utf-8"))
         hasher.update(b"\0")
         try:
-            hasher.update(path.read_bytes())
+            hasher.update(_read_bytes_with_retries(path))
         except FileNotFoundError:
             continue
         hasher.update(b"\0")

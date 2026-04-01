@@ -3,13 +3,51 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from unittest import mock
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from release_repo_test_support import ROOT_DIR, ReleaseRepoTestSupport, build_release, install_bundle
+import install_bundle_paths  # noqa: E402
 
 
 class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
+    def test_ensure_bundle_source_ready_rechecks_fingerprint_after_rebuild(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            temp_root = Path(temp_dir)
+            dist_dir = temp_root / "dist"
+            source = dist_dir / "forge-codex"
+            source.mkdir(parents=True, exist_ok=True)
+            (source / "BUILD-MANIFEST.json").write_text(
+                json.dumps(
+                    {
+                        "package": "forge-codex",
+                        "bundle_fingerprint": {
+                            "mode": "path-content-sha256-v1",
+                            "sha256": "0" * 64,
+                            "file_count": 99,
+                        },
+                    },
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+            required_path = source / "required.txt"
+
+            def fake_rebuild() -> list[dict]:
+                required_path.write_text("now present", encoding="utf-8")
+                return []
+
+            with mock.patch.object(install_bundle_paths, "DIST_DIR", dist_dir):
+                with mock.patch.object(
+                    install_bundle_paths,
+                    "required_bundle_source_paths",
+                    return_value=[required_path],
+                ):
+                    with mock.patch.object(build_release, "build_all", side_effect=fake_rebuild):
+                        with self.assertRaisesRegex(ValueError, "fingerprint mismatch"):
+                            install_bundle_paths.ensure_bundle_source_ready("forge-codex", source)
+
     def test_install_bundle_dry_run_keeps_target_untouched(self) -> None:
         with TemporaryDirectory() as temp_dir:
             temp_root = Path(temp_dir)

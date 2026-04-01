@@ -172,12 +172,11 @@ def ensure_bundle_source_ready(bundle_name: str, source: Path) -> None:
             raise _bundle_source_integrity_error(bundle_name, expected_fingerprint, actual_fingerprint)
     if source == (DIST_DIR / bundle_name).resolve():
         build_release.build_all()
-        if not missing:
-            manifest = load_build_manifest(source)
-            matches, actual_fingerprint, expected_fingerprint = bundle_fingerprint_matches_manifest(source, manifest)
-            if not matches:
-                raise _bundle_source_integrity_error(bundle_name, expected_fingerprint, actual_fingerprint)
         missing = [path for path in required_bundle_source_paths(bundle_name, source) if not path.exists()]
+        manifest = load_build_manifest(source)
+        matches, actual_fingerprint, expected_fingerprint = bundle_fingerprint_matches_manifest(source, manifest)
+        if not matches:
+            raise _bundle_source_integrity_error(bundle_name, expected_fingerprint, actual_fingerprint)
 
     if missing:
         raise FileNotFoundError(f"Missing build artifacts in bundle source: {missing[0]}")

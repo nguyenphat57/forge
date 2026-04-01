@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -20,6 +21,17 @@ import install_bundle  # noqa: E402
 
 
 class ReleaseHardeningTests(unittest.TestCase):
+    def _run_build_release(self) -> None:
+        result = subprocess.run(
+            [sys.executable, str(SCRIPTS_DIR / "build_release.py"), "--format", "json"],
+            cwd=str(ROOT_DIR),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_public_repo_docs_exist(self) -> None:
         required_paths = [
             ROOT_DIR / "LICENSE",
@@ -77,7 +89,7 @@ class ReleaseHardeningTests(unittest.TestCase):
         self.assertIn("python-version: ${{ matrix.python-version }}", workflow)
 
     def test_build_release_excludes_cached_python_artifacts(self) -> None:
-        build_release.build_all()
+        self._run_build_release()
         for bundle_name in ("forge-antigravity", "forge-codex", "forge-browse", "forge-design"):
             with self.subTest(bundle=bundle_name):
                 dist_root = ROOT_DIR / "dist" / bundle_name
@@ -85,7 +97,7 @@ class ReleaseHardeningTests(unittest.TestCase):
                 self.assertFalse(any(dist_root.rglob("*.pyc")))
 
     def test_install_bundle_rejects_repo_local_targets(self) -> None:
-        build_release.build_all()
+        self._run_build_release()
         targets = [
             ROOT_DIR / ".tmp" / "repo-target",
             ROOT_DIR / "dist" / "repo-target",
@@ -101,20 +113,37 @@ class ReleaseHardeningTests(unittest.TestCase):
                     )
 
     def test_repeated_build_release_remains_stable_after_dist_execution(self) -> None:
-        build_release.build_all()
-        verify_script = ROOT_DIR / "dist" / "forge-codex" / "scripts" / "verify_bundle.py"
-        result = subprocess.run(
-            [sys.executable, str(verify_script), "--format", "json"],
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            check=False,
-        )
-        self.assertEqual(result.returncode, 0, result.stderr)
-        payload = json.loads(result.stdout)
-        self.assertEqual(payload["status"], "PASS")
+        self._run_build_release()
+        for bundle_name in ("forge-antigravity", "forge-codex", "forge-browse", "forge-design"):
+            with self.subTest(bundle=bundle_name):
+                with TemporaryDirectory() as temp_dir:
+                    temp_root = Path(temp_dir)
+                    source_bundle = ROOT_DIR / "dist" / bundle_name
+                    verify_root = temp_root / bundle_name
+                    shutil.copytree(source_bundle, verify_root)
 
-        build_release.build_all()
+                    verify_script = verify_root / "scripts" / "verify_bundle.py"
+                    poisoned_env = os.environ.copy()
+                    poisoned_env["FORGE_HOME"] = str(verify_root)
+                    poisoned_env["FORGE_BUNDLE_ROOT"] = str(ROOT_DIR)
+                    result = subprocess.run(
+                        [sys.executable, str(verify_script), "--format", "json"],
+                        cwd=str(ROOT_DIR),
+                        capture_output=True,
+                        text=True,
+                        encoding="utf-8",
+                        check=False,
+                        env=poisoned_env,
+                    )
+                    self.assertEqual(
+                        result.returncode,
+                        0,
+                        f"{bundle_name} verify failed\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+                    )
+                    payload = json.loads(result.stdout)
+                    self.assertEqual(payload["status"], "PASS")
+
+        self._run_build_release()
         self.assertTrue((ROOT_DIR / "dist" / "forge-antigravity" / "BUILD-MANIFEST.json").exists())
         self.assertTrue((ROOT_DIR / "dist" / "forge-codex" / "BUILD-MANIFEST.json").exists())
         self.assertTrue((ROOT_DIR / "dist" / "forge-browse" / "BUILD-MANIFEST.json").exists())
@@ -134,7 +163,7 @@ class ReleaseHardeningTests(unittest.TestCase):
         self.assertIn("ensure_generated_host_artifacts(check=True)", build_script)
 
     def test_install_bundle_rejects_custom_source_with_drifted_fingerprint(self) -> None:
-        build_release.build_all()
+        self._run_build_release()
         with TemporaryDirectory() as temp_dir:
             temp_root = Path(temp_dir)
             source = temp_root / "forge-codex"

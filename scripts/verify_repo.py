@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -25,6 +26,13 @@ def configure_stdio() -> None:
             setattr(sys, name, io.TextIOWrapper(stream.buffer, encoding="utf-8"))
 
 
+def _verification_env() -> dict[str, str]:
+    env = os.environ.copy()
+    env.pop("FORGE_HOME", None)
+    env.pop("FORGE_BUNDLE_ROOT", None)
+    return env
+
+
 def run_step(name: str, command: list[str], cwd: Path) -> dict:
     completed = subprocess.run(
         command,
@@ -33,6 +41,7 @@ def run_step(name: str, command: list[str], cwd: Path) -> dict:
         text=True,
         encoding="utf-8",
         check=False,
+        env=_verification_env(),
     )
     return {
         "name": name,
@@ -88,7 +97,7 @@ def main() -> int:
         ),
         run_step(
             "repo.unittest",
-            [sys.executable, "-m", "unittest", "discover", "-s", str(TESTS_DIR), "-v"],
+            [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"],
             ROOT_DIR,
         ),
         run_step(

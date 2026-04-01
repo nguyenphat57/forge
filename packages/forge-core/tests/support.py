@@ -531,14 +531,24 @@ def run_python_script(
     cwd: Path | None = None,
     env: dict[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
-    command = [sys.executable, str(SCRIPTS_DIR / script_name), *args]
+    target_cwd = (cwd or ROOT_DIR).resolve()
+    script_path = Path("scripts") / script_name if target_cwd == ROOT_DIR.resolve() else SCRIPTS_DIR / script_name
+    command = [sys.executable, str(script_path), *args]
     merged_env = os.environ.copy()
-    merged_env.setdefault("FORGE_HOME", str(forge_home_fixture("empty")))
+    merged_env.pop("FORGE_HOME", None)
+    merged_env.pop("FORGE_BUNDLE_ROOT", None)
+    merged_env.pop("PYTHONPATH", None)
+    merged_env.pop("PYTHONHOME", None)
+    merged_env.pop("PYTHONSTARTUP", None)
+    for key in tuple(merged_env):
+        if key.startswith("PYTEST_"):
+            merged_env.pop(key, None)
+    merged_env["FORGE_HOME"] = str(forge_home_fixture("empty"))
     if env:
         merged_env.update(env)
     return subprocess.run(
         command,
-        cwd=str(cwd or ROOT_DIR),
+        cwd=str(target_cwd),
         capture_output=True,
         text=True,
         encoding="utf-8",

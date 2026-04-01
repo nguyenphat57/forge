@@ -89,6 +89,38 @@ def _record_gate_prerequisites(workspace: Path, project_name: str, scope: str = 
 
 
 class ReleaseReadinessTests(unittest.TestCase):
+    def _write_workflow_state(
+        self,
+        workspace: Path,
+        project_name: str,
+        profile: str,
+        required_stage_chain: list[str],
+        *,
+        stage_statuses: dict[str, str] | None = None,
+        latest_gate: dict | None = None,
+    ) -> Path:
+        state_path = workspace / ".forge-artifacts" / "workflow-state" / project_name / "latest.json"
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        state_path.write_text(
+            json.dumps(
+                {
+                    "project": project_name,
+                    "profile": profile,
+                    "intent": "DEPLOY",
+                    "current_stage": "quality-gate",
+                    "required_stage_chain": required_stage_chain,
+                    "stages": {
+                        stage: {"status": (stage_statuses or {}).get(stage, "required")}
+                        for stage in required_stage_chain
+                    },
+                    "latest_gate": latest_gate,
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+        return state_path
+
     def test_release_readiness_passes_for_clean_standard_slice(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir) / "checkout-web"
@@ -277,8 +309,10 @@ class ReleaseReadinessTests(unittest.TestCase):
 
             self.assertEqual(result.returncode, 1, result.stderr)
             report = json.loads(result.stdout)
-            self.assertEqual(report["effective_profile"], "auth")
+            self.assertEqual(report["effective_profile"], "solo-public")
+            self.assertEqual(report["compatibility_profile"], "auth")
             self.assertIn("review-pack", report["missing_evidence"])
+            self.assertIn("rollout-readiness", report["missing_evidence"])
 
     def test_release_readiness_auto_uses_billing_profile_from_generic_repo_markers(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -349,8 +383,123 @@ class ReleaseReadinessTests(unittest.TestCase):
 
             self.assertEqual(result.returncode, 1, result.stderr)
             report = json.loads(result.stdout)
-            self.assertEqual(report["effective_profile"], "billing")
+            self.assertEqual(report["effective_profile"], "solo-public")
+            self.assertEqual(report["compatibility_profile"], "billing")
             self.assertIn("review-pack", report["missing_evidence"])
+
+    def test_release_readiness_explicit_standard_cannot_downscope_solo_public_workflow_state(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir) / "checkout-web"
+            workspace.mkdir(parents=True, exist_ok=True)
+            required_stage_chain = [
+                "review-pack",
+                "self-review",
+                "secure",
+                "quality-gate",
+                "release-doc-sync",
+                "release-readiness",
+                "deploy",
+                "adoption-check",
+            ]
+            self._write_workflow_state(
+                workspace,
+                "checkout-web",
+                "solo-public",
+                required_stage_chain,
+                stage_statuses={
+                    "review-pack": "required",
+                    "self-review": "completed",
+                    "secure": "completed",
+                    "quality-gate": "completed",
+                    "release-doc-sync": "required",
+                    "release-readiness": "required",
+                    "deploy": "required",
+                    "adoption-check": "required",
+                },
+                latest_gate={
+                    "decision": "go",
+                    "why": "Gate is green.",
+                    "response": "Checks passed.",
+                },
+            )
+
+            result = run_python_script(
+                "release_readiness.py",
+                "--workspace",
+                str(workspace),
+                "--profile",
+                "standard",
+                "--format",
+                "json",
+            )
+
+            self.assertEqual(result.returncode, 1, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["status"], "FAIL")
+            self.assertEqual(report["effective_profile"], "solo-public")
+            self.assertEqual(report["compatibility_profile"], "standard")
+            self.assertIn("release-doc-sync", report["missing_evidence"])
+            self.assertIn("workspace-canary", report["missing_evidence"])
+            self.assertIn("review-pack", report["missing_evidence"])
+            self.assertIn("rollout-readiness", report["missing_evidence"])
+
+    def test_release_readiness_explicit_production_maps_to_solo_internal_with_compatibility_overlay(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir) / "internal-worker"
+            workspace.mkdir(parents=True, exist_ok=True)
+            _record_gate_prerequisites(workspace, "internal-worker")
+
+            gate = run_python_script(
+                "record_quality_gate.py",
+                "--workspace",
+                str(workspace),
+                "--project-name",
+                "internal-worker",
+                "--profile",
+                "release-critical",
+                "--target-claim",
+                "deploy",
+                "--decision",
+                "go",
+                "--evidence",
+                "build",
+                "--response",
+                "Release evidence is fresh.",
+                "--why",
+                "Gate is green for deploy.",
+                "--persist",
+                "--output-dir",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(gate.returncode, 0, gate.stderr)
+            _write_workspace_canary(workspace, "pass", "Workspace canary clean.")
+            canary_root = workspace / ".forge-artifacts" / "canary-runs"
+            for workspace_name, day in (
+                ("internal-worker", "2026-03-27"),
+                ("ops-console", "2026-03-27"),
+                ("internal-worker", "2026-03-28"),
+                ("ops-console", "2026-03-28"),
+            ):
+                _write_canary_run(canary_root, workspace_name, "pass", f"{day}T10:00:00")
+
+            result = run_python_script(
+                "release_readiness.py",
+                "--workspace",
+                str(workspace),
+                "--profile",
+                "production",
+                "--format",
+                "json",
+            )
+
+            self.assertEqual(result.returncode, 1, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["effective_profile"], "solo-internal")
+            self.assertEqual(report["compatibility_profile"], "production")
+            self.assertIn("release-doc-sync", report["missing_evidence"])
+            self.assertNotIn("rollout-readiness", report["missing_evidence"])
 
 
 if __name__ == "__main__":

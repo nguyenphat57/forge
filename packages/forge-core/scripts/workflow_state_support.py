@@ -253,12 +253,21 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
     latest_path = root / "latest.json"
     current = _read_json_object(latest_path, "workflow state", []) if latest_path.exists() else {}
     stages = dict(current.get("stages", {})) if isinstance(current.get("stages"), dict) else {}
+    required_stage_chain = _string_list(report.get("required_stage_chain")) or _string_list(current.get("required_stage_chain"))
+    for stage_name in required_stage_chain:
+        existing = stages.get(stage_name)
+        if isinstance(existing, dict):
+            continue
+        stages[stage_name] = {
+            "status": "required",
+            "updated_at": entry["recorded_at"],
+            "source_path": None,
+        }
     stage_snapshot = _stage_entry(kind, report, source_path)
     if stage_snapshot is not None:
         stage_name, snapshot = stage_snapshot
         existing = stages.get(stage_name, {})
         stages[stage_name] = {**existing, **snapshot}
-    required_stage_chain = _string_list(report.get("required_stage_chain")) or _string_list(current.get("required_stage_chain"))
     state = _build_state(
         project=entry["project"],
         preferred_kind=kind,
@@ -271,7 +280,7 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
         latest_direction=entry if kind == "direction-state" else current.get("latest_direction"),
         latest_spec_review=entry if kind == "spec-review-state" else current.get("latest_spec_review"),
         latest_adoption_check=entry if kind == "adoption-check" else current.get("latest_adoption_check"),
-        profile=report.get("profile") or current.get("profile"),
+        profile=report.get("operating_profile") or report.get("profile") or current.get("profile"),
         intent=report.get("intent") or current.get("intent"),
         current_stage=report.get("current_stage") or (stage_snapshot[0] if stage_snapshot else current.get("current_stage")),
         required_stage_chain=required_stage_chain,

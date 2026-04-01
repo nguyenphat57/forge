@@ -10,9 +10,10 @@ from pathlib import Path
 from bundle_fingerprint import compute_bundle_fingerprint
 from host_artifact_manifest import MANIFEST_PATH, generated_host_artifact_records_for_bundle
 from host_artifacts_support import ensure_generated_host_artifacts
+from overlay_route_fixtures import materialize_overlay_route_fixtures
 from package_matrix import PACKAGE_MATRIX_PATH, bundle_package_spec, bundle_required_path_texts, bundle_required_paths
 from release_package_specs import discover_package_specs
-from release_fs import IGNORE_PATTERNS, copy_file, copy_tree as copy_tree_with_retries, remove_tree, should_ignore_relative_path
+from release_fs import IGNORE_PATTERNS, copy_file, copy_tree as copy_tree_with_retries, remove_path, remove_tree, should_ignore_relative_path
 from release_registry import materialize_overlay_registry
 
 
@@ -52,6 +53,12 @@ def clean_dir(path: Path) -> None:
 
 def copy_tree(source: Path, destination: Path) -> None:
     copy_tree_with_retries(source, destination, dirs_exist_ok=True, ignore=IGNORE_PATTERNS)
+
+
+def prune_cached_python_artifacts(root: Path) -> None:
+    for path in sorted(root.rglob("*")):
+        if path.name == "__pycache__" or path.suffix.lower() == ".pyc":
+            remove_path(path)
 
 
 def apply_overlay(overlay_dir: Path, destination: Path) -> None:
@@ -150,7 +157,11 @@ def write_build_manifest(
 
 def required_bundle_paths(destination: Path, package_name: str, host: str) -> list[Path]:
     del host
-    return bundle_required_paths(package_name, destination)
+    paths = bundle_required_paths(package_name, destination)
+    build_manifest_path = destination / "BUILD-MANIFEST.json"
+    if build_manifest_path not in paths:
+        paths.append(build_manifest_path)
+    return paths
 
 
 def verify_host_artifacts(destination: Path, package_name: str) -> None:
@@ -191,6 +202,7 @@ def build_core_bundle(metadata: dict[str, str | None]) -> dict:
         clean_dir(destination)
         copy_tree(CORE_DIR, destination)
         write_build_manifest(destination, "forge-core", "generic", "packages/forge-core", metadata)
+        prune_cached_python_artifacts(destination)
         try:
             wait_for_bundle_ready(destination, "forge-core", "generic")
             break
@@ -210,6 +222,7 @@ def build_adapter_bundle(spec: dict, metadata: dict[str, str | None]) -> dict:
         copy_tree(CORE_DIR, destination)
         apply_overlay(overlay_dir, destination)
         materialize_overlay_registry(CORE_DIR, overlay_dir, destination)
+        materialize_overlay_route_fixtures(spec["name"], destination)
         write_build_manifest(
             destination,
             spec["name"],
@@ -218,9 +231,10 @@ def build_adapter_bundle(spec: dict, metadata: dict[str, str | None]) -> dict:
             metadata,
             state_metadata=build_state_metadata(spec["name"], spec["host"], spec.get("state")),
         )
-        verify_host_artifacts(destination, spec["name"])
+        prune_cached_python_artifacts(destination)
         try:
             wait_for_bundle_ready(destination, spec["name"], spec["host"])
+            verify_host_artifacts(destination, spec["name"])
             break
         except FileNotFoundError:
             if attempt == BUNDLE_BUILD_ATTEMPTS - 1:
@@ -248,6 +262,7 @@ def build_runtime_bundle(spec: dict, metadata: dict[str, str | None]) -> dict:
             metadata,
             state_metadata=build_state_metadata(spec["name"], spec["host"], spec.get("state")),
         )
+        prune_cached_python_artifacts(destination)
         try:
             wait_for_bundle_ready(destination, spec["name"], spec["host"])
             break
@@ -287,6 +302,9 @@ def build_all() -> list[dict]:
             outputs.append(build_companion_bundle(spec, metadata))
             continue
         outputs.append(build_runtime_bundle(spec, metadata))
+    prune_cached_python_artifacts(DIST_DIR)
+    for item in outputs:
+        wait_for_bundle_ready(Path(item["path"]), item["name"], item["host"])
     return outputs
 
 

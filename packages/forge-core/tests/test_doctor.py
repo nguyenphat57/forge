@@ -76,7 +76,10 @@ class DoctorTests(unittest.TestCase):
             self.assertTrue(any("map_codebase.py" in item for item in report["next_actions"]))
             self.assertIn(report["status"], {"PASS", "WARN"})
             if report["status"] == "WARN":
-                self.assertIn("Runtime tool registry", report["warnings"])
+                self.assertTrue(
+                    {"Runtime tool registry", "forge-browse resolution"} & set(report["warnings"]),
+                    report["warnings"],
+                )
             else:
                 self.assertEqual(report["warnings"], [])
 

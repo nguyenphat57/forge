@@ -7,7 +7,8 @@ from pathlib import Path
 
 from common import configure_stdio, default_artifact_dir, slugify, timestamp_slug
 from quality_gate_artifacts import validate_supporting_artifacts
-from workflow_state_support import record_workflow_event
+from release_profile_contract import workflow_profile
+from workflow_state_support import record_workflow_event, resolve_workflow_state
 
 
 VALID_PROFILES = (
@@ -25,11 +26,15 @@ def build_report(args: argparse.Namespace) -> dict:
         raise ValueError("Quality gate requires at least one fresh evidence item.")
     if args.decision in {"conditional", "blocked"} and not args.next_evidence:
         raise ValueError("Conditional or blocked decisions must name the next evidence needed.")
+    workspace = args.workspace.resolve()
+    workflow_state = resolve_workflow_state(workspace).get("state")
+    operating_profile = workflow_profile(workflow_state)
     if args.profile == "release-critical" and args.target_claim == "deploy" and args.decision == "conditional":
         raise ValueError("release-critical deploy gates cannot be conditional.")
+    if operating_profile == "solo-public" and args.target_claim == "deploy" and args.decision == "conditional":
+        raise ValueError("solo-public deploy gates cannot be conditional.")
 
     status = {"go": "PASS", "conditional": "WARN", "blocked": "FAIL"}[args.decision]
-    workspace = args.workspace.resolve()
     process_artifacts, review_artifacts = validate_supporting_artifacts(args)
     return {
         "status": status,
@@ -37,6 +42,7 @@ def build_report(args: argparse.Namespace) -> dict:
         "project": args.project_name,
         "workspace": str(workspace),
         "profile": args.profile,
+        "operating_profile": operating_profile,
         "stage_name": "quality-gate",
         "stage_status": "completed" if args.decision == "go" else "blocked",
         "current_stage": "quality-gate",
@@ -59,6 +65,7 @@ def format_text(report: dict) -> str:
         f"- Workspace: {report['workspace']}",
         f"- Project: {report['project']}",
         f"- Profile: {report['profile']}",
+        f"- Operating profile: {report.get('operating_profile') or '(none)'}",
         f"- Target claim: {report['target_claim']}",
         f"- Decision: {report['decision']}",
         f"- Evidence response: {report['response']}",

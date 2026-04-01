@@ -4,11 +4,39 @@ import json
 import re
 
 from release_repo_test_support import ROOT_DIR, ReleaseRepoTestSupport, build_release
+from overlay_route_fixtures import route_preview_cases_for_bundle
 import install_bundle_host  # noqa: E402
 
 
 class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
-    def test_antigravity_route_preview_fixture_matches_core(self) -> None:
+    def test_overlay_registries_inherit_core_delegation_contract(self) -> None:
+        core_registry = json.loads(
+            (ROOT_DIR / "packages" / "forge-core" / "data" / "orchestrator-registry.json").read_text(encoding="utf-8")
+        )
+        delegation_contract = core_registry["host_capabilities"]["delegation_contract"]
+
+        for bundle_name in ("forge-antigravity", "forge-codex"):
+            overlay_registry = json.loads(
+                (
+                    ROOT_DIR
+                    / "packages"
+                    / bundle_name
+                    / "overlay"
+                    / "data"
+                    / "orchestrator-registry.json"
+                ).read_text(encoding="utf-8")
+            )
+            self.assertNotIn("delegation_contract", overlay_registry.get("host_capabilities", {}))
+
+        build_release.build_all()
+        for bundle_name in ("forge-antigravity", "forge-codex"):
+            with self.subTest(bundle=bundle_name):
+                dist_registry = json.loads(
+                    (ROOT_DIR / "dist" / bundle_name / "data" / "orchestrator-registry.json").read_text(encoding="utf-8")
+                )
+                self.assertEqual(dist_registry["host_capabilities"]["delegation_contract"], delegation_contract)
+
+    def test_antigravity_route_preview_fixture_is_generated_from_core_contract(self) -> None:
         core_fixture = json.loads(
             (
                 ROOT_DIR
@@ -19,7 +47,9 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
                 / "route_preview_cases.json"
             ).read_text(encoding="utf-8")
         )
-        overlay_fixture = json.loads(
+        overlay_fixture = route_preview_cases_for_bundle("forge-antigravity")
+        self.assertIsNotNone(overlay_fixture)
+        self.assertFalse(
             (
                 ROOT_DIR
                 / "packages"
@@ -28,7 +58,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
                 / "tests"
                 / "fixtures"
                 / "route_preview_cases.json"
-            ).read_text(encoding="utf-8")
+            ).exists()
         )
 
         normalized_core_fixture = []
@@ -44,11 +74,19 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         overlay_root = ROOT_DIR / "packages" / "forge-antigravity" / "overlay"
         expected_files = [
             overlay_root / "GEMINI.global.md",
+            overlay_root / "SKILL.md",
+            overlay_root / "agents" / "openai.yaml",
+            overlay_root / "data" / "orchestrator-registry.json",
             overlay_root / "workflows" / "operator" / "customize.md",
             overlay_root / "workflows" / "operator" / "init.md",
             overlay_root / "workflows" / "operator" / "recap.md",
             overlay_root / "workflows" / "operator" / "save-brain.md",
             overlay_root / "workflows" / "operator" / "handover.md",
+            overlay_root / "workflows" / "operator" / "help.md",
+            overlay_root / "workflows" / "operator" / "next.md",
+            overlay_root / "workflows" / "operator" / "run.md",
+            overlay_root / "workflows" / "operator" / "bump.md",
+            overlay_root / "workflows" / "operator" / "rollback.md",
             overlay_root / "references" / "antigravity-operator-surface.md",
             overlay_root / "data" / "preferences-compat.json",
             overlay_root / "data" / "routing-locales.json",
@@ -81,6 +119,13 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         build_release.build_all()
         dist_root = ROOT_DIR / "dist" / "forge-antigravity"
         self.assertTrue((dist_root / "GEMINI.global.md").exists())
+        self.assertTrue((dist_root / "SKILL.md").exists())
+        self.assertTrue((dist_root / "agents" / "openai.yaml").exists())
+        self.assertTrue((dist_root / "data" / "orchestrator-registry.json").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "help.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "next.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "run.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "rollback.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "recap.md").exists())
@@ -89,12 +134,22 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertTrue((dist_root / "data" / "routing-locales.json").exists())
         self.assertTrue((dist_root / "data" / "routing-locales" / "vi.json").exists())
         self.assertTrue((dist_root / "data" / "output-contracts.json").exists())
+        self.assertTrue((dist_root / "tests" / "fixtures" / "route_preview_cases.json").exists())
         self.assertIn("GENERATED FILE", (dist_root / "GEMINI.global.md").read_text(encoding="utf-8"))
+        generated_fixture = json.loads((dist_root / "tests" / "fixtures" / "route_preview_cases.json").read_text(encoding="utf-8"))
+        self.assertEqual(generated_fixture, route_preview_cases_for_bundle("forge-antigravity"))
         build_manifest = json.loads((dist_root / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
         self.assertEqual(build_manifest["state"]["dev_root"]["env_var"], "GEMINI_HOME")
         self.assertEqual(build_manifest["state"]["dev_root"]["path_relative"], "forge-antigravity")
         self.assertEqual(build_manifest["packaging"]["default_target_strategy"], "gemini_home_skill")
         self.assertIn("GEMINI.global.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("SKILL.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("agents/openai.yaml", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("tests/fixtures/route_preview_cases.json", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("workflows/operator/help.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("workflows/operator/next.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("workflows/operator/run.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("workflows/operator/rollback.md", build_manifest["packaging"]["required_bundle_paths"])
         self.assertEqual(build_manifest["generated_artifacts"]["manifest_path"], "docs/architecture/host-artifacts-manifest.json")
         self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["name"], "forge-antigravity-global-gemini")
         self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["bundle_output"], "GEMINI.global.md")
@@ -129,10 +184,13 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         overlay_root = ROOT_DIR / "packages" / "forge-codex" / "overlay"
         expected_files = [
             overlay_root / "AGENTS.global.md",
+            overlay_root / "SKILL.md",
             overlay_root / "data" / "orchestrator-registry.json",
             overlay_root / "data" / "routing-locales.json",
             overlay_root / "data" / "routing-locales" / "vi.json",
             overlay_root / "data" / "output-contracts.json",
+            overlay_root / "references" / "smoke-tests.md",
+            overlay_root / "references" / "smoke-test-checklist.md",
             overlay_root / "workflows" / "execution" / "dispatch-subagents.md",
             overlay_root / "workflows" / "execution" / "session.md",
             overlay_root / "workflows" / "operator" / "help.md",
@@ -171,10 +229,13 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         build_release.build_all()
         dist_root = ROOT_DIR / "dist" / "forge-codex"
         self.assertTrue((dist_root / "AGENTS.global.md").exists())
+        self.assertTrue((dist_root / "SKILL.md").exists())
         self.assertTrue((dist_root / "data" / "orchestrator-registry.json").exists())
         self.assertTrue((dist_root / "data" / "routing-locales.json").exists())
         self.assertTrue((dist_root / "data" / "routing-locales" / "vi.json").exists())
         self.assertTrue((dist_root / "data" / "output-contracts.json").exists())
+        self.assertTrue((dist_root / "references" / "smoke-tests.md").exists())
+        self.assertTrue((dist_root / "references" / "smoke-test-checklist.md").exists())
         self.assertTrue((dist_root / "workflows" / "execution" / "dispatch-subagents.md").exists())
         self.assertTrue((dist_root / "workflows" / "execution" / "session.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
@@ -187,6 +248,9 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertEqual(build_manifest["state"]["dev_root"]["path_relative"], "forge-codex")
         self.assertEqual(build_manifest["packaging"]["default_target_strategy"], "codex_home_skill")
         self.assertIn("AGENTS.global.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("SKILL.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("references/smoke-tests.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("references/smoke-test-checklist.md", build_manifest["packaging"]["required_bundle_paths"])
         self.assertEqual(build_manifest["generated_artifacts"]["manifest_path"], "docs/architecture/host-artifacts-manifest.json")
         self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["name"], "forge-codex-global-agents")
         self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["bundle_output"], "AGENTS.global.md")

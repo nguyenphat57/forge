@@ -2,6 +2,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+
+os.environ.pop("FORGE_HOME", None)
+os.environ.pop("FORGE_BUNDLE_ROOT", None)
+for key in tuple(os.environ):
+    if key.startswith("PYTEST_"):
+        os.environ.pop(key, None)
 
 from common import configure_stdio
 from smoke_matrix_runtime import format_text, summarize

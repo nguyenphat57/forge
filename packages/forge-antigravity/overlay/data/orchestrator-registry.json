@@ -2,11 +2,6 @@
   "host_capabilities": {
     "supports_subagents": true,
     "supports_parallel_subagents": false,
-    "subagent_dispatch_skill": null,
-    "delegation_contract": [
-      "Fresh packet per delegated slice.",
-      "Explicit ownership and write scope.",
-      "Return changed files, verification, and residual risk."
-    ]
+    "subagent_dispatch_skill": null
   }
 }

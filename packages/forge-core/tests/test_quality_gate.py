@@ -9,6 +9,43 @@ from support import run_python_script
 
 
 class QualityGateTests(unittest.TestCase):
+    def _write_workflow_state(self, workspace: Path, project_name: str, profile: str) -> Path:
+        state_path = workspace / ".forge-artifacts" / "workflow-state" / project_name / "latest.json"
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        state_path.write_text(
+            json.dumps(
+                {
+                    "project": project_name,
+                    "profile": profile,
+                    "intent": "DEPLOY",
+                    "current_stage": "quality-gate",
+                    "required_stage_chain": [
+                        "review-pack",
+                        "self-review",
+                        "secure",
+                        "quality-gate",
+                        "release-doc-sync",
+                        "release-readiness",
+                        "deploy",
+                        "adoption-check",
+                    ],
+                    "stages": {
+                        "review-pack": {"status": "completed"},
+                        "self-review": {"status": "completed"},
+                        "secure": {"status": "completed"},
+                        "quality-gate": {"status": "required"},
+                        "release-doc-sync": {"status": "required"},
+                        "release-readiness": {"status": "required"},
+                        "deploy": {"status": "required"},
+                        "adoption-check": {"status": "required"},
+                    },
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+        return state_path
+
     def test_release_critical_deploy_rejects_conditional_decision(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
@@ -65,6 +102,70 @@ class QualityGateTests(unittest.TestCase):
         self.assertEqual(report["status"], "FAIL")
         self.assertIn("cannot be conditional", report["error"])
 
+    def test_solo_public_deploy_rejects_conditional_even_with_standard_quality_profile(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            self._write_workflow_state(workspace, "checkout-web", "solo-public")
+
+            execution = run_python_script(
+                "track_execution_progress.py",
+                "Public launch checks",
+                "--mode",
+                "checkpoint-batch",
+                "--stage",
+                "release-checks",
+                "--status",
+                "completed",
+                "--completion-state",
+                "ready-for-merge",
+                "--project-name",
+                "checkout-web",
+                "--profile",
+                "solo-public",
+                "--intent",
+                "DEPLOY",
+                "--harness-available",
+                "no",
+                "--proof",
+                "release verification packet",
+                "--persist",
+                "--output-dir",
+                str(workspace),
+                "--format",
+                "json",
+                cwd=workspace,
+            )
+            self.assertEqual(execution.returncode, 0, execution.stderr)
+
+            result = run_python_script(
+                "record_quality_gate.py",
+                "--workspace",
+                str(workspace),
+                "--project-name",
+                "checkout-web",
+                "--profile",
+                "standard",
+                "--target-claim",
+                "deploy",
+                "--decision",
+                "conditional",
+                "--evidence",
+                "pytest tests/test_checkout.py",
+                "--response",
+                "I verified: checkout regression passed. Correct because release checks mostly hold. Fixed: yes.",
+                "--why",
+                "One final external smoke is still pending.",
+                "--next-evidence",
+                "Run public launch smoke",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 1)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["status"], "FAIL")
+        self.assertIn("solo-public deploy gates cannot be conditional", report["error"])
+
     def test_persisted_quality_gate_writes_workflow_state(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
@@ -112,6 +213,7 @@ class QualityGateTests(unittest.TestCase):
 
         self.assertEqual(report["status"], "PASS")
         self.assertEqual(state["latest_gate"]["decision"], "go")
+        self.assertIsNone(report["operating_profile"])
         self.assertEqual(state["summary"]["suggested_workflow"], "review")
 
     def test_ready_for_merge_requires_persisted_verify_change(self) -> None:

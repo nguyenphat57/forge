@@ -7,11 +7,25 @@ from pathlib import Path
 from smoke_matrix_cases import FORGE_HOMES_DIR, ROOT_DIR, RUN_HELPERS_DIR
 
 
-def run_command(command: list[str], *, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+def _smoke_matrix_env(env: dict[str, str] | None = None) -> dict[str, str]:
     merged_env = os.environ.copy()
-    merged_env.setdefault("FORGE_HOME", str(FORGE_HOMES_DIR / "empty"))
+    # Ignore inherited host state so smoke cases stay deterministic even when
+    # the parent process points FORGE_HOME at an installed bundle/runtime.
+    merged_env.pop("FORGE_HOME", None)
+    merged_env.pop("FORGE_BUNDLE_ROOT", None)
+    merged_env.pop("PYTHONPATH", None)
+    merged_env.pop("PYTHONHOME", None)
+    merged_env.pop("PYTHONSTARTUP", None)
+    for key in tuple(merged_env):
+        if key.startswith("PYTEST_"):
+            merged_env.pop(key, None)
+    merged_env["FORGE_HOME"] = str(FORGE_HOMES_DIR / "empty")
     if env:
         merged_env.update(env)
+    return merged_env
+
+
+def run_command(command: list[str], *, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         command,
         cwd=str(ROOT_DIR),
@@ -19,7 +33,7 @@ def run_command(command: list[str], *, env: dict[str, str] | None = None) -> sub
         text=True,
         encoding="utf-8",
         check=False,
-        env=merged_env,
+        env=_smoke_matrix_env(env),
     )
 
 

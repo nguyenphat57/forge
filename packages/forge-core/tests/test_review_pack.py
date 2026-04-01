@@ -9,6 +9,36 @@ from support import run_python_script
 
 
 class ReviewPackTests(unittest.TestCase):
+    def _write_workflow_state(self, workspace: Path, project_name: str, profile: str) -> Path:
+        state_path = workspace / ".forge-artifacts" / "workflow-state" / project_name / "latest.json"
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        state_path.write_text(
+            json.dumps(
+                {
+                    "project": project_name,
+                    "profile": profile,
+                    "intent": "DEPLOY",
+                    "current_stage": "review-pack",
+                    "required_stage_chain": [
+                        "review-pack",
+                        "self-review",
+                        "secure",
+                        "quality-gate",
+                        "release-doc-sync",
+                        "release-readiness",
+                        "deploy",
+                        "adoption-check",
+                    ],
+                    "stages": {
+                        "review-pack": {"status": "required"},
+                    },
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+        return state_path
+
     def test_review_pack_flags_auth_and_billing_env_gaps(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
@@ -116,6 +146,23 @@ class ReviewPackTests(unittest.TestCase):
             report = json.loads(result.stdout)
             self.assertIn("billing", report["features"])
             self.assertTrue(any("STRIPE_SECRET_KEY" in item for item in report["findings"]))
+
+    def test_review_pack_uses_solo_public_workflow_state_to_force_public_surface(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            self._write_workflow_state(workspace, "internal-tool", "solo-public")
+            (workspace / ".env.example").write_text("DATABASE_URL=\n", encoding="utf-8")
+
+            result = run_python_script("review_pack.py", "--workspace", str(workspace), "--format", "json")
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["operating_profile"], "solo-public")
+            self.assertTrue(report["public_surface"])
+            self.assertIn(
+                "Check authz, input validation, and secret handling for public-facing routes.",
+                report["checklist"],
+            )
 
 
 if __name__ == "__main__":
