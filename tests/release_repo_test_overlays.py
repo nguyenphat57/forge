@@ -8,6 +8,38 @@ import install_bundle_host  # noqa: E402
 
 
 class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
+    def test_antigravity_route_preview_fixture_matches_core(self) -> None:
+        core_fixture = json.loads(
+            (
+                ROOT_DIR
+                / "packages"
+                / "forge-core"
+                / "tests"
+                / "fixtures"
+                / "route_preview_cases.json"
+            ).read_text(encoding="utf-8")
+        )
+        overlay_fixture = json.loads(
+            (
+                ROOT_DIR
+                / "packages"
+                / "forge-antigravity"
+                / "overlay"
+                / "tests"
+                / "fixtures"
+                / "route_preview_cases.json"
+            ).read_text(encoding="utf-8")
+        )
+
+        normalized_core_fixture = []
+        for case in core_fixture:
+            normalized_case = dict(case)
+            normalized_case.pop("expected_host_skills", None)
+            normalized_case.pop("expected_host_skills_when_subagents", None)
+            normalized_core_fixture.append(normalized_case)
+
+        self.assertEqual(overlay_fixture, normalized_core_fixture)
+
     def test_antigravity_wave_b_overlay_files_exist(self) -> None:
         overlay_root = ROOT_DIR / "packages" / "forge-antigravity" / "overlay"
         expected_files = [
