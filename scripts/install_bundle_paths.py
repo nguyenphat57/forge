@@ -162,6 +162,7 @@ def _bundle_source_integrity_error(bundle_name: str, expected: dict | None, actu
 
 
 def ensure_bundle_source_ready(bundle_name: str, source: Path) -> None:
+    source = source.resolve()
     missing = [path for path in required_bundle_source_paths(bundle_name, source) if not path.exists()]
     if not missing:
         manifest = load_build_manifest(source)

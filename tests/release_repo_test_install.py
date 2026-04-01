@@ -18,7 +18,9 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
             dist_dir = temp_root / "dist"
             source = dist_dir / "forge-codex"
             source.mkdir(parents=True, exist_ok=True)
-            (source / "BUILD-MANIFEST.json").write_text(
+            canonical_source = temp_root / "canonical-dist" / "forge-codex"
+            canonical_source.mkdir(parents=True, exist_ok=True)
+            (canonical_source / "BUILD-MANIFEST.json").write_text(
                 json.dumps(
                     {
                         "package": "forge-codex",
@@ -32,11 +34,20 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
                 ),
                 encoding="utf-8",
             )
-            required_path = source / "required.txt"
+            required_path = canonical_source / "required.txt"
+            path_cls = type(source)
+            original_resolve = path_cls.resolve
 
             def fake_rebuild() -> list[dict]:
                 required_path.write_text("now present", encoding="utf-8")
                 return []
+
+            def fake_resolve(path: Path, *args, **kwargs) -> Path:
+                if path == source:
+                    return canonical_source
+                if path == dist_dir / "forge-codex":
+                    return canonical_source
+                return original_resolve(path, *args, **kwargs)
 
             with mock.patch.object(install_bundle_paths, "DIST_DIR", dist_dir):
                 with mock.patch.object(
@@ -44,9 +55,10 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
                     "required_bundle_source_paths",
                     return_value=[required_path],
                 ):
-                    with mock.patch.object(build_release, "build_all", side_effect=fake_rebuild):
-                        with self.assertRaisesRegex(ValueError, "fingerprint mismatch"):
-                            install_bundle_paths.ensure_bundle_source_ready("forge-codex", source)
+                    with mock.patch.object(path_cls, "resolve", autospec=True, side_effect=fake_resolve):
+                        with mock.patch.object(build_release, "build_all", side_effect=fake_rebuild):
+                            with self.assertRaisesRegex(ValueError, "fingerprint mismatch"):
+                                install_bundle_paths.ensure_bundle_source_ready("forge-codex", source)
 
     def test_install_bundle_dry_run_keeps_target_untouched(self) -> None:
         with TemporaryDirectory() as temp_dir:
