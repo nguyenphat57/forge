@@ -124,6 +124,7 @@ For important `medium/large` or verification tasks, write a short packet:
 
 ```text
 Test packets:
+- Packet ID / parent packet: [...]
 - Behavior under proof: [...]
 - Baseline verification: [current command/reproduction before edit]
 - RED proof: [test/command/scenario]
@@ -131,6 +132,8 @@ Test packets:
 - GREEN proof: [test/command/scenario]
 - Boundary checks: [...]
 - Broader checks: [...]
+- Verification to rerun before handoff: [...]
+- Browser QA classification/status if the packet depends on UI or workflow proof: [...]
 - Residual gaps: [...]
 ```
 
@@ -138,6 +141,7 @@ Rules:
 - If you can't write `Expected fail signal`, RED is too vague
 - If you can't write `Boundary checks` for public interface/migration/auth, verification is too weak
 - If RED was skipped while the harness was viable, `Baseline verification` alone does not save the packet; rewrite it correctly
+- If browser QA is part of the packet, it is an execution proof for that packet, not a separate sidecar proof chain
 
 ## Evidence Response Contract
 

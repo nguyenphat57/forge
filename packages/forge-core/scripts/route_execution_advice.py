@@ -20,6 +20,38 @@ REVIEW_SEQUENCES = {
     ],
 }
 
+BROWSER_REQUIRED_MARKERS = (
+    "browser",
+    "screenshot",
+    "playwright",
+    "click through",
+    "click-through",
+    "multi-step",
+    "walkthrough",
+)
+
+BROWSER_OPTIONAL_MARKERS = (
+    "ui",
+    "screen",
+    "screens",
+    "page",
+    "pages",
+    "form",
+    "workflow",
+    "flow",
+    "responsive",
+    "checkout",
+)
+
+FRONTEND_REPO_MARKERS = (
+    ".tsx",
+    ".jsx",
+    "components",
+    "pages",
+    "app/",
+    "src/",
+)
+
 
 def build_baseline_verification(required: bool, verification: dict | None) -> dict | None:
     if not required:
@@ -50,3 +82,37 @@ def build_worktree_bootstrap(recommendation: str | None) -> dict | None:
 
 def build_review_sequence(execution_pipeline_key: str | None) -> list[dict]:
     return [dict(item) for item in REVIEW_SEQUENCES.get(execution_pipeline_key or "", [])]
+
+
+def classify_browser_qa(
+    prompt: str,
+    *,
+    intent: str,
+    complexity: str,
+    domain_skills: list[str],
+    repo_signals: list[str],
+) -> dict:
+    prompt_lower = prompt.casefold()
+    repo_signals_lower = [signal.casefold() for signal in repo_signals]
+    has_frontend_signal = "frontend" in domain_skills or any(marker in prompt_lower for marker in BROWSER_OPTIONAL_MARKERS)
+    has_frontend_repo = any(any(marker in signal for marker in FRONTEND_REPO_MARKERS) for signal in repo_signals_lower)
+    explicit_browser = any(marker in prompt_lower for marker in BROWSER_REQUIRED_MARKERS)
+    multi_surface = complexity == "large" or "parallel" in prompt_lower or "many screens" in prompt_lower
+
+    if intent not in {"BUILD", "DEBUG", "OPTIMIZE", "VISUALIZE"}:
+        return {"classification": "not-needed", "scope": []}
+
+    if explicit_browser and (has_frontend_signal or has_frontend_repo):
+        return {
+            "classification": "required-for-this-packet",
+            "scope": ["explicit browser reproduction"],
+        }
+
+    if has_frontend_signal or has_frontend_repo:
+        scope = ["multi-surface frontend or workflow slice"] if multi_surface else ["ui or workflow verification"]
+        return {
+            "classification": "optional-accelerator",
+            "scope": scope,
+        }
+
+    return {"classification": "not-needed", "scope": []}

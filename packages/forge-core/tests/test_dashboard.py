@@ -179,6 +179,50 @@ class DashboardTests(unittest.TestCase):
         self.assertFalse(report["brownfield"]["mapped"])
         self.assertIn("Run `doctor` and `map-codebase`", report["recommended_action"])
 
+    def test_dashboard_surfaces_build_packet_state(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir) / "workspace"
+            workspace.mkdir(parents=True, exist_ok=True)
+            (workspace / "README.md").write_text("# Demo\n", encoding="utf-8")
+            (workspace / "package.json").write_text('{"name":"demo-app"}\n', encoding="utf-8")
+            _write_json(
+                workspace / ".forge-artifacts" / "workflow-state" / "checkout" / "latest.json",
+                {
+                    "project": "checkout",
+                    "current_stage": "build",
+                    "summary": {
+                        "status": "active",
+                        "primary_kind": "execution-progress",
+                        "current_focus": "Build packet: Checkout flow polish [packet-checkout-ui]",
+                        "current_stage": "build",
+                        "suggested_workflow": "build",
+                        "recommended_action": "Resume packet 'packet-checkout-ui' and clear the pending browser QA proof before starting a new slice.",
+                        "alternatives": ["After browser QA, continue into 'test'."],
+                        "active_packets": ["packet-checkout-ui"],
+                        "browser_qa_pending": ["packet-checkout-ui"],
+                        "next_merge_point": "merge-ui-with-checkout-tests",
+                    },
+                    "latest_run": {
+                        "browser_proof_status": "satisfied",
+                    },
+                },
+            )
+
+            result = run_python_script(
+                "dashboard.py",
+                "--workspace",
+                str(workspace),
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["active_packets"], ["packet-checkout-ui"])
+        self.assertEqual(report["browser_qa_pending"], ["packet-checkout-ui"])
+        self.assertEqual(report["next_merge_point"], "merge-ui-with-checkout-tests")
+        self.assertEqual(report["latest_browser_proof"], "satisfied")
+
 
 if __name__ == "__main__":
     unittest.main()

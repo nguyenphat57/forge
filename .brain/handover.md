@@ -1,7 +1,7 @@
 HANDOVER
-- Current task: Mark `1.12.0` as the current stable Forge release in repo-facing docs and continuity state.
-- Done: Updated `CHANGELOG.md`, `README.md`, `docs/release/public-readiness.md`, and `docs/release/release-process.md` so they explicitly treat `1.12.0` as stable after the release and roadmap-complete gates passed.
+- Current task: Cut `1.13.0` and mark it as the current stable Forge release in repo-facing docs and continuity state.
+- Done: Updated `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/public-readiness.md`, `docs/release/release-process.md`, and `.brain/*.json` so they treat `1.13.0` as the stable line and record the release-hardening continuity for build packets.
 - Remaining: none for the repo release slice.
-- Important decisions: Keep `1.12.0` on one canonical four-tier vocabulary, and treat it as stable only because both the canonical release gate and the roadmap-complete sweep are green.
-- Verification run: `python -m pytest tests/test_release_hardening.py tests/release_repo_test_contracts.py -q` -> `26 passed, 82 subtests passed`; stable release content checks -> PASS.
+- Important decisions: Treat `1.13.0` as stable only because the build-packet enhancement line and the canonical repo gate are both green; keep execution-packet summaries normalized to valid workflows and keep runtime wrappers from shadowing downstream tool flags.
+- Verification run: `python scripts/verify_repo.py` -> PASS.
 - Next step: Optional only, if Sếp muốn sync local release messaging into a Git tag or GitHub release body.

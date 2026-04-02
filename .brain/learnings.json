@@ -97,5 +97,28 @@
     "revisit_if": null,
     "trigger": "release-review",
     "resume_hint": "Re-open this item when the work slice resumes."
+  },
+  {
+    "id": "20260402-111622",
+    "kind": "learning",
+    "scope": "forge-1-13-release-hardening",
+    "summary": "Execution-packet release quality depends on normalizing stage labels into valid workflow aliases and keeping runtime wrappers from shadowing downstream tool flags.",
+    "status": "resolved",
+    "evidence": [
+      "packages/forge-core/scripts/workflow_state_summary.py",
+      "packages/forge-core/scripts/invoke_runtime_tool.py",
+      "packages/forge-core/tests/test_help_next_workflow_state.py",
+      "packages/forge-core/tests/test_runtime_tool_support.py"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "workflow-state",
+      "runtime-tool",
+      "help-next"
+    ],
+    "revisit_if": null,
+    "trigger": "release-review",
+    "resume_hint": "Re-open this item when the work slice resumes."
   }
 ]

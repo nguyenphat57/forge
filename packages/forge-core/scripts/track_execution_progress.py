@@ -19,20 +19,66 @@ VALID_COMPLETION_STATES = (
 VALID_LANES = ("navigator", "implementer", "spec-reviewer", "quality-reviewer", "deploy-reviewer")
 VALID_MODEL_TIERS = ("cheap", "standard", "capable")
 VALID_HARNESS_STATES = ("auto", "yes", "no")
+VALID_BROWSER_QA_CLASSIFICATIONS = ("not-needed", "optional-accelerator", "required-for-this-packet")
+VALID_BROWSER_QA_STATUSES = ("not-needed", "pending", "active", "satisfied", "blocked")
+
+
+def _list_arg(args: argparse.Namespace, *names: str) -> list[str]:
+    for name in names:
+        value = getattr(args, name, None)
+        if isinstance(value, list):
+            return [item for item in value if isinstance(item, str) and item.strip()]
+    return []
+
+
+def _string_arg(args: argparse.Namespace, *names: str) -> str | None:
+    for name in names:
+        value = getattr(args, name, None)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return None
+
+
+def _normalized_browser_status(classification: str, status: str | None) -> str:
+    if isinstance(status, str) and status in VALID_BROWSER_QA_STATUSES:
+        return status
+    return "not-needed" if classification == "not-needed" else "pending"
 
 
 def build_report(args: argparse.Namespace) -> dict:
-    source_of_truth = list(getattr(args, "source", []) or [])
-    scope_paths = list(getattr(args, "scope_path", []) or [])
-    baseline_proof = list(getattr(args, "baseline", []) or [])
-    out_of_scope = list(getattr(args, "out_of_scope", []) or [])
-    reopen_conditions = list(getattr(args, "reopen_if", []) or [])
+    source_of_truth = _list_arg(args, "source", "source_of_truth")
+    scope_paths = _list_arg(args, "scope_path", "exact_files_or_paths_in_scope")
+    owned_scope = _list_arg(args, "owned_scope", "owned_files_or_write_scope")
+    baseline_proof = _list_arg(args, "baseline", "baseline_or_clean_start_proof")
+    out_of_scope = _list_arg(args, "out_of_scope", "out_of_scope_for_this_slice")
+    reopen_conditions = _list_arg(args, "reopen_if", "reopen_conditions")
     harness_available = getattr(args, "harness_available", "auto")
-    red_proof = list(getattr(args, "red", []) or [])
+    red_proof = _list_arg(args, "red", "red_proof")
+    verification_to_rerun = _list_arg(args, "verify_again", "verification_to_rerun")
+    depends_on_packets = _list_arg(args, "depends_on_packet", "depends_on_packets")
+    browser_qa_classification = _string_arg(args, "browser_qa_classification") or "not-needed"
+    browser_qa_scope = _list_arg(args, "browser_qa_scope")
+    browser_qa_status = _normalized_browser_status(
+        browser_qa_classification,
+        _string_arg(args, "browser_qa_status"),
+    )
+    packet_id = _string_arg(args, "packet_id") or slugify(args.task) or "packet"
+    parent_packet = _string_arg(args, "parent_packet")
+    goal = _string_arg(args, "goal") or args.task
+    next_steps = _list_arg(args, "next_step", "next_steps")
+    blockers = _list_arg(args, "blocker", "blockers")
+    residual_risk = _list_arg(args, "risk", "residual_risk")
+    done = _list_arg(args, "done")
     report = {
+        "packet_id": packet_id,
+        "parent_packet": parent_packet,
+        "project": args.project_name,
+        "label": args.task,
         "task": args.task,
+        "goal": goal,
         "mode": args.mode,
         "stage": args.stage,
+        "current_stage": args.stage,
         "status": args.status,
         "completion_state": args.completion_state,
         "profile": getattr(args, "profile", None),
@@ -41,17 +87,28 @@ def build_report(args: argparse.Namespace) -> dict:
         "lane": args.lane,
         "model_tier": args.model_tier,
         "source_of_truth": source_of_truth,
+        "exact_files_or_paths_in_scope": scope_paths,
         "scope_paths": scope_paths,
+        "owned_files_or_write_scope": owned_scope,
+        "depends_on_packets": depends_on_packets,
+        "baseline_or_clean_start_proof": baseline_proof,
         "baseline_proof": baseline_proof,
+        "out_of_scope_for_this_slice": out_of_scope,
         "out_of_scope": out_of_scope,
         "reopen_conditions": reopen_conditions,
         "harness_available": harness_available,
         "red_proof": red_proof,
         "proof_before_progress": args.proof,
-        "done": args.done,
-        "next": args.next_step,
-        "blockers": args.blocker,
-        "risks": args.risk,
+        "verification_to_rerun": verification_to_rerun,
+        "browser_qa_classification": browser_qa_classification,
+        "browser_qa_scope": browser_qa_scope,
+        "browser_qa_status": browser_qa_status,
+        "done": done,
+        "next_steps": next_steps,
+        "next": next_steps,
+        "blockers": blockers,
+        "residual_risk": residual_risk,
+        "risks": residual_risk,
         "project": args.project_name,
     }
 
@@ -74,27 +131,35 @@ def format_text(report: dict) -> str:
     lines = [
         "Forge Execution Progress",
         f"- Task: {report['task']}",
+        f"- Packet ID: {report['packet_id']}",
+        f"- Parent packet: {report['parent_packet'] or '(none)'}",
+        f"- Goal: {report['goal']}",
         f"- Project: {report['project']}",
         f"- Mode: {report['mode']}",
-        f"- Stage: {report['stage']}",
+        f"- Stage: {report['current_stage']}",
         f"- Status: {report['status']}",
         f"- Completion state: {report['completion_state']}",
         f"- Lane: {report['lane'] or '(none)'}",
         f"- Model tier: {report['model_tier'] or '(none)'}",
         f"- Harness available: {report['harness_available']}",
+        f"- Browser QA: {report['browser_qa_classification']} / {report['browser_qa_status']}",
     ]
 
     for label, items in (
         ("Source of truth", report["source_of_truth"]),
-        ("Scope paths", report["scope_paths"]),
-        ("Baseline proof", report["baseline_proof"]),
+        ("Scope paths", report["exact_files_or_paths_in_scope"]),
+        ("Owned write scope", report["owned_files_or_write_scope"]),
+        ("Depends on packets", report["depends_on_packets"]),
+        ("Baseline proof", report["baseline_or_clean_start_proof"]),
         ("RED proof", report["red_proof"]),
         ("Proof before progress", report["proof_before_progress"]),
+        ("Verification to rerun", report["verification_to_rerun"]),
+        ("Browser QA scope", report["browser_qa_scope"]),
         ("Done", report["done"]),
-        ("Next", report["next"]),
+        ("Next", report["next_steps"]),
         ("Blockers", report["blockers"]),
-        ("Risks", report["risks"]),
-        ("Out of scope", report["out_of_scope"]),
+        ("Risks", report["residual_risk"]),
+        ("Out of scope", report["out_of_scope_for_this_slice"]),
         ("Reopen conditions", report["reopen_conditions"]),
     ):
         if items:
@@ -146,6 +211,11 @@ def main() -> int:
     )
     parser.add_argument("--source", action="append", default=[], help="Source-of-truth artifact or note. Repeatable.")
     parser.add_argument("--scope-path", action="append", default=[], help="Exact file/path scope for the current slice. Repeatable.")
+    parser.add_argument("--owned-scope", action="append", default=[], help="Owned write scope for the current slice. Repeatable.")
+    parser.add_argument("--depends-on-packet", action="append", default=[], help="Upstream packet dependency. Repeatable.")
+    parser.add_argument("--packet-id", default=None, help="Canonical packet identifier")
+    parser.add_argument("--parent-packet", default=None, help="Parent packet identifier")
+    parser.add_argument("--goal", default=None, help="Explicit goal for this packet")
     parser.add_argument("--baseline", action="append", default=[], help="Baseline or clean-start proof. Repeatable.")
     parser.add_argument("--out-of-scope", action="append", default=[], help="Known out-of-scope boundary. Repeatable.")
     parser.add_argument("--reopen-if", action="append", default=[], help="Condition that re-opens this slice. Repeatable.")
@@ -157,6 +227,20 @@ def main() -> int:
     )
     parser.add_argument("--red", action="append", default=[], help="Failing RED proof observed before implementation. Repeatable.")
     parser.add_argument("--proof", action="append", default=[], help="Proof-before-progress item. Repeatable.")
+    parser.add_argument("--verify-again", action="append", default=[], help="Verification that must be rerun before handoff. Repeatable.")
+    parser.add_argument(
+        "--browser-qa-classification",
+        choices=VALID_BROWSER_QA_CLASSIFICATIONS,
+        default="not-needed",
+        help="Whether browser QA is needed for this packet",
+    )
+    parser.add_argument("--browser-qa-scope", action="append", default=[], help="Browser QA scope note. Repeatable.")
+    parser.add_argument(
+        "--browser-qa-status",
+        choices=VALID_BROWSER_QA_STATUSES,
+        default=None,
+        help="Current browser QA status for this packet",
+    )
     parser.add_argument("--done", action="append", default=[], help="Completed item. Repeatable.")
     parser.add_argument("--next", dest="next_step", action="append", default=[], help="Next item. Repeatable.")
     parser.add_argument("--blocker", action="append", default=[], help="Blocker or unresolved issue. Repeatable.")

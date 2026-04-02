@@ -28,6 +28,8 @@
 |`adoption-check.md` | When changing the post-deploy signal contract or the handoff back into release-readiness|
 |`workspace-init.md` | When editing the skeleton workspace, init flow, or onboarding wrapper while preserving the repo-neutral contract|
 |`help-next.md` | When editing navigator logic for help/next, repo-state priority, or operator guidance wrappers|
+|`execution-delivery.md` | When editing build packet state, chain checkpoints, browser QA markers, or packet completion state|
+|`dashboard.md` | When adding or adjusting the thin dashboard view over packet state, release state, or next-action summaries|
 |`run-guidance.md` | When editing workflow `run`, ready-signal detection, command classification, or adapter wrappers for execute-then-route|
 |`error-translation.md` | When fixing database error patterns, sanitation rules, or how `run/debug/test` converts technical errors into readable guidance|
 |`bump-release.md` | When editing version-bump checklist, semver math, or release artifact update flow|
@@ -101,11 +103,13 @@
 1. artifact-driven-change-flow.md
 2. target-state.md if the change affects Forge process direction or strictness
 3. execution-delivery.md
-4. failure-recovery-playbooks.md if the chain has risk stall/block
-5. tooling.md if checkpoint artifact is needed
-6. build.md
-7. review.md if you need to clear disposition last
-8. quality-gate.md if you need to go/no-go clearly before claiming or deploying
+4. build.md when defining or updating the canonical build packet
+5. test.md when the proof chain or browser QA evidence changes
+6. debug.md when reproduction or root-cause packet changes
+7. failure-recovery-playbooks.md if the chain has risk stall/block
+8. tooling.md if checkpoint artifact is needed
+9. review.md if you need to clear disposition last
+10. quality-gate.md if you need to go/no-go clearly before claiming or deploying
 ```
 
 ### When doing release-critical flow

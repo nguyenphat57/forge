@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-04-01T15:05:00Z",
+  "updated_at": "2026-04-02T04:17:15Z",
   "working_on": {
-    "feature": "stable-1.12.0",
-    "task": "Mark 1.12.0 as the current stable release in repo-facing docs and continuity state",
+    "feature": "stable-1.13.0",
+    "task": "Cut the 1.13.0 release and mark it as the current stable Forge line",
     "status": "completed",
     "files": [
       "VERSION",
@@ -10,17 +10,19 @@
       "README.md",
       "docs/release/public-readiness.md",
       "docs/release/release-process.md",
-      "docs/plans/2026-04-01-forge-1.12.x-maturation-roadmap.md",
-      "docs/plans/2026-04-01-forge-1.12.x-maturation-implementation-plan.md",
-      "docs/plans/2026-04-01-forge-1.12.x-maturation-execution-report.md",
-      "packages/forge-core/references/target-state.md",
-      "packages/forge-core/scripts/workflow_state_support.py",
+      "docs/plans/2026-04-02-forge-1.13.x-build-process-enhancement-roadmap.md",
+      "packages/forge-core/scripts/track_execution_progress.py",
+      "packages/forge-core/scripts/track_chain_status.py",
       "packages/forge-core/scripts/help_next_support.py",
-      "packages/forge-core/scripts/resolve_help_next.py",
+      "packages/forge-core/scripts/invoke_runtime_tool.py",
       "packages/forge-core/scripts/dashboard_support.py",
-      "packages/forge-core/scripts/release_profile_contract.py",
-      "packages/forge-core/scripts/release_readiness.py",
-      "packages/forge-core/scripts/record_adoption_check.py",
+      "packages/forge-core/scripts/route_preview.py",
+      "packages/forge-core/scripts/workflow_state_summary.py",
+      "packages/forge-core/scripts/workflow_state_support.py",
+      "packages/forge-core/tests/test_help_next.py",
+      "packages/forge-core/tests/test_help_next_workflow_state.py",
+      "packages/forge-core/tests/test_runtime_tool_support.py",
+      "packages/forge-core/tests/test_tool_roundtrip.py",
       ".brain/decisions.json",
       ".brain/learnings.json",
       ".brain/session.json",
@@ -29,16 +31,15 @@
   },
   "pending_tasks": [],
   "recent_changes": [
-    "Forge 1.12.0 remains the canonical four-tier maturation release with the roadmap-complete closure rules already locked in.",
-    "README and release-facing docs now state that 1.12.0 is the current stable Forge release.",
-    "Continuity state now records the stable designation alongside the release gates and roadmap-complete closure proof."
+    "Forge 1.13.0 now ships the canonical build-packet contract across execution progress, chain status, workflow summaries, and host-facing dispatch guidance.",
+    "README, CHANGELOG, and release-facing docs now state that 1.13.0 is the current stable Forge release.",
+    "Continuity state now records the 1.13.0 stable designation plus the release-hardening learning around workflow alias normalization and runtime wrapper forwarding."
   ],
   "verification": [
-    "python -m pytest tests/test_release_hardening.py tests/release_repo_test_contracts.py -q -> 26 passed, 82 subtests passed",
-    "Stable release content checks -> PASS"
+    "python scripts/verify_repo.py -> PASS"
   ],
   "decisions_made": [
-    "Treat 1.12.0 as the current stable release because the canonical release gate and the separate roadmap-complete sweep are both green.",
-    "Keep the canonical 1.12.0 release vocabulary at four tiers and require the roadmap-complete sweep before weakening or renaming that stable contract."
+    "Treat 1.13.0 as the current stable Forge release because the build-packet enhancement line and the canonical repo verification gate are both green.",
+    "Release quality for execution packets depends on valid workflow alias normalization and runtime wrappers that do not shadow downstream tool flags."
   ]
 }

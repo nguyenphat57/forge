@@ -32,6 +32,7 @@ from route_delegation import (
 )
 from route_execution_advice import (
     build_baseline_verification,
+    classify_browser_qa,
     build_review_sequence,
     build_worktree_bootstrap,
 )
@@ -134,6 +135,13 @@ def build_report(args: argparse.Namespace) -> dict:
     baseline_verification = build_baseline_verification(baseline_proof_required, verification)
     worktree_bootstrap = build_worktree_bootstrap(isolation_recommendation)
     review_sequence = build_review_sequence(execution_pipeline_key)
+    browser_qa = classify_browser_qa(
+        args.prompt,
+        intent=intent,
+        complexity=complexity,
+        domain_skills=domain_skills,
+        repo_signals=args.repo_signal,
+    )
 
     return {
         "prompt": args.prompt,
@@ -169,6 +177,8 @@ def build_report(args: argparse.Namespace) -> dict:
             "baseline_verification": baseline_verification,
             "worktree_bootstrap": worktree_bootstrap,
             "review_sequence": review_sequence,
+            "browser_qa_classification": browser_qa["classification"],
+            "browser_qa_scope": browser_qa["scope"],
         },
         "verification": verification,
         "execution_pipeline": execution_pipeline,
@@ -215,6 +225,8 @@ def format_text(report: dict) -> str:
         f"- Isolation recommendation: {detected['isolation_recommendation'] or '(n/a)'}",
         f"- Baseline verification packet: {detected['baseline_verification']['proof_target'] if detected['baseline_verification'] else '(n/a)'}",
         f"- Worktree bootstrap helper: {detected['worktree_bootstrap']['helper'] if detected['worktree_bootstrap'] else '(n/a)'}",
+        f"- Browser QA classification: {detected['browser_qa_classification']}",
+        f"- Browser QA scope: {', '.join(detected['browser_qa_scope']) or '(none)'}",
         "- Required stages:",
     ]
     if detected["required_stages"]:

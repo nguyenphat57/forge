@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from common import default_artifact_dir, slugify
-from workflow_state_summary import as_string_list, summarize_workflow_state
+from workflow_state_summary import as_string_list, summarize_workflow_state, workflow_hint_for_stage
 
 
 WORKFLOW_STATE_DIR = "workflow-state"
@@ -49,6 +49,23 @@ def _pick_latest_json(base_dir: Path) -> Path | None:
 
 def _string_list(value: object) -> list[str]:
     return [item for item in value if isinstance(item, str) and item.strip()] if isinstance(value, list) else []
+
+
+def _coalesce_string(report: dict, *keys: str) -> str | None:
+    for key in keys:
+        value = report.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return None
+
+
+def _coalesce_list(report: dict, *keys: str) -> list[str]:
+    for key in keys:
+        value = report.get(key)
+        values = _string_list(value)
+        if values:
+            return values
+    return []
 
 
 def _route_preview_detected(report: dict | None) -> dict:
@@ -155,10 +172,18 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
     if kind == "chain-status":
         return {
             **common_fields,
-            "label": report.get("chain", "Unnamed chain"),
+            "label": _coalesce_string(report, "label", "chain") or "Unnamed chain",
             "status": report.get("status", "active"),
             "current_stage": report.get("current_stage", "unknown"),
             "next_steps": as_string_list(report.get("next_stages")),
+            "active_packets": _coalesce_list(report, "active_packets"),
+            "blocked_packets": _coalesce_list(report, "blocked_packets"),
+            "review_ready_packets": _coalesce_list(report, "review_ready_packets"),
+            "merge_ready_packets": _coalesce_list(report, "merge_ready_packets"),
+            "browser_qa_pending": _coalesce_list(report, "browser_qa_pending"),
+            "write_scope_overlaps": _coalesce_list(report, "write_scope_overlaps"),
+            "sequential_reasons": _coalesce_list(report, "sequential_reasons"),
+            "next_merge_point": _coalesce_string(report, "next_merge_point"),
             "blockers": as_string_list(report.get("blockers")),
             "risks": as_string_list(report.get("risks")),
             "gate_decision": report.get("gate_decision"),
@@ -166,13 +191,28 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
     if kind == "execution-progress":
         return {
             **common_fields,
-            "label": report.get("task", "Unnamed task"),
+            "label": _coalesce_string(report, "label", "task") or "Unnamed task",
+            "packet_id": _coalesce_string(report, "packet_id"),
+            "parent_packet": _coalesce_string(report, "parent_packet"),
+            "goal": _coalesce_string(report, "goal", "task") or "Unnamed task",
             "status": report.get("status", "active"),
-            "current_stage": report.get("stage", "unknown"),
+            "current_stage": _coalesce_string(report, "current_stage", "stage") or "unknown",
             "completion_state": report.get("completion_state", "in-progress"),
-            "next_steps": as_string_list(report.get("next")),
+            "source_of_truth": _coalesce_list(report, "source_of_truth", "source"),
+            "exact_files_or_paths_in_scope": _coalesce_list(report, "exact_files_or_paths_in_scope", "scope_paths", "scope_path"),
+            "owned_files_or_write_scope": _coalesce_list(report, "owned_files_or_write_scope", "owned_scope"),
+            "depends_on_packets": _coalesce_list(report, "depends_on_packets", "depends_on_packet"),
+            "baseline_or_clean_start_proof": _coalesce_list(report, "baseline_or_clean_start_proof", "baseline_proof", "baseline"),
+            "red_proof": _coalesce_list(report, "red_proof"),
+            "proof_before_progress": _coalesce_list(report, "proof_before_progress", "proof"),
+            "verification_to_rerun": _coalesce_list(report, "verification_to_rerun", "verify_again"),
+            "browser_qa_classification": _coalesce_string(report, "browser_qa_classification") or "not-needed",
+            "browser_qa_scope": _coalesce_list(report, "browser_qa_scope"),
+            "browser_qa_status": _coalesce_string(report, "browser_qa_status") or "not-needed",
+            "browser_qa_last_result": _coalesce_string(report, "browser_qa_last_result"),
+            "next_steps": _coalesce_list(report, "next_steps", "next"),
             "blockers": as_string_list(report.get("blockers")),
-            "risks": as_string_list(report.get("risks")),
+            "residual_risk": _coalesce_list(report, "residual_risk", "risks", "risk"),
         }
     if kind == "run-report":
         return {
@@ -186,6 +226,10 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
             "warnings": as_string_list(report.get("warnings")),
             "current_stage": report.get("current_stage"),
             "required_stage_chain": _string_list(report.get("required_stage_chain")),
+            "packet_id": _coalesce_string(report, "packet_id"),
+            "browser_proof_status": _coalesce_string(report, "browser_proof_status"),
+            "browser_proof_result": _coalesce_string(report, "browser_proof_result"),
+            "browser_proof_target": _coalesce_string(report, "browser_proof_target"),
         }
     if kind == "quality-gate":
         return {
@@ -261,6 +305,8 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
             "intent": detected.get("intent"),
             "required_stage_chain": _route_preview_required_stage_chain(report),
             "summary": report.get("activation_line"),
+            "browser_qa_classification": detected.get("browser_qa_classification"),
+            "browser_qa_scope": _string_list(detected.get("browser_qa_scope")),
         }
     return {
         **common_fields,
@@ -326,6 +372,63 @@ def _build_state(
     }
 
 
+def _merge_browser_proof_into_execution(current_execution: dict | None, run_entry: dict | None) -> dict | None:
+    if not isinstance(current_execution, dict) or not isinstance(run_entry, dict):
+        return current_execution
+    packet_id = run_entry.get("packet_id")
+    browser_proof_status = run_entry.get("browser_proof_status")
+    if not isinstance(packet_id, str) or not packet_id.strip():
+        return current_execution
+    if not isinstance(browser_proof_status, str) or not browser_proof_status.strip():
+        return current_execution
+    if current_execution.get("packet_id") != packet_id:
+        return current_execution
+
+    merged = dict(current_execution)
+    merged["browser_qa_status"] = browser_proof_status
+    result = run_entry.get("browser_proof_result")
+    if isinstance(result, str) and result.strip():
+        merged["browser_qa_last_result"] = result.strip()
+    merged["browser_qa_last_recorded_at"] = run_entry.get("recorded_at")
+    merged["browser_qa_last_source_path"] = run_entry.get("source_path")
+    return merged
+
+
+def _refresh_loaded_summary(state: dict) -> dict:
+    refreshed = dict(state)
+    summary = refreshed.get("summary")
+    if not isinstance(summary, dict):
+        refreshed["summary"] = summarize_workflow_state(
+            refreshed.get("latest_chain"),
+            refreshed.get("latest_execution"),
+            refreshed.get("latest_ui"),
+            refreshed.get("latest_run"),
+            refreshed.get("latest_gate"),
+            refreshed.get("latest_review"),
+            refreshed.get("latest_route_preview"),
+            preferred_kind=refreshed.get("last_recorded_kind"),
+        )
+        return refreshed
+
+    normalized_summary = dict(summary)
+    primary_kind = normalized_summary.get("primary_kind")
+    default_workflow = {
+        "execution-progress": "build",
+        "quality-gate": "review",
+        "review-state": "review",
+        "route-preview": "plan",
+        "run-report": "test",
+        "ui-progress": "session",
+        "chain-status": "session",
+    }.get(primary_kind, "session")
+    normalized_summary["suggested_workflow"] = workflow_hint_for_stage(
+        normalized_summary.get("suggested_workflow") or normalized_summary.get("current_stage") or refreshed.get("current_stage"),
+        default=default_workflow,
+    )
+    refreshed["summary"] = normalized_summary
+    return refreshed
+
+
 def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = None, source_path: Path | None = None) -> tuple[Path, Path]:
     entry = _entry(kind, report, source_path)
     if entry is None:
@@ -369,11 +472,14 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
         detected = _route_preview_detected(report)
         profile = detected.get("profile") or profile
         intent = detected.get("intent") or intent
+    latest_execution = entry if kind == "execution-progress" else current.get("latest_execution")
+    if kind == "run-report":
+        latest_execution = _merge_browser_proof_into_execution(latest_execution, entry)
     state = _build_state(
         project=entry["project"],
         preferred_kind=kind,
         latest_chain=entry if kind == "chain-status" else current.get("latest_chain"),
-        latest_execution=entry if kind == "execution-progress" else current.get("latest_execution"),
+        latest_execution=latest_execution,
         latest_ui=entry if kind == "ui-progress" else current.get("latest_ui"),
         latest_run=entry if kind == "run-report" else current.get("latest_run"),
         latest_gate=entry if kind == "quality-gate" else current.get("latest_gate"),
@@ -406,7 +512,7 @@ def resolve_workflow_state(workspace: Path, warnings: list[str] | None = None) -
     if latest_path is not None:
         payload = _read_json_object(latest_path, "workflow state", local_warnings)
         if isinstance(payload, dict):
-            return {"state": payload, "path": str(latest_path), "source": "workflow-state"}
+            return {"state": _refresh_loaded_summary(payload), "path": str(latest_path), "source": "workflow-state"}
     sources = {
         "execution-progress": _pick_latest_json(workspace / ".forge-artifacts" / "execution-progress"),
         "chain-status": _pick_latest_json(workspace / ".forge-artifacts" / "chain-status"),

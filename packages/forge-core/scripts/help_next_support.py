@@ -4,7 +4,7 @@ import json
 import subprocess
 from pathlib import Path
 
-from workflow_state_summary import summary_items, summary_text, workflow_summary
+from workflow_state_summary import summary_items, summary_text, workflow_hint_for_stage, workflow_summary
 
 
 MARKER_FILES = ("README.md", "README", "package.json", "pyproject.toml", "go.mod", "pom.xml", "build.gradle", "Cargo.toml")
@@ -312,10 +312,25 @@ def build_recommendations(
     latest_adoption_check: dict | None = None,
 ) -> tuple[str, str, list[str]]:
     summary = workflow_summary(workflow_state)
-    workflow_name = summary_text(summary, "suggested_workflow")
     workflow_action = summary_text(summary, "recommended_action")
     workflow_alternatives = summary_items(summary, "alternatives")
     workflow_stage = workflow_state_stage(workflow_state)
+    workflow_name = workflow_hint_for_stage(
+        summary_text(summary, "suggested_workflow") or summary_text(summary, "current_stage") or workflow_stage,
+        default=workflow_hint_for_stage(
+            workflow_stage,
+            default={
+                "active-changes": "review",
+                "blocked": "debug",
+                "mapped": "map-codebase",
+                "planned": "plan",
+                "review-ready": "review",
+                "session-active": "session",
+                "change-active": "session",
+                "unscoped": "map-codebase",
+            }.get(stage, "session"),
+        ),
+    )
     workflow_follow_on = workflow_state_follow_on_stages(workflow_state)
     release_tier = release_tier_label(release_readiness)
     release_signal = adoption_signal_label(latest_adoption_check)
@@ -361,7 +376,7 @@ def build_recommendations(
                 alternatives.append(f"After '{workflow_stage}', continue into '{workflow_follow_on[0]}'.")
             if plan_title:
                 alternatives.append(f"Re-open the latest {plan_kind} '{plan_title}' if the recorded stage no longer matches the intended slice.")
-            return workflow_stage, f"Resume the recorded workflow stage '{workflow_stage}' before opening new scope.", alternatives[:1] if mode == "next" else alternatives[:2]
+            return workflow_hint_for_stage(workflow_stage, default="session"), f"Resume the recorded workflow stage '{workflow_stage}' before opening new scope.", alternatives[:1] if mode == "next" else alternatives[:2]
         summary = active_change.get("summary", active_change.get("slug", "change")) if isinstance(active_change, dict) else "active change"
         state = active_change.get("state", "active") if isinstance(active_change, dict) else "active"
         alternatives = ["Update the change status before new edits if reality drifted.", "Archive the change if the slice is already complete."]

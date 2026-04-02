@@ -86,7 +86,7 @@
     "kind": "decision",
     "scope": "forge-1-12-stable-status",
     "summary": "Treat 1.12.0 as the current stable Forge release because both the canonical release gate and the roadmap-complete closure sweep are green.",
-    "status": "resolved",
+    "status": "superseded",
     "evidence": [
       "python -m pytest tests/test_release_hardening.py tests/release_repo_test_contracts.py -q -> 26 passed, 82 subtests passed",
       "README.md and docs/release now declare 1.12.0 as the current stable release"
@@ -99,5 +99,27 @@
     "revisit_if": "A later release changes the stable line, reopens the roadmap-complete sweep, or invalidates the current release verification evidence.",
     "trigger": null,
     "resume_hint": "A later release changes the stable line, reopens the roadmap-complete sweep, or invalidates the current release verification evidence."
+  },
+  {
+    "id": "20260402-111622",
+    "kind": "decision",
+    "scope": "forge-1-13-stable-status",
+    "summary": "Treat 1.13.0 as the current stable Forge release because the build-packet enhancement line and the canonical repo verification gate are both green.",
+    "status": "resolved",
+    "evidence": [
+      "docs/plans/2026-04-02-forge-1.13.x-build-process-enhancement-roadmap.md",
+      "CHANGELOG.md",
+      "python scripts/verify_repo.py -> PASS on 2026-04-02"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "build-packets",
+      "workflow-state"
+    ],
+    "revisit_if": "A later release changes the stable line or invalidates the 1.13.0 verification evidence.",
+    "trigger": "minor-release",
+    "resume_hint": "A later release changes the stable line or invalidates the 1.13.0 verification evidence."
   }
 ]

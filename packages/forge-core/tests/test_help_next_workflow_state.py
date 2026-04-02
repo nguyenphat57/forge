@@ -91,9 +91,67 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
         self.assertEqual(report["status"], "PASS")
         self.assertEqual(report["current_stage"], "review-ready")
         self.assertEqual(report["suggested_workflow"], "review")
-        self.assertEqual(report["current_focus"], "Review ready: Offline reconciliation")
+        self.assertEqual(report["current_focus"], "Review ready: Offline reconciliation [offline-reconciliation]")
         self.assertIn("workflow-state", " ".join(report["evidence"]))
         self.assertEqual(report["signals"]["workflow_state_source"], "workflow-state")
+
+    def test_next_normalizes_legacy_execution_summary_to_valid_workflow(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            state_dir = workspace / ".forge-artifacts" / "workflow-state" / "workflow-workspace"
+            state_dir.mkdir(parents=True, exist_ok=True)
+            (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
+            (workspace / "package.json").write_text('{"name":"workflow-workspace"}\n', encoding="utf-8")
+            (state_dir / "latest.json").write_text(
+                json.dumps(
+                    {
+                        "project": "Workflow Workspace",
+                        "current_stage": "integration",
+                        "last_recorded_kind": "execution-progress",
+                        "latest_execution": {
+                            "kind": "execution-progress",
+                            "label": "Offline reconciliation",
+                            "packet_id": "packet-reconciliation",
+                            "status": "active",
+                            "current_stage": "integration",
+                            "completion_state": "in-progress",
+                            "next_steps": ["Run integration verification"],
+                            "blockers": [],
+                            "residual_risk": [],
+                        },
+                        "summary": {
+                            "status": "active",
+                            "primary_kind": "execution-progress",
+                            "current_focus": "Build packet: Offline reconciliation [packet-reconciliation]",
+                            "current_stage": "integration",
+                            "suggested_workflow": "integration",
+                            "recommended_action": "Continue the active execution slice.",
+                            "alternatives": [],
+                        },
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+
+        self.assertEqual(report["current_stage"], "session-active")
+        self.assertEqual(report["suggested_workflow"], "build")
+        self.assertEqual(report["current_focus"], "Build packet: Offline reconciliation [packet-reconciliation]")
+        self.assertEqual(report["signals"]["workflow_summary"]["suggested_workflow"], "build")
 
     def test_next_uses_blocked_quality_gate_when_it_is_last_recorded(self) -> None:
         with TemporaryDirectory() as temp_dir:

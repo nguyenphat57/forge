@@ -102,6 +102,7 @@ Rules:
 - `implementer` is responsible for reproduction, root-cause proof, minimal fix, and focused verification
 - `quality-reviewer` is responsible for challenging the root cause, checking evidence of contract response, and finalizing containment/regression stance
 - If investigation shows that the bug is actually a contract/system-shape issue, stop the debug loop and route to `plan` or `architect`
+- If the bug is UI or workflow-sensitive, mark browser QA in the packet explicitly instead of bolting browser checks on after the fix
 
 ## Lane Model Stance
 
@@ -216,10 +217,12 @@ Bug reports:
 - Classification: [small/large]
 - Execution pipeline: [single-lane / implementer-quality]
 - Lane model stance: [implementer=...; quality-reviewer=...]
+- Packet ID / current slice: [...]
 - Root cause: [...]
 - Lens finally helps: [code/data/environment]
 - Fixed: [...]
 - Verified: [command/check] -> [result]
+- Verification to rerun / browser QA if applicable: [...]
 - Evidence response: [I verified:... / I investigated:... / Clarification needed:...]
 - Escalation: [none / plan / architect]
 - Prevention: [...]

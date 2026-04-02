@@ -1,6 +1,14 @@
 # Changelog
 
-## 1.12.0 (stable) - 2026-04-01
+## 1.13.0 (stable) - 2026-04-02
+
+- Turn `1.13.0` into Forge's first build-process enhancement release by freezing a canonical build-packet contract across execution progress, chain status, workflow summaries, and host-facing dispatch guidance.
+- Make `help`, `next`, and dashboard state-first for active build packets, pending browser QA proof, and next merge points, so medium and large build work resumes from workflow-state instead of reconstructed chat context.
+- Keep browser QA packet-scoped and evidence-backed by classifying packet eligibility in routing, recording browser proof into workflow-state through the runtime wrapper, and hardening the wrapper so downstream runtime-tool flags are forwarded intact.
+- Expand regression coverage for packetized build execution, legacy workflow-summary normalization, runtime-tool forwarding, and release verification, then mark `1.13.0` as the current stable Forge release after the canonical repo gate passes.
+
+
+## 1.12.0 - 2026-04-01
 
 - Mature Forge into a stronger solo-dev operating model by freezing a canonical four-tier release contract, feeding bounded adoption signals back into release readiness, and keeping release follow-up packets explicit instead of ad hoc.
 - Make `help`, `next`, and dashboard summaries read real release-tail state, including workflow stage, release tier, latest gate, and latest adoption signal, so long-running release work no longer depends on operator memory.

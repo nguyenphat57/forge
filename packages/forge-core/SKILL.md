@@ -308,6 +308,8 @@ Verification profiles canonical live in `data/orchestrator-registry.json`.
 - Forge uses `execution pipeline` to avoid implementing and reviewing in the same lane.
 - Forge uses `lane model tiers` to optimize cost: navigation/triage can be cheaper than spec-review or release gates.
 - Forge uses `quality-gate` as canonical source for evidence response contract and anti-rationalization.
+- Forge uses build packets for medium/large execution; `track_execution_progress.py` is the packet source of truth and summaries are read models.
+- Dispatch language should stay compatible across `parallel-split`, `independent-reviewer`, and `controller-sequential`; host capability changes dispatch mode, not packet semantics.
 - The `spec-review` loop allows at most `3` revision rounds for the same packet. Beyond that threshold, the status must become `blocked`.
 
 ## Solo Profile And Workflow-State Contract

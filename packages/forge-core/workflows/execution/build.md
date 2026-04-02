@@ -91,10 +91,16 @@ Before editing `medium/large`, the build must close the slice under construction
 
 ```text
 Execution packet:
+- Packet ID: [...]
+- Parent packet: [...]
 - Sources: [plan/spec/design/spec-review]
+- Goal: [...]
 - Current slice: [...]
 - Baseline: [...]
 - Exact files / path scope: [...]
+- Owned files / write scope: [...]
+- Verification to rerun: [...]
+- Browser QA classification: [not-needed / optional-accelerator / required-for-this-packet]
 - Proof before progress: [...]
 - Out of scope for this slice: [...]
 - Reopen if: [...]
@@ -105,6 +111,7 @@ Rules:
 - Do not edit until the baseline command or check is named.
 - Don't combine multiple slices into one edit just because it's "convenient".
 - If you need to touch a file/boundary outside the packet to save the design, stop and reopen `plan`, `architect`, or `spec-review`
+- `track_execution_progress.py` is the canonical packet record for medium/large build work; summaries and dispatch wrappers should read from that packet instead of inventing a second schema
 
 ## Execution Mode Selection
 
@@ -195,11 +202,14 @@ When building actually uses `subagent-split`, each subagent must receive packets
 
 ```text
 Delegation packets:
+- Packet ID / parent packet: [...]
 - Slice goal: [...]
 - Owned files / write scope: [...]
+- Depends on packets: [...]
 - Shared reads allowed: [...]
 - Proof before progress: [...]
 - Verification to rerun before handoff: [...]
+- Browser QA classification/scope/status: [...]
 - Return with: [status, changed files, verification, residual risk]
 ```
 

@@ -11,6 +11,11 @@ from workflow_state_support import record_workflow_event
 VALID_STATUSES = ("active", "paused", "completed", "blocked")
 
 
+def _list_arg(args: argparse.Namespace, name: str) -> list[str]:
+    value = getattr(args, name, None)
+    return [item for item in value if isinstance(item, str) and item.strip()] if isinstance(value, list) else []
+
+
 def parse_lane_model_assignments(items: list[str]) -> dict[str, str]:
     assignments: dict[str, str] = {}
     for item in items:
@@ -42,6 +47,14 @@ def build_report(args: argparse.Namespace) -> dict:
         "active_skills": args.active_skill,
         "active_lanes": args.active_lane,
         "lane_model_assignments": parse_lane_model_assignments(args.lane_model),
+        "active_packets": _list_arg(args, "active_packet"),
+        "blocked_packets": _list_arg(args, "blocked_packet"),
+        "review_ready_packets": _list_arg(args, "review_ready_packet"),
+        "merge_ready_packets": _list_arg(args, "merge_ready_packet"),
+        "next_merge_point": getattr(args, "next_merge_point", None),
+        "browser_qa_pending": _list_arg(args, "browser_qa_pending"),
+        "write_scope_overlaps": _list_arg(args, "write_scope_overlap"),
+        "sequential_reasons": _list_arg(args, "sequential_reason"),
         "blockers": args.blocker,
         "risks": args.risk,
         "gate_decision": args.gate_decision,
@@ -65,6 +78,13 @@ def format_text(report: dict) -> str:
         ("Next stages", report["next_stages"]),
         ("Active skills", report["active_skills"]),
         ("Active lanes", report["active_lanes"]),
+        ("Active packets", report["active_packets"]),
+        ("Blocked packets", report["blocked_packets"]),
+        ("Review-ready packets", report["review_ready_packets"]),
+        ("Merge-ready packets", report["merge_ready_packets"]),
+        ("Browser QA pending", report["browser_qa_pending"]),
+        ("Write-scope overlaps", report["write_scope_overlaps"]),
+        ("Sequential reasons", report["sequential_reasons"]),
         ("Blockers", report["blockers"]),
         ("Risks", report["risks"]),
     ):
@@ -81,6 +101,7 @@ def format_text(report: dict) -> str:
             lines.append(f"  - {lane}: {tier}")
     else:
         lines.append("- Lane model assignments: (none)")
+    lines.append(f"- Next merge point: {report['next_merge_point'] or '(none)'}")
     return "\n".join(lines)
 
 
@@ -111,6 +132,14 @@ def main() -> int:
     parser.add_argument("--next-stage", action="append", default=[], help="Next stage. Repeatable.")
     parser.add_argument("--active-skill", action="append", default=[], help="Currently active skill. Repeatable.")
     parser.add_argument("--active-lane", action="append", default=[], help="Currently active lane. Repeatable.")
+    parser.add_argument("--active-packet", action="append", default=[], help="Active packet identifier. Repeatable.")
+    parser.add_argument("--blocked-packet", action="append", default=[], help="Blocked packet identifier. Repeatable.")
+    parser.add_argument("--review-ready-packet", action="append", default=[], help="Review-ready packet identifier. Repeatable.")
+    parser.add_argument("--merge-ready-packet", action="append", default=[], help="Merge-ready packet identifier. Repeatable.")
+    parser.add_argument("--next-merge-point", default=None, help="Next merge point for active packets")
+    parser.add_argument("--browser-qa-pending", action="append", default=[], help="Packet awaiting browser QA proof. Repeatable.")
+    parser.add_argument("--write-scope-overlap", action="append", default=[], help="Write-scope overlap note. Repeatable.")
+    parser.add_argument("--sequential-reason", action="append", default=[], help="Why the chain remains sequential. Repeatable.")
     parser.add_argument(
         "--lane-model",
         action="append",

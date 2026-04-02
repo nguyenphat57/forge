@@ -219,6 +219,14 @@ class ToolRoundTripTests(unittest.TestCase):
                     active_skill=["build"],
                     active_lane=["implementer"],
                     lane_model=["implementer=capable"],
+                    active_packet=["packet-checkout-api"],
+                    blocked_packet=[],
+                    review_ready_packet=[],
+                    merge_ready_packet=[],
+                    next_merge_point="merge-api-and-ui",
+                    browser_qa_pending=[],
+                    write_scope_overlap=[],
+                    sequential_reason=[],
                     blocker=[],
                     risk=["Merge verification still pending"],
                     gate_decision=None,
@@ -238,6 +246,16 @@ class ToolRoundTripTests(unittest.TestCase):
                     project_name="Example Project",
                     lane="implementer",
                     model_tier="capable",
+                    packet_id="packet-reconciliation",
+                    parent_packet="packet-checkout",
+                    goal="Stabilize offline reconciliation before merge",
+                    source=["docs/specs/reconciliation.md"],
+                    scope_path=["src/reconciliation.ts"],
+                    owned_scope=["src/reconciliation.ts"],
+                    verify_again=["python -m pytest tests/test_reconciliation.py -q"],
+                    browser_qa_classification="not-needed",
+                    browser_qa_scope=[],
+                    browser_qa_status="not-needed",
                     proof=["failing reconciliation reproduction"],
                     done=["Added reconciliation service skeleton"],
                     next_step=["Wire retry policy into sync manager"],
@@ -273,7 +291,19 @@ class ToolRoundTripTests(unittest.TestCase):
             self.assertEqual(state["latest_execution"]["source_path"], str(execution_json_path))
             self.assertEqual(state["latest_ui"]["source_path"], str(ui_json_path))
             self.assertEqual(state["summary"]["primary_kind"], "execution-progress")
-            self.assertEqual(state["summary"]["current_focus"], "Execution task: Offline reconciliation")
+            self.assertEqual(state["latest_chain"]["active_packets"], ["packet-checkout-api"])
+            self.assertEqual(state["latest_chain"]["next_merge_point"], "merge-api-and-ui")
+            self.assertEqual(state["latest_execution"]["packet_id"], "packet-reconciliation")
+            self.assertEqual(state["latest_execution"]["parent_packet"], "packet-checkout")
+            self.assertEqual(state["latest_execution"]["goal"], "Stabilize offline reconciliation before merge")
+            self.assertEqual(state["latest_execution"]["source_of_truth"], ["docs/specs/reconciliation.md"])
+            self.assertEqual(state["latest_execution"]["exact_files_or_paths_in_scope"], ["src/reconciliation.ts"])
+            self.assertEqual(state["latest_execution"]["owned_files_or_write_scope"], ["src/reconciliation.ts"])
+            self.assertEqual(state["latest_execution"]["verification_to_rerun"], ["python -m pytest tests/test_reconciliation.py -q"])
+            self.assertEqual(state["latest_execution"]["browser_qa_classification"], "not-needed")
+            self.assertEqual(state["summary"]["current_focus"], "Build packet: Offline reconciliation [packet-reconciliation]")
+            self.assertEqual(state["summary"]["suggested_workflow"], "build")
+            self.assertEqual(state["summary"]["active_packets"], ["packet-reconciliation"])
 
             run_report = {
                 "status": "PASS",
@@ -331,6 +361,16 @@ class ToolRoundTripTests(unittest.TestCase):
                     project_name="Example Project",
                     lane="implementer",
                     model_tier="capable",
+                    packet_id="packet-reconciliation",
+                    parent_packet="packet-checkout",
+                    goal="Stabilize offline reconciliation before merge",
+                    source=["docs/specs/reconciliation.md"],
+                    scope_path=["src/reconciliation.ts"],
+                    owned_scope=["src/reconciliation.ts"],
+                    verify_again=["python -m pytest tests/test_reconciliation.py -q"],
+                    browser_qa_classification="optional-accelerator",
+                    browser_qa_scope=["checkout retry flow"],
+                    browser_qa_status="pending",
                     proof=["failing reconciliation reproduction"],
                     done=["Added reconciliation service skeleton"],
                     next_step=["Run merge readiness smoke"],
@@ -352,12 +392,16 @@ class ToolRoundTripTests(unittest.TestCase):
         self.assertEqual(state["latest_execution"]["source_path"], str(execution_json_path))
         self.assertEqual(state["latest_execution"]["completion_state"], "ready-for-merge")
         self.assertEqual(state["latest_execution"]["next_steps"], ["Run merge readiness smoke"])
-        self.assertEqual(state["latest_execution"]["risks"], ["End-to-end verification still pending"])
+        self.assertEqual(state["latest_execution"]["residual_risk"], ["End-to-end verification still pending"])
+        self.assertEqual(state["latest_execution"]["browser_qa_classification"], "optional-accelerator")
+        self.assertEqual(state["latest_execution"]["browser_qa_status"], "pending")
+        self.assertEqual(state["latest_execution"]["browser_qa_scope"], ["checkout retry flow"])
         self.assertEqual(execution_report["lane"], "implementer")
         self.assertEqual(execution_report["model_tier"], "capable")
         self.assertEqual(state["summary"]["status"], "review-ready")
         self.assertEqual(state["summary"]["suggested_workflow"], "review")
-        self.assertEqual(state["summary"]["current_focus"], "Review ready: Offline reconciliation")
+        self.assertEqual(state["summary"]["current_focus"], "Review ready: Offline reconciliation [packet-reconciliation]")
+        self.assertEqual(state["summary"]["browser_qa_pending"], ["packet-reconciliation"])
 
     def test_solo_profile_recorders_update_workflow_state_spine(self) -> None:
         with TemporaryDirectory() as temp_dir:

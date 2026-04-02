@@ -1,72 +1,52 @@
 ---
 name: dashboard
 type: flexible
+triggers:
+  - operator asks for a concise workspace status board
+  - long-running build or release work needs a quick scan surface
 quality_gates:
-  - Workspace state summarized from durable artifacts
-  - Active verification and release signals surfaced
+  - Dashboard is a read model over existing artifacts
+  - No invented telemetry or percentage progress
+  - Packet state, release state, and next action stay grounded in persisted evidence
 ---
 
-# Dashboard - Solo-Dev Work State
+# Dashboard - Thin Workspace Status View
 
-## Intent
+> Goal: show the current Forge state quickly without replacing packet artifacts, workflow-state, or quality gates.
 
-Render one terminal-first snapshot of the current workspace so the solo dev does not need to dig through `.brain`, plans, change artifacts, quality gates, canaries, and runtime tool state manually.
+<HARD-GATE>
+- Do not invent progress percentages, LOC counters, or "velocity" metrics.
+- Do not let the dashboard become the source of truth for packets or release state.
+- If the dashboard and the persisted packet disagree, trust the packet artifact and fix the read model.
+</HARD-GATE>
 
 ## Use When
 
-- returning to an existing repo after a break
-- checking whether the current slice is blocked, review-ready, or still active
-- checking whether release signals are missing before shipping
+- a long-running build chain needs a quick scan of packet status, browser QA pending, or next merge point
+- release-tail work needs one glanceable view of tier, gate, and adoption signal
+- the operator needs a fast "where am I?" surface before opening the deeper artifacts
 
-## Inputs
+## Process
 
-- workspace root
-- `.brain/session.json`
-- `.brain/decisions.json`
-- `.brain/learnings.json`
-- latest plan/spec
-- codebase map if present
-- workflow-state or legacy workflow artifacts
-- active change artifact if present
-- latest release-doc sync, workspace canary, and release-readiness reports if present
-
-## Output
-
-The dashboard should show:
-
-- current stage
-- current focus
-- next workflow
-- recommended action
-- latest verification
-- continuity counts
-- companion matches
-- runtime tool health
-- release-state hints
-
-## Hard Rules
-
-- prefer durable artifacts over chat memory
-- surface missing evidence explicitly instead of smoothing it over
-- do not say a slice is ready when the latest quality gate or release signal disagrees
-
-## Verification
-
-- dashboard reflects a real workspace without manual editing
-- dashboard can run on a workspace with only partial artifacts
-- release state appears when release-doc sync or canary artifacts exist
-
-## How To Run
+1. Read the latest workflow-state and related persisted artifacts.
+2. Render the dashboard with:
 
 ```powershell
-python scripts/dashboard.py --workspace <workspace> --persist --format json
+python scripts/dashboard.py --workspace <workspace>
 ```
 
-Persisted artifacts:
-- `.forge-artifacts/dashboard/latest.json`
-- `.forge-artifacts/dashboard/history/`
+3. If the dashboard reveals a blocker, stale packet, or drift, open the underlying artifact and act there.
 
-After running:
-- use `next` if the dashboard shows a concrete active slice
-- use `doctor` if the dashboard suggests runtime or workspace health is suspect
-- use `map-codebase` if the repo is still effectively unscoped
+## What The Dashboard Should Surface
+
+- current stage and focus
+- next workflow and recommended action
+- active packets, blocked packets, and review-ready packets when present
+- browser QA pending and next merge point when packet state carries them
+- latest gate, release tier, and latest adoption signal when release-tail work is active
+
+## Activation Announcement
+
+```text
+Forge: dashboard | thin view over packet state and release state
+```

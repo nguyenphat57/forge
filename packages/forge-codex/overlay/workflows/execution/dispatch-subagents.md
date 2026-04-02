@@ -66,13 +66,16 @@ Every spawned subagent gets a self-contained packet:
 
 ```text
 Delegation packet:
+- Packet ID / parent packet: [...]
 - Goal: [...]
 - Current slice or review question: [...]
+- Depends on packets: [...]
 - Owned files / write scope: [...]
 - Files to avoid: [...]
 - Allowed reads / supporting artifacts: [...]
 - Proof before progress: [...]
 - Verification to rerun: [...]
+- Browser QA classification / scope / status: [...]
 - Return contract: [status, changed files, verification, residual risk]
 ```
 

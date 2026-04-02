@@ -56,9 +56,19 @@ Challenge a change when it mainly adds:
 - help and next should read the actual operating state instead of inventing guidance from repo shape alone
 - adapter surfaces should tell one coherent story about routing, gates, and aliases
 
+## 1.13.x Target
+
+`1.13.x` should make build execution feel as intentional as release execution:
+
+- medium and large build work should default to a build packet instead of loose checkpoints
+- `track_execution_progress.py` should stay the canonical packet source of truth, while summaries and adapters remain read models
+- help and next should resume the active packet, pending proof, and next merge point from workflow-state instead of reconstructing the slice from chat
+- host-native acceleration should preserve one packet contract across `controller-sequential`, `independent-reviewer`, and `parallel-split`
+- browser QA should stay targeted, packet-scoped, and evidence-backed instead of becoming a generic mandatory gate
+
 ## Deferred Boundary
 
-The following belong to `1.13+` unless a later `1.12.x` slice explicitly promotes them:
+The following belong to `1.14+` unless a later `1.13.x` slice explicitly promotes them:
 
 - installed-runtime health or doctor-style live host verification: defer because `1.12.x` is about operating-model maturity, not adding new live-host trust surfaces.
 - host rollout ledgers: defer because the current release-tail contract already records enough state for solo-dev maturity without introducing a second tracking system.

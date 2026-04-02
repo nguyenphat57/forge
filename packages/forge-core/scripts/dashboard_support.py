@@ -82,6 +82,26 @@ def _latest_verification(workflow_state: dict | None, active_change: dict | None
     return None
 
 
+def _summary_list(workflow_state: dict | None, key: str) -> list[str]:
+    if not isinstance(workflow_state, dict):
+        return []
+    summary = workflow_state.get("summary")
+    if not isinstance(summary, dict):
+        return []
+    value = summary.get(key)
+    return [item for item in value if isinstance(item, str) and item.strip()] if isinstance(value, list) else []
+
+
+def _summary_text(workflow_state: dict | None, key: str) -> str | None:
+    if not isinstance(workflow_state, dict):
+        return None
+    summary = workflow_state.get("summary")
+    if not isinstance(summary, dict):
+        return None
+    value = summary.get(key)
+    return value.strip() if isinstance(value, str) and value.strip() else None
+
+
 def build_dashboard_report(workspace: Path) -> dict:
     warnings: list[str] = []
     readme = next((candidate for candidate in (workspace / "README.md", workspace / "README") if candidate.exists()), None)
@@ -181,9 +201,20 @@ def build_dashboard_report(workspace: Path) -> dict:
         "brownfield": brownfield,
         "active_change": active_change,
         "workflow_state": {"path": workflow_source.get("path"), "summary": (workflow_state or {}).get("summary")},
+        "active_packets": _summary_list(workflow_state, "active_packets"),
+        "blocked_packets": _summary_list(workflow_state, "blocked_packets"),
+        "review_ready_packets": _summary_list(workflow_state, "review_ready_packets"),
+        "merge_ready_packets": _summary_list(workflow_state, "merge_ready_packets"),
+        "browser_qa_pending": _summary_list(workflow_state, "browser_qa_pending"),
+        "next_merge_point": _summary_text(workflow_state, "next_merge_point"),
         "release_tier": release_tier_label(release_readiness),
         "latest_gate": latest_gate,
         "latest_adoption_signal": adoption_signal_label(adoption_check),
+        "latest_browser_proof": (
+            (workflow_state or {}).get("latest_run", {}).get("browser_proof_status")
+            if isinstance((workflow_state or {}).get("latest_run"), dict)
+            else None
+        ),
         "latest_verification": latest_verification,
         "repo_signals": collect_repo_signals(workspace),
         "git": git_state,
@@ -227,6 +258,10 @@ def format_dashboard_text(report: dict) -> str:
         f"- Codebase map: {'ready' if report['brownfield']['mapped'] else 'missing'}",
         f"- Latest gate: {(report.get('latest_gate') or {}).get('decision') or (report['latest_verification'] or {}).get('kind') or '(none)'}",
         f"- Latest adoption signal: {report.get('latest_adoption_signal') or '(none)'}",
+        f"- Active packets: {', '.join(report.get('active_packets') or []) or '(none)'}",
+        f"- Browser QA pending: {', '.join(report.get('browser_qa_pending') or []) or '(none)'}",
+        f"- Next merge point: {report.get('next_merge_point') or '(none)'}",
+        f"- Latest browser proof: {report.get('latest_browser_proof') or '(none)'}",
         f"- Latest verification: {(report['latest_verification'] or {}).get('kind') or '(none)'}",
         f"- Optional companions: {', '.join(item['id'] for item in report['companions']) or '(none)'}",
         "- Runtime tools:",

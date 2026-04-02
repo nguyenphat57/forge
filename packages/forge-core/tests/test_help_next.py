@@ -302,5 +302,68 @@ class HelpNextTests(unittest.TestCase):
         self.assertEqual(report["signals"]["release_readiness_tier"], "public-broad")
         self.assertIn("supports / high", report["signals"]["latest_adoption_signal"])
 
+    def test_next_prefers_packet_resume_and_browser_qa_when_execution_packet_requires_it(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir) / "workspace"
+            workspace.mkdir(parents=True, exist_ok=True)
+            _write_json(
+                workspace / ".forge-artifacts" / "workflow-state" / "checkout" / "latest.json",
+                {
+                    "project": "checkout",
+                    "profile": "solo-internal",
+                    "intent": "BUILD",
+                    "current_stage": "build",
+                    "required_stage_chain": ["plan", "build", "test", "quality-gate"],
+                    "latest_execution": {
+                        "kind": "execution-progress",
+                        "label": "Checkout flow polish",
+                        "packet_id": "packet-checkout-ui",
+                        "status": "active",
+                        "current_stage": "build",
+                        "completion_state": "in-progress",
+                        "next_steps": ["Run browser walkthrough for checkout flow"],
+                        "blockers": [],
+                        "residual_risk": ["Keyboard path not rechecked yet"],
+                        "browser_qa_classification": "required-for-this-packet",
+                        "browser_qa_scope": ["checkout flow"],
+                        "browser_qa_status": "pending",
+                    },
+                    "summary": {
+                        "status": "active",
+                        "primary_kind": "execution-progress",
+                        "current_focus": "Build packet: Checkout flow polish [packet-checkout-ui]",
+                        "current_stage": "build",
+                        "suggested_workflow": "build",
+                        "recommended_action": "Resume packet 'packet-checkout-ui' and clear the pending browser QA proof before starting a new slice.",
+                        "alternatives": [
+                            "After browser QA, continue into 'test'.",
+                            "Keep the residual risk visible: Keyboard path not rechecked yet.",
+                        ],
+                        "active_packets": ["packet-checkout-ui"],
+                        "browser_qa_pending": ["packet-checkout-ui"],
+                    },
+                },
+            )
+            (workspace / "README.md").write_text("# Checkout\n", encoding="utf-8")
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+
+        self.assertEqual(report["current_stage"], "session-active")
+        self.assertEqual(report["suggested_workflow"], "build")
+        self.assertEqual(report["current_focus"], "Build packet: Checkout flow polish [packet-checkout-ui]")
+        self.assertIn("pending browser QA proof", report["recommended_action"])
+        self.assertEqual(report["signals"]["workflow_summary"]["browser_qa_pending"], ["packet-checkout-ui"])
+
 if __name__ == "__main__":
     unittest.main()

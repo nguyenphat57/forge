@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from functools import lru_cache
+from pathlib import Path
+
 
 EVENT_ORDER = (
     "quality-gate",
@@ -8,6 +11,33 @@ EVENT_ORDER = (
     "run-report",
     "ui-progress",
     "chain-status",
+)
+
+STAGE_WORKFLOW_ALIASES = {
+    "active-changes": "review",
+    "blocked": "debug",
+    "change-active": "session",
+    "implementation": "build",
+    "implement": "build",
+    "integration": "build",
+    "mapped": "map-codebase",
+    "release-check": "test",
+    "release-checks": "test",
+    "review-ready": "review",
+    "session-active": "session",
+    "unscoped": "map-codebase",
+}
+
+WORKFLOW_HINT_MARKERS = (
+    ("debug", ("debug", "triage", "investigat", "repro", "fix", "failure")),
+    ("review", ("review", "handoff", "signoff")),
+    ("quality-gate", ("gate",)),
+    ("release-readiness", ("rollout-readiness", "launch-readiness")),
+    ("release-doc-sync", ("doc-sync", "docs-sync")),
+    ("verify-change", ("verify-change",)),
+    ("test", ("test", "verify", "verification", "check", "smoke", "qa", "assert")),
+    ("build", ("build", "implement", "integration", "migrat", "refactor", "slice", "checkpoint", "coding", "develop")),
+    ("session", ("session",)),
 )
 
 
@@ -27,8 +57,54 @@ def combine_unique(*groups: list[str]) -> list[str]:
     return values
 
 
+def _packet_suffix(entry: dict | None) -> str:
+    if not isinstance(entry, dict):
+        return ""
+    packet_id = entry.get("packet_id")
+    return f" [{packet_id}]" if isinstance(packet_id, str) and packet_id.strip() else ""
+
+
+def _packet_label(entry: dict | None) -> str | None:
+    if not isinstance(entry, dict):
+        return None
+    label = entry.get("label")
+    return label if isinstance(label, str) and label.strip() else None
+
+
 def _gate_workflow(target_claim: str) -> str:
     return "deploy" if target_claim == "deploy" else "review"
+
+
+@lru_cache(maxsize=1)
+def _known_workflow_names() -> set[str]:
+    workflow_root = Path(__file__).resolve().parents[1] / "workflows"
+    if not workflow_root.exists():
+        return set()
+    return {candidate.stem.casefold() for candidate in workflow_root.rglob("*.md")}
+
+
+def workflow_hint_for_stage(stage: str | None, *, default: str) -> str:
+    known = _known_workflow_names()
+    normalized_default = default.casefold()
+    if normalized_default not in known:
+        normalized_default = "session" if "session" in known else default
+    if not isinstance(stage, str) or not stage.strip():
+        return normalized_default
+
+    lowered = stage.strip().casefold()
+    if lowered in known:
+        return lowered
+
+    alias = STAGE_WORKFLOW_ALIASES.get(lowered)
+    if isinstance(alias, str) and alias in known:
+        return alias
+
+    for workflow, markers in WORKFLOW_HINT_MARKERS:
+        if workflow not in known:
+            continue
+        if any(marker in lowered for marker in markers):
+            return workflow
+    return normalized_default
 
 
 def _route_preview_follow_on_stages(entry: dict | None) -> list[str]:
@@ -58,7 +134,7 @@ def _route_preview_summary(entry: dict | None) -> dict | None:
         "primary_kind": "route-preview",
         "current_focus": f"Recorded workflow stage: {current_stage}",
         "current_stage": current_stage,
-        "suggested_workflow": current_stage,
+        "suggested_workflow": workflow_hint_for_stage(current_stage, default="plan"),
         "recommended_action": f"Resume the recorded workflow stage '{current_stage}' before opening new scope.",
         "alternatives": alternatives,
     }
@@ -85,6 +161,7 @@ def summarize_workflow_state(
         as_string_list((latest_review or {}).get("testing_gaps")),
         as_string_list((latest_review or {}).get("findings")),
         as_string_list((latest_gate or {}).get("risks")),
+        as_string_list((latest_execution or {}).get("residual_risk")),
         as_string_list((latest_execution or {}).get("risks")),
         as_string_list((latest_chain or {}).get("risks")),
     )
@@ -185,35 +262,63 @@ def summarize_workflow_state(
                 "alternatives": alternatives,
             }
         if kind == "execution-progress":
+            packet_label = _packet_label(entry) or "Unnamed packet"
+            packet_suffix = _packet_suffix(entry)
             completion_state = entry.get("completion_state")
+            browser_qa_status = entry.get("browser_qa_status")
+            browser_qa_classification = entry.get("browser_qa_classification")
+            browser_pending = (
+                browser_qa_classification in {"optional-accelerator", "required-for-this-packet"}
+                and browser_qa_status in {"pending", "active", "blocked"}
+            )
+            active_packets = [entry.get("packet_id") or packet_label]
+            browser_qa_pending = active_packets if browser_pending else []
             if entry.get("status") == "blocked" or completion_state == "blocked-by-residual-risk" or blockers:
                 return {
                     "status": "blocked",
                     "primary_kind": kind,
-                    "current_focus": f"Blocked execution: {entry['label']}",
+                    "current_focus": f"Blocked execution: {packet_label}{packet_suffix}",
                     "current_stage": entry["current_stage"],
                     "suggested_workflow": "debug",
-                    "recommended_action": f"Resolve the execution blocker first: {blockers[0] if blockers else entry['label']}.",
+                    "recommended_action": f"Resolve the execution blocker first: {blockers[0] if blockers else packet_label}.",
                     "alternatives": next_steps[:2],
+                    "active_packets": active_packets,
+                    "blocked_packets": active_packets,
+                    "browser_qa_pending": browser_qa_pending,
                 }
             if completion_state in {"ready-for-review", "ready-for-merge"}:
+                action = f"Run review and verification for '{packet_label}' before starting a new slice."
+                if browser_pending:
+                    action = f"Run review for '{packet_label}' after clearing the pending browser QA proof."
                 return {
                     "status": "review-ready",
                     "primary_kind": kind,
-                    "current_focus": f"Review ready: {entry['label']}",
+                    "current_focus": f"Review ready: {packet_label}{packet_suffix}",
                     "current_stage": entry["current_stage"],
                     "suggested_workflow": "review",
-                    "recommended_action": f"Run review and verification for '{entry['label']}' before starting a new slice.",
+                    "recommended_action": action,
                     "alternatives": next_steps[:2] or risks[:1],
+                    "active_packets": active_packets,
+                    "review_ready_packets": active_packets,
+                    "browser_qa_pending": browser_qa_pending,
                 }
+            action = (
+                f"Resume packet '{entry['packet_id']}' and clear the pending browser QA proof before starting a new slice."
+                if browser_pending and isinstance(entry.get("packet_id"), str) and entry.get("packet_id")
+                else f"Continue '{packet_label}' with the next recorded step: {next_steps[0]}."
+                if next_steps
+                else f"Continue the active execution slice: {packet_label}."
+            )
             return {
                 "status": "active",
                 "primary_kind": kind,
-                "current_focus": f"Execution task: {entry['label']}",
+                "current_focus": f"Build packet: {packet_label}{packet_suffix}",
                 "current_stage": entry["current_stage"],
-                "suggested_workflow": "session",
-                "recommended_action": f"Continue '{entry['label']}' with the next recorded step: {next_steps[0]}." if next_steps else f"Continue the active execution slice: {entry['label']}.",
+                "suggested_workflow": workflow_hint_for_stage(entry.get("current_stage"), default="build"),
+                "recommended_action": action,
                 "alternatives": next_steps[1:3] or risks[:1],
+                "active_packets": active_packets,
+                "browser_qa_pending": browser_qa_pending,
             }
         if kind == "run-report":
             blocked = entry.get("state") in {"failed", "timed-out"}
@@ -222,7 +327,10 @@ def summarize_workflow_state(
                 "primary_kind": kind,
                 "current_focus": f"Run {'failed' if blocked else 'result'}: {entry['label']}",
                 "current_stage": entry.get("command_kind", "generic"),
-                "suggested_workflow": entry.get("suggested_workflow") or ("debug" if blocked else "test"),
+                "suggested_workflow": workflow_hint_for_stage(
+                    entry.get("suggested_workflow") or entry.get("current_stage"),
+                    default="debug" if blocked else "test",
+                ),
                 "recommended_action": entry.get("recommended_action") or "Inspect the latest run result before moving on.",
                 "alternatives": as_string_list(entry.get("warnings"))[:2] or next_steps[:1],
             }
@@ -279,14 +387,35 @@ def summarize_workflow_state(
                 "recommended_action": f"Run the current gate/review pass for '{entry['label']}' before advancing stages.",
                 "alternatives": next_steps[:2] or risks[:1],
             }
+        active_packets = as_string_list(entry.get("active_packets"))
+        blocked_packets = as_string_list(entry.get("blocked_packets"))
+        review_ready_packets = as_string_list(entry.get("review_ready_packets"))
+        merge_ready_packets = as_string_list(entry.get("merge_ready_packets"))
+        browser_qa_pending = as_string_list(entry.get("browser_qa_pending"))
+        next_merge_point = entry.get("next_merge_point")
+        action = (
+            f"Advance chain '{entry['label']}' to merge point '{next_merge_point}'."
+            if isinstance(next_merge_point, str) and next_merge_point.strip()
+            else f"Advance chain '{entry['label']}' to the next stage: {next_steps[0]}."
+            if next_steps
+            else f"Continue the active chain: {entry['label']}."
+        )
+        if browser_qa_pending:
+            action = f"{action} Clear pending browser QA for: {', '.join(browser_qa_pending)}."
         return {
             "status": "active",
             "primary_kind": kind,
             "current_focus": f"Chain: {entry['label']}",
             "current_stage": entry["current_stage"],
             "suggested_workflow": "session",
-            "recommended_action": f"Advance chain '{entry['label']}' to the next stage: {next_steps[0]}." if next_steps else f"Continue the active chain: {entry['label']}.",
+            "recommended_action": action,
             "alternatives": next_steps[1:3] or risks[:1],
+            "active_packets": active_packets,
+            "blocked_packets": blocked_packets,
+            "review_ready_packets": review_ready_packets,
+            "merge_ready_packets": merge_ready_packets,
+            "browser_qa_pending": browser_qa_pending,
+            "next_merge_point": next_merge_point,
         }
     return {
         "status": "empty",

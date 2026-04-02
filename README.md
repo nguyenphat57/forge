@@ -17,7 +17,9 @@ It pushes work toward:
 
 - explicit verification before claims
 - durable artifacts for medium and large changes
+- packetized build execution with resumable workflow state
 - routing that distinguishes planning, build, review, debug, and release work
+- targeted browser QA only when a packet actually benefits from it
 - clear boundaries between shared engine behavior and host-specific UX
 
 The end goal is not to make one host feel clever.
@@ -27,7 +29,7 @@ The goal is to make agent-assisted delivery more reliable across hosts and proje
 
 - License: `MIT`
 - Repo maturity: stable release available
-- Current stable release: `1.12.0`
+- Current stable release: `1.13.0`
 - Canonical verification gate: `python scripts/verify_repo.py`
 - `forge-antigravity` is currently the most mature adapter for real rollout
 - `forge-codex` ships in the current stable release after passing the canonical release gates

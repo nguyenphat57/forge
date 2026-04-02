@@ -291,23 +291,35 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["execution_mode"], "parallel-safe")
         self.assertEqual(report["detected"]["delegation_strategy"], "parallel-split")
         self.assertEqual(report["detected"]["host_skills"], ["dispatch-subagents"])
+        self.assertEqual(report["detected"]["browser_qa_classification"], "optional-accelerator")
+        self.assertEqual(report["detected"]["browser_qa_scope"], ["multi-surface frontend or workflow slice"])
         self.assertEqual(report["delegation_plan"]["activation_skill"], "dispatch-subagents")
         self.assertEqual(report["delegation_plan"]["dispatch_mode"], "parallel-workers")
         self.assertEqual(
             report["delegation_plan"]["packet_template"]["required_fields"],
             [
+                "packet_id",
+                "parent_packet",
                 "source_of_truth",
                 "goal",
                 "current_slice_or_review_question",
                 "exact_files_or_paths_in_scope",
                 "owned_files_or_write_scope",
+                "depends_on_packets",
                 "baseline_or_clean_start_proof",
+                "red_proof",
                 "out_of_scope_for_this_slice",
                 "reopen_conditions",
                 "files_to_avoid",
                 "allowed_reads_or_supporting_artifacts",
                 "proof_before_progress",
                 "verification_to_rerun",
+                "browser_qa_classification",
+                "browser_qa_scope",
+                "browser_qa_status",
+                "blockers",
+                "residual_risk",
+                "next_steps",
             ],
         )
         self.assertEqual(
@@ -329,6 +341,32 @@ class RoutePreviewTests(unittest.TestCase):
                 }
             ],
         )
+
+    def test_frontend_build_gets_browser_qa_eligibility_without_forcing_required_status(self) -> None:
+        report = route_preview.build_report(
+            self.build_args(
+                "Implement checkout page flow with form validation and responsive states",
+                repo_signals=["package.json", "src/", ".tsx"],
+                changed_files=4,
+            )
+        )
+
+        self.assertEqual(report["detected"]["intent"], "BUILD")
+        self.assertEqual(report["detected"]["browser_qa_classification"], "optional-accelerator")
+        self.assertIn("ui or workflow verification", report["detected"]["browser_qa_scope"])
+
+    def test_explicit_browser_flow_can_mark_packet_as_browser_required(self) -> None:
+        report = route_preview.build_report(
+            self.build_args(
+                "Debug the multi-step checkout flow in browser with screenshot evidence",
+                repo_signals=["package.json", "src/", ".tsx"],
+                changed_files=5,
+            )
+        )
+
+        self.assertEqual(report["detected"]["intent"], "DEBUG")
+        self.assertEqual(report["detected"]["browser_qa_classification"], "required-for-this-packet")
+        self.assertIn("explicit browser reproduction", report["detected"]["browser_qa_scope"])
 
     def test_review_lane_host_gets_packetized_independent_reviewer_plan(self) -> None:
         registry = copy.deepcopy(route_preview.load_registry())

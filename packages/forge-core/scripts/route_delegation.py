@@ -3,18 +3,28 @@ from __future__ import annotations
 
 REVIEW_PIPELINES = {"implementer-quality", "implementer-spec-quality", "deploy-gate"}
 DELEGATION_PACKET_FIELDS = [
+    "packet_id",
+    "parent_packet",
     "source_of_truth",
     "goal",
     "current_slice_or_review_question",
     "exact_files_or_paths_in_scope",
     "owned_files_or_write_scope",
+    "depends_on_packets",
     "baseline_or_clean_start_proof",
+    "red_proof",
     "out_of_scope_for_this_slice",
     "reopen_conditions",
     "files_to_avoid",
     "allowed_reads_or_supporting_artifacts",
     "proof_before_progress",
     "verification_to_rerun",
+    "browser_qa_classification",
+    "browser_qa_scope",
+    "browser_qa_status",
+    "blockers",
+    "residual_risk",
+    "next_steps",
 ]
 DELEGATION_RETURN_FIELDS = ["status", "changed_files", "verification", "residual_risk"]
 DELEGATION_STATUS_VALUES = ["DONE", "DONE_WITH_CONCERNS", "NEEDS_CONTEXT", "BLOCKED"]
