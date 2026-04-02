@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import os
 import sys
 import unittest
@@ -29,15 +30,23 @@ class RoutePreviewTests(unittest.TestCase):
         *,
         repo_signals: list[str] | None = None,
         workspace_router: Path | None = None,
+        workspace: Path | None = None,
         changed_files: int | None = None,
         has_harness: str = "auto",
+        delegation_preference: str | None = None,
+        forge_home: Path | None = None,
     ) -> Namespace:
+        if forge_home is None:
+            forge_home = ROOT_DIR / "tests" / "fixtures" / "forge-homes" / "empty"
         return Namespace(
             prompt=prompt,
             repo_signal=repo_signals or [],
             workspace_router=workspace_router,
+            workspace=workspace,
             changed_files=changed_files,
             has_harness=has_harness,
+            delegation_preference=delegation_preference,
+            forge_home=forge_home,
             format="json",
             persist=False,
             output_dir=None,
@@ -270,6 +279,7 @@ class RoutePreviewTests(unittest.TestCase):
     def test_parallel_safe_host_can_activate_subagent_dispatch_skill(self) -> None:
         registry = copy.deepcopy(route_preview.load_registry())
         registry["host_capabilities"] = {
+            "active_tier": "parallel-workers",
             "supports_subagents": True,
             "supports_parallel_subagents": True,
             "subagent_dispatch_skill": "dispatch-subagents",
@@ -285,12 +295,15 @@ class RoutePreviewTests(unittest.TestCase):
                 self.build_args(
                     "Implement many screens and many endpoints in parallel",
                     changed_files=12,
+                    delegation_preference="auto",
                 )
             )
 
         self.assertEqual(report["detected"]["execution_mode"], "parallel-safe")
         self.assertEqual(report["detected"]["delegation_strategy"], "parallel-split")
         self.assertEqual(report["detected"]["host_capability_tier"], "parallel-workers")
+        self.assertEqual(report["detected"]["resolved_delegation_preference"], "auto")
+        self.assertEqual(report["detected"]["effective_delegation_mode"], "parallel-workers")
         self.assertEqual(report["detected"]["host_dispatch_mode"], "parallel-workers")
         self.assertEqual(report["detected"]["host_skills"], ["dispatch-subagents"])
         self.assertEqual(report["detected"]["browser_qa_classification"], "optional-accelerator")
@@ -298,6 +311,8 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["delegation_plan"]["activation_skill"], "dispatch-subagents")
         self.assertEqual(report["delegation_plan"]["dispatch_mode"], "parallel-workers")
         self.assertEqual(report["delegation_plan"]["host_capability_tier"], "parallel-workers")
+        self.assertEqual(report["delegation_plan"]["resolved_delegation_preference"], "auto")
+        self.assertEqual(report["delegation_plan"]["effective_delegation_mode"], "parallel-workers")
         self.assertEqual(
             report["delegation_plan"]["packet_template"]["required_fields"],
             [
@@ -383,6 +398,7 @@ class RoutePreviewTests(unittest.TestCase):
     def test_review_lane_host_gets_packetized_independent_reviewer_plan(self) -> None:
         registry = copy.deepcopy(route_preview.load_registry())
         registry["host_capabilities"] = {
+            "active_tier": "review-lane-subagents",
             "supports_subagents": True,
             "supports_parallel_subagents": False,
             "subagent_dispatch_skill": "dispatch-subagents",
@@ -398,12 +414,15 @@ class RoutePreviewTests(unittest.TestCase):
             "single-threaded",
             "implementer-quality",
             registry,
+            "review-lanes",
         )
 
         self.assertEqual(strategy, "independent-reviewer")
         self.assertEqual(host_skills, ["dispatch-subagents"])
         self.assertEqual(plan["dispatch_mode"], "independent-reviewers")
         self.assertEqual(plan["host_capability_tier"], "review-lane-subagents")
+        self.assertEqual(plan["resolved_delegation_preference"], "review-lanes")
+        self.assertEqual(plan["effective_delegation_mode"], "review-lane-subagents")
         self.assertEqual(
             plan["packet_blueprints"],
             [
@@ -429,6 +448,101 @@ class RoutePreviewTests(unittest.TestCase):
                 },
             ],
         )
+
+    def test_parallel_worker_host_can_be_reduced_to_review_lanes_by_preference(self) -> None:
+        registry = copy.deepcopy(route_preview.load_registry())
+        registry["host_capabilities"] = {
+            "active_tier": "parallel-workers",
+            "supports_subagents": True,
+            "supports_parallel_subagents": True,
+            "subagent_dispatch_skill": "dispatch-subagents",
+            "tiers": route_preview.load_registry()["host_capabilities"]["tiers"],
+        }
+
+        strategy, plan, host_skills = route_preview.choose_delegation_plan(
+            "BUILD",
+            "parallel-safe",
+            "implementer-spec-quality",
+            registry,
+            "review-lanes",
+        )
+
+        self.assertEqual(strategy, "independent-reviewer")
+        self.assertEqual(host_skills, ["dispatch-subagents"])
+        self.assertEqual(plan["resolved_delegation_preference"], "review-lanes")
+        self.assertEqual(plan["effective_delegation_mode"], "review-lane-subagents")
+
+    def test_preference_off_disables_subagent_strategy_on_capable_host(self) -> None:
+        registry = copy.deepcopy(route_preview.load_registry())
+        registry["host_capabilities"] = {
+            "active_tier": "parallel-workers",
+            "supports_subagents": True,
+            "supports_parallel_subagents": True,
+            "subagent_dispatch_skill": "dispatch-subagents",
+            "tiers": route_preview.load_registry()["host_capabilities"]["tiers"],
+        }
+
+        with patch.object(route_preview, "load_registry", return_value=registry):
+            report = route_preview.build_report(
+                self.build_args(
+                    "Implement many screens and many endpoints in parallel",
+                    changed_files=12,
+                    delegation_preference="off",
+                )
+            )
+
+        self.assertEqual(report["detected"]["host_capability_tier"], "parallel-workers")
+        self.assertEqual(report["detected"]["resolved_delegation_preference"], "off")
+        self.assertEqual(report["detected"]["effective_delegation_mode"], "controller-baseline")
+        self.assertEqual(report["detected"]["delegation_strategy"], "sequential-lanes")
+        self.assertEqual(report["detected"]["host_skills"], [])
+        self.assertEqual(report["detected"]["isolation_recommendation"], "worktree")
+
+    def test_resolve_preferences_payload_drives_default_delegation_preference(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            forge_home = Path(temp_dir) / "forge-home"
+            preferences_path = common.resolve_global_preferences_path(forge_home)
+            extra_path = common.resolve_global_extra_preferences_path(forge_home)
+            preferences_path.parent.mkdir(parents=True, exist_ok=True)
+            preferences_path.write_text(
+                json.dumps(
+                    {
+                        "technical_level": "technical",
+                        "detail_level": "concise",
+                        "autonomy_level": "autonomous",
+                        "pace": "fast",
+                        "feedback_style": "direct",
+                        "personality": "strict-coach",
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            extra_path.write_text(
+                json.dumps(
+                    {
+                        "custom_rules": [
+                            "Delegated: Spawn subagents để tăng tiến độ khi cần",
+                        ],
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            report = route_preview.build_report(
+                self.build_args(
+                    "Implement many screens and many endpoints in parallel",
+                    changed_files=12,
+                    forge_home=forge_home,
+                )
+            )
+
+        self.assertEqual(report["detected"]["resolved_delegation_preference"], "auto")
 
 
 if __name__ == "__main__":

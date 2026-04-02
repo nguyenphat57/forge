@@ -27,6 +27,7 @@ def resolve_core_root_dir() -> Path:
 
 CORE_ROOT_DIR = resolve_core_root_dir()
 CORE_SCRIPTS_DIR = CORE_ROOT_DIR / "scripts"
+DEFAULT_TEST_FORGE_HOME = (CORE_ROOT_DIR / "tests" / "fixtures" / "forge-homes" / "empty").resolve()
 
 
 def merge_overlay(base: object, overlay: object) -> object:
@@ -123,15 +124,23 @@ def build_route_args(
     *,
     repo_signals: list[str] | None = None,
     workspace_router: Path | None = None,
+    workspace: Path | None = None,
     changed_files: int | None = None,
     has_harness: str = "auto",
+    delegation_preference: str | None = None,
+    forge_home: Path | None = None,
 ) -> Namespace:
+    if forge_home is None and DEFAULT_TEST_FORGE_HOME is not None:
+        forge_home = DEFAULT_TEST_FORGE_HOME
     return Namespace(
         prompt=prompt,
         repo_signal=repo_signals or [],
         workspace_router=workspace_router,
+        workspace=workspace,
         changed_files=changed_files,
         has_harness=has_harness,
+        delegation_preference=delegation_preference,
+        forge_home=forge_home,
         format="json",
         persist=False,
         output_dir=None,

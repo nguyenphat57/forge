@@ -1,7 +1,20 @@
 from __future__ import annotations
 
+from preferences_contract import DEFAULT_DELEGATION_PREFERENCE, normalize_delegation_preference
+
 
 REVIEW_PIPELINES = {"implementer-quality", "implementer-spec-quality", "deploy-gate"}
+DELEGATION_TIER_ORDER = {
+    "controller-baseline": 0,
+    "review-lane-subagents": 1,
+    "parallel-workers": 2,
+}
+DELEGATION_PREFERENCE_TO_TIER = {
+    "off": "controller-baseline",
+    "auto": "parallel-workers",
+    "review-lanes": "review-lane-subagents",
+    "parallel-workers": "parallel-workers",
+}
 DELEGATION_PACKET_FIELDS = [
     "packet_id",
     "packet_mode",
@@ -49,10 +62,14 @@ def resolve_host_capability_tier(host_capabilities: dict | None) -> tuple[str, d
         host_capabilities = {}
     tiers = host_capabilities.get("tiers")
     active_tier = host_capabilities.get("active_tier")
-    if isinstance(tiers, dict) and isinstance(active_tier, str):
-        tier = tiers.get(active_tier)
-        if isinstance(tier, dict):
-            return active_tier, tier
+    default_tier = host_capabilities.get("default_tier")
+    if isinstance(tiers, dict):
+        for tier_key in (active_tier, default_tier):
+            if not isinstance(tier_key, str):
+                continue
+            tier = tiers.get(tier_key)
+            if isinstance(tier, dict):
+                return tier_key, tier
 
     supports_subagents = bool(host_capabilities.get("supports_subagents", False))
     supports_parallel_subagents = bool(host_capabilities.get("supports_parallel_subagents", supports_subagents))
@@ -91,6 +108,25 @@ def resolve_host_capability_tier(host_capabilities: dict | None) -> tuple[str, d
             "fallback_reasons": ["review lanes stay packetized but execute sequentially"],
         },
     )
+
+
+def resolve_delegation_preference(value: object) -> str:
+    normalized = normalize_delegation_preference(value)
+    if normalized is None:
+        return DEFAULT_DELEGATION_PREFERENCE
+    return normalized
+
+
+def resolve_effective_delegation_mode(host_tier_key: str, delegation_preference: object) -> str:
+    resolved_preference = resolve_delegation_preference(delegation_preference)
+    preferred_tier_key = DELEGATION_PREFERENCE_TO_TIER[resolved_preference]
+    host_rank = DELEGATION_TIER_ORDER.get(host_tier_key, 0)
+    preference_rank = DELEGATION_TIER_ORDER.get(preferred_tier_key, 0)
+    effective_rank = min(host_rank, preference_rank)
+    for tier_key, rank in DELEGATION_TIER_ORDER.items():
+        if rank == effective_rank:
+            return tier_key
+    return "controller-baseline"
 
 
 def choose_execution_pipeline(
@@ -264,15 +300,27 @@ def choose_delegation_plan(
     execution_mode: str | None,
     execution_pipeline_key: str | None,
     registry: dict,
+    delegation_preference: object = None,
 ) -> tuple[str | None, dict | None, list[str]]:
     if intent not in {"BUILD", "DEBUG", "OPTIMIZE", "DEPLOY"}:
         return None, None, []
 
     host_capabilities = registry.get("host_capabilities", {})
     tier_key, tier = resolve_host_capability_tier(host_capabilities)
-    supports_subagents = bool(tier.get("supports_subagents", host_capabilities.get("supports_subagents", False)))
+    resolved_preference = resolve_delegation_preference(delegation_preference)
+    effective_tier_key = resolve_effective_delegation_mode(tier_key, resolved_preference)
+    tiers = host_capabilities.get("tiers")
+    if not isinstance(tiers, dict):
+        tiers = {}
+    effective_tier = tiers.get(effective_tier_key, {})
+    supports_subagents = bool(
+        effective_tier.get("supports_subagents", tier.get("supports_subagents", host_capabilities.get("supports_subagents", False)))
+    )
     supports_parallel_subagents = bool(
-        tier.get("supports_parallel_subagents", host_capabilities.get("supports_parallel_subagents", supports_subagents))
+        effective_tier.get(
+            "supports_parallel_subagents",
+            tier.get("supports_parallel_subagents", host_capabilities.get("supports_parallel_subagents", supports_subagents)),
+        )
     )
     activation_skill = host_capabilities.get("subagent_dispatch_skill")
     controller_contract = host_capabilities.get(
@@ -284,10 +332,12 @@ def choose_delegation_plan(
         ],
     )
     tier_dispatch_reasons = [
-        item for item in tier.get("dispatch_reasons", []) if isinstance(item, str) and item.strip()
+        item for item in effective_tier.get("dispatch_reasons", tier.get("dispatch_reasons", []))
+        if isinstance(item, str) and item.strip()
     ]
     tier_fallback_reasons = [
-        item for item in tier.get("fallback_reasons", []) if isinstance(item, str) and item.strip()
+        item for item in effective_tier.get("fallback_reasons", tier.get("fallback_reasons", []))
+        if isinstance(item, str) and item.strip()
     ]
 
     uses_parallel_mode = execution_mode == "parallel-safe"
@@ -312,6 +362,15 @@ def choose_delegation_plan(
         else:
             summary = "This task needs distinct review lanes, but the current bundle must keep them as sequential passes."
 
+    if key != "sequential-lanes" and not (isinstance(activation_skill, str) and activation_skill):
+        key = "sequential-lanes"
+        label = "Sequential lanes"
+        summary = "This task could delegate in theory, but the current bundle does not expose a dispatch skill."
+        tier_fallback_reasons = [
+            *tier_fallback_reasons,
+            "host-tier-lacks-dispatch-skill",
+        ]
+
     host_skills = (
         [activation_skill]
         if key != "sequential-lanes" and isinstance(activation_skill, str) and activation_skill
@@ -327,6 +386,8 @@ def choose_delegation_plan(
             if key == "independent-reviewer"
             else "controller-sequential"
         ),
+        "resolved_delegation_preference": resolved_preference,
+        "effective_delegation_mode": effective_tier_key,
         "host_capability_tier": tier_key,
         "activation_skill": activation_skill if host_skills else None,
         "controller_contract": controller_contract,

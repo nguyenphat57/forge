@@ -1,38 +1,40 @@
 {
-  "updated_at": "2026-04-02T14:42:31+07:00",
+  "updated_at": "2026-04-02T21:55:31+07:00",
   "working_on": {
-    "feature": "stable-1.14.0",
-    "task": "Cut the 1.14.0 release, update continuity artifacts, and sync runtime registrations for Codex and Gemini",
+    "feature": "stable-1.15.0",
+    "task": "Cut the 1.15.0 release, update continuity artifacts, and ship host-aware delegation preference as the current stable Forge release",
     "status": "completed",
     "files": [
       "VERSION",
       "CHANGELOG.md",
-      "README.md",
-      "docs/release/public-readiness.md",
-      "docs/release/release-process.md",
+      "docs/specs/2026-04-02-host-aware-delegation-preference-spec.md",
       ".brain/decisions.json",
       ".brain/learnings.json",
       ".brain/session.json",
       ".brain/handover.md",
-      "packages/forge-core/scripts/track_execution_progress.py",
-      "packages/forge-core/scripts/track_chain_status.py",
-      "packages/forge-core/scripts/runtime_tool_support.py",
-      "packages/forge-core/scripts/invoke_runtime_tool.py"
+      "packages/forge-core/data/orchestrator-registry.json",
+      "packages/forge-core/scripts/preferences_contract.py",
+      "packages/forge-core/scripts/preferences_store.py",
+      "packages/forge-core/scripts/resolve_preferences.py",
+      "packages/forge-core/scripts/route_delegation.py",
+      "packages/forge-core/scripts/route_preview.py",
+      "packages/forge-codex/overlay/data/orchestrator-registry.json",
+      "packages/forge-antigravity/overlay/data/orchestrator-registry.json"
     ]
   },
   "pending_tasks": [],
   "recent_changes": [
-    "Forge 1.14.0 now ships fast-lane packet mode, packet graph contract, runtime health diagnostics, and host capability tier v2 as one coherent release line.",
-    "Release-facing docs and continuity artifacts now mark 1.14.0 as the current stable Forge release.",
-    "Runtime tool registrations were refreshed for both Codex and Gemini host state roots."
+    "Forge 1.15.0 now restores typed delegation preference on new threads and resolves the same canonical preference across bootstrap, route preview, and runtime routing.",
+    "Host capability resolution now separates core default_tier from overlay active_tier, promoting Codex to parallel-workers and correcting Antigravity back to controller-baseline.",
+    "Release-facing docs and continuity artifacts now mark 1.15.0 as the current stable Forge release after the canonical repo verification gate passed."
   ],
   "verification": [
-    "python -m pytest packages/forge-core/tests/test_fast_lane_lifecycle.py packages/forge-core/tests/test_chain_status.py packages/forge-core/tests/test_route_preview.py packages/forge-core/tests/test_help_next.py packages/forge-core/tests/test_help_next_workflow_state.py packages/forge-core/tests/test_tool_roundtrip.py packages/forge-core/tests/test_runtime_tool_support.py packages/forge-core/tests/test_contracts.py tests/release_repo_test_contracts.py -q -> PASS",
-    "python scripts/verify_repo.py -> PASS",
-    "python scripts/verify_bundle.py -> PASS"
+    "python packages/forge-core/scripts/run_smoke_matrix.py -> PASS (49/49)",
+    "python scripts/build_release.py --format json -> PASS",
+    "python scripts/verify_repo.py --format json -> PASS"
   ],
   "decisions_made": [
-    "Treat 1.14.0 as stable only when the full roadmap-complete verification sweep and canonical repo gate are both green.",
-    "Fast-lane throughput gains remain valid only when packet graph/readiness and runtime-health contracts remain explicit in persisted workflow-state."
+    "Treat 1.15.0 as stable only when host-aware delegation preference, honest host overlays, and the canonical repo verification gate are all green.",
+    "Delegation automation must resolve from typed preference plus host capability and degrade honestly on unsupported hosts instead of leaning on custom_rules prose."
   ]
 }

@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from preferences_contract import (
-    PREFERENCE_ALIASES,
+    DEFAULT_DELEGATION_PREFERENCE,
+    detect_legacy_delegation_preference,
     load_output_contract_profiles,
     load_preferences_schema,
+    normalize_delegation_preference,
+    PREFERENCE_ALIASES,
     normalize_preferences,
     preference_defaults,
+    resolve_delegation_preference,
     resolve_output_contract,
 )
 from preferences_paths import (

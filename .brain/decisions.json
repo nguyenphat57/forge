@@ -127,7 +127,7 @@
     "kind": "decision",
     "scope": "forge-1-14-stable-status",
     "summary": "Treat 1.14.0 as the current stable Forge release because the competitive roadmap implementation, release contract sweep, and canonical repo gate are all green.",
-    "status": "resolved",
+    "status": "superseded",
     "evidence": [
       "docs/plans/2026-04-02-forge-1.14.x-competitive-roadmap.md",
       "CHANGELOG.md",
@@ -145,5 +145,29 @@
     "revisit_if": "A later release changes the stable line or invalidates the 1.14.0 verification evidence.",
     "trigger": "minor-release",
     "resume_hint": "A later release changes the stable line or invalidates the 1.14.0 verification evidence."
+  },
+  {
+    "id": "20260402-215530",
+    "kind": "decision",
+    "scope": "forge-1-15-stable-status",
+    "summary": "Treat 1.15.0 as the current stable Forge release because host-aware delegation preference, honest host capability overlays, and the canonical repo verification gate are all green.",
+    "status": "resolved",
+    "evidence": [
+      "docs/specs/2026-04-02-host-aware-delegation-preference-spec.md",
+      "CHANGELOG.md",
+      "python packages/forge-core/scripts/run_smoke_matrix.py -> PASS (49/49) on 2026-04-02",
+      "python scripts/verify_repo.py --format json -> PASS on 2026-04-02"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "delegation",
+      "preferences",
+      "host-capability"
+    ],
+    "revisit_if": "A later release changes the stable line or invalidates the 1.15.0 verification evidence.",
+    "trigger": "minor-release",
+    "resume_hint": "A later release changes the stable line or invalidates the 1.15.0 verification evidence."
   }
 ]

@@ -293,6 +293,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
 
         registry = json.loads((dist_root / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
         self.assertEqual(registry["intents"]["SESSION"]["shortcuts"], [])
+        self.assertEqual(registry["host_capabilities"]["active_tier"], "parallel-workers")
         self.assertTrue(registry["host_capabilities"]["supports_subagents"])
         self.assertEqual(registry["host_capabilities"]["subagent_dispatch_skill"], "dispatch-subagents")
         dist_skill = (dist_root / "SKILL.md").read_text(encoding="utf-8")
@@ -322,3 +323,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             "VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION",
             (dist_root / "SKILL.md").read_text(encoding="utf-8"),
         )
+
+        antigravity_registry = json.loads((antigravity_dist_root / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
+        self.assertEqual(antigravity_registry["host_capabilities"]["active_tier"], "controller-baseline")
+        self.assertFalse(antigravity_registry["host_capabilities"]["supports_subagents"])

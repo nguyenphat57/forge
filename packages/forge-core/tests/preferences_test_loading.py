@@ -264,6 +264,7 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
         self.assertEqual(contract["language"], "en")
         self.assertEqual(contract["orthography"], "plain-english")
         self.assertEqual(contract["tone_detail"], "Address the user as lead engineer.")
+        self.assertNotIn("delegation_preference", contract)
 
     def test_invalid_preferences_warn_and_fall_back_in_non_strict_mode(self) -> None:
         report = common.load_preferences(
@@ -289,3 +290,50 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
                 strict=True,
                 forge_home=forge_home_fixture("empty"),
             )
+
+    def test_load_preferences_maps_legacy_delegation_marker_to_typed_field(self) -> None:
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+
+        with TemporaryDirectory() as temp_dir:
+            forge_home = Path(temp_dir) / "forge-home"
+            preferences_path = common.resolve_global_preferences_path(forge_home)
+            extra_path = common.resolve_global_extra_preferences_path(forge_home)
+            preferences_path.parent.mkdir(parents=True, exist_ok=True)
+            preferences_path.write_text(
+                json.dumps(
+                    {
+                        "technical_level": "basic",
+                        "detail_level": "balanced",
+                        "autonomy_level": "balanced",
+                        "pace": "balanced",
+                        "feedback_style": "balanced",
+                        "personality": "default",
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            extra_path.write_text(
+                json.dumps(
+                    {
+                        "custom_rules": [
+                            "Delegated: Spawn subagents để tăng tiến độ khi cần",
+                        ],
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            report = common.load_preferences(
+                workspace=workspace_fixture("no_preferences"),
+                forge_home=forge_home,
+            )
+
+        self.assertEqual(report["extra"]["delegation_preference"], "auto")
+        self.assertIn("legacy_delegation_rule_detected", report["warnings"])

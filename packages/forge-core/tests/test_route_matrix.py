@@ -20,8 +20,10 @@ class RoutePreviewSmokeMatrixTests(unittest.TestCase):
                         case["prompt"],
                         repo_signals=case.get("repo_signals"),
                         workspace_router=workspace_router,
+                        workspace=workspace_fixture(case["workspace_fixture"]) if case.get("workspace_fixture") and not case.get("workspace_router") else None,
                         changed_files=case.get("changed_files"),
                         has_harness=case.get("has_harness", "auto"),
+                        delegation_preference=case.get("delegation_preference"),
                     )
                 )
                 detected = report["detected"]
@@ -51,6 +53,16 @@ class RoutePreviewSmokeMatrixTests(unittest.TestCase):
                     self.assertEqual(detected["quality_profile"], case["expected_quality_profile"])
                 if "expected_execution_pipeline" in case:
                     self.assertEqual(detected["execution_pipeline"], case["expected_execution_pipeline"])
+                if "expected_resolved_delegation_preference" in case:
+                    self.assertEqual(
+                        detected["resolved_delegation_preference"],
+                        case["expected_resolved_delegation_preference"],
+                    )
+                if "expected_effective_delegation_mode" in case:
+                    self.assertEqual(
+                        detected["effective_delegation_mode"],
+                        case["expected_effective_delegation_mode"],
+                    )
                 if "expected_delegation_strategy" in case:
                     expected_strategy = case["expected_delegation_strategy_when_subagents"] if host_supports_subagents and "expected_delegation_strategy_when_subagents" in case else case["expected_delegation_strategy"]
                     self.assertEqual(detected["delegation_strategy"], expected_strategy)

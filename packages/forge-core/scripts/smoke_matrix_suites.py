@@ -81,9 +81,13 @@ def _route_command(case: dict) -> tuple[list[str], dict[str, str] | None]:
         command.extend(["--changed-files", str(case["changed_files"])])
     if "has_harness" in case:
         command.extend(["--has-harness", case["has_harness"]])
+    if case.get("workspace_fixture"):
+        command.extend(["--workspace", str(workspace_path(case["workspace_fixture"]))])
     if case.get("workspace_fixture") and case.get("workspace_router"):
         router_path = workspace_path(case["workspace_fixture"]) / case["workspace_router"]
         command.extend(["--workspace-router", str(router_path)])
+    if case.get("delegation_preference"):
+        command.extend(["--delegation-preference", case["delegation_preference"]])
     return command, None
 
 

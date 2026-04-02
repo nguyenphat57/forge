@@ -131,6 +131,7 @@ class AntigravityHostInstallTests(unittest.TestCase):
                 {
                     "language": "vi",
                     "orthography": "vietnamese_diacritics",
+                    "delegation_preference": "auto",
                 },
             )
             self.assertEqual(payload["output_contract"]["language"], "vi")

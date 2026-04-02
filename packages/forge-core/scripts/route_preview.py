@@ -15,6 +15,7 @@ from common import (
     slugify,
     timestamp_slug,
 )
+from resolve_preferences import build_payload as build_preferences_payload
 from route_analysis import (
     baseline_required,
     choose_execution_mode,
@@ -58,6 +59,24 @@ def build_report(args: argparse.Namespace) -> dict:
     host_supports_parallel_subagents = bool(
         host_tier.get("supports_parallel_subagents", host_capabilities.get("supports_parallel_subagents", host_supports_subagents))
     )
+    workspace_root = getattr(args, "workspace", None)
+    if workspace_root is None and args.workspace_router is not None:
+        workspace_root = args.workspace_router.parent
+    forge_home = getattr(args, "forge_home", None)
+    preferences_payload = build_preferences_payload(
+        argparse.Namespace(
+            workspace=workspace_root,
+            forge_home=forge_home,
+            preferences_file=None,
+            strict=False,
+            format="json",
+        )
+    )
+    resolved_delegation_preference = preferences_payload.get("extra", {}).get("delegation_preference")
+    explicit_delegation_preference = getattr(args, "delegation_preference", None)
+    if explicit_delegation_preference is not None:
+        resolved_delegation_preference = explicit_delegation_preference
+
     intent, intent_config = detect_intent(args.prompt, registry)
     complexity = detect_complexity(args.prompt, args.changed_files, registry)
     workspace_router = resolve_workspace_router(args.workspace_router)
@@ -108,6 +127,14 @@ def build_report(args: argparse.Namespace) -> dict:
         execution_mode,
         execution_pipeline_key,
         registry,
+        resolved_delegation_preference,
+    )
+    if isinstance(delegation_plan, dict) and delegation_plan.get("resolved_delegation_preference"):
+        resolved_delegation_preference = delegation_plan["resolved_delegation_preference"]
+    effective_delegation_mode = (
+        delegation_plan.get("effective_delegation_mode")
+        if isinstance(delegation_plan, dict)
+        else "controller-baseline"
     )
     local_companions = infer_local_companions(
         args.prompt,
@@ -136,7 +163,7 @@ def build_report(args: argparse.Namespace) -> dict:
         intent,
         complexity,
         execution_mode,
-        host_supports_subagents,
+        effective_delegation_mode != "controller-baseline",
     )
     baseline_verification = build_baseline_verification(baseline_proof_required, verification)
     worktree_bootstrap = build_worktree_bootstrap(isolation_recommendation)
@@ -174,6 +201,8 @@ def build_report(args: argparse.Namespace) -> dict:
             "host_supports_parallel_subagents": host_supports_parallel_subagents,
             "host_capability_tier": host_tier_key,
             "host_dispatch_mode": host_tier.get("dispatch_mode"),
+            "resolved_delegation_preference": resolved_delegation_preference,
+            "effective_delegation_mode": effective_delegation_mode,
             "domain_skills": domain_skills,
             "first_party_companions": [item["id"] for item in first_party_companions],
             "local_companions": local_companions,
@@ -233,6 +262,8 @@ def format_text(report: dict) -> str:
         f"- Quality profile: {report['quality_profile']['label']}",
         f"- Host capability tier: {detected['host_capability_tier'] or '(none)'}",
         f"- Host dispatch mode: {detected['host_dispatch_mode'] or '(none)'}",
+        f"- Resolved delegation preference: {detected['resolved_delegation_preference'] or '(none)'}",
+        f"- Effective delegation mode: {detected['effective_delegation_mode'] or '(none)'}",
         f"- Host skills: {', '.join(detected['host_skills']) or '(none)'}",
         f"- Domain skills: {', '.join(detected['domain_skills']) or '(none)'}",
         f"- First-party companions: {', '.join(detected['first_party_companions']) or '(none)'}",
@@ -359,8 +390,16 @@ def main() -> int:
     parser.add_argument("prompt", help="User prompt or task summary")
     parser.add_argument("--repo-signal", action="append", default=[], help="Repo artifact, path, or signal. Repeatable.")
     parser.add_argument("--workspace-router", type=Path, default=None, help="Optional AGENTS.md or workspace skill map")
+    parser.add_argument("--workspace", type=Path, default=None, help="Optional workspace root for preference resolution")
     parser.add_argument("--changed-files", type=int, default=None, help="Optional changed file count to guide complexity")
     parser.add_argument("--has-harness", choices=["auto", "yes", "no"], default="auto", help="Whether a usable test harness is known")
+    parser.add_argument(
+        "--delegation-preference",
+        choices=["off", "auto", "review-lanes", "parallel-workers"],
+        default=None,
+        help="Optional preview override for resolved delegation preference",
+    )
+    parser.add_argument("--forge-home", type=Path, default=None, help="Optional Forge state root for preference resolution")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     parser.add_argument("--persist", action="store_true", help="Persist the preview under .forge-artifacts/route-previews")
     parser.add_argument("--output-dir", default=None, help="Base directory for persisted artifacts")

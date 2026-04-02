@@ -37,7 +37,12 @@ class WritePreferencesTests(unittest.TestCase):
         return common.get_nested_value(payload, compat_path)
 
     @staticmethod
-    def expected_changed_extra_fields(*, language: str, orthography: str) -> list[str]:
+    def expected_changed_extra_fields(
+        *,
+        language: str,
+        orthography: str,
+        delegation_preference: str | None = None,
+    ) -> list[str]:
         compat = common.load_preferences_compat()
         defaults = common.compat_default_extra(compat)
         changed: list[str] = []
@@ -45,6 +50,8 @@ class WritePreferencesTests(unittest.TestCase):
             changed.append("language")
         if defaults.get("orthography") != orthography:
             changed.append("orthography")
+        if delegation_preference is not None and delegation_preference != common.DEFAULT_DELEGATION_PREFERENCE:
+            changed.append("delegation_preference")
         return changed
 
     def test_write_preferences_script_preview_cases(self) -> None:
@@ -143,6 +150,7 @@ class WritePreferencesTests(unittest.TestCase):
             )
             self.assertEqual(report["extra"]["language"], "en")
             self.assertEqual(report["extra"]["orthography"], "plain_english")
+            self.assertEqual(report["extra"]["delegation_preference"], "auto")
             self.assertEqual(report["output_contract"], expected_output_contract(report["extra"]))
             self.assertEqual(report["output_contract"]["language"], "en")
             self.assertEqual(report["output_contract"]["orthography"], "plain-english")
@@ -152,6 +160,7 @@ class WritePreferencesTests(unittest.TestCase):
             self.assertEqual(self.read_persisted_extra(written, written_extra, "orthography"), "plain_english")
             self.assertEqual(reloaded["extra"]["language"], "en")
             self.assertEqual(reloaded["extra"]["orthography"], "plain_english")
+            self.assertEqual(reloaded["extra"]["delegation_preference"], "auto")
 
     def test_write_preferences_script_preserves_existing_top_level_extras(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -198,11 +207,83 @@ class WritePreferencesTests(unittest.TestCase):
             self.assertEqual(report["preferences"]["pace"], "fast")
             self.assertEqual(report["extra"]["language"], "en")
             self.assertEqual(report["extra"]["orthography"], "plain_english")
+            self.assertEqual(report["extra"]["delegation_preference"], "auto")
             self.assertEqual(self.read_persisted_extra(written, written_extra, "language"), "en")
             self.assertEqual(self.read_persisted_extra(written, written_extra, "orthography"), "plain_english")
             self.assertTrue(written_extra_path.exists())
             self.assertTrue((written_path.parent / "preferences.json.legacy.bak").exists())
             self.assertTrue(report["migrated_legacy_global_preferences"])
+
+    def test_write_preferences_script_apply_persists_explicit_delegation_preference(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            forge_home = Path(temp_dir) / "forge-home"
+            result = run_python_script(
+                "write_preferences.py",
+                "--workspace",
+                str(workspace),
+                "--delegation-preference",
+                "review-lanes",
+                "--apply",
+                "--format",
+                "json",
+                env={"FORGE_HOME": str(forge_home)},
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+
+            written_extra_path = common.resolve_global_extra_preferences_path(forge_home)
+            written_extra = json.loads(written_extra_path.read_text(encoding="utf-8"))
+            self.assertEqual(report["extra"]["delegation_preference"], "review-lanes")
+            self.assertIn("delegation_preference", report["changed_extra_fields"])
+            self.assertEqual(written_extra["delegation_preference"], "review-lanes")
+
+    def test_write_preferences_script_migrates_legacy_delegation_marker_to_typed_field(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            forge_home = Path(temp_dir) / "forge-home"
+            written_path = common.resolve_global_preferences_path(forge_home)
+            written_path.parent.mkdir(parents=True, exist_ok=True)
+            written_path.write_text(
+                json.dumps(
+                    {
+                        "technical_level": "basic",
+                        "detail_level": "balanced",
+                        "autonomy_level": "balanced",
+                        "pace": "balanced",
+                        "feedback_style": "balanced",
+                        "personality": "default",
+                        "custom_rules": [
+                            "Delegated: Spawn subagents để tăng tiến độ khi cần",
+                        ],
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            result = run_python_script(
+                "write_preferences.py",
+                "--workspace",
+                str(workspace),
+                "--pace",
+                "fast",
+                "--apply",
+                "--format",
+                "json",
+                env={"FORGE_HOME": str(forge_home)},
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+
+            written_extra_path = common.resolve_global_extra_preferences_path(forge_home)
+            written_extra = json.loads(written_extra_path.read_text(encoding="utf-8"))
+            self.assertIn("legacy_delegation_rule_detected", report["warnings"])
+            self.assertIn("delegation_preference", report["changed_extra_fields"])
+            self.assertEqual(report["extra"]["delegation_preference"], "auto")
+            self.assertEqual(written_extra["delegation_preference"], "auto")
 
     def test_write_preferences_requires_updates(self) -> None:
         with TemporaryDirectory() as temp_dir:

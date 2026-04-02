@@ -148,5 +148,31 @@
     "revisit_if": null,
     "trigger": "release-review",
     "resume_hint": "Re-open this item when the work slice resumes."
+  },
+  {
+    "id": "20260402-215530",
+    "kind": "learning",
+    "scope": "forge-1-15-host-aware-delegation-release",
+    "summary": "Delegation-by-default remains trustworthy only when host capability, typed user preference, and route preview all resolve from the same canonical state, and unsupported hosts degrade honestly instead of advertising dead subagent paths.",
+    "status": "resolved",
+    "evidence": [
+      "packages/forge-core/scripts/preferences_store.py",
+      "packages/forge-core/scripts/resolve_preferences.py",
+      "packages/forge-core/scripts/route_delegation.py",
+      "packages/forge-core/scripts/route_preview.py",
+      "tests/release_repo_test_overlays.py"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "delegation",
+      "preferences",
+      "host-capability",
+      "route-preview",
+      "compat"
+    ],
+    "revisit_if": null,
+    "trigger": "release-review",
+    "resume_hint": "Re-open this item when the work slice resumes."
   }
 ]

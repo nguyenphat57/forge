@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from common import compat_default_extra, load_preferences_compat, merge_extra_preferences
+from common import DEFAULT_DELEGATION_PREFERENCE, compat_default_extra, load_preferences_compat, merge_extra_preferences
 
 
 def _expect_equal(failures: list[str], actual: object, expected: object, label: str) -> None:
@@ -43,6 +43,20 @@ def validate_route_case(case: dict, report: dict) -> list[str]:
             detected["execution_pipeline"],
             case["expected_execution_pipeline"],
             "execution_pipeline",
+        )
+    if "expected_resolved_delegation_preference" in case:
+        _expect_equal(
+            failures,
+            detected["resolved_delegation_preference"],
+            case["expected_resolved_delegation_preference"],
+            "resolved_delegation_preference",
+        )
+    if "expected_effective_delegation_mode" in case:
+        _expect_equal(
+            failures,
+            detected["effective_delegation_mode"],
+            case["expected_effective_delegation_mode"],
+            "effective_delegation_mode",
         )
     if "expected_delegation_strategy" in case:
         expected_strategy = (
@@ -92,8 +106,9 @@ def validate_preferences_case(case: dict, report: dict) -> list[str]:
     if "expected_extra" in case:
         expected_extra = merge_extra_preferences(
             compat_default_extra(load_preferences_compat()),
-            case["expected_extra"],
+            {"delegation_preference": DEFAULT_DELEGATION_PREFERENCE},
         )
+        expected_extra = merge_extra_preferences(expected_extra, case["expected_extra"])
         _expect_equal(failures, report.get("extra", {}), expected_extra, "extra")
     for key, expected in case.get("expected_response_style", {}).items():
         _expect_equal(failures, report["response_style"].get(key), expected, f"response_style.{key}")

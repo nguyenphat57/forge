@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 from compat import (
+    compat_default_extra,
     extract_extras,
     filter_canonical_preferences,
     load_preferences_compat,
@@ -12,7 +13,14 @@ from compat import (
     preferences_compat_matches,
     resolve_extra_preferences,
 )
-from preferences_contract import normalize_preferences, preference_defaults, resolve_output_contract
+from preferences_contract import (
+    DEFAULT_DELEGATION_PREFERENCE,
+    normalize_delegation_preference,
+    normalize_preferences,
+    preference_defaults,
+    resolve_delegation_preference,
+    resolve_output_contract,
+)
 from preferences_paths import (
     GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH,
     GLOBAL_PREFERENCES_RELATIVE_PATH,
@@ -33,6 +41,29 @@ def _read_json_payload(path: Path, *, strict: bool, label: str) -> tuple[object,
         return None, [f"Invalid JSON in {path.name}. Using defaults."]
 
 
+def _default_extra_preferences(compat: dict | None) -> dict[str, object]:
+    base_defaults = compat_default_extra(compat)
+    if not isinstance(base_defaults, dict):
+        base_defaults = {}
+    return merge_extra_preferences(base_defaults, {"delegation_preference": DEFAULT_DELEGATION_PREFERENCE})
+
+
+def _resolve_report_extra(
+    extra: object,
+    *,
+    strict: bool,
+) -> tuple[dict[str, object], list[str], dict[str, str]]:
+    compat = load_preferences_compat()
+    raw_extra = extra if isinstance(extra, dict) else {}
+    delegation_preference, delegation_warnings, delegation_source = resolve_delegation_preference(
+        raw_extra,
+        strict=strict,
+    )
+    resolved_extra = merge_extra_preferences(_default_extra_preferences(compat), raw_extra)
+    resolved_extra["delegation_preference"] = delegation_preference
+    return resolved_extra, delegation_warnings, {"delegation_preference_source": delegation_source}
+
+
 def _build_preferences_report(
     *,
     primary_payload: object,
@@ -47,14 +78,17 @@ def _build_preferences_report(
         extra = resolve_extra_preferences(extra_payload, compat_config=compat)
     else:
         extra = resolve_extra_preferences(primary_payload, compat_config=compat)
+    extra, extra_warnings, extra_resolution = _resolve_report_extra(extra, strict=strict)
     canonical_payload = filter_canonical_preferences(primary_payload, compat_config=compat)
     preferences, normalization_warnings = normalize_preferences(canonical_payload, strict=strict)
+    warnings.extend(extra_warnings)
     warnings.extend(normalization_warnings)
     return {
         "preferences": preferences,
         "extra": extra,
         "source": {"type": source_type, "path": str(source_path)},
         "output_contract": resolve_output_contract(extra),
+        "extra_resolution": extra_resolution,
         "warnings": warnings,
     }
 
@@ -137,12 +171,13 @@ def load_preferences(
     path = resolve_workspace_preferences_path(workspace) if workspace is not None else None
     if path is None or not path.exists():
         compat = load_preferences_compat()
-        extra = resolve_extra_preferences(None, compat_config=compat)
+        extra = merge_extra_preferences(_default_extra_preferences(compat), resolve_extra_preferences(None, compat_config=compat))
         return {
             "preferences": defaults,
             "extra": extra,
             "source": {"type": "defaults", "path": None},
             "output_contract": resolve_output_contract(extra),
+            "extra_resolution": {"delegation_preference_source": "default"},
             "warnings": warnings,
         }
 
@@ -196,9 +231,13 @@ def write_preferences(
     workspace_path = Path(workspace).resolve() if workspace is not None else None
     forge_home_path = resolve_forge_home(forge_home)
     existing = load_preferences(workspace=workspace_path, strict=strict, forge_home=forge_home_path)
+    warnings = list(existing.get("warnings", []))
     base = preference_defaults() if replace else existing["preferences"].copy()
     base.update(updates)
-    preferences, warnings = normalize_preferences(base, strict=strict)
+    preferences, normalization_warnings = normalize_preferences(base, strict=strict)
+    for warning in normalization_warnings:
+        if warning not in warnings:
+            warnings.append(warning)
 
     path = resolve_global_preferences_path(forge_home_path)
     extra_path = resolve_global_extra_preferences_path(forge_home_path)
@@ -225,12 +264,38 @@ def write_preferences(
     else:
         persisted_extra = {}
 
-    extra = _apply_flat_extra_updates(persisted_extra, extra_updates)
+    normalized_extra_updates = copy.deepcopy(extra_updates or {})
+    delegation_preference_update = normalized_extra_updates.get("delegation_preference")
+    if delegation_preference_update is not None:
+        normalized_delegation_preference = normalize_delegation_preference(delegation_preference_update)
+        if normalized_delegation_preference is None:
+            message = "Delegation preference must be one of: off, auto, review-lanes, parallel-workers."
+            if strict:
+                raise ValueError(message)
+            warnings.append(message)
+            normalized_extra_updates.pop("delegation_preference", None)
+        else:
+            normalized_extra_updates["delegation_preference"] = normalized_delegation_preference
+
+    if existing.get("extra_resolution", {}).get("delegation_preference_source") == "legacy-custom-rules":
+        persisted_extra["delegation_preference"] = existing["extra"]["delegation_preference"]
+
+    extra = _apply_flat_extra_updates(persisted_extra, normalized_extra_updates)
+    report_extra, report_extra_warnings, report_extra_resolution = _resolve_report_extra(extra, strict=strict)
+    for warning in report_extra_warnings:
+        if warning not in warnings:
+            warnings.append(warning)
     changed_fields = [key for key in preferences if existing["preferences"].get(key) != preferences.get(key)]
     changed_extra_fields = [
-        key for key in (extra_updates or {})
-        if existing["extra"].get(key) != extra.get(key)
+        key for key in normalized_extra_updates
+        if existing["extra"].get(key) != report_extra.get(key)
     ]
+    if (
+        existing.get("extra_resolution", {}).get("delegation_preference_source") == "legacy-custom-rules"
+        and "delegation_preference" not in changed_extra_fields
+        and report_extra.get("delegation_preference") == existing["extra"].get("delegation_preference")
+    ):
+        changed_extra_fields.append("delegation_preference")
     legacy_global_state_detected = (
         raw_payload is not None
         and raw_extra_payload is None
@@ -274,8 +339,9 @@ def write_preferences(
         "previous_preferences": existing["preferences"],
         "previous_extra": existing["extra"],
         "preferences": preferences,
-        "extra": extra,
-        "output_contract": resolve_output_contract(extra),
+        "extra": report_extra,
+        "output_contract": resolve_output_contract(report_extra),
+        "extra_resolution": report_extra_resolution,
         "response_style": resolve_response_style(preferences),
         "changed_fields": changed_fields,
         "changed_extra_fields": changed_extra_fields,

@@ -5,6 +5,7 @@
     }
   },
   "host_capabilities": {
+    "active_tier": "parallel-workers",
     "supports_subagents": true,
     "supports_parallel_subagents": true,
     "subagent_dispatch_skill": "dispatch-subagents"

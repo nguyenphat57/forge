@@ -130,7 +130,8 @@ class AdapterLocaleTests(unittest.TestCase):
         registry = skill_routing.load_registry()
         host = registry["host_capabilities"]
 
-        self.assertTrue(host["supports_subagents"])
+        self.assertEqual(host["active_tier"], "controller-baseline")
+        self.assertFalse(host["supports_subagents"])
         self.assertFalse(host["supports_parallel_subagents"])
         self.assertIsNone(host["subagent_dispatch_skill"])
 

@@ -44,15 +44,23 @@ def build_route_args(
     *,
     repo_signals: list[str] | None = None,
     workspace_router: Path | None = None,
+    workspace: Path | None = None,
     changed_files: int | None = None,
     has_harness: str = "auto",
+    delegation_preference: str | None = None,
+    forge_home: Path | None = None,
 ) -> Namespace:
+    if forge_home is None:
+        forge_home = forge_home_fixture("empty")
     return Namespace(
         prompt=prompt,
         repo_signal=repo_signals or [],
         workspace_router=workspace_router,
+        workspace=workspace,
         changed_files=changed_files,
         has_harness=has_harness,
+        delegation_preference=delegation_preference,
+        forge_home=forge_home,
         format="json",
         persist=False,
         output_dir=None,

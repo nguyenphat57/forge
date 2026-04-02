@@ -9,6 +9,7 @@ from common import (
     extract_extras,
     load_preferences,
     merge_extra_preferences,
+    resolve_delegation_preference,
     resolve_output_contract,
     resolve_response_style,
     resolve_workspace_preferences_path,
@@ -56,6 +57,15 @@ def build_payload(args: argparse.Namespace) -> dict:
         for warning in workspace_warnings:
             if warning not in warnings:
                 warnings.append(warning)
+
+    delegation_preference, delegation_warnings, _ = resolve_delegation_preference(
+        extra,
+        strict=args.strict,
+    )
+    extra["delegation_preference"] = delegation_preference
+    for warning in delegation_warnings:
+        if warning not in warnings:
+            warnings.append(warning)
 
     payload = {
         "status": "WARN" if warnings else "PASS",

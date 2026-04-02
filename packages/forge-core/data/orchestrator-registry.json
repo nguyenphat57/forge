@@ -1190,7 +1190,7 @@
   ],
   "host_capabilities": {
     "contract_version": "v2",
-    "active_tier": "controller-baseline",
+    "default_tier": "controller-baseline",
     "supports_subagents": false,
     "supports_parallel_subagents": false,
     "subagent_dispatch_skill": null,

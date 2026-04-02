@@ -27,6 +27,7 @@ expected_output_contract = SUPPORT_MODULE.expected_output_contract
 import common  # noqa: E402
 import response_contract  # noqa: E402
 import route_preview  # noqa: E402
+import skill_routing  # noqa: E402
 
 
 class AdapterLocaleTests(unittest.TestCase):
@@ -104,6 +105,15 @@ class AdapterLocaleTests(unittest.TestCase):
 
         self.assertEqual(report["status"], "FAIL")
         self.assertTrue(any("accent-stripped Vietnamese" in finding for finding in report["findings"]))
+
+    def test_host_capabilities_reflect_codex_parallel_worker_support(self) -> None:
+        registry = skill_routing.load_registry()
+        host = registry["host_capabilities"]
+
+        self.assertEqual(host["active_tier"], "parallel-workers")
+        self.assertTrue(host["supports_subagents"])
+        self.assertTrue(host["supports_parallel_subagents"])
+        self.assertEqual(host["subagent_dispatch_skill"], "dispatch-subagents")
 
 
 if __name__ == "__main__":

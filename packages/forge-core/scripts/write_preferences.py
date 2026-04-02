@@ -21,11 +21,11 @@ def build_report(args: argparse.Namespace) -> dict:
         value = getattr(args, field)
         if value is not None:
             updates[field] = value
-    for field in ("language", "orthography"):
+    for field in ("language", "orthography", "delegation_preference"):
         value = getattr(args, field)
         if value is not None:
             extra_updates[field] = value
-    for field in ("language", "orthography"):
+    for field in ("language", "orthography", "delegation_preference"):
         if getattr(args, f"clear_{field}"):
             extra_updates[field] = None
 
@@ -123,8 +123,14 @@ def main() -> int:
     parser.add_argument("--personality", help="personality value or alias")
     parser.add_argument("--language", help="Optional host-native output language hint to persist alongside canonical preferences")
     parser.add_argument("--orthography", help="Optional host-native orthography hint to persist alongside canonical preferences")
+    parser.add_argument(
+        "--delegation-preference",
+        dest="delegation_preference",
+        help="Optional typed delegation preference: off, auto, review-lanes, or parallel-workers",
+    )
     parser.add_argument("--clear-language", action="store_true", help="Remove any persisted host-native language hint")
     parser.add_argument("--clear-orthography", action="store_true", help="Remove any persisted host-native orthography hint")
+    parser.add_argument("--clear-delegation-preference", action="store_true", help="Remove any persisted delegation preference override")
     parser.add_argument("--replace", action="store_true", help="Start from schema defaults instead of merging with current preferences")
     parser.add_argument("--apply", action="store_true", help="Write the adapter-global Forge preferences file instead of preview only")
     parser.add_argument("--strict", action="store_true", help="Fail on invalid values instead of warning and falling back")

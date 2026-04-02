@@ -119,7 +119,11 @@ class BundleContractTests(unittest.TestCase):
 
         self.assertEqual(host.get("contract_version"), "v2")
         self.assertIsInstance(tiers, dict)
-        self.assertIn(host.get("active_tier"), tiers)
+        self.assertIn(host.get("default_tier"), tiers)
+        if host.get("active_tier") is not None:
+            self.assertIn(host.get("active_tier"), tiers)
+        if is_core_bundle():
+            self.assertNotIn("active_tier", host)
         self.assertIn("controller-baseline", tiers)
         self.assertIn("review-lane-subagents", tiers)
         self.assertIn("parallel-workers", tiers)
