@@ -290,15 +290,19 @@ class RoutePreviewTests(unittest.TestCase):
 
         self.assertEqual(report["detected"]["execution_mode"], "parallel-safe")
         self.assertEqual(report["detected"]["delegation_strategy"], "parallel-split")
+        self.assertEqual(report["detected"]["host_capability_tier"], "parallel-workers")
+        self.assertEqual(report["detected"]["host_dispatch_mode"], "parallel-workers")
         self.assertEqual(report["detected"]["host_skills"], ["dispatch-subagents"])
         self.assertEqual(report["detected"]["browser_qa_classification"], "optional-accelerator")
         self.assertEqual(report["detected"]["browser_qa_scope"], ["multi-surface frontend or workflow slice"])
         self.assertEqual(report["delegation_plan"]["activation_skill"], "dispatch-subagents")
         self.assertEqual(report["delegation_plan"]["dispatch_mode"], "parallel-workers")
+        self.assertEqual(report["delegation_plan"]["host_capability_tier"], "parallel-workers")
         self.assertEqual(
             report["delegation_plan"]["packet_template"]["required_fields"],
             [
                 "packet_id",
+                "packet_mode",
                 "parent_packet",
                 "source_of_truth",
                 "goal",
@@ -306,6 +310,14 @@ class RoutePreviewTests(unittest.TestCase):
                 "exact_files_or_paths_in_scope",
                 "owned_files_or_write_scope",
                 "depends_on_packets",
+                "unblocks_packets",
+                "merge_target",
+                "merge_strategy",
+                "overlap_risk_status",
+                "write_scope_conflicts",
+                "review_readiness",
+                "merge_readiness",
+                "completion_gate",
                 "baseline_or_clean_start_proof",
                 "red_proof",
                 "out_of_scope_for_this_slice",
@@ -391,6 +403,7 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(strategy, "independent-reviewer")
         self.assertEqual(host_skills, ["dispatch-subagents"])
         self.assertEqual(plan["dispatch_mode"], "independent-reviewers")
+        self.assertEqual(plan["host_capability_tier"], "review-lane-subagents")
         self.assertEqual(
             plan["packet_blueprints"],
             [

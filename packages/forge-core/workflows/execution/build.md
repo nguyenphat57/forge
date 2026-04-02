@@ -92,6 +92,7 @@ Before editing `medium/large`, the build must close the slice under construction
 ```text
 Execution packet:
 - Packet ID: [...]
+- Packet mode: [standard / fast-lane]
 - Parent packet: [...]
 - Sources: [plan/spec/design/spec-review]
 - Goal: [...]
@@ -99,6 +100,11 @@ Execution packet:
 - Baseline: [...]
 - Exact files / path scope: [...]
 - Owned files / write scope: [...]
+- Depends on packets: [...]
+- Unblocks packets: [...]
+- Merge target / strategy: [...]
+- Overlap risk / write-scope conflicts: [...]
+- Review readiness / merge readiness / completion gate: [...]
 - Verification to rerun: [...]
 - Browser QA classification: [not-needed / optional-accelerator / required-for-this-packet]
 - Proof before progress: [...]
@@ -112,6 +118,30 @@ Rules:
 - Don't combine multiple slices into one edit just because it's "convenient".
 - If you need to touch a file/boundary outside the packet to save the design, stop and reopen `plan`, `architect`, or `spec-review`
 - `track_execution_progress.py` is the canonical packet record for medium/large build work; summaries and dispatch wrappers should read from that packet instead of inventing a second schema
+
+## Fast Lane Contract V1
+
+Fast lane is a light packet mode for truly small low-risk slices, not a second execution system.
+
+Eligibility:
+
+- low blast radius
+- narrow owned write scope
+- no packet graph dependency or merge choreography needed
+- no schema/auth/payment/public-interface/release-tail boundary
+
+Required fast lane fields:
+
+- `packet_id`, `packet_mode`, `label`, `goal`, `status`
+- `exact_files_or_paths_in_scope`, `owned_files_or_write_scope`
+- `baseline_or_clean_start_proof`, `proof_before_progress`, `verification_to_rerun`
+- `residual_risk`, `next_steps`
+
+Rules:
+
+- fast lane cannot skip baseline proof, verification rerun, or residual-risk capture
+- fast lane state still persists through `track_execution_progress.py`
+- if dependency/overlap risk appears, escalate to standard packet mode instead of patching around missing graph fields
 
 ## Execution Mode Selection
 

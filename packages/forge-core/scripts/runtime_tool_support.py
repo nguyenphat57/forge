@@ -20,6 +20,22 @@ RUNTIME_TOOL_SPECS = {
     },
 }
 
+INSPECTION_ERROR_CODE_MAP = {
+    "Missing runtime.json": "missing-runtime-json",
+    "Missing entry script": "missing-entry-script",
+    "Invalid runtime.json": "invalid-runtime-json",
+    "Runtime bundle name mismatch": "bundle-name-mismatch",
+    "Runtime bundle host mismatch": "host-mismatch",
+}
+
+RESOLUTION_FAILURE_TAXONOMY = {
+    "missing-runtime-json": "runtime-missing",
+    "missing-entry-script": "runtime-incomplete",
+    "invalid-runtime-json": "runtime-invalid",
+    "bundle-name-mismatch": "runtime-invalid",
+    "host-mismatch": "runtime-invalid",
+}
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -92,21 +108,46 @@ def inspect_runtime_tool_target(bundle_name: str, target: Path) -> dict[str, obj
     runtime_json_path = target_path / "runtime.json"
     script_path = target_path / Path(str(spec["entry_script"]))
     if not runtime_json_path.exists():
-        return {"status": "FAIL", "bundle": bundle_name, "target": str(target_path), "error": "Missing runtime.json"}
+        return {
+            "status": "FAIL",
+            "bundle": bundle_name,
+            "target": str(target_path),
+            "error": "Missing runtime.json",
+            "error_code": "missing-runtime-json",
+        }
     if not script_path.exists():
         return {
             "status": "FAIL",
             "bundle": bundle_name,
             "target": str(target_path),
             "error": f"Missing entry script: {spec['entry_script']}",
+            "error_code": "missing-entry-script",
         }
     payload = _load_json(runtime_json_path)
     if payload is None:
-        return {"status": "FAIL", "bundle": bundle_name, "target": str(target_path), "error": "Invalid runtime.json"}
+        return {
+            "status": "FAIL",
+            "bundle": bundle_name,
+            "target": str(target_path),
+            "error": "Invalid runtime.json",
+            "error_code": "invalid-runtime-json",
+        }
     if payload.get("name") != bundle_name:
-        return {"status": "FAIL", "bundle": bundle_name, "target": str(target_path), "error": "Runtime bundle name mismatch"}
+        return {
+            "status": "FAIL",
+            "bundle": bundle_name,
+            "target": str(target_path),
+            "error": "Runtime bundle name mismatch",
+            "error_code": "bundle-name-mismatch",
+        }
     if payload.get("host") != "runtime":
-        return {"status": "FAIL", "bundle": bundle_name, "target": str(target_path), "error": "Runtime bundle host mismatch"}
+        return {
+            "status": "FAIL",
+            "bundle": bundle_name,
+            "target": str(target_path),
+            "error": "Runtime bundle host mismatch",
+            "error_code": "host-mismatch",
+        }
     return {
         "status": "PASS",
         "bundle": bundle_name,
@@ -168,6 +209,7 @@ def resolve_runtime_tool(bundle_name: str, *, explicit_target: str | None = None
     resolved_bundle_root = (bundle_root or ROOT_DIR).resolve()
     registry_path = resolve_runtime_tools_registry_path(resolved_bundle_root)
     last_error: str | None = None
+    last_error_code = "resolution-failed"
     for source, candidate in _candidate_targets(bundle_name, explicit_target, resolved_bundle_root):
         inspection = inspect_runtime_tool_target(bundle_name, candidate)
         if inspection["status"] == "PASS":
@@ -175,9 +217,153 @@ def resolve_runtime_tool(bundle_name: str, *, explicit_target: str | None = None
             inspection["registry_path"] = str(registry_path) if registry_path is not None else None
             return inspection
         last_error = str(inspection.get("error") or "Unknown runtime resolution error")
+        last_error_code = str(inspection.get("error_code") or "")
     return {
         "status": "FAIL",
         "bundle": bundle_name,
         "error": last_error or f"Unable to resolve runtime tool: {bundle_name}",
+        "error_code": last_error_code or "resolution-failed",
+        "taxonomy": RESOLUTION_FAILURE_TAXONOMY.get(last_error_code, "runtime-unresolvable"),
         "registry_path": str(registry_path) if registry_path is not None else None,
+    }
+
+
+def runtime_error_taxonomy(error_code: str | None, error_text: str | None = None) -> str:
+    if isinstance(error_code, str) and error_code.strip():
+        normalized = error_code.strip()
+        if normalized in RESOLUTION_FAILURE_TAXONOMY:
+            return RESOLUTION_FAILURE_TAXONOMY[normalized]
+        if normalized in {"timeout", "process-timeout"}:
+            return "runtime-timeout"
+        if normalized in {"non-zero-exit", "tool-failed"}:
+            return "runtime-execution-failed"
+    text = (error_text or "").casefold()
+    if "timeout" in text:
+        return "runtime-timeout"
+    if "permission denied" in text or "access is denied" in text:
+        return "runtime-permission"
+    if "not found" in text or "no such file" in text:
+        return "runtime-missing"
+    return "runtime-execution-failed"
+
+
+def runtime_health_report(
+    bundle_name: str,
+    *,
+    explicit_target: str | None = None,
+    bundle_root: Path | None = None,
+) -> dict[str, object]:
+    resolved_bundle_root = (bundle_root or ROOT_DIR).resolve()
+    registry_path = resolve_runtime_tools_registry_path(resolved_bundle_root)
+    registry = load_runtime_tool_registry(registry_path)
+    tools = registry.get("tools") if isinstance(registry, dict) else {}
+    record = tools.get(bundle_name) if isinstance(tools, dict) else None
+    checks: list[dict[str, str]] = []
+
+    checks.append(
+        {
+            "id": "registry-path",
+            "status": "PASS" if registry_path is not None else "WARN",
+            "detail": str(registry_path) if registry_path is not None else "Runtime registry path is not configured.",
+        }
+    )
+
+    registration_target: str | None = None
+    registration_inspection: dict[str, object] | None = None
+    if isinstance(record, dict):
+        target_value = record.get("target")
+        if isinstance(target_value, str) and target_value.strip():
+            registration_target = target_value.strip()
+            registration_inspection = inspect_runtime_tool_target(bundle_name, Path(registration_target))
+            checks.append(
+                {
+                    "id": "registry-entry",
+                    "status": "PASS" if registration_inspection["status"] == "PASS" else "FAIL",
+                    "detail": (
+                        f"Registered target is healthy: {registration_target}"
+                        if registration_inspection["status"] == "PASS"
+                        else f"Registered target is stale: {registration_inspection.get('error')}"
+                    ),
+                }
+            )
+        else:
+            checks.append(
+                {
+                    "id": "registry-entry",
+                    "status": "FAIL",
+                    "detail": "Registry entry exists but target is missing.",
+                }
+            )
+    else:
+        checks.append(
+            {
+                "id": "registry-entry",
+                "status": "WARN",
+                "detail": f"No registry entry found for runtime bundle '{bundle_name}'.",
+            }
+        )
+
+    resolved = resolve_runtime_tool(bundle_name, explicit_target=explicit_target, bundle_root=resolved_bundle_root)
+    if resolved["status"] == "PASS":
+        stale_registration = (
+            isinstance(registration_inspection, dict)
+            and registration_inspection.get("status") == "FAIL"
+            and resolved.get("resolution_source") != "registry"
+        )
+        taxonomy = "stale-registration" if stale_registration else "healthy"
+        summary = (
+            "Runtime resolved through fallback because registry target is stale."
+            if stale_registration
+            else "Runtime target is healthy."
+        )
+        checks.append(
+            {
+                "id": "resolution",
+                "status": "PASS" if not stale_registration else "WARN",
+                "detail": f"Resolved from {resolved.get('resolution_source')}: {resolved.get('target')}",
+            }
+        )
+        return {
+            "status": "WARN" if stale_registration else "PASS",
+            "bundle": bundle_name,
+            "taxonomy": taxonomy,
+            "summary": summary,
+            "registry_path": str(registry_path) if registry_path is not None else None,
+            "resolution_source": resolved.get("resolution_source"),
+            "target": resolved.get("target"),
+            "script_path": resolved.get("script_path"),
+            "checks": checks,
+            "suggested_action": (
+                f"Re-register '{bundle_name}' to refresh the stale runtime target."
+                if stale_registration
+                else "Runtime health is good."
+            ),
+        }
+
+    failure_taxonomy = "stale-registration"
+    if not isinstance(registration_inspection, dict) or registration_inspection.get("status") != "FAIL":
+        failure_taxonomy = runtime_error_taxonomy(str(resolved.get("error_code") or ""), str(resolved.get("error") or ""))
+    checks.append(
+        {
+            "id": "resolution",
+            "status": "FAIL",
+            "detail": str(resolved.get("error") or "Runtime resolution failed."),
+        }
+    )
+    return {
+        "status": "FAIL",
+        "bundle": bundle_name,
+        "taxonomy": failure_taxonomy,
+        "summary": "Runtime target is not healthy enough to invoke.",
+        "registry_path": str(registry_path) if registry_path is not None else None,
+        "resolution_source": resolved.get("resolution_source"),
+        "target": resolved.get("target"),
+        "error": resolved.get("error"),
+        "error_code": resolved.get("error_code"),
+        "checks": checks,
+        "suggested_action": (
+            f"Run runtime doctor and re-register '{bundle_name}' to a valid target."
+            if failure_taxonomy == "stale-registration"
+            else "Run runtime doctor and fix the reported runtime target issue."
+        ),
     }

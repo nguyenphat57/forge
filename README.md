@@ -29,7 +29,7 @@ The goal is to make agent-assisted delivery more reliable across hosts and proje
 
 - License: `MIT`
 - Repo maturity: stable release available
-- Current stable release: `1.13.0`
+- Current stable release: `1.14.0`
 - Canonical verification gate: `python scripts/verify_repo.py`
 - `forge-antigravity` is currently the most mature adapter for real rollout
 - `forge-codex` ships in the current stable release after passing the canonical release gates
@@ -110,6 +110,17 @@ If you want a clean end-to-end pass before installing anything:
 python scripts/verify_repo.py
 python scripts/build_release.py
 ```
+
+## Start Here (Solo Operator)
+
+For a first-run repo where context is still weak, keep the entry path simple:
+
+1. run `python scripts/verify_repo.py` to confirm tooling health
+2. in the host session, start with `doctor` then `map-codebase`
+3. choose one bounded slice and persist packet/workflow-state before wider edits
+
+For low-complexity work, use fast lane only when the slice is truly low-risk and still keep proof-before-claims.
+For medium/high-risk work, use full packet mode with packet graph fields and rerun verification before claiming completion.
 
 If you want to preview an install plan without changing files:
 

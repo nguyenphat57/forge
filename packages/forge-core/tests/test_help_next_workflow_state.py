@@ -336,6 +336,61 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
         self.assertEqual(report["suggested_workflow"], "deploy")
         self.assertEqual(report["current_focus"], "Gate approved: deploy")
 
+    def test_next_can_resume_from_packet_index_when_latest_workflow_state_is_missing(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            project_slug = "workflow-workspace"
+            state_dir = workspace / ".forge-artifacts" / "workflow-state" / project_slug
+            state_dir.mkdir(parents=True, exist_ok=True)
+            (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
+            (workspace / "package.json").write_text('{"name":"workflow-workspace"}\n', encoding="utf-8")
+            (state_dir / "packet-index.json").write_text(
+                json.dumps(
+                    {
+                        "project": "Workflow Workspace",
+                        "updated_at": "2026-04-02T00:00:00+00:00",
+                        "current_stage": "build",
+                        "current_packet": "packet-checkout-ui",
+                        "packet_mode": "fast-lane",
+                        "active_packets": ["packet-checkout-ui"],
+                        "blocked_packets": [],
+                        "review_ready_packets": [],
+                        "merge_ready_packets": [],
+                        "browser_qa_pending": [],
+                        "merge_target": None,
+                        "next_merge_point": None,
+                        "summary": {
+                            "status": "active",
+                            "primary_kind": "execution-progress",
+                            "current_focus": "Fast-lane packet: Checkout copy polish [packet-checkout-ui]",
+                            "recommended_action": "Continue fast-lane packet 'packet-checkout-ui' with explicit proof rerun.",
+                            "suggested_workflow": "build",
+                        },
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["status"], "PASS")
+        self.assertEqual(report["signals"]["workflow_state_source"], "packet-index")
+        self.assertEqual(report["current_stage"], "session-active")
+        self.assertEqual(report["current_focus"], "Fast-lane packet: Checkout copy polish [packet-checkout-ui]")
+        self.assertEqual(report["suggested_workflow"], "build")
+
 
 if __name__ == "__main__":
     unittest.main()

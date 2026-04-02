@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.14.0 (stable) - 2026-04-02
+
+- Ship the competitive `1.14.x` execution-kernel upgrade by adding an explicit fast-lane packet mode for low-risk slices, while preserving proof-before-claims, verification rerun, and residual-risk capture.
+- Upgrade packetized execution into graph-aware contracts across routing, tracking, and workflow summaries, including dependency and unblock links, merge intent, overlap risk, readiness states, and completion gates.
+- Add runtime-health diagnostics and doctor-style runtime checks for browser-capable toolchains, plus host capability contract v2 with tiered dispatch reasons and fallback reasons that keep packet semantics host-neutral.
+- Promote the `1.14.x` target and closure boundaries into tracked references, add bounded continuity packet-index support, extension-preset boundary contracts, onboarding guidance, and release-contract regression coverage.
+
 ## 1.13.0 (stable) - 2026-04-02
 
 - Turn `1.13.0` into Forge's first build-process enhancement release by freezing a canonical build-packet contract across execution progress, chain status, workflow summaries, and host-facing dispatch guidance.

@@ -66,14 +66,26 @@ Challenge a change when it mainly adds:
 - host-native acceleration should preserve one packet contract across `controller-sequential`, `independent-reviewer`, and `parallel-split`
 - browser QA should stay targeted, packet-scoped, and evidence-backed instead of becoming a generic mandatory gate
 
+## 1.14.x Target
+
+`1.14.x` should increase execution throughput without contract drift:
+
+- fast lane is explicit for small low-risk slices, but it still keeps proof-before-claims, verification rerun, and residual-risk capture
+- packet graph fields are canonical in packet state (`depends_on_packets`, `unblocks_packets`, merge intent, overlap risk, readiness, and completion gate)
+- runtime health and doctor-style diagnostics are explicit for browser-capable runtime paths before claiming browser proof
+- host capability contract v2 stays explanatory (`tier`, dispatch reasons, fallback reasons) without changing packet semantics
+- continuity depth stays bounded through a packet index read model that summarizes packet state without replacing workflow-state
+- extension and preset boundaries stay narrow: packet templates, workflow overlays, and planning presets cannot override core verification and state contracts
+- onboarding stays thin: first-run guidance should help a solo operator start quickly without hiding process expectations
+
 ## Deferred Boundary
 
-The following belong to `1.14+` unless a later `1.13.x` slice explicitly promotes them:
+The following stay deferred beyond `1.14.x` unless a later slice narrows them first:
 
-- installed-runtime health or doctor-style live host verification: defer because `1.12.x` is about operating-model maturity, not adding new live-host trust surfaces.
-- host rollout ledgers: defer because the current release-tail contract already records enough state for solo-dev maturity without introducing a second tracking system.
-- runtime canary expansion beyond the release contract already in place: defer because `1.12.x` should strengthen the existing release loop before widening the canary surface.
-- generated release publish packets: defer because publish automation is packaging acceleration, not a blocker for the `1.12.x` operating model.
-- deeper companion acceleration or broader companion breadth: defer because `1.12.x` must keep core solo-dev behavior coherent before adding more companion-dependent leverage.
+- host rollout ledgers: defer because the release-tail workflow-state already carries enough control without adding a second tracking system
+- runtime canary expansion beyond the release contract already in place: defer until the bounded runtime health contract proves stable in real repos
+- generated release publish packets: defer because publish automation is packaging acceleration, not execution-kernel leverage
+- cloud-synced memory or self-healing control loops: defer until a local execution-facing use case proves a clear payoff
+- breadth-first companion expansion: defer until current bounded extension and preset surfaces are stable and measurable
 
 If a proposed release tier does not change the behavior bar, keep the canonical tier list smaller and preserve compatibility aliases instead of creating new posture names.

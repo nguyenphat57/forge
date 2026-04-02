@@ -115,6 +115,7 @@ def build_report(workspace: Path, mode: str) -> dict:
             "workflow_state_file": workflow_report["path"],
             "workflow_state_source": workflow_report["source"],
             "workflow_summary": workflow_state.get("summary") if isinstance(workflow_state, dict) else None,
+            "workflow_packet_index": workflow_state.get("packet_index") if isinstance(workflow_state, dict) else None,
             "release_readiness_file": str(release_readiness_path) if release_readiness_path else None,
             "release_tier": release_tier_label(release_readiness),
             "release_readiness_tier": release_tier_label(release_readiness),

@@ -130,6 +130,8 @@ class RuntimeToolSupportTests(unittest.TestCase):
         self.assertEqual(state["latest_run"]["command_kind"], "browser-qa")
         self.assertEqual(state["latest_run"]["packet_id"], "packet-checkout-ui")
         self.assertEqual(state["latest_run"]["browser_proof_status"], "satisfied")
+        self.assertEqual(state["latest_run"]["runtime_health_status"], "PASS")
+        self.assertEqual(state["latest_run"]["runtime_health_taxonomy"], "healthy")
         self.assertEqual(state["latest_execution"]["browser_qa_status"], "satisfied")
         self.assertEqual(state["latest_execution"]["browser_qa_last_result"], "PASS")
 
@@ -207,6 +209,65 @@ class RuntimeToolSupportTests(unittest.TestCase):
             resolved = runtime_tool_support.resolve_runtime_tools_registry_path(bundle_root)
 
         self.assertEqual(resolved, registry_path.resolve())
+
+    def test_runtime_health_report_warns_on_stale_registry_but_recovers_via_neighbor(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            temp_root = Path(temp_dir)
+            bundle_root = temp_root / "forge-core"
+            bundle_root.mkdir(parents=True, exist_ok=True)
+            runtime_root = self._make_runtime_tool(temp_root / "forge-browse", "forge-browse", "forge_browse.py")
+            registry_path = temp_root / "state" / "runtime-tools.json"
+            registry_path.parent.mkdir(parents=True, exist_ok=True)
+            registry_path.write_text(
+                json.dumps(
+                    {
+                        "version": 1,
+                        "tools": {
+                            "forge-browse": {
+                                "bundle": "forge-browse",
+                                "target": str((temp_root / "stale-target").resolve()),
+                            }
+                        },
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+            original = os.environ.get("FORGE_RUNTIME_TOOLS_PATH")
+            os.environ["FORGE_RUNTIME_TOOLS_PATH"] = str(registry_path)
+            try:
+                report = runtime_tool_support.runtime_health_report("forge-browse", bundle_root=bundle_root)
+            finally:
+                if original is None:
+                    os.environ.pop("FORGE_RUNTIME_TOOLS_PATH", None)
+                else:
+                    os.environ["FORGE_RUNTIME_TOOLS_PATH"] = original
+
+        self.assertEqual(report["status"], "WARN")
+        self.assertEqual(report["taxonomy"], "stale-registration")
+        self.assertEqual(report["resolution_source"], "bundle-neighbor")
+        self.assertEqual(report["target"], str(runtime_root.resolve()))
+
+    def test_invoke_runtime_tool_doctor_surfaces_runtime_health_payload(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            temp_root = Path(temp_dir)
+            registry_path = temp_root / "state" / "runtime-tools.json"
+            design_root = self._make_runtime_tool(temp_root / "forge-design", "forge-design", "forge_design.py")
+            runtime_tool_support.write_runtime_tool_registration(registry_path, "forge-design", design_root)
+
+            result = run_python_script(
+                "invoke_runtime_tool.py",
+                "--doctor",
+                "forge-design",
+                env={"FORGE_RUNTIME_TOOLS_PATH": str(registry_path)},
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "PASS")
+        self.assertEqual(payload["taxonomy"], "healthy")
+        self.assertEqual(payload["resolution_source"], "registry")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,31 @@
+{
+  "preset_id": "solo-copy-fast-lane",
+  "description": "Example preset packet for a low-risk copy slice.",
+  "packet": {
+    "packet_id": "packet-copy-fast-lane",
+    "packet_mode": "fast-lane",
+    "goal": "Update one copy path with explicit proof rerun.",
+    "exact_files_or_paths_in_scope": [
+      "src/copy.ts"
+    ],
+    "owned_files_or_write_scope": [
+      "src/copy.ts"
+    ],
+    "baseline_or_clean_start_proof": [
+      "git status --short"
+    ],
+    "proof_before_progress": [
+      "Preview copy output in the target UI state"
+    ],
+    "verification_to_rerun": [
+      "python -m pytest tests/test_copy.py -q"
+    ],
+    "residual_risk": [
+      "localized copy regression only"
+    ],
+    "next_steps": [
+      "apply approved copy and rerun the targeted check"
+    ]
+  },
+  "boundary_note": "Core validation still enforces fast-lane guardrails and proof-before-claims."
+}

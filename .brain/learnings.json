@@ -120,5 +120,33 @@
     "revisit_if": null,
     "trigger": "release-review",
     "resume_hint": "Re-open this item when the work slice resumes."
+  },
+  {
+    "id": "20260402-144231",
+    "kind": "learning",
+    "scope": "forge-1-14-competitive-release",
+    "summary": "Competitive throughput gains stay reliable only when fast-lane, packet graph, runtime health diagnostics, and host capability tiers are implemented as one contract and validated together in both core and release sweeps.",
+    "status": "resolved",
+    "evidence": [
+      "packages/forge-core/scripts/track_execution_progress.py",
+      "packages/forge-core/scripts/track_chain_status.py",
+      "packages/forge-core/scripts/runtime_tool_support.py",
+      "packages/forge-core/scripts/route_delegation.py",
+      "packages/forge-core/tests/test_fast_lane_lifecycle.py",
+      "packages/forge-core/tests/test_chain_status.py",
+      "tests/release_repo_test_contracts.py"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "competitive",
+      "fast-lane",
+      "packet-graph",
+      "runtime-health",
+      "host-capability"
+    ],
+    "revisit_if": null,
+    "trigger": "release-review",
+    "resume_hint": "Re-open this item when the work slice resumes."
   }
 ]

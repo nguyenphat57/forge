@@ -47,6 +47,19 @@ def _pick_latest_json(base_dir: Path) -> Path | None:
     return latest_path
 
 
+def _pick_latest_named_json(base_dir: Path, filename: str) -> Path | None:
+    if not base_dir.exists():
+        return None
+    latest_path: Path | None = None
+    latest_rank = (float("-inf"), "")
+    for candidate in base_dir.rglob(filename):
+        rank = _mtime_rank(candidate)
+        if rank > latest_rank:
+            latest_path = candidate
+            latest_rank = rank
+    return latest_path
+
+
 def _string_list(value: object) -> list[str]:
     return [item for item in value if isinstance(item, str) and item.strip()] if isinstance(value, list) else []
 
@@ -170,6 +183,20 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
         "source_path": str(source_path) if source_path else None,
     }
     if kind == "chain-status":
+        write_scope_overlaps = _coalesce_list(report, "write_scope_overlaps")
+        review_ready_packets = _coalesce_list(report, "review_ready_packets")
+        merge_ready_packets = _coalesce_list(report, "merge_ready_packets")
+        review_readiness = _coalesce_string(report, "review_readiness") or ("ready" if review_ready_packets else "pending")
+        merge_readiness = _coalesce_string(report, "merge_readiness") or ("ready" if merge_ready_packets else "pending")
+        completion_gate = _coalesce_string(report, "completion_gate") or (
+            "merge-ready"
+            if merge_readiness == "ready"
+            else "review-ready"
+            if review_readiness == "ready"
+            else "blocked"
+            if report.get("status") == "blocked" or report.get("gate_decision") == "blocked"
+            else "incomplete"
+        )
         return {
             **common_fields,
             "label": _coalesce_string(report, "label", "chain") or "Unnamed chain",
@@ -178,21 +205,44 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
             "next_steps": as_string_list(report.get("next_stages")),
             "active_packets": _coalesce_list(report, "active_packets"),
             "blocked_packets": _coalesce_list(report, "blocked_packets"),
-            "review_ready_packets": _coalesce_list(report, "review_ready_packets"),
-            "merge_ready_packets": _coalesce_list(report, "merge_ready_packets"),
+            "review_ready_packets": review_ready_packets,
+            "merge_ready_packets": merge_ready_packets,
             "browser_qa_pending": _coalesce_list(report, "browser_qa_pending"),
-            "write_scope_overlaps": _coalesce_list(report, "write_scope_overlaps"),
+            "write_scope_overlaps": write_scope_overlaps,
             "sequential_reasons": _coalesce_list(report, "sequential_reasons"),
             "next_merge_point": _coalesce_string(report, "next_merge_point"),
+            "merge_target": _coalesce_string(report, "merge_target"),
+            "merge_strategy": _coalesce_string(report, "merge_strategy") or "none",
+            "overlap_risk_status": _coalesce_string(report, "overlap_risk_status") or ("medium" if write_scope_overlaps else "none"),
+            "review_readiness": review_readiness,
+            "merge_readiness": merge_readiness,
+            "completion_gate": completion_gate,
             "blockers": as_string_list(report.get("blockers")),
             "risks": as_string_list(report.get("risks")),
             "gate_decision": report.get("gate_decision"),
         }
     if kind == "execution-progress":
+        write_scope_conflicts = _coalesce_list(report, "write_scope_conflicts")
+        review_readiness = _coalesce_string(report, "review_readiness") or (
+            "ready" if report.get("completion_state") in {"ready-for-review", "ready-for-merge"} else "pending"
+        )
+        merge_readiness = _coalesce_string(report, "merge_readiness") or (
+            "ready" if report.get("completion_state") == "ready-for-merge" else "pending"
+        )
+        completion_gate = _coalesce_string(report, "completion_gate") or (
+            "merge-ready"
+            if merge_readiness == "ready"
+            else "review-ready"
+            if review_readiness == "ready"
+            else "blocked"
+            if report.get("status") == "blocked" or report.get("completion_state") == "blocked-by-residual-risk"
+            else "incomplete"
+        )
         return {
             **common_fields,
             "label": _coalesce_string(report, "label", "task") or "Unnamed task",
             "packet_id": _coalesce_string(report, "packet_id"),
+            "packet_mode": _coalesce_string(report, "packet_mode") or "standard",
             "parent_packet": _coalesce_string(report, "parent_packet"),
             "goal": _coalesce_string(report, "goal", "task") or "Unnamed task",
             "status": report.get("status", "active"),
@@ -202,6 +252,14 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
             "exact_files_or_paths_in_scope": _coalesce_list(report, "exact_files_or_paths_in_scope", "scope_paths", "scope_path"),
             "owned_files_or_write_scope": _coalesce_list(report, "owned_files_or_write_scope", "owned_scope"),
             "depends_on_packets": _coalesce_list(report, "depends_on_packets", "depends_on_packet"),
+            "unblocks_packets": _coalesce_list(report, "unblocks_packets", "unblock_packet"),
+            "merge_target": _coalesce_string(report, "merge_target"),
+            "merge_strategy": _coalesce_string(report, "merge_strategy") or "none",
+            "overlap_risk_status": _coalesce_string(report, "overlap_risk_status") or ("medium" if write_scope_conflicts else "none"),
+            "write_scope_conflicts": write_scope_conflicts,
+            "review_readiness": review_readiness,
+            "merge_readiness": merge_readiness,
+            "completion_gate": completion_gate,
             "baseline_or_clean_start_proof": _coalesce_list(report, "baseline_or_clean_start_proof", "baseline_proof", "baseline"),
             "red_proof": _coalesce_list(report, "red_proof"),
             "proof_before_progress": _coalesce_list(report, "proof_before_progress", "proof"),
@@ -230,6 +288,13 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
             "browser_proof_status": _coalesce_string(report, "browser_proof_status"),
             "browser_proof_result": _coalesce_string(report, "browser_proof_result"),
             "browser_proof_target": _coalesce_string(report, "browser_proof_target"),
+            "runtime_health_status": _coalesce_string(report, "runtime_health_status"),
+            "runtime_health_taxonomy": _coalesce_string(report, "runtime_health_taxonomy"),
+            "runtime_health_summary": _coalesce_string(report, "runtime_health_summary"),
+            "runtime_resolution_source": _coalesce_string(report, "runtime_resolution_source"),
+            "runtime_registry_path": _coalesce_string(report, "runtime_registry_path"),
+            "runtime_failure_taxonomy": _coalesce_string(report, "runtime_failure_taxonomy"),
+            "runtime_doctor_command": _coalesce_string(report, "runtime_doctor_command"),
         }
     if kind == "quality-gate":
         return {
@@ -307,6 +372,7 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
             "summary": report.get("activation_line"),
             "browser_qa_classification": detected.get("browser_qa_classification"),
             "browser_qa_scope": _string_list(detected.get("browser_qa_scope")),
+            "packet_mode": detected.get("packet_mode"),
         }
     return {
         **common_fields,
@@ -369,6 +435,38 @@ def _build_state(
             latest_route_preview,
             preferred_kind=preferred_kind,
         ),
+    }
+
+
+def _build_packet_index(state: dict) -> dict:
+    latest_execution = state.get("latest_execution") if isinstance(state.get("latest_execution"), dict) else {}
+    latest_chain = state.get("latest_chain") if isinstance(state.get("latest_chain"), dict) else {}
+    summary = state.get("summary") if isinstance(state.get("summary"), dict) else {}
+    active_packets = _string_list(latest_chain.get("active_packets"))
+    packet_id = latest_execution.get("packet_id")
+    if isinstance(packet_id, str) and packet_id.strip() and packet_id not in active_packets:
+        active_packets = [packet_id, *active_packets]
+
+    return {
+        "project": state.get("project", "workspace"),
+        "updated_at": state.get("updated_at"),
+        "current_stage": state.get("current_stage"),
+        "current_packet": packet_id if isinstance(packet_id, str) and packet_id.strip() else None,
+        "packet_mode": latest_execution.get("packet_mode") if isinstance(latest_execution.get("packet_mode"), str) else None,
+        "active_packets": active_packets,
+        "blocked_packets": _string_list(latest_chain.get("blocked_packets")),
+        "review_ready_packets": _string_list(latest_chain.get("review_ready_packets")),
+        "merge_ready_packets": _string_list(latest_chain.get("merge_ready_packets")),
+        "browser_qa_pending": _string_list(latest_chain.get("browser_qa_pending")),
+        "merge_target": latest_execution.get("merge_target") or latest_chain.get("merge_target"),
+        "next_merge_point": latest_chain.get("next_merge_point"),
+        "summary": {
+            "status": summary.get("status"),
+            "primary_kind": summary.get("primary_kind"),
+            "current_focus": summary.get("current_focus"),
+            "recommended_action": summary.get("recommended_action"),
+            "suggested_workflow": summary.get("suggested_workflow"),
+        },
     }
 
 
@@ -495,7 +593,11 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
         stages=stages,
         updated_at=entry["recorded_at"],
     )
+    packet_index = _build_packet_index(state)
+    state["packet_index"] = packet_index
     latest_path.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
+    packet_index_path = root / "packet-index.json"
+    packet_index_path.write_text(json.dumps(packet_index, indent=2, ensure_ascii=False), encoding="utf-8")
     events_path = root / "events.jsonl"
     event = {"kind": kind, "label": entry["label"], "project": entry["project"], "recorded_at": entry["recorded_at"], "source_path": entry["source_path"]}
     with events_path.open("a", encoding="utf-8") as handle:
@@ -508,11 +610,47 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
 
 def resolve_workflow_state(workspace: Path, warnings: list[str] | None = None) -> dict:
     local_warnings = warnings if warnings is not None else []
-    latest_path = _pick_latest_json(workspace / ".forge-artifacts" / WORKFLOW_STATE_DIR)
+    workflow_root = workspace / ".forge-artifacts" / WORKFLOW_STATE_DIR
+    latest_path = _pick_latest_named_json(workflow_root, "latest.json")
+    packet_index_path = _pick_latest_named_json(workflow_root, "packet-index.json")
     if latest_path is not None:
         payload = _read_json_object(latest_path, "workflow state", local_warnings)
         if isinstance(payload, dict):
-            return {"state": _refresh_loaded_summary(payload), "path": str(latest_path), "source": "workflow-state"}
+            refreshed = _refresh_loaded_summary(payload)
+            if not isinstance(refreshed.get("packet_index"), dict):
+                packet_index_payload = _read_json_object(packet_index_path, "packet index", local_warnings) if packet_index_path else None
+                refreshed["packet_index"] = (
+                    packet_index_payload
+                    if isinstance(packet_index_payload, dict)
+                    else _build_packet_index(refreshed)
+                )
+            return {"state": refreshed, "path": str(latest_path), "source": "workflow-state"}
+
+    if packet_index_path is not None:
+        packet_index_payload = _read_json_object(packet_index_path, "packet index", local_warnings)
+        if isinstance(packet_index_payload, dict):
+            state = {
+                "project": packet_index_payload.get("project", "workspace"),
+                "updated_at": packet_index_payload.get("updated_at"),
+                "last_recorded_kind": "packet-index",
+                "current_stage": packet_index_payload.get("current_stage"),
+                "required_stage_chain": [],
+                "stages": {},
+                "latest_chain": None,
+                "latest_execution": None,
+                "latest_ui": None,
+                "latest_run": None,
+                "latest_gate": None,
+                "latest_review": None,
+                "latest_route_preview": None,
+                "latest_direction": None,
+                "latest_spec_review": None,
+                "latest_adoption_check": None,
+                "packet_index": packet_index_payload,
+                "summary": packet_index_payload.get("summary", {}),
+            }
+            return {"state": _refresh_loaded_summary(state), "path": str(packet_index_path), "source": "packet-index"}
+
     sources = {
         "execution-progress": _pick_latest_json(workspace / ".forge-artifacts" / "execution-progress"),
         "chain-status": _pick_latest_json(workspace / ".forge-artifacts" / "chain-status"),

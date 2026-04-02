@@ -22,6 +22,7 @@
 |`ui-heuristics.md` | Global heuristics for touch-heavy, dashboard, dense-data UI|
 |`ui-progress.md` | Track progress for long UI tasks|
 |`architecture-layers.md` | When deciding whether a capability belongs in core, generated artifacts, workflow state, or runtime tools|
+|`extension-presets.md` | When defining bounded packet templates, workflow overlays, or planning presets without weakening core contracts|
 |`tooling.md` | When you need to run route preview, capture continuity, router checker, or find artifact paths|
 |`personalization.md` | When editing response-style preferences, adaptive language, or adapter wrappers for customization|
 |`release-readiness.md` | When changing the release verdict, rollout tiers, or post-release follow-up contract|
@@ -45,20 +46,21 @@
 ```text
 1. SKILL.md
 2. architecture-layers.md before moving ownership between core, generated artifacts, workflow state, and runtime tools
-3. target-state.md if the change affects Forge strategy, process weight, verification strictness, or core identity
-4. tooling.md if you need deterministic preview/check instead of reading plain prose
-5. personalization.md if you are editing response style or preference engine
-6. workspace-init.md if editing init/onboarding skeleton logic
-7. help-next.md if editing navigator help/next
-8. run-guidance.md if editing run/execute-then-route
-9. error-translation.md if you are editing error translator/helper layer
-10. bump-release.md or rollback-guidance.md if editing release operators
-11. artifact-driven-change-flow.md if validating the medium/risky implementation path end-to-end
-12. backend-briefs.md or execution-delivery.md depending on the layer being edited
-13. smoke-tests.md / smoke-test-checklist.md if needed to verify host behavior
-14. canary-rollout.md if preparing a real rollout
-15. companion-skill-contract.md only when editing the companion/runtime layer
-16. companion-routing-smoke-tests.md only when testing the companion/runtime layer
+3. extension-presets.md when adding bounded packet template, workflow overlay, or planning preset contracts
+4. target-state.md if the change affects Forge strategy, process weight, verification strictness, or core identity
+5. tooling.md if you need deterministic preview/check instead of reading plain prose
+6. personalization.md if you are editing response style or preference engine
+7. workspace-init.md if editing init/onboarding skeleton logic
+8. help-next.md if editing navigator help/next
+9. run-guidance.md if editing run/execute-then-route
+10. error-translation.md if you are editing error translator/helper layer
+11. bump-release.md or rollback-guidance.md if editing release operators
+12. artifact-driven-change-flow.md if validating the medium/risky implementation path end-to-end
+13. backend-briefs.md or execution-delivery.md depending on the layer being edited
+14. smoke-tests.md / smoke-test-checklist.md if needed to verify host behavior
+15. canary-rollout.md if preparing a real rollout
+16. companion-skill-contract.md only when editing the companion/runtime layer
+17. companion-routing-smoke-tests.md only when testing the companion/runtime layer
 ```
 
 ### When the repo does not have local skills

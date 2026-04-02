@@ -284,8 +284,17 @@ class ToolRoundTripTests(unittest.TestCase):
                 / common.slugify("Example Project")
                 / "latest.json"
             )
+            packet_index_path = (
+                workspace
+                / ".forge-artifacts"
+                / "workflow-state"
+                / common.slugify("Example Project")
+                / "packet-index.json"
+            )
             self.assertTrue(workflow_state_path.exists())
+            self.assertTrue(packet_index_path.exists())
             state = json.loads(workflow_state_path.read_text(encoding="utf-8"))
+            packet_index = json.loads(packet_index_path.read_text(encoding="utf-8"))
 
             self.assertEqual(state["latest_chain"]["source_path"], str(chain_json_path))
             self.assertEqual(state["latest_execution"]["source_path"], str(execution_json_path))
@@ -304,6 +313,10 @@ class ToolRoundTripTests(unittest.TestCase):
             self.assertEqual(state["summary"]["current_focus"], "Build packet: Offline reconciliation [packet-reconciliation]")
             self.assertEqual(state["summary"]["suggested_workflow"], "build")
             self.assertEqual(state["summary"]["active_packets"], ["packet-reconciliation"])
+            self.assertEqual(packet_index["current_packet"], "packet-reconciliation")
+            self.assertEqual(packet_index["packet_mode"], "standard")
+            self.assertEqual(packet_index["summary"]["current_focus"], "Build packet: Offline reconciliation [packet-reconciliation]")
+            self.assertEqual(packet_index["active_packets"], ["packet-reconciliation", "packet-checkout-api"])
 
             run_report = {
                 "status": "PASS",

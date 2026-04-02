@@ -9,6 +9,10 @@ from workflow_state_support import record_workflow_event
 
 
 VALID_STATUSES = ("active", "paused", "completed", "blocked")
+VALID_MERGE_STRATEGIES = ("none", "merge-commit", "squash", "rebase", "ff-only")
+VALID_OVERLAP_RISK_STATUSES = ("none", "low", "medium", "high", "blocked")
+VALID_READINESS_STATES = ("pending", "ready", "blocked")
+VALID_COMPLETION_GATES = ("incomplete", "review-ready", "merge-ready", "blocked")
 
 
 def _list_arg(args: argparse.Namespace, name: str) -> list[str]:
@@ -34,7 +38,22 @@ def build_report(args: argparse.Namespace) -> dict:
     if args.review_iteration and args.max_review_iterations and args.review_iteration > args.max_review_iterations:
         raise ValueError("review_iteration cannot exceed max_review_iterations.")
 
-    return {
+    merge_target = getattr(args, "merge_target", None)
+    merge_strategy = getattr(args, "merge_strategy", None) or ("none" if not merge_target else "merge-commit")
+    overlap_risk_status = getattr(args, "overlap_risk_status", None) or ("medium" if _list_arg(args, "write_scope_overlap") else "none")
+    review_readiness = getattr(args, "review_readiness", None) or ("ready" if _list_arg(args, "review_ready_packet") else "pending")
+    merge_readiness = getattr(args, "merge_readiness", None) or ("ready" if _list_arg(args, "merge_ready_packet") else "pending")
+    completion_gate = getattr(args, "completion_gate", None) or (
+        "merge-ready"
+        if merge_readiness == "ready"
+        else "review-ready"
+        if review_readiness == "ready"
+        else "blocked"
+        if args.status == "blocked" or args.gate_decision == "blocked"
+        else "incomplete"
+    )
+
+    report = {
         "chain": args.chain,
         "project": args.project_name,
         "profile": getattr(args, "profile", None),
@@ -52,6 +71,12 @@ def build_report(args: argparse.Namespace) -> dict:
         "review_ready_packets": _list_arg(args, "review_ready_packet"),
         "merge_ready_packets": _list_arg(args, "merge_ready_packet"),
         "next_merge_point": getattr(args, "next_merge_point", None),
+        "merge_target": merge_target,
+        "merge_strategy": merge_strategy,
+        "overlap_risk_status": overlap_risk_status,
+        "review_readiness": review_readiness,
+        "merge_readiness": merge_readiness,
+        "completion_gate": completion_gate,
         "browser_qa_pending": _list_arg(args, "browser_qa_pending"),
         "write_scope_overlaps": _list_arg(args, "write_scope_overlap"),
         "sequential_reasons": _list_arg(args, "sequential_reason"),
@@ -61,6 +86,19 @@ def build_report(args: argparse.Namespace) -> dict:
         "review_iteration": args.review_iteration,
         "max_review_iterations": args.max_review_iterations,
     }
+    if report["merge_strategy"] != "none" and not report["merge_target"]:
+        raise ValueError("merge_strategy requires merge_target.")
+    if report["merge_readiness"] == "ready" and report["review_readiness"] != "ready":
+        raise ValueError("merge_readiness=ready requires review_readiness=ready.")
+    if report["merge_readiness"] == "ready" and report["write_scope_overlaps"]:
+        raise ValueError("merge_readiness=ready cannot keep unresolved write_scope_overlaps.")
+    if report["completion_gate"] == "review-ready" and report["review_readiness"] != "ready":
+        raise ValueError("completion_gate=review-ready requires review_readiness=ready.")
+    if report["completion_gate"] == "merge-ready" and report["merge_readiness"] != "ready":
+        raise ValueError("completion_gate=merge-ready requires merge_readiness=ready.")
+    if report["overlap_risk_status"] == "blocked" and report["completion_gate"] in {"review-ready", "merge-ready"}:
+        raise ValueError("overlap_risk_status=blocked cannot be combined with ready completion gates.")
+    return report
 
 
 def format_text(report: dict) -> str:
@@ -72,6 +110,12 @@ def format_text(report: dict) -> str:
         f"- Current stage: {report['current_stage']}",
         f"- Gate decision: {report['gate_decision'] or '(none)'}",
         f"- Review iteration: {report['review_iteration']}/{report['max_review_iterations'] or '-'}",
+        f"- Merge target: {report['merge_target'] or '(none)'}",
+        f"- Merge strategy: {report['merge_strategy']}",
+        f"- Overlap risk status: {report['overlap_risk_status']}",
+        f"- Review readiness: {report['review_readiness']}",
+        f"- Merge readiness: {report['merge_readiness']}",
+        f"- Completion gate: {report['completion_gate']}",
     ]
     for label, items in (
         ("Completed stages", report["completed_stages"]),
@@ -137,6 +181,37 @@ def main() -> int:
     parser.add_argument("--review-ready-packet", action="append", default=[], help="Review-ready packet identifier. Repeatable.")
     parser.add_argument("--merge-ready-packet", action="append", default=[], help="Merge-ready packet identifier. Repeatable.")
     parser.add_argument("--next-merge-point", default=None, help="Next merge point for active packets")
+    parser.add_argument("--merge-target", default=None, help="Merge target label for the active chain")
+    parser.add_argument(
+        "--merge-strategy",
+        choices=VALID_MERGE_STRATEGIES,
+        default=None,
+        help="Merge strategy used at the next merge point",
+    )
+    parser.add_argument(
+        "--overlap-risk-status",
+        choices=VALID_OVERLAP_RISK_STATUSES,
+        default=None,
+        help="Current overlap-risk state for active packet scopes",
+    )
+    parser.add_argument(
+        "--review-readiness",
+        choices=VALID_READINESS_STATES,
+        default=None,
+        help="Review readiness state for the chain",
+    )
+    parser.add_argument(
+        "--merge-readiness",
+        choices=VALID_READINESS_STATES,
+        default=None,
+        help="Merge readiness state for the chain",
+    )
+    parser.add_argument(
+        "--completion-gate",
+        choices=VALID_COMPLETION_GATES,
+        default=None,
+        help="Completion gate visibility for the chain",
+    )
     parser.add_argument("--browser-qa-pending", action="append", default=[], help="Packet awaiting browser QA proof. Repeatable.")
     parser.add_argument("--write-scope-overlap", action="append", default=[], help="Write-scope overlap note. Repeatable.")
     parser.add_argument("--sequential-reason", action="append", default=[], help="Why the chain remains sequential. Repeatable.")

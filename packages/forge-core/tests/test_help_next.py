@@ -365,5 +365,48 @@ class HelpNextTests(unittest.TestCase):
         self.assertIn("pending browser QA proof", report["recommended_action"])
         self.assertEqual(report["signals"]["workflow_summary"]["browser_qa_pending"], ["packet-checkout-ui"])
 
+    def test_next_flags_runtime_health_issue_from_run_report(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir) / "workspace"
+            workspace.mkdir(parents=True, exist_ok=True)
+            _write_json(
+                workspace / ".forge-artifacts" / "workflow-state" / "checkout" / "latest.json",
+                {
+                    "project": "checkout",
+                    "current_stage": "build",
+                    "last_recorded_kind": "run-report",
+                    "latest_run": {
+                        "kind": "run-report",
+                        "label": "forge-design board --format json",
+                        "state": "failed",
+                        "command_kind": "browser-qa",
+                        "runtime_health_taxonomy": "stale-registration",
+                        "runtime_health_summary": "Runtime resolved through fallback because registry target is stale.",
+                        "runtime_doctor_command": "python scripts/invoke_runtime_tool.py --doctor forge-design",
+                        "warnings": [],
+                    },
+                },
+            )
+            (workspace / "README.md").write_text("# Checkout\n", encoding="utf-8")
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+
+        self.assertEqual(report["current_stage"], "blocked")
+        self.assertEqual(report["suggested_workflow"], "debug")
+        self.assertIn("Runtime health issue detected", report["recommended_action"])
+        self.assertIn("stale-registration", report["recommended_action"])
+        self.assertIn("Doctor command", " ".join(report["alternatives"]))
+
 if __name__ == "__main__":
     unittest.main()

@@ -29,10 +29,12 @@ from route_delegation import (
     choose_delegation_plan,
     choose_execution_pipeline,
     choose_lane_model_assignments,
+    resolve_host_capability_tier,
 )
 from route_execution_advice import (
     build_baseline_verification,
     classify_browser_qa,
+    classify_packet_mode,
     build_review_sequence,
     build_worktree_bootstrap,
 )
@@ -51,7 +53,11 @@ from workflow_state_support import record_workflow_event
 def build_report(args: argparse.Namespace) -> dict:
     registry = load_registry()
     host_capabilities = registry.get("host_capabilities", {})
-    host_supports_subagents = bool(host_capabilities.get("supports_subagents", False))
+    host_tier_key, host_tier = resolve_host_capability_tier(host_capabilities if isinstance(host_capabilities, dict) else {})
+    host_supports_subagents = bool(host_tier.get("supports_subagents", host_capabilities.get("supports_subagents", False)))
+    host_supports_parallel_subagents = bool(
+        host_tier.get("supports_parallel_subagents", host_capabilities.get("supports_parallel_subagents", host_supports_subagents))
+    )
     intent, intent_config = detect_intent(args.prompt, registry)
     complexity = detect_complexity(args.prompt, args.changed_files, registry)
     workspace_router = resolve_workspace_router(args.workspace_router)
@@ -142,6 +148,15 @@ def build_report(args: argparse.Namespace) -> dict:
         domain_skills=domain_skills,
         repo_signals=args.repo_signal,
     )
+    packet_mode = classify_packet_mode(
+        args.prompt,
+        intent=intent,
+        complexity=complexity,
+        execution_mode=execution_mode,
+        execution_pipeline_key=execution_pipeline_key,
+        required_stages=required_stages,
+        quality_profile_key=quality_profile_key,
+    )
 
     return {
         "prompt": args.prompt,
@@ -156,6 +171,9 @@ def build_report(args: argparse.Namespace) -> dict:
             "required_stages": required_stages,
             "host_skills": host_skills,
             "host_supports_subagents": host_supports_subagents,
+            "host_supports_parallel_subagents": host_supports_parallel_subagents,
+            "host_capability_tier": host_tier_key,
+            "host_dispatch_mode": host_tier.get("dispatch_mode"),
             "domain_skills": domain_skills,
             "first_party_companions": [item["id"] for item in first_party_companions],
             "local_companions": local_companions,
@@ -179,6 +197,10 @@ def build_report(args: argparse.Namespace) -> dict:
             "review_sequence": review_sequence,
             "browser_qa_classification": browser_qa["classification"],
             "browser_qa_scope": browser_qa["scope"],
+            "packet_mode": packet_mode["packet_mode"],
+            "fast_lane_eligible": packet_mode["eligible"],
+            "assumptions_first_mode": packet_mode["assumptions_first_mode"],
+            "packet_mode_reasons": packet_mode["reasons"],
         },
         "verification": verification,
         "execution_pipeline": execution_pipeline,
@@ -209,6 +231,8 @@ def format_text(report: dict) -> str:
         f"- Execution pipeline: {report['execution_pipeline']['label'] if report['execution_pipeline'] else '(n/a)'}",
         f"- Delegation strategy: {report['delegation_plan']['label'] if report['delegation_plan'] else '(n/a)'}",
         f"- Quality profile: {report['quality_profile']['label']}",
+        f"- Host capability tier: {detected['host_capability_tier'] or '(none)'}",
+        f"- Host dispatch mode: {detected['host_dispatch_mode'] or '(none)'}",
         f"- Host skills: {', '.join(detected['host_skills']) or '(none)'}",
         f"- Domain skills: {', '.join(detected['domain_skills']) or '(none)'}",
         f"- First-party companions: {', '.join(detected['first_party_companions']) or '(none)'}",
@@ -227,6 +251,9 @@ def format_text(report: dict) -> str:
         f"- Worktree bootstrap helper: {detected['worktree_bootstrap']['helper'] if detected['worktree_bootstrap'] else '(n/a)'}",
         f"- Browser QA classification: {detected['browser_qa_classification']}",
         f"- Browser QA scope: {', '.join(detected['browser_qa_scope']) or '(none)'}",
+        f"- Packet mode: {detected['packet_mode']}",
+        f"- Fast lane eligible: {'yes' if detected['fast_lane_eligible'] else 'no'}",
+        f"- Assumptions-first mode: {'yes' if detected['assumptions_first_mode'] else 'no'}",
         "- Required stages:",
     ]
     if detected["required_stages"]:
@@ -259,6 +286,10 @@ def format_text(report: dict) -> str:
             review_kind = item["review_kind"] or "implementation"
             dependency = ", ".join(item["depends_on"]) or "none"
             lines.append(f"  - {item['sequence_index']}. {item['lane']} | {review_kind} | depends on: {dependency}")
+    if detected["packet_mode_reasons"]:
+        lines.append("- Packet mode reasons:")
+        for reason in detected["packet_mode_reasons"][:3]:
+            lines.append(f"  - {reason}")
     if detected["execution_pipeline"] == "implementer-spec-quality":
         max_revisions = report["execution_pipeline"].get("max_revisions") if report["execution_pipeline"] else None
         if max_revisions is None:
@@ -267,6 +298,15 @@ def format_text(report: dict) -> str:
     if report["delegation_plan"]:
         lines.append(f"- Delegation summary: {report['delegation_plan']['summary']}")
         lines.append(f"- Delegation dispatch mode: {report['delegation_plan']['dispatch_mode']}")
+        lines.append(f"- Delegation host capability tier: {report['delegation_plan'].get('host_capability_tier') or '(none)'}")
+        if report["delegation_plan"].get("dispatch_reasons"):
+            lines.append("- Delegation dispatch reasons:")
+            for reason in report["delegation_plan"]["dispatch_reasons"]:
+                lines.append(f"  - {reason}")
+        if report["delegation_plan"].get("fallback_reasons"):
+            lines.append("- Delegation fallback reasons:")
+            for reason in report["delegation_plan"]["fallback_reasons"]:
+                lines.append(f"  - {reason}")
         lines.append("- Delegation controller contract:")
         for item in report["delegation_plan"]["controller_contract"]:
             lines.append(f"  - {item}")

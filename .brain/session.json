@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-04-02T04:17:15Z",
+  "updated_at": "2026-04-02T14:42:31+07:00",
   "working_on": {
-    "feature": "stable-1.13.0",
-    "task": "Cut the 1.13.0 release and mark it as the current stable Forge line",
+    "feature": "stable-1.14.0",
+    "task": "Cut the 1.14.0 release, update continuity artifacts, and sync runtime registrations for Codex and Gemini",
     "status": "completed",
     "files": [
       "VERSION",
@@ -10,36 +10,29 @@
       "README.md",
       "docs/release/public-readiness.md",
       "docs/release/release-process.md",
-      "docs/plans/2026-04-02-forge-1.13.x-build-process-enhancement-roadmap.md",
-      "packages/forge-core/scripts/track_execution_progress.py",
-      "packages/forge-core/scripts/track_chain_status.py",
-      "packages/forge-core/scripts/help_next_support.py",
-      "packages/forge-core/scripts/invoke_runtime_tool.py",
-      "packages/forge-core/scripts/dashboard_support.py",
-      "packages/forge-core/scripts/route_preview.py",
-      "packages/forge-core/scripts/workflow_state_summary.py",
-      "packages/forge-core/scripts/workflow_state_support.py",
-      "packages/forge-core/tests/test_help_next.py",
-      "packages/forge-core/tests/test_help_next_workflow_state.py",
-      "packages/forge-core/tests/test_runtime_tool_support.py",
-      "packages/forge-core/tests/test_tool_roundtrip.py",
       ".brain/decisions.json",
       ".brain/learnings.json",
       ".brain/session.json",
-      ".brain/handover.md"
+      ".brain/handover.md",
+      "packages/forge-core/scripts/track_execution_progress.py",
+      "packages/forge-core/scripts/track_chain_status.py",
+      "packages/forge-core/scripts/runtime_tool_support.py",
+      "packages/forge-core/scripts/invoke_runtime_tool.py"
     ]
   },
   "pending_tasks": [],
   "recent_changes": [
-    "Forge 1.13.0 now ships the canonical build-packet contract across execution progress, chain status, workflow summaries, and host-facing dispatch guidance.",
-    "README, CHANGELOG, and release-facing docs now state that 1.13.0 is the current stable Forge release.",
-    "Continuity state now records the 1.13.0 stable designation plus the release-hardening learning around workflow alias normalization and runtime wrapper forwarding."
+    "Forge 1.14.0 now ships fast-lane packet mode, packet graph contract, runtime health diagnostics, and host capability tier v2 as one coherent release line.",
+    "Release-facing docs and continuity artifacts now mark 1.14.0 as the current stable Forge release.",
+    "Runtime tool registrations were refreshed for both Codex and Gemini host state roots."
   ],
   "verification": [
-    "python scripts/verify_repo.py -> PASS"
+    "python -m pytest packages/forge-core/tests/test_fast_lane_lifecycle.py packages/forge-core/tests/test_chain_status.py packages/forge-core/tests/test_route_preview.py packages/forge-core/tests/test_help_next.py packages/forge-core/tests/test_help_next_workflow_state.py packages/forge-core/tests/test_tool_roundtrip.py packages/forge-core/tests/test_runtime_tool_support.py packages/forge-core/tests/test_contracts.py tests/release_repo_test_contracts.py -q -> PASS",
+    "python scripts/verify_repo.py -> PASS",
+    "python scripts/verify_bundle.py -> PASS"
   ],
   "decisions_made": [
-    "Treat 1.13.0 as the current stable Forge release because the build-packet enhancement line and the canonical repo verification gate are both green.",
-    "Release quality for execution packets depends on valid workflow alias normalization and runtime wrappers that do not shadow downstream tool flags."
+    "Treat 1.14.0 as stable only when the full roadmap-complete verification sweep and canonical repo gate are both green.",
+    "Fast-lane throughput gains remain valid only when packet graph/readiness and runtime-health contracts remain explicit in persisted workflow-state."
   ]
 }

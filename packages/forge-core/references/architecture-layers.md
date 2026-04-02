@@ -79,6 +79,7 @@ Canonical locations:
 
 - `.forge-artifacts/workflow-state/<project>/latest.json`
 - `.forge-artifacts/workflow-state/<project>/events.jsonl`
+- `.forge-artifacts/workflow-state/<project>/packet-index.json`
 - `packages/forge-core/scripts/workflow_state_support.py`
 - `packages/forge-core/scripts/workflow_state_summary.py`
 
@@ -87,6 +88,8 @@ Rules:
 - workflow state stores evidence-backed coordination data
 - it should be machine-readable first
 - it must not become telemetry or product analytics
+- packet index is the bounded continuity read model for cheaper packet resume paths
+- progressive context loading can summarize packet index first, then expand to full workflow-state only when needed
 
 ## Layer 4: Runtime Tools
 
@@ -120,6 +123,16 @@ generated artifacts -> workflow state
 generated artifacts -> host-only logic inside core
 runtime tools -> generated artifacts by default
 ```
+
+## Bounded Extension Surface (1.14.x)
+
+Extension and preset boundaries begin at overlays and end before core semantics:
+
+- packet templates may prefill canonical fields but cannot redefine packet graph or proof gates
+- workflow overlays may change wording/entrypoints but cannot change stage status semantics
+- planning presets may speed plan authoring but cannot bypass verification or workflow-state requirements
+
+If an extension requires semantic drift, move the proposal into core and update contract tests first.
 
 ## Decision Tests
 

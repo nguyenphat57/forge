@@ -4,6 +4,7 @@ from __future__ import annotations
 REVIEW_PIPELINES = {"implementer-quality", "implementer-spec-quality", "deploy-gate"}
 DELEGATION_PACKET_FIELDS = [
     "packet_id",
+    "packet_mode",
     "parent_packet",
     "source_of_truth",
     "goal",
@@ -11,6 +12,14 @@ DELEGATION_PACKET_FIELDS = [
     "exact_files_or_paths_in_scope",
     "owned_files_or_write_scope",
     "depends_on_packets",
+    "unblocks_packets",
+    "merge_target",
+    "merge_strategy",
+    "overlap_risk_status",
+    "write_scope_conflicts",
+    "review_readiness",
+    "merge_readiness",
+    "completion_gate",
     "baseline_or_clean_start_proof",
     "red_proof",
     "out_of_scope_for_this_slice",
@@ -33,6 +42,55 @@ REVIEWER_RETURN_FIELDS = [
     "clean_rationale_when_no_findings",
     "residual_risk_or_testing_gaps",
 ]
+
+
+def resolve_host_capability_tier(host_capabilities: dict | None) -> tuple[str, dict]:
+    if not isinstance(host_capabilities, dict):
+        host_capabilities = {}
+    tiers = host_capabilities.get("tiers")
+    active_tier = host_capabilities.get("active_tier")
+    if isinstance(tiers, dict) and isinstance(active_tier, str):
+        tier = tiers.get(active_tier)
+        if isinstance(tier, dict):
+            return active_tier, tier
+
+    supports_subagents = bool(host_capabilities.get("supports_subagents", False))
+    supports_parallel_subagents = bool(host_capabilities.get("supports_parallel_subagents", supports_subagents))
+    if supports_parallel_subagents:
+        return (
+            "parallel-workers",
+            {
+                "label": "Parallel workers",
+                "supports_subagents": True,
+                "supports_parallel_subagents": True,
+                "dispatch_mode": "parallel-workers",
+                "dispatch_reasons": ["host-supports-parallel-subagents"],
+                "fallback_reasons": [],
+            },
+        )
+    if supports_subagents:
+        return (
+            "review-lane-subagents",
+            {
+                "label": "Independent reviewers",
+                "supports_subagents": True,
+                "supports_parallel_subagents": False,
+                "dispatch_mode": "independent-reviewers",
+                "dispatch_reasons": ["host-supports-review-lane-subagents"],
+                "fallback_reasons": ["parallel-safe packets run as sequential lanes on this host tier"],
+            },
+        )
+    return (
+        "controller-baseline",
+        {
+            "label": "Controller sequential lanes",
+            "supports_subagents": False,
+            "supports_parallel_subagents": False,
+            "dispatch_mode": "controller-sequential",
+            "dispatch_reasons": ["host-does-not-expose-subagents"],
+            "fallback_reasons": ["review lanes stay packetized but execute sequentially"],
+        },
+    )
 
 
 def choose_execution_pipeline(
@@ -211,9 +269,10 @@ def choose_delegation_plan(
         return None, None, []
 
     host_capabilities = registry.get("host_capabilities", {})
-    supports_subagents = bool(host_capabilities.get("supports_subagents", False))
+    tier_key, tier = resolve_host_capability_tier(host_capabilities)
+    supports_subagents = bool(tier.get("supports_subagents", host_capabilities.get("supports_subagents", False)))
     supports_parallel_subagents = bool(
-        host_capabilities.get("supports_parallel_subagents", supports_subagents)
+        tier.get("supports_parallel_subagents", host_capabilities.get("supports_parallel_subagents", supports_subagents))
     )
     activation_skill = host_capabilities.get("subagent_dispatch_skill")
     controller_contract = host_capabilities.get(
@@ -224,6 +283,12 @@ def choose_delegation_plan(
             "Return changed files, verification, and residual risk.",
         ],
     )
+    tier_dispatch_reasons = [
+        item for item in tier.get("dispatch_reasons", []) if isinstance(item, str) and item.strip()
+    ]
+    tier_fallback_reasons = [
+        item for item in tier.get("fallback_reasons", []) if isinstance(item, str) and item.strip()
+    ]
 
     uses_parallel_mode = execution_mode == "parallel-safe"
     uses_review_lane = execution_pipeline_key in REVIEW_PIPELINES
@@ -262,8 +327,11 @@ def choose_delegation_plan(
             if key == "independent-reviewer"
             else "controller-sequential"
         ),
+        "host_capability_tier": tier_key,
         "activation_skill": activation_skill if host_skills else None,
         "controller_contract": controller_contract,
+        "dispatch_reasons": tier_dispatch_reasons,
+        "fallback_reasons": tier_fallback_reasons,
         "controller_steps": build_delegation_controller_steps(key, execution_pipeline_key),
         "packet_template": build_delegation_packet_template(),
         "packet_blueprints": build_delegation_packet_blueprints(key, execution_pipeline_key, registry),

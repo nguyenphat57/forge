@@ -112,6 +112,26 @@ class BundleContractTests(unittest.TestCase):
         registry_text = (ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8")
         self.assertTrue(registry_text.isascii())
 
+    def test_host_capability_contract_v2_defines_tiers_and_reasons(self) -> None:
+        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
+        host = registry["host_capabilities"]
+        tiers = host.get("tiers")
+
+        self.assertEqual(host.get("contract_version"), "v2")
+        self.assertIsInstance(tiers, dict)
+        self.assertIn(host.get("active_tier"), tiers)
+        self.assertIn("controller-baseline", tiers)
+        self.assertIn("review-lane-subagents", tiers)
+        self.assertIn("parallel-workers", tiers)
+
+        for tier_name, tier in tiers.items():
+            with self.subTest(tier=tier_name):
+                self.assertIn(tier.get("dispatch_mode"), {"controller-sequential", "independent-reviewers", "parallel-workers"})
+                self.assertIsInstance(tier.get("supports_subagents"), bool)
+                self.assertIsInstance(tier.get("supports_parallel_subagents"), bool)
+                self.assertIsInstance(tier.get("dispatch_reasons"), list)
+                self.assertIsInstance(tier.get("fallback_reasons"), list)
+
     def test_bundle_locale_and_output_contract_assets_follow_bundle_boundary(self) -> None:
         routing_locale_config = ROOT_DIR / "data" / "routing-locales.json"
         routing_locale_dir = ROOT_DIR / "data" / "routing-locales"
@@ -268,6 +288,21 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("artifact-driven-change-flow.md", reference_map)
         self.assertIn("constitution-lite.md", reference_map)
         self.assertIn("target-state.md", reference_map)
+        self.assertIn("extension-presets.md", reference_map)
+
+    def test_extension_preset_boundary_docs_and_example_artifact_exist(self) -> None:
+        extension_presets = (ROOT_DIR / "references" / "extension-presets.md").read_text(encoding="utf-8")
+        architecture_layers = (ROOT_DIR / "references" / "architecture-layers.md").read_text(encoding="utf-8")
+        example_path = ROOT_DIR / "references" / "examples" / "example-fast-lane-packet.json"
+        example = json.loads(example_path.read_text(encoding="utf-8"))
+
+        self.assertIn("packet templates", extension_presets)
+        self.assertIn("workflow overlays", extension_presets)
+        self.assertIn("planning presets", extension_presets)
+        self.assertIn("cannot override core verification", extension_presets)
+        self.assertIn("Bounded Extension Surface (1.14.x)", architecture_layers)
+        self.assertEqual(example["packet"]["packet_mode"], "fast-lane")
+        self.assertIn("boundary_note", example)
 
     def test_help_next_reference_mentions_mapped_stage_and_current_stage(self) -> None:
         help_next = (ROOT_DIR / "references" / "help-next.md").read_text(encoding="utf-8")
@@ -302,6 +337,7 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("workflow state", layers)
         self.assertIn("runtime tools", layers)
         self.assertIn("Dependency Direction", layers)
+        self.assertIn("packet-index.json", layers)
 
 
 if __name__ == "__main__":

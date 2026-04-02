@@ -10,10 +10,11 @@
 - Preferred sources, in order:
   1. `git status`
   2. `docs/plans/` and `docs/specs/`
-  3. active change artifact or `.forge-artifacts/workflow-state/<project>/latest.json`
-  4. `.brain/session.json`
-  5. `.brain/handover.md`
-  6. `README`
+  3. active change artifact or `.forge-artifacts/workflow-state/<project>/packet-index.json` for low-cost continuity resume
+  4. `.forge-artifacts/workflow-state/<project>/latest.json` when full workflow-state detail is needed
+  5. `.brain/session.json`
+  6. `.brain/handover.md`
+  7. `README`
 
 ## Stage Model
 
@@ -54,6 +55,7 @@
 - For medium+ work, prefer answers that point at the durable artifact to create or refresh next.
 - If a repo is already mapped, prefer reusing that brownfield summary before re-scanning the repo.
 - When context is weak, say clearly that the repo does not provide enough signal.
+- If runtime health is stale or broken for browser proof, recommend runtime doctor before retrying packet proof claims.
 - When operating on Forge itself or choosing between multiple valid Forge directions, prefer the move that best matches `references/target-state.md`.
 
 ## Adapter Boundary

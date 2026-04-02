@@ -1189,6 +1189,8 @@
     "Merge first, follow up later."
   ],
   "host_capabilities": {
+    "contract_version": "v2",
+    "active_tier": "controller-baseline",
     "supports_subagents": false,
     "supports_parallel_subagents": false,
     "subagent_dispatch_skill": null,
@@ -1196,7 +1198,45 @@
       "Fresh packet per delegated slice.",
       "Explicit ownership and write scope.",
       "Return changed files, verification, and residual risk."
-    ]
+    ],
+    "tiers": {
+      "controller-baseline": {
+        "label": "Controller sequential lanes",
+        "supports_subagents": false,
+        "supports_parallel_subagents": false,
+        "dispatch_mode": "controller-sequential",
+        "dispatch_reasons": [
+          "host-does-not-expose-subagents",
+          "packet-semantics-stay-host-neutral"
+        ],
+        "fallback_reasons": [
+          "parallel-safe packets run as controller-managed sequential lanes",
+          "review lanes stay packetized even without spawned reviewers"
+        ]
+      },
+      "review-lane-subagents": {
+        "label": "Independent reviewer subagents",
+        "supports_subagents": true,
+        "supports_parallel_subagents": false,
+        "dispatch_mode": "independent-reviewers",
+        "dispatch_reasons": [
+          "host-supports-subagents-for-review-lanes"
+        ],
+        "fallback_reasons": [
+          "parallel worker splits are disabled on this tier"
+        ]
+      },
+      "parallel-workers": {
+        "label": "Parallel worker subagents",
+        "supports_subagents": true,
+        "supports_parallel_subagents": true,
+        "dispatch_mode": "parallel-workers",
+        "dispatch_reasons": [
+          "host-supports-parallel-subagents"
+        ],
+        "fallback_reasons": []
+      }
+    }
   },
   "completion_states": {
     "in-progress": "Work is still active or lacks handoff evidence.",

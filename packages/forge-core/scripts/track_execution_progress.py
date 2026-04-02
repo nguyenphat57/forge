@@ -10,6 +10,7 @@ from workflow_state_support import record_workflow_event
 
 VALID_MODES = ("single-track", "checkpoint-batch", "parallel-safe")
 VALID_STATUSES = ("active", "completed", "blocked")
+VALID_PACKET_MODES = ("standard", "fast-lane")
 VALID_COMPLETION_STATES = (
     "in-progress",
     "ready-for-review",
@@ -21,6 +22,10 @@ VALID_MODEL_TIERS = ("cheap", "standard", "capable")
 VALID_HARNESS_STATES = ("auto", "yes", "no")
 VALID_BROWSER_QA_CLASSIFICATIONS = ("not-needed", "optional-accelerator", "required-for-this-packet")
 VALID_BROWSER_QA_STATUSES = ("not-needed", "pending", "active", "satisfied", "blocked")
+VALID_MERGE_STRATEGIES = ("none", "merge-commit", "squash", "rebase", "ff-only")
+VALID_OVERLAP_RISK_STATUSES = ("none", "low", "medium", "high", "blocked")
+VALID_READINESS_STATES = ("pending", "ready", "blocked")
+VALID_COMPLETION_GATES = ("incomplete", "review-ready", "merge-ready", "blocked")
 
 
 def _list_arg(args: argparse.Namespace, *names: str) -> list[str]:
@@ -45,6 +50,34 @@ def _normalized_browser_status(classification: str, status: str | None) -> str:
     return "not-needed" if classification == "not-needed" else "pending"
 
 
+def _normalized_packet_mode(args: argparse.Namespace) -> str:
+    packet_mode = _string_arg(args, "packet_mode")
+    if packet_mode in VALID_PACKET_MODES:
+        return packet_mode
+    if bool(getattr(args, "fast_lane", False)):
+        return "fast-lane"
+    return "standard"
+
+
+def _completion_gate_from_state(completion_state: str, explicit_gate: str | None) -> str:
+    if isinstance(explicit_gate, str) and explicit_gate in VALID_COMPLETION_GATES:
+        return explicit_gate
+    mapping = {
+        "ready-for-review": "review-ready",
+        "ready-for-merge": "merge-ready",
+        "blocked-by-residual-risk": "blocked",
+    }
+    return mapping.get(completion_state, "incomplete")
+
+
+def _validate_choice(value: str | None, valid_values: tuple[str, ...], *, field: str) -> str | None:
+    if value is None:
+        return None
+    if value not in valid_values:
+        raise ValueError(f"{field} must be one of: {', '.join(valid_values)}")
+    return value
+
+
 def build_report(args: argparse.Namespace) -> dict:
     source_of_truth = _list_arg(args, "source", "source_of_truth")
     scope_paths = _list_arg(args, "scope_path", "exact_files_or_paths_in_scope")
@@ -56,12 +89,37 @@ def build_report(args: argparse.Namespace) -> dict:
     red_proof = _list_arg(args, "red", "red_proof")
     verification_to_rerun = _list_arg(args, "verify_again", "verification_to_rerun")
     depends_on_packets = _list_arg(args, "depends_on_packet", "depends_on_packets")
+    unblocks_packets = _list_arg(args, "unblock_packet", "unblocks_packets")
+    write_scope_conflicts = _list_arg(args, "write_scope_conflict", "write_scope_conflicts")
     browser_qa_classification = _string_arg(args, "browser_qa_classification") or "not-needed"
     browser_qa_scope = _list_arg(args, "browser_qa_scope")
     browser_qa_status = _normalized_browser_status(
         browser_qa_classification,
         _string_arg(args, "browser_qa_status"),
     )
+    packet_mode = _normalized_packet_mode(args)
+    merge_target = _string_arg(args, "merge_target")
+    merge_strategy = _validate_choice(
+        _string_arg(args, "merge_strategy") or ("none" if not merge_target else "merge-commit"),
+        VALID_MERGE_STRATEGIES,
+        field="merge_strategy",
+    )
+    overlap_risk_status = _validate_choice(
+        _string_arg(args, "overlap_risk_status") or ("medium" if write_scope_conflicts else "none"),
+        VALID_OVERLAP_RISK_STATUSES,
+        field="overlap_risk_status",
+    )
+    review_readiness = _validate_choice(
+        _string_arg(args, "review_readiness") or ("ready" if args.completion_state in {"ready-for-review", "ready-for-merge"} else "pending"),
+        VALID_READINESS_STATES,
+        field="review_readiness",
+    )
+    merge_readiness = _validate_choice(
+        _string_arg(args, "merge_readiness") or ("ready" if args.completion_state == "ready-for-merge" else "pending"),
+        VALID_READINESS_STATES,
+        field="merge_readiness",
+    )
+    completion_gate = _completion_gate_from_state(args.completion_state, _string_arg(args, "completion_gate"))
     packet_id = _string_arg(args, "packet_id") or slugify(args.task) or "packet"
     parent_packet = _string_arg(args, "parent_packet")
     goal = _string_arg(args, "goal") or args.task
@@ -76,6 +134,7 @@ def build_report(args: argparse.Namespace) -> dict:
         "label": args.task,
         "task": args.task,
         "goal": goal,
+        "packet_mode": packet_mode,
         "mode": args.mode,
         "stage": args.stage,
         "current_stage": args.stage,
@@ -91,6 +150,14 @@ def build_report(args: argparse.Namespace) -> dict:
         "scope_paths": scope_paths,
         "owned_files_or_write_scope": owned_scope,
         "depends_on_packets": depends_on_packets,
+        "unblocks_packets": unblocks_packets,
+        "merge_target": merge_target,
+        "merge_strategy": merge_strategy,
+        "overlap_risk_status": overlap_risk_status,
+        "write_scope_conflicts": write_scope_conflicts,
+        "review_readiness": review_readiness,
+        "merge_readiness": merge_readiness,
+        "completion_gate": completion_gate,
         "baseline_or_clean_start_proof": baseline_proof,
         "baseline_proof": baseline_proof,
         "out_of_scope_for_this_slice": out_of_scope,
@@ -109,7 +176,6 @@ def build_report(args: argparse.Namespace) -> dict:
         "blockers": blockers,
         "residual_risk": residual_risk,
         "risks": residual_risk,
-        "project": args.project_name,
     }
 
     if report["completion_state"] in {"ready-for-review", "ready-for-merge"} and report["blockers"]:
@@ -124,6 +190,44 @@ def build_report(args: argparse.Namespace) -> dict:
     if report["completion_state"] in {"ready-for-review", "ready-for-merge"} and report["harness_available"] == "yes" and not report["red_proof"]:
         raise ValueError("Harness-backed ready states require persisted RED proof before progress.")
 
+    if report["merge_strategy"] != "none" and not report["merge_target"]:
+        raise ValueError("merge_strategy requires merge_target.")
+
+    if report["merge_readiness"] == "ready" and report["review_readiness"] != "ready":
+        raise ValueError("merge_readiness=ready requires review_readiness=ready.")
+
+    if report["merge_readiness"] == "ready" and report["write_scope_conflicts"]:
+        raise ValueError("merge_readiness=ready cannot include unresolved write_scope_conflicts.")
+
+    if report["overlap_risk_status"] == "blocked" and report["completion_state"] in {"ready-for-review", "ready-for-merge"}:
+        raise ValueError("Ready states cannot keep overlap_risk_status=blocked.")
+
+    if report["completion_gate"] == "review-ready" and report["review_readiness"] != "ready":
+        raise ValueError("completion_gate=review-ready requires review_readiness=ready.")
+
+    if report["completion_gate"] == "merge-ready" and report["merge_readiness"] != "ready":
+        raise ValueError("completion_gate=merge-ready requires merge_readiness=ready.")
+
+    if report["packet_mode"] == "fast-lane":
+        if report["mode"] != "single-track":
+            raise ValueError("Fast lane packets must use mode=single-track.")
+        if report["lane"] not in {None, "implementer"}:
+            raise ValueError("Fast lane packets cannot dispatch multi-lane ownership.")
+        if report["depends_on_packets"] or report["unblocks_packets"] or report["merge_target"]:
+            raise ValueError("Fast lane packets cannot declare packet graph dependencies or merge targets.")
+        required_fields = {
+            "exact_files_or_paths_in_scope": report["exact_files_or_paths_in_scope"],
+            "owned_files_or_write_scope": report["owned_files_or_write_scope"],
+            "baseline_or_clean_start_proof": report["baseline_or_clean_start_proof"],
+            "proof_before_progress": report["proof_before_progress"],
+            "verification_to_rerun": report["verification_to_rerun"],
+            "residual_risk": report["residual_risk"],
+            "next_steps": report["next_steps"],
+        }
+        missing = [name for name, value in required_fields.items() if not value]
+        if missing:
+            raise ValueError(f"Fast lane requires explicit values for: {', '.join(missing)}.")
+
     return report
 
 
@@ -132,6 +236,7 @@ def format_text(report: dict) -> str:
         "Forge Execution Progress",
         f"- Task: {report['task']}",
         f"- Packet ID: {report['packet_id']}",
+        f"- Packet mode: {report['packet_mode']}",
         f"- Parent packet: {report['parent_packet'] or '(none)'}",
         f"- Goal: {report['goal']}",
         f"- Project: {report['project']}",
@@ -150,6 +255,8 @@ def format_text(report: dict) -> str:
         ("Scope paths", report["exact_files_or_paths_in_scope"]),
         ("Owned write scope", report["owned_files_or_write_scope"]),
         ("Depends on packets", report["depends_on_packets"]),
+        ("Unblocks packets", report["unblocks_packets"]),
+        ("Write scope conflicts", report["write_scope_conflicts"]),
         ("Baseline proof", report["baseline_or_clean_start_proof"]),
         ("RED proof", report["red_proof"]),
         ("Proof before progress", report["proof_before_progress"]),
@@ -168,6 +275,17 @@ def format_text(report: dict) -> str:
                 lines.append(f"  - {item}")
         else:
             lines.append(f"- {label}: (none)")
+
+    lines.extend(
+        [
+            f"- Merge target: {report['merge_target'] or '(none)'}",
+            f"- Merge strategy: {report['merge_strategy']}",
+            f"- Overlap risk status: {report['overlap_risk_status']}",
+            f"- Review readiness: {report['review_readiness']}",
+            f"- Merge readiness: {report['merge_readiness']}",
+            f"- Completion gate: {report['completion_gate']}",
+        ]
+    )
 
     return "\n".join(lines)
 
@@ -193,6 +311,13 @@ def main() -> int:
     parser.add_argument("--stage", required=True, help="Current stage or checkpoint name")
     parser.add_argument("--status", default="active", choices=VALID_STATUSES, help="Current execution status")
     parser.add_argument(
+        "--packet-mode",
+        choices=VALID_PACKET_MODES,
+        default="standard",
+        help="Packet contract mode for this slice",
+    )
+    parser.add_argument("--fast-lane", action="store_true", help="Alias for --packet-mode fast-lane")
+    parser.add_argument(
         "--completion-state",
         default="in-progress",
         choices=VALID_COMPLETION_STATES,
@@ -213,9 +338,42 @@ def main() -> int:
     parser.add_argument("--scope-path", action="append", default=[], help="Exact file/path scope for the current slice. Repeatable.")
     parser.add_argument("--owned-scope", action="append", default=[], help="Owned write scope for the current slice. Repeatable.")
     parser.add_argument("--depends-on-packet", action="append", default=[], help="Upstream packet dependency. Repeatable.")
+    parser.add_argument("--unblock-packet", action="append", default=[], help="Downstream packet this slice unblocks. Repeatable.")
     parser.add_argument("--packet-id", default=None, help="Canonical packet identifier")
     parser.add_argument("--parent-packet", default=None, help="Parent packet identifier")
     parser.add_argument("--goal", default=None, help="Explicit goal for this packet")
+    parser.add_argument("--merge-target", default=None, help="Planned merge target for this packet")
+    parser.add_argument(
+        "--merge-strategy",
+        choices=VALID_MERGE_STRATEGIES,
+        default=None,
+        help="Merge strategy for the packet merge point",
+    )
+    parser.add_argument(
+        "--overlap-risk-status",
+        choices=VALID_OVERLAP_RISK_STATUSES,
+        default=None,
+        help="Current overlap-risk state for write scopes",
+    )
+    parser.add_argument("--write-scope-conflict", action="append", default=[], help="Unresolved write-scope conflict note. Repeatable.")
+    parser.add_argument(
+        "--review-readiness",
+        choices=VALID_READINESS_STATES,
+        default=None,
+        help="Review readiness state for the current packet",
+    )
+    parser.add_argument(
+        "--merge-readiness",
+        choices=VALID_READINESS_STATES,
+        default=None,
+        help="Merge readiness state for the current packet",
+    )
+    parser.add_argument(
+        "--completion-gate",
+        choices=VALID_COMPLETION_GATES,
+        default=None,
+        help="Completion gate for handoff visibility",
+    )
     parser.add_argument("--baseline", action="append", default=[], help="Baseline or clean-start proof. Repeatable.")
     parser.add_argument("--out-of-scope", action="append", default=[], help="Known out-of-scope boundary. Repeatable.")
     parser.add_argument("--reopen-if", action="append", default=[], help="Condition that re-opens this slice. Repeatable.")

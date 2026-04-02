@@ -52,6 +52,22 @@ FRONTEND_REPO_MARKERS = (
     "src/",
 )
 
+FAST_LANE_BLOCKER_KEYWORDS = (
+    "migration",
+    "schema",
+    "auth",
+    "payment",
+    "public api",
+    "public interface",
+    "breaking",
+    "rollout",
+    "release",
+    "deploy",
+    "parallel",
+    "many screens",
+    "many endpoints",
+)
+
 
 def build_baseline_verification(required: bool, verification: dict | None) -> dict | None:
     if not required:
@@ -116,3 +132,85 @@ def classify_browser_qa(
         }
 
     return {"classification": "not-needed", "scope": []}
+
+
+def _required_stage_names(required_stages: list[dict] | None) -> list[str]:
+    names: list[str] = []
+    if not isinstance(required_stages, list):
+        return names
+    for item in required_stages:
+        if not isinstance(item, dict):
+            continue
+        if item.get("status") == "skipped":
+            continue
+        stage_name = item.get("stage")
+        if isinstance(stage_name, str) and stage_name.strip():
+            names.append(stage_name.strip())
+    return names
+
+
+def classify_packet_mode(
+    prompt: str,
+    *,
+    intent: str,
+    complexity: str,
+    execution_mode: str | None,
+    execution_pipeline_key: str | None,
+    required_stages: list[dict] | None,
+    quality_profile_key: str,
+) -> dict:
+    active_stages = set(_required_stage_names(required_stages))
+    reasons: list[str] = []
+    eligible = True
+    prompt_lower = prompt.casefold()
+
+    if intent not in {"BUILD", "DEBUG", "OPTIMIZE"}:
+        eligible = False
+        reasons.append("Intent does not use packetized execution slices.")
+    if complexity != "small":
+        eligible = False
+        reasons.append("Fast lane is restricted to small low-blast slices.")
+    if execution_mode not in {None, "single-track"}:
+        eligible = False
+        reasons.append("Fast lane requires single-track execution.")
+    if execution_pipeline_key not in {None, "single-lane"}:
+        eligible = False
+        reasons.append("Fast lane requires a single-lane packet.")
+    if quality_profile_key != "standard":
+        eligible = False
+        reasons.append("High-risk quality profile requires the standard packet mode.")
+
+    blocked_stages = {
+        "spec-review",
+        "review-pack",
+        "self-review",
+        "secure",
+        "release-doc-sync",
+        "release-readiness",
+        "deploy",
+        "adoption-check",
+    }
+    if active_stages & blocked_stages:
+        eligible = False
+        reasons.append("Release or boundary stages require the full packet contract.")
+    if any(keyword in prompt_lower for keyword in FAST_LANE_BLOCKER_KEYWORDS):
+        eligible = False
+        reasons.append("Prompt includes high-risk markers that require full packetization.")
+
+    if eligible:
+        return {
+            "packet_mode": "fast-lane",
+            "eligible": True,
+            "assumptions_first_mode": True,
+            "reasons": [
+                "Small low-risk slice with single-track and single-lane execution.",
+                "No release-tail or high-risk boundary stage is active.",
+            ],
+        }
+
+    return {
+        "packet_mode": "standard",
+        "eligible": False,
+        "assumptions_first_mode": False,
+        "reasons": reasons or ["Fast lane guardrails were not met."],
+    }

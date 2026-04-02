@@ -290,6 +290,31 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         )
         self.assertEqual(payload["resolution_source"], "bundle-neighbor")
 
+    def test_114_target_and_competitive_closure_tokens_are_visible(self) -> None:
+        target_state = (ROOT_DIR / "packages" / "forge-core" / "references" / "target-state.md").read_text(encoding="utf-8")
+        reference_map = (ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md").read_text(encoding="utf-8")
+        skill = (ROOT_DIR / "packages" / "forge-core" / "SKILL.md").read_text(encoding="utf-8")
+
+        for token in ("## 1.14.x Target", "fast lane", "packet graph", "runtime health"):
+            with self.subTest(token=token):
+                self.assertIn(token, target_state)
+
+        for token in ("architecture-layers.md", "help-next.md", "build.md"):
+            with self.subTest(reference_token=token):
+                self.assertIn(token, reference_map)
+
+        for token in ("proof before claims", "parallel-split", "controller-sequential"):
+            with self.subTest(skill_token=token):
+                self.assertIn(token, skill)
+
+    def test_readme_start_here_onboarding_tokens_remain_visible(self) -> None:
+        readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
+        self.assertIn("process-first orchestration system", readme)
+        self.assertIn("Current stable release", readme)
+        self.assertIn("Start Here (Solo Operator)", readme)
+        self.assertIn("doctor", readme)
+        self.assertIn("map-codebase", readme)
+
     def test_adapter_bump_contracts_stay_aligned_with_core(self) -> None:
         core_bump = ROOT_DIR / "packages" / "forge-core" / "workflows" / "operator" / "bump.md"
         core_skill = ROOT_DIR / "packages" / "forge-core" / "SKILL.md"

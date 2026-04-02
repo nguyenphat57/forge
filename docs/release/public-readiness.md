@@ -1,7 +1,7 @@
 # Forge Public Readiness
 
 Date: 2026-04-02
-Status: `1.13.0` is the current stable release after the build-process enhancement pass.
+Status: `1.14.0` is the current stable release after the competitive roadmap execution pass.
 
 ## What This Checklist Covers
 
@@ -28,5 +28,5 @@ This checklist is for publishing the Forge monorepo to a public audience without
 
 ## Verdict
 
-Forge `1.13.0` is in a reasonable state for public stable release under the current policy.
+Forge `1.14.0` is in a reasonable state for public stable release under the current policy.
 The hardening item above is optional evidence, not a release precondition.

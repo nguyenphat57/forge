@@ -153,6 +153,7 @@ When a host bundle needs to call `forge-browse` or `forge-design` without hardco
 ```powershell
 python scripts/resolve_runtime_tool.py forge-browse --format json
 python scripts/invoke_runtime_tool.py forge-design render-brief .forge-artifacts/ui-briefs/<project-slug>/visualize --screen dashboard
+python scripts/invoke_runtime_tool.py --doctor forge-design
 ```
 
 The resolver checks:
@@ -182,6 +183,7 @@ Script to read:
 - `git status` if that workspace is a private git root
 - `docs/plans/` and `docs/specs/`
 - `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, UI, run, or quality-gate tools have already persisted state
+- `.forge-artifacts/workflow-state/<project>/packet-index.json` for low-cost continuity resume when full state is not required yet
 - `.brain/session.json` and `.brain/handover.md` if available
 - `README`
 - adapter-global split preferences state via `resolve_preferences.py` to adapt response style
@@ -248,6 +250,7 @@ If using `--persist`, the default artifact is located at:
 .forge-artifacts/run-reports/
 .forge-artifacts/workflow-state/<project-slug>/latest.json
 .forge-artifacts/workflow-state/<project-slug>/events.jsonl
+.forge-artifacts/workflow-state/<project-slug>/packet-index.json
 ```
 
 Detailed semantics: see `run-guidance.md`.
@@ -787,5 +790,5 @@ Detailed runbook: see `canary-rollout.md`.
 - Run canary pack automatically on real workspace: `run_workspace_canary.py`
 - Record soak/canary artifact from real workspace: `record_canary_result.py`
 - Final verdict rollout from real artifact: `evaluate_canary_readiness.py`
-- Resolve or invoke registered runtime tools: `resolve_runtime_tool.py` / `invoke_runtime_tool.py`
+- Resolve, invoke, or run doctor on registered runtime tools: `resolve_runtime_tool.py` / `invoke_runtime_tool.py --doctor`
 - Only read policy and examples: return to `SKILL.md` or `references/companion-skill-contract.md`

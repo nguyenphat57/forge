@@ -264,15 +264,49 @@ def summarize_workflow_state(
         if kind == "execution-progress":
             packet_label = _packet_label(entry) or "Unnamed packet"
             packet_suffix = _packet_suffix(entry)
+            packet_mode = entry.get("packet_mode") if isinstance(entry.get("packet_mode"), str) else "standard"
             completion_state = entry.get("completion_state")
+            completion_gate = entry.get("completion_gate")
             browser_qa_status = entry.get("browser_qa_status")
             browser_qa_classification = entry.get("browser_qa_classification")
+            depends_on_packets = as_string_list(entry.get("depends_on_packets"))
+            unblocks_packets = as_string_list(entry.get("unblocks_packets"))
+            write_scope_conflicts = as_string_list(entry.get("write_scope_conflicts"))
+            merge_target = entry.get("merge_target")
+            overlap_risk_status = entry.get("overlap_risk_status")
+            review_readiness = entry.get("review_readiness")
+            merge_readiness = entry.get("merge_readiness")
+            latest_run_packet = (latest_run or {}).get("packet_id") if isinstance(latest_run, dict) else None
+            stale_runtime_proof = (
+                isinstance(latest_run_packet, str)
+                and latest_run_packet.strip()
+                and latest_run_packet != entry.get("packet_id")
+                and browser_qa_classification in {"optional-accelerator", "required-for-this-packet"}
+            )
             browser_pending = (
                 browser_qa_classification in {"optional-accelerator", "required-for-this-packet"}
                 and browser_qa_status in {"pending", "active", "blocked"}
             )
             active_packets = [entry.get("packet_id") or packet_label]
             browser_qa_pending = active_packets if browser_pending else []
+            packet_focus_prefix = "Fast-lane packet" if packet_mode == "fast-lane" else "Build packet"
+
+            if overlap_risk_status == "blocked" or completion_gate == "blocked":
+                conflict_message = write_scope_conflicts[0] if write_scope_conflicts else "merge overlap is still blocked"
+                return {
+                    "status": "blocked",
+                    "primary_kind": kind,
+                    "current_focus": f"Blocked execution: {packet_label}{packet_suffix}",
+                    "current_stage": entry["current_stage"],
+                    "suggested_workflow": "debug",
+                    "recommended_action": f"Resolve packet graph overlap before continuing: {conflict_message}.",
+                    "alternatives": next_steps[:2],
+                    "active_packets": active_packets,
+                    "blocked_packets": active_packets,
+                    "browser_qa_pending": browser_qa_pending,
+                    "write_scope_conflicts": write_scope_conflicts,
+                }
+
             if entry.get("status") == "blocked" or completion_state == "blocked-by-residual-risk" or blockers:
                 return {
                     "status": "blocked",
@@ -290,6 +324,8 @@ def summarize_workflow_state(
                 action = f"Run review and verification for '{packet_label}' before starting a new slice."
                 if browser_pending:
                     action = f"Run review for '{packet_label}' after clearing the pending browser QA proof."
+                if completion_state == "ready-for-merge" and isinstance(merge_target, str) and merge_target.strip():
+                    action = f"{action} Merge target: {merge_target.strip()}."
                 return {
                     "status": "review-ready",
                     "primary_kind": kind,
@@ -301,6 +337,12 @@ def summarize_workflow_state(
                     "active_packets": active_packets,
                     "review_ready_packets": active_packets,
                     "browser_qa_pending": browser_qa_pending,
+                    "packet_mode": packet_mode,
+                    "depends_on_packets": depends_on_packets,
+                    "unblocks_packets": unblocks_packets,
+                    "review_readiness": review_readiness,
+                    "merge_readiness": merge_readiness,
+                    "completion_gate": completion_gate,
                 }
             action = (
                 f"Resume packet '{entry['packet_id']}' and clear the pending browser QA proof before starting a new slice."
@@ -309,19 +351,64 @@ def summarize_workflow_state(
                 if next_steps
                 else f"Continue the active execution slice: {packet_label}."
             )
+            if stale_runtime_proof:
+                action = (
+                    f"Recorded browser proof is stale for this packet. Re-run browser QA for '{entry.get('packet_id') or packet_label}' before continuing."
+                )
+            if packet_mode == "fast-lane" and not browser_pending:
+                action = (
+                    f"Continue fast-lane packet '{entry['packet_id']}' with the next recorded step: {next_steps[0]}."
+                    if isinstance(entry.get("packet_id"), str) and entry.get("packet_id") and next_steps
+                    else f"Continue fast-lane packet '{packet_label}' with explicit proof rerun."
+                )
+            alternatives = next_steps[1:3] or risks[:1]
+            if packet_mode == "fast-lane":
+                alternatives = combine_unique(
+                    ["Escalate to standard packet mode if dependency or overlap risk appears."],
+                    alternatives,
+                )[:2]
+            if stale_runtime_proof:
+                alternatives = combine_unique(
+                    alternatives,
+                    ["If runtime resolution fails, run runtime doctor before retrying browser proof."],
+                )[:2]
+            if isinstance(merge_target, str) and merge_target.strip():
+                alternatives = combine_unique(alternatives, [f"Next merge target: {merge_target.strip()}."])[:2]
             return {
                 "status": "active",
                 "primary_kind": kind,
-                "current_focus": f"Build packet: {packet_label}{packet_suffix}",
+                "current_focus": f"{packet_focus_prefix}: {packet_label}{packet_suffix}",
                 "current_stage": entry["current_stage"],
                 "suggested_workflow": workflow_hint_for_stage(entry.get("current_stage"), default="build"),
                 "recommended_action": action,
-                "alternatives": next_steps[1:3] or risks[:1],
+                "alternatives": alternatives,
                 "active_packets": active_packets,
                 "browser_qa_pending": browser_qa_pending,
+                "packet_mode": packet_mode,
+                "depends_on_packets": depends_on_packets,
+                "unblocks_packets": unblocks_packets,
+                "merge_target": merge_target,
+                "write_scope_conflicts": write_scope_conflicts,
+                "review_readiness": review_readiness,
+                "merge_readiness": merge_readiness,
+                "completion_gate": completion_gate,
+                "stale_runtime_proof": stale_runtime_proof,
             }
         if kind == "run-report":
             blocked = entry.get("state") in {"failed", "timed-out"}
+            runtime_taxonomy = entry.get("runtime_health_taxonomy") or entry.get("runtime_failure_taxonomy")
+            runtime_summary = entry.get("runtime_health_summary")
+            runtime_doctor = entry.get("runtime_doctor_command")
+            action = entry.get("recommended_action") or "Inspect the latest run result before moving on."
+            alternatives = as_string_list(entry.get("warnings"))[:2] or next_steps[:1]
+            if isinstance(runtime_taxonomy, str) and runtime_taxonomy in {"stale-registration", "runtime-missing", "runtime-invalid", "runtime-unresolvable"}:
+                blocked = True
+                action = (
+                    f"Runtime health issue detected ({runtime_taxonomy}). "
+                    + (runtime_summary if isinstance(runtime_summary, str) and runtime_summary.strip() else "Run runtime doctor before retrying.")
+                )
+                if isinstance(runtime_doctor, str) and runtime_doctor.strip():
+                    alternatives = combine_unique([f"Doctor command: {runtime_doctor.strip()}"], alternatives)[:2]
             return {
                 "status": "blocked" if blocked else "active",
                 "primary_kind": kind,
@@ -331,8 +418,8 @@ def summarize_workflow_state(
                     entry.get("suggested_workflow") or entry.get("current_stage"),
                     default="debug" if blocked else "test",
                 ),
-                "recommended_action": entry.get("recommended_action") or "Inspect the latest run result before moving on.",
-                "alternatives": as_string_list(entry.get("warnings"))[:2] or next_steps[:1],
+                "recommended_action": action,
+                "alternatives": alternatives,
             }
         if kind == "ui-progress":
             stage = entry["current_stage"]
@@ -392,7 +479,27 @@ def summarize_workflow_state(
         review_ready_packets = as_string_list(entry.get("review_ready_packets"))
         merge_ready_packets = as_string_list(entry.get("merge_ready_packets"))
         browser_qa_pending = as_string_list(entry.get("browser_qa_pending"))
+        write_scope_overlaps = as_string_list(entry.get("write_scope_overlaps"))
+        overlap_risk_status = entry.get("overlap_risk_status")
+        review_readiness = entry.get("review_readiness")
+        merge_readiness = entry.get("merge_readiness")
+        completion_gate = entry.get("completion_gate")
         next_merge_point = entry.get("next_merge_point")
+        merge_target = entry.get("merge_target")
+        if overlap_risk_status == "blocked" or completion_gate == "blocked":
+            overlap_message = write_scope_overlaps[0] if write_scope_overlaps else "merge overlap risk is blocked"
+            return {
+                "status": "blocked",
+                "primary_kind": kind,
+                "current_focus": f"Blocked chain: {entry['label']}",
+                "current_stage": entry["current_stage"],
+                "suggested_workflow": "debug",
+                "recommended_action": f"Resolve chain overlap risk before merge: {overlap_message}.",
+                "alternatives": next_steps[:2] or risks[:1],
+                "active_packets": active_packets,
+                "blocked_packets": blocked_packets or active_packets,
+                "write_scope_overlaps": write_scope_overlaps,
+            }
         action = (
             f"Advance chain '{entry['label']}' to merge point '{next_merge_point}'."
             if isinstance(next_merge_point, str) and next_merge_point.strip()
@@ -402,6 +509,10 @@ def summarize_workflow_state(
         )
         if browser_qa_pending:
             action = f"{action} Clear pending browser QA for: {', '.join(browser_qa_pending)}."
+        if merge_readiness == "ready":
+            target = merge_target if isinstance(merge_target, str) and merge_target.strip() else next_merge_point
+            if isinstance(target, str) and target.strip():
+                action = f"Chain is merge-ready. Route into merge target '{target.strip()}' with the recorded strategy."
         return {
             "status": "active",
             "primary_kind": kind,
@@ -416,6 +527,12 @@ def summarize_workflow_state(
             "merge_ready_packets": merge_ready_packets,
             "browser_qa_pending": browser_qa_pending,
             "next_merge_point": next_merge_point,
+            "merge_target": merge_target,
+            "write_scope_overlaps": write_scope_overlaps,
+            "overlap_risk_status": overlap_risk_status,
+            "review_readiness": review_readiness,
+            "merge_readiness": merge_readiness,
+            "completion_gate": completion_gate,
         }
     return {
         "status": "empty",
