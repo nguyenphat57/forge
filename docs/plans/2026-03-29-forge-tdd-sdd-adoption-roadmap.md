@@ -1,7 +1,7 @@
 # Forge TDD/SDD Adoption Roadmap
 
 Date: 2026-03-29
-Status: proposed
+Status: historical proposal, superseded by `docs/plans/2026-03-29-forge-process-first-implementation-plan.md` and `docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md`
 Depends on: `docs/PROJECT_TDD_SDD_BENCHMARK_2026-03-29.md`
 
 ## Goal

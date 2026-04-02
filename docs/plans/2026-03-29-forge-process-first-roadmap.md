@@ -1,7 +1,7 @@
 # Forge Process-First Roadmap
 
 Date: 2026-03-29
-Status: current
+Status: historical roadmap, superseded by `docs/PRODUCT_THESIS_2026-03-29.md` and `docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md`
 Input:
 - `docs/PRODUCT_THESIS_2026-03-29.md`
 - `docs/PROJECT_PHASE1_REPORT_2026-03-28.md`

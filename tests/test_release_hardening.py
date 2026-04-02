@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -70,6 +71,85 @@ class ReleaseHardeningTests(unittest.TestCase):
             for phrase in banned_phrases:
                 with self.subTest(path=path, phrase=phrase):
                     self.assertNotIn(phrase, text)
+
+    def test_release_facing_docs_match_current_stable_version(self) -> None:
+        version = (ROOT_DIR / "VERSION").read_text(encoding="utf-8").strip()
+        readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
+        public_readiness = (ROOT_DIR / "docs" / "release" / "public-readiness.md").read_text(encoding="utf-8")
+        release_process = (ROOT_DIR / "docs" / "release" / "release-process.md").read_text(encoding="utf-8")
+        changelog = (ROOT_DIR / "CHANGELOG.md").read_text(encoding="utf-8")
+
+        self.assertIn(f"Current stable release: `{version}`", readme)
+        self.assertRegex(
+            public_readiness,
+            rf"Status:\s*`{re.escape(version)}` is the current stable release",
+        )
+        self.assertIn(f"release-facing docs now align on `{version}`", public_readiness)
+        self.assertRegex(
+            release_process,
+            rf"Forge `{re.escape(version)}` is the current stable release",
+        )
+
+        first_release_heading = next(
+            line for line in changelog.splitlines() if line.startswith("## ")
+        )
+        self.assertRegex(first_release_heading, r"^## \d+\.\d+\.\d+ \(stable\) - .+$")
+        self.assertTrue(
+            first_release_heading.startswith(f"## {version} (stable) - "),
+            f"Top changelog release does not match VERSION: {first_release_heading}",
+        )
+
+    def test_plan_inventory_reflects_maintenance_mode(self) -> None:
+        closure_path = ROOT_DIR / "docs" / "plans" / "2026-04-02-forge-1.15.x-maintenance-closure.md"
+        closure_text = closure_path.read_text(encoding="utf-8")
+
+        self.assertIn("Status: current maintenance closure", closure_text)
+        self.assertIn("All roadmap files under `docs/plans/` should now be one of:", closure_text)
+        self.assertIn("## Reopen Signals", closure_text)
+
+        allowed_status_patterns = (
+            re.compile(r"^\*\*Status:\*\* historical"),
+            re.compile(r"^Status: historical"),
+            re.compile(r"^Status: implemented"),
+            re.compile(r"^Status: current maintenance closure$"),
+        )
+
+        for path in sorted((ROOT_DIR / "docs" / "plans").glob("*.md")):
+            text = path.read_text(encoding="utf-8")
+            status_line = next(
+                (line.strip() for line in text.splitlines() if line.startswith("Status:") or line.startswith("**Status:**")),
+                None,
+            )
+            self.assertIsNotNone(status_line, f"Missing status line in plan doc: {path}")
+            with self.subTest(path=path, status=status_line):
+                self.assertTrue(
+                    any(pattern.match(status_line) for pattern in allowed_status_patterns),
+                    f"Plan doc status is not maintenance-safe: {path} -> {status_line}",
+                )
+
+    def test_brain_decisions_keep_only_one_current_stable_line(self) -> None:
+        decisions = json.loads((ROOT_DIR / ".brain" / "decisions.json").read_text(encoding="utf-8"))
+        stable_decisions = [item for item in decisions if item.get("scope", "").endswith("-stable-status")]
+
+        current_line_decisions = [
+            item for item in stable_decisions if "current stable Forge release" in item.get("summary", "")
+        ]
+        self.assertEqual(len(current_line_decisions), 1)
+        self.assertEqual(current_line_decisions[0]["scope"], "forge-1-15-stable-status")
+        self.assertEqual(current_line_decisions[0]["status"], "resolved")
+
+        for item in stable_decisions:
+            if item["scope"] != "forge-1-15-stable-status":
+                with self.subTest(scope=item["scope"]):
+                    self.assertEqual(item["status"], "superseded")
+                    self.assertNotIn("current stable Forge release", item["summary"])
+
+        closure = next(
+            item for item in decisions if item.get("scope") == "forge-1-15-maintenance-closure"
+        )
+        self.assertEqual(closure["status"], "resolved")
+        self.assertIn("docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md", closure["evidence"])
+        self.assertIn("packages/forge-core/references/target-state.md", closure["evidence"])
 
     def test_changelog_is_english_first_public_text(self) -> None:
         changelog = (ROOT_DIR / "CHANGELOG.md").read_text(encoding="utf-8")

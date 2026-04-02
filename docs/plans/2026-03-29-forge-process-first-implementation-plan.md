@@ -1,7 +1,7 @@
 # Forge Process-First Implementation Plan
 
 Date: 2026-03-29
-Status: current implementation plan
+Status: historical implementation plan, superseded by `docs/PRODUCT_THESIS_2026-03-29.md` and `docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md`
 Inputs:
 - `docs/PRODUCT_THESIS_2026-03-29.md`
 - `docs/plans/2026-03-29-forge-process-first-roadmap.md`

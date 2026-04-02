@@ -8,6 +8,7 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 > Forge = delivery discipline + skill composition + evidence before claims.
 > Forge must be strong and disciplined enough even if the repo does not have any companion skills or local skills.
 > Forge is flexible on small tasks and disciplined on medium and large tasks.
+> Forge Antigravity maps the Forge process-first execution kernel onto Gemini workspaces through `GEMINI.md`, Antigravity-native operator wrappers, and the same shared verification contract as core.
 
 ---
 

@@ -174,5 +174,29 @@
     "revisit_if": null,
     "trigger": "release-review",
     "resume_hint": "Re-open this item when the work slice resumes."
+  },
+  {
+    "id": "20260403-070000",
+    "kind": "learning",
+    "scope": "forge-1-15-maintenance-closure",
+    "summary": "Maintenance closure stays trustworthy only when release-facing docs, roadmap inventory, and continuity state all agree on one current stable line while older release slices remain historical records.",
+    "status": "resolved",
+    "evidence": [
+      "docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md",
+      "packages/forge-core/references/target-state.md",
+      "packages/forge-core/references/reference-map.md",
+      ".brain/decisions.json",
+      "tests/test_release_hardening.py"
+    ],
+    "next": [],
+    "tags": [
+      "maintenance",
+      "release",
+      "docs",
+      "continuity"
+    ],
+    "revisit_if": null,
+    "trigger": "maintenance-closure",
+    "resume_hint": "Re-open this item when a future release intentionally replaces the current maintenance-closure line."
   }
 ]

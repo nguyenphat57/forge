@@ -1,52 +1,244 @@
-# Forge Monorepo
+# Forge
+### Process-first execution for coding agents in real repos.
+
+**1 core kernel · 2 host adapters · 2 runtime tools · stable 1.15.0**
+
+![Version](https://img.shields.io/badge/version-1.15.0-2563eb)
+![License](https://img.shields.io/badge/license-MIT-16a34a)
+![Verification](https://img.shields.io/badge/verify-repo_passed-22c55e)
+![Adapters](https://img.shields.io/badge/adapters-Codex%20%7C%20Antigravity-f59e0b)
 
 Forge is a process-first orchestration system for coding agents.
-This repository contains the source monorepo for Forge as `core + host adapters + runtime tools + optional companions`.
+This repository is the source monorepo for Forge: `forge-core + host adapters + runtime tools + optional companions`.
 
 Forge is built around a simple split:
 
-- `forge-core` owns routing, verification discipline, release-state thinking, and durable work artifacts.
-- Host adapters such as `forge-codex` and `forge-antigravity` adapt Forge to a specific agent host without pushing host UX into core.
+- `forge-core` owns routing, packetized execution, verification discipline, release-state thinking, and durable work artifacts.
+- Host adapters such as `forge-codex` and `forge-antigravity` adapt Forge to a specific host without pushing host UX into core.
 - Runtime tools such as `forge-browse` and `forge-design` stay outside the orchestrator so they can evolve independently.
-- Companions are optional stack-aware bundles that improve one product path without becoming the identity of Forge itself.
+- Companions are optional stack-aware accelerators, not the identity of Forge itself.
 
-## Why Forge Exists
+### If Forge improves your workflow, give the repo a Star.
 
-Forge is meant for repos where "just answer the prompt" is not enough.
-It pushes work toward:
+---
 
-- explicit verification before claims
-- durable artifacts for medium and large changes
-- packetized build execution with resumable workflow state
-- routing that distinguishes planning, build, review, debug, and release work
-- targeted browser QA only when a packet actually benefits from it
-- clear boundaries between shared engine behavior and host-specific UX
+## The Problem Nobody Likes To Debug Twice
 
-The end goal is not to make one host feel clever.
-The goal is to make agent-assisted delivery more reliable across hosts and projects.
+AI coding agents are fast.
+That does not automatically make delivery reliable.
+
+| What actually happens | The real cost |
+| --- | --- |
+| The agent starts coding before scope is truly clear | Rework, drift, and hidden assumptions |
+| Session context lives mostly in chat | You reconstruct the same intent every morning |
+| Verification changes from task to task | "Looks done" replaces proof |
+| Host wrappers drift away from each other | The same workflow means different things on different hosts |
+| Browser or runtime proof sits off to the side | UI confidence becomes theater instead of execution evidence |
+
+Forge exists to close those gaps without turning every small task into ceremony.
+
+---
+
+## The Solution: A Shared Execution Kernel
+
+Forge gives coding agents one shared operating model:
+
+- route the task by intent and complexity
+- keep medium and risky work in repo-visible artifacts
+- preserve one packet contract across hosts
+- verify before claims, not after the fact
+
+```mermaid
+graph TD
+    A["Forge"] --> B["forge-core<br/>routing, packets, proof gates"]
+    A --> C["forge-codex<br/>AGENTS + Codex operator surface"]
+    A --> D["forge-antigravity<br/>GEMINI + Antigravity operator surface"]
+    A --> E["forge-browse<br/>browser proof runtime"]
+    A --> F["forge-design<br/>design packet runtime"]
+    A --> G["companions<br/>optional stack accelerators"]
+```
+
+Forge is not a prompt wrapper.
+It is a process-first execution system meant for real repos where the cost of being confidently wrong is high.
+
+---
+
+## What Makes Forge Different
+
+### Full Delivery Lifecycle, Not Just Code Generation
+
+Forge treats planning, build execution, review, release, and follow-up as one connected system:
+
+```mermaid
+graph LR
+    A["Intent"] --> B["Route"]
+    B --> C["Plan"]
+    C --> D["Build Packet"]
+    D --> E["Verify"]
+    E --> F["Review"]
+    F --> G["Quality Gate"]
+    G --> H["Deploy"]
+    H --> I["Adoption Check"]
+```
+
+### Host-Neutral Core, Host-Specific Surfaces
+
+- Core semantics live in `forge-core`.
+- Host adapters change UX surface, not the meaning of routing, packets, verification, or release gates.
+- Generated `AGENTS.global.md` and `GEMINI.global.md` stay thin bootstrap files, not second orchestrators.
+
+### Evidence Before Claims
+
+- Verification is defined before edits on meaningful work.
+- Packet and workflow-state artifacts survive beyond the current chat.
+- Runtime and browser proof are bounded execution tools, not vanity add-ons.
+
+### Lighter On Small Tasks, Structured On Risky Work
+
+- Low-risk slices can use fast lane while still keeping proof-before-claims.
+- Medium and large slices keep explicit packet state, merge readiness, and residual risk.
+- Forge stays brownfield-safe instead of assuming a clean greenfield repo.
+
+---
+
+## Loose Agent Setup vs Forge
+
+| Surface | Loose agent setup | Forge |
+| --- | --- | --- |
+| Planning | Optional and usually chat-only | Routed through `brainstorm`, `plan`, and `spec-review` when risk demands it |
+| Execution state | Buried in chat scrollback | Persisted in packet and workflow-state artifacts |
+| Verification | Ad hoc and inconsistent | Defined up front, rerun before claims |
+| Host behavior | Wrapper-specific drift | Shared core contract with adapter overlays |
+| Browser proof | Detached sidecar | Bounded runtime path that feeds execution decisions |
+
+---
 
 ## Current Status
 
 - License: `MIT`
 - Repo maturity: stable release available
-- Current stable release: `1.14.0`
+- Current stable release: `1.15.0`
 - Canonical verification gate: `python scripts/verify_repo.py`
 - `forge-antigravity` is currently the most mature adapter for real rollout
 - `forge-codex` ships in the current stable release after passing the canonical release gates
 
 Public-readiness notes live in `docs/release/public-readiness.md`.
 
+---
+
 ## What Ships From This Repo
 
 | Bundle | Role | Default install target |
 | --- | --- | --- |
-| `forge-core` | host-agnostic orchestrator kernel | no default target |
+| `forge-core` | host-agnostic execution kernel | no default target |
 | `forge-antigravity` | Antigravity host adapter | `~/.gemini/antigravity/skills/forge-antigravity` |
 | `forge-codex` | Codex host adapter | `~/.codex/skills/forge-codex` |
-| `forge-browse` | optional browser QA runtime | explicit `--target` required |
+| `forge-browse` | optional browser proof runtime | explicit `--target` required |
 | `forge-design` | optional design packet runtime | explicit `--target` required |
 
-The example companion package `forge-nextjs-typescript-postgres` is kept in source to prove the adaptation model, but it is not the center of the Forge product story.
+The example companion package `forge-nextjs-typescript-postgres` stays in source to prove the adaptation model, but it is not the center of the Forge product story.
+
+---
+
+## Quick Start
+
+### Source workflow
+
+Do not edit installed bundles directly.
+Make changes in this monorepo, verify them here, build release artifacts into `dist/`, then install from `dist/`.
+
+```powershell
+python scripts/verify_repo.py
+python scripts/build_release.py
+```
+
+What `verify_repo.py` covers:
+
+- generated host artifact freshness
+- Python compile checks
+- repo secret scan
+- repo-level unit tests
+- bundle verification
+- release build
+- install dry-runs for shipped bundles
+- dist bundle verification
+
+### Start Here (Solo Operator)
+
+For a first-run repo where context is still weak:
+
+1. Run `python scripts/verify_repo.py` to confirm tooling health.
+2. In the host session, start with `doctor` then `map-codebase`.
+3. Choose one bounded slice and persist packet or workflow-state before wider edits.
+
+For low-complexity work, use fast lane only when the slice is truly low-risk and still keep proof-before-claims.
+For medium or high-risk work, use full packet mode and rerun verification before claiming completion.
+
+### Install On Codex
+
+```powershell
+python scripts/verify_repo.py
+python scripts/build_release.py
+python scripts/install_bundle.py forge-codex --activate-codex
+```
+
+What `--activate-codex` does:
+
+- installs `forge-codex` into the default Codex skill path
+- rewrites `~/.codex/AGENTS.md` so Forge becomes the global orchestrator
+- retires legacy `awf-codex` runtime artifacts and matching legacy skills
+
+If Codex should reply in Vietnamese with full diacritics on Windows:
+
+```powershell
+python scripts/install_bundle.py forge-codex --activate-codex
+python "$HOME/.codex/skills/forge-codex/scripts/write_preferences.py" --language vi --orthography vietnamese_diacritics --apply
+powershell -ExecutionPolicy Bypass -File "$HOME/.codex/skills/forge-codex/scripts/enable_windows_utf8.ps1"
+powershell -ExecutionPolicy Bypass -File "$HOME/.codex/skills/forge-codex/scripts/enable_windows_utf8.ps1" -Persist
+```
+
+### Install On Antigravity
+
+```powershell
+python scripts/verify_repo.py
+python scripts/build_release.py
+python scripts/install_bundle.py forge-antigravity --build
+```
+
+If you want Forge to rewrite the global Gemini entrypoint from the bundle template:
+
+```powershell
+python scripts/install_bundle.py forge-antigravity --activate-gemini
+```
+
+### Install Runtime Tools
+
+Install both runtime tools and register them for both Codex and Antigravity:
+
+```powershell
+python scripts/install_bundle.py forge-browse --target C:\tools\forge-browse --register-codex-runtime --register-gemini-runtime
+python scripts/install_bundle.py forge-design --target C:\tools\forge-design --register-codex-runtime --register-gemini-runtime
+```
+
+If only one host should discover a runtime tool, pass only that host's registration flag.
+
+### Install Forge Core Explicitly
+
+`forge-core` has no default host target, so install it only when you have a specific runtime path in mind:
+
+```powershell
+python scripts/install_bundle.py forge-core --target C:\path\to\custom\runtime
+```
+
+### Safety Notes
+
+- Install commands back up the existing target by default into `.install-backups/`.
+- `--activate-codex` also backs up the existing Codex global entrypoint and retired legacy artifacts.
+- `--activate-gemini` backs up the existing Gemini global entrypoint when present.
+- Do not install inside the repo tree, including `packages/`, `dist/`, or the repo root.
+- Use `--dry-run` before a risky rollout.
+
+---
 
 ## Repo Layout
 
@@ -67,174 +259,32 @@ forge/
 `-- dist/   # generated by build_release.py
 ```
 
-## Prerequisites
+---
 
-For normal repo verification and bundle builds:
+## Operating Principles
 
-- Python 3.13 is the version used in CI
-- Git
+- Process-first: understand the work before editing.
+- Evidence before claims: verification is part of the contract, not optional polish.
+- Brownfield-safe: optimize for real repos with real history.
+- Host-neutral core: adapters shape UX, not semantics.
+- Optional companions: accelerators are welcome, but core discipline must stand on its own.
 
-For optional live browser smoke or browser-backed runtime usage:
-
-- Node.js
-- Playwright browser binaries when using Playwright-backed flows
-
-## Source Workflow
-
-Do not edit installed runtime bundles directly.
-Make changes in this monorepo, verify them here, build release artifacts into `dist/`, then install from `dist/`.
-
-Standard source workflow:
-
-```powershell
-python scripts/verify_repo.py
-python scripts/build_release.py
-```
-
-What `verify_repo.py` covers:
-
-- generated host artifact freshness
-- Python compile checks
-- repo secret scan
-- repo-level unit tests
-- `forge-core` bundle verification
-- release build
-- install dry-runs for shipped bundles
-- dist bundle verification
-
-## Quick Start
-
-If you want a clean end-to-end pass before installing anything:
-
-```powershell
-python scripts/verify_repo.py
-python scripts/build_release.py
-```
-
-## Start Here (Solo Operator)
-
-For a first-run repo where context is still weak, keep the entry path simple:
-
-1. run `python scripts/verify_repo.py` to confirm tooling health
-2. in the host session, start with `doctor` then `map-codebase`
-3. choose one bounded slice and persist packet/workflow-state before wider edits
-
-For low-complexity work, use fast lane only when the slice is truly low-risk and still keep proof-before-claims.
-For medium/high-risk work, use full packet mode with packet graph fields and rerun verification before claiming completion.
-
-If you want to preview an install plan without changing files:
-
-```powershell
-python scripts/install_bundle.py forge-antigravity --dry-run
-python scripts/install_bundle.py forge-codex --dry-run
-python scripts/install_bundle.py forge-codex --dry-run --activate-codex
-```
-
-## Install On Codex
-
-Default bundle target:
-
-- `~/.codex/skills/forge-codex`
-
-Typical Codex install:
-
-```powershell
-python scripts/verify_repo.py
-python scripts/build_release.py
-python scripts/install_bundle.py forge-codex --activate-codex
-```
-
-What `--activate-codex` does:
-
-- installs `forge-codex` into the default Codex skill path
-- rewrites `~/.codex/AGENTS.md` so Forge becomes the global orchestrator
-- retires legacy `awf-codex` runtime artifacts and matching legacy skills
-
-If you only want the bundle installed without taking over the global entrypoint:
-
-```powershell
-python scripts/install_bundle.py forge-codex
-```
-
-### Codex And Vietnamese On Windows
-
-If Codex should reply in Vietnamese with full diacritics on Windows, set the preference and then run the UTF-8 helper:
-
-```powershell
-python scripts/install_bundle.py forge-codex --activate-codex
-python "$HOME/.codex/skills/forge-codex/scripts/write_preferences.py" --language vi --orthography vietnamese_diacritics --apply
-powershell -ExecutionPolicy Bypass -File "$HOME/.codex/skills/forge-codex/scripts/enable_windows_utf8.ps1"
-powershell -ExecutionPolicy Bypass -File "$HOME/.codex/skills/forge-codex/scripts/enable_windows_utf8.ps1" -Persist
-```
-
-## Install On Antigravity
-
-Default bundle target:
-
-- `~/.gemini/antigravity/skills/forge-antigravity`
-
-Typical Antigravity install:
-
-```powershell
-python scripts/verify_repo.py
-python scripts/build_release.py
-python scripts/install_bundle.py forge-antigravity --build
-```
-
-If you want Forge to rewrite the global Gemini entrypoint from the bundle template, use:
-
-```powershell
-python scripts/install_bundle.py forge-antigravity --activate-gemini
-```
-
-What `--activate-gemini` does:
-
-- installs `forge-antigravity` into the default Antigravity skill path
-- rewrites `~/.gemini/GEMINI.md` from the bundle template
-
-## Install Runtime Tools
-
-`forge-browse` and `forge-design` do not have default install targets.
-Pass an explicit `--target` and register them for the hosts that should discover them.
-
-Install both runtime tools and register them for both Codex and Antigravity:
-
-```powershell
-python scripts/install_bundle.py forge-browse --target C:\tools\forge-browse --register-codex-runtime --register-gemini-runtime
-python scripts/install_bundle.py forge-design --target C:\tools\forge-design --register-codex-runtime --register-gemini-runtime
-```
-
-If only one host should discover a runtime tool, pass only that host's registration flag.
-
-## Install Forge Core Explicitly
-
-`forge-core` is the shared engine bundle.
-It has no default host target, so install it only when you have a specific runtime path in mind:
-
-```powershell
-python scripts/install_bundle.py forge-core --target C:\path\to\custom\runtime
-```
-
-## Safety Notes
-
-- Install commands back up the existing target by default into `.install-backups/`
-- `--activate-codex` also backs up the existing Codex global entrypoint and retired legacy artifacts
-- `--activate-gemini` backs up the existing Gemini global entrypoint when present
-- do not install inside the repo tree, including `packages/`, `dist/`, or the repo root
-- use `--dry-run` before a risky rollout
+---
 
 ## Release Model
 
 Release flow:
 
-1. edit source in the monorepo
-2. run `python scripts/verify_repo.py`
-3. build `dist/` with `python scripts/build_release.py`
-4. install or publish from `dist/`
-5. optionally run extra smoke checks for changed runtime surfaces when additional confidence is useful
+1. Edit source in the monorepo.
+2. Run `python scripts/verify_repo.py`.
+3. Build `dist/` with `python scripts/build_release.py`.
+4. Install or publish from `dist/`.
+5. Optionally run extra smoke checks for changed runtime surfaces when additional confidence is useful.
 
 The detailed release contract lives in `docs/release/release-process.md`.
 The detailed install contract lives in `docs/release/install.md`.
+
+---
 
 ## Documentation Guide
 
@@ -248,6 +298,6 @@ Start here depending on intent:
 
 ## Documentation Language Policy
 
-- Public package docs, architecture docs, and adapter boundary docs should default to English
-- Maintainer-facing operational notes such as plans, release notes, and changelog entries may remain in Vietnamese
-- Keep each file internally consistent in one language instead of mixing English and Vietnamese within the same document
+- Public package docs, architecture docs, and adapter boundary docs should default to English.
+- Maintainer-facing operational notes such as plans, release notes, and changelog entries may remain in Vietnamese.
+- Keep each file internally consistent in one language instead of mixing English and Vietnamese within the same document.

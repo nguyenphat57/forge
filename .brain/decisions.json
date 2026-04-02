@@ -85,26 +85,26 @@
     "id": "20260401-220924",
     "kind": "decision",
     "scope": "forge-1-12-stable-status",
-    "summary": "Treat 1.12.0 as the current stable Forge release because both the canonical release gate and the roadmap-complete closure sweep are green.",
+    "summary": "Record 1.12.0 as the stable Forge release for its slice because both the canonical release gate and the roadmap-complete closure sweep were green.",
     "status": "superseded",
     "evidence": [
       "python -m pytest tests/test_release_hardening.py tests/release_repo_test_contracts.py -q -> 26 passed, 82 subtests passed",
-      "README.md and docs/release now declare 1.12.0 as the current stable release"
+      "README.md and docs/release declared 1.12.0 as the stable release at the time"
     ],
     "next": [],
     "tags": [
       "release",
       "stable"
     ],
-    "revisit_if": "A later release changes the stable line, reopens the roadmap-complete sweep, or invalidates the current release verification evidence.",
+    "revisit_if": "Release archaeology needs the original 1.12.0 proof chain or later evidence invalidates the recorded release verification.",
     "trigger": null,
-    "resume_hint": "A later release changes the stable line, reopens the roadmap-complete sweep, or invalidates the current release verification evidence."
+    "resume_hint": "Resume only if a later audit needs the original 1.12.0 proof chain or invalidates the recorded verification."
   },
   {
     "id": "20260402-111622",
     "kind": "decision",
     "scope": "forge-1-13-stable-status",
-    "summary": "Treat 1.13.0 as the current stable Forge release because the build-packet enhancement line and the canonical repo verification gate are both green.",
+    "summary": "Record 1.13.0 as the stable Forge release for its slice because the build-packet enhancement line and the canonical repo verification gate were both green.",
     "status": "superseded",
     "evidence": [
       "docs/plans/2026-04-02-forge-1.13.x-build-process-enhancement-roadmap.md",
@@ -118,15 +118,15 @@
       "build-packets",
       "workflow-state"
     ],
-    "revisit_if": "A later release changes the stable line or invalidates the 1.13.0 verification evidence.",
+    "revisit_if": "Release archaeology needs the original 1.13.0 proof chain or later evidence invalidates the recorded release verification.",
     "trigger": "minor-release",
-    "resume_hint": "A later release changes the stable line or invalidates the 1.13.0 verification evidence."
+    "resume_hint": "Resume only if a later audit needs the original 1.13.0 proof chain or invalidates the recorded verification."
   },
   {
     "id": "20260402-144231",
     "kind": "decision",
     "scope": "forge-1-14-stable-status",
-    "summary": "Treat 1.14.0 as the current stable Forge release because the competitive roadmap implementation, release contract sweep, and canonical repo gate are all green.",
+    "summary": "Record 1.14.0 as the stable Forge release for its slice because the competitive roadmap implementation, release contract sweep, and canonical repo gate were all green.",
     "status": "superseded",
     "evidence": [
       "docs/plans/2026-04-02-forge-1.14.x-competitive-roadmap.md",
@@ -142,9 +142,9 @@
       "packet-graph",
       "runtime-health"
     ],
-    "revisit_if": "A later release changes the stable line or invalidates the 1.14.0 verification evidence.",
+    "revisit_if": "Release archaeology needs the original 1.14.0 proof chain or later evidence invalidates the recorded release verification.",
     "trigger": "minor-release",
-    "resume_hint": "A later release changes the stable line or invalidates the 1.14.0 verification evidence."
+    "resume_hint": "Resume only if a later audit needs the original 1.14.0 proof chain or invalidates the recorded verification."
   },
   {
     "id": "20260402-215530",
@@ -169,5 +169,29 @@
     "revisit_if": "A later release changes the stable line or invalidates the 1.15.0 verification evidence.",
     "trigger": "minor-release",
     "resume_hint": "A later release changes the stable line or invalidates the 1.15.0 verification evidence."
+  },
+  {
+    "id": "20260402-230000",
+    "kind": "decision",
+    "scope": "forge-1-15-maintenance-closure",
+    "summary": "Close Forge after 1.15.0 into maintenance mode and treat older roadmap lines plus superseded stable-line decisions as historical context, not active work queues.",
+    "status": "resolved",
+    "evidence": [
+      "docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md",
+      "packages/forge-core/references/target-state.md",
+      "packages/forge-core/references/reference-map.md",
+      "tests/test_release_hardening.py",
+      "python scripts/verify_repo.py -> PASS on 2026-04-02"
+    ],
+    "next": [],
+    "tags": [
+      "maintenance",
+      "roadmap",
+      "continuity",
+      "docs"
+    ],
+    "revisit_if": "A later change needs more than bounded maintenance work under the 1.15.x closure criteria.",
+    "trigger": "maintenance-closure",
+    "resume_hint": "Resume only if target-state reopen criteria are met and Forge needs a new explicit roadmap line."
   }
 ]

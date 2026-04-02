@@ -1,7 +1,7 @@
 # Forge Build Throughput Plan
 
 Date: 2026-04-02
-Status: refocused candidate detailed plan
+Status: historical candidate plan, superseded by the `1.15.x` maintenance boundary in `packages/forge-core/references/target-state.md` and `docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md`
 Inputs:
 - `README.md`
 - `packages/forge-core/SKILL.md`

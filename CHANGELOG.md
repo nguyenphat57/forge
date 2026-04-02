@@ -5,6 +5,7 @@
 - Add a host-aware delegation preference contract so each new thread restores typed delegation intent, route preview resolves the same preference as runtime routing, and capable hosts can delegate automatically without relying on `custom_rules` prose.
 - Split delegation resolution cleanly between core defaults and host overlays by moving `forge-core` to `default_tier`, promoting Codex to `parallel-workers`, and correcting Antigravity back to `controller-baseline` when it cannot honestly dispatch subagents.
 - Preserve existing installs by mapping legacy delegation markers from `custom_rules` into the new typed preference with warnings, extending write or apply flows to persist the migrated field, and hardening route, smoke, and release tests around the host by preference matrix.
+- Close `1.15.x` into maintenance mode by syncing release-facing docs, target-state, roadmap inventory, and continuity artifacts around one current stable line, with regression coverage to catch future doc or continuity drift.
 - Re-verify the release through targeted bundle checks, smoke matrix coverage, release build, and the canonical `verify_repo.py` gate before marking `1.15.0` as the current stable Forge release.
 
 

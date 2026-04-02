@@ -3,11 +3,12 @@ name: forge-core
 description: "Forge Core - host-neutral orchestrator source-of-truth for intent routing, complexity assessment, skill composition, delivery guardrails, and optional companion runtime/framework integration across planning, building, debugging, reviewing, designing, testing, deploying, and session work."
 ---
 
-# Forge Core - Shared Orchestrator Source
+# Forge Core - Host-Neutral Execution Kernel
 
 > Forge = delivery discipline + skill composition + evidence before claims.
 > Forge must be strong and disciplined enough even if the repo does not have any companion skills or local skills.
 > Forge is flexible on small tasks and disciplined on medium and large tasks.
+> Forge core is the process-first execution kernel for real repos; adapters and companions extend it, but they do not replace its verification or workflow-state contracts.
 
 ---
 
@@ -366,22 +367,22 @@ Verification profiles canonical live in `data/orchestrator-registry.json`.
 ### Auto-Retry
 ```
 Network error, timeout, file write:
-1. 1st retry
+1. Retry once
 2. Retry a second time if the error seems temporary
-3. Still fails -> notify user + fallback proposal
+3. If it still fails -> notify user + propose a fallback
 ```
 
 ### Long-Running Work
 ```
 If the task takes too long or the command repeatedly fails:
-1. Tells where the user is stuck
-2. Summary of what was tried
-3. Recommend the safest next step
+1. Tell the user where the work is stuck
+2. Summarize what has been tried
+3. Propose the safest next step
 ```
 
 ### Error Translation (when needed)
 
-|Original error | Pandemic|
+|Original error | Translation|
 |---------|------|
 |`ECONNREFUSED` | The service or database is not enabled|
 |`Cannot read undefined` | Reading data that does not exist yet|
@@ -395,10 +396,10 @@ If the task takes too long or the command repeatedly fails:
 ## Golden Rules
 
 ```
-1. JUST DO REQUIREMENTS - Don't expand scope yourself
-2. ONE THING AT A TIME - After completing A, then jump to B
-3. MINIMUM CHANGES - Fix exactly what needs to be fixed
-4. ASK FOR PERMISSION FOR BIG WORK - Schema, folder structure, new dependency -> ask first
+1. DO ONLY WHAT WAS REQUESTED - Do not expand scope on your own
+2. ONE THING AT A TIME - Finish A before jumping to B
+3. MINIMAL CHANGE - Edit exactly what needs to change
+4. ASK BEFORE BIG CHANGES - Schema, folder structure, new dependency -> ask first
 5. EVIDENCE BEFORE CLAIMS - Verify before saying "done"
 ```
 
@@ -409,5 +410,5 @@ Quick entry point for references: see `references/reference-map.md`.
 ## Activation Announcement
 
 ```
-Forge: orchestrator | route with correct intent, keep evidence before claims
+Forge Core: orchestrator | route the right intent, keep evidence before claims
 ```

@@ -1,40 +1,32 @@
 {
-  "updated_at": "2026-04-02T21:55:31+07:00",
+  "updated_at": "2026-04-02T23:00:00+07:00",
   "working_on": {
-    "feature": "stable-1.15.0",
-    "task": "Cut the 1.15.0 release, update continuity artifacts, and ship host-aware delegation preference as the current stable Forge release",
+    "feature": "maintenance-closure-1.15.x",
+    "task": "Close 1.15.x into maintenance mode and align continuity artifacts with the current stable Forge release",
     "status": "completed",
     "files": [
-      "VERSION",
-      "CHANGELOG.md",
-      "docs/specs/2026-04-02-host-aware-delegation-preference-spec.md",
       ".brain/decisions.json",
-      ".brain/learnings.json",
       ".brain/session.json",
       ".brain/handover.md",
-      "packages/forge-core/data/orchestrator-registry.json",
-      "packages/forge-core/scripts/preferences_contract.py",
-      "packages/forge-core/scripts/preferences_store.py",
-      "packages/forge-core/scripts/resolve_preferences.py",
-      "packages/forge-core/scripts/route_delegation.py",
-      "packages/forge-core/scripts/route_preview.py",
-      "packages/forge-codex/overlay/data/orchestrator-registry.json",
-      "packages/forge-antigravity/overlay/data/orchestrator-registry.json"
+      "docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md",
+      "packages/forge-core/references/target-state.md",
+      "packages/forge-core/references/reference-map.md",
+      "tests/test_release_hardening.py",
+      "tests/release_repo_test_contracts.py"
     ]
   },
   "pending_tasks": [],
   "recent_changes": [
-    "Forge 1.15.0 now restores typed delegation preference on new threads and resolves the same canonical preference across bootstrap, route preview, and runtime routing.",
-    "Host capability resolution now separates core default_tier from overlay active_tier, promoting Codex to parallel-workers and correcting Antigravity back to controller-baseline.",
-    "Release-facing docs and continuity artifacts now mark 1.15.0 as the current stable Forge release after the canonical repo verification gate passed."
+    "The `1.15.x` closure target, maintenance boundary, and reopen criteria are now explicit in target-state and reference-map.",
+    "Plan inventory under `docs/plans/` now keeps older roadmap lines historical and points to one canonical maintenance-closure note.",
+    "Brain continuity now treats `1.12.0`, `1.13.0`, and `1.14.0` as historical stable slices while keeping `1.15.0` as the only current stable line."
   ],
   "verification": [
-    "python packages/forge-core/scripts/run_smoke_matrix.py -> PASS (49/49)",
-    "python scripts/build_release.py --format json -> PASS",
-    "python scripts/verify_repo.py --format json -> PASS"
+    "python -m pytest tests/test_release_hardening.py tests/release_repo_test_contracts.py -q -> PASS",
+    "python scripts/verify_repo.py -> PASS"
   ],
   "decisions_made": [
-    "Treat 1.15.0 as stable only when host-aware delegation preference, honest host overlays, and the canonical repo verification gate are all green.",
-    "Delegation automation must resolve from typed preference plus host capability and degrade honestly on unsupported hosts instead of leaning on custom_rules prose."
+    "After 1.15.0, Forge stays in maintenance mode until target-state reopen criteria justify a new roadmap line.",
+    "Superseded stable-line decisions in `.brain/decisions.json` must read as historical records, not as still-current release claims."
   ]
 }

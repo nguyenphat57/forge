@@ -78,9 +78,34 @@ Challenge a change when it mainly adds:
 - extension and preset boundaries stay narrow: packet templates, workflow overlays, and planning presets cannot override core verification and state contracts
 - onboarding stays thin: first-run guidance should help a solo operator start quickly without hiding process expectations
 
+## 1.15.x Closure Target
+
+`1.15.x` should close the active roadmap and leave Forge in maintenance mode instead of reopening product sprawl:
+
+- release-facing docs, `VERSION`, and the latest stable changelog entry agree on the same stable release line
+- core, Codex, and Antigravity entry surfaces tell one honest story about process-first execution, delegation posture, and generated host artifacts
+- target-state and reference-map make the maintenance boundary explicit so future edits default to drift correction, compatibility repair, and verification hardening
+- generated host artifacts stay bootstrap-only; canonical wording lives in tracked source references and overlay sources, not hand-edited runtime wrappers
+- release hardening keeps catching version or story drift before a cut can claim stable status
+
+## Maintenance Boundary
+
+After the `1.15.x` closure line, Forge should default to maintenance mode:
+
+- accept drift correction that keeps release-facing docs, host entry surfaces, and generated artifacts aligned with the shipped product story
+- accept compatibility repairs, defect fixes, and verification hardening when they preserve the current execution-kernel contract
+- accept narrow operator-quality improvements only when they reduce ambiguity without adding new product surface area
+- reject new roadmap branches, new release postures, and broad companion or runtime expansion unless fresh evidence shows the current contract is insufficient
+
+Reopen the roadmap only if:
+
+- runtime health, packet execution, or host-neutral adapter contracts fail in real repos and cannot be fixed as bounded maintenance work
+- a release-facing inconsistency survives the current verification stack, proving the drift checks are materially incomplete
+- a proposed addition changes the behavior bar enough that calling it maintenance would hide real product risk
+
 ## Deferred Boundary
 
-The following stay deferred beyond `1.14.x` unless a later slice narrows them first:
+The following stay deferred beyond the `1.15.x` closure line unless later evidence narrows them first:
 
 - host rollout ledgers: defer because the release-tail workflow-state already carries enough control without adding a second tracking system
 - runtime canary expansion beyond the release contract already in place: defer until the bounded runtime health contract proves stable in real repos

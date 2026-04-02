@@ -11,7 +11,7 @@
 |`backend-briefs.md` | Create or reuse a backend brief for medium/large API, job, event, or data changes|
 |`artifact-driven-change-flow.md` | Run the full P1-P3 artifact-driven flow for medium/risky build work|
 |`constitution-lite.md` | Record or reuse repo-local principles without adding a heavier governance artifact|
-|`target-state.md` | Re-anchor Forge maintenance and operator choices to the north-star product target state|
+|`target-state.md` | Re-anchor Forge maintenance and operator choices to the north-star product target state, including the `1.15.x` closure target and maintenance boundary|
 |`execution-delivery.md` | Select execution mode, checkpoint, and completion state for large builds|
 |`failure-recovery-playbooks.md` | Use when the chain is stalled, a gate is blocked, review is deadlocked, or deployment fails and you need a clear recovery path|
 |`ui-briefs.md` | Use when frontend/visualize needs a first artifact before coding or mockups|
@@ -124,6 +124,15 @@
 5. adoption-check.md if the slice is already live and you need the post-deploy signal
 6. failure-recovery-playbooks.md if gate is blocked or rollout fails
 7. execution-delivery.md if the chain is long or high-risk
+```
+
+### When closing a roadmap into maintenance mode
+
+```text
+1. target-state.md to confirm the active closure target, maintenance boundary, and reopen criteria
+2. bump-release.md if the stable version line or release note surface changes
+3. release-readiness.md when the closure changes the public release verdict or evidence summary
+4. tooling.md if you need deterministic checks to keep release-facing docs and generated artifacts aligned
 ```
 
 ### When working on backend tasks

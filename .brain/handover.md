@@ -1,9 +1,9 @@
 HANDOVER
-- Current task: Cut `1.15.0` and mark it as the current stable Forge release after shipping host-aware delegation preference.
-- Done: Updated `VERSION`, `CHANGELOG.md`, spec doc, and `.brain` continuity (`decisions`, `learnings`, `session`, `handover`) for `1.15.0`.
-- Done: Host capability resolution now uses `default_tier` in core, Codex overlays `parallel-workers`, and Antigravity degrades honestly to `controller-baseline`.
-- Done: Typed `delegation_preference` now resolves through bootstrap, route preview, runtime routing, and legacy `custom_rules` compatibility.
-- Remaining: none for this release slice.
-- Important decisions: Keep delegation automation tied to canonical typed preference plus host capability, not prose-only `custom_rules`.
-- Verification run: `python packages/forge-core/scripts/run_smoke_matrix.py` -> PASS (49/49), `python scripts/build_release.py --format json` -> PASS, `python scripts/verify_repo.py --format json` -> PASS.
-- Next step: Optional only, if requested, create a Git tag or GitHub Release note for `1.15.0`.
+- Current task: Keep `1.15.x` in maintenance closure and keep continuity artifacts aligned with the current stable Forge release.
+- Done: Added `docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md` and marked older roadmap files under `docs/plans/` as historical or implemented.
+- Done: Promoted the `1.15.x` closure target, maintenance boundary, and reopen criteria in tracked references and release-hardening tests.
+- Done: Updated `.brain/decisions.json`, `.brain/session.json`, and this handover so `1.12.0`, `1.13.0`, and `1.14.0` read as historical stable slices while `1.15.0` remains the current stable line.
+- Remaining: none for this maintenance-closure sync.
+- Important decisions: Reopen the roadmap only when target-state reopen criteria are met; otherwise keep changes inside bounded maintenance.
+- Verification run: `python -m pytest tests/test_release_hardening.py tests/release_repo_test_contracts.py -q` -> PASS, `python scripts/verify_repo.py` -> PASS.
+- Next step: Optional only, if requested, sync future continuity artifacts or cut a new roadmap line when maintenance-boundary evidence says the current contract is no longer enough.

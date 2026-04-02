@@ -8,6 +8,7 @@ description: "Forge Codex - Codex-oriented adapter for Forge core. Use when a re
 > Forge = delivery discipline + skill composition + evidence before claims.
 > Forge must be strong and disciplined enough even if the repo does not have any companion skills or local skills.
 > Forge is flexible on small tasks and disciplined on medium and large tasks.
+> Forge Codex maps the Forge process-first execution kernel onto Codex through `AGENTS.md`, natural-language-first operator wrappers, and native delegation when the task is safe to split.
 
 ---
 

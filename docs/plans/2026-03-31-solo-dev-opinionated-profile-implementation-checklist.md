@@ -1,7 +1,7 @@
 # Solo-Dev Opinionated Profile Implementation Checklist
 
 Date: 2026-03-31
-Status: current implementation checklist
+Status: historical implementation checklist, superseded by shipped host surfaces and `docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md`
 Inputs:
 - `docs/specs/2026-03-31-solo-dev-opinionated-profile-spec.md`
 - `docs/specs/2026-03-31-solo-dev-opinionated-profile-spec-appendix.md`
