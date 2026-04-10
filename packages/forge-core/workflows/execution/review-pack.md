@@ -48,3 +48,11 @@ Generate a repeatable pre-release review pack for a solo dev instead of relying 
 
 - seeded auth or billing env gaps appear in findings
 - adversarial profile adds stronger negative-path checks
+
+## Response Footer
+
+When this skill is used to complete a task, include this exact English line in a footer block at the end of the response:
+
+`Used skill: review-pack.`
+
+Keep that footer block as the last block of the response. If multiple skills are used, include one exact `Used skill:` line per unique skill and do not add anything after the footer block.

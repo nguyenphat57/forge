@@ -198,5 +198,28 @@
     "revisit_if": null,
     "trigger": "maintenance-closure",
     "resume_hint": "Re-open this item when a future release intentionally replaces the current maintenance-closure line."
+  },
+  {
+    "id": "20260410-120759",
+    "kind": "learning",
+    "scope": "forge-1-15-maintenance-footer-clarity",
+    "summary": "Skill provenance footers stay trustworthy only when the closing line uses neutral wording and a multi-skill response emits each skill marker once.",
+    "status": "resolved",
+    "evidence": [
+      "packages/forge-core/workflows/design/brainstorm.md",
+      "packages/forge-core/workflows/execution/build.md",
+      "packages/forge-core/workflows/operator/run.md",
+      "packages/forge-core/domains/backend.md"
+    ],
+    "next": [],
+    "tags": [
+      "maintenance",
+      "skills",
+      "footer",
+      "ux"
+    ],
+    "revisit_if": null,
+    "trigger": "patch-release",
+    "resume_hint": "Re-open this item if future host behavior needs richer footer provenance than one unique line per used skill."
   }
 ]

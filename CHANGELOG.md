@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.15.1 (stable) - 2026-04-10
+
+- Normalize every `forge-core` child skill footer to end with `Used skill: <skill-name>.` instead of deployment wording so response provenance reads naturally on real tasks.
+- Require multi-skill footer blocks to emit one unique `Used skill:` line per skill, preventing duplicated footer lines when one task routes through several Forge skills.
+- Refresh release-facing stable-version surfaces and continuity artifacts so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` all agree on `1.15.1` as the current maintenance release.
+- Rebuild the shipped bundles and sync the updated `forge-antigravity` and `forge-codex` installs from the verified release output after the repo gate passes.
+
+
 ## 1.15.0 (stable) - 2026-04-02
 
 - Add a host-aware delegation preference contract so each new thread restores typed delegation intent, route preview resolves the same preference as runtime routing, and capable hosts can delegate automatically without relying on `custom_rules` prose.

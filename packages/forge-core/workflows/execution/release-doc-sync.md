@@ -49,3 +49,11 @@ For solo-profile work, this is the doc gate that keeps `solo-internal` and `solo
 
 - seeded drift is detected
 - a clean path with touched docs passes
+
+## Response Footer
+
+When this skill is used to complete a task, include this exact English line in a footer block at the end of the response:
+
+`Used skill: release-doc-sync.`
+
+Keep that footer block as the last block of the response. If multiple skills are used, include one exact `Used skill:` line per unique skill and do not add anything after the footer block.

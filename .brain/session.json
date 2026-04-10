@@ -1,32 +1,38 @@
 {
-  "updated_at": "2026-04-02T23:00:00+07:00",
+  "updated_at": "2026-04-10T12:07:59+07:00",
   "working_on": {
-    "feature": "maintenance-closure-1.15.x",
-    "task": "Close 1.15.x into maintenance mode and align continuity artifacts with the current stable Forge release",
+    "feature": "maintenance-patch-1.15.1",
+    "task": "Cut 1.15.1 as a bounded maintenance release and align stable-release surfaces plus skill provenance footers",
     "status": "completed",
     "files": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
       ".brain/decisions.json",
+      ".brain/learnings.json",
       ".brain/session.json",
       ".brain/handover.md",
-      "docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md",
-      "packages/forge-core/references/target-state.md",
-      "packages/forge-core/references/reference-map.md",
-      "tests/test_release_hardening.py",
-      "tests/release_repo_test_contracts.py"
+      "packages/forge-core/domains/backend.md",
+      "packages/forge-core/domains/frontend.md",
+      "packages/forge-core/workflows/design/brainstorm.md",
+      "packages/forge-core/workflows/execution/build.md",
+      "packages/forge-core/workflows/operator/run.md"
     ]
   },
   "pending_tasks": [],
   "recent_changes": [
-    "The `1.15.x` closure target, maintenance boundary, and reopen criteria are now explicit in target-state and reference-map.",
-    "Plan inventory under `docs/plans/` now keeps older roadmap lines historical and points to one canonical maintenance-closure note.",
-    "Brain continuity now treats `1.12.0`, `1.13.0`, and `1.14.0` as historical stable slices while keeping `1.15.0` as the only current stable line."
+    "Every `forge-core` child skill now closes with `Used skill: <skill-name>.` instead of deployment wording.",
+    "Multi-skill footer blocks now require one unique `Used skill:` line per used skill instead of repeating duplicate lines.",
+    "Stable release surfaces and continuity artifacts now align on `1.15.1` as the current maintenance release."
   ],
   "verification": [
-    "python -m pytest tests/test_release_hardening.py tests/release_repo_test_contracts.py -q -> PASS",
-    "python scripts/verify_repo.py -> PASS"
+    "python scripts/verify_repo.py -> PASS",
+    "python scripts/build_release.py -> PASS"
   ],
   "decisions_made": [
-    "After 1.15.0, Forge stays in maintenance mode until target-state reopen criteria justify a new roadmap line.",
-    "Superseded stable-line decisions in `.brain/decisions.json` must read as historical records, not as still-current release claims."
+    "Keep this cut on the `1.15.x` maintenance line as `1.15.1` because the release is bounded maintenance, not a new roadmap branch.",
+    "Skill provenance footers must use neutral wording and emit one unique line per used skill in the final footer block."
   ]
 }

@@ -1,9 +1,9 @@
 HANDOVER
-- Current task: Keep `1.15.x` in maintenance closure and keep continuity artifacts aligned with the current stable Forge release.
-- Done: Added `docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md` and marked older roadmap files under `docs/plans/` as historical or implemented.
-- Done: Promoted the `1.15.x` closure target, maintenance boundary, and reopen criteria in tracked references and release-hardening tests.
-- Done: Updated `.brain/decisions.json`, `.brain/session.json`, and this handover so `1.12.0`, `1.13.0`, and `1.14.0` read as historical stable slices while `1.15.0` remains the current stable line.
-- Remaining: none for this maintenance-closure sync.
-- Important decisions: Reopen the roadmap only when target-state reopen criteria are met; otherwise keep changes inside bounded maintenance.
-- Verification run: `python -m pytest tests/test_release_hardening.py tests/release_repo_test_contracts.py -q` -> PASS, `python scripts/verify_repo.py` -> PASS.
-- Next step: Optional only, if requested, sync future continuity artifacts or cut a new roadmap line when maintenance-boundary evidence says the current contract is no longer enough.
+- Current task: Cut `1.15.1` as a bounded maintenance release and keep stable-release surfaces plus continuity artifacts aligned.
+- Done: Updated all `forge-core` child skills so the closing footer line reads `Used skill: <skill-name>.` and multi-skill footer blocks do not repeat duplicate skill lines.
+- Done: Refreshed `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/public-readiness.md`, and `docs/release/release-process.md` so `1.15.1` is the current stable maintenance release.
+- Done: Updated `.brain/decisions.json`, `.brain/learnings.json`, `.brain/session.json`, and this handover so the current stable line, release reasoning, and footer-provenance learning all match `1.15.1`.
+- Remaining: none for this maintenance patch after bundle sync and install sync complete.
+- Important decisions: Keep the release on the `1.15.x` maintenance line as a patch; use neutral `Used skill:` footer wording and emit each used skill only once.
+- Verification run: `python scripts/verify_repo.py` -> PASS, `python scripts/build_release.py` -> PASS.
+- Next step: Optional only, if requested, continue bounded maintenance work or reopen the roadmap only when target-state reopen criteria are met.
