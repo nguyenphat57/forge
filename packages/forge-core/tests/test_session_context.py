@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -9,6 +10,17 @@ from support import run_python_script
 
 
 class SessionContextTests(unittest.TestCase):
+    def _init_synced_git_repo(self, workspace: Path, remote: Path) -> None:
+        subprocess.run(["git", "init", "--bare", str(remote)], check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "init"], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "config", "user.name", "Test User"], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "checkout", "-b", "main"], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "add", "README.md"], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "commit", "-m", "init"], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "remote", "add", "origin", str(remote)], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "push", "-u", "origin", "main"], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+
     def test_save_writes_session_json_with_explicit_context(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
@@ -152,6 +164,88 @@ class SessionContextTests(unittest.TestCase):
         self.assertEqual(report["current_focus"], "Plan: Checkout rollback hardening")
         self.assertEqual(report["best_next_step"], "Start the first concrete slice from plan 'Checkout rollback hardening'.")
         self.assertIn("plan:", " ".join(report["restored_from"]))
+
+    def test_resume_filters_stale_session_follow_ups_when_repo_is_clean_and_synced(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            workspace = root / "workspace"
+            remote = root / "remote.git"
+            workspace.mkdir(parents=True, exist_ok=True)
+            (workspace / "README.md").write_text("# Checkout Workspace\n", encoding="utf-8")
+            self._init_synced_git_repo(workspace, remote)
+
+            saved = run_python_script(
+                "session_context.py",
+                "save",
+                "--workspace",
+                str(workspace),
+                "--task",
+                "Finish checkout retry slice",
+                "--status",
+                "completed",
+                "--pending",
+                "Review remaining diff, then commit and push if approved",
+                "--risk",
+                "Repo changes are still uncommitted and unpushed.",
+                "--format",
+                "json",
+            )
+            self.assertEqual(saved.returncode, 0, saved.stderr)
+
+            state_dir = workspace / ".forge-artifacts" / "workflow-state" / "checkout-workspace"
+            state_dir.mkdir(parents=True, exist_ok=True)
+            (state_dir / "latest.json").write_text(
+                json.dumps(
+                    {
+                        "project": "Checkout Workspace",
+                        "current_stage": "quality-gate",
+                        "last_recorded_kind": "quality-gate",
+                        "latest_gate": {
+                            "kind": "quality-gate",
+                            "project": "Checkout Workspace",
+                            "label": "ready-for-merge",
+                            "decision": "go",
+                            "why": "Fresh verification is already aligned.",
+                            "response": "I verified: the slice is ready for handoff.",
+                            "next_evidence": [],
+                            "evidence_read": ["pytest tests/test_checkout.py"],
+                            "risks": [],
+                        },
+                        "summary": {
+                            "status": "active",
+                            "primary_kind": "quality-gate",
+                            "current_focus": "Gate approved: ready-for-merge",
+                            "current_stage": "quality-gate",
+                            "suggested_workflow": "review",
+                            "recommended_action": "Proceed with the approved handoff for 'ready-for-merge'.",
+                            "alternatives": [],
+                        },
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            resumed = run_python_script(
+                "session_context.py",
+                "resume",
+                "--workspace",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(resumed.returncode, 0, resumed.stderr)
+            report = json.loads(resumed.stdout)
+
+        self.assertEqual(report["status"], "PASS")
+        self.assertEqual(report["current_focus"], "Gate approved: ready-for-merge")
+        self.assertEqual(report["pending_work"], ["Proceed with the approved handoff for 'ready-for-merge'."])
+        self.assertEqual(report["risks_or_assumptions"], [])
+        self.assertTrue(
+            any("Filtered 2 stale session item(s)" in warning for warning in report["warnings"]),
+            report["warnings"],
+        )
 
 
 if __name__ == "__main__":

@@ -93,6 +93,59 @@ def _load_session(path: Path, warnings: list[str]) -> dict | None:
     return read_json_object(path, "session context", warnings)
 
 
+def _git_worktree_clean(git_state: dict) -> bool:
+    return bool(git_state.get("available")) and not git_state.get("changed_files") and not git_state.get("untracked_files")
+
+
+def _git_branch_synced(git_state: dict) -> bool:
+    return _git_worktree_clean(git_state) and git_state.get("synced_with_upstream") is True
+
+
+def _looks_like_diff_follow_up(text: str) -> bool:
+    lowered = text.casefold()
+    markers = (
+        "staged diff",
+        "remaining diff",
+        "review diff",
+        "git diff",
+        "working tree",
+        "unstaged",
+        "staged change",
+    )
+    return any(marker in lowered for marker in markers)
+
+
+def _looks_like_commit_push_follow_up(text: str) -> bool:
+    lowered = text.casefold()
+    markers = (
+        "commit and push",
+        "commit/push",
+        "commit if approved",
+        "push if approved",
+        "uncommitted",
+        "unpushed",
+    )
+    return any(marker in lowered for marker in markers)
+
+
+def _filter_stale_session_items(items: list[str], git_state: dict, *, risk_mode: bool) -> tuple[list[str], int]:
+    clean = _git_worktree_clean(git_state)
+    synced = _git_branch_synced(git_state)
+    kept: list[str] = []
+    filtered = 0
+    for item in items:
+        stale = False
+        if clean and _looks_like_diff_follow_up(item):
+            stale = True
+        if (synced if risk_mode else clean and synced) and _looks_like_commit_push_follow_up(item):
+            stale = True
+        if stale:
+            filtered += 1
+            continue
+        kept.append(item)
+    return kept, filtered
+
+
 def _build_handover_text(payload: dict, *, next_step: str | None) -> str:
     task = payload["working_on"]["task"] or payload["working_on"]["feature"] or "(none)"
     lines = [
@@ -223,6 +276,7 @@ def build_resume_report(workspace: Path) -> dict:
     warnings: list[str] = []
     navigator = build_help_next_report(workspace, "next")
     workflow_report = resolve_workflow_state(workspace, warnings)
+    git_state = read_git_status(workspace)
     session_path = workspace / ".brain" / "session.json"
     session = _load_session(session_path, warnings)
     handover_path = workspace / ".brain" / "handover.md"
@@ -244,12 +298,15 @@ def build_resume_report(workspace: Path) -> dict:
         ]
         + _workspace_path_strings(workspace, _session_files(session))
     )
-    pending_work = _string_list((session or {}).get("pending_tasks"))
+    session_pending = _string_list((session or {}).get("pending_tasks"))
+    pending_work, filtered_pending = _filter_stale_session_items(session_pending, git_state, risk_mode=False)
     if not pending_work and isinstance(navigator.get("recommended_action"), str) and navigator["recommended_action"].strip():
         pending_work = [navigator["recommended_action"].strip()]
 
+    session_risks = _string_list((session or {}).get("risks"))
+    filtered_risks, filtered_risk_count = _filter_stale_session_items(session_risks, git_state, risk_mode=True)
     risks_or_assumptions = _dedupe(
-        _string_list((session or {}).get("risks"))
+        filtered_risks
         + ([session_blocker(session)] if session_blocker(session) else [])
         + ([handover_excerpt] if handover_excerpt else [])
     )
@@ -261,6 +318,11 @@ def build_resume_report(workspace: Path) -> dict:
 
     status = "PASS"
     combined_warnings = _dedupe(warnings + navigator.get("warnings", []))
+    filtered_items = filtered_pending + filtered_risk_count
+    if filtered_items:
+        combined_warnings.append(
+            f"Filtered {filtered_items} stale session item(s) that no longer match the current git state."
+        )
     if (
         navigator.get("current_stage") == "unscoped"
         and not session
