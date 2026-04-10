@@ -21,6 +21,7 @@ from route_analysis import (
     choose_execution_mode,
     choose_quality_profile,
     choose_verification_profile,
+    detect_session_mode,
     detect_complexity,
     detect_domain_skills,
     detect_intent,
@@ -109,6 +110,7 @@ def build_report(args: argparse.Namespace) -> dict:
         resolved_delegation_preference = explicit_delegation_preference
 
     intent, intent_config = detect_intent(args.prompt, registry)
+    session_mode = detect_session_mode(args.prompt, registry) if intent == "SESSION" else None
     complexity = detect_complexity(args.prompt, args.changed_files, registry)
     workspace_router = resolve_workspace_router(args.workspace_router)
     domain_skills = detect_domain_skills(args.prompt, args.repo_signal, intent, complexity, registry)
@@ -223,6 +225,7 @@ def build_report(args: argparse.Namespace) -> dict:
         "workspace_router": str(workspace_router) if workspace_router else None,
         "detected": {
             "intent": intent,
+            "session_mode": session_mode,
             "complexity": complexity,
             "profile": required_stage_contract["profile"],
             "forge_skills": forge_skills,
@@ -285,9 +288,11 @@ def format_text(report: dict) -> str:
         "Forge Route Preview",
         f"- Prompt: {report['prompt']}",
         f"- Intent: {detected['intent']}",
+        f"- Session mode: {detected['session_mode'] or '(n/a)'}",
         f"- Complexity: {detected['complexity']}",
         f"- Profile: {detected['profile']}",
         f"- Forge skills: {' -> '.join(detected['forge_skills'])}",
+        "- Skill selection rationale:",
         f"- Required stage chain: {' -> '.join(detected['required_stage_chain']) or '(none)'}",
         f"- Execution mode: {detected['execution_mode'] or '(n/a)'}",
         f"- Execution pipeline: {report['execution_pipeline']['label'] if report['execution_pipeline'] else '(n/a)'}",
@@ -320,6 +325,17 @@ def format_text(report: dict) -> str:
         f"- Assumptions-first mode: {'yes' if detected['assumptions_first_mode'] else 'no'}",
         "- Required stages:",
     ]
+    if detected["skill_selection_rationale"]:
+        for item in detected["skill_selection_rationale"]:
+            lines.append(
+                "  - {skill}: {reason} ({reason_code})".format(
+                    skill=item["skill"],
+                    reason=item["reason"],
+                    reason_code=item["reason_code"],
+                )
+            )
+    else:
+        lines.append("  - none: answered directly because no Forge skill added value.")
     if detected["required_stages"]:
         for item in detected["required_stages"]:
             reason = item.get("activation_reason") or item.get("skip_reason") or "(none)"
@@ -336,18 +352,6 @@ def format_text(report: dict) -> str:
             )
     else:
         lines.append("  - (none)")
-    lines.append("- Skill selection rationale:")
-    if detected["skill_selection_rationale"]:
-        for item in detected["skill_selection_rationale"]:
-            lines.append(
-                "  - {skill}: {reason} ({reason_code})".format(
-                    skill=item["skill"],
-                    reason=item["reason"],
-                    reason_code=item["reason_code"],
-                )
-            )
-    else:
-        lines.append("  - none: answered directly because no Forge skill added value.")
     lines.extend([
         "- Lane model tiers:",
     ])

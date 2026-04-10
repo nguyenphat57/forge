@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-04-10T12:07:59+07:00",
+  "updated_at": "2026-04-10T12:16:59+00:00",
   "working_on": {
     "feature": "maintenance-patch-1.15.1",
-    "task": "Cut 1.15.1 as a bounded maintenance release and align stable-release surfaces plus skill provenance footers",
+    "task": "Make save context and resume execute exact save/restore semantics",
     "status": "completed",
     "files": [
       "VERSION",
@@ -18,21 +18,75 @@
       "packages/forge-core/domains/frontend.md",
       "packages/forge-core/workflows/design/brainstorm.md",
       "packages/forge-core/workflows/execution/build.md",
-      "packages/forge-core/workflows/operator/run.md"
+      "packages/forge-core/workflows/operator/run.md",
+      "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
+      "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
+      "docs/architecture/generated-host-artifacts/codex/workflows/execution/session.md",
+      "packages/forge-antigravity/overlay/GEMINI.global.md",
+      "packages/forge-codex/overlay/AGENTS.global.md",
+      "packages/forge-codex/overlay/workflows/execution/session.md",
+      "packages/forge-core/data/orchestrator-registry.json",
+      "packages/forge-core/references/tooling.md",
+      "packages/forge-core/scripts/response_contract.py",
+      "packages/forge-core/scripts/route_analysis.py",
+      "packages/forge-core/scripts/route_preview.py",
+      "packages/forge-core/scripts/smoke_matrix_validators.py"
     ]
   },
-  "pending_tasks": [],
+  "pending_tasks": [
+    "Review remaining diff, then commit and push if approved",
+    "Review the staged diff, then commit and push if approved."
+  ],
   "recent_changes": [
-    "Every `forge-core` child skill now closes with `Used skill: <skill-name>.` instead of deployment wording.",
-    "Multi-skill footer blocks now require one unique `Used skill:` line per used skill instead of repeating duplicate lines.",
-    "Stable release surfaces and continuity artifacts now align on `1.15.1` as the current maintenance release."
+    "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
+    "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
+    "docs/architecture/generated-host-artifacts/codex/workflows/execution/session.md",
+    "packages/forge-antigravity/overlay/GEMINI.global.md",
+    "packages/forge-codex/overlay/AGENTS.global.md",
+    "packages/forge-codex/overlay/workflows/execution/session.md",
+    "packages/forge-core/data/orchestrator-registry.json",
+    "packages/forge-core/references/tooling.md",
+    "packages/forge-core/scripts/response_contract.py",
+    "packages/forge-core/scripts/route_analysis.py",
+    "packages/forge-core/scripts/route_preview.py",
+    "packages/forge-core/scripts/smoke_matrix_validators.py",
+    "packages/forge-core/tests/fixtures/response_contract_cases.json",
+    "packages/forge-core/tests/fixtures/route_preview_cases.json",
+    "packages/forge-core/tests/test_contracts.py",
+    "packages/forge-core/tests/test_response_contract.py",
+    "packages/forge-core/tests/test_route_matrix.py",
+    "packages/forge-core/tests/test_route_preview.py",
+    "packages/forge-core/workflows/execution/quality-gate.md",
+    "packages/forge-core/workflows/execution/session.md"
   ],
   "verification": [
+    "python -m unittest discover -s tests -p test_session_context.py -v",
+    "python -m unittest discover -s tests -p test_route_preview.py -v",
+    "python -m unittest discover -s tests -p test_route_matrix.py -v",
+    "python -m unittest discover -s tests -p test_contracts.py -v",
+    "python scripts/verify_repo.py",
+    "python scripts/build_release.py",
     "python scripts/verify_repo.py -> PASS",
     "python scripts/build_release.py -> PASS"
   ],
   "decisions_made": [
+    "Session routing now distinguishes save, restore, and handover through explicit session_mode detection.",
+    "save context and resume are now backed by session_context.py instead of loose recap wording.",
     "Keep this cut on the `1.15.x` maintenance line as `1.15.1` because the release is bounded maintenance, not a new roadmap branch.",
     "Skill provenance footers must use neutral wording and emit one unique line per used skill in the final footer block."
+  ],
+  "risks": [
+    "Repo changes are still uncommitted and unpushed."
+  ],
+  "blockers": [],
+  "source_artifacts": [
+    "readme: C:\\Users\\Admin\\.gemini\\forge\\README.md",
+    "codebase-summary: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\codebase\\summary.md",
+    "plan: C:\\Users\\Admin\\.gemini\\forge\\docs\\plans\\2026-04-02-forge-build-side-acceleration-plan.md",
+    "spec: C:\\Users\\Admin\\.gemini\\forge\\docs\\specs\\2026-04-02-host-aware-delegation-preference-spec.md",
+    "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
+    "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
+    "git: 22 working tree item(s)",
+    "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\workflow-state\\forge-self-hosted-tdd-sdd-adoption\\latest.json"
   ]
 }

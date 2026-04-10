@@ -14,7 +14,7 @@ quality_gates:
 
 # Session - Context & Continuity
 
-> Goal: restore context from real artifacts first and capture only durable continuity when the user explicitly asks.
+> Goal: make "save context" and "resume" execute the exact operation they imply instead of acting like vague recap language.
 
 <HARD-GATE>
 - Do not invent token usage, context percentages, or fake memory pressure.
@@ -27,8 +27,8 @@ quality_gates:
 
 |Trigger | Mode | Action|
 |---------|------|--------|
-|"continue", "resume", "where were we", "remind me", "pick this back up" | **Restore** | Rebuild context from repo, plans, docs, and scoped `.brain` artifacts|
-|"save current progress", "capture continuity", "leave a short note" | **Save** | Write a compact continuity note only if the user wants persistence|
+|"continue", "resume", "restore context", "where were we", "remind me", "pick this back up" | **Restore** | Run `python scripts/session_context.py resume ...` to rebuild context from repo, workflow-state, and scoped `.brain` artifacts|
+|"save context", "save current progress", "capture continuity", "leave a short note" | **Save** | Run `python scripts/session_context.py save ...` to persist the current task snapshot into `.brain/session.json`|
 |Explicit handover request | **Handover** | Create a short transfer note with next steps and risks|
 
 ## Operating Rules
@@ -42,6 +42,12 @@ quality_gates:
 - If memory and repo state conflict, repo state wins.
 
 ## Restore Mode
+
+When the user says `resume`, treat it as an explicit restore request:
+
+```powershell
+python scripts/session_context.py resume --workspace <workspace> --format json
+```
 
 ### Load Order
 
@@ -102,6 +108,18 @@ Context recap:
 ## Save Mode
 
 Use this only when the user explicitly wants continuity captured.
+
+When the user says `save context`, run:
+
+```powershell
+python scripts/session_context.py save --workspace <workspace> --format json
+```
+
+When the user wants an explicit handoff, run:
+
+```powershell
+python scripts/session_context.py save --workspace <workspace> --write-handover --format json
+```
 
 ### Good payload
 

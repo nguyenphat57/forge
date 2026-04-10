@@ -202,6 +202,43 @@
       }
     }
   },
+  "session_modes": {
+    "restore": {
+      "keywords": [
+        "resume",
+        "continue",
+        "where were we",
+        "restore context",
+        "pick this back up",
+        "recap"
+      ],
+      "shortcuts": [
+        "/recap"
+      ]
+    },
+    "save": {
+      "keywords": [
+        "save context",
+        "save current progress",
+        "save progress",
+        "capture continuity",
+        "leave a short note",
+        "remember this state"
+      ],
+      "shortcuts": [
+        "/save-brain"
+      ]
+    },
+    "handover": {
+      "keywords": [
+        "handover",
+        "hand off",
+        "transfer note",
+        "leave handover"
+      ],
+      "shortcuts": []
+    }
+  },
   "complexity": {
     "default": "medium",
     "thresholds": {
@@ -1191,7 +1228,7 @@
     "none_prefix": "none -",
     "bullet_prefix": "- ",
     "require_on_every_response": true,
-    "require_before_footer": true,
+    "require_at_start": true,
     "require_reason_text": true,
     "require_match_with_footer": true
   },

@@ -30,7 +30,7 @@ HONORIFIC_OUTPUT_CONTRACT = {
 
 
 def _with_skill_block(body: str, *lines: str) -> str:
-    return "\n".join([body, "Skill selection:", *lines])
+    return "\n".join(["Skill selection:", *lines, body])
 
 
 class ResponseContractTests(unittest.TestCase):
@@ -54,7 +54,7 @@ class ResponseContractTests(unittest.TestCase):
 
     def test_validator_rejects_banned_phrase(self) -> None:
         report = response_contract.validate_response_contract(
-            "Good catch. I fixed it.\nSkill selection: none - answered directly because no Forge skill added value.\nSkills used: none",
+            "Skill selection: none - answered directly because no Forge skill added value.\nGood catch. I fixed it.\nSkills used: none",
             require_evidence_response=True,
         )
 
@@ -63,7 +63,7 @@ class ResponseContractTests(unittest.TestCase):
 
     def test_validator_rejects_mojibake_for_vietnamese_contract(self) -> None:
         report = response_contract.validate_response_contract(
-            "KhÃ´ng reproduce duoc nen chac on.\nSkill selection: none - tra loi truc tiep vi khong can them Forge skill.\nSkills used: none",
+            "Skill selection: none - tra loi truc tiep vi khong can them Forge skill.\nKhÃ´ng reproduce duoc nen chac on.\nSkills used: none",
             output_contract=VIETNAMESE_OUTPUT_CONTRACT,
         )
 
@@ -86,7 +86,7 @@ class ResponseContractTests(unittest.TestCase):
 
     def test_clarification_requires_exactly_one_question(self) -> None:
         report = response_contract.validate_response_contract(
-            "Cần làm rõ: Anh muốn ưu tiên validator trước? Hay ưu tiên routing trước?\nSkill selection: none - cần làm rõ trước khi chọn Forge skill.\nSkills used: none",
+            "Skill selection: none - cần làm rõ trước khi chọn Forge skill.\nCần làm rõ: Anh muốn ưu tiên validator trước? Hay ưu tiên routing trước?\nSkills used: none",
             output_contract=VIETNAMESE_OUTPUT_CONTRACT,
             require_evidence_response=True,
         )
@@ -157,7 +157,7 @@ class ResponseContractTests(unittest.TestCase):
 
     def test_validator_accepts_none_skill_usage_footer(self) -> None:
         report = response_contract.validate_response_contract(
-            "Clarification needed: Which Forge surface should define the footer contract?\nSkill selection: none - answered directly because no Forge skill added value.\nSkills used: none",
+            "Skill selection: none - answered directly because no Forge skill added value.\nClarification needed: Which Forge surface should define the footer contract?\nSkills used: none",
             require_evidence_response=True,
             expected_skills=[],
         )

@@ -13,6 +13,7 @@
     "name": "session_natural_language",
     "prompt": "Continue the task we were working on yesterday",
     "expected_intent": "SESSION",
+    "expected_session_mode": "restore",
     "expected_complexity": "medium",
     "expected_profile": "solo-internal",
     "expected_skills": ["session"],
@@ -42,6 +43,7 @@
     "workspace_fixture": "mixed_local_router",
     "workspace_router": "AGENTS.md",
     "expected_intent": "SESSION",
+    "expected_session_mode": "restore",
     "expected_complexity": "medium",
     "expected_profile": "solo-internal",
     "expected_skills": ["session"],
@@ -49,6 +51,17 @@
     "expected_domain_skills": [],
     "expected_local_companions": [],
     "expected_quality_profile": "standard",
+    "expected_verification_profile": null
+  },
+  {
+    "name": "save_context_natural_language",
+    "prompt": "Save context for this task before I close the window",
+    "expected_intent": "SESSION",
+    "expected_session_mode": "save",
+    "expected_complexity": "medium",
+    "expected_profile": "solo-internal",
+    "expected_skills": ["session"],
+    "expected_required_stage_chain": ["session"],
     "expected_verification_profile": null
   },
   {

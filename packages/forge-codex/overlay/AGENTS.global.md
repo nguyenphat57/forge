@@ -81,17 +81,19 @@ Before closing a task:
 
 ## Global Skill Selection Explanation
 
-Every user-facing response must explain why Forge selected the used Forge skills immediately before the final footer.
+Every user-facing response must begin with a short block that explains why Forge selected the used Forge skills.
 
 ```text
 Skill selection:
 - brainstorm: selected because the request opens a new feature direction that needs explicit planning first.
 - build: selected by the default chain for this intent and complexity.
+I verified: pytest -q passed. Correct because the routed work was completed with fresh evidence.
 Skills used: brainstorm, build
 ```
 
 ```text
 Skill selection: none - answered directly because no Forge skill added value.
+Clarification needed: Which file should own this contract?
 Skills used: none
 ```
 
@@ -101,7 +103,7 @@ Rules:
 - If Forge skills were used, add one bullet per used Forge skill in the form `- <skill>: <reason>`
 - If no Forge skill was used, write `Skill selection: none - <reason>`
 - Keep the skill names unique and aligned with the final `Skills used:` footer
-- Place this explanation block immediately before the final footer
+- Place this explanation block at the start of the response
 
 ## Global Skill Usage Footer
 

@@ -141,7 +141,7 @@ def validate_skill_selection_explanation(
     none_prefix = str(explanation_contract.get("none_prefix", "none -"))
     bullet_prefix = str(explanation_contract.get("bullet_prefix", "- "))
     require_block = bool(explanation_contract.get("require_on_every_response", False))
-    require_before_footer = bool(explanation_contract.get("require_before_footer", True))
+    require_at_start = bool(explanation_contract.get("require_at_start", True))
     require_reason_text = bool(explanation_contract.get("require_reason_text", True))
     require_match_with_footer = bool(explanation_contract.get("require_match_with_footer", True))
 
@@ -149,10 +149,10 @@ def validate_skill_selection_explanation(
     nonempty_lines = [line.strip() for line in text.splitlines() if line.strip()]
     normalized_expected = _normalize_expected_skills(expected_skills)
 
-    if len(nonempty_lines) < 2:
+    if not nonempty_lines:
         if require_block:
             findings.append(
-                "Skill selection explanation required before the final `Skills used:` footer."
+                "Skill selection explanation required at the start of the response."
             )
         return {
             "status": "PASS" if not findings else "FAIL",
@@ -166,7 +166,7 @@ def validate_skill_selection_explanation(
     mode: str | None = None
     actual_skills: list[str] = []
 
-    candidate_line = nonempty_lines[-2]
+    candidate_line = nonempty_lines[0]
     if candidate_line.casefold().startswith(heading.casefold()):
         payload = candidate_line[len(heading):].strip()
         if payload.casefold().startswith(none_prefix.casefold()):
@@ -177,40 +177,40 @@ def validate_skill_selection_explanation(
             block_lines = [candidate_line]
         elif payload:
             findings.append("Skill selection heading should not include inline skill bullets.")
-        elif require_before_footer:
-            findings.append("Skill selection block is missing bullet lines before the final footer.")
-    elif require_before_footer:
-        cursor = len(nonempty_lines) - 2
-        collected: list[str] = []
-        while cursor >= 0 and nonempty_lines[cursor].startswith(bullet_prefix):
-            collected.append(nonempty_lines[cursor])
-            cursor -= 1
-        if collected and cursor >= 0 and nonempty_lines[cursor].casefold() == heading.casefold():
-            mode = "skills"
-            block_lines = [nonempty_lines[cursor], *reversed(collected)]
-            seen: set[str] = set()
-            for line in block_lines[1:]:
-                payload = line[len(bullet_prefix):].strip()
-                skill, separator, reason = payload.partition(":")
-                skill = skill.strip()
-                reason = reason.strip()
-                if not separator:
-                    findings.append(f"Skill selection bullet is missing `:` separator: {line}")
-                    continue
-                if not SKILL_NAME_PATTERN.fullmatch(skill):
-                    findings.append(f"Skill selection bullet contains an invalid skill name: {skill}")
-                    continue
-                if skill in seen:
-                    findings.append(f"Skill selection explanation repeats a skill name: {skill}")
-                    continue
-                seen.add(skill)
-                actual_skills.append(skill)
-                if require_reason_text and not reason:
-                    findings.append(f"Skill selection bullet is missing the reason text for `{skill}`.")
-        elif require_block:
-            findings.append(
-                "Skill selection explanation required before the final `Skills used:` footer."
-            )
+        else:
+            cursor = 1
+            collected: list[str] = []
+            while cursor < len(nonempty_lines) and nonempty_lines[cursor].startswith(bullet_prefix):
+                collected.append(nonempty_lines[cursor])
+                cursor += 1
+            if collected:
+                mode = "skills"
+                block_lines = [candidate_line, *collected]
+                seen: set[str] = set()
+                for line in block_lines[1:]:
+                    payload = line[len(bullet_prefix):].strip()
+                    skill, separator, reason = payload.partition(":")
+                    skill = skill.strip()
+                    reason = reason.strip()
+                    if not separator:
+                        findings.append(f"Skill selection bullet is missing `:` separator: {line}")
+                        continue
+                    if not SKILL_NAME_PATTERN.fullmatch(skill):
+                        findings.append(f"Skill selection bullet contains an invalid skill name: {skill}")
+                        continue
+                    if skill in seen:
+                        findings.append(f"Skill selection explanation repeats a skill name: {skill}")
+                        continue
+                    seen.add(skill)
+                    actual_skills.append(skill)
+                    if require_reason_text and not reason:
+                        findings.append(f"Skill selection bullet is missing the reason text for `{skill}`.")
+            else:
+                findings.append("Skill selection block is missing bullet lines after the opening heading.")
+    elif require_block:
+        findings.append(
+            "Skill selection explanation required at the start of the response."
+        )
 
     if normalized_expected is not None and require_match_with_footer:
         if mode == "none":

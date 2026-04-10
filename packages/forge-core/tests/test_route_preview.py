@@ -155,11 +155,21 @@ class RoutePreviewTests(unittest.TestCase):
         expected_routing_locales = ", ".join(active_routing_locales) if active_routing_locales else "(none)"
 
         self.assertEqual(report["detected"]["intent"], "SESSION")
+        self.assertEqual(report["detected"]["session_mode"], "restore")
         self.assertEqual(report["detected"]["routing_locales"], active_routing_locales)
         self.assertIsNone(report["detected"]["verification_profile"])
         self.assertIsNone(report["verification"])
         self.assertIn("Verification profile: (n/a)", route_preview.format_text(report))
         self.assertIn(f"Routing locales: {expected_routing_locales}", route_preview.format_text(report))
+        self.assertIn("Session mode: restore", route_preview.format_text(report))
+
+    def test_save_context_prompt_detects_save_session_mode(self) -> None:
+        report = route_preview.build_report(
+            self.build_args("Save context for this task before I close the window")
+        )
+
+        self.assertEqual(report["detected"]["intent"], "SESSION")
+        self.assertEqual(report["detected"]["session_mode"], "save")
 
     def test_mixed_english_review_prompt_routes_to_review_intent(self) -> None:
         report = route_preview.build_report(self.build_args("Review the checkout flow before merge"))

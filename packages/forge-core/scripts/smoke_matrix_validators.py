@@ -26,6 +26,8 @@ def validate_route_case(case: dict, report: dict) -> list[str]:
         case.get("expected_verification_profile"),
         "verification_profile",
     )
+    if "expected_session_mode" in case:
+        _expect_equal(failures, detected["session_mode"], case["expected_session_mode"], "session_mode")
     if "expected_skills" in case:
         _expect_equal(failures, detected["forge_skills"], case["expected_skills"], "forge_skills")
     if "expected_skill_prefix" in case:

@@ -32,6 +32,8 @@ class RoutePreviewSmokeMatrixTests(unittest.TestCase):
                 self.assertEqual(detected["intent"], case["expected_intent"])
                 self.assertEqual(detected["complexity"], case["expected_complexity"])
                 self.assertEqual(detected["verification_profile"], case.get("expected_verification_profile"))
+                if "expected_session_mode" in case:
+                    self.assertEqual(detected["session_mode"], case["expected_session_mode"])
                 if "expected_profile" in case:
                     self.assertEqual(detected["profile"], case["expected_profile"])
 

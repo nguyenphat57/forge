@@ -198,6 +198,23 @@ The script checks:
 
 Detailed semantics: see `help-next.md`.
 
+## Session Save And Resume
+
+When the user explicitly means "save context" or "resume", use the dedicated session-state entrypoint instead of treating it as a loose recap request:
+
+```powershell
+python scripts/session_context.py save --workspace C:\path\to\workspace --task "Finish checkout retry slice" --pending "Re-run browser QA"
+python scripts/session_context.py resume --workspace C:\path\to\workspace --format json
+```
+
+The script:
+- makes `save context` persist `.brain/session.json`
+- optionally refresh `.brain/handover.md` when save should also act as handoff
+- makes `resume` rebuild from repo state, workflow-state, and scoped `.brain` artifacts in one report
+- keeps repo state as the source of truth if continuity files drift
+
+Use `capture_continuity.py` separately only for durable `decision` or `learning` entries that should outlive the current task snapshot.
+
 ## Operator Entry Points
 
 When you need a durable repo snapshot, health diagnosis, or brownfield map before choosing the next workflow:

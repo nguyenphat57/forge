@@ -77,6 +77,36 @@ def detect_intent(prompt_text: str, registry: dict) -> tuple[str, dict]:
     return best_intent, registry["intents"][best_intent]
 
 
+def detect_session_mode(prompt_text: str, registry: dict) -> str | None:
+    normalized = normalize_text(prompt_text)
+    modes = registry.get("session_modes", {})
+    best_mode: str | None = None
+    best_score = -1
+    best_tiebreak = (-1, -1, -1)
+
+    for mode_name, config in modes.items():
+        keyword_score, first_position, longest_match = keyword_match_metadata(
+            normalized,
+            config.get("keywords", []),
+        )
+        shortcut_match = any(
+            normalized.startswith(normalize_text(shortcut))
+            for shortcut in config.get("shortcuts", [])
+        )
+        score = keyword_score + (10 if shortcut_match else 0)
+        tiebreak = (
+            1 if shortcut_match else 0,
+            -(first_position if first_position is not None else len(normalized) + 1),
+            longest_match,
+        )
+        if score > best_score or (score == best_score and score > 0 and tiebreak > best_tiebreak):
+            best_mode = mode_name
+            best_score = score
+            best_tiebreak = tiebreak
+
+    return best_mode or "restore"
+
+
 def detect_complexity(prompt_text: str, changed_files: int | None, registry: dict) -> str:
     normalized = normalize_text(prompt_text)
     quick_requested = normalized.startswith("/quick")

@@ -14,7 +14,7 @@ quality_gates:
 
 # Session - Context & Session Management
 
-> Goal: recover context from real artifact, don't rely on synthetic memory if not needed. This version assumes `.brain` is the workspace's default memory layer when the host supports this local memory layer.
+> Goal: make "save context" and "resume" mean the exact operation they imply. Restore from real artifacts first; persist only the scoped state that should survive the current window.
 
 <HARD-GATE>
 - Do not fabricate token usage, context %, or "memory is almost full".
@@ -27,8 +27,8 @@ quality_gates:
 
 |Triggers | Mode | Action|
 |---------|------|-----------|
-|`/recap`, `/recap full`, `/recap deep`, "continue", "resume" | **Restore** | Rebuild context from repo/doc/plan/.brain|
-|`/save-brain`, "save progress" | **Save** | Write a short note or update `.brain` if the user wants|
+|`/recap`, `/recap full`, `/recap deep`, "continue", "resume", "restore context" | **Restore** | Run `python scripts/session_context.py resume ...` to rebuild context from repo/doc/plan/.brain|
+|`/save-brain`, "save context", "save progress" | **Save** | Run `python scripts/session_context.py save ...` to persist the current task snapshot into `.brain/session.json`|
 |Explicit handover request | **Handover** | Create concise transfer notes|
 
 ---
@@ -46,6 +46,14 @@ quality_gates:
 ---
 
 ## Restore Mode (`/recap`)
+
+When the user says `resume`, `continue`, or `restore context`, treat that as an explicit restore request, not as a loose recap ritual.
+
+Primary entrypoint:
+
+```powershell
+python scripts/session_context.py resume --workspace <workspace> --format json
+```
 
 In the host there is an equivalent shortcut:
 - `/recap` -> quick restore
@@ -122,12 +130,34 @@ If there is appropriate continuity, add:
 - Scan manifest and key entry points: `package.json`, `pyproject.toml`, `go.mod`, `pom.xml`, `build.gradle`, `*.csproj`, `docs/`, `src/`, `app/`, `README`
 - Provide summary from real artifact
 - Do not stop just because memory files are missing
+- If repo state alone is enough to rebuild the next step, `resume` should still succeed from repo state.
 
 ---
 
 ## Save Mode (`/save-brain`)
 
-Only write when the user wants to save context or handover.
+Only write when the user explicitly wants to save context or handover.
+
+When the user says `save context`, perform a real session save:
+
+```powershell
+python scripts/session_context.py save --workspace <workspace> --format json
+```
+
+Add focused flags when the current slice needs them:
+
+```powershell
+python scripts/session_context.py save --workspace <workspace> `
+  --task "Finish checkout retry slice" `
+  --file "src/checkout.ts" `
+  --pending "Re-run checkout browser QA" `
+  --verification "pytest tests/test_checkout.py -k retry"
+```
+
+Meaning:
+- `save context` -> persist `.brain/session.json`
+- `handover` -> persist `.brain/session.json` and refresh `.brain/handover.md`
+- `resume` -> restore from repo state, workflow-state, `.brain/session.json`, and `.brain/handover.md`
 
 ### What to save
 ```
@@ -204,7 +234,9 @@ If continuity and repo state are different and difficult to fix, read `reference
   "pending_tasks": [],
   "recent_changes": [],
   "verification": [],
-  "decisions_made": []
+  "decisions_made": [],
+  "risks": [],
+  "blockers": []
 }
 ```
 
@@ -213,6 +245,12 @@ If continuity and repo state are different and difficult to fix, read `reference
 ## Handover Mode
 
 Used when a user requests or a long/high-risk task needs to be transferred.
+
+Primary entrypoint:
+
+```powershell
+python scripts/session_context.py save --workspace <workspace> --write-handover --format json
+```
 
 ```
 HANDOVER

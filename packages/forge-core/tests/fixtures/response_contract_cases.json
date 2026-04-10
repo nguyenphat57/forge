@@ -3,7 +3,7 @@
     "name": "verified_response_passes_contract",
     "args": [
       "--response-text",
-      "I verified: pytest -q passed. Correct because the validator only tightens response guardrails. Fixed: added response contract checks.\nSkill selection:\n- build: selected by the default chain for this intent and complexity.\nSkills used: build",
+      "Skill selection:\n- build: selected by the default chain for this intent and complexity.\nI verified: pytest -q passed. Correct because the validator only tightens response guardrails. Fixed: added response contract checks.\nSkills used: build",
       "--language",
       "en",
       "--orthography",
@@ -23,7 +23,7 @@
     "name": "banned_phrase_fails_contract",
     "args": [
       "--response-text",
-      "Good catch. I fixed it.\nSkill selection: none - answered directly because no Forge skill added value.\nSkills used: none",
+      "Skill selection: none - answered directly because no Forge skill added value.\nGood catch. I fixed it.\nSkills used: none",
       "--require-evidence-response",
       "--expected-skills",
       "none"
@@ -40,7 +40,7 @@
     "name": "vietnamese_contract_rejects_accent_stripped_prose",
     "args": [
       "--response-text",
-      "Em da xac minh: pytest -q pass. Dung vi validator moi chi them guardrail. Da sua: bo sung kiem tra hop dong output.\nSkill selection:\n- test: selected by the default chain for this intent and complexity.\nSkills used: test",
+      "Skill selection:\n- test: selected by the default chain for this intent and complexity.\nEm da xac minh: pytest -q pass. Dung vi validator moi chi them guardrail. Da sua: bo sung kiem tra hop dong output.\nSkills used: test",
       "--language",
       "vi",
       "--orthography",
@@ -63,7 +63,7 @@
     "name": "none_skill_footer_passes_contract",
     "args": [
       "--response-text",
-      "Clarification needed: Which Forge surface should define the footer contract?\nSkill selection: none - answered directly because no Forge skill added value.\nSkills used: none",
+      "Skill selection: none - answered directly because no Forge skill added value.\nClarification needed: Which Forge surface should define the footer contract?\nSkills used: none",
       "--require-evidence-response",
       "--expected-skills",
       "none"
@@ -77,7 +77,7 @@
     "name": "duplicate_skill_footer_fails_contract",
     "args": [
       "--response-text",
-      "I verified: pytest -q passed. Correct because the validator only tightens response guardrails. Fixed: added response contract checks.\nSkill selection:\n- build: selected by the default chain for this intent and complexity.\nSkills used: build, build",
+      "Skill selection:\n- build: selected by the default chain for this intent and complexity.\nI verified: pytest -q passed. Correct because the validator only tightens response guardrails. Fixed: added response contract checks.\nSkills used: build, build",
       "--require-evidence-response",
       "--expected-skills",
       "build"
