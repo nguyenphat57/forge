@@ -57,6 +57,13 @@ def format_text(report: dict[str, object]) -> str:
 
     checks = report["checks"]
     lines.append(f"- Evidence mode: {checks['evidence_response']['mode'] or '(none)'}")
+    selection_block = checks["skill_selection_explanation"]["block_lines"]
+    if selection_block:
+        lines.append("- Skill selection explanation:")
+        for line in selection_block:
+            lines.append(f"  {line}")
+    else:
+        lines.append("- Skill selection explanation: (missing)")
     lines.append(
         f"- Skill usage footer: {checks['skill_usage_footer']['footer_line'] or '(missing)'}"
     )

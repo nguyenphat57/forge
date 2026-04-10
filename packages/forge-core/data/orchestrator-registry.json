@@ -1186,6 +1186,27 @@
     "require_final_line": true,
     "require_unique_skills": true
   },
+  "skill_selection_explanation_contract": {
+    "heading": "Skill selection:",
+    "none_prefix": "none -",
+    "bullet_prefix": "- ",
+    "require_on_every_response": true,
+    "require_before_footer": true,
+    "require_reason_text": true,
+    "require_match_with_footer": true
+  },
+  "skill_selection_reason_labels": {
+    "default_chain": "selected by the default chain for this intent and complexity.",
+    "greenfield_feature": "selected because the request opens a new feature direction that needs explicit planning first.",
+    "ui_medium_plus": "selected because the UI scope is large enough to require extra design discipline.",
+    "interaction_model_change": "selected because the interaction model changes and needs explicit design review.",
+    "boundary_risk": "selected because the request crosses a risk boundary that needs an extra guardrail.",
+    "packet_unclear": "selected because the implementation packet is still unclear and needs clarification before execution.",
+    "shared_env_release": "selected because the work affects a shared environment release surface.",
+    "public_release": "selected because the work affects a public release surface.",
+    "change_artifact_present": "selected because the request already includes a change artifact that must be verified.",
+    "critical_internal_release": "selected because the work affects a critical internal release surface."
+  },
   "rationalization_patterns": [
     "Good catch. I fixed it.",
     "Should be fine now.",

@@ -65,6 +65,14 @@ class RoutePreviewTests(unittest.TestCase):
 
         self.assertEqual(report["detected"]["intent"], "BUILD")
         self.assertIn("build", report["detected"]["forge_skills"])
+        self.assertIn(
+            {
+                "skill": "build",
+                "reason_code": "default_chain",
+                "reason": "selected by the default chain for this intent and complexity.",
+            },
+            report["detected"]["skill_selection_rationale"],
+        )
 
     def test_medium_build_requires_change_artifacts(self) -> None:
         report = route_preview.build_report(
@@ -167,6 +175,8 @@ class RoutePreviewTests(unittest.TestCase):
 
         self.assertEqual(report["detected"]["intent"], "BUILD")
         self.assertEqual(report["detected"]["forge_skills"][0], "brainstorm")
+        self.assertEqual(report["detected"]["skill_selection_rationale"][0]["skill"], "brainstorm")
+        self.assertEqual(report["detected"]["skill_selection_rationale"][0]["reason_code"], "default_chain")
 
     def test_backward_compatibility_boundary_inserts_spec_review(self) -> None:
         report = route_preview.build_report(

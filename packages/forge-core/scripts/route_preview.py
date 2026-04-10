@@ -51,6 +51,37 @@ from route_local_companions import infer_local_companions, resolve_workspace_rou
 from workflow_state_support import record_workflow_event
 
 
+def build_skill_selection_rationale(
+    required_stages: list[dict[str, object]],
+    registry: dict[str, object],
+) -> list[dict[str, str]]:
+    reason_labels = registry.get("skill_selection_reason_labels", {})
+    rationale: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for item in required_stages:
+        if item.get("status") == "skipped":
+            continue
+        skill = str(item.get("workflow") or item.get("stage") or "").strip()
+        if not skill or skill in seen:
+            continue
+        seen.add(skill)
+        reason_code = str(item.get("activation_reason") or "default_chain")
+        reason_text = str(
+            reason_labels.get(
+                reason_code,
+                "selected because the active route requires this stage before completion.",
+            )
+        )
+        rationale.append(
+            {
+                "skill": skill,
+                "reason_code": reason_code,
+                "reason": reason_text,
+            }
+        )
+    return rationale
+
+
 def build_report(args: argparse.Namespace) -> dict:
     registry = load_registry()
     host_capabilities = registry.get("host_capabilities", {})
@@ -148,6 +179,7 @@ def build_report(args: argparse.Namespace) -> dict:
     runtimes = detect_runtimes(args.repo_signal, registry)
     active_routing_locales = routing_locale_names()
     required_stages = required_stage_contract["required_stages"]
+    skill_selection_rationale = build_skill_selection_rationale(required_stages, registry)
     change_artifacts_required = requires_change_artifacts(intent, complexity, required_stages)
     precheck_required = process_precheck_required(intent, args.prompt, registry)
     baseline_proof_required = baseline_required(intent, complexity)
@@ -196,6 +228,7 @@ def build_report(args: argparse.Namespace) -> dict:
             "forge_skills": forge_skills,
             "required_stage_chain": required_stage_contract["required_stage_chain"],
             "required_stages": required_stages,
+            "skill_selection_rationale": skill_selection_rationale,
             "host_skills": host_skills,
             "host_supports_subagents": host_supports_subagents,
             "host_supports_parallel_subagents": host_supports_parallel_subagents,
@@ -303,6 +336,18 @@ def format_text(report: dict) -> str:
             )
     else:
         lines.append("  - (none)")
+    lines.append("- Skill selection rationale:")
+    if detected["skill_selection_rationale"]:
+        for item in detected["skill_selection_rationale"]:
+            lines.append(
+                "  - {skill}: {reason} ({reason_code})".format(
+                    skill=item["skill"],
+                    reason=item["reason"],
+                    reason_code=item["reason_code"],
+                )
+            )
+    else:
+        lines.append("  - none: answered directly because no Forge skill added value.")
     lines.extend([
         "- Lane model tiers:",
     ])

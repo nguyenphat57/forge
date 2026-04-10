@@ -123,6 +123,21 @@ class BundleContractTests(unittest.TestCase):
         self.assertTrue(footer["require_final_line"])
         self.assertTrue(footer["require_unique_skills"])
 
+    def test_skill_selection_explanation_contract_is_defined(self) -> None:
+        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
+        explanation = registry["skill_selection_explanation_contract"]
+        reason_labels = registry["skill_selection_reason_labels"]
+
+        self.assertEqual(explanation["heading"], "Skill selection:")
+        self.assertEqual(explanation["none_prefix"], "none -")
+        self.assertEqual(explanation["bullet_prefix"], "- ")
+        self.assertTrue(explanation["require_on_every_response"])
+        self.assertTrue(explanation["require_before_footer"])
+        self.assertTrue(explanation["require_reason_text"])
+        self.assertTrue(explanation["require_match_with_footer"])
+        self.assertIn("default_chain", reason_labels)
+        self.assertIn("boundary_risk", reason_labels)
+
     def test_host_capability_contract_v2_defines_tiers_and_reasons(self) -> None:
         registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
         host = registry["host_capabilities"]

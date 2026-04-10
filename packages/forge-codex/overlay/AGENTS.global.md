@@ -79,6 +79,30 @@ Before closing a task:
 6. If verification cannot run, say `not verified`, name the blocker, and do not turn partial evidence into a completion claim.
 7. Docs-only changes must use path, content, or diff verification; do not pretend there was a test.
 
+## Global Skill Selection Explanation
+
+Every user-facing response must explain why Forge selected the used Forge skills immediately before the final footer.
+
+```text
+Skill selection:
+- brainstorm: selected because the request opens a new feature direction that needs explicit planning first.
+- build: selected by the default chain for this intent and complexity.
+Skills used: brainstorm, build
+```
+
+```text
+Skill selection: none - answered directly because no Forge skill added value.
+Skills used: none
+```
+
+Rules:
+
+- Use the exact heading `Skill selection:`
+- If Forge skills were used, add one bullet per used Forge skill in the form `- <skill>: <reason>`
+- If no Forge skill was used, write `Skill selection: none - <reason>`
+- Keep the skill names unique and aligned with the final `Skills used:` footer
+- Place this explanation block immediately before the final footer
+
 ## Global Skill Usage Footer
 
 Every user-facing response must end with one final non-empty line in exactly one of these forms:

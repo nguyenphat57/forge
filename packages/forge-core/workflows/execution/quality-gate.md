@@ -108,6 +108,29 @@ Quickly reject sentences:
 
 This contract is global for `build`, `debug`, `test`, `review`, and `deploy`, not just quality gate.
 
+## Global Skill Selection Explanation
+
+Every user-facing response must explain why Forge selected the listed Forge skills immediately before the final footer.
+
+```text
+Skill selection:
+- brainstorm: selected because the request opens a new feature direction that needs explicit planning first.
+- build: selected by the default chain for this intent and complexity.
+Skills used: brainstorm, build
+```
+
+```text
+Skill selection: none - answered directly because no Forge skill added value.
+Skills used: none
+```
+
+Rules:
+- use the exact heading `Skill selection:`
+- if Forge skills were used, add one bullet per used Forge skill in the form `- <skill>: <reason>`
+- if no Forge skill was used, write `Skill selection: none - <reason>`
+- keep the skill names unique and aligned with the final `Skills used:` footer
+- place this explanation block immediately before the final footer
+
 ## Global Skill Usage Footer
 
 Every user-facing response must end with one final non-empty line that declares which Forge skills were used:

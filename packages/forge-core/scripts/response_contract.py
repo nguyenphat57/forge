@@ -131,6 +131,108 @@ def validate_skill_usage_footer(
     }
 
 
+def validate_skill_selection_explanation(
+    text: str,
+    *,
+    explanation_contract: dict[str, object],
+    expected_skills: list[str] | None = None,
+) -> dict[str, object]:
+    heading = str(explanation_contract.get("heading", "Skill selection:"))
+    none_prefix = str(explanation_contract.get("none_prefix", "none -"))
+    bullet_prefix = str(explanation_contract.get("bullet_prefix", "- "))
+    require_block = bool(explanation_contract.get("require_on_every_response", False))
+    require_before_footer = bool(explanation_contract.get("require_before_footer", True))
+    require_reason_text = bool(explanation_contract.get("require_reason_text", True))
+    require_match_with_footer = bool(explanation_contract.get("require_match_with_footer", True))
+
+    findings: list[str] = []
+    nonempty_lines = [line.strip() for line in text.splitlines() if line.strip()]
+    normalized_expected = _normalize_expected_skills(expected_skills)
+
+    if len(nonempty_lines) < 2:
+        if require_block:
+            findings.append(
+                "Skill selection explanation required before the final `Skills used:` footer."
+            )
+        return {
+            "status": "PASS" if not findings else "FAIL",
+            "mode": None,
+            "skills": [],
+            "block_lines": [],
+            "findings": findings,
+        }
+
+    block_lines: list[str] = []
+    mode: str | None = None
+    actual_skills: list[str] = []
+
+    candidate_line = nonempty_lines[-2]
+    if candidate_line.casefold().startswith(heading.casefold()):
+        payload = candidate_line[len(heading):].strip()
+        if payload.casefold().startswith(none_prefix.casefold()):
+            mode = "none"
+            reason_text = payload[len(none_prefix):].strip()
+            if require_reason_text and not reason_text:
+                findings.append("Skill selection `none` explanation is missing the reason text.")
+            block_lines = [candidate_line]
+        elif payload:
+            findings.append("Skill selection heading should not include inline skill bullets.")
+        elif require_before_footer:
+            findings.append("Skill selection block is missing bullet lines before the final footer.")
+    elif require_before_footer:
+        cursor = len(nonempty_lines) - 2
+        collected: list[str] = []
+        while cursor >= 0 and nonempty_lines[cursor].startswith(bullet_prefix):
+            collected.append(nonempty_lines[cursor])
+            cursor -= 1
+        if collected and cursor >= 0 and nonempty_lines[cursor].casefold() == heading.casefold():
+            mode = "skills"
+            block_lines = [nonempty_lines[cursor], *reversed(collected)]
+            seen: set[str] = set()
+            for line in block_lines[1:]:
+                payload = line[len(bullet_prefix):].strip()
+                skill, separator, reason = payload.partition(":")
+                skill = skill.strip()
+                reason = reason.strip()
+                if not separator:
+                    findings.append(f"Skill selection bullet is missing `:` separator: {line}")
+                    continue
+                if not SKILL_NAME_PATTERN.fullmatch(skill):
+                    findings.append(f"Skill selection bullet contains an invalid skill name: {skill}")
+                    continue
+                if skill in seen:
+                    findings.append(f"Skill selection explanation repeats a skill name: {skill}")
+                    continue
+                seen.add(skill)
+                actual_skills.append(skill)
+                if require_reason_text and not reason:
+                    findings.append(f"Skill selection bullet is missing the reason text for `{skill}`.")
+        elif require_block:
+            findings.append(
+                "Skill selection explanation required before the final `Skills used:` footer."
+            )
+
+    if normalized_expected is not None and require_match_with_footer:
+        if mode == "none":
+            if normalized_expected:
+                findings.append("Skill selection explanation says `none` but the footer lists Forge skills.")
+        elif actual_skills != normalized_expected:
+            expected_label = ", ".join(normalized_expected) if normalized_expected else "none"
+            actual_label = ", ".join(actual_skills) if actual_skills else "none"
+            findings.append(
+                "Skill selection explanation mismatch: "
+                f"expected `{expected_label}`, got `{actual_label}`."
+            )
+
+    return {
+        "status": "PASS" if not findings else "FAIL",
+        "mode": mode,
+        "skills": actual_skills,
+        "block_lines": block_lines,
+        "findings": findings,
+    }
+
+
 def validate_response_contract(
     text: str,
     *,
@@ -143,6 +245,7 @@ def validate_response_contract(
     resolved_registry = registry or load_registry()
     evidence_contract = resolved_registry.get("evidence_response_contract", {})
     skill_usage_contract = resolved_registry.get("skill_usage_footer_contract", {})
+    skill_selection_contract = resolved_registry.get("skill_selection_explanation_contract", {})
 
     prose = strip_markdown_code(text)
     banned_hits = collect_phrase_hits(prose, evidence_contract.get("banned_phrases", []))
@@ -158,6 +261,11 @@ def validate_response_contract(
         footer_contract=skill_usage_contract,
         expected_skills=expected_skills,
     )
+    skill_selection_report = validate_skill_selection_explanation(
+        text,
+        explanation_contract=skill_selection_contract,
+        expected_skills=expected_skills if expected_skills is not None else skill_usage_report["skills"],
+    )
     vietnamese_report = validate_vietnamese_output(text, resolved_output_contract)
     tone_detail_report = validate_tone_detail_output(text, resolved_output_contract)
 
@@ -169,6 +277,7 @@ def validate_response_contract(
     for phrase in rationalization_hits:
         findings.append(f"Weak rationalization detected: {phrase}")
     findings.extend(evidence_report["findings"])
+    findings.extend(skill_selection_report["findings"])
     findings.extend(skill_usage_report["findings"])
     findings.extend(vietnamese_report["findings"])
     findings.extend(tone_detail_report["findings"])
@@ -190,6 +299,7 @@ def validate_response_contract(
             "banned_phrases": banned_hits,
             "rationalization_patterns": rationalization_hits,
             "evidence_response": evidence_report,
+            "skill_selection_explanation": skill_selection_report,
             "skill_usage_footer": skill_usage_report,
             "vietnamese_output": vietnamese_report,
             "tone_detail_output": tone_detail_report,
