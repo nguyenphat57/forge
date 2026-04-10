@@ -4,6 +4,173 @@
       "shortcuts": []
     }
   },
+  "session_modes": {
+    "restore": {
+      "shortcuts": []
+    },
+    "save": {
+      "shortcuts": []
+    },
+    "handover": {
+      "shortcuts": []
+    }
+  },
+  "operator_surface": {
+    "actions": {
+      "help": {
+        "hosts": [
+          "codex"
+        ],
+        "primary_aliases_by_host": {
+          "codex": [
+            "/help"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "codex": [
+            "Help me figure out the next step"
+          ]
+        }
+      },
+      "next": {
+        "hosts": [
+          "codex"
+        ],
+        "primary_aliases_by_host": {
+          "codex": [
+            "/next"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "codex": [
+            "What should I do next?"
+          ]
+        }
+      },
+      "run": {
+        "hosts": [
+          "codex"
+        ],
+        "primary_aliases_by_host": {
+          "codex": [
+            "/run"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "codex": [
+            "Run `npm test` and tell me what to do after"
+          ]
+        }
+      },
+      "delegate": {
+        "hosts": [
+          "codex"
+        ],
+        "primary_aliases_by_host": {
+          "codex": [
+            "/delegate"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "codex": [
+            "Split these independent slices across subagents"
+          ]
+        }
+      },
+      "bump": {
+        "hosts": [
+          "codex"
+        ],
+        "primary_aliases_by_host": {
+          "codex": [
+            "/bump"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "codex": [
+            "Bump this to 0.5.0"
+          ]
+        }
+      },
+      "rollback": {
+        "hosts": [
+          "codex"
+        ],
+        "primary_aliases_by_host": {
+          "codex": [
+            "/rollback"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "codex": [
+            "We need to roll back the last deployment"
+          ]
+        }
+      },
+      "customize": {
+        "hosts": [
+          "codex"
+        ],
+        "primary_aliases_by_host": {
+          "codex": [
+            "/customize"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "codex": [
+            "Give shorter answers and move faster"
+          ]
+        }
+      },
+      "init": {
+        "hosts": [
+          "codex"
+        ],
+        "primary_aliases_by_host": {
+          "codex": [
+            "/init"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "codex": [
+            "Bootstrap this workspace for Forge"
+          ]
+        }
+      }
+    },
+    "session_modes": {
+      "restore": {
+        "hosts": [
+          "codex"
+        ],
+        "natural_language_examples_by_host": {
+          "codex": [
+            "Continue the task we were working on yesterday and tell me the best next step."
+          ]
+        }
+      },
+      "save": {
+        "hosts": [
+          "codex"
+        ],
+        "natural_language_examples_by_host": {
+          "codex": [
+            "Save context for this task before I close the window."
+          ]
+        }
+      },
+      "handover": {
+        "hosts": [
+          "codex"
+        ],
+        "natural_language_examples_by_host": {
+          "codex": [
+            "Create a short handover with the next step and verification already run."
+          ]
+        }
+      }
+    }
+  },
   "host_capabilities": {
     "active_tier": "parallel-workers",
     "supports_subagents": true,

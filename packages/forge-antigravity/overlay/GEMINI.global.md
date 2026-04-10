@@ -117,6 +117,8 @@ Rules:
 
 Treat each slash command as a workflow alias, not a filesystem path. Read the mapped workflow from `{{FORGE_ANTIGRAVITY_WORKFLOWS}}`.
 
+Workflow aliases:
+
 | Command | Workflow |
 |---------|----------|
 | `/brainstorm` | `design/brainstorm.md` |
@@ -130,6 +132,11 @@ Treat each slash command as a workflow alias, not a filesystem path. Read the ma
 | `/refactor` | `execution/refactor.md` |
 | `/audit` | `execution/secure.md` |
 | `/deploy` | `execution/deploy.md` |
+
+Primary operator aliases:
+
+| Command | Workflow |
+|---------|----------|
 | `/help` | `operator/help.md` |
 | `/next` | `operator/next.md` |
 | `/run` | `operator/run.md` |
@@ -137,8 +144,16 @@ Treat each slash command as a workflow alias, not a filesystem path. Read the ma
 | `/rollback` | `operator/rollback.md` |
 | `/customize` | `operator/customize.md` |
 | `/init` | `operator/init.md` |
-| `/save-brain` | `operator/save-brain.md` |
+
+Compatibility aliases:
+
+Legacy session aliases stay available for one stable line and should emit a deprecation warning instead of acting as primary surface.
+
+| Command | Workflow |
+|---------|----------|
 | `/recap` | `operator/recap.md` |
+| `/save-brain` | `operator/save-brain.md` |
+| `/handover` | `operator/handover.md` |
 
 There is no `/gate` alias; `quality-gate` stays the workflow stage name.
 

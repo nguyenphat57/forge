@@ -54,7 +54,7 @@ Adapters own:
 Examples of adapter-only wrappers:
 
 - `customize` and `init` when they are host-facing UX around shared core scripts such as `write_preferences.py` and `initialize_workspace.py`
-- Antigravity-only session ergonomics such as `/recap`, `/save-brain`, and `/handover`
+- Antigravity-only compatibility aliases such as `/recap`, `/save-brain`, and `/handover`
 - Codex-native delegation surfaces such as `dispatch-subagents.md`
 
 ## Decision test for new features

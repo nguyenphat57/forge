@@ -14,6 +14,7 @@ quality_gates:
 # Recap - Antigravity Restore Wrapper
 
 > Goal: keep `/recap` and its variants familiar for Antigravity users while still routing to Forge core `session` restore mode.
+> Deprecated compatibility alias for one stable line. Prefer natural-language `resume` requests.
 
 ## Process
 
@@ -23,6 +24,7 @@ quality_gates:
    - docs/plans/specs
    - `.brain` if needed
 3. Return a concise summary + one clear next step.
+4. Emit a deprecation warning that points users to natural-language `resume` instead of `/recap`.
 
 ## Activation Announcement
 

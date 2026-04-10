@@ -47,9 +47,15 @@ class RepoOperatorScriptShimTests(unittest.TestCase):
 
         self.assertIn("prefer repo-root operator wrappers under `scripts/`", agents)
         self.assertIn("python scripts/session_context.py resume", agents)
+        self.assertIn("python scripts/session_context.py save --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
+        self.assertIn("python scripts/session_context.py save --workspace C:\\Users\\Admin\\.gemini\\forge --write-handover --format json", agents)
         self.assertIn("python scripts/resolve_help_next.py --workspace C:\\Users\\Admin\\.gemini\\forge --mode help", agents)
         self.assertIn("python scripts/resolve_help_next.py --workspace C:\\Users\\Admin\\.gemini\\forge --mode next", agents)
         self.assertIn("python scripts/run_with_guidance.py --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
+        self.assertIn("python scripts/prepare_bump.py --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
+        self.assertIn("python scripts/resolve_rollback.py --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
+        self.assertIn("python scripts/resolve_preferences.py --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
+        self.assertIn("python scripts/initialize_workspace.py --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
 
     def test_root_session_context_wrapper_restores_context(self) -> None:
         with TemporaryDirectory() as temp_dir:

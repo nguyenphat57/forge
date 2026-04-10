@@ -29,7 +29,7 @@ Goal: quickly check that the host runtime is routing correctly to Forge and that
 **Prompt**
 
 ```text
-/recap
+Resume this workspace from the repo state and tell me the next best step.
 ```
 
 **Expected**
@@ -50,18 +50,18 @@ Goal: quickly check that the host runtime is routing correctly to Forge and that
 **Prompt**
 
 ```text
-/recap full
+Continue the task from yesterday, restore the important context from real artifacts, and give me the next step.
 ```
 
 **Expected**
 
 - Still route to `workflows/execution/session.md`
-- Give a broader summary than `/recap`
+- Give a broader summary than FT-01 when the repo really has more context to restore
 - Keep repo-first, then `.brain`
 
 **Fail if**
 
-- Didn't realize this was a variation of `/recap`
+- Requires a legacy recap alias before it can restore context
 - Requires other unrelated workflows
 
 ---
@@ -77,7 +77,7 @@ Continue from the previous day, quickly remind yourself what you are doing and t
 **Expected**
 
 - Route to `session`
-- Do not force users to type `/recap`
+- Do not force users into a legacy recap alias
 - Summary is short, clear, actionable
 
 **Fail if**
@@ -109,7 +109,7 @@ I'm a bit stuck, look at the current repo and tell me what to do next.
 
 **Fail if**
 
-- Push user to `/recap` or `/save-brain`
+- Push user to a legacy recap or save ritual
 - Generic advice, not attached to repo state
 
 ---
@@ -298,8 +298,7 @@ Create a new minimal workspace for Forge and then tell me whether I should brain
 **Prompt**
 
 ```text
-/save-brain
-Help me save a short continuity for the unfinished task, only keep next step, verification, and risk open.
+Save context for the unfinished task. Only keep the next step, verification already run, and open risk.
 ```
 
 **Expected**
@@ -459,7 +458,7 @@ Please help me check if this app is ready for production.
 **Prompt**
 
 ```text
-/save-brain
+Save context for this task before I close the window.
 ```
 
 **Expected**

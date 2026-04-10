@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 
@@ -15,11 +16,42 @@ ENTRYPOINT_CANDIDATES = (
     "app/layout.tsx",
     "pages/index.tsx",
 )
+OPERATOR_ENTRYPOINT_CANDIDATES = (
+    "scripts/resolve_help_next.py",
+    "scripts/run_with_guidance.py",
+    "scripts/session_context.py",
+    "scripts/prepare_bump.py",
+    "scripts/resolve_rollback.py",
+    "scripts/resolve_preferences.py",
+    "scripts/write_preferences.py",
+    "scripts/initialize_workspace.py",
+)
+
+
+def declared_operator_entrypoints(workspace: Path) -> list[str]:
+    agents_path = workspace / "AGENTS.md"
+    if not agents_path.exists():
+        return []
+
+    text = agents_path.read_text(encoding="utf-8")
+    matches = re.findall(r"python\s+(scripts/[A-Za-z0-9_.-]+\.py)", text)
+    entrypoints: list[str] = []
+    seen: set[str] = set()
+    for candidate in [*matches, *OPERATOR_ENTRYPOINT_CANDIDATES]:
+        normalized = candidate.replace("\\", "/")
+        if normalized in seen:
+            continue
+        if not (workspace / normalized).exists():
+            continue
+        seen.add(normalized)
+        entrypoints.append(normalized)
+    return entrypoints
 
 
 def scan_structure(workspace: Path, stack: dict) -> dict:
     top_level_dirs = sorted(path.name for path in workspace.iterdir() if path.is_dir() and not path.name.startswith("."))
     entrypoints = [candidate for candidate in ENTRYPOINT_CANDIDATES if (workspace / candidate).exists()]
+    entrypoints.extend(candidate for candidate in declared_operator_entrypoints(workspace) if candidate not in entrypoints)
     integrations = []
     for marker, label in (
         ("Dockerfile", "docker"),

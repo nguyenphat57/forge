@@ -31,7 +31,7 @@ Goal: quickly record results for each smoke test run on a real host rolling out 
 |Execution pipeline/lane stance is clear when the task is large enough |  |
 |Generic repo signals do not pull wrong domains |  |
 |Spec-review loop does not revise indefinitely |  |
-|Session does not turn `/save-brain` into ritual |  |
+|Session does not turn save context into ritual |  |
 |There is no obvious wrong route |  |
 
 ## Results according to test cases
@@ -40,7 +40,7 @@ Goal: quickly record results for each smoke test run on a real host rolling out 
 
 |Section | Results|
 |-----|---------|
-|Prompt used | `/recap`|
+|Prompt used | `Resume this workspace from the repo state and tell me the next best step.`|
 |Route with correct skill? |  |
 |Repo-first? |  |
 |Is there any abuse of `.brain`? |  |
@@ -51,7 +51,7 @@ Goal: quickly record results for each smoke test run on a real host rolling out 
 
 |Section | Results|
 |-----|---------|
-|Prompt used | `/recap full`|
+|Prompt used | `Continue the task from yesterday, restore the important context from real artifacts, and give me the next step.`|
 |Route with correct skill? |  |
 |Is Restore wider than FT-01? |  |
 |Repo-first? |  |
@@ -64,7 +64,7 @@ Goal: quickly record results for each smoke test run on a real host rolling out 
 |-----|---------|
 |Prompt used | `Continue yesterday's work, remind me what I was doing, and tell me the next sensible step.`|
 |Route with correct skill? |  |
-|Do you require the user to type `/recap` again? |  |
+|Do you require the user to use a legacy recap alias? |  |
 |Is Next step actionable? |  |
 |Score |  |
 |Notes |  |
@@ -187,7 +187,7 @@ Goal: quickly record results for each smoke test run on a real host rolling out 
 
 |Section | Results|
 |-----|---------|
-|Prompt used | `/save-brain`|
+|Prompt used | `Save context for this task before I close the window.`|
 |Route with correct skill? |  |
 |Is the save content concise and useful? |  |
 |Do you avoid lengthy rituals? |  |

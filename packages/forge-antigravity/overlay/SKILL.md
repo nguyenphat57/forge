@@ -20,7 +20,7 @@ Core files and adapter files appear together in a single runtime layout.
 - `SKILL.md`: entrypoint to route intent, pair skills, and hold delivery guardrails
 - `workflows/design/`: planning, architecture, spec-review, and visualize
 - `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session
-- `workflows/operator/`: help, next, run, bump, rollback, and Antigravity wrappers such as customize/init/recap/save-brain/handover
+- `workflows/operator/`: help, next, run, bump, rollback, primary wrappers such as customize/init, and compatibility wrappers for recap/save-brain/handover
 - `domains/`: core domain guidance for frontend and backend
 - `data/`: machine-readable registry for intent, matrix, verification profiles, quality profiles, execution pipelines, and lane model policy
 - `scripts/`: deterministic tooling for route preview, scoped continuity capture, and optional checks for workspaces with local layers
@@ -273,8 +273,8 @@ For detailed command examples or artifact behavior, read `references/tooling.md`
 - Error translation still reads from the core helper `scripts/translate_error.py`; this adapter only changes presentation, not the pattern database.
 - `/bump` and `/rollback` may be explicitly exposed in Antigravity, but must still maintain the user-requested/inference-justified and risk-first contract of core.
 - `/init` may be richer in onboarding, but the reusable workspace skeleton must still go through `scripts/initialize_workspace.py`.
-- Session ergonomics wrappers like `/recap`, `/save-brain`, and `/handover` are convenience surfaces on top of `workflows/execution/session.md`.
-- These wrappers may be richer in UX, but must not change `state`, `command_kind`, or `suggested_workflow` from core.
+- Compatibility aliases like `/recap`, `/save-brain`, and `/handover` may stay available during migration, but they are not the primary surface.
+- Compatibility wrappers may be richer in UX, but must not change `state`, `command_kind`, or `suggested_workflow` from core, and they must emit deprecation warnings.
 
 ---
 
@@ -305,7 +305,7 @@ Primary wrappers:
 | `/customize` | `workflows/operator/customize.md` | `scripts/resolve_preferences.py` + `scripts/write_preferences.py` |
 | `/init` | `workflows/operator/init.md` | `scripts/initialize_workspace.py` |
 
-Session wrappers:
+Compatibility session wrappers:
 
 | Alias | Wrapper | Core contract |
 |-------|---------|---------------|
@@ -333,7 +333,7 @@ When receiving a prompt from the user, classify the intent:
 | **DEPLOY** | deploy, release, production, rollout | "Deploy to Vercel" |
 | **REVIEW** | review, evaluate, check, audit | "Review code before merge" |
 | **VISUALIZE** | ui, ux, mockup, wireframe, screen, layout | "Sketch checkout screen" |
-| **SESSION** | recap, continue, resume, save, context | "Continue unfinished work" |
+| **SESSION** | continue, resume, save context, handover | "Continue unfinished work" |
 
 **When the user uses `/shortcut`:** Map according to the Antigravity host shortcut registry, not local files in this skill folder.
 Canonical source for intent keywords and chains: `data/orchestrator-registry.json`.
@@ -450,12 +450,11 @@ Verification profiles canonical source: `data/orchestrator-registry.json`.
 | rollback | `workflows/operator/rollback.md` | flexible | DO NOT BLINDLY ROLL BACK WITHOUT SCOPE, RISK, AND POST-ROLLBACK VERIFICATION |
 | customize | `workflows/operator/customize.md` | flexible | DO NOT FORK THE CORE PREFERENCES SCHEMA OR WRITE HOST-LOCAL KEYS |
 | init | `workflows/operator/init.md` | flexible | DO NOT OVERWRITE EXISTING REPO FILES DURING BOOTSTRAP |
-| recap | `workflows/operator/recap.md` | flexible | RESTORE FROM REPO FIRST, MEMORY SECOND |
-| save-brain | `workflows/operator/save-brain.md` | flexible | SAVE ONLY DURABLE, SCOPED CONTINUITY |
-| handover | `workflows/operator/handover.md` | flexible | CAPTURE ONLY THE NEXT PERSON ACTUALLY NEEDS |
 
 **Rigid skills:** must not skip evidence and quality gates.
 **Flexible skills:** adapt to context, but must still produce clear output and next step.
+
+Compatibility wrappers for `/recap`, `/save-brain`, and `/handover` remain in `workflows/operator/` for one stable line and should only be presented as deprecated migration surfaces.
 
 ---
 

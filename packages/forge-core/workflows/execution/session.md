@@ -4,7 +4,7 @@ type: flexible
 triggers:
   - resume/continue/context restore
   - explicit save/handover request
-  - shortcut: /save-brain, /recap
+  - adapter compatibility aliases may exist during migration, but they are not the core primary surface
 quality_gates:
   - Context restored or handover note restored
   - Response personalization resolved from adapter-global split preferences state when available
@@ -27,8 +27,8 @@ quality_gates:
 
 |Triggers | Mode | Action|
 |---------|------|-----------|
-|`/recap`, `/recap full`, `/recap deep`, "continue", "resume", "restore context" | **Restore** | Run `python scripts/session_context.py resume ...` to rebuild context from repo/doc/plan/.brain|
-|`/save-brain`, "save context", "save progress" | **Save** | Run `python scripts/session_context.py save ...` to persist the current task snapshot into `.brain/session.json`|
+|"continue", "resume", "restore context", "where were we", "pick this back up" | **Restore** | Run `python scripts/session_context.py resume ...` to rebuild context from repo/doc/plan/.brain|
+|"save context", "save progress", "capture continuity", "leave a short note" | **Save** | Run `python scripts/session_context.py save ...` to persist the current task snapshot into `.brain/session.json`|
 |Explicit handover request | **Handover** | Create concise transfer notes|
 
 ---
@@ -40,12 +40,13 @@ quality_gates:
 - Repo-first: priority `git status`, changed files, docs, plans, task notes.
 - Prefer `.forge-artifacts/workflow-state/<project>/latest.json` when trackers have already recorded execution, chain, or UI progress.
 - `.brain` is opt-in: only read/write when the user requests or handover really reduces risk.
-- Do not make `/save-brain` a mandatory end-of-task ritual.
+- Do not turn "save context" into a mandatory end-of-task ritual.
 - If you have memory, read according to the smallest scope enough to use: global -> module -> current task, do not load it everywhere.
+- Adapters may keep compatibility aliases such as `/recap`, `/save-brain`, or `/handover` for one stable line, but those aliases must not redefine the core mode contract.
 
 ---
 
-## Restore Mode (`/recap`)
+## Restore Mode
 
 When the user says `resume`, `continue`, or `restore context`, treat that as an explicit restore request, not as a loose recap ritual.
 
@@ -55,10 +56,7 @@ Primary entrypoint:
 python scripts/session_context.py resume --workspace <workspace> --format json
 ```
 
-In the host there is an equivalent shortcut:
-- `/recap` -> quick restore
-- `/recap full` -> restore more extensively if the host supports it
-- `/recap deep` -> restore more deeply if the host supports it
+If a host still ships a legacy restore alias during migration, treat it only as a compatibility wrapper around the same restore contract.
 
 ### Load Order
 ```
@@ -75,7 +73,7 @@ In the host there is an equivalent shortcut:
 
 ### Response Personalization
 
-Resolve adapter-global Forge preferences before recapping:
+Resolve adapter-global Forge preferences before restoring context:
 
 ```powershell
 python scripts/resolve_preferences.py --workspace <workspace> --format json
@@ -134,7 +132,7 @@ If there is appropriate continuity, add:
 
 ---
 
-## Save Mode (`/save-brain`)
+## Save Mode
 
 Only write when the user explicitly wants to save context or handover.
 

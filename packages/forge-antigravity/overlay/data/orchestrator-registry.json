@@ -1,4 +1,191 @@
 {
+  "intents": {
+    "SESSION": {
+      "shortcuts": [
+        "/recap",
+        "/save-brain",
+        "/handover"
+      ]
+    }
+  },
+  "session_modes": {
+    "restore": {
+      "shortcuts": [
+        "/recap",
+        "/recap full",
+        "/recap deep"
+      ]
+    },
+    "save": {
+      "shortcuts": [
+        "/save-brain"
+      ]
+    },
+    "handover": {
+      "shortcuts": [
+        "/handover"
+      ]
+    }
+  },
+  "operator_surface": {
+    "actions": {
+      "help": {
+        "hosts": [
+          "antigravity"
+        ],
+        "primary_aliases_by_host": {
+          "antigravity": [
+            "/help"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "antigravity": [
+            "Help me figure out the next step"
+          ]
+        }
+      },
+      "next": {
+        "hosts": [
+          "antigravity"
+        ],
+        "primary_aliases_by_host": {
+          "antigravity": [
+            "/next"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "antigravity": [
+            "What should I do next?"
+          ]
+        }
+      },
+      "run": {
+        "hosts": [
+          "antigravity"
+        ],
+        "primary_aliases_by_host": {
+          "antigravity": [
+            "/run"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "antigravity": [
+            "Run `npm test` and tell me what to do after"
+          ]
+        }
+      },
+      "bump": {
+        "hosts": [
+          "antigravity"
+        ],
+        "primary_aliases_by_host": {
+          "antigravity": [
+            "/bump"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "antigravity": [
+            "Bump this to 0.5.0"
+          ]
+        }
+      },
+      "rollback": {
+        "hosts": [
+          "antigravity"
+        ],
+        "primary_aliases_by_host": {
+          "antigravity": [
+            "/rollback"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "antigravity": [
+            "We need to roll back the last deployment"
+          ]
+        }
+      },
+      "customize": {
+        "hosts": [
+          "antigravity"
+        ],
+        "primary_aliases_by_host": {
+          "antigravity": [
+            "/customize"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "antigravity": [
+            "Give shorter answers and move faster"
+          ]
+        }
+      },
+      "init": {
+        "hosts": [
+          "antigravity"
+        ],
+        "primary_aliases_by_host": {
+          "antigravity": [
+            "/init"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "antigravity": [
+            "Bootstrap this workspace for Forge"
+          ]
+        }
+      }
+    },
+    "session_modes": {
+      "restore": {
+        "hosts": [
+          "antigravity"
+        ],
+        "compatibility_aliases_by_host": {
+          "antigravity": [
+            "/recap"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "antigravity": [
+            "Continue the task we were working on yesterday and tell me the best next step."
+          ]
+        },
+        "deprecation_line": "1 stable line"
+      },
+      "save": {
+        "hosts": [
+          "antigravity"
+        ],
+        "compatibility_aliases_by_host": {
+          "antigravity": [
+            "/save-brain"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "antigravity": [
+            "Save context for this task before I close the window."
+          ]
+        },
+        "deprecation_line": "1 stable line"
+      },
+      "handover": {
+        "hosts": [
+          "antigravity"
+        ],
+        "compatibility_aliases_by_host": {
+          "antigravity": [
+            "/handover"
+          ]
+        },
+        "natural_language_examples_by_host": {
+          "antigravity": [
+            "Create a short handover with the next step and verification already run."
+          ]
+        },
+        "deprecation_line": "1 stable line"
+      }
+    }
+  },
   "host_capabilities": {
     "active_tier": "controller-baseline",
     "supports_subagents": false,

@@ -13,6 +13,7 @@ quality_gates:
 # Save-Brain - Antigravity Continuity Wrapper
 
 > Goal: keep `/save-brain` for users familiar with AWF or Antigravity without turning it into a mandatory memory ritual.
+> Deprecated compatibility alias for one stable line. Prefer natural-language `save context`.
 
 ## Process
 
@@ -22,6 +23,7 @@ quality_gates:
    - verification already run
    - open risks/blockers
 3. If structured continuity is needed, use `scripts/capture_continuity.py`.
+4. Emit a deprecation warning that points users to natural-language `save context`.
 
 ## Activation Announcement
 

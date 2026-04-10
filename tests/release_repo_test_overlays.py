@@ -129,6 +129,11 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         gemini_text = (overlay_root / "GEMINI.global.md").read_text(encoding="utf-8")
         self.assertIn("GENERATED FILE", gemini_text)
         self.assertIn("There is no `/gate` alias", gemini_text)
+        self.assertIn("Compatibility aliases:", gemini_text)
+        primary_alias_section = gemini_text.split("Primary operator aliases:", maxsplit=1)[1].split("Compatibility aliases:", maxsplit=1)[0]
+        self.assertNotIn("/recap", primary_alias_section)
+        self.assertNotIn("/save-brain", primary_alias_section)
+        self.assertIn("/recap", gemini_text.split("Compatibility aliases:", maxsplit=1)[1])
 
     def test_materialized_antigravity_wave_b_overlay_contract(self) -> None:
         dist_root = ROOT_DIR / "dist" / "forge-antigravity"
@@ -187,6 +192,9 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             dist_root / "GEMINI.global.md",
             label="dist forge-antigravity gemini",
         )
+        rendered_gemini = (dist_root / "GEMINI.global.md").read_text(encoding="utf-8")
+        self.assertIn("Compatibility aliases:", rendered_gemini)
+        self.assertIn("one stable line", rendered_gemini)
         self.assert_routing_locale_config(dist_root / "data" / "routing-locales.json", label="dist forge-antigravity")
         self.assert_output_contract_profiles(dist_root / "data" / "output-contracts.json", label="dist forge-antigravity")
         self.assert_session_restores_preferences(
@@ -239,6 +247,9 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         )
         self.assertIn("GENERATED FILE", (overlay_root / "AGENTS.global.md").read_text(encoding="utf-8"))
         self.assertNotIn("/save-brain", (overlay_root / "workflows" / "execution" / "session.md").read_text(encoding="utf-8"))
+        codex_surface = (overlay_root / "references" / "codex-operator-surface.md").read_text(encoding="utf-8")
+        self.assertIn("/delegate", codex_surface)
+        self.assertNotIn("/save-brain", codex_surface)
         self.assert_session_restores_preferences(
             overlay_root / "workflows" / "execution" / "session.md",
             label="forge-codex overlay session",
@@ -305,6 +316,9 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertIn("There is no `/gate` alias", dist_skill)
         self.assertNotIn("save-brain", dist_skill)
         self.assertNotIn("/save-brain", (dist_root / "workflows" / "execution" / "session.md").read_text(encoding="utf-8"))
+        dist_codex_surface = (dist_root / "references" / "codex-operator-surface.md").read_text(encoding="utf-8")
+        self.assertIn("/delegate", dist_codex_surface)
+        self.assertNotIn("/save-brain", dist_codex_surface)
 
         antigravity_dist_root = ROOT_DIR / "dist" / "forge-antigravity"
         self.assert_bump_wrapper_matches_release_contract(

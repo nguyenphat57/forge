@@ -311,6 +311,36 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("Response Personalization", session)
         self.assertIn("workflow-state", session)
 
+    def test_operator_surface_registry_metadata_is_complete(self) -> None:
+        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
+        surface = registry["operator_surface"]
+        required_fields = {
+            "repo_entrypoint",
+            "core_engine_entrypoint",
+            "workflow",
+            "hosts",
+            "primary_aliases_by_host",
+            "compatibility_aliases_by_host",
+            "natural_language_examples_by_host",
+            "deprecation_line",
+            "status",
+        }
+
+        for section_name in ("actions", "session_modes"):
+            section = surface[section_name]
+            self.assertIsInstance(section, dict)
+            self.assertTrue(section)
+            for item_name, metadata in section.items():
+                with self.subTest(section=section_name, item=item_name):
+                    self.assertTrue(required_fields.issubset(metadata))
+                    self.assertIn(metadata["status"], {"primary", "compat"})
+                    self.assertIsInstance(metadata["hosts"], list)
+                    self.assertIsInstance(metadata["primary_aliases_by_host"], dict)
+                    self.assertIsInstance(metadata["compatibility_aliases_by_host"], dict)
+                    self.assertIsInstance(metadata["natural_language_examples_by_host"], dict)
+                    if metadata["status"] == "compat":
+                        self.assertTrue(metadata["deprecation_line"])
+
     def test_tooling_docs_mention_workflow_state_artifacts(self) -> None:
         tooling = (ROOT_DIR / "references" / "tooling.md").read_text(encoding="utf-8")
         self.assertIn("workflow-state", tooling)

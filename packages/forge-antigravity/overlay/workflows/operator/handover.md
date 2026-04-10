@@ -13,6 +13,7 @@ quality_gates:
 # Handover - Antigravity Session Wrapper
 
 > Goal: provide a clear Antigravity handover surface on top of the Forge session contract.
+> Deprecated compatibility alias for one stable line. Prefer natural-language `handover` requests.
 
 ## Process
 
@@ -23,6 +24,7 @@ quality_gates:
    - what remains
    - important files
    - verification already run
+3. Emit a deprecation warning that points users to natural-language `handover`.
 
 ## Activation Announcement
 

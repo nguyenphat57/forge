@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from support import copied_workspace_fixture, reference_companion_environment, run_python_script
 
@@ -40,6 +42,37 @@ class MapCodebaseTests(unittest.TestCase):
             self.assertIn("nextjs-app-router", report["stack"]["frameworks"])
             self.assertEqual(report["companion_operator"][0]["profile"], "nextjs-prisma-app-router")
             self.assertEqual(report["companion_operator"][0]["verification_pack"], "nextjs-production-ready")
+
+    def test_map_codebase_detects_repo_root_operator_entrypoints_from_agents(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir) / "forge-source"
+            scripts_dir = workspace / "scripts"
+            scripts_dir.mkdir(parents=True, exist_ok=True)
+            (workspace / "AGENTS.md").write_text(
+                "\n".join(
+                    [
+                        "# Workspace Entry",
+                        "- Use `python scripts/session_context.py resume --workspace <workspace> --format json`.",
+                        "- Use `python scripts/resolve_help_next.py --workspace <workspace> --mode help`.",
+                        "- Use `python scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>`.",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            for name in ("session_context.py", "resolve_help_next.py", "run_with_guidance.py"):
+                (scripts_dir / name).write_text("print('shim')\n", encoding="utf-8")
+
+            result = run_python_script("map_codebase.py", "--workspace", str(workspace), "--format", "json")
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertIn("scripts/session_context.py", report["brownfield"]["entrypoints"])
+            self.assertIn("scripts/resolve_help_next.py", report["brownfield"]["entrypoints"])
+            self.assertNotIn("No obvious entrypoint detected from common markers.", report["brownfield"]["risks"])
+            summary = (workspace / ".forge-artifacts" / "codebase" / "summary.md").read_text(encoding="utf-8")
+            risks = (workspace / ".forge-artifacts" / "codebase" / "risks.md").read_text(encoding="utf-8")
+            self.assertIn("scripts/session_context.py", summary)
+            self.assertNotIn("No obvious entrypoint detected from common markers.", risks)
 
 
 if __name__ == "__main__":

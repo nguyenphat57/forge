@@ -5,6 +5,23 @@
 Install the built bundle from `dist/` into a real runtime instead of editing the live runtime directory directly.
 The install flow uses in-place sync so rollout is safer when the host is holding locks on the runtime root.
 
+## Two Happy Paths
+
+Source repo operator flow:
+
+```powershell
+python scripts/session_context.py resume --workspace <repo> --format json
+python scripts/resolve_help_next.py --workspace <repo> --mode help
+python scripts/resolve_help_next.py --workspace <repo> --mode next
+python scripts/run_with_guidance.py --workspace <repo> --timeout-ms 20000 -- <command>
+```
+
+Installed runtime flow:
+
+- Build from the source repo.
+- Install from `dist/` into the real host/runtime target.
+- Use the installed bundle surface after install; do not point host docs back at `packages/forge-core/scripts/`.
+
 ## Default targets
 
 - `forge-antigravity` -> `~/.gemini/antigravity/skills/forge-antigravity`

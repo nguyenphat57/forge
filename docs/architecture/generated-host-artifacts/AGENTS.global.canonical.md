@@ -124,6 +124,8 @@ Rules:
 
 Treat each slash command as a workflow alias, not a filesystem path. Read the mapped workflow from `{{FORGE_CODEX_WORKFLOWS}}`.
 
+Workflow aliases:
+
 | Command | Workflow |
 |---------|----------|
 | `/brainstorm` | `design/brainstorm.md` |
@@ -136,14 +138,12 @@ Treat each slash command as a workflow alias, not a filesystem path. Read the ma
 | `/review` | `execution/review.md` |
 | `/refactor` | `execution/refactor.md` |
 | `/deploy` | `execution/deploy.md` |
-| `/help` | `operator/help.md` |
-| `/next` | `operator/next.md` |
-| `/run` | `operator/run.md` |
-| `/delegate` | `execution/dispatch-subagents.md` |
-| `/bump` | `operator/bump.md` |
-| `/rollback` | `operator/rollback.md` |
-| `/customize` | `operator/customize.md` |
-| `/init` | `operator/init.md` |
+
+Operator aliases:
+
+| Command | Workflow |
+|---------|----------|
+{{FORGE_CODEX_OPERATOR_ALIAS_ROWS}}
 
 ## Activation Announcement
 

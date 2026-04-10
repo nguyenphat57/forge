@@ -55,10 +55,22 @@
       "output": "packages/forge-codex/overlay/workflows/operator/init.md"
     },
     {
+      "name": "forge-codex-operator-surface-reference",
+      "bundle": "forge-codex",
+      "source": "docs/architecture/generated-host-artifacts/codex/references/codex-operator-surface.md",
+      "output": "packages/forge-codex/overlay/references/codex-operator-surface.md"
+    },
+    {
       "name": "forge-antigravity-global-gemini",
       "bundle": "forge-antigravity",
       "source": "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
       "output": "packages/forge-antigravity/overlay/GEMINI.global.md"
+    },
+    {
+      "name": "forge-antigravity-operator-surface-reference",
+      "bundle": "forge-antigravity",
+      "source": "docs/architecture/generated-host-artifacts/antigravity/references/antigravity-operator-surface.md",
+      "output": "packages/forge-antigravity/overlay/references/antigravity-operator-surface.md"
     }
   ]
 }
