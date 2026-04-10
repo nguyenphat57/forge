@@ -418,7 +418,7 @@ Verification profiles canonical source: `data/orchestrator-registry.json`.
 
 - Forge uses `execution pipeline` to avoid implementing and reviewing in the same lane.
 - Forge uses `lane model tiers` to optimize cost: navigation/triage can be cheaper than spec-review or release gates.
-- Forge uses `quality-gate` as the canonical source for evidence response contract and anti-rationalization.
+- Forge uses `quality-gate` as the canonical source for the evidence response contract, the global `Skills used:` footer, and anti-rationalization.
 - `spec-review` loop is capped at `3` revision rounds for the same packet; beyond this threshold it must be `blocked`.
 
 ---

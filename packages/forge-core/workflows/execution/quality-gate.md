@@ -108,6 +108,23 @@ Quickly reject sentences:
 
 This contract is global for `build`, `debug`, `test`, `review`, and `deploy`, not just quality gate.
 
+## Global Skill Usage Footer
+
+Every user-facing response must end with one final non-empty line that declares which Forge skills were used:
+
+```text
+Skills used: brainstorm, build, quality-gate
+Skills used: none
+```
+
+Rules:
+- use the exact prefix `Skills used:`
+- if no Forge skill was used for the response, write `Skills used: none`
+- if one or more Forge skills were used, list each skill name exactly once
+- keep that `Skills used:` line as the final non-empty line of the response
+
+This footer is global for every response, not only completion claims.
+
 ## Canonical Rationalizations To Reject
 
 The following 8 rationalizations should be considered weak gate signals:
@@ -248,8 +265,8 @@ Forge: quality-gate | close go/no-go with new evidence
 
 ## Response Footer
 
-When this skill is used to complete a task, include this exact English line in a footer block at the end of the response:
+When this skill is used to complete a task, record its exact skill name in the global final line:
 
-`Used skill: quality-gate.`
+`Skills used: quality-gate`
 
-Keep that footer block as the last block of the response. If multiple skills are used, include one exact `Used skill:` line per unique skill and do not add anything after the footer block.
+When multiple Forge skills are used, list each used skill exactly once in the shared `Skills used:` line. When no Forge skill is used for the response, use `Skills used: none`. Keep that `Skills used:` line as the final non-empty line of the response and do not add anything after it.

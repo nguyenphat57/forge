@@ -112,6 +112,17 @@ class BundleContractTests(unittest.TestCase):
         registry_text = (ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8")
         self.assertTrue(registry_text.isascii())
 
+    def test_skill_usage_footer_contract_is_defined(self) -> None:
+        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
+        footer = registry["skill_usage_footer_contract"]
+
+        self.assertEqual(footer["prefix"], "Skills used:")
+        self.assertEqual(footer["none_token"], "none")
+        self.assertEqual(footer["separator"], ",")
+        self.assertTrue(footer["require_on_every_response"])
+        self.assertTrue(footer["require_final_line"])
+        self.assertTrue(footer["require_unique_skills"])
+
     def test_host_capability_contract_v2_defines_tiers_and_reasons(self) -> None:
         registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
         host = registry["host_capabilities"]

@@ -57,6 +57,11 @@ def format_text(report: dict[str, object]) -> str:
 
     checks = report["checks"]
     lines.append(f"- Evidence mode: {checks['evidence_response']['mode'] or '(none)'}")
+    lines.append(
+        f"- Skill usage footer: {checks['skill_usage_footer']['footer_line'] or '(missing)'}"
+    )
+    skills_used = checks["skill_usage_footer"]["skills"]
+    lines.append(f"- Skills used: {', '.join(skills_used) or 'none'}")
     lines.append(f"- Banned phrases: {', '.join(checks['banned_phrases']) or '(none)'}")
     lines.append(
         f"- Rationalization patterns: {', '.join(checks['rationalization_patterns']) or '(none)'}"
@@ -92,6 +97,11 @@ def main() -> int:
         action="store_true",
         help="Require the global evidence response structure even if the text does not claim completion.",
     )
+    parser.add_argument(
+        "--expected-skills",
+        default=None,
+        help="Optional comma-separated Forge skill names expected in the final `Skills used:` footer, or `none`.",
+    )
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     args = parser.parse_args()
 
@@ -113,11 +123,19 @@ def main() -> int:
         return 1
 
     registry = load_registry()
+    expected_skills: list[str] | None = None
+    if args.expected_skills is not None:
+        token = args.expected_skills.strip()
+        if token.casefold() == "none":
+            expected_skills = []
+        else:
+            expected_skills = [part.strip() for part in token.split(",") if part.strip()]
     report = validate_response_contract(
         response_text,
         output_contract=output_contract,
         registry=registry,
         require_evidence_response=args.require_evidence_response,
+        expected_skills=expected_skills,
     )
     payload = {
         **report,

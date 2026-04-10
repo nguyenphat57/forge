@@ -68,6 +68,23 @@ Before closing a task:
 6. If verification cannot run, say `not verified`, name the blocker, and do not turn partial evidence into a completion claim.
 7. Docs-only changes must use path, content, or diff verification; do not pretend there was a test.
 
+## Global Skill Usage Footer
+
+Every user-facing response must end with one final non-empty line in exactly one of these forms:
+
+```text
+Skills used: none
+Skills used: brainstorm, build, quality-gate
+```
+
+Rules:
+
+- Use the exact prefix `Skills used:`
+- If no Forge skill was used for the response, write `Skills used: none`
+- If one or more Forge skills were used, list each used skill name exactly once
+- Keep the `Skills used:` line as the final non-empty line of the response
+- Do not add any content after that line
+
 ## Command Aliases
 
 Treat each slash command as a workflow alias, not a filesystem path. Read the mapped workflow from `{{FORGE_ANTIGRAVITY_WORKFLOWS}}`.

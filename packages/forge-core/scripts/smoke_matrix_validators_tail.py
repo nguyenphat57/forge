@@ -68,6 +68,13 @@ def validate_response_contract_case(case: dict, report: dict) -> list[str]:
             case["expected_evidence_mode"],
             "evidence_mode",
         )
+    if "expected_skills" in case:
+        _expect_equal(
+            failures,
+            report["checks"]["skill_usage_footer"]["skills"],
+            case["expected_skills"],
+            "skills",
+        )
     for expected in case.get("expected_finding_contains", []):
         _expect_contains_in_collection(failures, report.get("findings", []), expected, "finding")
     for expected in case.get("expected_warning_contains", []):

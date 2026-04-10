@@ -3,26 +3,34 @@
     "name": "verified_response_passes_contract",
     "args": [
       "--response-text",
-      "I verified: pytest -q passed. Correct because the validator only tightens response guardrails. Fixed: added response contract checks.",
+      "I verified: pytest -q passed. Correct because the validator only tightens response guardrails. Fixed: added response contract checks.\nSkills used: build",
       "--language",
       "en",
       "--orthography",
       "plain_english",
-      "--require-evidence-response"
+      "--require-evidence-response",
+      "--expected-skills",
+      "build"
     ],
     "expected_status": "PASS",
     "expected_evidence_required": true,
-    "expected_evidence_mode": "verified"
+    "expected_evidence_mode": "verified",
+    "expected_skills": [
+      "build"
+    ]
   },
   {
     "name": "banned_phrase_fails_contract",
     "args": [
       "--response-text",
-      "Good catch. I fixed it.",
-      "--require-evidence-response"
+      "Good catch. I fixed it.\nSkills used: none",
+      "--require-evidence-response",
+      "--expected-skills",
+      "none"
     ],
     "expected_status": "FAIL",
     "expected_evidence_required": true,
+    "expected_skills": [],
     "expected_finding_contains": [
       "Banned phrase detected",
       "Evidence response required"
@@ -32,18 +40,56 @@
     "name": "vietnamese_contract_rejects_accent_stripped_prose",
     "args": [
       "--response-text",
-      "Em da xac minh: pytest -q pass. Dung vi validator moi chi them guardrail. Da sua: bo sung kiem tra hop dong output.",
+      "Em da xac minh: pytest -q pass. Dung vi validator moi chi them guardrail. Da sua: bo sung kiem tra hop dong output.\nSkills used: test",
       "--language",
       "vi",
       "--orthography",
       "vietnamese_diacritics",
-      "--require-evidence-response"
+      "--require-evidence-response",
+      "--expected-skills",
+      "test"
     ],
     "expected_status": "FAIL",
     "expected_evidence_required": true,
     "expected_evidence_mode": "verified",
+    "expected_skills": [
+      "test"
+    ],
     "expected_finding_contains": [
       "accent-stripped Vietnamese"
+    ]
+  },
+  {
+    "name": "none_skill_footer_passes_contract",
+    "args": [
+      "--response-text",
+      "Clarification needed: Which Forge surface should define the footer contract?\nSkills used: none",
+      "--require-evidence-response",
+      "--expected-skills",
+      "none"
+    ],
+    "expected_status": "PASS",
+    "expected_evidence_required": true,
+    "expected_evidence_mode": "clarification",
+    "expected_skills": []
+  },
+  {
+    "name": "duplicate_skill_footer_fails_contract",
+    "args": [
+      "--response-text",
+      "I verified: pytest -q passed. Correct because the validator only tightens response guardrails. Fixed: added response contract checks.\nSkills used: build, build",
+      "--require-evidence-response",
+      "--expected-skills",
+      "build"
+    ],
+    "expected_status": "FAIL",
+    "expected_evidence_required": true,
+    "expected_evidence_mode": "verified",
+    "expected_skills": [
+      "build"
+    ],
+    "expected_finding_contains": [
+      "repeats a skill name"
     ]
   }
 ]

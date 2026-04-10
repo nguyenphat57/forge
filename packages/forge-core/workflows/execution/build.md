@@ -438,8 +438,8 @@ Forge: build | verification-first, impact analysis before editing
 
 ## Response Footer
 
-When this skill is used to complete a task, include this exact English line in a footer block at the end of the response:
+When this skill is used to complete a task, record its exact skill name in the global final line:
 
-`Used skill: build.`
+`Skills used: build`
 
-Keep that footer block as the last block of the response. If multiple skills are used, include one exact `Used skill:` line per unique skill and do not add anything after the footer block.
+When multiple Forge skills are used, list each used skill exactly once in the shared `Skills used:` line. When no Forge skill is used for the response, use `Skills used: none`. Keep that `Skills used:` line as the final non-empty line of the response and do not add anything after it.

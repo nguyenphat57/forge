@@ -1178,6 +1178,14 @@
       "CI passed earlier."
     ]
   },
+  "skill_usage_footer_contract": {
+    "prefix": "Skills used:",
+    "none_token": "none",
+    "separator": ",",
+    "require_on_every_response": true,
+    "require_final_line": true,
+    "require_unique_skills": true
+  },
   "rationalization_patterns": [
     "Good catch. I fixed it.",
     "Should be fine now.",
