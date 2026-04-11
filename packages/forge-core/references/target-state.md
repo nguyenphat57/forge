@@ -58,7 +58,7 @@ Challenge a change when it mainly adds:
 
 - workflow-state should become the default backbone for medium+ and release-sensitive work
 - release posture should be explicit, but not over-fragmented into tiers that do not change behavior
-- adoption-check should remain a bounded post-release signal, not an analytics layer
+- release follow-up should stay bounded inside workflow-state, `quality-gate`, and deploy evidence instead of expanding into a separate analytics surface
 - help and next should read the actual operating state instead of inventing guidance from repo shape alone
 - adapter surfaces should tell one coherent story about routing, gates, and aliases
 

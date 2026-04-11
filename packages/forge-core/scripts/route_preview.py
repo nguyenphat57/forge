@@ -42,8 +42,6 @@ from route_execution_advice import (
 from route_process_requirements import (
     recommended_isolation_stance,
     review_artifact_required,
-    requires_change_artifacts,
-    verify_change_required,
 )
 from route_stage_contract import build_required_stages
 from companion_matching import match_companions
@@ -179,15 +177,13 @@ def build_report(args: argparse.Namespace) -> dict:
     active_routing_locales = routing_locale_names()
     required_stages = required_stage_contract["required_stages"]
     skill_selection_rationale = build_skill_selection_rationale(required_stages, registry)
-    change_artifacts_required = requires_change_artifacts(intent, complexity, required_stages)
     precheck_required = process_precheck_required(intent, args.prompt, registry)
     baseline_proof_required = baseline_required(intent, complexity)
-    verify_change_gate_required = verify_change_required(intent, complexity, required_stages)
     review_state_required = review_artifact_required(intent, complexity, execution_pipeline_key, required_stages)
-    durable_process_artifacts_required = change_artifacts_required or any(
+    durable_process_artifacts_required = any(
         isinstance(item, dict)
         and item.get("status") != "skipped"
-        and item.get("stage") in {"brainstorm", "spec-review", "review-pack", "self-review", "quality-gate", "release-doc-sync", "release-readiness", "adoption-check"}
+        and item.get("stage") in {"brainstorm", "spec-review", "self-review", "quality-gate"}
         for item in required_stages
     )
     isolation_recommendation = recommended_isolation_stance(
@@ -246,10 +242,8 @@ def build_report(args: argparse.Namespace) -> dict:
             "lane_model_assignments": lane_model_assignments,
             "quality_profile": quality_profile_key,
             "delegation_strategy": delegation_strategy,
-            "change_artifacts_required": change_artifacts_required,
             "process_precheck_required": precheck_required,
             "baseline_proof_required": baseline_proof_required,
-            "verify_change_required": verify_change_gate_required,
             "review_artifact_required": review_state_required,
             "durable_process_artifacts_required": durable_process_artifacts_required,
             "isolation_recommendation": isolation_recommendation,
@@ -304,10 +298,8 @@ def format_text(report: dict) -> str:
         f"- Runtimes from repo signals: {', '.join(detected['runtimes']) or '(none)'}",
         f"- Routing locales: {', '.join(detected['routing_locales']) or '(none)'}",
         f"- Verification profile: {report['verification']['label'] if report['verification'] else '(n/a)'}",
-        f"- Change artifacts required: {'yes' if detected['change_artifacts_required'] else 'no'}",
         f"- Process precheck required: {'yes' if detected['process_precheck_required'] else 'no'}",
         f"- Baseline proof required: {'yes' if detected['baseline_proof_required'] else 'no'}",
-        f"- Verify-change required: {'yes' if detected['verify_change_required'] else 'no'}",
         f"- Review artifact required: {'yes' if detected['review_artifact_required'] else 'no'}",
         f"- Durable process artifacts required: {'yes' if detected['durable_process_artifacts_required'] else 'no'}",
         f"- Isolation recommendation: {detected['isolation_recommendation'] or '(n/a)'}",

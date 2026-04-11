@@ -19,7 +19,7 @@ For the most up-to-date inventory of scripts, tests, references, and data files,
 
 - `SKILL.md`: entry point for intent routing, skill composition, and delivery guardrails
 - `workflows/design/`: planning, architecture, spec-review, visualization
-- `workflows/execution/`: build, debug, test, review, review-pack, change, verify-change, refactor, secure, deploy, release-doc-sync, release-readiness, adoption-check, session
+- `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, quality-gate, session
 - `workflows/operator/`: help, next, and host-neutral operator workflows
 - `references/`: smoke tests, companion contract, backend briefs, UI guidance, and read-only reference documentation when needed
 - `data/`: machine-readable registry for intent, matrix, verification profiles, quality profiles, execution pipelines, lane model policy, and personalization schema
@@ -317,9 +317,9 @@ Verification profiles canonical live in `data/orchestrator-registry.json`.
 - `brainstorm` should begin with `discovery-lite` and only escalate to `discovery-full` when the first pass still leaves scope or boundary risk unclear.
 - `spec-review` is a risk gate, not a size gate: if the packet is ambiguous, contract-boundary heavy, or release-sensitive, review it before build even when the task sounds small.
 - `review` becomes `self-review` for solo-dev flows, but the findings-first bar does not relax.
-- `review-pack` is the pre-release tail for release-sensitive work and should feed `self-review`, then `quality-gate`, then `deploy`.
-- Release-tail stages stay explicit: `review-pack` -> `self-review` -> `quality-gate` -> `release-doc-sync` -> `release-readiness` -> `deploy` -> `adoption-check`.
-- `release-doc-sync`, `release-readiness`, and `adoption-check` are release-surface gates that must remain visible when the slice affects docs, rollout confidence, or post-deploy usage.
+- For solo-profile release-sensitive work, keep the tail explicit as `self-review` -> `secure` -> `quality-gate` -> `deploy`.
+- `quality-gate` is the canonical go / no-go surface for merge-ready and deploy claims; do not add a second release-tail contract on top of it.
+- Release-facing docs, rollout confidence, and follow-up risk notes should be carried by `quality-gate`, `deploy`, and workflow-state instead of separate release-tail workflows.
 - Release-tier language should stay compatible with the core release contract; adapters may present host-specific wording, but they must not invent separate posture names that change the behavior bar.
 - workflow-state records should use the canonical stage status vocabulary: `pending`, `required`, `active`, `completed`, `skipped`, `blocked`.
 - workflow-state entries should carry activation reasons and skip reasons so the gate does not have to reconstruct intent from chat memory.

@@ -108,13 +108,6 @@ def _system_shape_change(prompt_text: str, quality_profile_key: str, risk_catego
     return score_keywords(normalized, ["architecture", "state sync", "data flow", "auth model", "system shape"]) > 0
 
 
-def _change_artifact_present(prompt_text: str, complexity: str, registry: dict) -> bool:
-    if complexity == "small":
-        return False
-    normalized = normalize_text(prompt_text)
-    return score_keywords(normalized, registry.get("solo_profiles", {}).get("change_artifact_markers", [])) > 0
-
-
 def _packet_unclear(prompt_text: str, registry: dict) -> bool:
     normalized = normalize_text(prompt_text)
     return score_keywords(normalized, registry.get("solo_profiles", {}).get("packet_unclear_markers", [])) > 0
@@ -196,7 +189,6 @@ def build_required_stages(
     if intent == "BUILD" and complexity == "small":
         spec_review_required = spec_review_required and packet_unclear
     architect_required = _system_shape_change(prompt_text, quality_profile_key, effective_risk_categories, complexity)
-    change_artifact_present = _change_artifact_present(prompt_text, complexity, registry)
     release_context = _release_context(prompt_text, repo_signals, intent, profile, quality_profile_key, registry)
     secure_required = (
         release_context["public_release"]
@@ -213,17 +205,10 @@ def build_required_stages(
     self_review_required = intent in {"BUILD", "DEBUG", "OPTIMIZE", "DEPLOY"} and (
         complexity in {"medium", "large"} or release_context["release_candidate"]
     )
-    review_pack_required = release_context["public_release"] or release_context["shared_env_release"]
-    verify_change_required = change_artifact_present
     quality_gate_required = intent in {"BUILD", "DEBUG", "OPTIMIZE", "DEPLOY"} and (
         complexity in {"medium", "large"} or release_context["release_candidate"]
     )
-    release_doc_sync_required = release_context["release_surface_change"] and (
-        release_context["public_release"] or release_context["shared_env_release"] or release_context["critical_internal_release"]
-    )
-    release_readiness_required = release_context["broad_public_release"] or release_context["critical_internal_release"]
     deploy_required = release_context["release_candidate"]
-    adoption_check_required = release_context["public_release"] or release_context["shared_env_release"]
 
     decisions: list[dict] = []
     for stage_name in order:
@@ -278,25 +263,8 @@ def build_required_stages(
                 )
             continue
 
-        if stage_name == "change":
-            if intent != "BUILD":
-                continue
-            if change_artifact_present:
-                _append_stage(decisions, registry, stage_name, status="required", activation_reason="change_artifact_present")
-            elif complexity in {"medium", "large"}:
-                _append_stage(decisions, registry, stage_name, status="skipped", skip_reason="no_change_artifact")
-            continue
-
         if stage_name in {"build", "test", "debug", "refactor", "review", "session"}:
             _append_stage(decisions, registry, stage_name, status="required", activation_reason="default_chain")
-            continue
-
-        if stage_name == "review-pack":
-            if review_pack_required:
-                reason = "public_release" if release_context["public_release"] else "shared_env_release"
-                _append_stage(decisions, registry, stage_name, status="required", activation_reason=reason)
-            elif release_context["release_candidate"] or intent in {"BUILD", "DEBUG", "DEPLOY"}:
-                _append_stage(decisions, registry, stage_name, status="skipped", skip_reason="no_shared_env")
             continue
 
         if stage_name == "self-review":
@@ -312,37 +280,9 @@ def build_required_stages(
                 _append_stage(decisions, registry, stage_name, status="skipped", skip_reason="low_risk_boundary")
             continue
 
-        if stage_name == "verify-change":
-            if verify_change_required:
-                _append_stage(decisions, registry, stage_name, status="required", activation_reason="change_artifact_present")
-            elif intent == "BUILD" and complexity in {"medium", "large"}:
-                _append_stage(decisions, registry, stage_name, status="skipped", skip_reason="no_change_artifact")
-            continue
-
         if stage_name == "quality-gate":
             if quality_gate_required:
                 _append_stage(decisions, registry, stage_name, status="required", activation_reason="default_chain")
-            continue
-
-        if stage_name == "release-doc-sync":
-            if release_doc_sync_required:
-                if release_context["public_release"]:
-                    reason = "public_release"
-                elif release_context["critical_internal_release"]:
-                    reason = "critical_internal_release"
-                else:
-                    reason = "shared_env_release"
-                _append_stage(decisions, registry, stage_name, status="required", activation_reason=reason)
-            elif intent in {"BUILD", "DEBUG", "DEPLOY"} and (release_context["release_candidate"] or complexity in {"medium", "large"}):
-                _append_stage(decisions, registry, stage_name, status="skipped", skip_reason="no_release_surface")
-            continue
-
-        if stage_name == "release-readiness":
-            if release_readiness_required:
-                reason = "public_release" if release_context["public_release"] else "critical_internal_release"
-                _append_stage(decisions, registry, stage_name, status="required", activation_reason=reason)
-            elif release_context["shared_env_release"] or intent == "DEPLOY":
-                _append_stage(decisions, registry, stage_name, status="skipped", skip_reason="not_public_release")
             continue
 
         if stage_name == "deploy":
@@ -351,16 +291,10 @@ def build_required_stages(
                 _append_stage(decisions, registry, stage_name, status="required", activation_reason=reason)
             continue
 
-        if stage_name == "adoption-check":
-            if adoption_check_required:
-                reason = "public_release" if release_context["public_release"] else "shared_env_release"
-                _append_stage(decisions, registry, stage_name, status="required", activation_reason=reason)
-
     return {
         "profile": profile,
         "required_stages": decisions,
         "required_stage_chain": _active_chain(decisions, "stage"),
         "workflow_chain": _active_chain(decisions, "workflow"),
-        "change_artifact_present": change_artifact_present,
         "release_context": release_context,
     }

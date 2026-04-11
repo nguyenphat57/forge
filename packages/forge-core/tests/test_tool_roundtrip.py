@@ -10,30 +10,15 @@ from support import ROOT_DIR, run_python_script
 
 import common  # noqa: E402
 import route_preview  # noqa: E402
-import workflow_state_support  # noqa: E402
 import track_chain_status  # noqa: E402
 import track_execution_progress  # noqa: E402
 import track_ui_progress  # noqa: E402
+import workflow_state_support  # noqa: E402
 
 
 class ToolRoundTripTests(unittest.TestCase):
-    def _required_stage_args(self, required_stage_chain: list[str]) -> list[str]:
-        args: list[str] = []
-        for stage in required_stage_chain:
-            args.extend(["--required-stage", stage])
-        return args
-
     def _workflow_state_path(self, workspace: Path, project_name: str) -> Path:
         return workspace / ".forge-artifacts" / "workflow-state" / common.slugify(project_name) / "latest.json"
-
-    def _mark_stage_statuses(self, workflow_state_path: Path, updates: dict[str, str]) -> dict:
-        state = json.loads(workflow_state_path.read_text(encoding="utf-8"))
-        stages = state.setdefault("stages", {})
-        for stage_name, status in updates.items():
-            payload = stages.setdefault(stage_name, {})
-            payload["status"] = status
-        workflow_state_path.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
-        return state
 
     def test_backend_brief_round_trip_passes_checker(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -119,30 +104,6 @@ class ToolRoundTripTests(unittest.TestCase):
                     report = json.loads(check.stdout)
                     self.assertEqual(report["status"], "PASS")
 
-    def test_capture_continuity_writes_scoped_entry(self) -> None:
-        with TemporaryDirectory() as temp_dir:
-            brain_dir = Path(temp_dir) / ".brain"
-            result = run_python_script(
-                "capture_continuity.py",
-                "Compatibility window must stay one release",
-                "--kind",
-                "decision",
-                "--scope",
-                "orders-api",
-                "--evidence",
-                "docs/DESIGN.md",
-                "--brain-dir",
-                str(brain_dir),
-                "--format",
-                "json",
-            )
-            self.assertEqual(result.returncode, 0, result.stderr)
-            report = json.loads(result.stdout)
-            entries = json.loads((brain_dir / "decisions.json").read_text(encoding="utf-8"))
-
-        self.assertEqual(report["entry"]["scope"], "orders-api")
-        self.assertEqual(entries[0]["summary"], "Compatibility window must stay one release")
-
     def test_execution_progress_requires_proof_for_ready_states(self) -> None:
         with self.assertRaises(ValueError):
             track_execution_progress.build_report(
@@ -155,6 +116,17 @@ class ToolRoundTripTests(unittest.TestCase):
                     project_name="workspace",
                     lane="implementer",
                     model_tier="capable",
+                    packet_id=None,
+                    parent_packet=None,
+                    goal=None,
+                    source=[],
+                    scope_path=[],
+                    owned_scope=[],
+                    verify_again=[],
+                    browser_qa_classification="not-needed",
+                    browser_qa_scope=[],
+                    browser_qa_status="not-needed",
+                    harness_available="no",
                     proof=[],
                     done=[],
                     next_step=[],
@@ -176,6 +148,14 @@ class ToolRoundTripTests(unittest.TestCase):
                     active_skill=[],
                     active_lane=[],
                     lane_model=[],
+                    active_packet=[],
+                    blocked_packet=[],
+                    review_ready_packet=[],
+                    merge_ready_packet=[],
+                    next_merge_point=None,
+                    browser_qa_pending=[],
+                    write_scope_overlap=[],
+                    sequential_reason=[],
                     blocker=[],
                     risk=[],
                     gate_decision=None,
@@ -256,6 +236,7 @@ class ToolRoundTripTests(unittest.TestCase):
                     browser_qa_classification="not-needed",
                     browser_qa_scope=[],
                     browser_qa_status="not-needed",
+                    harness_available="no",
                     proof=["failing reconciliation reproduction"],
                     done=["Added reconciliation service skeleton"],
                     next_step=["Wire retry policy into sync manager"],
@@ -277,19 +258,9 @@ class ToolRoundTripTests(unittest.TestCase):
             )
             ui_json_path, _ = track_ui_progress.persist_payload(ui_payload, str(workspace))
 
-            workflow_state_path = (
-                workspace
-                / ".forge-artifacts"
-                / "workflow-state"
-                / common.slugify("Example Project")
-                / "latest.json"
-            )
+            workflow_state_path = self._workflow_state_path(workspace, "Example Project")
             packet_index_path = (
-                workspace
-                / ".forge-artifacts"
-                / "workflow-state"
-                / common.slugify("Example Project")
-                / "packet-index.json"
+                workspace / ".forge-artifacts" / "workflow-state" / common.slugify("Example Project") / "packet-index.json"
             )
             self.assertTrue(workflow_state_path.exists())
             self.assertTrue(packet_index_path.exists())
@@ -384,6 +355,7 @@ class ToolRoundTripTests(unittest.TestCase):
                     browser_qa_classification="optional-accelerator",
                     browser_qa_scope=["checkout retry flow"],
                     browser_qa_status="pending",
+                    harness_available="no",
                     proof=["failing reconciliation reproduction"],
                     done=["Added reconciliation service skeleton"],
                     next_step=["Run merge readiness smoke"],
@@ -393,21 +365,13 @@ class ToolRoundTripTests(unittest.TestCase):
             )
             execution_json_path, _ = track_execution_progress.persist_report(execution_report, str(workspace))
 
-            workflow_state_path = (
-                workspace
-                / ".forge-artifacts"
-                / "workflow-state"
-                / common.slugify("Example Project")
-                / "latest.json"
-            )
+            workflow_state_path = self._workflow_state_path(workspace, "Example Project")
             state = json.loads(workflow_state_path.read_text(encoding="utf-8"))
 
         self.assertEqual(state["latest_execution"]["source_path"], str(execution_json_path))
         self.assertEqual(state["latest_execution"]["completion_state"], "ready-for-merge")
         self.assertEqual(state["latest_execution"]["next_steps"], ["Run merge readiness smoke"])
         self.assertEqual(state["latest_execution"]["residual_risk"], ["End-to-end verification still pending"])
-        self.assertEqual(state["latest_execution"]["browser_qa_classification"], "optional-accelerator")
-        self.assertEqual(state["latest_execution"]["browser_qa_status"], "pending")
         self.assertEqual(state["latest_execution"]["browser_qa_scope"], ["checkout retry flow"])
         self.assertEqual(execution_report["lane"], "implementer")
         self.assertEqual(execution_report["model_tier"], "capable")
@@ -415,416 +379,6 @@ class ToolRoundTripTests(unittest.TestCase):
         self.assertEqual(state["summary"]["suggested_workflow"], "review")
         self.assertEqual(state["summary"]["current_focus"], "Review ready: Offline reconciliation [packet-reconciliation]")
         self.assertEqual(state["summary"]["browser_qa_pending"], ["packet-reconciliation"])
-
-    def test_solo_profile_recorders_update_workflow_state_spine(self) -> None:
-        with TemporaryDirectory() as temp_dir:
-            workspace = Path(temp_dir)
-            required_stage_chain = [
-                "brainstorm",
-                "plan",
-                "spec-review",
-                "build",
-                "test",
-                "quality-gate",
-                "release-readiness",
-                "adoption-check",
-            ]
-            required_stage_args = self._required_stage_args(required_stage_chain)
-
-            direction = run_python_script(
-                "record_direction_state.py",
-                "--workspace",
-                str(workspace),
-                "--project-name",
-                "Example Project",
-                "--profile",
-                "solo-internal",
-                "--intent",
-                "new feature direction",
-                *required_stage_args,
-                "--stage-status",
-                "completed",
-                "--mode",
-                "discovery-lite",
-                "--decision-state",
-                "direction-locked",
-                "--activation-reason",
-                "Greenfield feature needs an explicit direction brief.",
-                "--summary",
-                "Direction locked for the checkout flow.",
-                "--note",
-                "Discovery-lite confirms the path before implementation.",
-                "--next-action",
-                "Move into plan with the locked direction.",
-                "--persist",
-                "--output-dir",
-                str(workspace),
-                "--format",
-                "json",
-            )
-            self.assertEqual(direction.returncode, 0, direction.stderr)
-            direction_report = json.loads(direction.stdout)
-
-            spec_review = run_python_script(
-                "record_spec_review_state.py",
-                "--workspace",
-                str(workspace),
-                "--project-name",
-                "Example Project",
-                "--profile",
-                "solo-internal",
-                "--intent",
-                "new feature direction",
-                *required_stage_args,
-                "--stage-status",
-                "completed",
-                "--decision",
-                "go",
-                "--activation-reason",
-                "Boundary risk was reviewed before build.",
-                "--summary",
-                "Spec review cleared the implementation packet.",
-                "--review-iteration",
-                "1",
-                "--max-review-iterations",
-                "3",
-                "--note",
-                "Packet is clear enough for build.",
-                "--next-action",
-                "Start implementation with the reviewed spec.",
-                "--persist",
-                "--output-dir",
-                str(workspace),
-                "--format",
-                "json",
-            )
-            self.assertEqual(spec_review.returncode, 0, spec_review.stderr)
-            spec_review_report = json.loads(spec_review.stdout)
-
-            adoption_check = run_python_script(
-                "record_adoption_check.py",
-                "--workspace",
-                str(workspace),
-                "--project-name",
-                "Example Project",
-                "--profile",
-                "solo-internal",
-                "--intent",
-                "new feature direction",
-                *required_stage_args,
-                "--stage-status",
-                "completed",
-                "--activation-reason",
-                "Shared-env release needs a final adoption pass.",
-                "--target",
-                "shared env release",
-                "--summary",
-                "Adoption check confirms the release was taken up.",
-                "--signal",
-                "Users completed the new flow without follow-up issues.",
-                "--release-action",
-                "monitor",
-                "--next-action",
-                "Monitor the release after rollout.",
-                "--persist",
-                "--output-dir",
-                str(workspace),
-                "--format",
-                "json",
-            )
-            self.assertEqual(adoption_check.returncode, 0, adoption_check.stderr)
-            adoption_check_report = json.loads(adoption_check.stdout)
-
-            workflow_state_path = (
-                workspace
-                / ".forge-artifacts"
-                / "workflow-state"
-                / common.slugify("Example Project")
-                / "latest.json"
-            )
-            self.assertTrue(workflow_state_path.exists())
-            state = json.loads(workflow_state_path.read_text(encoding="utf-8"))
-
-        self.assertEqual(state["profile"], "solo-internal")
-        self.assertEqual(state["intent"], "new feature direction")
-        self.assertEqual(state["required_stage_chain"], required_stage_chain)
-        self.assertEqual(state["current_stage"], "adoption-check")
-
-        self.assertEqual(state["latest_direction"]["current_stage"], "brainstorm")
-        self.assertEqual(state["latest_spec_review"]["current_stage"], "spec-review")
-        self.assertEqual(state["latest_adoption_check"]["current_stage"], "adoption-check")
-        self.assertEqual(state["latest_adoption_check"]["release_actions"], ["monitor"])
-        self.assertEqual(state["latest_adoption_check"]["friction_categories"], [])
-
-        self.assertEqual(state["latest_direction"]["source_path"], direction_report["artifacts"]["json"])
-        self.assertEqual(state["latest_spec_review"]["source_path"], spec_review_report["artifacts"]["json"])
-        self.assertEqual(state["latest_adoption_check"]["source_path"], adoption_check_report["artifacts"]["json"])
-
-        self.assertEqual(state["stages"]["brainstorm"]["status"], "completed")
-        self.assertEqual(state["stages"]["plan"]["status"], "required")
-        self.assertEqual(state["stages"]["spec-review"]["status"], "completed")
-        self.assertEqual(state["stages"]["build"]["status"], "required")
-        self.assertEqual(state["stages"]["test"]["status"], "required")
-        self.assertEqual(state["stages"]["quality-gate"]["status"], "required")
-        self.assertEqual(state["stages"]["adoption-check"]["status"], "completed")
-        self.assertEqual(state["stages"]["brainstorm"]["source_path"], direction_report["artifacts"]["json"])
-        self.assertEqual(state["stages"]["spec-review"]["source_path"], spec_review_report["artifacts"]["json"])
-        self.assertEqual(state["stages"]["adoption-check"]["source_path"], adoption_check_report["artifacts"]["json"])
-
-    def test_solo_public_release_chain_uses_recorded_workflow_state_for_release_gates(self) -> None:
-        with TemporaryDirectory() as temp_dir:
-            workspace = Path(temp_dir)
-            project_name = "Public Launch"
-            required_stage_chain = [
-                "brainstorm",
-                "plan",
-                "spec-review",
-                "build",
-                "test",
-                "review-pack",
-                "self-review",
-                "secure",
-                "quality-gate",
-                "release-doc-sync",
-                "release-readiness",
-                "deploy",
-                "adoption-check",
-            ]
-            required_stage_args = self._required_stage_args(required_stage_chain)
-
-            (workspace / "app").mkdir(parents=True, exist_ok=True)
-            (workspace / "app" / "page.tsx").write_text("export default function Page() { return null; }\n", encoding="utf-8")
-            (workspace / ".env.example").write_text("APP_NAME=launch\n", encoding="utf-8")
-
-            direction = run_python_script(
-                "record_direction_state.py",
-                "--workspace",
-                str(workspace),
-                "--project-name",
-                project_name,
-                "--profile",
-                "solo-public",
-                "--intent",
-                "public launch",
-                *required_stage_args,
-                "--stage-status",
-                "completed",
-                "--mode",
-                "discovery-full",
-                "--decision-state",
-                "direction-locked",
-                "--activation-reason",
-                "Public launch needs an explicit direction brief.",
-                "--summary",
-                "Direction locked for the public launch slice.",
-                "--note",
-                "Boundary and rollout expectations are explicit.",
-                "--next-action",
-                "Move into spec-review.",
-                "--persist",
-                "--output-dir",
-                str(workspace),
-                "--format",
-                "json",
-            )
-            self.assertEqual(direction.returncode, 0, direction.stderr)
-
-            spec_review = run_python_script(
-                "record_spec_review_state.py",
-                "--workspace",
-                str(workspace),
-                "--project-name",
-                project_name,
-                "--profile",
-                "solo-public",
-                "--intent",
-                "public launch",
-                *required_stage_args,
-                "--stage-status",
-                "completed",
-                "--decision",
-                "go",
-                "--activation-reason",
-                "Public boundary risk was reviewed before build.",
-                "--summary",
-                "Spec review cleared the public launch packet.",
-                "--review-iteration",
-                "1",
-                "--max-review-iterations",
-                "3",
-                "--note",
-                "Packet is ready for implementation.",
-                "--next-action",
-                "Start implementation.",
-                "--persist",
-                "--output-dir",
-                str(workspace),
-                "--format",
-                "json",
-            )
-            self.assertEqual(spec_review.returncode, 0, spec_review.stderr)
-
-            execution = run_python_script(
-                "track_execution_progress.py",
-                "Public launch implementation",
-                "--mode",
-                "checkpoint-batch",
-                "--stage",
-                "implementation",
-                "--status",
-                "completed",
-                "--completion-state",
-                "ready-for-merge",
-                "--profile",
-                "solo-public",
-                "--intent",
-                "public launch",
-                *required_stage_args,
-                "--project-name",
-                project_name,
-                "--harness-available",
-                "no",
-                "--proof",
-                "Public launch smoke pack passed.",
-                "--done",
-                "Implemented the release slice.",
-                "--next",
-                "Run release gate checks.",
-                "--persist",
-                "--output-dir",
-                str(workspace),
-                "--format",
-                "json",
-                cwd=workspace,
-            )
-            self.assertEqual(execution.returncode, 0, execution.stderr)
-
-            review = run_python_script(
-                "record_review_state.py",
-                "--workspace",
-                str(workspace),
-                "--project-name",
-                project_name,
-                "--scope",
-                "public-launch",
-                "--review-kind",
-                "release-review",
-                "--disposition",
-                "ready-for-merge",
-                "--branch-state",
-                "clean branch",
-                "--evidence",
-                "Public launch smoke pack passed.",
-                "--no-finding-rationale",
-                "No material release findings remain.",
-                "--next-action",
-                "Run final gate checks.",
-                "--persist",
-                "--output-dir",
-                str(workspace),
-                "--format",
-                "json",
-            )
-            self.assertEqual(review.returncode, 0, review.stderr)
-
-            workflow_state_path = self._workflow_state_path(workspace, project_name)
-            state = self._mark_stage_statuses(
-                workflow_state_path,
-                {
-                    "plan": "completed",
-                    "build": "completed",
-                    "test": "completed",
-                    "review-pack": "completed",
-                    "self-review": "completed",
-                    "secure": "completed",
-                    "quality-gate": "required",
-                    "release-doc-sync": "required",
-                    "release-readiness": "required",
-                    "deploy": "required",
-                    "adoption-check": "required",
-                },
-            )
-            self.assertEqual(state["profile"], "solo-public")
-            self.assertEqual(state["stages"]["review-pack"]["status"], "completed")
-            self.assertEqual(state["stages"]["release-doc-sync"]["status"], "required")
-
-            review_pack = run_python_script(
-                "review_pack.py",
-                "--workspace",
-                str(workspace),
-                "--format",
-                "json",
-                "--persist",
-                "--output-dir",
-                str(workspace),
-            )
-            self.assertEqual(review_pack.returncode, 0, review_pack.stderr)
-            review_pack_report = json.loads(review_pack.stdout)
-            self.assertEqual(review_pack_report["status"], "PASS")
-            self.assertEqual(review_pack_report["operating_profile"], "solo-public")
-            self.assertTrue(review_pack_report["public_surface"])
-
-            release_doc_sync = run_python_script(
-                "release_doc_sync.py",
-                "--workspace",
-                str(workspace),
-                "--changed-path",
-                "docs/release/public-readiness.md",
-                "--format",
-                "json",
-                "--persist",
-                "--output-dir",
-                str(workspace),
-            )
-            self.assertEqual(release_doc_sync.returncode, 0, release_doc_sync.stderr)
-            docs_report = json.loads(release_doc_sync.stdout)
-            self.assertEqual(docs_report["status"], "PASS")
-
-            gate = run_python_script(
-                "record_quality_gate.py",
-                "--workspace",
-                str(workspace),
-                "--project-name",
-                project_name,
-                "--profile",
-                "standard",
-                "--target-claim",
-                "deploy",
-                "--decision",
-                "go",
-                "--evidence",
-                "Public launch smoke pack passed.",
-                "--response",
-                "I verified: public launch smoke pack passed. Correct because release checks stayed green. Fixed: yes.",
-                "--why",
-                "Public launch is ready for rollout gating.",
-                "--persist",
-                "--output-dir",
-                str(workspace),
-                "--format",
-                "json",
-            )
-            self.assertEqual(gate.returncode, 0, gate.stderr)
-            gate_report = json.loads(gate.stdout)
-            self.assertEqual(gate_report["status"], "PASS")
-            self.assertEqual(gate_report["operating_profile"], "solo-public")
-
-            readiness = run_python_script(
-                "release_readiness.py",
-                "--workspace",
-                str(workspace),
-                "--profile",
-                "standard",
-                "--format",
-                "json",
-                "--persist",
-                "--output-dir",
-                str(workspace),
-            )
-            self.assertEqual(readiness.returncode, 1, readiness.stderr)
-            readiness_report = json.loads(readiness.stdout)
-
-        self.assertEqual(readiness_report["effective_profile"], "solo-public")
 
     def test_route_preview_persist_seeds_workflow_state_for_run_guidance(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -834,8 +388,11 @@ class ToolRoundTripTests(unittest.TestCase):
                     prompt="Deploy the app to external users with a public launch",
                     repo_signal=[],
                     workspace_router=None,
+                    workspace=None,
                     changed_files=None,
                     has_harness="auto",
+                    delegation_preference=None,
+                    forge_home=ROOT_DIR / "tests" / "fixtures" / "forge-homes" / "empty",
                     format="json",
                     persist=False,
                     output_dir=None,
@@ -845,9 +402,9 @@ class ToolRoundTripTests(unittest.TestCase):
 
             workflow_state_path = self._workflow_state_path(workspace, "workspace")
             state = json.loads(workflow_state_path.read_text(encoding="utf-8"))
-            self.assertEqual(state["latest_route_preview"]["current_stage"], "review-pack")
+            self.assertEqual(state["latest_route_preview"]["current_stage"], "self-review")
             self.assertEqual(state["summary"]["primary_kind"], "route-preview")
-            self.assertEqual(state["summary"]["suggested_workflow"], "review-pack")
+            self.assertEqual(state["summary"]["suggested_workflow"], "review")
 
             run_result = run_python_script(
                 "run_with_guidance.py",
@@ -874,15 +431,14 @@ class ToolRoundTripTests(unittest.TestCase):
         self.assertEqual(state["intent"], "DEPLOY")
         self.assertEqual(
             state["required_stage_chain"],
-            ["review-pack", "self-review", "secure", "quality-gate", "release-doc-sync", "release-readiness", "deploy", "adoption-check"],
+            ["self-review", "secure", "quality-gate", "deploy"],
         )
-        self.assertEqual(state["current_stage"], "review-pack")
-        self.assertEqual(state["latest_route_preview"]["current_stage"], "review-pack")
-        self.assertEqual(state["stages"]["review-pack"]["status"], "required")
-        self.assertEqual(state["stages"]["release-readiness"]["status"], "required")
-        self.assertEqual(state["latest_run"]["current_stage"], "review-pack")
+        self.assertEqual(state["current_stage"], "self-review")
+        self.assertEqual(state["latest_route_preview"]["current_stage"], "self-review")
+        self.assertEqual(state["stages"]["self-review"]["status"], "required")
+        self.assertEqual(state["latest_run"]["current_stage"], "self-review")
         self.assertEqual(state["latest_run"]["required_stage_chain"], state["required_stage_chain"])
-        self.assertEqual(run_report["current_stage"], "review-pack")
+        self.assertEqual(run_report["current_stage"], "self-review")
         self.assertEqual(run_report["required_stage_chain"], state["required_stage_chain"])
 
 

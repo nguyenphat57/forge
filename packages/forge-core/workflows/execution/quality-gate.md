@@ -25,7 +25,7 @@ NO CLAIMS, HANDOFFS, OR DEPLOYS WITHOUT A FRESH GO / NO-GO DECISION
 - Gate failure -> stop, report blocker, and state clearly what evidence is next needed.
 - With `release-critical` flow, `conditional` is not enough for production deployment.
 - If the flow clearly belongs to a stronger profile than `standard`, do not review it as `standard`.
-- For solo-profile release-sensitive work, include the `review-pack`/`self-review` tail before the final go/no-go call.
+- For solo-profile release-sensitive work, include the `self-review` -> `secure` tail before the final go/no-go call.
 </HARD-GATE>
 
 ## Scope
@@ -67,7 +67,7 @@ If the flow touches multiple profiles, select the profile with the higher blast 
 
 Read from real artifact or new command output:
 - Verification/test output
-- Verify-change artifact for medium or large build work
+- Workflow-state or execution checkpoint for medium or large build work
 - Review disposition
 - Security decision
 - Deploy target readiness
@@ -77,10 +77,9 @@ Read from real artifact or new command output:
 
 Fresh command output is necessary, but medium+ or behavior-changing work also needs a durable process artifact before it can be marked ready:
 - plan, spec, or design packet
-- change artifact or execution checkpoint
-- verify-change artifact before final merge/deploy claims on active change work
+- execution checkpoint or workflow-state record
 - workflow-state record when the work has already been tracked there
-- review pack or disposition artifact when the slice is entering handoff
+- review disposition artifact when the slice is entering handoff
 - stage-state record with explicit `pending`, `required`, `active`, `completed`, `skipped`, or `blocked` values when workflow-state is used
 
 Do not mark a medium+ slice ready from command output alone.
@@ -197,7 +196,7 @@ If the current conclusion is based on one of the above statements, the decision 
 - Containment or rollback stance
 
 ### Solo profile overlay
-- `solo-internal` and `solo-public` reuse the evidence rules above, but require the reviewer tail to be `review-pack` -> `self-review` when the slice is release-sensitive
+- `solo-internal` and `solo-public` reuse the evidence rules above, but require the reviewer tail to be `self-review` -> `secure` when the slice is release-sensitive
 - profile selection still follows blast radius; solo profile changes the handoff shape, not the evidence bar
 
 ## Process

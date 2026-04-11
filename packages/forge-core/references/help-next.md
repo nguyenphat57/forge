@@ -10,7 +10,7 @@
 - Preferred sources, in order:
   1. `git status`
   2. `docs/plans/` and `docs/specs/`
-  3. active change artifact or `.forge-artifacts/workflow-state/<project>/packet-index.json` for low-cost continuity resume
+  3. `.forge-artifacts/workflow-state/<project>/packet-index.json` for low-cost continuity resume
   4. `.forge-artifacts/workflow-state/<project>/latest.json` when full workflow-state detail is needed
   5. `.brain/session.json`
   6. `.brain/handover.md`
@@ -23,19 +23,18 @@
 | `blocked` | Session or handover clearly shows a blocker |
 | `session-active` | There is an active task or a pending task list |
 | `active-changes` | The working tree contains active diffs or new files |
-| `change-active` | A durable change artifact or workflow-state record is present |
+| `change-active` | A workflow-state record or recorded stage is present |
 | `planned` | No code exists yet, but there is a current plan or spec |
-| `mapped` | A codebase map is present and the repo has enough brownfield context to choose the first slice |
 | `unscoped` | The repo does not show an active work slice |
 
 ## Stage-To-Entrypoint Hints
 
 | Stage | First operator move |
 |---|---|
-| `blocked` | `doctor` if workspace/runtime health is uncertain, otherwise inspect the blocker and reopen the right workflow |
-| `mapped` | use `plan`, `spec-review`, or a direct task prompt now that the brownfield map exists |
-| `unscoped` | `map-codebase` first for existing repos, `brainstorm` first for greenfield repos |
-| `change-active` | `dashboard` or `next` to resume the recorded slice instead of rediscovering context |
+| `blocked` | inspect the blocker, reopen the right workflow, and only use runtime doctor when browser proof tooling is stale |
+| `planned` | use `plan`, `spec-review`, or a direct task prompt now that a bounded slice exists |
+| `unscoped` | run `python scripts/verify_repo.py --profile fast` if repo health is unclear, then state one bounded slice |
+| `change-active` | use `next` to resume the recorded slice instead of rediscovering context |
 
 ## Output Contract
 
@@ -53,7 +52,6 @@
 - Do not suggest legacy recap or save rituals.
 - Do not give a vague next step when the slice can be named more precisely.
 - For medium+ work, prefer answers that point at the durable artifact to create or refresh next.
-- If a repo is already mapped, prefer reusing that brownfield summary before re-scanning the repo.
 - When context is weak, say clearly that the repo does not provide enough signal.
 - If runtime health is stale or broken for browser proof, recommend runtime doctor before retrying packet proof claims.
 - When operating on Forge itself or choosing between multiple valid Forge directions, prefer the move that best matches `references/target-state.md`.

@@ -58,7 +58,6 @@ class BundleContractTests(unittest.TestCase):
                 "packet_unclear",
                 "shared_env_release",
                 "public_release",
-                "change_artifact_present",
                 "critical_internal_release",
             ],
         )
@@ -69,10 +68,6 @@ class BundleContractTests(unittest.TestCase):
                 "direction_locked",
                 "packet_clear",
                 "low_risk_boundary",
-                "no_change_artifact",
-                "no_shared_env",
-                "no_release_surface",
-                "not_public_release",
             ],
         )
         self.assertEqual(
@@ -89,22 +84,6 @@ class BundleContractTests(unittest.TestCase):
                 with self.subTest(profile=profile_name, intent=intent):
                     self.assertTrue(order)
                     self.assertTrue(set(order).issubset(set(profile_contract["stages"])))
-
-    def test_solo_profile_release_tiers_reference_known_profiles(self) -> None:
-        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
-        profile_contract = registry["solo_profiles"]
-        release_tiers = profile_contract["release_tiers"]
-
-        self.assertEqual(
-            set(release_tiers),
-            {"internal-shared", "internal-critical", "public-controlled", "public-broad"},
-        )
-        for tier_name, tier in release_tiers.items():
-            with self.subTest(tier=tier_name):
-                self.assertIn(tier["profile"], profile_contract["profiles"])
-                self.assertIn(tier["canary_profile"], {"controlled-rollout", "broad"})
-                self.assertIsInstance(tier["requires_rollout_readiness"], bool)
-                self.assertIsInstance(tier["requires_review_pack"], bool)
 
     def test_canonical_registry_stays_ascii_only(self) -> None:
         registry_text = (ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8")
@@ -269,14 +248,9 @@ class BundleContractTests(unittest.TestCase):
 
     def test_tooling_docs_mention_verify_entrypoints(self) -> None:
         tooling = (ROOT_DIR / "references" / "tooling.md").read_text(encoding="utf-8")
-        self.assertIn("change_artifacts.py", tooling)
         self.assertIn("generate_requirements_checklist.py", tooling)
         self.assertIn("check_spec_packet.py", tooling)
         self.assertIn("prepare_worktree.py", tooling)
-        self.assertIn("verify_change.py", tooling)
-        self.assertIn("dashboard.py", tooling)
-        self.assertIn("doctor.py", tooling)
-        self.assertIn("map_codebase.py", tooling)
         self.assertIn("run_smoke_matrix.py", tooling)
         self.assertIn("verify_bundle.py", tooling)
         self.assertIn("record_canary_result.py", tooling)
@@ -347,7 +321,6 @@ class BundleContractTests(unittest.TestCase):
 
     def test_reference_map_mentions_artifact_driven_change_flow(self) -> None:
         reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
-        self.assertIn("artifact-driven-change-flow.md", reference_map)
         self.assertIn("constitution-lite.md", reference_map)
         self.assertIn("target-state.md", reference_map)
         self.assertIn("extension-presets.md", reference_map)
@@ -366,9 +339,9 @@ class BundleContractTests(unittest.TestCase):
         self.assertEqual(example["packet"]["packet_mode"], "fast-lane")
         self.assertIn("boundary_note", example)
 
-    def test_help_next_reference_mentions_mapped_stage_and_current_stage(self) -> None:
+    def test_help_next_reference_mentions_unscoped_stage_and_current_stage(self) -> None:
         help_next = (ROOT_DIR / "references" / "help-next.md").read_text(encoding="utf-8")
-        self.assertIn("`mapped`", help_next)
+        self.assertIn("`unscoped`", help_next)
         self.assertIn("`current_stage`", help_next)
         self.assertIn("target-state.md", help_next)
 

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 
 EDITING_INTENTS = {"BUILD", "DEBUG", "OPTIMIZE"}
-VERIFY_CHANGE_INTENTS = {"BUILD"}
 
 
 def _stage_required(required_stages: list[dict] | None, stage_name: str) -> bool:
@@ -14,18 +13,6 @@ def _stage_required(required_stages: list[dict] | None, stage_name: str) -> bool
     )
 
 
-def requires_change_artifacts(intent: str, complexity: str, required_stages: list[dict] | None = None) -> bool:
-    if required_stages is not None:
-        return _stage_required(required_stages, "change")
-    return intent in EDITING_INTENTS and complexity in {"medium", "large"}
-
-
-def verify_change_required(intent: str, complexity: str, required_stages: list[dict] | None = None) -> bool:
-    if required_stages is not None:
-        return _stage_required(required_stages, "verify-change")
-    return intent in VERIFY_CHANGE_INTENTS and complexity in {"medium", "large"}
-
-
 def review_artifact_required(
     intent: str,
     complexity: str,
@@ -33,7 +20,7 @@ def review_artifact_required(
     required_stages: list[dict] | None = None,
 ) -> bool:
     if required_stages is not None:
-        return _stage_required(required_stages, "self-review") or _stage_required(required_stages, "review-pack")
+        return _stage_required(required_stages, "self-review")
     return intent in EDITING_INTENTS and (
         complexity in {"medium", "large"} or execution_pipeline_key in {"implementer-quality", "implementer-spec-quality"}
     )

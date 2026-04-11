@@ -19,7 +19,6 @@
 | `smoke-tests.md` | Smoke-test host routing and Forge's general behavior |
 | `smoke-test-checklist.md` | Record smoke-test results for each case |
 | `backend-briefs.md` | Create or reuse a backend brief for medium or large API, job, event, or data changes |
-| `artifact-driven-change-flow.md` | Run the full P1-P3 artifact-driven flow for medium or risky build work |
 | `constitution-lite.md` | Record or reuse repo-local principles without adding a heavier governance artifact |
 | `target-state.md` | Re-anchor Forge strategy and operator choices to the north-star target state, including the shipped `1.15.x` closure target, the maintenance boundary, and the explicit `1.16.x` reopen |
 | `execution-delivery.md` | Select execution mode, checkpoint, and completion state for large builds |
@@ -35,11 +34,8 @@
 | `extension-presets.md` | When defining bounded packet templates, workflow overlays, or planning presets without weakening core contracts |
 | `tooling.md` | When you need to run route preview, capture continuity, router checker, or find artifact paths |
 | `personalization.md` | When editing response-style preferences, adaptive language, or adapter wrappers for customization |
-| release-readiness workflow | When changing the release verdict, rollout tiers, or post-release follow-up contract |
-| adoption-check workflow | When changing the post-deploy signal contract or the handoff back into release-readiness |
 | `workspace-init.md` | When editing the skeleton workspace, init flow, or onboarding wrapper while preserving the repo-neutral contract |
 | `help-next.md` | When editing navigator logic for help or next, repo-state priority, or operator guidance wrappers |
-| `dashboard.md` | When adding or adjusting the thin dashboard view over packet state, release state, or next-action summaries |
 | `run-guidance.md` | When editing workflow `run`, ready-signal detection, command classification, or adapter wrappers for execute-then-route |
 | `error-translation.md` | When fixing database error patterns, sanitation rules, or how `run` or `debug` converts technical errors into readable guidance |
 | `bump-release.md` | When editing version-bump checklist, semver math, or release artifact update flow |
@@ -66,11 +62,10 @@
 11. run-guidance.md if editing run or execute-then-route
 12. error-translation.md if you are editing error translator or helper layers
 13. bump-release.md or rollback-guidance.md if editing release operators
-14. artifact-driven-change-flow.md if validating the medium or risky implementation path end-to-end
-15. backend-briefs.md or execution-delivery.md depending on the layer being edited
-16. smoke-tests.md or smoke-test-checklist.md if needed to verify host behavior
-17. canary-rollout.md if preparing a real rollout
-18. docs/archive/INDEX.md only when historical context is truly needed
+14. backend-briefs.md or execution-delivery.md depending on the layer being edited
+15. smoke-tests.md or smoke-test-checklist.md if needed to verify host behavior
+16. canary-rollout.md if preparing a real rollout
+17. docs/archive/INDEX.md only when historical context is truly needed
 ```
 
 ### When the repo does not have local skills
@@ -113,16 +108,15 @@
 
 ```text
 1. docs/current/operator-surface.md if the change touches source-repo routing or wrappers
-2. artifact-driven-change-flow.md
-3. target-state.md if the change affects Forge process direction or strictness
-4. execution-delivery.md
-5. build.md when defining or updating the canonical build packet
-6. test.md when the proof chain or browser QA evidence changes
-7. debug.md when reproduction or root-cause packet changes
-8. failure-recovery-playbooks.md if the chain has risk stall or block
-9. tooling.md if checkpoint artifact is needed
-10. review.md if you need to clear disposition last
-11. quality-gate.md if you need to go or no-go clearly before claiming or deploying
+2. target-state.md if the change affects Forge process direction or strictness
+3. execution-delivery.md
+4. build.md when defining or updating the canonical build packet
+5. test.md when the proof chain or browser QA evidence changes
+6. debug.md when reproduction or root-cause packet changes
+7. failure-recovery-playbooks.md if the chain has risk stall or block
+8. tooling.md if checkpoint artifact is needed
+9. review.md if you need to clear disposition last
+10. quality-gate.md if you need to go or no-go clearly before claiming or deploying
 ```
 
 ### When doing release-critical flow
@@ -132,10 +126,8 @@
 2. secure.md
 3. quality-gate.md
 4. deploy.md
-5. release-readiness.md if you need the explicit rollout verdict or follow-up packet
-6. adoption-check.md if the slice is already live and you need the post-deploy signal
-7. failure-recovery-playbooks.md if the gate is blocked or rollout fails
-8. execution-delivery.md if the chain is long or high-risk
+5. failure-recovery-playbooks.md if the gate is blocked or rollout fails
+6. execution-delivery.md if the chain is long or high-risk
 ```
 
 ### When closing a roadmap into maintenance mode
@@ -143,9 +135,8 @@
 ```text
 1. target-state.md to confirm the active `1.15.x` closure target, maintenance boundary, and reopen criteria
 2. bump-release.md if the stable version line or release-note surface changes
-3. release-readiness.md when the closure changes the public release verdict or evidence summary
-4. tooling.md if you need deterministic checks to keep release-facing docs and generated artifacts aligned
-5. docs/archive/INDEX.md if you need to map the resulting historical plan inventory
+3. tooling.md if you need deterministic checks to keep release-facing docs and generated artifacts aligned
+4. docs/archive/INDEX.md if you need to map the resulting historical plan inventory
 ```
 
 ### When working on backend tasks

@@ -185,13 +185,9 @@ def classify_packet_mode(
 
     blocked_stages = {
         "spec-review",
-        "review-pack",
         "self-review",
         "secure",
-        "release-doc-sync",
-        "release-readiness",
         "deploy",
-        "adoption-check",
     }
     if active_stages & blocked_stages:
         eligible = False

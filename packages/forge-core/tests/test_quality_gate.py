@@ -20,25 +20,17 @@ class QualityGateTests(unittest.TestCase):
                     "intent": "DEPLOY",
                     "current_stage": "quality-gate",
                     "required_stage_chain": [
-                        "review-pack",
                         "self-review",
                         "secure",
                         "quality-gate",
-                        "release-doc-sync",
-                        "release-readiness",
-                        "deploy",
-                        "adoption-check",
+                        "deploy"
                     ],
                     "stages": {
-                        "review-pack": {"status": "completed"},
                         "self-review": {"status": "completed"},
                         "secure": {"status": "completed"},
                         "quality-gate": {"status": "required"},
-                        "release-doc-sync": {"status": "required"},
-                        "release-readiness": {"status": "required"},
-                        "deploy": {"status": "required"},
-                        "adoption-check": {"status": "required"},
-                    },
+                        "deploy": {"status": "required"}
+                    }
                 },
                 indent=2,
             ),
@@ -46,34 +38,43 @@ class QualityGateTests(unittest.TestCase):
         )
         return state_path
 
+    def _create_execution_progress(self, workspace: Path, *, project_name: str, completion_state: str, intent: str = "DEPLOY") -> None:
+        result = run_python_script(
+            "track_execution_progress.py",
+            "Release candidate hardening",
+            "--mode",
+            "checkpoint-batch",
+            "--stage",
+            "release-checks",
+            "--status",
+            "completed",
+            "--completion-state",
+            completion_state,
+            "--project-name",
+            project_name,
+            "--profile",
+            "solo-public" if intent == "DEPLOY" else "solo-internal",
+            "--intent",
+            intent,
+            "--harness-available",
+            "no",
+            "--proof",
+            "python scripts/build_release.py --format json",
+            "--persist",
+            "--output-dir",
+            str(workspace),
+            "--format",
+            "json",
+            cwd=workspace,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_release_critical_deploy_rejects_conditional_decision(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
             (workspace / "README.md").write_text("# Release candidate\n", encoding="utf-8")
             (workspace / "package.json").write_text('{"name":"release-candidate"}\n', encoding="utf-8")
-
-            started = run_python_script(
-                "change_artifacts.py",
-                "start",
-                "Release candidate hardening",
-                "--workspace",
-                str(workspace),
-                "--format",
-                "json",
-            )
-            self.assertEqual(started.returncode, 0, started.stderr)
-
-            review_pack = run_python_script(
-                "review_pack.py",
-                "--workspace",
-                str(workspace),
-                "--persist",
-                "--output-dir",
-                str(workspace),
-                "--format",
-                "json",
-            )
-            self.assertIn(review_pack.returncode, {0, 1}, review_pack.stderr)
+            self._create_execution_progress(workspace, project_name="workspace", completion_state="ready-for-merge")
 
             result = run_python_script(
                 "record_quality_gate.py",
@@ -106,36 +107,7 @@ class QualityGateTests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
             self._write_workflow_state(workspace, "checkout-web", "solo-public")
-
-            execution = run_python_script(
-                "track_execution_progress.py",
-                "Public launch checks",
-                "--mode",
-                "checkpoint-batch",
-                "--stage",
-                "release-checks",
-                "--status",
-                "completed",
-                "--completion-state",
-                "ready-for-merge",
-                "--project-name",
-                "checkout-web",
-                "--profile",
-                "solo-public",
-                "--intent",
-                "DEPLOY",
-                "--harness-available",
-                "no",
-                "--proof",
-                "release verification packet",
-                "--persist",
-                "--output-dir",
-                str(workspace),
-                "--format",
-                "json",
-                cwd=workspace,
-            )
-            self.assertEqual(execution.returncode, 0, execution.stderr)
+            self._create_execution_progress(workspace, project_name="checkout-web", completion_state="ready-for-merge")
 
             result = run_python_script(
                 "record_quality_gate.py",
@@ -169,16 +141,7 @@ class QualityGateTests(unittest.TestCase):
     def test_persisted_quality_gate_writes_workflow_state(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
-            started = run_python_script(
-                "change_artifacts.py",
-                "start",
-                "Checkout review slice",
-                "--workspace",
-                str(workspace),
-                "--format",
-                "json",
-            )
-            self.assertEqual(started.returncode, 0, started.stderr)
+            self._create_execution_progress(workspace, project_name="Example Project", completion_state="ready-for-review", intent="BUILD")
 
             result = run_python_script(
                 "record_quality_gate.py",
@@ -213,53 +176,15 @@ class QualityGateTests(unittest.TestCase):
 
         self.assertEqual(report["status"], "PASS")
         self.assertEqual(state["latest_gate"]["decision"], "go")
-        self.assertIsNone(report["operating_profile"])
+        self.assertEqual(report["operating_profile"], "solo-internal")
         self.assertEqual(state["summary"]["suggested_workflow"], "review")
 
-    def test_ready_for_merge_requires_persisted_verify_change(self) -> None:
+    def test_ready_for_merge_requires_persisted_review_state(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
-            started = run_python_script(
-                "change_artifacts.py",
-                "start",
-                "Checkout merge readiness",
-                "--workspace",
-                str(workspace),
-                "--format",
-                "json",
-            )
-            self.assertEqual(started.returncode, 0, started.stderr)
-            slug = json.loads(started.stdout)["change"]["slug"]
+            self._create_execution_progress(workspace, project_name="workspace", completion_state="ready-for-merge", intent="BUILD")
 
-            updated = run_python_script(
-                "change_artifacts.py",
-                "status",
-                "--workspace",
-                str(workspace),
-                "--slug",
-                slug,
-                "--state",
-                "ready-for-review",
-                "--verified",
-                "pytest tests/test_checkout.py",
-                "--format",
-                "json",
-            )
-            self.assertEqual(updated.returncode, 0, updated.stderr)
-
-            review_pack = run_python_script(
-                "review_pack.py",
-                "--workspace",
-                str(workspace),
-                "--persist",
-                "--output-dir",
-                str(workspace),
-                "--format",
-                "json",
-            )
-            self.assertEqual(review_pack.returncode, 0, review_pack.stderr)
-
-            missing_verify = run_python_script(
+            missing_review = run_python_script(
                 "record_quality_gate.py",
                 "--workspace",
                 str(workspace),
@@ -274,26 +199,36 @@ class QualityGateTests(unittest.TestCase):
                 "--response",
                 "I verified: checkout regression passed. Correct because merge blockers were cleared. Fixed: yes.",
                 "--why",
-                "Fresh test evidence and review pack are available.",
+                "Fresh test evidence is available.",
                 "--format",
                 "json",
             )
-            self.assertEqual(missing_verify.returncode, 1)
-            self.assertIn("verify-change", json.loads(missing_verify.stdout)["error"])
+            self.assertEqual(missing_review.returncode, 1)
+            self.assertIn("review-state", json.loads(missing_review.stdout)["error"])
 
-            verify_change = run_python_script(
-                "verify_change.py",
+            review = run_python_script(
+                "record_review_state.py",
                 "--workspace",
                 str(workspace),
-                "--slug",
-                slug,
+                "--scope",
+                "checkout-merge-readiness",
+                "--review-kind",
+                "quality-pass",
+                "--disposition",
+                "ready-for-merge",
+                "--branch-state",
+                "clean branch",
+                "--evidence",
+                "pytest tests/test_checkout.py",
+                "--no-finding-rationale",
+                "No material findings remain.",
                 "--persist",
                 "--output-dir",
                 str(workspace),
                 "--format",
                 "json",
             )
-            self.assertEqual(verify_change.returncode, 0, verify_change.stderr)
+            self.assertEqual(review.returncode, 0, review.stderr)
 
             ready = run_python_script(
                 "record_quality_gate.py",
@@ -310,7 +245,7 @@ class QualityGateTests(unittest.TestCase):
                 "--response",
                 "I verified: checkout regression passed. Correct because merge blockers were cleared. Fixed: yes.",
                 "--why",
-                "Fresh test evidence, verify-change, and review pack are aligned.",
+                "Fresh test evidence and review-state are aligned.",
                 "--format",
                 "json",
             )

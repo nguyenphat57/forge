@@ -26,7 +26,7 @@ quality_gates:
    - persisted workflow state under `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, UI, run, or quality-gate artifacts are available
    - packet continuity index under `.forge-artifacts/workflow-state/<project>/packet-index.json` when you need low-cost resume context
    - active plan/spec
-   - active change artifact or checkpoint artifact when the work is medium+ or already tracked
+   - checkpoint artifact when the work is medium+ or already tracked
    - current working tree changes
    - session or handover artifacts if any
    - `references/target-state.md` if working on Forge itself and the next move changes process direction or strictness
@@ -43,7 +43,7 @@ python scripts/resolve_help_next.py --workspace <workspace> --mode next
 
 For medium+ slices, the next step usually favors creating or refreshing the durable artifact before more editing when no such artifact is present yet.
 For Forge-maintenance work, the next step should not optimize local convenience at the cost of target-state discipline.
-For first-run workspaces with weak context, point to the start-here sequence (`doctor` -> `map-codebase`) before speculative implementation.
+For first-run workspaces with weak context, point to `plan` and a bounded slice; add `python scripts/verify_repo.py --profile fast` only when repo health is unclear.
 
 ## Output Contract
 

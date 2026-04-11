@@ -79,20 +79,13 @@ The script:
 
 Detailed semantics: see `workspace-init.md`.
 
-## Change Artifacts And Packet Checks
+## Packet Checks And Planning Validation
 
-When medium or risky work needs durable change artifacts instead of chat-only context:
+When medium or risky work needs durable planning or checkpoint validation instead of chat-only context:
 
-```powershell
-python scripts/change_artifacts.py start "Add checkout retry" --workspace C:\path\to\workspace --task "Implement retry guard in checkout flow" --verification "pytest tests/test_checkout.py -k retry"
-python scripts/change_artifacts.py status --workspace C:\path\to\workspace --slug add-checkout-retry --state ready-for-review --verified "pytest tests/test_checkout.py -k retry"
-python scripts/change_artifacts.py archive --workspace C:\path\to\workspace --slug add-checkout-retry --decision "Merged after review"
-```
-
-The script:
-- create active change artifacts including `specs/<slug>/spec.md`
-- persist `status.json` with verification state
-- merge archive knowledge back into the durable spec index
+- use `docs/plans/`, `docs/specs/`, and persisted workflow-state as the durable source of truth
+- use `track_execution_progress.py` and `record_review_state.py` when the slice is already in execution
+- use the checks below before widening scope or claiming readiness
 
 Use `generate_requirements_checklist.py` when requirements need a quick ambiguity/measurability/testability pass:
 
@@ -103,10 +96,8 @@ python scripts/generate_requirements_checklist.py --requirement "Checkout retry 
 Use `check_spec_packet.py` before build when the packet may still be missing a source of truth, first slice, baseline proof, proof-before-progress, or reopen condition:
 
 ```powershell
-python scripts/check_spec_packet.py --source docs\plans\checkout-plan.md --source .forge-artifacts\changes\active\checkout-retry\implementation-packet.md --format json
+python scripts/check_spec_packet.py --source docs\plans\checkout-plan.md --source .forge-artifacts\execution-progress\checkout\latest.json --format json
 ```
-
-For an end-to-end example, read `artifact-driven-change-flow.md`.
 
 ## Host Artifact Generator
 
@@ -217,30 +208,18 @@ Use `capture_continuity.py` separately only for durable `decision` or `learning`
 
 ## Operator Entry Points
 
-When you need a durable repo snapshot, health diagnosis, or brownfield map before choosing the next workflow:
+When you need the next move from repo state instead of a separate onboarding workflow:
 
 ```powershell
-python scripts/dashboard.py --workspace C:\path\to\workspace --persist --format json
-python scripts/doctor.py --workspace C:\path\to\workspace --format json
-python scripts/map_codebase.py --workspace C:\path\to\workspace --format json
-```
-
-Default persisted artifacts:
-
-```text
-.forge-artifacts/dashboard/latest.json
-.forge-artifacts/dashboard/history/
-.forge-artifacts/doctor/latest.json
-.forge-artifacts/doctor/history/
-.forge-artifacts/codebase/summary.json
-.forge-artifacts/codebase/summary.md
-.forge-artifacts/codebase/focus/<area>.md
+python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode help --format json
+python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode next --format json
+python scripts/verify_repo.py --profile fast
 ```
 
 Typical follow-up:
-- run `dashboard.py` when resuming work and then use `help` or `next`
-- run `doctor.py` when Forge/runtime wiring looks suspicious, then rerun `map_codebase.py` if health is usable
-- run `map_codebase.py` before the first brownfield edit, then feed that output into `plan`, `spec-review`, or `build`
+- use `resolve_help_next.py` to resume from workflow-state, plans, specs, and git state
+- run `verify_repo.py --profile fast` when repo health is unclear before choosing the next slice
+- then state one bounded slice so Forge can route directly into `plan`, `spec-review`, `build`, or `review`
 
 ## Run Guidance
 
@@ -300,9 +279,9 @@ If using `--persist`, the default artifacts are:
 .forge-artifacts/workflow-state/<project-slug>/events.jsonl
 ```
 
-`record_quality_gate.py` now also consumes the latest active change, review, and `verify-change` artifacts when the target claim requires them.
+`record_quality_gate.py` consumes the latest persisted review-state and workflow-state evidence when the target claim requires them.
 
-## Worktree Prep And Verify Change
+## Worktree Prep
 
 When risky build work should start from an isolated baseline instead of the current dirty tree:
 
@@ -315,21 +294,6 @@ The script:
 - make project-local worktree roots ignore-safe
 - run optional setup commands
 - run baseline commands and report `ready` or `blocked`
-
-When the slice is implemented and the artifacts are updated, verify the change packet itself:
-
-```powershell
-python scripts/verify_change.py --workspace C:\path\to\workspace --slug checkout-retry --persist --format json
-```
-
-`verify_change.py` scores:
-- completeness
-- correctness
-- coherence
-- evidence strength
-- residual risk
-
-Use it before `ready-for-merge`, `done`, or `deploy` claims so `quality-gate` can consume a persisted `PASS`.
 
 ## Error Translation
 
@@ -806,5 +770,5 @@ Detailed runbook: see `canary-rollout.md`.
 - Run canary pack automatically on real workspace: `run_workspace_canary.py`
 - Record soak/canary artifact from real workspace: `record_canary_result.py`
 - Final verdict rollout from real artifact: `evaluate_canary_readiness.py`
-- Resolve, invoke, or run doctor on registered runtime tools: `resolve_runtime_tool.py` / `invoke_runtime_tool.py --doctor`
+- Resolve, invoke, or run runtime doctor on registered runtime tools: `resolve_runtime_tool.py` / `invoke_runtime_tool.py --doctor`
 - Only read policy and examples: return to `SKILL.md` or `references/companion-skill-contract.md`

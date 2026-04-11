@@ -122,7 +122,7 @@ def build_plan(args: argparse.Namespace) -> dict:
         recommended_action += " After direction lock, capture any repo-local rules with `capture_continuity.py --constitution`."
     if preset_report is not None:
         recommended_next_workflow = "plan"
-        recommended_action = "Run `doctor`, then use `plan` against the scaffolded preset before extending scope."
+        recommended_action = "Run `python scripts/verify_repo.py --profile fast` if repo health is unclear, then use `plan` against the scaffolded preset before extending scope."
 
     return {
         "status": "PASS",

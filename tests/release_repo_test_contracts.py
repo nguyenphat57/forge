@@ -355,8 +355,8 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertIn("process-first orchestration system", readme)
         self.assertIn("Current stable release", readme)
         self.assertIn("Start Here (Solo Operator)", readme)
-        self.assertIn("doctor", readme)
-        self.assertIn("map-codebase", readme)
+        self.assertIn("verify_repo.py --profile fast", readme)
+        self.assertIn("bounded slice", readme)
 
     def test_adapter_bump_contracts_stay_aligned_with_core(self) -> None:
         core_bump = ROOT_DIR / "packages" / "forge-core" / "workflows" / "operator" / "bump.md"

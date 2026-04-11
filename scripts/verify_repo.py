@@ -117,11 +117,6 @@ def build_step_specs(profile: str) -> list[tuple[str, list[str], Path]]:
                     [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_contracts.py", "-v"],
                     PACKAGES_DIR / "forge-core",
                 ),
-                (
-                    "forge-core.unittest.fast.map_codebase",
-                    [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_map_codebase.py", "-v"],
-                    PACKAGES_DIR / "forge-core",
-                ),
             ]
         )
         return step_specs

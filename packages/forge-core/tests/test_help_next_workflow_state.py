@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from support import build_route_args, run_python_script, workspace_fixture
+from support import build_route_args, run_python_script
 
 import route_preview  # noqa: E402
 
@@ -37,11 +37,11 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
 
         self.assertEqual(report["status"], "PASS")
         self.assertEqual(report["current_stage"], "change-active")
-        self.assertEqual(report["suggested_workflow"], "review-pack")
-        self.assertEqual(report["current_focus"], "Recorded workflow stage: review-pack")
+        self.assertEqual(report["suggested_workflow"], "review")
+        self.assertEqual(report["current_focus"], "Recorded workflow stage: self-review")
         self.assertEqual(
             report["recommended_action"],
-            "Resume the recorded workflow stage 'review-pack' before opening new scope.",
+            "Resume the recorded workflow stage 'self-review' before opening new scope.",
         )
         self.assertEqual(report["signals"]["workflow_state_source"], "workflow-state")
         self.assertEqual(report["signals"]["workflow_summary"]["primary_kind"], "route-preview")
@@ -117,7 +117,7 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
                             "completion_state": "in-progress",
                             "next_steps": ["Run integration verification"],
                             "blockers": [],
-                            "residual_risk": [],
+                            "residual_risk": []
                         },
                         "summary": {
                             "status": "active",
@@ -126,8 +126,8 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
                             "current_stage": "integration",
                             "suggested_workflow": "integration",
                             "recommended_action": "Continue the active execution slice.",
-                            "alternatives": [],
-                        },
+                            "alternatives": []
+                        }
                     },
                     indent=2,
                     ensure_ascii=False,
@@ -159,16 +159,31 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
             (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
             (workspace / "package.json").write_text('{"name":"workflow-workspace"}\n', encoding="utf-8")
 
-            started = run_python_script(
-                "change_artifacts.py",
-                "start",
+            execution = run_python_script(
+                "track_execution_progress.py",
                 "Checkout rollback slice",
-                "--workspace",
+                "--mode",
+                "checkpoint-batch",
+                "--stage",
+                "integration",
+                "--status",
+                "completed",
+                "--completion-state",
+                "ready-for-review",
+                "--project-name",
+                "workflow-workspace",
+                "--harness-available",
+                "no",
+                "--proof",
+                "pytest tests/test_checkout.py",
+                "--persist",
+                "--output-dir",
                 str(workspace),
                 "--format",
                 "json",
+                cwd=workspace,
             )
-            self.assertEqual(started.returncode, 0, started.stderr)
+            self.assertEqual(execution.returncode, 0, execution.stderr)
 
             gate = run_python_script(
                 "record_quality_gate.py",
@@ -215,39 +230,70 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
         self.assertIn("Next evidence needed", report["recommended_action"])
 
     def test_next_prefers_gate_approval_over_previous_run_result(self) -> None:
-        helper = Path(workspace_fixture("run_workspace")).parents[1] / "run_helpers" / "build_fixture.py"
+        helper = Path(__file__).resolve().parents[0] / "fixtures" / "run_helpers" / "build_fixture.py"
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
             (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
             (workspace / "package.json").write_text('{"name":"workflow-workspace"}\n', encoding="utf-8")
 
-            started = run_python_script(
-                "change_artifacts.py",
-                "start",
+            execution = run_python_script(
+                "track_execution_progress.py",
                 "Deploy readiness slice",
-                "--workspace",
+                "--mode",
+                "checkpoint-batch",
+                "--stage",
+                "release-checks",
+                "--status",
+                "completed",
+                "--completion-state",
+                "ready-for-merge",
+                "--project-name",
+                "Example Project",
+                "--harness-available",
+                "no",
+                "--proof",
+                "python scripts/build_release.py --format json",
+                "--persist",
+                "--output-dir",
                 str(workspace),
                 "--format",
                 "json",
+                cwd=workspace,
             )
-            self.assertEqual(started.returncode, 0, started.stderr)
+            self.assertEqual(execution.returncode, 0, execution.stderr)
 
-            review_pack = run_python_script(
-                "review_pack.py",
+            review = run_python_script(
+                "record_review_state.py",
                 "--workspace",
                 str(workspace),
+                "--project-name",
+                "Example Project",
+                "--scope",
+                "deploy-readiness",
+                "--review-kind",
+                "quality-pass",
+                "--disposition",
+                "ready-for-merge",
+                "--branch-state",
+                "clean branch",
+                "--evidence",
+                "python scripts/build_release.py --format json",
+                "--no-finding-rationale",
+                "No material release findings remain.",
+                "--next-action",
+                "Run final gate checks.",
                 "--persist",
                 "--output-dir",
                 str(workspace),
                 "--format",
                 "json",
             )
-            self.assertIn(review_pack.returncode, {0, 1}, review_pack.stderr)
+            self.assertEqual(review.returncode, 0, review.stderr)
 
             run_result = run_python_script(
                 "run_with_guidance.py",
                 "--workspace",
-                str(workspace_fixture("run_workspace")),
+                str(workspace),
                 "--project-name",
                 "Example Project",
                 "--timeout-ms",
@@ -260,38 +306,9 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
                 "--",
                 "python",
                 str(helper),
+                cwd=workspace,
             )
             self.assertEqual(run_result.returncode, 0, run_result.stderr)
-
-            updated = run_python_script(
-                "change_artifacts.py",
-                "status",
-                "--workspace",
-                str(workspace),
-                "--slug",
-                "deploy-readiness-slice",
-                "--state",
-                "ready-for-review",
-                "--verified",
-                "python scripts/build_release.py --format json",
-                "--format",
-                "json",
-            )
-            self.assertEqual(updated.returncode, 0, updated.stderr)
-
-            verify_change = run_python_script(
-                "verify_change.py",
-                "--workspace",
-                str(workspace),
-                "--slug",
-                "deploy-readiness-slice",
-                "--persist",
-                "--output-dir",
-                str(workspace),
-                "--format",
-                "json",
-            )
-            self.assertEqual(verify_change.returncode, 0, verify_change.stderr)
 
             gate = run_python_script(
                 "record_quality_gate.py",
@@ -364,8 +381,8 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
                             "primary_kind": "execution-progress",
                             "current_focus": "Fast-lane packet: Checkout copy polish [packet-checkout-ui]",
                             "recommended_action": "Continue fast-lane packet 'packet-checkout-ui' with explicit proof rerun.",
-                            "suggested_workflow": "build",
-                        },
+                            "suggested_workflow": "build"
+                        }
                     },
                     indent=2,
                     ensure_ascii=False,

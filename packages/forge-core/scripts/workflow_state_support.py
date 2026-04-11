@@ -160,16 +160,6 @@ def _stage_entry(kind: str, report: dict, source_path: Path | None = None) -> tu
         entry["decision"] = report.get("decision")
         entry["review_iteration"] = report.get("review_iteration")
         entry["max_review_iterations"] = report.get("max_review_iterations")
-    if kind == "adoption-check":
-        entry["signals"] = _string_list(report.get("signals"))
-        entry["next_actions"] = _string_list(report.get("next_actions"))
-        entry["impact"] = report.get("impact")
-        entry["confidence"] = report.get("confidence")
-        entry["evidence_sources"] = _string_list(report.get("evidence_sources"))
-        entry["frictions"] = _string_list(report.get("frictions"))
-        entry["friction_categories"] = _string_list(report.get("friction_categories"))
-        entry["release_actions"] = _string_list(report.get("release_actions"))
-        entry["metrics"] = _string_list(report.get("metrics"))
     return stage_name, entry
 
 
@@ -342,30 +332,13 @@ def _entry(kind: str, report: dict | None, source_path: Path | None = None) -> d
             "next_steps": as_string_list(report.get("next_actions")),
             "notes": as_string_list(report.get("notes")),
         }
-    if kind == "adoption-check":
-        return {
-            **common_fields,
-            "label": report.get("summary", "adoption-check"),
-            "status": report.get("stage_status", "completed"),
-            "current_stage": report.get("stage_name", "adoption-check"),
-            "target": report.get("target", "unknown"),
-            "next_steps": as_string_list(report.get("next_actions")),
-            "notes": as_string_list(report.get("signals")),
-            "impact": report.get("impact", "neutral"),
-            "confidence": report.get("confidence", "medium"),
-            "evidence_sources": as_string_list(report.get("evidence_sources")),
-            "frictions": as_string_list(report.get("frictions")),
-            "friction_categories": as_string_list(report.get("friction_categories")),
-            "release_actions": as_string_list(report.get("release_actions")),
-            "metrics": as_string_list(report.get("metrics")),
-        }
     if kind == "route-preview":
         detected = _route_preview_detected(report)
         return {
             **common_fields,
             "label": report.get("prompt", "route-preview"),
             "status": "PASS",
-            "current_stage": _route_preview_current_stage(report, "mapped"),
+            "current_stage": _route_preview_current_stage(report, "plan"),
             "profile": detected.get("profile"),
             "intent": detected.get("intent"),
             "required_stage_chain": _route_preview_required_stage_chain(report),
@@ -398,7 +371,6 @@ def _build_state(
     latest_route_preview: dict | None,
     latest_direction: dict | None,
     latest_spec_review: dict | None,
-    latest_adoption_check: dict | None,
     profile: str | None,
     intent: str | None,
     current_stage: str | None,
@@ -424,7 +396,6 @@ def _build_state(
         "latest_route_preview": latest_route_preview,
         "latest_direction": latest_direction,
         "latest_spec_review": latest_spec_review,
-        "latest_adoption_check": latest_adoption_check,
         "summary": summarize_workflow_state(
             latest_chain,
             latest_execution,
@@ -585,7 +556,6 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
         latest_route_preview=entry if kind == "route-preview" else current.get("latest_route_preview"),
         latest_direction=entry if kind == "direction-state" else current.get("latest_direction"),
         latest_spec_review=entry if kind == "spec-review-state" else current.get("latest_spec_review"),
-        latest_adoption_check=entry if kind == "adoption-check" else current.get("latest_adoption_check"),
         profile=profile or current.get("profile"),
         intent=intent or current.get("intent"),
         current_stage=current_stage or (stage_snapshot[0] if stage_snapshot else current.get("current_stage")),
@@ -645,7 +615,6 @@ def resolve_workflow_state(workspace: Path, warnings: list[str] | None = None) -
                 "latest_route_preview": None,
                 "latest_direction": None,
                 "latest_spec_review": None,
-                "latest_adoption_check": None,
                 "packet_index": packet_index_payload,
                 "summary": packet_index_payload.get("summary", {}),
             }
@@ -661,7 +630,6 @@ def resolve_workflow_state(workspace: Path, warnings: list[str] | None = None) -
         "route-preview": _pick_latest_json(workspace / ".forge-artifacts" / "route-previews"),
         "direction-state": _pick_latest_json(workspace / ".forge-artifacts" / "direction"),
         "spec-review-state": _pick_latest_json(workspace / ".forge-artifacts" / "spec-review"),
-        "adoption-check": _pick_latest_json(workspace / ".forge-artifacts" / "adoption-check"),
     }
     if not any(sources.values()):
         return {"state": None, "path": None, "source": None}
@@ -678,7 +646,6 @@ def resolve_workflow_state(workspace: Path, warnings: list[str] | None = None) -
         latest_route_preview=_entry("route-preview", _read_json_object(sources["route-preview"], "route preview", local_warnings), sources["route-preview"]),
         latest_direction=_entry("direction-state", _read_json_object(sources["direction-state"], "direction state", local_warnings), sources["direction-state"]),
         latest_spec_review=_entry("spec-review-state", _read_json_object(sources["spec-review-state"], "spec review state", local_warnings), sources["spec-review-state"]),
-        latest_adoption_check=_entry("adoption-check", _read_json_object(sources["adoption-check"], "adoption check", local_warnings), sources["adoption-check"]),
         profile=None,
         intent=None,
         current_stage=None,

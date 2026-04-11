@@ -274,29 +274,17 @@ def workflow_state_follow_on_stages(workflow_state: dict | None) -> list[str]:
     return required_stage_chain
 
 
-def release_tier_label(release_readiness: dict | None) -> str | None:
-    if not isinstance(release_readiness, dict):
-        return None
-    tier = release_readiness.get("release_tier")
-    return tier.strip() if isinstance(tier, str) and tier.strip() else None
-
-
-def adoption_signal_label(latest_adoption_check: dict | None) -> str | None:
-    if not isinstance(latest_adoption_check, dict):
-        return None
-    impact = latest_adoption_check.get("impact")
-    confidence = latest_adoption_check.get("confidence")
-    summary = latest_adoption_check.get("summary") or latest_adoption_check.get("label")
-    parts = [item for item in (impact, confidence) if isinstance(item, str) and item.strip()]
-    if not parts and not isinstance(summary, str):
-        return None
-    prefix = " / ".join(parts)
-    if isinstance(summary, str) and summary.strip():
-        return f"{prefix}: {summary.strip()}" if prefix else summary.strip()
-    return prefix or None
-
-
-def determine_stage(*, session: dict | None, git_state: dict, latest_plan: Path | None, latest_spec: Path | None, workflow_state: dict | None = None, codebase_summary: Path | None = None, active_change: dict | None = None) -> str:
+def determine_stage(
+    *,
+    session: dict | None,
+    git_state: dict,
+    latest_plan: Path | None,
+    latest_spec: Path | None,
+    workflow_state: dict | None = None,
+    codebase_summary: Path | None = None,
+    active_change: dict | None = None,
+) -> str:
+    del codebase_summary, active_change
     summary = workflow_summary(workflow_state)
     status = summary_text(summary, "status")
     if status == "blocked":
@@ -314,16 +302,12 @@ def determine_stage(*, session: dict | None, git_state: dict, latest_plan: Path 
         return "blocked"
     if session_task(session) or pending_tasks(session):
         return "session-active"
-    if isinstance(active_change, dict) and str(active_change.get("state") or "").lower() not in {"archived", "done", "closed"}:
-        return "change-active"
     if workflow_state_has_recorded_slice(workflow_state):
         return "change-active"
     if git_state["changed_files"] or git_state["untracked_files"]:
         return "active-changes"
     if latest_plan or latest_spec:
         return "planned"
-    if codebase_summary is not None:
-        return "mapped"
     return "unscoped"
 
 
@@ -340,18 +324,10 @@ def build_focus(
     release_readiness: dict | None = None,
     latest_adoption_check: dict | None = None,
 ) -> str:
+    del codebase_summary, active_change, release_readiness, latest_adoption_check
     summary = workflow_summary(workflow_state)
     workflow_focus = summary_text(summary, "current_focus")
     workflow_stage = workflow_state_stage(workflow_state)
-    release_tier = release_tier_label(release_readiness)
-    release_signal = adoption_signal_label(latest_adoption_check)
-    if workflow_stage in {"release-doc-sync", "release-readiness", "adoption-check"}:
-        label = f"Release tail: {workflow_stage}"
-        if release_tier:
-            label = f"{label} ({release_tier})"
-        if workflow_stage == "adoption-check" and release_signal:
-            return f"{label} | {release_signal}"
-        return label
     if stage == "blocked":
         return workflow_focus or f"Blocked: {session_blocker(session)}"
     if stage == "review-ready":
@@ -363,17 +339,12 @@ def build_focus(
             return workflow_focus
         if workflow_stage:
             return f"Recorded workflow stage: {workflow_stage}"
-        return "Active change: {0} ({1})".format(
-            active_change.get("summary", active_change.get("slug", "change")),
-            active_change.get("state", "active"),
-        )
+        return "Recorded workflow slice is still active."
     if stage == "active-changes":
         total = len(git_state["changed_files"]) + len(git_state["untracked_files"])
         return f"Working tree contains {total} changed file(s)."
     if stage == "planned":
         return f"Plan: {extract_markdown_title(latest_plan)}" if latest_plan is not None else f"Spec: {extract_markdown_title(latest_spec)}"
-    if stage == "mapped":
-        return f"Codebase map: {codebase_summary}" if codebase_summary is not None else "Mapped repo summary available."
     return "No active work slice detected from repo state."
 
 
@@ -391,6 +362,7 @@ def build_recommendations(
     release_readiness: dict | None = None,
     latest_adoption_check: dict | None = None,
 ) -> tuple[str, str, list[str]]:
+    del codebase_summary, active_change, release_readiness, latest_adoption_check
     summary = workflow_summary(workflow_state)
     workflow_action = summary_text(summary, "recommended_action")
     workflow_alternatives = summary_items(summary, "alternatives")
@@ -402,18 +374,15 @@ def build_recommendations(
             default={
                 "active-changes": "review",
                 "blocked": "debug",
-                "mapped": "map-codebase",
                 "planned": "plan",
                 "review-ready": "review",
                 "session-active": "session",
                 "change-active": "session",
-                "unscoped": "map-codebase",
+                "unscoped": "plan",
             }.get(stage, "session"),
         ),
     )
     workflow_follow_on = workflow_state_follow_on_stages(workflow_state)
-    release_tier = release_tier_label(release_readiness)
-    release_signal = adoption_signal_label(latest_adoption_check)
     if summary and stage in {"blocked", "review-ready", "session-active"} and workflow_name and workflow_action:
         return workflow_name, workflow_action, workflow_alternatives[:1] if mode == "next" else workflow_alternatives[:2]
     plan_path = latest_plan or latest_spec
@@ -434,20 +403,6 @@ def build_recommendations(
             alternatives.append(f"Re-open the latest {plan_kind} '{plan_title}' if priorities changed.")
         return "session", primary, alternatives[:1] if mode == "next" else alternatives[:2]
     if stage == "change-active":
-        if workflow_stage in {"release-doc-sync", "release-readiness", "adoption-check"}:
-            alternatives = list(workflow_alternatives)
-            if release_signal:
-                alternatives.append(f"Keep the latest adoption signal visible: {release_signal}.")
-            if release_tier:
-                alternatives.append(f"Release tier in effect: {release_tier}.")
-            action = workflow_action or f"Continue the recorded release tail at '{workflow_stage}'."
-            if release_tier and release_tier not in action:
-                action = f"{action} Release tier: {release_tier}."
-            if workflow_stage == "adoption-check" and latest_adoption_check:
-                impact = latest_adoption_check.get("impact")
-                if isinstance(impact, str) and impact in {"neutral", "contradicts"}:
-                    action = f"{action} Feed the signal back into release-readiness before opening new scope."
-            return workflow_name or workflow_stage, action, alternatives[:1] if mode == "next" else alternatives[:2]
         if workflow_name and workflow_action:
             return workflow_name, workflow_action, workflow_alternatives[:1] if mode == "next" else workflow_alternatives[:2]
         if workflow_stage:
@@ -457,10 +412,7 @@ def build_recommendations(
             if plan_title:
                 alternatives.append(f"Re-open the latest {plan_kind} '{plan_title}' if the recorded stage no longer matches the intended slice.")
             return workflow_hint_for_stage(workflow_stage, default="session"), f"Resume the recorded workflow stage '{workflow_stage}' before opening new scope.", alternatives[:1] if mode == "next" else alternatives[:2]
-        summary = active_change.get("summary", active_change.get("slug", "change")) if isinstance(active_change, dict) else "active change"
-        state = active_change.get("state", "active") if isinstance(active_change, dict) else "active"
-        alternatives = ["Update the change status before new edits if reality drifted.", "Archive the change if the slice is already complete."]
-        return "session", f"Resume the active change '{summary}' from state '{state}'.", alternatives[:1] if mode == "next" else alternatives[:2]
+        return "session", "Resume the recorded workflow slice before opening new scope.", ["Refresh workflow-state if the recorded slice no longer matches reality."][: 1 if mode == "next" else 2]
     if stage == "review-ready":
         alternatives = [f"Re-open the latest {plan_kind} '{plan_title}' if the review uncovered scope drift."] if plan_title else []
         alternatives.append("If review passes cleanly, advance to the next recorded stage instead of opening new scope.")
@@ -471,21 +423,35 @@ def build_recommendations(
         return "review", "Review the current changed files and run the nearest verification before adding new edits.", alternatives[:1] if mode == "next" else alternatives[:2]
     if stage == "planned":
         label = plan_title or "the latest plan"
-        alternatives = ["If scope is still fuzzy, tighten the plan before writing code.", "If repo health is unclear, run a review-style scan before implementation."]
+        alternatives = ["If scope is still fuzzy, tighten the plan before writing code.", "If repo health is unclear, run a fast repo verification before implementation."]
         return "plan", f"Start the first concrete slice from {plan_kind} '{label}'.", alternatives[:1] if mode == "next" else alternatives[:2]
-    if stage == "mapped":
-        alternatives = ["Refresh the codebase map if the repo changed materially.", "Use `review` only after a concrete slice is already active or review-ready."]
-        return "plan", "Use the brownfield codebase map to choose the first concrete slice, then record a plan or change artifact before editing.", alternatives[:1] if mode == "next" else alternatives[:2]
-    alternatives = ["If Forge wiring feels broken, run `doctor` first to confirm runtime and workspace health.", "If you already know the task, state it directly and let Forge route the right workflow after the repo is mapped."]
-    return "map-codebase", "Run `doctor` and `map-codebase` to establish repo health and a durable brownfield summary before editing.", alternatives[:1] if mode == "next" else alternatives[:2]
+    alternatives = [
+        "If runtime/browser proof is failing because the runtime looks stale, run runtime doctor on the affected tool before retrying.",
+        "Then state one bounded slice so Forge can route directly without reopening broad discovery.",
+    ]
+    return (
+        "plan",
+        "Run `python scripts/verify_repo.py --profile fast` if repo health is unclear, then state one bounded slice so Forge can route directly.",
+        alternatives[:1] if mode == "next" else alternatives[:2],
+    )
 
 
-def build_evidence(*, readme: Path | None, latest_plan: Path | None, latest_spec: Path | None, session_path: Path | None, handover_path: Path | None, git_state: dict, preferences_source: dict, workflow_source: dict, codebase_summary: Path | None = None) -> list[str]:
+def build_evidence(
+    *,
+    readme: Path | None,
+    latest_plan: Path | None,
+    latest_spec: Path | None,
+    session_path: Path | None,
+    handover_path: Path | None,
+    git_state: dict,
+    preferences_source: dict,
+    workflow_source: dict,
+    codebase_summary: Path | None = None,
+) -> list[str]:
+    del codebase_summary
     evidence: list[str] = []
     if readme is not None:
         evidence.append(f"readme: {readme}")
-    if codebase_summary is not None:
-        evidence.append(f"codebase-summary: {codebase_summary}")
     if latest_plan is not None:
         evidence.append(f"plan: {latest_plan}")
     if latest_spec is not None:

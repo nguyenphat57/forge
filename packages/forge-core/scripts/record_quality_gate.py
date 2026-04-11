@@ -7,7 +7,6 @@ from pathlib import Path
 
 from common import configure_stdio, default_artifact_dir, slugify, timestamp_slug
 from quality_gate_artifacts import validate_supporting_artifacts
-from release_profile_contract import workflow_profile
 from workflow_state_support import record_workflow_event, resolve_workflow_state
 
 
@@ -21,6 +20,13 @@ VALID_PROFILES = (
 VALID_TARGET_CLAIMS = ("done", "ready-for-review", "ready-for-merge", "deploy")
 VALID_DECISIONS = ("go", "conditional", "blocked")
 
+
+def _workflow_profile(workflow_state: dict | None) -> str | None:
+    if not isinstance(workflow_state, dict):
+        return None
+    profile = workflow_state.get("profile")
+    return profile.strip() if isinstance(profile, str) and profile.strip() else None
+
 def build_report(args: argparse.Namespace) -> dict:
     if not args.evidence:
         raise ValueError("Quality gate requires at least one fresh evidence item.")
@@ -28,7 +34,7 @@ def build_report(args: argparse.Namespace) -> dict:
         raise ValueError("Conditional or blocked decisions must name the next evidence needed.")
     workspace = args.workspace.resolve()
     workflow_state = resolve_workflow_state(workspace).get("state")
-    operating_profile = workflow_profile(workflow_state)
+    operating_profile = _workflow_profile(workflow_state)
     if args.profile == "release-critical" and args.target_claim == "deploy" and args.decision == "conditional":
         raise ValueError("release-critical deploy gates cannot be conditional.")
     if operating_profile == "solo-public" and args.target_claim == "deploy" and args.decision == "conditional":

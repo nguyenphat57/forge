@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.17.0 (stable) - 2026-04-11
+
+- Retire nine low-value Forge workflows from the live core surface: `change`, `verify-change`, `review-pack`, `release-doc-sync`, `release-readiness`, `adoption-check`, `doctor`, `dashboard`, and `map-codebase`.
+- Collapse the default solo release contract to `brainstorm -> plan -> visualize -> architect -> spec-review -> build -> test -> self-review -> secure -> quality-gate -> deploy`, and replace `doctor -> map-codebase` onboarding with direct `help/next -> plan` guidance.
+- Refresh release-facing and continuity surfaces so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` align on `1.17.0` as the current stable release for the workflow slim-down tranche.
+- Rebuild release artifacts and sync the verified `forge-antigravity` and `forge-codex` runtime installs from `dist/` after the canonical repo gate passes.
+
+
 ## 1.16.0 (stable) - 2026-04-11
 
 - Retire `frontend` and `backend` as live Forge domain skills by removing `domain_skills` from routing, route preview output, canary checks, smoke validators, and activation lines without leaving a compatibility shim.

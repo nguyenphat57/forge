@@ -9,8 +9,6 @@ from workflow_state_support import resolve_workflow_state
 
 TARGETS_REQUIRING_PROCESS_ARTIFACT = {"done", "ready-for-review", "ready-for-merge", "deploy"}
 TARGETS_REQUIRING_REVIEW_ARTIFACT = {"ready-for-merge", "done", "deploy"}
-TARGETS_REQUIRING_VERIFY_CHANGE = {"ready-for-merge", "done", "deploy"}
-VALID_COMPLETED_STAGE_STATUSES = {"completed", "skipped"}
 
 
 def _mtime_rank(path: Path | None) -> tuple[float, str]:
@@ -28,19 +26,6 @@ def _pick_latest_json(base_dir: Path) -> Path | None:
     latest_path: Path | None = None
     latest_rank = (float("-inf"), "")
     for candidate in base_dir.rglob("*.json"):
-        rank = _mtime_rank(candidate)
-        if rank > latest_rank:
-            latest_path = candidate
-            latest_rank = rank
-    return latest_path
-
-
-def _pick_latest_named(base_dir: Path, filename: str) -> Path | None:
-    if not base_dir.exists():
-        return None
-    latest_path: Path | None = None
-    latest_rank = (float("-inf"), "")
-    for candidate in base_dir.rglob(filename):
         rank = _mtime_rank(candidate)
         if rank > latest_rank:
             latest_path = candidate
@@ -101,14 +86,6 @@ def _validate_required_stage_state(workspace: Path, decision: str) -> None:
 def collect_process_artifacts(workspace: Path) -> tuple[list[dict], dict]:
     artifacts: list[dict] = []
     latest_execution: dict | None = None
-    latest_change: dict | None = None
-    latest_verify_change: dict | None = None
-
-    change_path = _pick_latest_named(workspace / ".forge-artifacts" / "changes" / "active", "status.json")
-    change_payload = _read_json_object(change_path)
-    if change_path is not None and isinstance(change_payload, dict):
-        latest_change = change_payload
-        artifacts.append(_artifact_ref("change-state", change_path, change_payload, summary_key="summary", state_key="state"))
 
     execution_path = _pick_latest_json(workspace / ".forge-artifacts" / "execution-progress")
     execution_payload = _read_json_object(execution_path)
@@ -124,54 +101,17 @@ def collect_process_artifacts(workspace: Path) -> tuple[list[dict], dict]:
             )
         )
 
-    verify_change_root = workspace / ".forge-artifacts" / "verify-change"
-    if isinstance(latest_change, dict) and latest_change.get("slug"):
-        verify_change_root = verify_change_root / str(latest_change["slug"])
-    verify_change_path = _pick_latest_json(verify_change_root)
-    verify_change_payload = _read_json_object(verify_change_path)
-    if verify_change_path is not None and isinstance(verify_change_payload, dict):
-        latest_verify_change = verify_change_payload
-        artifacts.append(
-            _artifact_ref(
-                "verify-change",
-                verify_change_path,
-                verify_change_payload,
-                summary_key="summary",
-                state_key="status",
-            )
-        )
-
-    return artifacts, {
-        "latest_execution": latest_execution,
-        "latest_change": latest_change,
-        "latest_verify_change": latest_verify_change,
-    }
+    return artifacts, {"latest_execution": latest_execution}
 
 
 def collect_review_artifacts(workspace: Path) -> tuple[list[dict], tuple[str, dict, Path] | None]:
-    candidates: list[tuple[str, dict, Path]] = []
     review_state_path = _pick_latest_json(workspace / ".forge-artifacts" / "reviews")
     review_state_payload = _read_json_object(review_state_path)
-    if review_state_path is not None and isinstance(review_state_payload, dict):
-        candidates.append(("review-state", review_state_payload, review_state_path))
+    if review_state_path is None or not isinstance(review_state_payload, dict):
+        return [], None
 
-    review_pack_path = _pick_latest_json(workspace / ".forge-artifacts" / "review-packs")
-    review_pack_payload = _read_json_object(review_pack_path)
-    if review_pack_path is not None and isinstance(review_pack_payload, dict):
-        candidates.append(("review-pack", review_pack_payload, review_pack_path))
-
-    refs: list[dict] = []
-    for kind, payload, path in candidates:
-        if kind == "review-state":
-            refs.append(_artifact_ref(kind, path, payload, summary_key="scope", state_key="disposition"))
-        else:
-            refs.append(_artifact_ref(kind, path, payload, summary_key="summary", state_key="status"))
-
-    if not candidates:
-        return refs, None
-
-    latest_kind, latest_payload, latest_path = max(candidates, key=lambda item: _mtime_rank(item[2]))
-    return refs, (latest_kind, latest_payload, latest_path)
+    refs = [_artifact_ref("review-state", review_state_path, review_state_payload, summary_key="scope", state_key="disposition")]
+    return refs, ("review-state", review_state_payload, review_state_path)
 
 
 def validate_supporting_artifacts(args) -> tuple[list[dict], list[dict]]:
@@ -179,11 +119,10 @@ def validate_supporting_artifacts(args) -> tuple[list[dict], list[dict]]:
     _validate_required_stage_state(workspace, args.decision)
     process_artifacts, context = collect_process_artifacts(workspace)
     latest_execution = context["latest_execution"]
-    latest_change = context["latest_change"]
-    latest_verify_change = context["latest_verify_change"]
+
     if args.target_claim in TARGETS_REQUIRING_PROCESS_ARTIFACT and not process_artifacts:
         raise ValueError(
-            f"Quality gate requires an active change or execution-progress artifact before claiming '{args.target_claim}'."
+            f"Quality gate requires a persisted execution-progress artifact before claiming '{args.target_claim}'."
         )
 
     if (
@@ -194,27 +133,17 @@ def validate_supporting_artifacts(args) -> tuple[list[dict], list[dict]]:
     ):
         raise ValueError("Harness-backed readiness claims require persisted RED proof in execution-progress.")
 
-    if args.decision == "go" and args.target_claim in TARGETS_REQUIRING_VERIFY_CHANGE and isinstance(latest_change, dict):
-        if not isinstance(latest_verify_change, dict):
-            raise ValueError(
-                f"Go decision for '{args.target_claim}' requires a persisted verify-change artifact for active change work."
-            )
-        if latest_verify_change.get("status") != "PASS":
-            raise ValueError(f"Latest verify-change must be PASS before claiming '{args.target_claim}'.")
-
     review_artifacts: list[dict] = []
     if args.decision == "go" and args.target_claim in TARGETS_REQUIRING_REVIEW_ARTIFACT:
         review_artifacts, latest_review = collect_review_artifacts(workspace)
         if latest_review is None:
             raise ValueError(
-                f"Go decision for '{args.target_claim}' requires a persisted review-state or review-pack artifact."
+                f"Go decision for '{args.target_claim}' requires a persisted review-state artifact."
             )
         latest_kind, latest_payload, _ = latest_review
         if latest_kind == "review-state" and latest_payload.get("disposition") != "ready-for-merge":
             raise ValueError(
                 f"Latest review-state must be 'ready-for-merge' before claiming '{args.target_claim}'."
             )
-        if latest_kind == "review-pack" and latest_payload.get("status") != "PASS":
-            raise ValueError(f"Latest review-pack must be PASS before claiming '{args.target_claim}'.")
 
     return process_artifacts, review_artifacts

@@ -1,9 +1,9 @@
 # Forge
 ### Process-first execution for coding agents in real repos.
 
-**1 core kernel · 2 host adapters · 2 runtime tools · stable 1.16.0**
+**1 core kernel · 2 host adapters · 2 runtime tools · stable 1.17.0**
 
-![Version](https://img.shields.io/badge/version-1.16.0-2563eb)
+![Version](https://img.shields.io/badge/version-1.17.0-2563eb)
 ![License](https://img.shields.io/badge/license-MIT-16a34a)
 ![Verification](https://img.shields.io/badge/verify-repo_passed-22c55e)
 ![Adapters](https://img.shields.io/badge/adapters-Codex%20%7C%20Antigravity-f59e0b)
@@ -82,7 +82,7 @@ graph LR
     E --> F["Review"]
     F --> G["Quality Gate"]
     G --> H["Deploy"]
-    H --> I["Adoption Check"]
+
 ```
 
 ### Host-Neutral Core, Host-Specific Surfaces
@@ -121,7 +121,7 @@ graph LR
 
 - License: `MIT`
 - Repo maturity: stable release available
-- Current stable release: `1.16.0`
+- Current stable release: `1.17.0`
 - Canonical verification gate: `python scripts/verify_repo.py`
 - `forge-antigravity` is currently the most mature adapter for real rollout
 - `forge-codex` ships in the current stable release after passing the canonical release gates
@@ -171,9 +171,9 @@ What `verify_repo.py` covers:
 
 For a first-run repo where context is still weak:
 
-1. Run `python scripts/verify_repo.py` to confirm tooling health.
-2. In the host session, start with `doctor` then `map-codebase`.
-3. Choose one bounded slice and persist packet or workflow-state before wider edits.
+1. Run `python scripts/verify_repo.py --profile fast` to confirm tooling health when repo health is still unclear.
+2. In the host session, start with `help` or `next` and let Forge route directly from repo state.
+3. State one bounded slice and persist packet or workflow-state before wider edits.
 
 For low-complexity work, use fast lane only when the slice is truly low-risk and still keep proof-before-claims.
 For medium or high-risk work, use full packet mode and rerun verification before claiming completion.

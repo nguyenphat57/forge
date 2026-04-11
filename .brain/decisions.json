@@ -218,8 +218,8 @@
         "id":  "20260411-000000",
         "kind":  "decision",
         "scope":  "forge-1-16-stable-status",
-        "summary":  "Treat 1.16.0 as the current stable Forge release because the domain-skill retirement tranche, release sync, and canonical repo verification gate are all green.",
-        "status":  "resolved",
+        "summary":  "Record 1.16.0 as the stable Forge release for the domain-skill retirement slice because the release sync and canonical repo verification gate were green at that cut.",
+        "status":  "superseded",
         "evidence":  [
                          "docs/plans/2026-04-11-forge-slim-refactor-v2.md",
                          "CHANGELOG.md",
@@ -238,8 +238,36 @@
                      "skills",
                      "routing"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 1.16.0 verification evidence.",
+        "revisit_if":  "Release archaeology needs the original 1.16.0 proof chain or later evidence invalidates the recorded release verification.",
         "trigger":  "minor-release",
         "resume_hint":  "Resume only if a later audit needs the original 1.16.0 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260411-135200",
+        "kind":  "decision",
+        "scope":  "forge-1-17-stable-status",
+        "summary":  "Treat 1.17.0 as the current stable Forge release because the workflow slim-down tranche, release sync, and canonical repo verification gate are all green.",
+        "status":  "resolved",
+        "evidence":  [
+                         "docs/plans/2026-04-11-forge-slim-refactor-v2.md",
+                         "CHANGELOG.md",
+                         "packages/forge-core/data/orchestrator-registry.json",
+                         "packages/forge-core/scripts/help_next_support.py",
+                         "packages/forge-core/scripts/route_preview.py",
+                         "python scripts/verify_repo.py -> PASS on 2026-04-11"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "slim-refactor",
+                     "routing",
+                     "workflow-surface"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 1.17.0 verification evidence.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 1.17.0 proof chain or invalidates the recorded verification."
     }
 ]

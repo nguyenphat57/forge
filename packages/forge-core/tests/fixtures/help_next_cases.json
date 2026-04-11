@@ -25,9 +25,9 @@
     "mode": "help",
     "expected_status": "WARN",
     "expected_stage": "unscoped",
-    "expected_workflow": "map-codebase",
+    "expected_workflow": "plan",
     "expected_focus": "No active work slice detected from repo state.",
-    "expected_recommended_action": "Run `doctor` and `map-codebase` to establish repo health and a durable brownfield summary before editing.",
+    "expected_recommended_action": "Run `python scripts/verify_repo.py --profile fast` if repo health is unclear, then state one bounded slice so Forge can route directly.",
     "expected_warning_contains": [
       "No active plan",
       "No session context"

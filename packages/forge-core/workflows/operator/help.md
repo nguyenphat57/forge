@@ -22,10 +22,10 @@ quality_gates:
 
 ## Process
 
-1. Read the most useful state repo:
+1. Read the most useful repo state:
    - `git status`
    - Latest plans/spec docs
-   - Active change artifact or persisted workflow-state when it exists
+   - Persisted workflow-state when it exists
    - `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, UI, run, or quality-gate artifacts have already persisted state
    - `.forge-artifacts/workflow-state/<project>/packet-index.json` for a cheap continuity read before expanding to full workflow-state
    - `.brain/session.json` or `.brain/handover.md` if available
@@ -43,7 +43,7 @@ python scripts/resolve_help_next.py --workspace <workspace> --mode help
 
 For medium+ slices, the main recommendation should point at the durable artifact that needs to be created, refreshed, or consulted next.
 For Forge-maintenance choices, prefer the recommendation that best preserves the target-state contract.
-For first-run or low-context repos, the default start-here path is still `doctor` -> `map-codebase` before opening broader scope.
+For first-run or low-context repos, default to `plan` plus a bounded slice. If repo health is unclear, run `python scripts/verify_repo.py --profile fast` first.
 
 ## Output Contract
 

@@ -283,9 +283,18 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
             result = subprocess.run(
                 [
                     sys.executable,
-                    str(codex_target / "scripts" / "doctor.py"),
+                    str(codex_target / "scripts" / "route_preview.py"),
+                    "Add a new Next.js checkout page with Prisma-backed persistence",
                     "--workspace",
                     str(workspace),
+                    "--repo-signal",
+                    "package.json",
+                    "--repo-signal",
+                    "tsconfig.json",
+                    "--repo-signal",
+                    "next.config.ts",
+                    "--repo-signal",
+                    "prisma/schema.prisma",
                     "--format",
                     "json",
                 ],
@@ -297,7 +306,4 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
             self.assertEqual(result.returncode, 0, result.stderr)
             report = json.loads(result.stdout)
 
-            self.assertEqual(report["companions"][0]["id"], "nextjs-typescript-postgres")
-            self.assertTrue(report["companions"][0]["registered"])
-            self.assertEqual(report["companions"][0]["registered_target"], str(companion_target))
-            self.assertEqual(report["companions"][0]["local_root"], str(companion_target))
+            self.assertIn("nextjs-typescript-postgres", report["detected"]["first_party_companions"])

@@ -24,7 +24,6 @@
           "plan",
           "build",
           "test",
-          "verify-change",
           "quality-gate"
         ],
         "large": [
@@ -33,7 +32,6 @@
           "spec-review",
           "build",
           "test",
-          "verify-change",
           "quality-gate"
         ]
       }
@@ -579,15 +577,6 @@
       "supabase/migrations/",
       ".env.example"
     ],
-    "change_artifact_markers": [
-      "checkpoint",
-      "phase",
-      "resume",
-      "pause",
-      "handover",
-      "change artifact",
-      "multi-slice"
-    ],
     "packet_unclear_markers": [
       "unclear",
       "ambiguous",
@@ -606,18 +595,13 @@
       "packet_unclear",
       "shared_env_release",
       "public_release",
-      "change_artifact_present",
       "critical_internal_release"
     ],
     "skip_reasons": [
       "non_ui",
       "direction_locked",
       "packet_clear",
-      "low_risk_boundary",
-      "no_change_artifact",
-      "no_shared_env",
-      "no_release_surface",
-      "not_public_release"
+      "low_risk_boundary"
     ],
     "stage_statuses": [
       "pending",
@@ -627,32 +611,6 @@
       "skipped",
       "blocked"
     ],
-    "release_tiers": {
-      "internal-shared": {
-        "profile": "solo-internal",
-        "requires_rollout_readiness": false,
-        "requires_review_pack": false,
-        "canary_profile": "controlled-rollout"
-      },
-      "internal-critical": {
-        "profile": "solo-internal",
-        "requires_rollout_readiness": true,
-        "requires_review_pack": false,
-        "canary_profile": "broad"
-      },
-      "public-controlled": {
-        "profile": "solo-public",
-        "requires_rollout_readiness": false,
-        "requires_review_pack": true,
-        "canary_profile": "controlled-rollout"
-      },
-      "public-broad": {
-        "profile": "solo-public",
-        "requires_rollout_readiness": true,
-        "requires_review_pack": true,
-        "canary_profile": "broad"
-      }
-    },
     "stages": {
       "brainstorm": {
         "workflow": "brainstorm"
@@ -669,17 +627,11 @@
       "spec-review": {
         "workflow": "spec-review"
       },
-      "change": {
-        "workflow": "change"
-      },
       "build": {
         "workflow": "build"
       },
       "test": {
         "workflow": "test"
-      },
-      "review-pack": {
-        "workflow": "review-pack"
       },
       "self-review": {
         "workflow": "review"
@@ -687,23 +639,11 @@
       "secure": {
         "workflow": "secure"
       },
-      "verify-change": {
-        "workflow": "verify-change"
-      },
       "quality-gate": {
         "workflow": "quality-gate"
       },
-      "release-doc-sync": {
-        "workflow": "release-doc-sync"
-      },
-      "release-readiness": {
-        "workflow": "release-readiness"
-      },
       "deploy": {
         "workflow": "deploy"
-      },
-      "adoption-check": {
-        "workflow": "adoption-check"
       },
       "debug": {
         "workflow": "debug"
@@ -727,17 +667,12 @@
             "visualize",
             "architect",
             "spec-review",
-            "change",
             "build",
             "test",
-            "review-pack",
             "self-review",
             "secure",
-            "verify-change",
             "quality-gate",
-            "release-doc-sync",
-            "deploy",
-            "adoption-check"
+            "deploy"
           ],
           "DEBUG": [
             "debug",
@@ -746,6 +681,7 @@
             "build",
             "test",
             "self-review",
+            "secure",
             "quality-gate",
             "deploy"
           ],
@@ -756,14 +692,10 @@
             "quality-gate"
           ],
           "DEPLOY": [
-            "review-pack",
             "self-review",
             "secure",
             "quality-gate",
-            "release-doc-sync",
-            "release-readiness",
-            "deploy",
-            "adoption-check"
+            "deploy"
           ],
           "VISUALIZE": [
             "brainstorm",
@@ -787,18 +719,12 @@
             "visualize",
             "architect",
             "spec-review",
-            "change",
             "build",
             "test",
-            "review-pack",
             "self-review",
             "secure",
-            "verify-change",
             "quality-gate",
-            "release-doc-sync",
-            "release-readiness",
-            "deploy",
-            "adoption-check"
+            "deploy"
           ],
           "DEBUG": [
             "debug",
@@ -806,14 +732,10 @@
             "spec-review",
             "build",
             "test",
-            "review-pack",
             "self-review",
             "secure",
             "quality-gate",
-            "release-doc-sync",
-            "release-readiness",
-            "deploy",
-            "adoption-check"
+            "deploy"
           ],
           "OPTIMIZE": [
             "refactor",
@@ -822,14 +744,10 @@
             "quality-gate"
           ],
           "DEPLOY": [
-            "review-pack",
             "self-review",
             "secure",
             "quality-gate",
-            "release-doc-sync",
-            "release-readiness",
-            "deploy",
-            "adoption-check"
+            "deploy"
           ],
           "VISUALIZE": [
             "brainstorm",
@@ -1352,7 +1270,6 @@
     "packet_unclear": "selected because the implementation packet is still unclear and needs clarification before execution.",
     "shared_env_release": "selected because the work affects a shared environment release surface.",
     "public_release": "selected because the work affects a public release surface.",
-    "change_artifact_present": "selected because the request already includes a change artifact that must be verified.",
     "critical_internal_release": "selected because the work affects a critical internal release surface."
   },
   "rationalization_patterns": [

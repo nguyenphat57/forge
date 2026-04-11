@@ -1,7 +1,0 @@
-[project]
-name = "billing-api"
-dependencies = [
-  "fastapi>=0.111.0",
-  "sqlalchemy>=2.0.0",
-  "pytest>=8.0.0"
-]

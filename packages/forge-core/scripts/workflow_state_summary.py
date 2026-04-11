@@ -20,23 +20,21 @@ STAGE_WORKFLOW_ALIASES = {
     "implementation": "build",
     "implement": "build",
     "integration": "build",
-    "mapped": "map-codebase",
+    "planned": "plan",
     "release-check": "test",
     "release-checks": "test",
     "review-ready": "review",
     "session-active": "session",
-    "unscoped": "map-codebase",
+    "unscoped": "plan",
 }
 
 WORKFLOW_HINT_MARKERS = (
     ("debug", ("debug", "triage", "investigat", "repro", "fix", "failure")),
     ("review", ("review", "handoff", "signoff")),
     ("quality-gate", ("gate",)),
-    ("release-readiness", ("rollout-readiness", "launch-readiness")),
-    ("release-doc-sync", ("doc-sync", "docs-sync")),
-    ("verify-change", ("verify-change",)),
     ("test", ("test", "verify", "verification", "check", "smoke", "qa", "assert")),
-    ("build", ("build", "implement", "integration", "migrat", "refactor", "slice", "checkpoint", "coding", "develop")),
+    ("plan", ("plan", "slice", "scope", "bounded")),
+    ("build", ("build", "implement", "integration", "migrat", "refactor", "coding", "develop")),
     ("session", ("session",)),
 )
 
@@ -539,8 +537,8 @@ def summarize_workflow_state(
         "primary_kind": None,
         "current_focus": "No workflow state recorded.",
         "current_stage": None,
-        "suggested_workflow": "map-codebase",
-        "recommended_action": "Run `doctor` and `map-codebase` to establish repo health and a durable brownfield summary before editing.",
+        "suggested_workflow": "plan",
+        "recommended_action": "Run `python scripts/verify_repo.py --profile fast` if repo health is unclear, then state one bounded slice so Forge can route directly.",
         "alternatives": [],
     }
 

@@ -54,7 +54,7 @@ flowchart TD
 - set a clear review disposition: `ready-for-merge`, `changes-required`, or `blocked-by-residual-risk`
 - state what happens next: merge, keep editing, or stop because of risk
 - avoid vague endings such as "looks good"
-- if the work is release-sensitive, ensure the review-pack tail already exists or is being generated before the final disposition
+- if the work is release-sensitive, ensure the closing tail is explicit as `self-review` -> `secure` -> `quality-gate` -> `deploy` before the final disposition
 
 ## Large-Task Review Discipline
 
@@ -74,7 +74,7 @@ When the same person implements and reviews:
 - label the pass as `self-review`
 - keep the same findings-first structure and evidence standard
 - do not downgrade the bar because no separate reviewer is available
-- use `review-pack` first when the slice is release-sensitive or public-facing
+- for release-sensitive or public-facing slices, keep the tail explicit as `self-review` -> `secure` -> `quality-gate` before deploy
 
 High-risk signals:
 - auth, payment, or data migration
