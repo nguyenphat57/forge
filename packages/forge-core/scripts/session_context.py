@@ -6,7 +6,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from common import configure_stdio
-from help_next_support import read_git_status, read_handover_excerpt, read_json_object, session_blocker
+from help_next_support import (
+    filter_stale_session_items,
+    git_worktree_clean,
+    read_git_status,
+    read_handover_excerpt,
+    read_json_object,
+    session_blocker,
+    session_status_value,
+    workflow_state_has_actionable_slice,
+)
 from resolve_help_next import build_report as build_help_next_report
 from workflow_state_support import resolve_workflow_state
 
@@ -55,16 +64,6 @@ def _session_files(session: dict | None) -> list[str]:
     return _string_list(working_on.get("files"))
 
 
-def _session_status(session: dict | None) -> str | None:
-    if not isinstance(session, dict):
-        return None
-    working_on = session.get("working_on")
-    if not isinstance(working_on, dict):
-        return None
-    value = working_on.get("status")
-    return value.strip() if isinstance(value, str) and value.strip() else None
-
-
 def _session_blockers(session: dict | None) -> list[str]:
     if not isinstance(session, dict):
         return []
@@ -91,59 +90,6 @@ def _load_session(path: Path, warnings: list[str]) -> dict | None:
     if not path.exists():
         return None
     return read_json_object(path, "session context", warnings)
-
-
-def _git_worktree_clean(git_state: dict) -> bool:
-    return bool(git_state.get("available")) and not git_state.get("changed_files") and not git_state.get("untracked_files")
-
-
-def _git_branch_synced(git_state: dict) -> bool:
-    return _git_worktree_clean(git_state) and git_state.get("synced_with_upstream") is True
-
-
-def _looks_like_diff_follow_up(text: str) -> bool:
-    lowered = text.casefold()
-    markers = (
-        "staged diff",
-        "remaining diff",
-        "review diff",
-        "git diff",
-        "working tree",
-        "unstaged",
-        "staged change",
-    )
-    return any(marker in lowered for marker in markers)
-
-
-def _looks_like_commit_push_follow_up(text: str) -> bool:
-    lowered = text.casefold()
-    markers = (
-        "commit and push",
-        "commit/push",
-        "commit if approved",
-        "push if approved",
-        "uncommitted",
-        "unpushed",
-    )
-    return any(marker in lowered for marker in markers)
-
-
-def _filter_stale_session_items(items: list[str], git_state: dict, *, risk_mode: bool) -> tuple[list[str], int]:
-    clean = _git_worktree_clean(git_state)
-    synced = _git_branch_synced(git_state)
-    kept: list[str] = []
-    filtered = 0
-    for item in items:
-        stale = False
-        if clean and _looks_like_diff_follow_up(item):
-            stale = True
-        if (synced if risk_mode else clean and synced) and _looks_like_commit_push_follow_up(item):
-            stale = True
-        if stale:
-            filtered += 1
-            continue
-        kept.append(item)
-    return kept, filtered
 
 
 def _build_handover_text(payload: dict, *, next_step: str | None) -> str:
@@ -215,22 +161,53 @@ def build_save_report(workspace: Path, args: argparse.Namespace) -> dict:
     task = args.task or _session_task(existing_session) or (current_focus if isinstance(current_focus, str) else "") or feature
     changed_files = [*git_state.get("changed_files", []), *git_state.get("untracked_files", [])]
     files = _dedupe(args.file + _session_files(existing_session) + changed_files[:12])
+    navigator_stage = str(navigator.get("current_stage") or "").strip().casefold()
+    existing_pending, _ = filter_stale_session_items(
+        _string_list((existing_session or {}).get("pending_tasks")),
+        git_state,
+        risk_mode=False,
+    )
     pending_tasks = _dedupe(
         args.pending
         + ([args.next_step] if args.next_step else [])
-        + _string_list((existing_session or {}).get("pending_tasks"))
+        + existing_pending
     )
-    if not pending_tasks and isinstance(navigator.get("recommended_action"), str) and navigator["recommended_action"].strip():
-        pending_tasks = [navigator["recommended_action"].strip()]
+    if (
+        not pending_tasks
+        and navigator_stage
+        and navigator_stage != "unscoped"
+        and isinstance(navigator.get("recommended_action"), str)
+        and navigator["recommended_action"].strip()
+    ):
+        suggested_pending, _ = filter_stale_session_items(
+            [navigator["recommended_action"].strip()],
+            git_state,
+            risk_mode=False,
+        )
+        pending_tasks = suggested_pending
     verification = _dedupe(args.verification + _string_list((existing_session or {}).get("verification")))
     decisions_made = _dedupe(args.decision + _string_list((existing_session or {}).get("decisions_made")))
     risks = _dedupe(args.risk + _string_list((existing_session or {}).get("risks")))
     blockers = _dedupe(args.blocker + _session_blockers(existing_session))
-    best_next_step = args.next_step or navigator.get("recommended_action")
+    best_next_candidates = [args.next_step] if args.next_step else []
+    if (
+        navigator_stage
+        and navigator_stage != "unscoped"
+        and isinstance(navigator.get("recommended_action"), str)
+        and navigator["recommended_action"].strip()
+    ):
+        best_next_candidates.append(navigator["recommended_action"].strip())
+    filtered_best_next, _ = filter_stale_session_items(best_next_candidates, git_state, risk_mode=False)
+    best_next_step = filtered_best_next[0] if filtered_best_next else None
 
-    status = args.status or _session_status(existing_session)
+    status = args.status or session_status_value(existing_session)
+    actionable_workflow_state = workflow_state_has_actionable_slice(workflow_state, git_state)
+    if status == "active" and not pending_tasks and not changed_files and not actionable_workflow_state:
+        status = "completed"
     if not status:
-        status = "active" if pending_tasks or changed_files or workflow_state else "idle"
+        status = "active" if pending_tasks or changed_files or actionable_workflow_state else "idle"
+    if status in {"completed", "idle"} and not pending_tasks and not changed_files and not actionable_workflow_state:
+        best_next_step = None
 
     payload = {
         "updated_at": _now_iso(),
@@ -299,12 +276,12 @@ def build_resume_report(workspace: Path) -> dict:
         + _workspace_path_strings(workspace, _session_files(session))
     )
     session_pending = _string_list((session or {}).get("pending_tasks"))
-    pending_work, filtered_pending = _filter_stale_session_items(session_pending, git_state, risk_mode=False)
+    pending_work, filtered_pending = filter_stale_session_items(session_pending, git_state, risk_mode=False)
     if not pending_work and isinstance(navigator.get("recommended_action"), str) and navigator["recommended_action"].strip():
         pending_work = [navigator["recommended_action"].strip()]
 
     session_risks = _string_list((session or {}).get("risks"))
-    filtered_risks, filtered_risk_count = _filter_stale_session_items(session_risks, git_state, risk_mode=True)
+    filtered_risks, filtered_risk_count = filter_stale_session_items(session_risks, git_state, risk_mode=True)
     risks_or_assumptions = _dedupe(
         filtered_risks
         + ([session_blocker(session)] if session_blocker(session) else [])

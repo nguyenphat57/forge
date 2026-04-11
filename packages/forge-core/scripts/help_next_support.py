@@ -204,6 +204,66 @@ def read_git_status(workspace: Path) -> dict:
     }
 
 
+def git_worktree_clean(git_state: dict) -> bool:
+    return bool(git_state.get("available")) and not git_state.get("changed_files") and not git_state.get("untracked_files")
+
+
+def git_handoff_clean(git_state: dict) -> bool:
+    if not git_worktree_clean(git_state):
+        return False
+    if git_state.get("synced_with_upstream") is True:
+        return True
+    upstream = git_state.get("branch_upstream")
+    return not (isinstance(upstream, str) and upstream.strip())
+
+
+def _looks_like_diff_follow_up(text: str) -> bool:
+    lowered = text.casefold()
+    markers = (
+        "staged diff",
+        "remaining diff",
+        "review diff",
+        "git diff",
+        "working tree",
+        "unstaged",
+        "staged change",
+    )
+    return any(marker in lowered for marker in markers)
+
+
+def _looks_like_commit_push_follow_up(text: str) -> bool:
+    lowered = text.casefold()
+    markers = (
+        "commit and push",
+        "commit/push",
+        "commit if approved",
+        "push if approved",
+        "uncommitted",
+        "unpushed",
+        "approved handoff",
+        "ready-for-merge",
+    )
+    return any(marker in lowered for marker in markers)
+
+
+def filter_stale_session_items(items: list[str], git_state: dict, *, risk_mode: bool) -> tuple[list[str], int]:
+    clean = git_worktree_clean(git_state)
+    handoff_clean = git_handoff_clean(git_state)
+    kept: list[str] = []
+    filtered = 0
+    for item in items:
+        stale = False
+        if clean and _looks_like_diff_follow_up(item):
+            stale = True
+        if (handoff_clean if risk_mode else clean and handoff_clean) and _looks_like_commit_push_follow_up(item):
+            stale = True
+        if stale:
+            filtered += 1
+            continue
+        kept.append(item)
+    return kept, filtered
+
+
 def session_task(session: dict | None) -> str | None:
     if not isinstance(session, dict):
         return None
@@ -228,6 +288,22 @@ def session_blocker(session: dict | None) -> str | None:
                 if isinstance(item, str) and item.strip():
                     return item.strip()
     return None
+
+
+def session_status_value(session: dict | None) -> str | None:
+    if not isinstance(session, dict):
+        return None
+    working_on = session.get("working_on")
+    if not isinstance(working_on, dict):
+        return None
+    value = working_on.get("status")
+    return value.strip().casefold() if isinstance(value, str) and value.strip() else None
+
+
+def filtered_pending_tasks(session: dict | None, git_state: dict) -> list[str]:
+    pending = pending_tasks(session)
+    kept, _ = filter_stale_session_items(pending, git_state, risk_mode=False)
+    return kept
 
 
 def pending_tasks(session: dict | None) -> list[str]:
@@ -266,6 +342,35 @@ def workflow_state_has_recorded_slice(workflow_state: dict | None) -> bool:
     return isinstance(stages, dict) and bool(stages)
 
 
+def workflow_summary_is_stale_merge_handoff(summary: dict | None, git_state: dict) -> bool:
+    if not git_handoff_clean(git_state):
+        return False
+    if summary_text(summary, "status") != "active":
+        return False
+    current_focus = summary_text(summary, "current_focus") or ""
+    recommended_action = summary_text(summary, "recommended_action") or ""
+    suggested_workflow = summary_text(summary, "suggested_workflow") or ""
+    primary_kind = summary_text(summary, "primary_kind") or ""
+    focus_lower = current_focus.casefold()
+    action_lower = recommended_action.casefold()
+    if "ready-for-merge" not in focus_lower and "ready-for-merge" not in action_lower:
+        return False
+    if primary_kind == "quality-gate":
+        return "gate approved" in focus_lower or "approved handoff" in action_lower
+    return suggested_workflow == "review" and "approved handoff" in action_lower
+
+
+def effective_workflow_summary(workflow_state: dict | None, git_state: dict) -> dict | None:
+    summary = workflow_summary(workflow_state)
+    return None if workflow_summary_is_stale_merge_handoff(summary, git_state) else summary
+
+
+def workflow_state_has_actionable_slice(workflow_state: dict | None, git_state: dict) -> bool:
+    if workflow_summary_is_stale_merge_handoff(workflow_summary(workflow_state), git_state):
+        return False
+    return workflow_state_has_recorded_slice(workflow_state)
+
+
 def workflow_state_follow_on_stages(workflow_state: dict | None) -> list[str]:
     current_stage = workflow_state_stage(workflow_state)
     required_stage_chain = workflow_state_required_chain(workflow_state)
@@ -285,7 +390,7 @@ def determine_stage(
     active_change: dict | None = None,
 ) -> str:
     del codebase_summary, active_change
-    summary = workflow_summary(workflow_state)
+    summary = effective_workflow_summary(workflow_state, git_state)
     status = summary_text(summary, "status")
     if status == "blocked":
         return "blocked"
@@ -300,9 +405,20 @@ def determine_stage(
         return "blocked"
     if session_blocker(session):
         return "blocked"
-    if session_task(session) or pending_tasks(session):
+    pending = filtered_pending_tasks(session, git_state)
+    session_status = session_status_value(session)
+    if pending:
         return "session-active"
-    if workflow_state_has_recorded_slice(workflow_state):
+    if session_task(session):
+        if (
+            session_status in {"active", "completed", "idle"}
+            and git_handoff_clean(git_state)
+            and not workflow_state_has_actionable_slice(workflow_state, git_state)
+        ):
+            pass
+        else:
+            return "session-active"
+    if workflow_state_has_actionable_slice(workflow_state, git_state):
         return "change-active"
     if git_state["changed_files"] or git_state["untracked_files"]:
         return "active-changes"
@@ -325,15 +441,19 @@ def build_focus(
     latest_adoption_check: dict | None = None,
 ) -> str:
     del codebase_summary, active_change, release_readiness, latest_adoption_check
-    summary = workflow_summary(workflow_state)
+    summary = effective_workflow_summary(workflow_state, git_state)
+    workflow_status = summary_text(summary, "status")
     workflow_focus = summary_text(summary, "current_focus")
     workflow_stage = workflow_state_stage(workflow_state)
+    pending = filtered_pending_tasks(session, git_state)
     if stage == "blocked":
         return workflow_focus or f"Blocked: {session_blocker(session)}"
     if stage == "review-ready":
         return workflow_focus or "Work slice is ready for review."
     if stage == "session-active":
-        return workflow_focus or f"Session task: {session_task(session) or pending_tasks(session)[0]}"
+        if workflow_status == "active" and workflow_focus:
+            return workflow_focus
+        return f"Session task: {session_task(session) or pending[0]}"
     if stage == "change-active":
         if workflow_focus:
             return workflow_focus
@@ -353,6 +473,7 @@ def build_recommendations(
     mode: str,
     stage: str,
     session: dict | None,
+    git_state: dict,
     latest_plan: Path | None,
     latest_spec: Path | None,
     handover_excerpt: str | None,
@@ -363,7 +484,7 @@ def build_recommendations(
     latest_adoption_check: dict | None = None,
 ) -> tuple[str, str, list[str]]:
     del codebase_summary, active_change, release_readiness, latest_adoption_check
-    summary = workflow_summary(workflow_state)
+    summary = effective_workflow_summary(workflow_state, git_state)
     workflow_action = summary_text(summary, "recommended_action")
     workflow_alternatives = summary_items(summary, "alternatives")
     workflow_stage = workflow_state_stage(workflow_state)
@@ -388,7 +509,7 @@ def build_recommendations(
     plan_path = latest_plan or latest_spec
     plan_kind = "plan" if latest_plan is not None else "spec"
     plan_title = extract_markdown_title(plan_path)
-    pending = pending_tasks(session)
+    pending = filtered_pending_tasks(session, git_state)
     if stage == "blocked":
         blocker = session_blocker(session) or handover_excerpt or "Validate the current blocker."
         alternatives = [f"Re-open the latest {plan_kind} '{plan_title}' to confirm the intended recovery path."] if plan_title else []

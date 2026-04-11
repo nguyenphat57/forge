@@ -11,6 +11,7 @@ from help_next_support import (
     build_recommendations,
     collect_repo_signals,
     determine_stage,
+    effective_workflow_summary,
     extract_markdown_title,
     find_latest_markdown,
     find_latest_json,
@@ -19,6 +20,7 @@ from help_next_support import (
     read_git_status,
     read_handover_excerpt,
     read_json_object,
+    workflow_summary_is_stale_merge_handoff,
 )
 from workflow_state_support import resolve_workflow_state
 
@@ -40,6 +42,9 @@ def build_report(workspace: Path, mode: str) -> dict:
     repo_signals = collect_repo_signals(workspace)
     workflow_report = resolve_workflow_state(workspace, warnings)
     workflow_state = workflow_report["state"]
+    filtered_workflow_summary = effective_workflow_summary(workflow_state, git_state)
+    if workflow_summary_is_stale_merge_handoff((workflow_state or {}).get("summary") if isinstance(workflow_state, dict) else None, git_state):
+        warnings.append("Filtered stale merge-ready workflow-state because the repo is already clean and synced.")
 
     stage = determine_stage(
         session=session,
@@ -64,6 +69,7 @@ def build_report(workspace: Path, mode: str) -> dict:
         mode=mode,
         stage=stage,
         session=session,
+        git_state=git_state,
         latest_plan=latest_plan,
         latest_spec=latest_spec,
         handover_excerpt=handover_excerpt,
@@ -92,7 +98,7 @@ def build_report(workspace: Path, mode: str) -> dict:
             "readme": str(readme) if readme else None,
             "workflow_state_file": workflow_report["path"],
             "workflow_state_source": workflow_report["source"],
-            "workflow_summary": workflow_state.get("summary") if isinstance(workflow_state, dict) else None,
+            "workflow_summary": filtered_workflow_summary,
             "workflow_packet_index": workflow_state.get("packet_index") if isinstance(workflow_state, dict) else None,
         },
         "evidence": build_evidence(

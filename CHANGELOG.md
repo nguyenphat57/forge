@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.1 (stable) - 2026-04-11
+
+- Fix `next` and `save context` so stale `ready-for-merge` workflow summaries stop overriding a clean, synced repo after handoff.
+- Filter stale merge-ready follow-ups out of session persistence, and keep `best_next_step` empty when no actionable work remains.
+- Add regression coverage for stale workflow-state filtering in `help/next` and `save`, then refresh local operator state artifacts to match the live slice.
+
+
 ## 2.1.0 (stable) - 2026-04-11
 
 - Shrink `forge-core/SKILL.md` into a bootstrap contract and move adapter-specific host behavior into canonical `SKILL.delta.md` sources for `forge-codex` and `forge-antigravity`.

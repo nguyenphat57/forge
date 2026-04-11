@@ -239,13 +239,101 @@ class SessionContextTests(unittest.TestCase):
             report = json.loads(resumed.stdout)
 
         self.assertEqual(report["status"], "PASS")
-        self.assertEqual(report["current_focus"], "Gate approved: ready-for-merge")
-        self.assertEqual(report["pending_work"], ["Proceed with the approved handoff for 'ready-for-merge'."])
+        self.assertEqual(report["current_stage"], "unscoped")
+        self.assertEqual(report["current_focus"], "No active work slice detected from repo state.")
+        self.assertIn("verify_repo.py --profile fast", report["pending_work"][0])
         self.assertEqual(report["risks_or_assumptions"], [])
         self.assertTrue(
             any("Filtered 2 stale session item(s)" in warning for warning in report["warnings"]),
             report["warnings"],
         )
+        self.assertTrue(
+            any("Filtered stale merge-ready workflow-state" in warning for warning in report["warnings"]),
+            report["warnings"],
+        )
+
+    def test_save_drops_stale_merge_handoff_when_repo_is_clean_and_synced(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            workspace = root / "workspace"
+            remote = root / "remote.git"
+            workspace.mkdir(parents=True, exist_ok=True)
+            (workspace / "README.md").write_text("# Checkout Workspace\n", encoding="utf-8")
+            self._init_synced_git_repo(workspace, remote)
+
+            (workspace / ".brain").mkdir(parents=True, exist_ok=True)
+            (workspace / ".brain" / "session.json").write_text(
+                json.dumps(
+                    {
+                        "updated_at": "2026-04-11T00:00:00+00:00",
+                        "working_on": {
+                            "feature": "checkout-release",
+                            "task": "Ship checkout release",
+                            "status": "active",
+                            "files": ["README.md"],
+                        },
+                        "pending_tasks": ["Proceed with the approved handoff for 'ready-for-merge'."],
+                        "verification": [],
+                        "decisions_made": [],
+                        "risks": [],
+                        "blockers": [],
+                        "source_artifacts": [],
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+            state_dir = workspace / ".forge-artifacts" / "workflow-state" / "checkout-workspace"
+            state_dir.mkdir(parents=True, exist_ok=True)
+            (state_dir / "latest.json").write_text(
+                json.dumps(
+                    {
+                        "project": "Checkout Workspace",
+                        "current_stage": "quality-gate",
+                        "last_recorded_kind": "quality-gate",
+                        "latest_gate": {
+                            "kind": "quality-gate",
+                            "project": "Checkout Workspace",
+                            "label": "ready-for-merge",
+                            "decision": "go",
+                            "why": "Fresh verification is already aligned.",
+                            "response": "I verified: the slice is ready for handoff.",
+                            "next_evidence": [],
+                            "evidence_read": ["pytest tests/test_checkout.py"],
+                            "risks": [],
+                        },
+                        "summary": {
+                            "status": "active",
+                            "primary_kind": "quality-gate",
+                            "current_focus": "Gate approved: ready-for-merge",
+                            "current_stage": "quality-gate",
+                            "suggested_workflow": "review",
+                            "recommended_action": "Proceed with the approved handoff for 'ready-for-merge'.",
+                            "alternatives": [],
+                        },
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            saved = run_python_script(
+                "session_context.py",
+                "save",
+                "--workspace",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(saved.returncode, 0, saved.stderr)
+            report = json.loads(saved.stdout)
+            session = json.loads((workspace / ".brain" / "session.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(report["best_next_step"], None)
+        self.assertEqual(session["pending_tasks"], [])
+        self.assertEqual(session["working_on"]["status"], "completed")
 
 
 if __name__ == "__main__":

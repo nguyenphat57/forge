@@ -273,7 +273,7 @@
         "id":  "20260411-184500",
         "kind":  "decision",
         "scope":  "forge-2-1-stable-status",
-        "summary":  "Treat 2.1.0 as the current stable Forge release because the thin-SKILL refactor tranche, release sync, and canonical repo verification gate are all green.",
+        "summary":  "Treat 2.1.1 as the current stable Forge release because the operator-state cleanup patch, release sync, and canonical repo verification gate are all green.",
         "status":  "resolved",
         "evidence":  [
                          "docs/plans/Thin-SKILL Staged Implementation Plan.md",
@@ -292,8 +292,8 @@
                      "routing",
                      "workflow-surface"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 2.1.0 verification evidence.",
+        "revisit_if":  "A later release changes the stable line or invalidates the 2.1.1 verification evidence.",
         "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.1.0 proof chain or invalidates the recorded verification."
+        "resume_hint":  "Resume only if a later audit needs the original 2.1.1 proof chain or invalidates the recorded verification."
     }
 ]

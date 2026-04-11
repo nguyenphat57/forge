@@ -1,85 +1,42 @@
 {
-    "updated_at":  "2026-04-11T13:54:02.9960155+07:00",
-    "working_on":  {
-                       "feature":  "release-1.17.0-workflow-slim-down",
-                       "task":  "Cut 1.17.0 after retiring nine low-value workflows, syncing release-facing surfaces, and updating installed runtimes",
-                       "status":  "completed",
-                       "files":  [
-                                     "VERSION",
-                                     "CHANGELOG.md",
-                                     "README.md",
-                                     "docs/release/public-readiness.md",
-                                     "docs/release/release-process.md",
-                                     ".brain/decisions.json",
-                                     ".brain/session.json",
-                                     ".brain/handover.md",
-                                     "packages/forge-core/data/orchestrator-registry.json",
-                                     "packages/forge-core/scripts/help_next_support.py",
-                                     "packages/forge-core/scripts/quality_gate_artifacts.py",
-                                     "packages/forge-core/scripts/route_preview.py",
-                                     "packages/forge-core/scripts/route_stage_contract.py",
-                                     "packages/forge-core/scripts/workflow_state_summary.py",
-                                     "packages/forge-core/scripts/workflow_state_support.py",
-                                     "packages/forge-core/workflows/operator/help.md",
-                                     "packages/forge-core/workflows/operator/next.md",
-                                     "packages/forge-core/workflows/execution/quality-gate.md",
-                                     "packages/forge-core/workflows/execution/deploy.md",
-                                     "packages/forge-core/SKILL.md",
-                                     "packages/forge-antigravity/overlay/SKILL.md",
-                                     "packages/forge-codex/overlay/SKILL.md"
-                                 ]
-                   },
-    "pending_tasks":  [
-
-                      ],
-    "recent_changes":  [
-                           "CHANGELOG.md",
-                           "README.md",
-                           "docs/release/public-readiness.md",
-                           "docs/release/release-process.md",
-                           ".brain/decisions.json",
-                           "packages/forge-core/data/orchestrator-registry.json",
-                           "packages/forge-core/references/help-next.md",
-                           "packages/forge-core/references/reference-map.md",
-                           "packages/forge-core/scripts/help_next_support.py",
-                           "packages/forge-core/scripts/quality_gate_artifacts.py",
-                           "packages/forge-core/scripts/route_preview.py",
-                           "packages/forge-core/scripts/route_stage_contract.py",
-                           "packages/forge-core/scripts/workflow_state_summary.py",
-                           "packages/forge-core/scripts/workflow_state_support.py",
-                           "packages/forge-core/tests/test_help_next.py",
-                           "packages/forge-core/tests/test_help_next_workflow_state.py",
-                           "packages/forge-core/tests/test_quality_gate.py",
-                           "packages/forge-core/tests/test_route_preview.py",
-                           "packages/forge-core/workflows/execution/quality-gate.md",
-                           "packages/forge-core/workflows/operator/help.md",
-                           "packages/forge-core/workflows/operator/next.md"
-                       ],
-    "verification":  [
-                         "python scripts/build_release.py --format json -> PASS",
-                         "python scripts/verify_repo.py -> PASS",
-                         "python scripts/install_bundle.py forge-antigravity --upgrade --activate-gemini --format json -> PASS",
-                         "python scripts/install_bundle.py forge-codex --upgrade --activate-codex --format json -> PASS",
-                         "powershell -ExecutionPolicy Bypass -File \"$HOME/.codex/skills/forge-codex/scripts/enable_windows_utf8.ps1\" -Persist -> PASS"
-                     ],
-    "decisions_made":  [
-                           "Retire the nine low-value workflows as a breaking cleanup instead of carrying compatibility shims.",
-                           "Replace doctor and map-codebase onboarding with direct help and next guidance that falls back to plan plus a bounded slice.",
-                           "Treat 1.17.0 as the current stable Forge release for the workflow slim-down tranche.",
-                           "Rebuild dist bundles and sync the Gemini and Codex runtime installs from the verified 1.17.0 artifacts."
-                       ],
-    "risks":  [
-
-              ],
-    "blockers":  [
-
-                 ],
-    "source_artifacts":  [
-                             "readme: C:\\Users\\Admin\\.gemini\\forge\\README.md",
-                             "roadmap: C:\\Users\\Admin\\.gemini\\forge\\docs\\plans\\2026-04-11-forge-slim-refactor-v2.md",
-                             "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
-                             "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
-                             "decisions: C:\\Users\\Admin\\.gemini\\forge\\.brain\\decisions.json",
-                             "git: release-ready working tree before commit"
-                         ]
+  "updated_at": "2026-04-11T16:48:00+00:00",
+  "working_on": {
+    "feature": "operator-state-cleanup",
+    "task": "Fix stale next/save state handling after a clean merge-ready handoff",
+    "status": "active",
+    "files": [
+      "packages/forge-core/scripts/help_next_support.py",
+      "packages/forge-core/scripts/resolve_help_next.py",
+      "packages/forge-core/scripts/session_context.py",
+      "packages/forge-core/tests/test_help_next_workflow_state.py",
+      "packages/forge-core/tests/test_session_context.py",
+      ".forge-artifacts/workflow-state/forge-self-hosted-tdd-sdd-adoption/latest.json",
+      ".brain/session.json"
+    ]
+  },
+  "pending_tasks": [],
+  "recent_changes": [
+    "packages/forge-core/scripts/help_next_support.py",
+    "packages/forge-core/scripts/resolve_help_next.py",
+    "packages/forge-core/scripts/session_context.py",
+    "packages/forge-core/tests/test_help_next_workflow_state.py",
+    "packages/forge-core/tests/test_session_context.py",
+    ".forge-artifacts/workflow-state/forge-self-hosted-tdd-sdd-adoption/latest.json",
+    ".brain/session.json"
+  ],
+  "verification": [
+    "python -m unittest discover -s packages/forge-core/tests -p test_session_context.py -v -> PASS",
+    "python -m unittest discover -s packages/forge-core/tests -p test_help_next_workflow_state.py -v -> PASS",
+    "python -m unittest discover -s packages/forge-core/tests -p test_help_next.py -v -> PASS"
+  ],
+  "decisions_made": [
+    "Treat stale ready-for-merge workflow summaries as historical once the repo is clean and synced.",
+    "Do not backfill generic unscoped recommendations into saved pending tasks."
+  ],
+  "risks": [],
+  "blockers": [],
+  "source_artifacts": [
+    "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
+    "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\workflow-state\\forge-self-hosted-tdd-sdd-adoption\\latest.json"
+  ]
 }

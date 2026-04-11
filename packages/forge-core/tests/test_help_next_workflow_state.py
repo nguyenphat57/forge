@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -11,6 +12,17 @@ import route_preview  # noqa: E402
 
 
 class HelpNextWorkflowStateTests(unittest.TestCase):
+    def _init_synced_git_repo(self, workspace: Path, remote: Path) -> None:
+        subprocess.run(["git", "init", "--bare", str(remote)], check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "init"], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "config", "user.name", "Test User"], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "checkout", "-b", "main"], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "add", "README.md"], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "commit", "-m", "init"], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "remote", "add", "origin", str(remote)], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+        subprocess.run(["git", "push", "-u", "origin", "main"], cwd=workspace, check=True, capture_output=True, text=True, encoding="utf-8")
+
     def test_next_uses_route_preview_seeded_workflow_state(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
@@ -352,6 +364,71 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
         self.assertEqual(report["current_stage"], "session-active")
         self.assertEqual(report["suggested_workflow"], "deploy")
         self.assertEqual(report["current_focus"], "Gate approved: deploy")
+
+    def test_next_filters_stale_merge_handoff_when_repo_is_clean_and_synced(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            workspace = root / "workspace"
+            remote = root / "remote.git"
+            workspace.mkdir(parents=True, exist_ok=True)
+            (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
+            self._init_synced_git_repo(workspace, remote)
+
+            state_dir = workspace / ".forge-artifacts" / "workflow-state" / "workflow-workspace"
+            state_dir.mkdir(parents=True, exist_ok=True)
+            (state_dir / "latest.json").write_text(
+                json.dumps(
+                    {
+                        "project": "Workflow Workspace",
+                        "current_stage": "quality-gate",
+                        "last_recorded_kind": "quality-gate",
+                        "latest_gate": {
+                            "kind": "quality-gate",
+                            "project": "Workflow Workspace",
+                            "label": "ready-for-merge",
+                            "decision": "go",
+                            "why": "Fresh verification is already aligned.",
+                            "response": "I verified: the slice is ready for handoff.",
+                            "next_evidence": [],
+                            "evidence_read": ["pytest tests/test_checkout.py"],
+                            "risks": [],
+                        },
+                        "summary": {
+                            "status": "active",
+                            "primary_kind": "quality-gate",
+                            "current_focus": "Gate approved: ready-for-merge",
+                            "current_stage": "quality-gate",
+                            "suggested_workflow": "review",
+                            "recommended_action": "Proceed with the approved handoff for 'ready-for-merge'.",
+                            "alternatives": [],
+                        },
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+
+        self.assertEqual(report["current_stage"], "unscoped")
+        self.assertEqual(report["current_focus"], "No active work slice detected from repo state.")
+        self.assertIsNone(report["signals"]["workflow_summary"])
+        self.assertTrue(
+            any("Filtered stale merge-ready workflow-state" in warning for warning in report["warnings"]),
+            report["warnings"],
+        )
 
     def test_next_can_resume_from_packet_index_when_latest_workflow_state_is_missing(self) -> None:
         with TemporaryDirectory() as temp_dir:
