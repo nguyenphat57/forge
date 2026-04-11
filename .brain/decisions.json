@@ -1,199 +1,245 @@
 [
-  {
-    "id": "20260330-082442",
-    "kind": "decision",
-    "scope": "forge-self-hosted-tdd-sdd-adoption",
-    "summary": "Forge now ships the artifact-driven TDD/SDD rollout as the canonical medium-risk implementation path.",
-    "status": "resolved",
-    "evidence": [
-      "Archived change: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\changes\\archive\\20260330-082442-forge-self-hosted-tdd-sdd-adoption"
-    ],
-    "next": [],
-    "tags": [
-      "change-archive"
-    ],
-    "revisit_if": null,
-    "trigger": "change-archive"
-  },
-  {
-    "id": "20260401-051841",
-    "kind": "decision",
-    "scope": "forge-public-release-docs",
-    "summary": "Public GitHub visibility guidance must live as tracked release documentation and be covered by release-hardening tests.",
-    "status": "resolved",
-    "evidence": [
-      "docs/release/public-readiness.md",
-      "docs/release/github-public-switch-checklist.md",
-      "tests/test_release_hardening.py"
-    ],
-    "next": [],
-    "tags": [
-      "release",
-      "docs",
-      "hardening"
-    ],
-    "revisit_if": "The public release flow moves away from GitHub or the checklist becomes fully automated.",
-    "trigger": "patch-release"
-  },
-  {
-    "id": "20260401-141503",
-    "kind": "decision",
-    "scope": "forge-1-11-hardening-release",
-    "summary": "Forge 1.11.0 must treat fresh dist-bundle verification and workflow-state round-tripping as release-blocking contracts, not best-effort checks.",
-    "status": "resolved",
-    "evidence": [
-      "docs/plans/2026-04-01-forge-1.11.x-hardening-roadmap.md",
-      "tests/release_repo_test_overlays.py",
-      "packages/forge-core/scripts/workflow_state_support.py",
-      "packages/forge-core/scripts/help_next_support.py"
-    ],
-    "next": [],
-    "tags": [
-      "release",
-      "routing",
-      "workflow-state",
-      "dist"
-    ],
-    "revisit_if": "The release pipeline stops materializing in-repo dist bundles or help and next no longer consume workflow-state as the durable source of truth.",
-    "trigger": "minor-release"
-  },
-  {
-    "id": "20260401-215058",
-    "kind": "decision",
-    "scope": "forge-1-12-maturation-release",
-    "summary": "Forge 1.12.0 should ship with one canonical four-tier release contract plus a separate roadmap-complete closure sweep for the later maturation commits.",
-    "status": "resolved",
-    "evidence": [
-      "docs/plans/2026-04-01-forge-1.12.x-maturation-roadmap.md",
-      "packages/forge-core/scripts/release_profile_contract.py",
-      "packages/forge-core/scripts/release_readiness.py",
-      "packages/forge-core/tests/test_help_next.py",
-      "packages/forge-core/tests/test_dashboard.py"
-    ],
-    "next": [],
-    "tags": [
-      "release",
-      "roadmap",
-      "workflow-state",
-      "help-next"
-    ],
-    "revisit_if": "A future release changes the canonical tier behavior bar or collapses the roadmap-complete sweep back into the 1.12.0 cut.",
-    "trigger": "minor-release",
-    "resume_hint": "A future release changes the canonical tier behavior bar or collapses the roadmap-complete sweep back into the 1.12.0 cut."
-  },
-  {
-    "id": "20260401-220924",
-    "kind": "decision",
-    "scope": "forge-1-12-stable-status",
-    "summary": "Record 1.12.0 as the stable Forge release for its slice because both the canonical release gate and the roadmap-complete closure sweep were green.",
-    "status": "superseded",
-    "evidence": [
-      "python -m pytest tests/test_release_hardening.py tests/release_repo_test_contracts.py -q -> 26 passed, 82 subtests passed",
-      "README.md and docs/release declared 1.12.0 as the stable release at the time"
-    ],
-    "next": [],
-    "tags": [
-      "release",
-      "stable"
-    ],
-    "revisit_if": "Release archaeology needs the original 1.12.0 proof chain or later evidence invalidates the recorded release verification.",
-    "trigger": null,
-    "resume_hint": "Resume only if a later audit needs the original 1.12.0 proof chain or invalidates the recorded verification."
-  },
-  {
-    "id": "20260402-111622",
-    "kind": "decision",
-    "scope": "forge-1-13-stable-status",
-    "summary": "Record 1.13.0 as the stable Forge release for its slice because the build-packet enhancement line and the canonical repo verification gate were both green.",
-    "status": "superseded",
-    "evidence": [
-      "docs/plans/2026-04-02-forge-1.13.x-build-process-enhancement-roadmap.md",
-      "CHANGELOG.md",
-      "python scripts/verify_repo.py -> PASS on 2026-04-02"
-    ],
-    "next": [],
-    "tags": [
-      "release",
-      "stable",
-      "build-packets",
-      "workflow-state"
-    ],
-    "revisit_if": "Release archaeology needs the original 1.13.0 proof chain or later evidence invalidates the recorded release verification.",
-    "trigger": "minor-release",
-    "resume_hint": "Resume only if a later audit needs the original 1.13.0 proof chain or invalidates the recorded verification."
-  },
-  {
-    "id": "20260402-144231",
-    "kind": "decision",
-    "scope": "forge-1-14-stable-status",
-    "summary": "Record 1.14.0 as the stable Forge release for its slice because the competitive roadmap implementation, release contract sweep, and canonical repo gate were all green.",
-    "status": "superseded",
-    "evidence": [
-      "docs/plans/2026-04-02-forge-1.14.x-competitive-roadmap.md",
-      "CHANGELOG.md",
-      "python -m pytest packages/forge-core/tests/test_fast_lane_lifecycle.py packages/forge-core/tests/test_chain_status.py packages/forge-core/tests/test_route_preview.py packages/forge-core/tests/test_help_next.py packages/forge-core/tests/test_help_next_workflow_state.py packages/forge-core/tests/test_tool_roundtrip.py packages/forge-core/tests/test_runtime_tool_support.py packages/forge-core/tests/test_contracts.py tests/release_repo_test_contracts.py -q -> 96 passed, 1 skipped, 252 subtests passed",
-      "python scripts/verify_repo.py -> PASS on 2026-04-02"
-    ],
-    "next": [],
-    "tags": [
-      "release",
-      "stable",
-      "fast-lane",
-      "packet-graph",
-      "runtime-health"
-    ],
-    "revisit_if": "Release archaeology needs the original 1.14.0 proof chain or later evidence invalidates the recorded release verification.",
-    "trigger": "minor-release",
-    "resume_hint": "Resume only if a later audit needs the original 1.14.0 proof chain or invalidates the recorded verification."
-  },
-  {
-    "id": "20260402-215530",
-    "kind": "decision",
-    "scope": "forge-1-15-stable-status",
-    "summary": "Treat 1.15.1 as the current stable Forge release because the maintenance footer-clarity update, unique multi-skill footer rule, and the canonical repo verification gate are all green.",
-    "status": "resolved",
-    "evidence": [
-      "packages/forge-core/workflows/design/brainstorm.md",
-      "packages/forge-core/workflows/execution/build.md",
-      "packages/forge-core/domains/backend.md",
-      "CHANGELOG.md",
-      "python scripts/verify_repo.py -> PASS on 2026-04-10"
-    ],
-    "next": [],
-    "tags": [
-      "release",
-      "stable",
-      "maintenance",
-      "skills",
-      "footer",
-      "response-provenance"
-    ],
-    "revisit_if": "A later release changes the stable line or invalidates the 1.15.1 verification evidence.",
-    "trigger": "patch-release",
-    "resume_hint": "A later release changes the stable line or invalidates the 1.15.1 verification evidence."
-  },
-  {
-    "id": "20260402-230000",
-    "kind": "decision",
-    "scope": "forge-1-15-maintenance-closure",
-    "summary": "Close Forge after 1.15.0 into maintenance mode and treat older roadmap lines plus superseded stable-line decisions as historical context, not active work queues.",
-    "status": "resolved",
-    "evidence": [
-      "docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md",
-      "packages/forge-core/references/target-state.md",
-      "packages/forge-core/references/reference-map.md",
-      "tests/test_release_hardening.py",
-      "python scripts/verify_repo.py -> PASS on 2026-04-02"
-    ],
-    "next": [],
-    "tags": [
-      "maintenance",
-      "roadmap",
-      "continuity",
-      "docs"
-    ],
-    "revisit_if": "A later change needs more than bounded maintenance work under the 1.15.x closure criteria.",
-    "trigger": "maintenance-closure",
-    "resume_hint": "Resume only if target-state reopen criteria are met and Forge needs a new explicit roadmap line."
-  }
+    {
+        "id":  "20260330-082442",
+        "kind":  "decision",
+        "scope":  "forge-self-hosted-tdd-sdd-adoption",
+        "summary":  "Forge now ships the artifact-driven TDD/SDD rollout as the canonical medium-risk implementation path.",
+        "status":  "resolved",
+        "evidence":  [
+                         "Archived change: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\changes\\archive\\20260330-082442-forge-self-hosted-tdd-sdd-adoption"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "change-archive"
+                 ],
+        "revisit_if":  null,
+        "trigger":  "change-archive"
+    },
+    {
+        "id":  "20260401-051841",
+        "kind":  "decision",
+        "scope":  "forge-public-release-docs",
+        "summary":  "Public GitHub visibility guidance must live as tracked release documentation and be covered by release-hardening tests.",
+        "status":  "resolved",
+        "evidence":  [
+                         "docs/release/public-readiness.md",
+                         "docs/release/github-public-switch-checklist.md",
+                         "tests/test_release_hardening.py"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "docs",
+                     "hardening"
+                 ],
+        "revisit_if":  "The public release flow moves away from GitHub or the checklist becomes fully automated.",
+        "trigger":  "patch-release"
+    },
+    {
+        "id":  "20260401-141503",
+        "kind":  "decision",
+        "scope":  "forge-1-11-hardening-release",
+        "summary":  "Forge 1.11.0 must treat fresh dist-bundle verification and workflow-state round-tripping as release-blocking contracts, not best-effort checks.",
+        "status":  "resolved",
+        "evidence":  [
+                         "docs/plans/2026-04-01-forge-1.11.x-hardening-roadmap.md",
+                         "tests/release_repo_test_overlays.py",
+                         "packages/forge-core/scripts/workflow_state_support.py",
+                         "packages/forge-core/scripts/help_next_support.py"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "routing",
+                     "workflow-state",
+                     "dist"
+                 ],
+        "revisit_if":  "The release pipeline stops materializing in-repo dist bundles or help and next no longer consume workflow-state as the durable source of truth.",
+        "trigger":  "minor-release"
+    },
+    {
+        "id":  "20260401-215058",
+        "kind":  "decision",
+        "scope":  "forge-1-12-maturation-release",
+        "summary":  "Forge 1.12.0 should ship with one canonical four-tier release contract plus a separate roadmap-complete closure sweep for the later maturation commits.",
+        "status":  "resolved",
+        "evidence":  [
+                         "docs/plans/2026-04-01-forge-1.12.x-maturation-roadmap.md",
+                         "packages/forge-core/scripts/release_profile_contract.py",
+                         "packages/forge-core/scripts/release_readiness.py",
+                         "packages/forge-core/tests/test_help_next.py",
+                         "packages/forge-core/tests/test_dashboard.py"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "roadmap",
+                     "workflow-state",
+                     "help-next"
+                 ],
+        "revisit_if":  "A future release changes the canonical tier behavior bar or collapses the roadmap-complete sweep back into the 1.12.0 cut.",
+        "trigger":  "minor-release",
+        "resume_hint":  "A future release changes the canonical tier behavior bar or collapses the roadmap-complete sweep back into the 1.12.0 cut."
+    },
+    {
+        "id":  "20260401-220924",
+        "kind":  "decision",
+        "scope":  "forge-1-12-stable-status",
+        "summary":  "Record 1.12.0 as the stable Forge release for its slice because both the canonical release gate and the roadmap-complete closure sweep were green.",
+        "status":  "superseded",
+        "evidence":  [
+                         "python -m pytest tests/test_release_hardening.py tests/release_repo_test_contracts.py -q -\u003e 26 passed, 82 subtests passed",
+                         "README.md and docs/release declared 1.12.0 as the stable release at the time"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "stable"
+                 ],
+        "revisit_if":  "Release archaeology needs the original 1.12.0 proof chain or later evidence invalidates the recorded release verification.",
+        "trigger":  null,
+        "resume_hint":  "Resume only if a later audit needs the original 1.12.0 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260402-111622",
+        "kind":  "decision",
+        "scope":  "forge-1-13-stable-status",
+        "summary":  "Record 1.13.0 as the stable Forge release for its slice because the build-packet enhancement line and the canonical repo verification gate were both green.",
+        "status":  "superseded",
+        "evidence":  [
+                         "docs/plans/2026-04-02-forge-1.13.x-build-process-enhancement-roadmap.md",
+                         "CHANGELOG.md",
+                         "python scripts/verify_repo.py -\u003e PASS on 2026-04-02"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "build-packets",
+                     "workflow-state"
+                 ],
+        "revisit_if":  "Release archaeology needs the original 1.13.0 proof chain or later evidence invalidates the recorded release verification.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 1.13.0 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260402-144231",
+        "kind":  "decision",
+        "scope":  "forge-1-14-stable-status",
+        "summary":  "Record 1.14.0 as the stable Forge release for its slice because the competitive roadmap implementation, release contract sweep, and canonical repo gate were all green.",
+        "status":  "superseded",
+        "evidence":  [
+                         "docs/plans/2026-04-02-forge-1.14.x-competitive-roadmap.md",
+                         "CHANGELOG.md",
+                         "python -m pytest packages/forge-core/tests/test_fast_lane_lifecycle.py packages/forge-core/tests/test_chain_status.py packages/forge-core/tests/test_route_preview.py packages/forge-core/tests/test_help_next.py packages/forge-core/tests/test_help_next_workflow_state.py packages/forge-core/tests/test_tool_roundtrip.py packages/forge-core/tests/test_runtime_tool_support.py packages/forge-core/tests/test_contracts.py tests/release_repo_test_contracts.py -q -\u003e 96 passed, 1 skipped, 252 subtests passed",
+                         "python scripts/verify_repo.py -\u003e PASS on 2026-04-02"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "fast-lane",
+                     "packet-graph",
+                     "runtime-health"
+                 ],
+        "revisit_if":  "Release archaeology needs the original 1.14.0 proof chain or later evidence invalidates the recorded release verification.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 1.14.0 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260402-215530",
+        "kind":  "decision",
+        "scope":  "forge-1-15-stable-status",
+        "summary":  "Record 1.15.1 as the stable Forge release for its slice because the maintenance footer-clarity update, unique multi-skill footer rule, and the canonical repo verification gate were green.",
+        "status":  "superseded",
+        "evidence":  [
+                         "packages/forge-core/workflows/design/brainstorm.md",
+                         "packages/forge-core/workflows/execution/build.md",
+                         "packages/forge-core/domains/backend.md",
+                         "CHANGELOG.md",
+                         "python scripts/verify_repo.py -\u003e PASS on 2026-04-10"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "maintenance",
+                     "skills",
+                     "footer",
+                     "response-provenance"
+                 ],
+        "revisit_if":  "Release archaeology needs the original 1.15.1 proof chain or later evidence invalidates the recorded release verification.",
+        "trigger":  "patch-release",
+        "resume_hint":  "Resume only if a later audit needs the original 1.15.1 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260402-230000",
+        "kind":  "decision",
+        "scope":  "forge-1-15-maintenance-closure",
+        "summary":  "Close Forge after 1.15.0 into maintenance mode and treat older roadmap lines plus superseded stable-line decisions as historical context, not active work queues.",
+        "status":  "resolved",
+        "evidence":  [
+                         "docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md",
+                         "packages/forge-core/references/target-state.md",
+                         "packages/forge-core/references/reference-map.md",
+                         "tests/test_release_hardening.py",
+                         "python scripts/verify_repo.py -\u003e PASS on 2026-04-02"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "maintenance",
+                     "roadmap",
+                     "continuity",
+                     "docs"
+                 ],
+        "revisit_if":  "A later change needs more than bounded maintenance work under the 1.15.x closure criteria.",
+        "trigger":  "maintenance-closure",
+        "resume_hint":  "Resume only if target-state reopen criteria are met and Forge needs a new explicit roadmap line."
+    },
+    {
+        "id":  "20260411-000000",
+        "kind":  "decision",
+        "scope":  "forge-1-16-stable-status",
+        "summary":  "Treat 1.16.0 as the current stable Forge release because the domain-skill retirement tranche, release sync, and canonical repo verification gate are all green.",
+        "status":  "resolved",
+        "evidence":  [
+                         "docs/plans/2026-04-11-forge-slim-refactor-v2.md",
+                         "CHANGELOG.md",
+                         "packages/forge-core/workflows/execution/build.md",
+                         "packages/forge-core/workflows/design/spec-review.md",
+                         "packages/forge-core/workflows/design/visualize.md",
+                         "python scripts/verify_repo.py --profile fast -\u003e PASS on 2026-04-11"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "slim-refactor",
+                     "skills",
+                     "routing"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 1.16.0 verification evidence.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 1.16.0 proof chain or invalidates the recorded verification."
+    }
 ]

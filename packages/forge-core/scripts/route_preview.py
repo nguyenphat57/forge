@@ -23,7 +23,6 @@ from route_analysis import (
     choose_verification_profile,
     detect_session_mode,
     detect_complexity,
-    detect_domain_skills,
     detect_intent,
     process_precheck_required,
 )
@@ -113,7 +112,6 @@ def build_report(args: argparse.Namespace) -> dict:
     session_mode = detect_session_mode(args.prompt, registry) if intent == "SESSION" else None
     complexity = detect_complexity(args.prompt, args.changed_files, registry)
     workspace_router = resolve_workspace_router(args.workspace_router)
-    domain_skills = detect_domain_skills(args.prompt, args.repo_signal, intent, complexity, registry)
     verification_key, verification = choose_verification_profile(
         intent,
         args.prompt,
@@ -133,7 +131,6 @@ def build_report(args: argparse.Namespace) -> dict:
         args.repo_signal,
         intent,
         complexity,
-        domain_skills,
         quality_profile_key,
         registry,
     )
@@ -206,8 +203,8 @@ def build_report(args: argparse.Namespace) -> dict:
         args.prompt,
         intent=intent,
         complexity=complexity,
-        domain_skills=domain_skills,
         repo_signals=args.repo_signal,
+        registry=registry,
     )
     packet_mode = classify_packet_mode(
         args.prompt,
@@ -239,7 +236,6 @@ def build_report(args: argparse.Namespace) -> dict:
             "host_dispatch_mode": host_tier.get("dispatch_mode"),
             "resolved_delegation_preference": resolved_delegation_preference,
             "effective_delegation_mode": effective_delegation_mode,
-            "domain_skills": domain_skills,
             "first_party_companions": [item["id"] for item in first_party_companions],
             "local_companions": local_companions,
             "runtimes": runtimes,
@@ -275,7 +271,7 @@ def build_report(args: argparse.Namespace) -> dict:
             intent=intent,
             complexity=complexity,
             profile=required_stage_contract["profile"],
-            skills=" + ".join([*forge_skills, *host_skills, *domain_skills, *[item["id"] for item in first_party_companions], *local_companions])
+            skills=" + ".join([*forge_skills, *host_skills, *[item["id"] for item in first_party_companions], *local_companions])
             or current_bundle_skill_name(),
         ),
         "registry_source": " + ".join(registry_sources()),
@@ -303,7 +299,6 @@ def format_text(report: dict) -> str:
         f"- Resolved delegation preference: {detected['resolved_delegation_preference'] or '(none)'}",
         f"- Effective delegation mode: {detected['effective_delegation_mode'] or '(none)'}",
         f"- Host skills: {', '.join(detected['host_skills']) or '(none)'}",
-        f"- Domain skills: {', '.join(detected['domain_skills']) or '(none)'}",
         f"- First-party companions: {', '.join(detected['first_party_companions']) or '(none)'}",
         f"- Local companions: {', '.join(detected['local_companions']) or '(none)'}",
         f"- Runtimes from repo signals: {', '.join(detected['runtimes']) or '(none)'}",

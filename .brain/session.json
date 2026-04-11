@@ -1,92 +1,99 @@
 {
-  "updated_at": "2026-04-10T12:16:59+00:00",
-  "working_on": {
-    "feature": "maintenance-patch-1.15.1",
-    "task": "Make save context and resume execute exact save/restore semantics",
-    "status": "completed",
-    "files": [
-      "VERSION",
-      "CHANGELOG.md",
-      "README.md",
-      "docs/release/public-readiness.md",
-      "docs/release/release-process.md",
-      ".brain/decisions.json",
-      ".brain/learnings.json",
-      ".brain/session.json",
-      ".brain/handover.md",
-      "packages/forge-core/domains/backend.md",
-      "packages/forge-core/domains/frontend.md",
-      "packages/forge-core/workflows/design/brainstorm.md",
-      "packages/forge-core/workflows/execution/build.md",
-      "packages/forge-core/workflows/operator/run.md",
-      "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
-      "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
-      "docs/architecture/generated-host-artifacts/codex/workflows/execution/session.md",
-      "packages/forge-antigravity/overlay/GEMINI.global.md",
-      "packages/forge-codex/overlay/AGENTS.global.md",
-      "packages/forge-codex/overlay/workflows/execution/session.md",
-      "packages/forge-core/data/orchestrator-registry.json",
-      "packages/forge-core/references/tooling.md",
-      "packages/forge-core/scripts/response_contract.py",
-      "packages/forge-core/scripts/route_analysis.py",
-      "packages/forge-core/scripts/route_preview.py",
-      "packages/forge-core/scripts/smoke_matrix_validators.py"
-    ]
-  },
-  "pending_tasks": [
-    "Review remaining diff, then commit and push if approved",
-    "Review the staged diff, then commit and push if approved."
-  ],
-  "recent_changes": [
-    "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
-    "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
-    "docs/architecture/generated-host-artifacts/codex/workflows/execution/session.md",
-    "packages/forge-antigravity/overlay/GEMINI.global.md",
-    "packages/forge-codex/overlay/AGENTS.global.md",
-    "packages/forge-codex/overlay/workflows/execution/session.md",
-    "packages/forge-core/data/orchestrator-registry.json",
-    "packages/forge-core/references/tooling.md",
-    "packages/forge-core/scripts/response_contract.py",
-    "packages/forge-core/scripts/route_analysis.py",
-    "packages/forge-core/scripts/route_preview.py",
-    "packages/forge-core/scripts/smoke_matrix_validators.py",
-    "packages/forge-core/tests/fixtures/response_contract_cases.json",
-    "packages/forge-core/tests/fixtures/route_preview_cases.json",
-    "packages/forge-core/tests/test_contracts.py",
-    "packages/forge-core/tests/test_response_contract.py",
-    "packages/forge-core/tests/test_route_matrix.py",
-    "packages/forge-core/tests/test_route_preview.py",
-    "packages/forge-core/workflows/execution/quality-gate.md",
-    "packages/forge-core/workflows/execution/session.md"
-  ],
-  "verification": [
-    "python -m unittest discover -s tests -p test_session_context.py -v",
-    "python -m unittest discover -s tests -p test_route_preview.py -v",
-    "python -m unittest discover -s tests -p test_route_matrix.py -v",
-    "python -m unittest discover -s tests -p test_contracts.py -v",
-    "python scripts/verify_repo.py",
-    "python scripts/build_release.py",
-    "python scripts/verify_repo.py -> PASS",
-    "python scripts/build_release.py -> PASS"
-  ],
-  "decisions_made": [
-    "Session routing now distinguishes save, restore, and handover through explicit session_mode detection.",
-    "save context and resume are now backed by session_context.py instead of loose recap wording.",
-    "Keep this cut on the `1.15.x` maintenance line as `1.15.1` because the release is bounded maintenance, not a new roadmap branch.",
-    "Skill provenance footers must use neutral wording and emit one unique line per used skill in the final footer block."
-  ],
-  "risks": [
-    "Repo changes are still uncommitted and unpushed."
-  ],
-  "blockers": [],
-  "source_artifacts": [
-    "readme: C:\\Users\\Admin\\.gemini\\forge\\README.md",
-    "codebase-summary: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\codebase\\summary.md",
-    "plan: C:\\Users\\Admin\\.gemini\\forge\\docs\\plans\\2026-04-02-forge-build-side-acceleration-plan.md",
-    "spec: C:\\Users\\Admin\\.gemini\\forge\\docs\\specs\\2026-04-02-host-aware-delegation-preference-spec.md",
-    "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
-    "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
-    "git: 22 working tree item(s)",
-    "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\workflow-state\\forge-self-hosted-tdd-sdd-adoption\\latest.json"
-  ]
+    "updated_at":  "2026-04-11T12:25:45+07:00",
+    "working_on":  {
+                       "feature":  "release-1.16.0-domain-skill-retirement",
+                       "task":  "Cut 1.16.0 after retiring frontend/backend domain skills and syncing release surfaces plus installed runtimes",
+                       "status":  "completed",
+                       "files":  [
+                                     "VERSION",
+                                     "CHANGELOG.md",
+                                     "README.md",
+                                     "docs/release/public-readiness.md",
+                                     "docs/release/release-process.md",
+                                     ".brain/decisions.json",
+                                     ".brain/session.json",
+                                     ".brain/handover.md",
+                                     "docs/archive/specs/2026-04-11-domain-skills-retirement.md",
+                                     "packages/forge-core/domains/backend.md",
+                                     "packages/forge-core/domains/frontend.md",
+                                     "packages/forge-core/workflows/design/spec-review.md",
+                                     "packages/forge-core/workflows/design/visualize.md",
+                                     "packages/forge-core/workflows/execution/build.md",
+                                     "packages/forge-core/references/reference-map.md",
+                                     "packages/forge-core/data/orchestrator-registry.json",
+                                     "packages/forge-core/scripts/route_analysis.py",
+                                     "packages/forge-core/scripts/route_execution_advice.py",
+                                     "packages/forge-core/scripts/route_preview.py",
+                                     "packages/forge-core/scripts/route_stage_contract.py",
+                                     "packages/forge-core/scripts/run_workspace_canary_core.py",
+                                     "packages/forge-core/scripts/smoke_matrix_validators.py",
+                                     "packages/forge-core/tests/fixtures/route_preview_cases.json",
+                                     "packages/forge-core/tests/test_contracts.py",
+                                     "packages/forge-core/tests/test_route_matrix.py",
+                                     "packages/forge-core/tests/test_route_preview.py",
+                                     "packages/forge-antigravity/overlay/SKILL.md",
+                                     "packages/forge-codex/overlay/SKILL.md"
+                                 ]
+                   },
+    "pending_tasks":  [
+
+                      ],
+    "recent_changes":  [
+                           "CHANGELOG.md",
+                           "README.md",
+                           "docs/release/public-readiness.md",
+                           "docs/release/release-process.md",
+                           "docs/archive/specs/2026-04-11-domain-skills-retirement.md",
+                           "packages/forge-antigravity/overlay/SKILL.md",
+                           "packages/forge-codex/overlay/SKILL.md",
+                           "packages/forge-core/data/orchestrator-registry.json",
+                           "packages/forge-core/references/reference-map.md",
+                           "packages/forge-core/scripts/route_analysis.py",
+                           "packages/forge-core/scripts/route_execution_advice.py",
+                           "packages/forge-core/scripts/route_preview.py",
+                           "packages/forge-core/scripts/route_stage_contract.py",
+                           "packages/forge-core/scripts/run_workspace_canary_core.py",
+                           "packages/forge-core/scripts/smoke_matrix_validators.py",
+                           "packages/forge-core/tests/fixtures/route_preview_cases.json",
+                           "packages/forge-core/tests/test_contracts.py",
+                           "packages/forge-core/tests/test_route_matrix.py",
+                           "packages/forge-core/tests/test_route_preview.py",
+                           "packages/forge-core/workflows/design/spec-review.md",
+                           "packages/forge-core/workflows/design/visualize.md",
+                           "packages/forge-core/workflows/execution/build.md"
+                       ],
+    "verification":  [
+                         "python -m unittest discover -s packages/forge-core/tests -p test_route_preview.py -v -\u003e PASS",
+                         "python -m unittest discover -s packages/forge-core/tests -p test_route_matrix.py -v -\u003e PASS",
+                         "python -m unittest discover -s packages/forge-core/tests -p test_contracts.py -v -\u003e PASS",
+                         "python -m unittest discover -s tests -p test_generated_host_artifacts.py -v -\u003e PASS",
+                         "python scripts/generate_host_artifacts.py --check --format json -\u003e PASS",
+                         "python scripts/build_release.py --format json -\u003e PASS",
+                         "python scripts/verify_repo.py --profile fast -\u003e PASS",
+                         "python scripts/install_bundle.py forge-antigravity --upgrade --activate-gemini --format json -\u003e PASS",
+                         "python scripts/install_bundle.py forge-codex --upgrade --activate-codex --format json -\u003e PASS",
+                         "powershell -ExecutionPolicy Bypass -File \"$HOME/.codex/skills/forge-codex/scripts/enable_windows_utf8.ps1\" -Persist -\u003e PASS"
+                     ],
+    "decisions_made":  [
+                           "Retire `frontend` and `backend` as surfaced domain skills instead of preserving dead-weight skill entries.",
+                           "Absorb backend guidance into `build` and `spec-review`, and absorb UI guidance into `visualize` plus the UI section of `build`.",
+                           "Cut this tranche as stable `1.16.0` on the reopened slim-refactor roadmap line.",
+                           "Sync runtime installs from `dist/` and reactivate the Codex and Gemini global host entry files."
+                       ],
+    "risks":  [
+
+              ],
+    "blockers":  [
+
+                 ],
+    "source_artifacts":  [
+                             "readme: C:\\Users\\Admin\\.gemini\\forge\\README.md",
+                             "codebase-summary: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\codebase\\summary.md",
+                             "roadmap: C:\\Users\\Admin\\.gemini\\forge\\docs\\plans\\2026-04-11-forge-slim-refactor-v2.md",
+                             "archive-spec: C:\\Users\\Admin\\.gemini\\forge\\docs\\archive\\specs\\2026-04-11-domain-skills-retirement.md",
+                             "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
+                             "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
+                             "git: release-ready working tree before commit",
+                             "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\workflow-state\\forge-self-hosted-tdd-sdd-adoption\\latest.json"
+                         ]
 }

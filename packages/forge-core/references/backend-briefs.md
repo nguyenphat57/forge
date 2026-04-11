@@ -4,7 +4,7 @@
 
 ## Why This Exists
 
-`backend` needs an initial artifact, just as `frontend` does, but it focuses on:
+Backend implementation needs an initial artifact, just as UI implementation does, but it focuses on:
 
 - contract or surface in scope
 - validation and authorization boundary

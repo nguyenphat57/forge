@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 
 
-CAPABILITY_PATH_HINTS = ("workflows/", "scripts/", "commands/", "skills/", "domains/", "data/")
+CAPABILITY_PATH_HINTS = ("workflows/", "scripts/", "commands/", "skills/", "references/", "data/")
 PUBLIC_SURFACE_PATH_HINTS = (
     "api/",
     "public/",

@@ -1,6 +1,6 @@
 # UI Escalation Rules
 
-> Used to decide when `frontend` or `visualize` should add `$ui-ux-pro-max`.
+> Used to decide when UI implementation or `visualize` should add `$ui-ux-pro-max`.
 
 ## Escalate To `$ui-ux-pro-max` When
 
@@ -25,22 +25,22 @@
 1. visualize
 2. If the visual direction is still large or the user wants many options -> load $ui-ux-pro-max
 3. Finalize the visual brief
-4. Handoff for frontend/build
+4. Handoff for build/visualize follow-through
 ```
 
-### When the task is frontend but needs to open visual range
+### When the task is a UI build slice but needs to open visual range
 
 ```text
-1. frontend
+1. build
 2. If the design system is not directional enough -> load $ui-ux-pro-max
-3. Update frontend brief
+3. Update UI brief
 4. Implement UI
 ```
 
 ## Output Discipline
 
 - `$ui-ux-pro-max` provides design exploration and breadth
-- Forge `frontend`/`visualize` still keeps:
+- Forge `build`/`visualize` still keeps:
   - scope discipline
   - brief requirements
   - responsive/a11y/state coverage

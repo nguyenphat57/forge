@@ -1,9 +1,9 @@
 # Forge
 ### Process-first execution for coding agents in real repos.
 
-**1 core kernel · 2 host adapters · 2 runtime tools · stable 1.15.1**
+**1 core kernel · 2 host adapters · 2 runtime tools · stable 1.16.0**
 
-![Version](https://img.shields.io/badge/version-1.15.1-2563eb)
+![Version](https://img.shields.io/badge/version-1.16.0-2563eb)
 ![License](https://img.shields.io/badge/license-MIT-16a34a)
 ![Verification](https://img.shields.io/badge/verify-repo_passed-22c55e)
 ![Adapters](https://img.shields.io/badge/adapters-Codex%20%7C%20Antigravity-f59e0b)
@@ -121,7 +121,7 @@ graph LR
 
 - License: `MIT`
 - Repo maturity: stable release available
-- Current stable release: `1.15.1`
+- Current stable release: `1.16.0`
 - Canonical verification gate: `python scripts/verify_repo.py`
 - `forge-antigravity` is currently the most mature adapter for real rollout
 - `forge-codex` ships in the current stable release after passing the canonical release gates

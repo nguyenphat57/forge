@@ -33,3 +33,4 @@ Use this index when release archaeology or old design context is needed.
 | Solo Dev Opinionated Profile Spec Appendix | `docs/specs/2026-03-31-solo-dev-opinionated-profile-spec-appendix.md` | historical | `docs/current/operator-surface.md` |
 | Solo Dev Opinionated Profile Spec | `docs/specs/2026-03-31-solo-dev-opinionated-profile-spec.md` | historical | `docs/current/operator-surface.md` |
 | Host-Aware Delegation Preference Spec | `docs/specs/2026-04-02-host-aware-delegation-preference-spec.md` | historical | `docs/current/operator-surface.md` |
+| Domain Skills Retirement Note | `docs/archive/specs/2026-04-11-domain-skills-retirement.md` | historical | `packages/forge-core/workflows/execution/build.md`, `packages/forge-core/workflows/design/spec-review.md`, `packages/forge-core/workflows/design/visualize.md` |

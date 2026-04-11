@@ -74,7 +74,6 @@ def default_scenarios(runtimes: list[str], can_check_local_companions: bool) -> 
             "prompt": "Review code before merge",
             "expected_intent": "REVIEW",
             "verification": "absent",
-            "max_domain_skills": 0,
             "max_local_companions": 0,
             "expected_quality_profile": "standard",
         },
@@ -83,7 +82,6 @@ def default_scenarios(runtimes: list[str], can_check_local_companions: bool) -> 
             "prompt": "Continue the task in progress",
             "expected_intent": "SESSION",
             "verification": "absent",
-            "max_domain_skills": 0,
             "max_local_companions": 0,
             "expected_quality_profile": "standard",
         },
@@ -146,13 +144,6 @@ def evaluate_route_scenario(
             "Expected quality profile {expected}, got {actual}.".format(
                 expected=scenario["expected_quality_profile"],
                 actual=detected["quality_profile"],
-            )
-        )
-    if len(detected["domain_skills"]) > scenario.get("max_domain_skills", len(detected["domain_skills"])):
-        failures.append(
-            "Expected at most {expected} domain skill(s), got {actual}.".format(
-                expected=scenario["max_domain_skills"],
-                actual=len(detected["domain_skills"]),
             )
         )
     if len(detected["local_companions"]) > scenario.get("max_local_companions", len(detected["local_companions"])):

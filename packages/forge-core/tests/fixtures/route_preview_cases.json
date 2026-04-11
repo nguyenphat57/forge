@@ -31,7 +31,6 @@
     "expected_profile": "solo-internal",
     "expected_skills": ["review", "secure"],
     "expected_required_stage_chain": ["review"],
-    "expected_domain_skills": [],
     "expected_local_companions": [],
     "expected_quality_profile": "standard",
     "expected_verification_profile": null
@@ -48,7 +47,6 @@
     "expected_profile": "solo-internal",
     "expected_skills": ["session"],
     "expected_required_stage_chain": ["session"],
-    "expected_domain_skills": [],
     "expected_local_companions": [],
     "expected_quality_profile": "standard",
     "expected_verification_profile": null
@@ -89,7 +87,6 @@
     "expected_profile": "solo-internal",
     "expected_skill_prefix": ["brainstorm", "plan", "architect", "spec-review"],
     "expected_required_stage_prefix": ["brainstorm", "plan", "architect", "spec-review"],
-    "expected_domain_skills": ["backend"],
     "expected_quality_profile": "release-critical",
     "expected_execution_pipeline": "implementer-spec-quality",
     "expected_delegation_strategy": "sequential-lanes",
@@ -157,7 +154,6 @@
     "expected_profile": "solo-internal",
     "expected_skills": ["plan", "visualize"],
     "expected_required_stage_chain": ["plan", "visualize"],
-    "expected_domain_skills": ["frontend"],
     "expected_verification_profile": null
   },
   {

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.16.0 (stable) - 2026-04-11
+
+- Retire `frontend` and `backend` as live Forge domain skills by removing `domain_skills` from routing, route preview output, canary checks, smoke validators, and activation lines without leaving a compatibility shim.
+- Preserve the useful backend and UI guidance by absorbing it into `build`, `spec-review`, `visualize`, and the reference map while keeping backend or UI brief tooling discoverable as workflow-support tooling instead of top-level skills.
+- Refresh stable-release and continuity surfaces so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` align on `1.16.0` as the current stable release after this refactor tranche.
+- Rebuild release artifacts and sync the verified `forge-antigravity` and `forge-codex` runtime installs from `dist/` after the canonical repo gate passes.
+
 ## 1.15.1 (stable) - 2026-04-10
 
 - Normalize every `forge-core` child skill footer to end with `Used skill: <skill-name>.` instead of deployment wording so response provenance reads naturally on real tasks.

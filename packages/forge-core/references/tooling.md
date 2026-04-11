@@ -385,7 +385,7 @@ Detailed semantics: see `rollback-guidance.md`.
 
 ## UI Brief Generator
 
-When the task is `frontend` or `visualize` and needs an explicit first artifact before coding/mockup:
+When the task is UI implementation or `visualize` and needs an explicit first artifact before coding/mockup:
 
 ```powershell
 python scripts/generate_ui_brief.py "Refresh checkout for tablet POS" `
@@ -483,7 +483,7 @@ Default Artifact report:
 
 ## UI Progress Tracker
 
-When the frontend/visualize task spans multiple stages:
+When the UI implementation or `visualize` task spans multiple stages:
 
 ```powershell
 python scripts/track_ui_progress.py "Checkout tablet refresh" --mode frontend --stage implementation --status active
@@ -531,11 +531,10 @@ The script returns:
 - delegation strategy recommendation
 - lane model tier recommendations
 - quality profile recommendation
-- domain skills
 - local companion candidates (if the workspace has a local layer)
 - verification-first plan
 
-For `REVIEW`, `SESSION`, and task `small`, preview prioritizes minimal path: repo signals do not automatically pull additional domain/local companions if the prompt does not explicitly say so.
+For `REVIEW`, `SESSION`, and task `small`, preview prioritizes minimal path: repo signals do not automatically pull additional local companions if the prompt does not explicitly say so.
 
 ### Persist route preview
 

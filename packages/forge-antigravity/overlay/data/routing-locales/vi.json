@@ -1,288 +1,273 @@
 {
-  "intents": {
-    "BUILD": {
-      "keywords": [
-        "them",
-        "thêm",
-        "tao",
-        "tạo",
-        "viet",
-        "viết",
-        "xay dung",
-        "xây dựng",
-        "tinh nang",
-        "tính năng",
-        "lam",
-        "làm"
-      ]
-    },
-    "DEBUG": {
-      "keywords": [
-        "loi",
-        "lỗi",
-        "sua",
-        "sửa",
-        "hong",
-        "hỏng",
-        "khong chay",
-        "không chạy",
-        "bi loi",
-        "bị lỗi",
-        "dieu tra",
-        "điều tra"
-      ]
-    },
-    "OPTIMIZE": {
-      "keywords": [
-        "toi uu",
-        "tối ưu",
-        "don",
-        "dọn",
-        "tai cau truc",
-        "tái cấu trúc",
-        "lam sach",
-        "làm sạch",
-        "giam do phuc tap",
-        "giảm độ phức tạp"
-      ]
-    },
-    "DEPLOY": {
-      "keywords": [
-        "trien khai",
-        "triển khai",
-        "phat hanh",
-        "phát hành",
-        "dua len",
-        "đưa lên",
-        "len production",
-        "lên production",
-        "ra mat",
-        "ra mắt",
-        "xuat ban",
-        "xuất bản"
-      ]
-    },
-    "REVIEW": {
-      "keywords": [
-        "danh gia",
-        "đánh giá",
-        "kiem tra",
-        "kiểm tra",
-        "xem lai",
-        "xem lại",
-        "review",
-        "soi code",
-        "kiem duyet",
-        "kiểm duyệt"
-      ]
-    },
-    "VISUALIZE": {
-      "keywords": [
-        "giao dien",
-        "giao diện",
-        "trai nghiem",
-        "trải nghiệm",
-        "man hinh",
-        "màn hình",
-        "phac thao",
-        "phác thảo",
-        "bo cuc",
-        "bố cục"
-      ]
-    },
-    "SESSION": {
-      "keywords": [
-        "tiep tuc",
-        "tiếp tục",
-        "tiep theo",
-        "tiếp theo",
-        "ngu canh",
-        "ngữ cảnh",
-        "nhac nhanh",
-        "nhắc nhanh",
-        "viec dang do",
-        "việc đang dở",
-        "o dau roi",
-        "ở đâu rồi",
-        "luu lai",
-        "lưu lại"
-      ]
-    }
-  },
-  "complexity": {
-    "prompt_hints": {
-      "small": [
-        "lỗi đánh máy",
-        "loi danh may",
-        "đổi text",
-        "doi text",
-        "đổi label",
-        "sửa css",
-        "sua css"
-      ],
-      "medium": [
-        "tính năng",
-        "tinh nang",
-        "endpoint",
-        "biểu mẫu",
-        "bieu mau",
-        "bộ lọc",
-        "bo loc",
-        "trang mới",
-        "trang moi"
-      ],
-      "large": [
-        "thanh toán",
-        "thanh toan",
-        "xác thực",
-        "xac thuc",
-        "di trú",
-        "di tru",
-        "module mới",
-        "module moi",
-        "kiến trúc",
-        "kien truc",
-        "viết lại",
-        "viet lai"
-      ]
-    }
-  },
-  "brainstorm_gate": {
-    "prompt_keywords": [
-      "y tuong",
-      "ý tưởng",
-      "mo ho",
-      "mơ hồ",
-      "chua ro",
-      "chưa rõ",
-      "khong ro",
-      "không rõ",
-      "khong chac",
-      "không chắc",
-      "nen chon",
-      "nên chọn",
-      "nen dung",
-      "nên dùng",
-      "can chot",
-      "cần chốt",
-      "chot huong",
-      "chốt hướng",
-      "chon huong",
-      "chọn hướng",
-      "huong nao",
-      "hướng nào",
-      "roi moi lap ke hoach",
-      "rồi mới lập kế hoạch",
-      "truoc khi plan",
-      "trước khi plan",
-      "truoc khi lap ke hoach",
-      "trước khi lập kế hoạch",
-      "cach nao",
-      "cách nào",
-      "so sanh",
-      "so sánh",
-      "lua chon",
-      "lựa chọn"
-    ]
-  },
-  "spec_review_gate": {
-    "prompt_keywords": [
-      "di tru",
-      "di trú",
-      "hop dong",
-      "hợp đồng",
-      "tich hop",
-      "tích hợp",
-      "bao mat",
-      "bảo mật",
-      "rui ro cao",
-      "rủi ro cao",
-      "ban kinh anh huong",
-      "bán kính ảnh hưởng",
-      "quay lui",
-      "xac thuc",
-      "xác thực",
-      "thanh toan",
-      "thanh toán"
-    ]
-  },
-  "domains": {
-    "frontend": {
-      "prompt_keywords": [
-        "giao dien",
-        "giao diện",
-        "man hinh",
-        "màn hình",
-        "bieu mau",
-        "biểu mẫu",
-        "bo cuc",
-        "bố cục",
-        "hieu ung",
-        "hiệu ứng"
-      ]
-    },
-    "backend": {
-      "prompt_keywords": [
-        "co so du lieu",
-        "cơ sở dữ liệu",
-        "dich vu",
-        "dịch vụ",
-        "di tru",
-        "di trú",
-        "may chu",
-        "máy chủ",
-        "api"
-      ]
-    }
-  },
-  "change_type_hints": {
-    "non_behavioral_keywords": [
-      "tai lieu",
-      "tài liệu",
-      "cau hinh",
-      "cấu hình",
-      "doi ten",
-      "đổi tên",
-      "format lai",
-      "format lại"
-    ],
-    "behavioral_keywords": [
-      "lỗi",
-      "loi",
-      "sửa",
-      "sua",
-      "tính năng",
-      "tinh nang",
-      "loi crash",
-      "lỗi crash"
-    ]
-  },
-  "evidence_response_contract": {
-    "banned_phrases": [
-      "Khong reproduce duoc nen chac on.",
-      "Không reproduce được nên chắc ổn.",
-      "Test fail nhung chac khong lien quan.",
-      "Test fail nhưng chắc không liên quan.",
-      "Spec co ban ro roi, cu code tiep.",
-      "Spec cơ bản rõ rồi, cứ code tiếp.",
-      "Chac khong sao dau.",
-      "Chắc không sao đâu.",
-      "Co ve on roi.",
-      "Có vẻ ổn rồi.",
-      "Xong roi.",
-      "Xong rồi."
-    ]
-  },
-  "rationalization_patterns": [
-    "Khong reproduce duoc, chac khong sao.",
-    "Không reproduce được, chắc không sao.",
-    "Test fail nhung chac khong lien quan.",
-    "Test fail nhưng chắc không liên quan.",
-    "Spec ro roi, cu code thoi.",
-    "Spec rõ rồi, cứ code thôi.",
-    "Merge truoc, sua sau.",
-    "Merge trước, sửa sau.",
-    "Task nho qua, khong can test.",
-    "Task nhỏ quá, không cần test."
-  ]
+    "intents":  {
+                    "BUILD":  {
+                                  "keywords":  [
+                                                   "them",
+                                                   "thêm",
+                                                   "tao",
+                                                   "tạo",
+                                                   "viet",
+                                                   "viết",
+                                                   "xay dung",
+                                                   "xây dựng",
+                                                   "tinh nang",
+                                                   "tính năng",
+                                                   "lam",
+                                                   "làm"
+                                               ]
+                              },
+                    "DEBUG":  {
+                                  "keywords":  [
+                                                   "loi",
+                                                   "lỗi",
+                                                   "sua",
+                                                   "sửa",
+                                                   "hong",
+                                                   "hỏng",
+                                                   "khong chay",
+                                                   "không chạy",
+                                                   "bi loi",
+                                                   "bị lỗi",
+                                                   "dieu tra",
+                                                   "điều tra"
+                                               ]
+                              },
+                    "OPTIMIZE":  {
+                                     "keywords":  [
+                                                      "toi uu",
+                                                      "tối ưu",
+                                                      "don",
+                                                      "dọn",
+                                                      "tai cau truc",
+                                                      "tái cấu trúc",
+                                                      "lam sach",
+                                                      "làm sạch",
+                                                      "giam do phuc tap",
+                                                      "giảm độ phức tạp"
+                                                  ]
+                                 },
+                    "DEPLOY":  {
+                                   "keywords":  [
+                                                    "trien khai",
+                                                    "triển khai",
+                                                    "phat hanh",
+                                                    "phát hành",
+                                                    "dua len",
+                                                    "đưa lên",
+                                                    "len production",
+                                                    "lên production",
+                                                    "ra mat",
+                                                    "ra mắt",
+                                                    "xuat ban",
+                                                    "xuất bản"
+                                                ]
+                               },
+                    "REVIEW":  {
+                                   "keywords":  [
+                                                    "danh gia",
+                                                    "đánh giá",
+                                                    "kiem tra",
+                                                    "kiểm tra",
+                                                    "xem lai",
+                                                    "xem lại",
+                                                    "review",
+                                                    "soi code",
+                                                    "kiem duyet",
+                                                    "kiểm duyệt"
+                                                ]
+                               },
+                    "VISUALIZE":  {
+                                      "keywords":  [
+                                                       "giao dien",
+                                                       "giao diện",
+                                                       "trai nghiem",
+                                                       "trải nghiệm",
+                                                       "man hinh",
+                                                       "màn hình",
+                                                       "phac thao",
+                                                       "phác thảo",
+                                                       "bo cuc",
+                                                       "bố cục"
+                                                   ]
+                                  },
+                    "SESSION":  {
+                                    "keywords":  [
+                                                     "tiep tuc",
+                                                     "tiếp tục",
+                                                     "tiep theo",
+                                                     "tiếp theo",
+                                                     "ngu canh",
+                                                     "ngữ cảnh",
+                                                     "nhac nhanh",
+                                                     "nhắc nhanh",
+                                                     "viec dang do",
+                                                     "việc đang dở",
+                                                     "o dau roi",
+                                                     "ở đâu rồi",
+                                                     "luu lai",
+                                                     "lưu lại"
+                                                 ]
+                                }
+                },
+    "complexity":  {
+                       "prompt_hints":  {
+                                            "small":  [
+                                                          "lỗi đánh máy",
+                                                          "loi danh may",
+                                                          "đổi text",
+                                                          "doi text",
+                                                          "đổi label",
+                                                          "sửa css",
+                                                          "sua css"
+                                                      ],
+                                            "medium":  [
+                                                           "tính năng",
+                                                           "tinh nang",
+                                                           "endpoint",
+                                                           "biểu mẫu",
+                                                           "bieu mau",
+                                                           "bộ lọc",
+                                                           "bo loc",
+                                                           "trang mới",
+                                                           "trang moi"
+                                                       ],
+                                            "large":  [
+                                                          "thanh toán",
+                                                          "thanh toan",
+                                                          "xác thực",
+                                                          "xac thuc",
+                                                          "di trú",
+                                                          "di tru",
+                                                          "module mới",
+                                                          "module moi",
+                                                          "kiến trúc",
+                                                          "kien truc",
+                                                          "viết lại",
+                                                          "viet lai"
+                                                      ]
+                                        }
+                   },
+    "brainstorm_gate":  {
+                            "prompt_keywords":  [
+                                                    "y tuong",
+                                                    "ý tưởng",
+                                                    "mo ho",
+                                                    "mơ hồ",
+                                                    "chua ro",
+                                                    "chưa rõ",
+                                                    "khong ro",
+                                                    "không rõ",
+                                                    "khong chac",
+                                                    "không chắc",
+                                                    "nen chon",
+                                                    "nên chọn",
+                                                    "nen dung",
+                                                    "nên dùng",
+                                                    "can chot",
+                                                    "cần chốt",
+                                                    "chot huong",
+                                                    "chốt hướng",
+                                                    "chon huong",
+                                                    "chọn hướng",
+                                                    "huong nao",
+                                                    "hướng nào",
+                                                    "roi moi lap ke hoach",
+                                                    "rồi mới lập kế hoạch",
+                                                    "truoc khi plan",
+                                                    "trước khi plan",
+                                                    "truoc khi lap ke hoach",
+                                                    "trước khi lập kế hoạch",
+                                                    "cach nao",
+                                                    "cách nào",
+                                                    "so sanh",
+                                                    "so sánh",
+                                                    "lua chon",
+                                                    "lựa chọn"
+                                                ]
+                        },
+    "spec_review_gate":  {
+                             "prompt_keywords":  [
+                                                     "di tru",
+                                                     "di trú",
+                                                     "hop dong",
+                                                     "hợp đồng",
+                                                     "tich hop",
+                                                     "tích hợp",
+                                                     "bao mat",
+                                                     "bảo mật",
+                                                     "rui ro cao",
+                                                     "rủi ro cao",
+                                                     "ban kinh anh huong",
+                                                     "bán kính ảnh hưởng",
+                                                     "quay lui",
+                                                     "xac thuc",
+                                                     "xác thực",
+                                                     "thanh toan",
+                                                     "thanh toán"
+                                                 ]
+                         },
+    "change_type_hints":  {
+                              "non_behavioral_keywords":  [
+                                                              "tai lieu",
+                                                              "tài liệu",
+                                                              "cau hinh",
+                                                              "cấu hình",
+                                                              "doi ten",
+                                                              "đổi tên",
+                                                              "format lai",
+                                                              "format lại"
+                                                          ],
+                              "behavioral_keywords":  [
+                                                          "lỗi",
+                                                          "loi",
+                                                          "sửa",
+                                                          "sua",
+                                                          "tính năng",
+                                                          "tinh nang",
+                                                          "loi crash",
+                                                          "lỗi crash"
+                                                      ]
+                          },
+    "evidence_response_contract":  {
+                                       "banned_phrases":  [
+                                                              "Khong reproduce duoc nen chac on.",
+                                                              "Không reproduce được nên chắc ổn.",
+                                                              "Test fail nhung chac khong lien quan.",
+                                                              "Test fail nhưng chắc không liên quan.",
+                                                              "Spec co ban ro roi, cu code tiep.",
+                                                              "Spec cơ bản rõ rồi, cứ code tiếp.",
+                                                              "Chac khong sao dau.",
+                                                              "Chắc không sao đâu.",
+                                                              "Co ve on roi.",
+                                                              "Có vẻ ổn rồi.",
+                                                              "Xong roi.",
+                                                              "Xong rồi."
+                                                          ]
+                                   },
+    "rationalization_patterns":  [
+                                     "Khong reproduce duoc, chac khong sao.",
+                                     "Không reproduce được, chắc không sao.",
+                                     "Test fail nhung chac khong lien quan.",
+                                     "Test fail nhưng chắc không liên quan.",
+                                     "Spec ro roi, cu code thoi.",
+                                     "Spec rõ rồi, cứ code thôi.",
+                                     "Merge truoc, sua sau.",
+                                     "Merge trước, sửa sau.",
+                                     "Task nho qua, khong can test.",
+                                     "Task nhỏ quá, không cần test."
+                                 ],
+    "ui_detection":  {
+                         "prompt_keywords":  [
+                                                 "giao dien",
+                                                 "giao diện",
+                                                 "man hinh",
+                                                 "màn hình",
+                                                 "bieu mau",
+                                                 "biểu mẫu",
+                                                 "bo cuc",
+                                                 "bố cục",
+                                                 "hieu ung",
+                                                 "hiệu ứng"
+                                             ]
+                     }
 }

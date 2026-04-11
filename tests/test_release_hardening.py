@@ -139,17 +139,20 @@ class ReleaseHardeningTests(unittest.TestCase):
 
     def test_brain_decisions_keep_only_one_current_stable_line(self) -> None:
         decisions = json.loads((ROOT_DIR / ".brain" / "decisions.json").read_text(encoding="utf-8"))
+        version = (ROOT_DIR / "VERSION").read_text(encoding="utf-8").strip()
+        major, minor, *_ = version.split(".")
+        expected_scope = f"forge-{major}-{minor}-stable-status"
         stable_decisions = [item for item in decisions if item.get("scope", "").endswith("-stable-status")]
 
         current_line_decisions = [
             item for item in stable_decisions if "current stable Forge release" in item.get("summary", "")
         ]
         self.assertEqual(len(current_line_decisions), 1)
-        self.assertEqual(current_line_decisions[0]["scope"], "forge-1-15-stable-status")
+        self.assertEqual(current_line_decisions[0]["scope"], expected_scope)
         self.assertEqual(current_line_decisions[0]["status"], "resolved")
 
         for item in stable_decisions:
-            if item["scope"] != "forge-1-15-stable-status":
+            if item["scope"] != expected_scope:
                 with self.subTest(scope=item["scope"]):
                     self.assertEqual(item["status"], "superseded")
                     self.assertNotIn("current stable Forge release", item["summary"])

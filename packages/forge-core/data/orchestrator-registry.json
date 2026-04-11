@@ -494,59 +494,33 @@
       "payment"
     ]
   },
-  "domains": {
-    "frontend": {
-      "prompt_keywords": [
-        "ui",
-        "ux",
-        "css",
-        "layout",
-        "responsive",
-        "component",
-        "screen",
-        "page",
-        "form",
-        "animation"
-      ],
-      "repo_signals": [
-        ".tsx",
-        ".jsx",
-        "components",
-        "pages",
-        "styles",
-        "tailwind",
-        "vite",
-        "src/"
-      ],
-      "weak_repo_signals": [
-        "src/"
-      ]
-    },
-    "backend": {
-      "prompt_keywords": [
-        "api",
-        "backend",
-        "database",
-        "db",
-        "migration",
-        "policy",
-        "rls",
-        "rpc",
-        "service",
-        "sql"
-      ],
-      "repo_signals": [
-        "supabase",
-        "migrations",
-        "schema.sql",
-        "api/",
-        "server/",
-        "backend/",
-        "functions/",
-        "pom.xml",
-        "go.mod"
-      ]
-    }
+  "ui_detection": {
+    "prompt_keywords": [
+      "ui",
+      "ux",
+      "css",
+      "layout",
+      "responsive",
+      "component",
+      "screen",
+      "page",
+      "form",
+      "animation"
+    ],
+    "repo_signals": [
+      ".tsx",
+      ".jsx",
+      "components",
+      "pages",
+      "styles",
+      "tailwind",
+      "vite",
+      "app/",
+      "src/"
+    ],
+    "weak_repo_signals": [
+      "src/"
+    ]
   },
   "solo_profiles": {
     "default_profile": "solo-internal",
@@ -874,10 +848,6 @@
     }
   },
   "minimal_routing_policy": {
-    "prompt_only_domain_intents": [
-      "REVIEW",
-      "SESSION"
-    ],
     "prompt_only_quality_profile_intents": [
       "REVIEW",
       "SESSION"
@@ -888,7 +858,6 @@
       "VISUALIZE"
     ],
     "prompt_only_for_small": {
-      "domains": true,
       "quality_profiles": true,
       "local_companions": true
     },

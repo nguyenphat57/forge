@@ -66,11 +66,15 @@ flowchart TD
 - Which API/schema/event/consumer boundary changes?
 - Is the compatibility window explicit?
 - Which callers or consumers must update in lockstep?
+- If the packet touches data flow, jobs, or webhooks, what migration/backfill/replay window must stay safe?
+- Is the transport boundary still thin enough that business logic will stay in services instead of leaking into handlers?
 
 ### 3. Failure Paths & Ops
 - Are major error states and operator actions covered?
 - Is rollback, fallback, or a kill switch needed?
 - Are any irreversible steps still missing a guardrail?
+- Is retry/replay/idempotency explicit for async work, related writes, or side effects?
+- Are observability and audit signals clear enough to investigate the changed boundary in production?
 
 ### 4. Verification Readiness
 - Is there a concrete failing test or reproduction path?
@@ -127,9 +131,12 @@ If the answer depends on public surface, release surface, or unclear packet shap
 - first file/surface/boundary map
 - baseline verification path
 - exact boundary change
+- caller/consumer sequencing for any contract change
+- transaction or idempotency stance for related writes, retries, or replay
 - acceptance criteria to prove
 - proof/check required before declaring the slice complete
 - key edge cases to preserve
+- observability, rollback, or operator notes for flows with blast radius
 - worktree bootstrap or other isolation plan when build will run in `worktree`
 - reopen conditions
 
@@ -162,8 +169,10 @@ Rules:
 - [ ] Problem statement and direction are clear
 - [ ] Scope in/out is explicit
 - [ ] Affected boundaries/contracts are stated
+- [ ] Caller/consumer sequencing and compatibility window are explicit when contracts move
 - [ ] First slice and file/surface map are specific enough to start build
 - [ ] Edge cases, failure paths, and rollback concerns are covered
+- [ ] Transaction/idempotency and observability notes exist for backend or async boundaries
 - [ ] Verification strategy is close enough to the blast radius
 - [ ] Decision is explicit: `go`, `revise`, or `blocked`
 - [ ] If not `go`, the correct step back to `plan` or `architect` is named

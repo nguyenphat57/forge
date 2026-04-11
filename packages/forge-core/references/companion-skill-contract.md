@@ -19,7 +19,7 @@ You do not need this file when:
 By default Forge runs as:
 
 ```text
-Forge core workflows + Forge domains
+Forge core workflows + Forge references/tooling
 ```
 
 Not:
@@ -68,7 +68,7 @@ Do not infer runtime from folder names, variable names, or agent habit.
 
 ```text
 1. Forge detects intent and complexity
-2. Forge chooses the process and domain skills needed for the job
+2. Forge chooses the Forge workflows needed for the job
 3. Forge detects runtime from source-of-truth repo artifacts
 4. If the runtime is clear and a companion materially improves accuracy, load the companion
 5. The companion supplies stack-specific conventions and commands
@@ -194,7 +194,7 @@ Forge: [intent] | [complexity] | Skills: [forge skills] + [companion skill]
 Examples:
 
 ```text
-Forge: BUILD | medium | Skills: plan + build + backend + python-fastapi
+Forge: BUILD | medium | Skills: plan + build + python-fastapi
 Forge: DEBUG | small | Skills: debug + test + dotnet-webapi
 ```
 
@@ -211,7 +211,7 @@ Companion skills should:
 
 - A companion routes intent instead of Forge
 - A companion decides to skip verification because the stack is hard to test
-- Forge bakes too many language-specific idioms into `build.md` or `backend.md`
+- Forge bakes too many language-specific idioms into `build.md` or `spec-review.md`
 - Multiple companions load at once when repo signals are still ambiguous
 - Workspace-local skills remain active long after the repo removed that runtime or feature
 - A companion lacks a clear `when not to use` boundary and gets loaded too often

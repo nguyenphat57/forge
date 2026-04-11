@@ -101,6 +101,14 @@ If the user wants more visual directions, palette/typography exploration, or the
 Quick examples to increase specificity: `../../references/ui-good-bad-examples.md`
 Heuristics for touch/dense-data/dashboard UI: `../../references/ui-heuristics.md`
 
+## UI Integrity Rules
+
+- Preserve the existing design system first: tokens, spacing, typography hierarchy, and interaction patterns should stay stable unless the brief explicitly calls for a visual break.
+- State the complete UI state model up front for medium/large work: default, loading, empty, error, disabled, and success.
+- Keep interaction affordances stable across devices: no hover-only primary actions on touch-heavy flows, no layout-jump hover polish, and no sticky/fixed chrome that blocks the main task.
+- Treat accessibility and motion as part of the interaction model, not a final polish pass: focus order, labels, contrast, and reduced-motion stance should already be visible in the spec.
+- Handoff should warn about likely implementation drift such as token violations, fragile responsive behavior, or missing browser QA for multi-step flows.
+
 ## Design Spec Template
 
 ```markdown
@@ -215,7 +223,9 @@ Visualize reports:
 - Screens: [...]
 - Interaction model: [...]
 - Visual direction: [...]
+- Design-system / token constraints: [...]
 - Assets/specs: [...]
+- Known implementation watchouts: [...]
 - Open questions: [...]
 ```
 

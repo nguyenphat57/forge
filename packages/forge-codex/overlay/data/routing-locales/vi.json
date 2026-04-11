@@ -1,184 +1,173 @@
 {
-  "intents": {
-    "BUILD": {
-      "keywords": [
-        "thêm",
-        "tạo",
-        "viết",
-        "xây dựng",
-        "tính năng",
-        "làm"
-      ]
-    },
-    "DEBUG": {
-      "keywords": [
-        "lỗi",
-        "sửa",
-        "hỏng",
-        "không chạy",
-        "bị lỗi",
-        "điều tra"
-      ]
-    },
-    "OPTIMIZE": {
-      "keywords": [
-        "tối ưu",
-        "dọn",
-        "tái cấu trúc",
-        "làm sạch",
-        "giảm độ phức tạp"
-      ]
-    },
-    "DEPLOY": {
-      "keywords": [
-        "triển khai",
-        "phát hành",
-        "đưa lên",
-        "lên production",
-        "ra mắt",
-        "xuất bản"
-      ]
-    },
-    "REVIEW": {
-      "keywords": [
-        "đánh giá",
-        "kiểm tra",
-        "xem lại",
-        "review",
-        "soi code",
-        "kiểm duyệt"
-      ]
-    },
-    "VISUALIZE": {
-      "keywords": [
-        "giao diện",
-        "trải nghiệm",
-        "màn hình",
-        "phác thảo",
-        "bố cục"
-      ]
-    },
-    "SESSION": {
-      "keywords": [
-        "tiếp tục",
-        "tiếp theo",
-        "ngữ cảnh",
-        "nhắc nhanh",
-        "việc đang dở",
-        "ở đâu rồi",
-        "lưu lại"
-      ]
-    }
-  },
-  "complexity": {
-    "prompt_hints": {
-      "small": [
-        "lỗi đánh máy",
-        "đổi text",
-        "đổi label",
-        "sửa css"
-      ],
-      "medium": [
-        "tính năng",
-        "endpoint",
-        "biểu mẫu",
-        "bộ lọc",
-        "trang mới"
-      ],
-      "large": [
-        "thanh toán",
-        "xác thực",
-        "di trú",
-        "module mới",
-        "kiến trúc",
-        "viết lại"
-      ]
-    }
-  },
-  "brainstorm_gate": {
-    "prompt_keywords": [
-      "ý tưởng",
-      "mơ hồ",
-      "chưa rõ",
-      "không rõ",
-      "không chắc",
-      "nên chọn",
-      "nên dùng",
-      "cần chốt",
-      "chốt hướng",
-      "chọn hướng",
-      "hướng nào",
-      "rồi mới lập kế hoạch",
-      "trước khi plan",
-      "trước khi lập kế hoạch",
-      "cách nào",
-      "so sánh",
-      "lựa chọn"
-    ]
-  },
-  "spec_review_gate": {
-    "prompt_keywords": [
-      "di trú",
-      "hợp đồng",
-      "tích hợp",
-      "bảo mật",
-      "rủi ro cao",
-      "bán kính ảnh hưởng",
-      "quay lui",
-      "xác thực",
-      "thanh toán",
-      "tương thích ngược"
-    ]
-  },
-  "domains": {
-    "frontend": {
-      "prompt_keywords": [
-        "giao diện",
-        "màn hình",
-        "biểu mẫu",
-        "bố cục",
-        "hiệu ứng"
-      ]
-    },
-    "backend": {
-      "prompt_keywords": [
-        "cơ sở dữ liệu",
-        "dịch vụ",
-        "di trú",
-        "máy chủ",
-        "api"
-      ]
-    }
-  },
-  "change_type_hints": {
-    "non_behavioral_keywords": [
-      "tài liệu",
-      "cấu hình",
-      "đổi tên",
-      "format lại"
-    ],
-    "behavioral_keywords": [
-      "lỗi",
-      "sửa",
-      "tính năng",
-      "lỗi crash"
-    ]
-  },
-  "evidence_response_contract": {
-    "banned_phrases": [
-      "Không reproduce được nên chắc ổn.",
-      "Test fail nhưng chắc không liên quan.",
-      "Spec cơ bản rõ rồi, cứ code tiếp.",
-      "Chắc không sao đâu.",
-      "Có vẻ ổn rồi.",
-      "Xong rồi."
-    ]
-  },
-  "rationalization_patterns": [
-    "Không reproduce được, chắc không sao.",
-    "Test fail nhưng chắc không liên quan.",
-    "Spec rõ rồi, cứ code thôi.",
-    "Merge trước, sửa sau.",
-    "Task nhỏ quá, không cần test."
-  ]
+    "intents":  {
+                    "BUILD":  {
+                                  "keywords":  [
+                                                   "thêm",
+                                                   "tạo",
+                                                   "viết",
+                                                   "xây dựng",
+                                                   "tính năng",
+                                                   "làm"
+                                               ]
+                              },
+                    "DEBUG":  {
+                                  "keywords":  [
+                                                   "lỗi",
+                                                   "sửa",
+                                                   "hỏng",
+                                                   "không chạy",
+                                                   "bị lỗi",
+                                                   "điều tra"
+                                               ]
+                              },
+                    "OPTIMIZE":  {
+                                     "keywords":  [
+                                                      "tối ưu",
+                                                      "dọn",
+                                                      "tái cấu trúc",
+                                                      "làm sạch",
+                                                      "giảm độ phức tạp"
+                                                  ]
+                                 },
+                    "DEPLOY":  {
+                                   "keywords":  [
+                                                    "triển khai",
+                                                    "phát hành",
+                                                    "đưa lên",
+                                                    "lên production",
+                                                    "ra mắt",
+                                                    "xuất bản"
+                                                ]
+                               },
+                    "REVIEW":  {
+                                   "keywords":  [
+                                                    "đánh giá",
+                                                    "kiểm tra",
+                                                    "xem lại",
+                                                    "review",
+                                                    "soi code",
+                                                    "kiểm duyệt"
+                                                ]
+                               },
+                    "VISUALIZE":  {
+                                      "keywords":  [
+                                                       "giao diện",
+                                                       "trải nghiệm",
+                                                       "màn hình",
+                                                       "phác thảo",
+                                                       "bố cục"
+                                                   ]
+                                  },
+                    "SESSION":  {
+                                    "keywords":  [
+                                                     "tiếp tục",
+                                                     "tiếp theo",
+                                                     "ngữ cảnh",
+                                                     "nhắc nhanh",
+                                                     "việc đang dở",
+                                                     "ở đâu rồi",
+                                                     "lưu lại"
+                                                 ]
+                                }
+                },
+    "complexity":  {
+                       "prompt_hints":  {
+                                            "small":  [
+                                                          "lỗi đánh máy",
+                                                          "đổi text",
+                                                          "đổi label",
+                                                          "sửa css"
+                                                      ],
+                                            "medium":  [
+                                                           "tính năng",
+                                                           "endpoint",
+                                                           "biểu mẫu",
+                                                           "bộ lọc",
+                                                           "trang mới"
+                                                       ],
+                                            "large":  [
+                                                          "thanh toán",
+                                                          "xác thực",
+                                                          "di trú",
+                                                          "module mới",
+                                                          "kiến trúc",
+                                                          "viết lại"
+                                                      ]
+                                        }
+                   },
+    "brainstorm_gate":  {
+                            "prompt_keywords":  [
+                                                    "ý tưởng",
+                                                    "mơ hồ",
+                                                    "chưa rõ",
+                                                    "không rõ",
+                                                    "không chắc",
+                                                    "nên chọn",
+                                                    "nên dùng",
+                                                    "cần chốt",
+                                                    "chốt hướng",
+                                                    "chọn hướng",
+                                                    "hướng nào",
+                                                    "rồi mới lập kế hoạch",
+                                                    "trước khi plan",
+                                                    "trước khi lập kế hoạch",
+                                                    "cách nào",
+                                                    "so sánh",
+                                                    "lựa chọn"
+                                                ]
+                        },
+    "spec_review_gate":  {
+                             "prompt_keywords":  [
+                                                     "di trú",
+                                                     "hợp đồng",
+                                                     "tích hợp",
+                                                     "bảo mật",
+                                                     "rủi ro cao",
+                                                     "bán kính ảnh hưởng",
+                                                     "quay lui",
+                                                     "xác thực",
+                                                     "thanh toán",
+                                                     "tương thích ngược"
+                                                 ]
+                         },
+    "change_type_hints":  {
+                              "non_behavioral_keywords":  [
+                                                              "tài liệu",
+                                                              "cấu hình",
+                                                              "đổi tên",
+                                                              "format lại"
+                                                          ],
+                              "behavioral_keywords":  [
+                                                          "lỗi",
+                                                          "sửa",
+                                                          "tính năng",
+                                                          "lỗi crash"
+                                                      ]
+                          },
+    "evidence_response_contract":  {
+                                       "banned_phrases":  [
+                                                              "Không reproduce được nên chắc ổn.",
+                                                              "Test fail nhưng chắc không liên quan.",
+                                                              "Spec cơ bản rõ rồi, cứ code tiếp.",
+                                                              "Chắc không sao đâu.",
+                                                              "Có vẻ ổn rồi.",
+                                                              "Xong rồi."
+                                                          ]
+                                   },
+    "rationalization_patterns":  [
+                                     "Không reproduce được, chắc không sao.",
+                                     "Test fail nhưng chắc không liên quan.",
+                                     "Spec rõ rồi, cứ code thôi.",
+                                     "Merge trước, sửa sau.",
+                                     "Task nhỏ quá, không cần test."
+                                 ],
+    "ui_detection":  {
+                         "prompt_keywords":  [
+                                                 "giao diện",
+                                                 "màn hình",
+                                                 "biểu mẫu",
+                                                 "bố cục",
+                                                 "hiệu ứng"
+                                             ]
+                     }
 }

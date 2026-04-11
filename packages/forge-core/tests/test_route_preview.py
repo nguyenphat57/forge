@@ -401,6 +401,9 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["intent"], "BUILD")
         self.assertEqual(report["detected"]["browser_qa_classification"], "optional-accelerator")
         self.assertIn("ui or workflow verification", report["detected"]["browser_qa_scope"])
+        self.assertNotIn("domain_skills", report["detected"])
+        self.assertNotIn("frontend", report["activation_line"])
+        self.assertNotIn("Domain skills:", route_preview.format_text(report))
 
     def test_explicit_browser_flow_can_mark_packet_as_browser_required(self) -> None:
         report = route_preview.build_report(
@@ -414,6 +417,20 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["intent"], "DEBUG")
         self.assertEqual(report["detected"]["browser_qa_classification"], "required-for-this-packet")
         self.assertIn("explicit browser reproduction", report["detected"]["browser_qa_scope"])
+
+    def test_backend_risk_prompt_keeps_spec_review_without_backend_skill_surface(self) -> None:
+        report = route_preview.build_report(
+            self.build_args(
+                "Add a new checkout flow with payment and auth",
+                repo_signals=["package.json", "api/"],
+            )
+        )
+
+        self.assertEqual(report["detected"]["intent"], "BUILD")
+        self.assertIn("spec-review", report["detected"]["forge_skills"])
+        self.assertNotIn("domain_skills", report["detected"])
+        self.assertNotIn("backend", report["activation_line"])
+        self.assertNotIn("Domain skills:", route_preview.format_text(report))
 
     def test_review_lane_host_gets_packetized_independent_reviewer_plan(self) -> None:
         registry = copy.deepcopy(route_preview.load_registry())

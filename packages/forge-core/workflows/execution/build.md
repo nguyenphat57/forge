@@ -398,6 +398,28 @@ Do not use vague sentences like "almost done", "basically okay", "probably can b
 - [ ] Completion state is explicit
 - [ ] Clearly noted the part that cannot be verified (if any)
 
+## Backend Implementation Guardrails
+
+Use this lens whenever the slice touches API, job, event, migration, or data-change work:
+
+- Medium/large backend slices should create or reuse a backend brief with `scripts/generate_backend_brief.py`; if a persisted brief is reused, validate it with `scripts/check_backend_brief.py` before broad edits.
+- Keep the service shape explicit: validate input -> authorize when needed -> business logic -> persistence -> map back to transport.
+- Keep business logic out of controllers, handlers, and transport adapters even when the slice is small.
+- Make contract and compatibility explicit: caller/consumer lockstep updates, compatibility window, migration/backfill sequencing, and expand-contract stance when needed.
+- For related writes, retries, or async recovery, state the transaction boundary and idempotency stance before coding.
+- Leave enough observability for real failures: logs, metrics, traces, or audit notes should explain how to investigate the changed path.
+- Treat backend integrity as part of the boundary check: callers stay safe, validation stays at the boundary, migration risk is named, and no hidden coupling is introduced across services/jobs/webhooks.
+
+## UI Implementation Guardrails
+
+Use this lens whenever the slice ships UI implementation instead of only a mockup/spec:
+
+- Preserve the existing design system, tokens, spacing, and typography before inventing a new visual direction.
+- Lock the state model before polish: default, loading, empty, error, disabled, and success states must be intentionally covered for medium/large UI slices.
+- Keep affordances stable: do not rely on hover for primary actions on touch surfaces, avoid layout-shift hover effects, and keep touch targets large enough when touch is relevant.
+- Verify responsive/platform constraints plus focus, contrast, labels, and reduced-motion behavior close to the blast radius of the changed UI.
+- When the slice is UI-heavy, multi-step, or browser-sensitive, classify browser QA explicitly and use it as part of slice proof instead of relying only on static inspection.
+
 ## Language / Runtime Integration
 
 ```
@@ -424,6 +446,7 @@ Build report:
 - Progress checkpoint: [artifact path or n/a]
 - Files changed: [...]
 - Verified: [command/check] -> [result]
+- Backend brief / UI brief: [path or n/a]
 - Evidence response: [I verified:... / I investigated:... / Clarification needed:...]
 - Completion state: [ready-for-review/ready-for-merge/blocked-by-residual-risk]
 - Unverified: [...]

@@ -426,7 +426,7 @@ Quickly sketch the new checkout screen for tablets, prioritizing quick touch ope
 
 **Fail if**
 
-- Jump to frontend implementation immediately
+- Jump to UI implementation immediately
 - Not talking about interaction, state, responsiveness
 
 ---

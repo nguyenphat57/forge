@@ -33,8 +33,6 @@ def validate_route_case(case: dict, report: dict) -> list[str]:
     if "expected_skill_prefix" in case:
         prefix = case["expected_skill_prefix"]
         _expect_equal(failures, detected["forge_skills"][: len(prefix)], prefix, "forge_skill_prefix")
-    if "expected_domain_skills" in case:
-        _expect_equal(failures, detected["domain_skills"], case["expected_domain_skills"], "domain_skills")
     if "expected_local_companions" in case:
         _expect_equal(failures, detected["local_companions"], case["expected_local_companions"], "local_companions")
     if "expected_quality_profile" in case:

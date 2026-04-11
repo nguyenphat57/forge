@@ -24,8 +24,8 @@
 | `target-state.md` | Re-anchor Forge strategy and operator choices to the north-star target state, including the shipped `1.15.x` closure target, the maintenance boundary, and the explicit `1.16.x` reopen |
 | `execution-delivery.md` | Select execution mode, checkpoint, and completion state for large builds |
 | `failure-recovery-playbooks.md` | Use when the chain is stalled, a gate is blocked, review is deadlocked, or deployment fails and you need a clear recovery path |
-| `ui-briefs.md` | Use when frontend or visualize needs a first artifact before coding or mockups |
-| `frontend-stack-profiles.md` | Choose stack lens for frontend or visualization |
+| `ui-briefs.md` | Use when UI implementation or visualize needs a first artifact before coding or mockups |
+| `frontend-stack-profiles.md` | Choose stack lens for UI implementation or visualization |
 | `ui-quality-checklist.md` | Quick review of UI anti-patterns and delivery criteria |
 | `ui-escalation.md` | Decide when to pull more `$ui-ux-pro-max` |
 | `ui-good-bad-examples.md` | Concrete good/bad patterns so the agent does not have to infer anti-patterns alone |
@@ -153,10 +153,11 @@
 ```text
 1. backend-briefs.md
 2. tooling.md if you want to generate, check, or persist a backend brief
-3. backend.md
-4. failure-recovery-playbooks.md if the task is migration, recovery, or high-risk
-5. execution-delivery.md if the backend task spans multiple checkpoints
-6. companion-skill-contract.md if the runtime or framework is clear and you want to add more layers
+3. build.md
+4. spec-review.md
+5. failure-recovery-playbooks.md if the task is migration, recovery, or high-risk
+6. execution-delivery.md if the backend task spans multiple checkpoints
+7. companion-skill-contract.md if the runtime or framework is clear and you want to add more layers
 ```
 
 ### When doing frontend or visualization

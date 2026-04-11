@@ -1,12 +1,12 @@
 # UI Briefs
 
-> Use this file when the task is `frontend` or `visualize` at medium or large scope, or when the visual direction is still ambiguous.
+> Use this file when the task is UI implementation or `visualize` at medium or large scope, or when the visual direction is still ambiguous.
 
 ## Why This Exists
 
-`frontend` and `visualize` both need a clear artifact before jumping into components or mockups:
+UI implementation and `visualize` both need a clear artifact before jumping into components or mockups:
 
-- `frontend`: a frontend brief
+- UI implementation: a frontend brief
 - `visualize`: a visual brief
 
 The brief does not redefine the project's design system. It locks:

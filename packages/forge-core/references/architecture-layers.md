@@ -27,7 +27,7 @@ Canonical locations:
 
 - `packages/forge-core/SKILL.md`
 - `packages/forge-core/workflows/`
-- `packages/forge-core/domains/`
+- `packages/forge-core/references/`
 - `packages/forge-core/data/`
 - `packages/forge-core/scripts/`
 

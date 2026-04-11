@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from common import normalize_text, score_keywords
+
 
 REVIEW_SEQUENCES = {
     "single-lane": [
@@ -41,15 +43,6 @@ BROWSER_OPTIONAL_MARKERS = (
     "flow",
     "responsive",
     "checkout",
-)
-
-FRONTEND_REPO_MARKERS = (
-    ".tsx",
-    ".jsx",
-    "components",
-    "pages",
-    "app/",
-    "src/",
 )
 
 FAST_LANE_BLOCKER_KEYWORDS = (
@@ -100,18 +93,28 @@ def build_review_sequence(execution_pipeline_key: str | None) -> list[dict]:
     return [dict(item) for item in REVIEW_SEQUENCES.get(execution_pipeline_key or "", [])]
 
 
+def _ui_detection_scores(prompt: str, repo_signals: list[str], registry: dict) -> tuple[bool, bool]:
+    ui_detection = registry.get("ui_detection", {})
+    normalized_prompt = normalize_text(prompt)
+    normalized_signals = normalize_text(" ".join(repo_signals))
+    prompt_score = score_keywords(normalized_prompt, ui_detection.get("prompt_keywords", []))
+    signal_score = score_keywords(normalized_signals, ui_detection.get("repo_signals", []))
+    weak_signal_score = score_keywords(normalized_signals, ui_detection.get("weak_repo_signals", []))
+    return prompt_score > 0, max(signal_score - weak_signal_score, 0) > 0
+
+
 def classify_browser_qa(
     prompt: str,
     *,
     intent: str,
     complexity: str,
-    domain_skills: list[str],
     repo_signals: list[str],
+    registry: dict,
 ) -> dict:
     prompt_lower = prompt.casefold()
-    repo_signals_lower = [signal.casefold() for signal in repo_signals]
-    has_frontend_signal = "frontend" in domain_skills or any(marker in prompt_lower for marker in BROWSER_OPTIONAL_MARKERS)
-    has_frontend_repo = any(any(marker in signal for marker in FRONTEND_REPO_MARKERS) for signal in repo_signals_lower)
+    has_ui_prompt, has_ui_repo = _ui_detection_scores(prompt, repo_signals, registry)
+    has_frontend_signal = has_ui_prompt or any(marker in prompt_lower for marker in BROWSER_OPTIONAL_MARKERS)
+    has_frontend_repo = has_ui_repo
     explicit_browser = any(marker in prompt_lower for marker in BROWSER_REQUIRED_MARKERS)
     multi_surface = complexity == "large" or "parallel" in prompt_lower or "many screens" in prompt_lower
 

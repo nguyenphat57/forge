@@ -148,33 +148,6 @@ def detect_complexity(prompt_text: str, changed_files: int | None, registry: dic
     return registry["complexity"]["default"]
 
 
-def detect_domain_skills(
-    prompt_text: str,
-    repo_signals: list[str],
-    intent: str,
-    complexity: str,
-    registry: dict,
-) -> list[str]:
-    normalized_prompt = normalize_text(prompt_text)
-    normalized_signals = normalize_text(" ".join(repo_signals))
-    prompt_only = uses_prompt_only_scope(
-        intent,
-        complexity,
-        registry,
-        "prompt_only_domain_intents",
-        "domains",
-    )
-    domains: list[str] = []
-    for domain_name, config in registry.get("domains", {}).items():
-        prompt_score = score_keywords(normalized_prompt, config.get("prompt_keywords", []))
-        signal_score = score_keywords(normalized_signals, config.get("repo_signals", []))
-        weak_signal_score = score_keywords(normalized_signals, config.get("weak_repo_signals", []))
-        strong_signal_score = max(signal_score - weak_signal_score, 0)
-        if prompt_score > 0 or (not prompt_only and strong_signal_score > 0):
-            domains.append(domain_name)
-    return domains
-
-
 def infer_change_type(prompt_text: str, registry: dict) -> str:
     normalized = normalize_text(prompt_text)
     non_behavioral = score_keywords(normalized, registry["change_type_hints"]["non_behavioral_keywords"])

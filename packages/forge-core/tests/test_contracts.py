@@ -20,7 +20,7 @@ class BundleContractTests(unittest.TestCase):
         if not is_core_bundle():
             self.skipTest("Adapter bundles may add host-specific behavior on top of Forge core.")
 
-        for relative_dir in ("scripts", "data", "workflows", "domains"):
+        for relative_dir in ("scripts", "data", "workflows"):
             for path in (ROOT_DIR / relative_dir).rglob("*"):
                 if not path.is_file() or path.suffix not in {".py", ".json", ".md"}:
                     continue
@@ -33,8 +33,7 @@ class BundleContractTests(unittest.TestCase):
 
     def test_registry_chains_reference_known_skills(self) -> None:
         registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
-        known_skills = {path.stem for path in (ROOT_DIR / "domains").glob("*.md")}
-        known_skills.update(path.stem for path in (ROOT_DIR / "workflows" / "design").glob("*.md"))
+        known_skills = {path.stem for path in (ROOT_DIR / "workflows" / "design").glob("*.md")}
         known_skills.update(path.stem for path in (ROOT_DIR / "workflows" / "execution").glob("*.md"))
 
         for intent, config in registry["intents"].items():
@@ -44,8 +43,7 @@ class BundleContractTests(unittest.TestCase):
 
     def test_solo_profile_stage_contract_references_known_workflows(self) -> None:
         registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
-        known_skills = {path.stem for path in (ROOT_DIR / "domains").glob("*.md")}
-        known_skills.update(path.stem for path in (ROOT_DIR / "workflows" / "design").glob("*.md"))
+        known_skills = {path.stem for path in (ROOT_DIR / "workflows" / "design").glob("*.md")}
         known_skills.update(path.stem for path in (ROOT_DIR / "workflows" / "execution").glob("*.md"))
         profile_contract = registry["solo_profiles"]
 

@@ -68,12 +68,13 @@ def _looks_like_greenfield_feature(prompt_text: str, intent: str) -> bool:
     ) > 0
 
 
-def _looks_like_ui_work(prompt_text: str, domain_skills: list[str], registry: dict) -> bool:
-    if "frontend" in domain_skills:
-        return True
-    normalized = normalize_text(prompt_text)
-    frontend_keywords = registry.get("domains", {}).get("frontend", {}).get("prompt_keywords", [])
-    return score_keywords(normalized, frontend_keywords) > 0
+def _looks_like_ui_work(prompt_text: str, repo_signals: list[str], registry: dict) -> bool:
+    prompt_haystack, signal_haystack = _haystacks(prompt_text, repo_signals)
+    ui_detection = registry.get("ui_detection", {})
+    prompt_score = score_keywords(prompt_haystack, ui_detection.get("prompt_keywords", []))
+    signal_score = score_keywords(signal_haystack, ui_detection.get("repo_signals", []))
+    weak_signal_score = score_keywords(signal_haystack, ui_detection.get("weak_repo_signals", []))
+    return prompt_score > 0 or max(signal_score - weak_signal_score, 0) > 0
 
 
 def _interaction_model_change(prompt_text: str) -> bool:
@@ -169,7 +170,6 @@ def build_required_stages(
     repo_signals: list[str],
     intent: str,
     complexity: str,
-    domain_skills: list[str],
     quality_profile_key: str,
     registry: dict,
 ) -> dict:
@@ -181,7 +181,7 @@ def build_required_stages(
         registry.get("change_type_hints", {}).get("non_behavioral_keywords", []),
     ) > 0
     effective_risk_categories = [] if non_behavioral else risk_categories
-    ui_work = _looks_like_ui_work(prompt_text, domain_skills, registry)
+    ui_work = _looks_like_ui_work(prompt_text, repo_signals, registry)
     interaction_model_change = _interaction_model_change(prompt_text)
     greenfield_feature = _looks_like_greenfield_feature(prompt_text, intent)
     brainstorm_required = should_insert_brainstorm(prompt_text, intent, complexity, registry) or (

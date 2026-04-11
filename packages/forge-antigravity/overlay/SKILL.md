@@ -21,133 +21,128 @@ Core files and adapter files appear together in a single runtime layout.
 - `workflows/design/`: planning, architecture, spec-review, and visualize
 - `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session
 - `workflows/operator/`: help, next, run, bump, rollback, and primary wrappers such as customize/init
-- `domains/`: core domain guidance for frontend and backend
+- `references/`: smoke tests, the companion contract, backend briefs, UI guidance, and read-only reference documentation when needed
 - `data/`: machine-readable registry for intent, matrix, verification profiles, quality profiles, execution pipelines, and lane model policy
 - `scripts/`: deterministic tooling for route preview, scoped continuity capture, and optional checks for workspaces with local layers
 - `tests/`: regression tests for deterministic scripts and routing/tooling contracts
-- `references/`: smoke tests, the companion contract, and read-only reference documentation when needed
 - `agents/openai.yaml`: UI metadata for hosts that support skill list/chips
 
 ```text
 forge-antigravity/
-├── SKILL.md
-├── agents/
-│   └── openai.yaml
-├── data/
-│   ├── orchestrator-registry.json
-│   ├── output-contracts.json
-│   ├── preferences-compat.json
-│   ├── preferences-schema.json
-│   ├── routing-locales.json
-│   └── routing-locales/
-│       └── vi.json
-├── domains/
-│   ├── backend.md
-│   └── frontend.md
-├── references/
-│   ├── antigravity-operator-surface.md
-│   ├── backend-briefs.md
-│   ├── bump-release.md
-│   ├── canary-rollout.md
-│   ├── companion-routing-smoke-tests.md
-│   ├── companion-skill-contract.md
-│   ├── error-translation.md
-│   ├── execution-delivery.md
-│   ├── failure-recovery-playbooks.md
-│   ├── frontend-stack-profiles.md
-│   ├── help-next.md
-│   ├── personalization.md
-│   ├── reference-map.md
-│   ├── rollback-guidance.md
-│   ├── run-guidance.md
-│   ├── smoke-test-checklist.md
-│   ├── smoke-tests.md
-│   ├── tooling.md
-│   ├── ui-briefs.md
-│   ├── ui-escalation.md
-│   ├── ui-good-bad-examples.md
-│   ├── ui-heuristics.md
-│   ├── ui-progress.md
-│   ├── ui-quality-checklist.md
-│   └── workspace-init.md
-├── scripts/
-│   ├── capture_continuity.py
-│   ├── check_backend_brief.py
-│   ├── check_ui_brief.py
-│   ├── check_workspace_router.py
-│   ├── common.py
-│   ├── compat.py
-│   ├── error_translation.py
-│   ├── evaluate_canary_readiness.py
-│   ├── generate_backend_brief.py
-│   ├── generate_ui_brief.py
-│   ├── initialize_workspace.py
-│   ├── preferences.py
-│   ├── prepare_bump.py
-│   ├── record_canary_result.py
-│   ├── resolve_help_next.py
-│   ├── resolve_preferences.py
-│   ├── resolve_rollback.py
-│   ├── route_preview.py
-│   ├── run_smoke_matrix.py
-│   ├── run_with_guidance.py
-│   ├── run_workspace_canary.py
-│   ├── skill_routing.py
-│   ├── style_maps.py
-│   ├── text_utils.py
-│   ├── track_chain_status.py
-│   ├── track_execution_progress.py
-│   ├── track_ui_progress.py
-│   ├── translate_error.py
-│   ├── verify_bundle.py
-│   └── write_preferences.py
-├── tests/
-│   ├── fixtures/
-│   ├── support.py
-│   ├── test_adapter_locales.py
-│   ├── test_bump_workflow.py
-│   ├── test_canary_rollout.py
-│   ├── test_check_workspace_router.py
-│   ├── test_contracts.py
-│   ├── test_error_translation.py
-│   ├── test_help_next.py
-│   ├── test_initialize_workspace.py
-│   ├── test_preferences.py
-│   ├── test_rollback_guidance.py
-│   ├── test_router_matrix.py
-│   ├── test_route_matrix.py
-│   ├── test_route_preview.py
-│   ├── test_run_workflow.py
-│   ├── test_tool_roundtrip.py
-│   ├── test_workspace_canary.py
-│   └── test_write_preferences.py
-└── workflows/
-    ├── design/
-    │   ├── architect.md
-    │   ├── brainstorm.md
-    │   ├── plan.md
-    │   ├── spec-review.md
-    │   └── visualize.md
-    ├── execution/
-    │   ├── build.md
-    │   ├── debug.md
-    │   ├── deploy.md
-    │   ├── quality-gate.md
-    │   ├── refactor.md
-    │   ├── review.md
-    │   ├── secure.md
-    │   ├── session.md
-    │   └── test.md
-    └── operator/
-        ├── bump.md
-        ├── customize.md
-        ├── help.md
-        ├── init.md
-        ├── next.md
-        ├── rollback.md
-        ├── run.md
+|- SKILL.md
+|- agents/
+|  `- openai.yaml
+|- data/
+|  |- orchestrator-registry.json
+|  |- output-contracts.json
+|  |- preferences-compat.json
+|  |- preferences-schema.json
+|  |- routing-locales.json
+|  `- routing-locales/
+|     `- vi.json
+|- references/
+|  |- antigravity-operator-surface.md
+|  |- backend-briefs.md
+|  |- bump-release.md
+|  |- canary-rollout.md
+|  |- companion-routing-smoke-tests.md
+|  |- companion-skill-contract.md
+|  |- error-translation.md
+|  |- execution-delivery.md
+|  |- failure-recovery-playbooks.md
+|  |- frontend-stack-profiles.md
+|  |- help-next.md
+|  |- personalization.md
+|  |- reference-map.md
+|  |- rollback-guidance.md
+|  |- run-guidance.md
+|  |- smoke-test-checklist.md
+|  |- smoke-tests.md
+|  |- tooling.md
+|  |- ui-briefs.md
+|  |- ui-escalation.md
+|  |- ui-good-bad-examples.md
+|  |- ui-heuristics.md
+|  |- ui-progress.md
+|  |- ui-quality-checklist.md
+|  `- workspace-init.md
+|- scripts/
+|  |- capture_continuity.py
+|  |- check_backend_brief.py
+|  |- check_ui_brief.py
+|  |- check_workspace_router.py
+|  |- common.py
+|  |- compat.py
+|  |- error_translation.py
+|  |- evaluate_canary_readiness.py
+|  |- generate_backend_brief.py
+|  |- generate_ui_brief.py
+|  |- initialize_workspace.py
+|  |- preferences.py
+|  |- prepare_bump.py
+|  |- record_canary_result.py
+|  |- resolve_help_next.py
+|  |- resolve_preferences.py
+|  |- resolve_rollback.py
+|  |- route_preview.py
+|  |- run_smoke_matrix.py
+|  |- run_with_guidance.py
+|  |- run_workspace_canary.py
+|  |- skill_routing.py
+|  |- style_maps.py
+|  |- text_utils.py
+|  |- track_chain_status.py
+|  |- track_execution_progress.py
+|  |- track_ui_progress.py
+|  |- translate_error.py
+|  |- verify_bundle.py
+|  `- write_preferences.py
+|- tests/
+|  |- fixtures/
+|  |- support.py
+|  |- test_adapter_locales.py
+|  |- test_bump_workflow.py
+|  |- test_canary_rollout.py
+|  |- test_check_workspace_router.py
+|  |- test_contracts.py
+|  |- test_error_translation.py
+|  |- test_help_next.py
+|  |- test_initialize_workspace.py
+|  |- test_preferences.py
+|  |- test_rollback_guidance.py
+|  |- test_router_matrix.py
+|  |- test_route_matrix.py
+|  |- test_route_preview.py
+|  |- test_run_workflow.py
+|  |- test_tool_roundtrip.py
+|  |- test_workspace_canary.py
+|  `- test_write_preferences.py
+`- workflows/
+   |- design/
+   |  |- architect.md
+   |  |- brainstorm.md
+   |  |- plan.md
+   |  |- spec-review.md
+   |  `- visualize.md
+   |- execution/
+   |  |- build.md
+   |  |- debug.md
+   |  |- deploy.md
+   |  |- quality-gate.md
+   |  |- refactor.md
+   |  |- review.md
+   |  |- secure.md
+   |  |- session.md
+   |  `- test.md
+   `- operator/
+      |- bump.md
+      |- customize.md
+      |- help.md
+      |- init.md
+      |- next.md
+      |- rollback.md
+      `- run.md
 ```
-
 ## Host Boundary
 
 - Antigravity host rules live above this folder.
@@ -200,7 +195,7 @@ Rules:
 ## Independence Rule
 
 - Forge is a **global-first orchestrator**.
-- New repos, small repos, or repos without local skills must still use Forge normally through the workflows/domain skills of this bundle.
+- New repos, small repos, or repos without local skills must still use Forge normally through the workflows and references/tooling of this bundle.
 - Companion skills and workspace routers are **optional augmentation**, not default dependencies.
 - If there is no clear companion/local skill, Forge must not hesitate or wait for a "full skill set" before working.
 
@@ -369,7 +364,7 @@ Intent + Complexity -> skills to load:
 **Execution pipeline gate:** For large `BUILD/DEBUG/OPTIMIZE` or profiles stronger than `standard`, add an independent reviewer lane by default; for `BUILD` with `spec-review`, lean towards the `implementer -> spec-reviewer -> quality-reviewer` pipeline.
 **Lane model policy:** Use abstract tiers `cheap / standard / capable` per lane instead of pushing every step to the same capacity level.
 
-**Domain skills** (`frontend`, `backend`) are added when the task involves UI or API/database/service layer.
+**UI/backend guidance** stays inside `build`, `spec-review`, `visualize`, and brief references. Heuristics may still detect UI-heavy work internally, but Forge only surfaces workflows plus optional companion skills.
 **Companion runtime/language skills** (Python, Java, Go, .NET, framework-specific) are optional augmentation when the repo/framework is already known. Forge must still work fine without them.
 Companion skill contract: see `references/companion-skill-contract.md` when you are actually adding a runtime/framework layer.
 If the workspace has `AGENTS.md` or a router doc pointing to local skills, use that router as the source-of-truth for this extension layer; if not, Forge continues with its own bundle.
@@ -394,7 +389,7 @@ To preview deterministic routing for a specific prompt: run `scripts/route_previ
 Do not load the full chain if an earlier step resolves the task safely.
 Companion/local skills must not override Forge's verification/evidence gates.
 
-**Minimal routing policy:** For `REVIEW`, `SESSION`, and `small` tasks, Forge prioritizes prompt-led routing. Repo signals must not automatically pull additional domain skills, local companions, or escalation profiles unless the prompt clearly states the need.
+**Minimal routing policy:** For `REVIEW`, `SESSION`, and `small` tasks, Forge prioritizes prompt-led routing. Repo signals must not automatically pull additional local companions or escalation profiles unless the prompt clearly states the need.
 
 ---
 
@@ -427,8 +422,6 @@ Verification profiles canonical source: `data/orchestrator-registry.json`.
 | architect | `workflows/design/architect.md` | flexible | NO LARGE IMPLEMENTATION WITHOUT ARCHITECTURE DECISIONS DOCUMENTED |
 | spec-review | `workflows/design/spec-review.md` | rigid | NO HIGH-RISK BUILD WITHOUT A BUILD-READINESS REVIEW FIRST |
 | build | `workflows/execution/build.md` | rigid | NO BEHAVIORAL CHANGE WITHOUT DEFINING VERIFICATION FIRST |
-| frontend | `domains/frontend.md` | flexible | PRESERVE THE EXISTING DESIGN SYSTEM BEFORE INVENTING A NEW ONE |
-| backend | `domains/backend.md` | flexible | VALIDATE AT THE BOUNDARY, KEEP LOGIC OUT OF TRANSPORT |
 | debug | `workflows/execution/debug.md` | rigid | NO FIXES WITHOUT ROOT-CAUSE INVESTIGATION |
 | test | `workflows/execution/test.md` | rigid | USE FAILING TESTS FIRST WHEN A HARNESS EXISTS |
 | secure | `workflows/execution/secure.md` | rigid | NO RELEASE WITHOUT EXPLICIT SECURITY REVIEW |

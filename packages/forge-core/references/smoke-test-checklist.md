@@ -173,13 +173,13 @@ Goal: quickly record results for each smoke test run on a real host rolling out 
 |Score |  |
 |Notes |  |
 
-### FT-09C: Route preview domain sanity
+### FT-09C: Route preview UI heuristic sanity
 
 |Section | Results|
 |-----|---------|
 |Prompt used | debug/regression prompt + generic `src/` repo signal|
-|Does it avoid attaching `frontend` just because `src/` is present? |  |
-|Does it still attach the correct domain when a stronger prompt or signal exists? |  |
+|Does it avoid over-classifying generic `src/` as UI work? |  |
+|Does stronger UI evidence still trigger the expected UI/browser QA path? |  |
 |Score |  |
 |Notes |  |
 
