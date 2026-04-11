@@ -4,8 +4,7 @@
 name: customize
 type: flexible
 triggers:
-  - natural-language request to change tone, detail, autonomy, pace, or feedback style
-  - natural-language request to lock language, diacritics, or writing conventions
+  - natural-language request to change tone, detail, autonomy, pace, feedback style, or durable language rules
   - optional alias: /customize
 quality_gates:
   - Current preferences are inspected first

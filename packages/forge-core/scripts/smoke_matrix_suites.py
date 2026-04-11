@@ -111,7 +111,7 @@ def run_router_suite() -> list[dict]:
 
 
 def run_preferences_suite() -> list[dict]:
-    preferences_script = ROOT_DIR / "scripts" / "resolve_preferences.py"
+    preferences_script = ROOT_DIR / "scripts" / "repo_operator.py"
     return _run_json_suite(
         "preferences",
         PREFERENCES_CASES,
@@ -119,6 +119,7 @@ def run_preferences_suite() -> list[dict]:
             [
                 sys.executable,
                 str(preferences_script),
+                "customize",
                 "--workspace",
                 str(workspace_path(case["workspace_fixture"])),
                 "--format",
@@ -131,7 +132,7 @@ def run_preferences_suite() -> list[dict]:
 
 
 def run_help_next_suite() -> list[dict]:
-    navigator_script = ROOT_DIR / "scripts" / "resolve_help_next.py"
+    navigator_script = ROOT_DIR / "scripts" / "repo_operator.py"
     return _run_json_suite(
         "help-next",
         HELP_NEXT_CASES,
@@ -139,10 +140,9 @@ def run_help_next_suite() -> list[dict]:
             [
                 sys.executable,
                 str(navigator_script),
+                case["mode"],
                 "--workspace",
                 str(workspace_path(case["workspace_fixture"])),
-                "--mode",
-                case["mode"],
                 "--format",
                 "json",
             ],
@@ -153,7 +153,7 @@ def run_help_next_suite() -> list[dict]:
 
 
 def run_run_suite() -> list[dict]:
-    run_script = ROOT_DIR / "scripts" / "run_with_guidance.py"
+    run_script = ROOT_DIR / "scripts" / "repo_operator.py"
     return _run_json_suite(
         "run",
         RUN_CASES,
@@ -161,6 +161,7 @@ def run_run_suite() -> list[dict]:
             [
                 sys.executable,
                 str(run_script),
+                "run",
                 "--workspace",
                 str(workspace_path(case["workspace_fixture"])),
                 "--timeout-ms",
@@ -199,7 +200,7 @@ def run_error_translation_suite() -> list[dict]:
 
 
 def run_bump_suite() -> list[dict]:
-    bump_script = ROOT_DIR / "scripts" / "prepare_bump.py"
+    bump_script = ROOT_DIR / "scripts" / "repo_operator.py"
     return _run_json_suite(
         "bump",
         BUMP_CASES,
@@ -207,9 +208,9 @@ def run_bump_suite() -> list[dict]:
             [
                 sys.executable,
                 str(bump_script),
+                "bump",
                 "--workspace",
                 str(workspace_path(case["workspace_fixture"])),
-                "--bump",
                 case["bump"],
                 "--format",
                 "json",
@@ -221,7 +222,7 @@ def run_bump_suite() -> list[dict]:
 
 
 def run_rollback_suite() -> list[dict]:
-    rollback_script = ROOT_DIR / "scripts" / "resolve_rollback.py"
+    rollback_script = ROOT_DIR / "scripts" / "repo_operator.py"
     return _run_json_suite(
         "rollback",
         ROLLBACK_CASES,
@@ -229,6 +230,7 @@ def run_rollback_suite() -> list[dict]:
             [
                 sys.executable,
                 str(rollback_script),
+                "rollback",
                 "--scope",
                 case["scope"],
                 "--customer-impact",
@@ -246,7 +248,7 @@ def run_rollback_suite() -> list[dict]:
 
 
 def run_preferences_write_suite() -> list[dict]:
-    write_script = ROOT_DIR / "scripts" / "write_preferences.py"
+    write_script = ROOT_DIR / "scripts" / "repo_operator.py"
     return _run_json_suite(
         "preferences-write",
         PREFERENCES_WRITE_CASES,
@@ -254,6 +256,7 @@ def run_preferences_write_suite() -> list[dict]:
             [
                 sys.executable,
                 str(write_script),
+                "customize",
                 "--workspace",
                 str(workspace_path(case["workspace_fixture"])),
                 "--format",
@@ -267,7 +270,7 @@ def run_preferences_write_suite() -> list[dict]:
 
 
 def run_workspace_init_suite() -> list[dict]:
-    init_script = ROOT_DIR / "scripts" / "initialize_workspace.py"
+    init_script = ROOT_DIR / "scripts" / "repo_operator.py"
     return _run_json_suite(
         "workspace-init",
         WORKSPACE_INIT_CASES,
@@ -275,6 +278,7 @@ def run_workspace_init_suite() -> list[dict]:
             [
                 sys.executable,
                 str(init_script),
+                "init",
                 "--workspace",
                 str(workspace_path(case["workspace_fixture"])),
                 "--format",

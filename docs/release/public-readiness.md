@@ -14,6 +14,7 @@ This checklist is for publishing the Forge monorepo to a public audience without
 - canonical repo verification passes with fresh evidence
 - public docs do not depend on maintainer-local absolute filesystem paths
 - release/install docs point to supported source and bundle flows
+- current maintainer docs and historical archive boundaries are explicit
 
 ## Optional Hardening Items
 

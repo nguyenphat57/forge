@@ -11,6 +11,10 @@
 Forge is a process-first orchestration system for coding agents.
 This repository is the source monorepo for Forge: `forge-core + host adapters + runtime tools + optional companions`.
 
+Current maintainer docs live under `docs/current/`.
+The active repo-level roadmap line is `docs/plans/2026-04-11-forge-slim-refactor-v2.md`.
+Historical plans and specs now live under `docs/archive/`.
+
 Forge is built around a simple split:
 
 - `forge-core` owns routing, packetized execution, verification discipline, release-state thinking, and durable work artifacts.
@@ -253,6 +257,8 @@ forge/
 |   `-- forge-nextjs-typescript-postgres/
 |-- docs/
 |   |-- architecture/
+|   |-- archive/
+|   |-- current/
 |   `-- release/
 |-- scripts/
 |-- tests/

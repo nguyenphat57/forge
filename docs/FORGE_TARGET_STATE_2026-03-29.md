@@ -4,7 +4,7 @@ Date: 2026-03-29
 Status: target-state manifesto
 Inputs:
 - `docs/PRODUCT_THESIS_2026-03-29.md`
-- `docs/plans/2026-03-29-forge-tdd-sdd-adoption-roadmap.md`
+- `docs/archive/plans/2026-03-29-forge-tdd-sdd-adoption-roadmap.md`
 - `packages/forge-core/references/artifact-driven-change-flow.md`
 
 ## Manifesto

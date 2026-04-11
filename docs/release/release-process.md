@@ -5,6 +5,8 @@
 - Only edit `packages/forge-core`, adapter overlays, and standalone runtime packages.
 - `dist/` is the release artifact.
 - Installed runtimes are not development surfaces.
+- Current maintainer docs live under `docs/current/`.
+- Historical plans and specs now live under `docs/archive/`.
 
 ## Release Gate
 

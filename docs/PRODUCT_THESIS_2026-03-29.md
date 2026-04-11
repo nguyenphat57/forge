@@ -4,7 +4,7 @@ Date: 2026-03-29
 Status: current policy baseline
 Inputs:
 - `docs/PRODUCT_THESIS_2026-03-28.md`
-- `docs/plans/2026-03-29-forge-process-first-roadmap.md`
+- `docs/archive/plans/2026-03-29-forge-process-first-roadmap.md`
 - `docs/PROJECT_PHASE1_REPORT_2026-03-28.md`
 - `docs/PROJECT_PHASE2_REPORT_2026-03-28.md`
 - `docs/PROJECT_PHASE3_REPORT_2026-03-28.md`

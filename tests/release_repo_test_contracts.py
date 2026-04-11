@@ -329,6 +329,27 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
             with self.subTest(reference_token=token):
                 self.assertIn(token, reference_map)
 
+    def test_116_surface_slim_reopen_tokens_are_visible(self) -> None:
+        target_state = (ROOT_DIR / "packages" / "forge-core" / "references" / "target-state.md").read_text(encoding="utf-8")
+        reference_map = (ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md").read_text(encoding="utf-8")
+
+        for token in (
+            "## 1.16.x Surface Slim Target",
+            "docs/current/",
+            "scripts/repo_operator.py",
+            "shared generator path",
+        ):
+            with self.subTest(target_token=token):
+                self.assertIn(token, target_state)
+
+        for token in (
+            "docs/current/operator-surface.md",
+            "docs/current/install-and-activation.md",
+            "docs/archive/INDEX.md",
+        ):
+            with self.subTest(reference_token=token):
+                self.assertIn(token, reference_map)
+
     def test_readme_start_here_onboarding_tokens_remain_visible(self) -> None:
         readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
         self.assertIn("process-first orchestration system", readme)

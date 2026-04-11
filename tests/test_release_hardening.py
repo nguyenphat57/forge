@@ -99,19 +99,29 @@ class ReleaseHardeningTests(unittest.TestCase):
             f"Top changelog release does not match VERSION: {first_release_heading}",
         )
 
-    def test_plan_inventory_reflects_maintenance_mode(self) -> None:
+    def test_plan_inventory_reflects_current_roadmap_and_archive_boundary(self) -> None:
         closure_path = ROOT_DIR / "docs" / "plans" / "2026-04-02-forge-1.15.x-maintenance-closure.md"
+        roadmap_path = ROOT_DIR / "docs" / "plans" / "2026-04-11-forge-slim-refactor-v2.md"
+        archive_index = ROOT_DIR / "docs" / "archive" / "INDEX.md"
         closure_text = closure_path.read_text(encoding="utf-8")
+        roadmap_text = roadmap_path.read_text(encoding="utf-8")
+        archive_text = archive_index.read_text(encoding="utf-8")
 
-        self.assertIn("Status: current maintenance closure", closure_text)
+        self.assertIn("Status: historical maintenance closure", closure_text)
+        self.assertIn("Status: current roadmap", roadmap_text)
+        self.assertIn("Historical roadmap and spec material moved here", archive_text)
         self.assertIn("All roadmap files under `docs/plans/` should now be one of:", closure_text)
-        self.assertIn("## Reopen Signals", closure_text)
+        self.assertIn("current roadmap", closure_text)
+        self.assertTrue((ROOT_DIR / "docs" / "current" / "architecture.md").exists())
+        self.assertTrue((ROOT_DIR / "docs" / "current" / "operator-surface.md").exists())
+        self.assertTrue((ROOT_DIR / "docs" / "current" / "install-and-activation.md").exists())
 
         allowed_status_patterns = (
             re.compile(r"^\*\*Status:\*\* historical"),
             re.compile(r"^Status: historical"),
             re.compile(r"^Status: implemented"),
-            re.compile(r"^Status: current maintenance closure$"),
+            re.compile(r"^Status: historical maintenance closure"),
+            re.compile(r"^Status: current roadmap$"),
         )
 
         for path in sorted((ROOT_DIR / "docs" / "plans").glob("*.md")):

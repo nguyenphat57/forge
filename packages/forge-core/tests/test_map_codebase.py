@@ -52,26 +52,24 @@ class MapCodebaseTests(unittest.TestCase):
                 "\n".join(
                     [
                         "# Workspace Entry",
-                        "- Use `python scripts/session_context.py resume --workspace <workspace> --format json`.",
-                        "- Use `python scripts/resolve_help_next.py --workspace <workspace> --mode help`.",
-                        "- Use `python scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>`.",
+                        "- Use `python scripts/repo_operator.py resume --workspace <workspace> --format json`.",
+                        "- Use `python scripts/repo_operator.py help --workspace <workspace> --format json`.",
+                        "- Use `python scripts/repo_operator.py run --workspace <workspace> --timeout-ms 20000 -- <command>`.",
                     ]
                 ),
                 encoding="utf-8",
             )
-            for name in ("session_context.py", "resolve_help_next.py", "run_with_guidance.py"):
-                (scripts_dir / name).write_text("print('shim')\n", encoding="utf-8")
+            (scripts_dir / "repo_operator.py").write_text("print('shim')\n", encoding="utf-8")
 
             result = run_python_script("map_codebase.py", "--workspace", str(workspace), "--format", "json")
 
             self.assertEqual(result.returncode, 0, result.stderr)
             report = json.loads(result.stdout)
-            self.assertIn("scripts/session_context.py", report["brownfield"]["entrypoints"])
-            self.assertIn("scripts/resolve_help_next.py", report["brownfield"]["entrypoints"])
+            self.assertIn("scripts/repo_operator.py", report["brownfield"]["entrypoints"])
             self.assertNotIn("No obvious entrypoint detected from common markers.", report["brownfield"]["risks"])
             summary = (workspace / ".forge-artifacts" / "codebase" / "summary.md").read_text(encoding="utf-8")
             risks = (workspace / ".forge-artifacts" / "codebase" / "risks.md").read_text(encoding="utf-8")
-            self.assertIn("scripts/session_context.py", summary)
+            self.assertIn("scripts/repo_operator.py", summary)
             self.assertNotIn("No obvious entrypoint detected from common markers.", risks)
 
 

@@ -10,12 +10,15 @@ The install flow uses in-place sync so rollout is safer when the host is holding
 Source repo operator flow:
 
 ```powershell
-python scripts/session_context.py resume --workspace <repo> --format json
-python scripts/resolve_help_next.py --workspace <repo> --mode help
-python scripts/resolve_help_next.py --workspace <repo> --mode next
-python scripts/run_with_guidance.py --workspace <repo> --timeout-ms 20000 -- <command>
+python scripts/repo_operator.py resume --workspace <repo> --format json
+python scripts/repo_operator.py help --workspace <repo> --format json
+python scripts/repo_operator.py next --workspace <repo> --format json
+python scripts/repo_operator.py run --workspace <repo> --timeout-ms 20000 -- <command>
 python scripts/verify_repo.py --profile fast
 ```
+
+Source-repo routing guidance now lives in `docs/current/operator-surface.md`.
+Source-repo install and activation guidance now lives in `docs/current/install-and-activation.md`.
 
 Installed runtime flow:
 
@@ -48,6 +51,8 @@ Use the default full profile before release or installation.
 
 `build_release.py` now skips unchanged bundles when the current `dist/` output already matches the source inputs.
 `install_bundle.py` now skips file sync when the target already matches the source bundle fingerprint.
+Repo-local `AGENTS.md` changes take effect immediately in the source repo and do not require host re-activation.
+Re-activate a host only when global template content or installed bundle docs change.
 
 If Windows Codex is expected to reply in Vietnamese with full diacritics, run the bundled UTF-8 helper after `--activate-codex`:
 

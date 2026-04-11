@@ -21,7 +21,7 @@ def _normalize(text: str) -> str:
 
 def render_generated_host_artifact(spec: dict) -> str:
     source_text = spec["source_path"].read_text(encoding="utf-8")
-    source_text = render_registry_placeholders(source_text, spec["bundle"])
+    source_text = render_registry_placeholders(source_text, spec["bundle"], context=spec.get("context"))
     return GENERATED_HEADER + "\n\n" + _normalize(source_text)
 
 

@@ -12,12 +12,12 @@ from release_repo_test_support import ROOT_DIR
 
 
 class RepoOperatorScriptShimTests(unittest.TestCase):
-    def _run_script(self, script_name: str, *args: str, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+    def _run_repo_operator(self, *args: str, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
         merged_env = os.environ.copy()
         if env:
             merged_env.update(env)
         return subprocess.run(
-            [sys.executable, str(ROOT_DIR / "scripts" / script_name), *args],
+            [sys.executable, str(ROOT_DIR / "scripts" / "repo_operator.py"), *args],
             cwd=str(ROOT_DIR),
             capture_output=True,
             text=True,
@@ -26,8 +26,9 @@ class RepoOperatorScriptShimTests(unittest.TestCase):
             env=merged_env,
         )
 
-    def test_documented_codex_operator_wrappers_exist_at_repo_root(self) -> None:
-        expected = [
+    def test_repo_operator_is_the_only_documented_repo_root_operator_entrypoint(self) -> None:
+        self.assertTrue((ROOT_DIR / "scripts" / "repo_operator.py").exists())
+        removed_proxies = [
             "capture_continuity.py",
             "initialize_workspace.py",
             "prepare_bump.py",
@@ -38,26 +39,29 @@ class RepoOperatorScriptShimTests(unittest.TestCase):
             "session_context.py",
             "write_preferences.py",
         ]
-        for name in expected:
+        for name in removed_proxies:
             with self.subTest(script=name):
-                self.assertTrue((ROOT_DIR / "scripts" / name).exists())
+                self.assertFalse((ROOT_DIR / "scripts" / name).exists())
 
-    def test_workspace_agents_points_codex_to_repo_root_operator_wrappers(self) -> None:
+    def test_workspace_agents_points_codex_to_repo_operator(self) -> None:
         agents = (ROOT_DIR / "AGENTS.md").read_text(encoding="utf-8")
 
-        self.assertIn("prefer repo-root operator wrappers under `scripts/`", agents)
-        self.assertIn("python scripts/session_context.py resume", agents)
-        self.assertIn("python scripts/session_context.py save --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
-        self.assertIn("python scripts/session_context.py save --workspace C:\\Users\\Admin\\.gemini\\forge --write-handover --format json", agents)
-        self.assertIn("python scripts/resolve_help_next.py --workspace C:\\Users\\Admin\\.gemini\\forge --mode help", agents)
-        self.assertIn("python scripts/resolve_help_next.py --workspace C:\\Users\\Admin\\.gemini\\forge --mode next", agents)
-        self.assertIn("python scripts/run_with_guidance.py --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
-        self.assertIn("python scripts/prepare_bump.py --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
-        self.assertIn("python scripts/resolve_rollback.py --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
-        self.assertIn("python scripts/resolve_preferences.py --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
-        self.assertIn("python scripts/initialize_workspace.py --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
+        self.assertIn("use `scripts/repo_operator.py` as the canonical operator entrypoint", agents)
+        self.assertIn("python scripts/repo_operator.py resume", agents)
+        self.assertIn("python scripts/repo_operator.py save --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
+        self.assertIn("python scripts/repo_operator.py handover --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
+        self.assertIn("python scripts/repo_operator.py help --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
+        self.assertIn("python scripts/repo_operator.py next --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
+        self.assertIn("python scripts/repo_operator.py run --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
+        self.assertIn("python scripts/repo_operator.py bump --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
+        self.assertIn("python scripts/repo_operator.py rollback --scope <scope> --format json", agents)
+        self.assertIn("python scripts/repo_operator.py customize --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
+        self.assertIn("python scripts/repo_operator.py init --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
+        self.assertNotIn("python scripts/session_context.py", agents)
+        self.assertNotIn("python scripts/resolve_help_next.py", agents)
+        self.assertNotIn("python scripts/run_with_guidance.py", agents)
 
-    def test_root_session_context_wrapper_restores_context(self) -> None:
+    def test_repo_operator_restores_context(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir) / "workspace"
             forge_home = Path(temp_dir) / "forge-home"
@@ -69,8 +73,7 @@ class RepoOperatorScriptShimTests(unittest.TestCase):
                 "USERPROFILE": temp_dir,
             }
 
-            saved = self._run_script(
-                "session_context.py",
+            saved = self._run_repo_operator(
                 "save",
                 "--workspace",
                 str(workspace),
@@ -87,8 +90,7 @@ class RepoOperatorScriptShimTests(unittest.TestCase):
             )
             self.assertEqual(saved.returncode, 0, saved.stderr)
 
-            resumed = self._run_script(
-                "session_context.py",
+            resumed = self._run_repo_operator(
                 "resume",
                 "--workspace",
                 str(workspace),
@@ -105,6 +107,13 @@ class RepoOperatorScriptShimTests(unittest.TestCase):
         self.assertEqual(report["current_focus"], "Session task: Finish checkout retry slice")
         self.assertEqual(report["pending_work"], ["Run browser QA on checkout"])
         self.assertIn("Verification: pytest tests/test_checkout.py", report["relevant_continuity"])
+
+    def test_repo_operator_rejects_unknown_action(self) -> None:
+        result = self._run_repo_operator("unknown-action")
+
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("Unsupported action: unknown-action", result.stderr)
+        self.assertIn("Usage:", result.stderr)
 
 
 if __name__ == "__main__":

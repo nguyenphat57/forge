@@ -235,7 +235,7 @@
   "operator_surface": {
     "actions": {
       "help": {
-        "repo_entrypoint": "scripts/resolve_help_next.py --workspace <workspace> --mode help",
+        "repo_entrypoint": "scripts/repo_operator.py help --workspace <workspace> --format json",
         "core_engine_entrypoint": "scripts/resolve_help_next.py --workspace <workspace> --mode help",
         "workflow": "workflows/operator/help.md",
         "hosts": [
@@ -248,7 +248,7 @@
         "status": "primary"
       },
       "next": {
-        "repo_entrypoint": "scripts/resolve_help_next.py --workspace <workspace> --mode next",
+        "repo_entrypoint": "scripts/repo_operator.py next --workspace <workspace> --format json",
         "core_engine_entrypoint": "scripts/resolve_help_next.py --workspace <workspace> --mode next",
         "workflow": "workflows/operator/next.md",
         "hosts": [
@@ -261,7 +261,7 @@
         "status": "primary"
       },
       "run": {
-        "repo_entrypoint": "scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>",
+        "repo_entrypoint": "scripts/repo_operator.py run --workspace <workspace> --timeout-ms 20000 -- <command>",
         "core_engine_entrypoint": "scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>",
         "workflow": "workflows/operator/run.md",
         "hosts": [
@@ -287,8 +287,8 @@
         "status": "primary"
       },
       "bump": {
-        "repo_entrypoint": "scripts/prepare_bump.py --workspace <workspace> <version|major|minor|patch>",
-        "core_engine_entrypoint": "scripts/prepare_bump.py --workspace <workspace> <version|major|minor|patch>",
+        "repo_entrypoint": "scripts/repo_operator.py bump --workspace <workspace> <version|major|minor|patch>",
+        "core_engine_entrypoint": "scripts/prepare_bump.py --workspace <workspace> --bump <version|major|minor|patch>",
         "workflow": "workflows/operator/bump.md",
         "hosts": [
           "source-repo"
@@ -300,8 +300,8 @@
         "status": "primary"
       },
       "rollback": {
-        "repo_entrypoint": "scripts/resolve_rollback.py --workspace <workspace> --scope <scope>",
-        "core_engine_entrypoint": "scripts/resolve_rollback.py --workspace <workspace> --scope <scope>",
+        "repo_entrypoint": "scripts/repo_operator.py rollback --scope <scope> --format json",
+        "core_engine_entrypoint": "scripts/resolve_rollback.py --scope <scope>",
         "workflow": "workflows/operator/rollback.md",
         "hosts": [
           "source-repo"
@@ -313,7 +313,7 @@
         "status": "primary"
       },
       "customize": {
-        "repo_entrypoint": "scripts/resolve_preferences.py --workspace <workspace> --format json && scripts/write_preferences.py",
+        "repo_entrypoint": "scripts/repo_operator.py customize --workspace <workspace> --format json",
         "core_engine_entrypoint": "scripts/resolve_preferences.py --workspace <workspace> --format json && scripts/write_preferences.py",
         "workflow": "workflows/operator/customize.md",
         "hosts": [
@@ -326,7 +326,7 @@
         "status": "primary"
       },
       "init": {
-        "repo_entrypoint": "scripts/initialize_workspace.py --workspace <workspace>",
+        "repo_entrypoint": "scripts/repo_operator.py init --workspace <workspace> --format json",
         "core_engine_entrypoint": "scripts/initialize_workspace.py --workspace <workspace>",
         "workflow": "workflows/operator/init.md",
         "hosts": [
@@ -341,7 +341,7 @@
     },
     "session_modes": {
       "restore": {
-        "repo_entrypoint": "scripts/session_context.py resume --workspace <workspace> --format json",
+        "repo_entrypoint": "scripts/repo_operator.py resume --workspace <workspace> --format json",
         "core_engine_entrypoint": "scripts/session_context.py resume --workspace <workspace> --format json",
         "workflow": "workflows/execution/session.md",
         "hosts": [
@@ -354,7 +354,7 @@
         "status": "primary"
       },
       "save": {
-        "repo_entrypoint": "scripts/session_context.py save --workspace <workspace> --format json",
+        "repo_entrypoint": "scripts/repo_operator.py save --workspace <workspace> --format json",
         "core_engine_entrypoint": "scripts/session_context.py save --workspace <workspace> --format json",
         "workflow": "workflows/execution/session.md",
         "hosts": [
@@ -367,7 +367,7 @@
         "status": "primary"
       },
       "handover": {
-        "repo_entrypoint": "scripts/session_context.py save --workspace <workspace> --write-handover --format json",
+        "repo_entrypoint": "scripts/repo_operator.py handover --workspace <workspace> --format json",
         "core_engine_entrypoint": "scripts/session_context.py save --workspace <workspace> --write-handover --format json",
         "workflow": "workflows/execution/session.md",
         "hosts": [

@@ -22,6 +22,7 @@ SESSION_MODE_LABELS = {
     "save": "save context",
     "handover": "handover",
 }
+CODEX_OPERATOR_SHARED_TEMPLATE_PATH = "docs/architecture/generated-host-artifacts/codex/workflows/operator/_shared_wrapper.md"
 
 
 def _load_json(path: Path) -> object:
@@ -133,7 +134,282 @@ def render_session_request_examples(bundle_name: str) -> str:
     return "\n".join(lines)
 
 
-def render_registry_placeholders(source_text: str, bundle_name: str) -> str:
+def _metadata_by_name(bundle_name: str, section_name: str, item_name: str) -> dict:
+    section = operator_surface(bundle_name).get(section_name, {})
+    metadata = section.get(item_name, {})
+    return metadata if isinstance(metadata, dict) else {}
+
+
+def _first_host_value(metadata: dict, field: str, *, bundle_name: str) -> str:
+    values = _host_values(metadata, field, bundle_name=bundle_name)
+    return values[0] if values else ""
+
+
+def _yaml_list(items: list[str]) -> str:
+    return "\n".join(f"  - {item}" for item in items)
+
+
+def _code_block(commands: list[str]) -> str:
+    normalized = [item for item in commands if item.strip()]
+    rendered = [f"python {item}" if not item.startswith("python ") else item for item in normalized]
+    return "```powershell\n" + "\n".join(rendered) + "\n```"
+
+
+def _codex_action_config(action_name: str) -> dict:
+    configs = {
+        "help": {
+            "heading": "Help - Codex Operator Wrapper",
+            "goal": "keep `help` native to Codex, but still use Forge's core navigator.",
+            "trigger": "natural-language request for guidance or what to do next",
+            "quality_gates": [
+                "Repo state inspected before advice",
+                "One primary recommendation plus at most two alternatives",
+                "Codex wrapper stays thin on top of the core navigator",
+            ],
+            "process": lambda command: "\n".join(
+                [
+                    "1. Resolve with:",
+                    "",
+                    "The resolver will prefer `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, UI, run, or quality-gate tools have already persisted a current slice.",
+                    "If the repo under maintenance is Forge itself or multiple valid directions are available, use `references/target-state.md` as the policy tie-break before answering.",
+                    "",
+                    _code_block([command]),
+                    "",
+                    "2. Short answer in Codex style:",
+                    "   - Where are you?",
+                    "   - next step to take",
+                    "   - up to 2 other options if needed",
+                ]
+            ),
+            "announcement": "Forge Codex: help | repo-first guidance, natural-language first",
+        },
+        "next": {
+            "heading": "Next - Codex Operator Wrapper",
+            "goal": "provide a clear next step for the Codex without creating an additional ceremony.",
+            "trigger": "natural-language request for the next action",
+            "quality_gates": [
+                "Repo state inspected before advice",
+                "One concrete next step only",
+                "Codex wrapper stays thin on top of the core navigator",
+            ],
+            "process": lambda command: "\n".join(
+                [
+                    "1. Resolve with:",
+                    "",
+                    "The resolver will prefer `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, UI, run, or quality-gate tools have already persisted a current slice.",
+                    "If the repo under maintenance is Forge itself and multiple next moves are plausible, use `references/target-state.md` as the policy tie-break before choosing the main step.",
+                    "",
+                    _code_block([command]),
+                    "",
+                    "2. Short answer:",
+                    "   - main next step",
+                    "   - why this is the right step",
+                    "   - up to 2 alternatives if needed",
+                ]
+            ),
+            "announcement": "Forge Codex: next | one concrete next step from repo state",
+        },
+        "run": {
+            "heading": "Run - Codex Operator Wrapper",
+            "goal": "keep `run` natural in Codex, but still route according to evidence from core.",
+            "trigger": "natural-language request to run a command, app, or check",
+            "quality_gates": [
+                "The command actually runs",
+                "Key output or failure signal is reported",
+                "The response ends with the next workflow when useful",
+            ],
+            "process": lambda command: "\n".join(
+                [
+                    "1. Close the command that needs to be run and have a reasonable timeout.",
+                    "2. Run using core guidance:",
+                    "",
+                    _code_block([command]),
+                    "",
+                    "3. Short summary:",
+                    "   - command was run",
+                    "   - main signal",
+                    "   - Error translation: include it when the command failed or timed out",
+                    "   - next workflow (`test`, `debug`, or `deploy`) if needed",
+                ]
+            ),
+            "announcement": "Forge Codex: run | execute, summarize, route from evidence",
+        },
+        "bump": {
+            "heading": "Bump - Codex Operator Wrapper",
+            "goal": "keep the bump flow short and clear for the Codex, but still follow the core's user-requested + justified semver contract.",
+            "trigger": "explicit request to bump version or prepare a release",
+            "quality_gates": [
+                "User-requested only: do not treat generic wrap-up as a bump request",
+                "Current version is stated and target version is either explicit or justified by inference",
+                "Release verification steps are surfaced",
+                "Wrapper does not hide core semver/change checklist",
+            ],
+            "process": lambda command: "\n".join(
+                [
+                    "1. If the user has not stated the bump level, infer from the diff repo and briefly state the reason.",
+                    "2. Preview/apply using core planner:",
+                    "",
+                    _code_block(
+                        [
+                            "scripts/prepare_bump.py --workspace <workspace>",
+                            "scripts/prepare_bump.py --workspace <workspace> --bump minor",
+                            "scripts/prepare_bump.py --workspace <workspace> --bump minor --apply --release-ready",
+                        ]
+                    ),
+                    "",
+                    "3. Short answer:",
+                    "   - version from -> to",
+                    "   - bump source: explicit or inferred",
+                    "   - file changed",
+                    "   - Which verification must be run?",
+                ]
+            ),
+            "announcement": "Forge Codex: bump | release change with explicit or inferred semver",
+        },
+        "rollback": {
+            "heading": "Rollback - Codex Operator Wrapper",
+            "goal": "keep the rollback flow short and risk-first for the Codex, don't turn it into a command ritual.",
+            "trigger": "natural-language request to undo or roll back a release",
+            "quality_gates": [
+                "Scope and risk are classified first",
+                "Recovery strategy comes from the core planner",
+                "Post-rollback verification is stated",
+            ],
+            "process": lambda command: "\n".join(
+                [
+                    "1. Resolve using core planner:",
+                    "",
+                    _code_block([command + " --format json"]),
+                    "",
+                    "2. Short answer:",
+                    "   - scope and risk",
+                    "   - the safest strategy",
+                    "   - verify after rollback",
+                ]
+            ),
+            "announcement": "Forge Codex: rollback | classify scope, then recover safely",
+        },
+        "customize": {
+            "heading": "Customize - Codex Preference Wrapper",
+            "goal": "give Codex a short customization flow without inventing host-local preference schema.",
+            "trigger": "natural-language request to change tone, detail, autonomy, pace, feedback style, or durable language rules",
+            "quality_gates": [
+                "Current preferences are inspected first",
+                "Durable changes use the core canonical schema and writer",
+                "Durable language rules live in adapter-global extras; workspace `.brain/preferences.json` is only for workspace-specific overrides",
+                "The response states what changed and how interaction will feel different",
+            ],
+            "process": lambda command: "\n".join(
+                [
+                    "Fast path for language requests:",
+                    "",
+                    "- If the user only asks how to set language, Vietnamese diacritics, or writing conventions:",
+                    "  - point first to durable adapter-global updates through `scripts/write_preferences.py`",
+                    "  - only point to workspace `.brain/preferences.json` when they explicitly want repo-scoped overrides",
+                    "  - reuse the short templates in `references/personalization.md`",
+                    "",
+                    "1. Read current preferences:",
+                    "",
+                    _code_block(["scripts/resolve_preferences.py --format json"]),
+                    "",
+                    "2. Map the request into canonical fields when it is about tone or delivery style:",
+                    "   - `technical_level`",
+                    "   - `detail_level`",
+                    "   - `autonomy_level`",
+                    "   - `pace`",
+                    "   - `feedback_style`",
+                    "   - `personality`",
+                    "",
+                    "3. If the user wants durable language, orthography, or host-native writing rules:",
+                    "   - persist them through adapter-global extras with `scripts/write_preferences.py`",
+                    "   - keep them out of the six canonical fields",
+                    "   - use workspace `.brain/preferences.json` only for workspace-only overrides",
+                    "",
+                    "4. Preview or persist using the core writer:",
+                    "",
+                    _code_block(
+                        [
+                            "scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct",
+                            "scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct --apply",
+                            "scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --apply",
+                        ]
+                    ),
+                    "",
+                    "5. Persistence notes:",
+                    "   - canonical fields persist in `state/preferences.json`",
+                    "   - extras persist in `state/extra_preferences.json`",
+                    "   - explicit `resolve_preferences.py --preferences-file ...` stays read-only",
+                    "   - legacy single-file adapter-global state may be migrated on `--apply`",
+                    "",
+                    "6. Short answer:",
+                    "   - which fields changed",
+                    "   - how the new response style will feel different",
+                    "   - whether any workspace-only overrides remain separate from adapter-global state",
+                ]
+            ),
+            "announcement": "Forge Codex: customize | update canonical preferences with minimal ceremony",
+        },
+        "init": {
+            "heading": "Init - Codex Workspace Bootstrap",
+            "goal": "give Codex a minimal initial flow for starting a workspace without turning it into a long onboarding flow.",
+            "trigger": "natural-language request to bootstrap a workspace for Forge",
+            "quality_gates": [
+                "Workspace is classified before suggesting a next step",
+                "No existing file is overwritten",
+                "Wrapper stays thin and avoids onboarding ceremony",
+            ],
+            "process": lambda command: "\n".join(
+                [
+                    "1. Preview skeleton:",
+                    "",
+                    _code_block(["scripts/initialize_workspace.py --workspace <workspace> --format json"]),
+                    "",
+                    "2. If you need to create a real skeleton:",
+                    "",
+                    _code_block(["scripts/initialize_workspace.py --workspace <workspace> --seed-preferences --apply"]),
+                    "",
+                    "`--seed-preferences` seeds Codex-global preferences and does not write to workspace-local `.brain/preferences.json`.",
+                    "",
+                    "3. Finish with a single next workflow:",
+                    "   - `brainstorm` for greenfield workspace",
+                    "   - `plan` for existing workspace",
+                ]
+            ),
+            "announcement": "Forge Codex: init | bootstrap workspace with one next step",
+        },
+    }
+    return configs[action_name]
+
+
+def render_codex_operator_wrapper(action_name: str) -> str:
+    config = _codex_action_config(action_name)
+    metadata = _metadata_by_name("forge-codex", "actions", action_name)
+    alias = _first_host_value(metadata, "primary_aliases_by_host", bundle_name="forge-codex")
+    command = metadata.get("core_engine_entrypoint", "")
+    source_text = (
+        Path(ROOT_DIR / CODEX_OPERATOR_SHARED_TEMPLATE_PATH)
+        .read_text(encoding="utf-8")
+        .replace("{{FORGE_CODEX_OPERATOR_NAME}}", action_name)
+        .replace("{{FORGE_CODEX_OPERATOR_TRIGGERS}}", _yaml_list([config["trigger"], f"optional alias: {alias}"]))
+        .replace("{{FORGE_CODEX_OPERATOR_QUALITY_GATES}}", _yaml_list(config["quality_gates"]))
+        .replace("{{FORGE_CODEX_OPERATOR_HEADING}}", config["heading"])
+        .replace("{{FORGE_CODEX_OPERATOR_GOAL}}", config["goal"])
+        .replace("{{FORGE_CODEX_OPERATOR_PROCESS}}", config["process"](command))
+        .replace("{{FORGE_CODEX_OPERATOR_ANNOUNCEMENT}}", config["announcement"])
+    )
+    return source_text
+
+
+def render_contextual_placeholders(source_text: str, bundle_name: str, context: dict | None = None) -> str:
+    context = context or {}
+    action_name = context.get("action")
+    if bundle_name == "forge-codex" and action_name in operator_surface(bundle_name)["actions"]:
+        return render_codex_operator_wrapper(action_name)
+    return source_text
+
+
+def render_registry_placeholders(source_text: str, bundle_name: str, context: dict | None = None) -> str:
+    rendered = render_contextual_placeholders(source_text, bundle_name, context=context)
     replacements = {
         "{{FORGE_CODEX_OPERATOR_ALIAS_ROWS}}": render_operator_alias_rows("forge-codex"),
         "{{FORGE_CODEX_SESSION_REQUEST_EXAMPLES}}": render_session_request_examples("forge-codex"),
@@ -143,7 +419,6 @@ def render_registry_placeholders(source_text: str, bundle_name: str) -> str:
         "{{FORGE_CODEX_OPTIONAL_ALIASES}}": render_codex_optional_aliases(),
         "{{FORGE_ANTIGRAVITY_PRIMARY_WRAPPER_TABLE}}": render_antigravity_primary_wrapper_table(),
     }
-    rendered = source_text
     for placeholder, replacement in replacements.items():
         rendered = rendered.replace(placeholder, replacement)
     return rendered

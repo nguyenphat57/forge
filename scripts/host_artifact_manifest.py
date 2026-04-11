@@ -55,8 +55,11 @@ def generated_host_artifact_specs() -> list[dict]:
         bundle = item.get("bundle")
         source = item.get("source")
         output = item.get("output")
+        context = item.get("context", {})
         if not all(isinstance(value, str) and value.strip() for value in (name, bundle, source, output)):
             raise ValueError(f"Generated host artifact manifest entry #{index} is missing name, bundle, source, or output")
+        if context is not None and not isinstance(context, dict):
+            raise ValueError(f"Generated host artifact manifest entry #{index} has non-object context")
         if name in seen_names:
             raise ValueError(f"Duplicate generated host artifact name: {name}")
         source_path, source_rel = _resolve_repo_path(source, "source", name)
@@ -78,6 +81,7 @@ def generated_host_artifact_specs() -> list[dict]:
                 "output": output_rel,
                 "source_path": source_path,
                 "output_path": output_path,
+                "context": context or {},
             }
         )
     return specs
@@ -106,6 +110,7 @@ def generated_host_artifact_records(
                 "output_exists": output_text is not None,
                 "source_sha256": _sha256_text(source_text),
                 "output_sha256": _sha256_text(output_text) if output_text is not None else None,
+                "context": dict(spec.get("context", {})),
             }
         )
     return records
