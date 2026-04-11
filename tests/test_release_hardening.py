@@ -101,7 +101,7 @@ class ReleaseHardeningTests(unittest.TestCase):
 
     def test_plan_inventory_reflects_current_roadmap_and_archive_boundary(self) -> None:
         closure_path = ROOT_DIR / "docs" / "plans" / "2026-04-02-forge-1.15.x-maintenance-closure.md"
-        roadmap_path = ROOT_DIR / "docs" / "plans" / "2026-04-11-forge-slim-refactor-v2.md"
+        roadmap_path = ROOT_DIR / "docs" / "plans" / "forge_refactor_V3.md"
         archive_index = ROOT_DIR / "docs" / "archive" / "INDEX.md"
         closure_text = closure_path.read_text(encoding="utf-8")
         roadmap_text = roadmap_path.read_text(encoding="utf-8")
@@ -184,7 +184,7 @@ class ReleaseHardeningTests(unittest.TestCase):
 
     def test_build_release_excludes_cached_python_artifacts(self) -> None:
         self._run_build_release()
-        for bundle_name in ("forge-antigravity", "forge-codex", "forge-browse", "forge-design"):
+        for bundle_name in ("forge-antigravity", "forge-codex", "forge-core"):
             with self.subTest(bundle=bundle_name):
                 dist_root = ROOT_DIR / "dist" / bundle_name
                 self.assertFalse(any(dist_root.rglob("__pycache__")))
@@ -208,7 +208,7 @@ class ReleaseHardeningTests(unittest.TestCase):
 
     def test_repeated_build_release_remains_stable_after_dist_execution(self) -> None:
         self._run_build_release()
-        for bundle_name in ("forge-antigravity", "forge-codex", "forge-browse", "forge-design"):
+        for bundle_name in ("forge-antigravity", "forge-codex", "forge-core"):
             with self.subTest(bundle=bundle_name):
                 with TemporaryDirectory() as temp_dir:
                     temp_root = Path(temp_dir)
@@ -240,15 +240,17 @@ class ReleaseHardeningTests(unittest.TestCase):
         self._run_build_release()
         self.assertTrue((ROOT_DIR / "dist" / "forge-antigravity" / "BUILD-MANIFEST.json").exists())
         self.assertTrue((ROOT_DIR / "dist" / "forge-codex" / "BUILD-MANIFEST.json").exists())
-        self.assertTrue((ROOT_DIR / "dist" / "forge-browse" / "BUILD-MANIFEST.json").exists())
-        self.assertTrue((ROOT_DIR / "dist" / "forge-design" / "BUILD-MANIFEST.json").exists())
+        self.assertTrue((ROOT_DIR / "dist" / "forge-core" / "BUILD-MANIFEST.json").exists())
+        self.assertFalse((ROOT_DIR / "dist" / "forge-browse" / "BUILD-MANIFEST.json").exists())
+        self.assertFalse((ROOT_DIR / "dist" / "forge-design" / "BUILD-MANIFEST.json").exists())
 
     def test_verify_repo_pipeline_includes_secret_scan(self) -> None:
         verify_repo = (ROOT_DIR / "scripts" / "verify_repo.py").read_text(encoding="utf-8")
         self.assertIn("repo.secret_scan", verify_repo)
         self.assertIn("repo.generated_host_artifacts", verify_repo)
-        self.assertIn("install_dry_run.forge-browse", verify_repo)
-        self.assertIn("install_dry_run.forge-design", verify_repo)
+        self.assertIn("install_dry_run.forge-core", verify_repo)
+        self.assertNotIn("install_dry_run.forge-browse", verify_repo)
+        self.assertNotIn("install_dry_run.forge-design", verify_repo)
         self.assertTrue((ROOT_DIR / "scripts" / "scan_repo_secrets.py").exists())
         self.assertTrue((ROOT_DIR / "scripts" / "generate_host_artifacts.py").exists())
 

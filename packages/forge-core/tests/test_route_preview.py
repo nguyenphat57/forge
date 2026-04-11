@@ -10,9 +10,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from support import reference_companion_environment
-
-
 ROOT_DIR = Path(__file__).resolve().parents[1]
 SCRIPTS_DIR = ROOT_DIR / "scripts"
 
@@ -279,18 +276,16 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["intent"], "REVIEW")
         self.assertIn("capacitor-android", report["detected"]["local_companions"])
 
-    def test_route_preview_detects_first_party_nextjs_companion(self) -> None:
-        with reference_companion_environment() as (_, env):
-            with patch.dict(os.environ, env):
-                report = route_preview.build_report(
-                    self.build_args(
-                        "Add a new Next.js checkout page with Prisma-backed persistence",
-                        repo_signals=["package.json", "tsconfig.json", "next.config.ts", "prisma/schema.prisma"],
-                    )
-                )
+    def test_route_preview_kernel_only_contract_keeps_first_party_companions_empty(self) -> None:
+        report = route_preview.build_report(
+            self.build_args(
+                "Add a new Next.js checkout page with Prisma-backed persistence",
+                repo_signals=["package.json", "tsconfig.json", "next.config.ts", "prisma/schema.prisma"],
+            )
+        )
 
-            self.assertIn("nextjs-typescript-postgres", report["detected"]["first_party_companions"])
-            self.assertIn("nextjs-typescript-postgres", report["activation_line"])
+        self.assertEqual(report["detected"]["first_party_companions"], [])
+        self.assertNotIn("nextjs-typescript-postgres", report["activation_line"])
 
     def test_parallel_safe_host_can_activate_subagent_dispatch_skill(self) -> None:
         registry = copy.deepcopy(route_preview.load_registry())

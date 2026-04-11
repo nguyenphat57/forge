@@ -24,6 +24,7 @@ Supported actions:
 
 The dispatcher is the public source-repo surface.
 Package-level scripts under `packages/forge-core/scripts/` are implementation detail unless the task is to edit or debug the engine itself.
+This current surface assumes the kernel-only product line and only routes the shipped kernel and host-adapter entrypoints.
 
 ## Installed runtime
 

@@ -1,6 +1,6 @@
 ---
 name: forge-core
-description: "Forge Core - host-neutral orchestrator source-of-truth for intent routing, complexity assessment, skill composition, delivery guardrails, and optional companion runtime/framework integration across planning, building, debugging, reviewing, designing, testing, deploying, and session work."
+description: "Forge Core - host-neutral orchestrator source-of-truth for intent routing, complexity assessment, skill composition, delivery guardrails, and workspace-local skill augmentation across planning, building, debugging, reviewing, designing, testing, deploying, and session work."
 ---
 
 # Forge Core - Host-Neutral Execution Kernel
@@ -8,7 +8,7 @@ description: "Forge Core - host-neutral orchestrator source-of-truth for intent 
 > Forge = delivery discipline + skill composition + evidence before claims.
 > Forge must be strong and disciplined enough even if the repo does not have any companion skills or local skills.
 > Forge is flexible on small tasks and disciplined on medium and large tasks.
-> Forge core is the process-first execution kernel for real repos; adapters and companions extend it, but they do not replace its verification or workflow-state contracts.
+> Forge core is the process-first execution kernel for real repos; adapters and workspace-local skills extend it, but they do not replace its verification or workflow-state contracts.
 
 ---
 
@@ -44,13 +44,13 @@ forge-core/
 |  |- failure-recovery-playbooks.md
 |  |- frontend-stack-profiles.md
 |  |- help-next.md
+|  |- kernel-tooling.md
 |  |- personalization.md
 |  |- reference-map.md
 |  |- rollback-guidance.md
 |  |- run-guidance.md
 |  |- smoke-test-checklist.md
 |  |- smoke-tests.md
-|  |- tooling.md
 |  |- ui-briefs.md
 |  |- ui-escalation.md
 |  |- ui-good-bad-examples.md
@@ -64,19 +64,14 @@ forge-core/
 |  |- check_ui_brief.py
 |  |- check_workspace_router.py
 |  |- common.py
-|  |- evaluate_canary_readiness.py
-|  |- generate_backend_brief.py
-|  |- generate_ui_brief.py
 |  |- initialize_workspace.py
 |  |- prepare_bump.py
-|  |- record_canary_result.py
 |  |- resolve_help_next.py
 |  |- resolve_preferences.py
 |  |- resolve_rollback.py
 |  |- route_preview.py
 |  |- run_smoke_matrix.py
 |  |- run_with_guidance.py
-|  |- run_workspace_canary.py
 |  |- track_chain_status.py
 |  |- track_execution_progress.py
 |  |- track_ui_progress.py
@@ -87,7 +82,6 @@ forge-core/
 |  |- fixtures/
 |  |- support.py
 |  |- test_bump_workflow.py
-|  |- test_canary_rollout.py
 |  |- test_check_workspace_router.py
 |  |- test_contracts.py
 |  |- test_error_translation.py
@@ -99,8 +93,6 @@ forge-core/
 |  |- test_route_matrix.py
 |  |- test_route_preview.py
 |  |- test_run_workflow.py
-|  |- test_tool_roundtrip.py
-|  |- test_workspace_canary.py
 |  `- test_write_preferences.py
 `- workflows/
    |- design/
@@ -137,7 +129,7 @@ forge-core/
 
 - Forge is **global-first orchestrator**.
 - New repos, small repos, or repos without local skills still have to use Forge normally using the workflows and references/tooling of this bundle.
-- Companion skills and workspace routers are **optional augmentation**, not default dependencies.
+- Workspace-local skills and routers are **optional augmentation**, not default dependencies.
 - If there is no clear companion or local skill, Forge must still proceed with the core bundle instead of waiting for a fuller setup.
 
 ---
@@ -156,22 +148,16 @@ forge-core/
 - Deterministic route preview: `scripts/route_preview.py` (intent + chain + execution pipeline + lane model tiers)
 - Workspace router drift check: `scripts/check_workspace_router.py` (only used when the workspace actually has a local routing layer)
 - Scoped continuous capture for durable decisions/learnings: `scripts/capture_continuity.py`
-- Backend brief generator for medium/large backend work: `scripts/generate_backend_brief.py`
 - Backend brief checker for persisted backend artifacts: `scripts/check_backend_brief.py`
 - Chain status tracker for long-running multi-skill flows: `scripts/track_chain_status.py` (stages + lanes + model tiers + review loop state)
 - Execution progress tracker for long-running build work: `scripts/track_execution_progress.py` (checkpoint + lane + proof-before-progress)
-- UI brief generator for frontend/visualize work: `scripts/generate_ui_brief.py`
 - UI brief checker for persisted frontend/visualize artifacts: `scripts/check_ui_brief.py`
 - UI progress tracker for long-running frontend/visualize tasks: `scripts/track_ui_progress.py`
 - Automated smoke matrix runner for route/router cases: `scripts/run_smoke_matrix.py`
 - Canonical release/CI verification entry point: `scripts/verify_bundle.py`
-- Automated workspace canary runner for real repo rollout: `scripts/run_workspace_canary.py`
-- Canary result recorder for real workspace rollout: `scripts/record_canary_result.py`
-- Canary readiness evaluator for rollout verdicts: `scripts/evaluate_canary_readiness.py`
 - Persisted artifacts default:
   - `.forge-artifacts/route-previews/`
   - `.forge-artifacts/router-checks/`
-- `.forge-artifacts/backend-briefs/`
 - `.forge-artifacts/chain-status/`
 - `.forge-artifacts/execution-progress/`
 - `.forge-artifacts/ui-briefs/`
@@ -180,7 +166,7 @@ forge-core/
 - `.brain/decisions.json`
 - `.brain/learnings.json`
 
-When you need detailed command examples or artifact behavior, read `references/tooling.md`.
+When you need detailed command examples or artifact behavior, read `references/kernel-tooling.md`.
 
 ---
 

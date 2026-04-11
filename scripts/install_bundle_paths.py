@@ -21,7 +21,6 @@ CODEX_GLOBAL_TEMPLATE = str(bundle_package_spec("forge-codex").get("host_global_
 GEMINI_GLOBAL_TEMPLATE = str(bundle_package_spec("forge-antigravity").get("host_global_template") or "GEMINI.global.md")
 CODEX_LEGACY_SKILL_GLOB = "awf-*"
 ADAPTER_STATE_SCOPE = "adapter-global"
-RUNTIME_STATE_SCOPE = "runtime-tool-global"
 STATE_SCOPE = ADAPTER_STATE_SCOPE
 STATE_PREFERENCES_RELATIVE_PATH = Path("state") / "preferences.json"
 STATE_EXTRA_PREFERENCES_RELATIVE_PATH = Path("state") / "extra_preferences.json"

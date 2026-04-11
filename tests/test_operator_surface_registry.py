@@ -61,7 +61,7 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         self.assertNotIn("/save-brain", primary_section)
 
     def test_current_roadmap_doc_is_clean_and_active(self) -> None:
-        roadmap_path = ROOT_DIR / "docs" / "plans" / "2026-04-11-forge-slim-refactor-v2.md"
+        roadmap_path = ROOT_DIR / "docs" / "plans" / "forge_refactor_V3.md"
         text = roadmap_path.read_text(encoding="utf-8")
 
         self.assertIn("Status: current roadmap", text)

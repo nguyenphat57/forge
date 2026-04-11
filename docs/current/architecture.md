@@ -8,7 +8,7 @@ Describe the current maintainer-facing structure of Forge without forcing reader
 
 - `packages/forge-core/` owns routing, workflow-state, verification discipline, and the host-neutral execution contract.
 - `packages/forge-codex/overlay/` and `packages/forge-antigravity/overlay/` adapt that core contract to host-native entry surfaces.
-- `packages/forge-browse/` and `packages/forge-design/` remain optional runtime tools outside the orchestrator kernel.
+- The shipped product line is kernel-only: `forge-core`, `forge-codex`, and `forge-antigravity`.
 - `docs/current/` is the active maintainer docs spine.
 - `docs/archive/` holds historical plans and specs that should not be read as current operating policy.
 
@@ -31,4 +31,4 @@ Describe the current maintainer-facing structure of Forge without forcing reader
 - reduce source-repo wrapper sprawl
 - reduce Codex canonical wrapper duplication
 - reduce active-doc sprawl
-- keep release and install contracts unchanged
+- keep release and install contracts aligned with the three-bundle product line

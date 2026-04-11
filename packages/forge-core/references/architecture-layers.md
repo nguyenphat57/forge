@@ -1,15 +1,14 @@
 # Forge Architecture Layers
 
-> Goal: keep Forge extensible without mixing orchestration, generated host surfaces, persistent state, and runtime actuators into one layer.
+> Goal: keep Forge extensible without mixing orchestration, generated host surfaces, and persistent execution state into one layer.
 
-## Canonical Four-Layer Contract
+## Canonical Three-Layer Contract
 
-Forge uses four layers:
+Forge uses three layers:
 
 1. `core`
 2. `generated artifacts`
 3. `workflow state`
-4. `runtime tools`
 
 If a change crosses layers, the change must say so explicitly and preserve the boundary for each layer.
 
@@ -91,20 +90,6 @@ Rules:
 - packet index is the bounded continuity read model for cheaper packet resume paths
 - progressive context loading can summarize packet index first, then expand to full workflow-state only when needed
 
-## Layer 4: Runtime Tools
-
-Runtime tools are concrete actuators that do work beyond routing text:
-
-- browser automation
-- design/mockup servers
-- future long-lived daemons or external control planes
-
-Rules:
-
-- runtime tools stay outside the core orchestrator
-- they may expose Forge-friendly wrappers, but they must not become a second orchestrator
-- they need their own install, smoke, and failure model
-
 ## Dependency Direction
 
 Allowed defaults:
@@ -113,7 +98,6 @@ Allowed defaults:
 core -> generated artifacts
 core -> workflow state
 generated artifacts -> core
-runtime tools -> workflow state
 ```
 
 Disallowed defaults:
@@ -121,7 +105,6 @@ Disallowed defaults:
 ```text
 generated artifacts -> workflow state
 generated artifacts -> host-only logic inside core
-runtime tools -> generated artifacts by default
 ```
 
 ## Bounded Extension Surface (1.14.x)
@@ -141,18 +124,15 @@ Before adding or moving a capability, ask:
 1. Is this reusable policy/engine logic? Put it in `core`.
 2. Is this a reproducible host-facing output? Put it in `generated artifacts`.
 3. Is this durable machine-readable execution evidence? Put it in `workflow state`.
-4. Is this a concrete actuator or daemon? Put it in `runtime tools`.
 
 If the answer is unclear, default to the lower-power layer:
 
 - generated artifacts before adapter hand edits
 - workflow state before prose-only recap
-- runtime tools outside core before core-internal side effects
 
 ## Review Checklist
 
 - the layer of each new file is obvious
 - build/verify scripts know how generated artifacts stay fresh
 - workflow state remains machine-readable and bounded
-- runtime tools remain optional and independently verifiable
 - docs and tests point to the same canonical source

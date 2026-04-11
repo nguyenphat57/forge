@@ -34,18 +34,14 @@ Visual brief must be finalized first:
 
 For ambiguous UI prompts, start with `discovery-lite` to lock the interaction model. Escalate to `discovery-full` before mockup work if there are still multiple plausible layouts, state models, or platform constraints.
 
-If the brief is not available:
+If the brief is not available, create one first. For persisted work, prefer a stable artifact such as:
 
-```powershell
-python ../../scripts/generate_ui_brief.py "Task summary" --mode visualize --stack generic-web --platform web
+```text
+.forge-artifacts/ui-briefs/<project-slug>/visualize/MASTER.md
+.forge-artifacts/ui-briefs/<project-slug>/visualize/pages/<screen>.md
 ```
 
-Read `../../references/ui-briefs.md` if you want to persist `MASTER.md` + page override for multiple screens.
-If using persisted brief, validate as quickly as:
-
-```powershell
-python ../../scripts/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/visualize --mode visualize --screen <screen>
-```
+Read `../../references/ui-quality-checklist.md` and `../../references/frontend-stack-profiles.md` before broad UI direction changes.
 
 If the task concept spans a long time or multiple screens:
 
@@ -53,13 +49,7 @@ If the task concept spans a long time or multiple screens:
 python ../../scripts/track_ui_progress.py "Task summary" --mode visualize --stage interaction-model --status active
 ```
 
-If a persisted brief already exists and `forge-design` is installed, you can materialize a review packet before mockup handoff:
-
-```powershell
-python ../../scripts/invoke_runtime_tool.py forge-design render-brief .forge-artifacts/ui-briefs/<project-slug>/visualize --screen <screen>
-```
-
-If `forge-browse` is also available, capture the packet into review evidence instead of leaving it as an unverified HTML artifact.
+If a persisted brief already exists, convert it into a reviewable packet using the host's native tooling or a repo-local artifact format before mockup handoff.
 
 ## Process
 

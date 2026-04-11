@@ -38,48 +38,6 @@ def load_install_manifest(target: Path) -> dict[str, object] | None:
     return payload if isinstance(payload, dict) else None
 
 
-def load_companion_compatibility(source_path: Path) -> tuple[str | None, dict[str, object] | None]:
-    capabilities_path = source_path / "data" / "companion-capabilities.json"
-    if not capabilities_path.exists():
-        return None, None
-    payload = json.loads(capabilities_path.read_text(encoding="utf-8"))
-    if not isinstance(payload, dict):
-        return None, None
-    version = str(payload.get("version") or "unknown")
-    bounds = payload.get("compatibility")
-    return version, bounds if isinstance(bounds, dict) else None
-
-
-def build_companion_compatibility(*, core_version: str, companion_version: str, bounds: dict[str, object] | None) -> dict[str, object]:
-    minimum = str(bounds.get("forge_core_min")) if isinstance(bounds, dict) and bounds.get("forge_core_min") else None
-    maximum = str(bounds.get("forge_core_max")) if isinstance(bounds, dict) and bounds.get("forge_core_max") else None
-    compatible = _version_in_range(core_version, minimum, maximum)
-    if minimum and maximum:
-        range_text = f"{minimum} - {maximum}"
-    elif minimum:
-        range_text = f">= {minimum}"
-    elif maximum:
-        range_text = f"<= {maximum}"
-    else:
-        range_text = "unbounded"
-    return {
-        "status": "PASS" if compatible else "WARN",
-        "compatible": compatible,
-        "core_version": core_version,
-        "companion_version": companion_version,
-        "bounds": {
-            "forge_core_min": minimum,
-            "forge_core_max": maximum,
-            "range_text": range_text,
-        },
-        "message": (
-            f"forge-core {core_version} is compatible with companion {companion_version}."
-            if compatible
-            else f"forge-core {core_version} is outside the supported range {range_text} for companion {companion_version}."
-        ),
-    }
-
-
 def build_install_transition(
     existing_install: dict | None,
     *,
@@ -157,14 +115,6 @@ def write_install_manifest(target: Path, report: dict) -> None:
             "gemini_md_path": activation["gemini_md_path"],
             "host_backup_path": activation["host_backup_path"],
         }
-    if report["codex_runtime_registration"]["enabled"]:
-        manifest["codex_runtime_registration"] = report["codex_runtime_registration"]
-    if report["gemini_runtime_registration"]["enabled"]:
-        manifest["gemini_runtime_registration"] = report["gemini_runtime_registration"]
-    if report["codex_companion_registration"]["enabled"]:
-        manifest["codex_companion_registration"] = report["codex_companion_registration"]
-    if report["gemini_companion_registration"]["enabled"]:
-        manifest["gemini_companion_registration"] = report["gemini_companion_registration"]
     (target / "INSTALL-MANIFEST.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
@@ -176,11 +126,11 @@ def format_text(report: dict) -> str:
     lines.append(f"- Source: {report['source']}")
     lines.append(f"- Target: {report['target']}")
     lines.append(f"- Dry run: {'yes' if report['dry_run'] else 'no'}")
-    if report["compatibility"] is not None:
-        compatibility = report["compatibility"]
+    compatibility = report.get("compatibility")
+    if compatibility is not None:
         lines.append(f"- Compatibility: {compatibility['status']} - {compatibility['message']}")
-    if report["transition"] is not None:
-        transition = report["transition"]
+    transition = report.get("transition")
+    if transition is not None:
         lines.append(f"- Transition: {transition['status']} - {transition['message']}")
     if report["backup_enabled"]:
         lines.append(f"- Backup: {report['backup_path'] or '(not needed)'}")
@@ -201,20 +151,4 @@ def format_text(report: dict) -> str:
         lines.append(f"- Gemini home: {activation['gemini_home']}")
         lines.append(f"- Global GEMINI: {activation['gemini_md_path']}")
         lines.append(f"- Host backup: {activation['host_backup_path'] or '(not needed)'}")
-    if report["codex_runtime_registration"]["enabled"]:
-        lines.append("- Codex runtime registration: yes")
-        lines.append(f"- Codex runtime registry: {report['codex_runtime_registration']['registry_path']}")
-    if report["gemini_runtime_registration"]["enabled"]:
-        lines.append("- Gemini runtime registration: yes")
-        lines.append(f"- Gemini runtime registry: {report['gemini_runtime_registration']['registry_path']}")
-    if report["codex_companion_registration"]["enabled"]:
-        lines.append("- Codex companion registration: yes")
-        lines.append(f"- Codex companion registry: {report['codex_companion_registration']['registry_path']}")
-    if report["codex_companion_registration"].get("message") and report["codex_companion_registration"].get("status") != "skipped":
-        lines.append(f"- Codex companion note: {report['codex_companion_registration']['message']}")
-    if report["gemini_companion_registration"]["enabled"]:
-        lines.append("- Gemini companion registration: yes")
-        lines.append(f"- Gemini companion registry: {report['gemini_companion_registration']['registry_path']}")
-    if report["gemini_companion_registration"].get("message") and report["gemini_companion_registration"].get("status") != "skipped":
-        lines.append(f"- Gemini companion note: {report['gemini_companion_registration']['message']}")
     return "\n".join(lines)

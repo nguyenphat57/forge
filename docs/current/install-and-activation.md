@@ -46,3 +46,4 @@ Repo-local routing changes take effect immediately for source-repo work in this 
 
 This tranche does not refactor `install_bundle_host.py` into a new activation architecture.
 Behavior stays stable unless a text or template expectation has to change.
+The install surface is now limited to the three shipped bundles and their host activations.

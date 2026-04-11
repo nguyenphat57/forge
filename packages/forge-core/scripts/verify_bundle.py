@@ -117,18 +117,6 @@ def main() -> int:
         action="store_true",
         help="Also run the broader smoke matrix suites that exercise repo-level fixture packs.",
     )
-    parser.add_argument("--include-canary", action="store_true", help="Also evaluate persisted canary readiness.")
-    parser.add_argument(
-        "--canary-dir",
-        default=str(ROOT_DIR / ".forge-artifacts" / "canary-runs"),
-        help="Directory containing canary artifacts for readiness evaluation",
-    )
-    parser.add_argument(
-        "--canary-profile",
-        choices=["controlled-rollout", "broad"],
-        default="controlled-rollout",
-        help="Canary readiness threshold profile",
-    )
     args = parser.parse_args()
 
     python_files = sorted(_relative_bundle_path(path) for path in SCRIPTS_DIR.glob("*.py"))
@@ -149,19 +137,6 @@ def main() -> int:
             run_step(
                 "smoke_matrix",
                 [sys.executable, _relative_bundle_path(SCRIPTS_DIR / "run_smoke_matrix.py")],
-            )
-        )
-    if args.include_canary:
-        steps.append(
-            run_step(
-                "canary_readiness",
-                [
-                    sys.executable,
-                    _relative_bundle_path(SCRIPTS_DIR / "evaluate_canary_readiness.py"),
-                    args.canary_dir,
-                    "--profile",
-                    args.canary_profile,
-                ],
             )
         )
 

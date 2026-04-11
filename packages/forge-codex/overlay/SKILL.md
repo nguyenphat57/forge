@@ -48,13 +48,13 @@ forge-codex/
 |  |- failure-recovery-playbooks.md
 |  |- frontend-stack-profiles.md
 |  |- help-next.md
+|  |- kernel-tooling.md
 |  |- personalization.md
 |  |- reference-map.md
 |  |- rollback-guidance.md
 |  |- run-guidance.md
 |  |- smoke-test-checklist.md
 |  |- smoke-tests.md
-|  |- tooling.md
 |  |- ui-briefs.md
 |  |- ui-escalation.md
 |  |- ui-good-bad-examples.md
@@ -69,19 +69,14 @@ forge-codex/
 |  |- check_workspace_router.py
 |  |- common.py
 |  |- enable_windows_utf8.ps1
-|  |- evaluate_canary_readiness.py
-|  |- generate_backend_brief.py
-|  |- generate_ui_brief.py
 |  |- initialize_workspace.py
 |  |- prepare_bump.py
-|  |- record_canary_result.py
 |  |- resolve_help_next.py
 |  |- resolve_preferences.py
 |  |- resolve_rollback.py
 |  |- route_preview.py
 |  |- run_smoke_matrix.py
 |  |- run_with_guidance.py
-|  |- run_workspace_canary.py
 |  |- track_chain_status.py
 |  |- track_execution_progress.py
 |  |- track_ui_progress.py
@@ -92,7 +87,6 @@ forge-codex/
 |  |- fixtures/
 |  |- support.py
 |  |- test_bump_workflow.py
-|  |- test_canary_rollout.py
 |  |- test_check_workspace_router.py
 |  |- test_contracts.py
 |  |- test_error_translation.py
@@ -104,8 +98,6 @@ forge-codex/
 |  |- test_route_matrix.py
 |  |- test_route_preview.py
 |  |- test_run_workflow.py
-|  |- test_tool_roundtrip.py
-|  |- test_workspace_canary.py
 |  `- test_write_preferences.py
 `- workflows/
    |- design/
@@ -139,7 +131,7 @@ forge-codex/
 - Codex rules live in `AGENTS.md`, system/developer instructions, and the workspace-local skill layout of the Codex host.
 - Global Codex host should point to this bundle via `AGENTS.global.md` instead of keeping a parallel legacy router.
 - `AGENTS.md` at the workspace root is Codex's primary routing and instruction file. It does not replace `SKILL.md`, but it is an important entry surface for host-loaded context.
-- This adapter owns the Codex-facing surface, while routing logic, registry data, verification rules, and canary tooling still come from Forge core.
+- This adapter owns the Codex-facing surface, while routing logic, registry data, verification rules, and persistent workflow tooling still come from Forge core.
 - If the workspace does not have a local layer, Forge Codex must still run well using the core bundle without waiting for additional repo-specific adapters.
 
 ## Independence Rule
@@ -165,18 +157,13 @@ forge-codex/
 - Deterministic route preview: `scripts/route_preview.py` (intent + chain + execution pipeline + lane model tiers)
 - Workspace router drift check: `scripts/check_workspace_router.py` (only used when the workspace actually has a local routing layer)
 - Scoped continuous capture for durable decisions/learnings: `scripts/capture_continuity.py`
-- Backend brief generator for medium/large backend work: `scripts/generate_backend_brief.py`
 - Backend brief checker for persisted backend artifacts: `scripts/check_backend_brief.py`
 - Chain status tracker for long-running multi-skill flows: `scripts/track_chain_status.py` (stages + lanes + model tiers + review loop state)
 - Execution progress tracker for long-running build work: `scripts/track_execution_progress.py` (checkpoint + lane + proof-before-progress)
-- UI brief generator for frontend/visualize work: `scripts/generate_ui_brief.py`
 - UI brief checker for persisted frontend/visualize artifacts: `scripts/check_ui_brief.py`
 - UI progress tracker for long-running frontend/visualize tasks: `scripts/track_ui_progress.py`
 - Automated smoke matrix runner for route/router cases: `scripts/run_smoke_matrix.py`
 - Canonical release/CI verification entry point: `scripts/verify_bundle.py`
-- Automated workspace canary runner for real repo rollout: `scripts/run_workspace_canary.py`
-- Canary result recorder for real workspace rollout: `scripts/record_canary_result.py`
-- Canary readiness evaluator for rollout verdicts: `scripts/evaluate_canary_readiness.py`
 - Default persistent artifacts:
   - `.forge-artifacts/route-previews/`
   - `.forge-artifacts/router-checks/`
@@ -189,7 +176,7 @@ forge-codex/
 - `.brain/decisions.json`
 - `.brain/learnings.json`
 
-When you need detailed command examples or artifact behavior, read `references/tooling.md`.
+When you need detailed command examples or artifact behavior, read `references/kernel-tooling.md`.
 
 ---
 

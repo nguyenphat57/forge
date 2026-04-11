@@ -247,14 +247,12 @@ class BundleContractTests(unittest.TestCase):
                     self.assertTrue(forge_home_fixture(case["forge_home_fixture"]).exists())
 
     def test_tooling_docs_mention_verify_entrypoints(self) -> None:
-        tooling = (ROOT_DIR / "references" / "tooling.md").read_text(encoding="utf-8")
+        tooling = (ROOT_DIR / "references" / "kernel-tooling.md").read_text(encoding="utf-8")
         self.assertIn("generate_requirements_checklist.py", tooling)
         self.assertIn("check_spec_packet.py", tooling)
         self.assertIn("prepare_worktree.py", tooling)
         self.assertIn("run_smoke_matrix.py", tooling)
         self.assertIn("verify_bundle.py", tooling)
-        self.assertIn("record_canary_result.py", tooling)
-        self.assertIn("evaluate_canary_readiness.py", tooling)
         self.assertIn("resolve_preferences.py", tooling)
         self.assertIn("resolve_help_next.py", tooling)
         self.assertIn("session_context.py", tooling)
@@ -263,10 +261,7 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("translate_error.py", tooling)
         self.assertIn("prepare_bump.py", tooling)
         self.assertIn("resolve_rollback.py", tooling)
-        self.assertIn("resolve_runtime_tool.py", tooling)
-        self.assertIn("invoke_runtime_tool.py", tooling)
         self.assertIn("host-artifacts-manifest.json", tooling)
-        self.assertIn("forge-codex/overlay/workflows/operator/run.md", tooling)
         self.assertIn("write_preferences.py", tooling)
         self.assertIn("initialize_workspace.py", tooling)
 
@@ -314,7 +309,7 @@ class BundleContractTests(unittest.TestCase):
                         self.assertTrue(metadata["deprecation_line"])
 
     def test_tooling_docs_mention_workflow_state_artifacts(self) -> None:
-        tooling = (ROOT_DIR / "references" / "tooling.md").read_text(encoding="utf-8")
+        tooling = (ROOT_DIR / "references" / "kernel-tooling.md").read_text(encoding="utf-8")
         self.assertIn("workflow-state", tooling)
         self.assertIn("latest.json", tooling)
         self.assertIn("events.jsonl", tooling)
@@ -357,20 +352,18 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("error_translation", run_guidance)
         self.assertIn("Error translation:", run_workflow)
 
-    def test_architecture_layers_reference_describes_four_layers(self) -> None:
+    def test_architecture_layers_reference_describes_three_layers(self) -> None:
         architecture = (ROOT_DIR / "references" / "architecture-layers.md").read_text(encoding="utf-8")
         self.assertIn("core", architecture)
         self.assertIn("generated artifacts", architecture)
         self.assertIn("workflow state", architecture)
-        self.assertIn("runtime tools", architecture)
         self.assertIn("generate_host_artifacts.py", architecture)
 
-    def test_architecture_layers_reference_mentions_four_layers(self) -> None:
+    def test_architecture_layers_reference_mentions_three_layers(self) -> None:
         layers = (ROOT_DIR / "references" / "architecture-layers.md").read_text(encoding="utf-8")
         self.assertIn("core", layers)
         self.assertIn("generated artifacts", layers)
         self.assertIn("workflow state", layers)
-        self.assertIn("runtime tools", layers)
         self.assertIn("Dependency Direction", layers)
         self.assertIn("packet-index.json", layers)
 

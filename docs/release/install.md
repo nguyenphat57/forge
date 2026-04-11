@@ -32,8 +32,7 @@ Installed runtime flow:
 - `forge-codex` -> `~/.codex/skills/forge-codex`
 
 `forge-core` has no default target. Pass `--target` explicitly if you need to install it.
-`forge-browse` also has no default target. Pass `--target` explicitly for runtime-tool installs.
-`forge-design` also has no default target. Pass `--target` explicitly for runtime-tool installs.
+The install surface is kernel-only; browse and design bundles are retired from the shipped contract.
 
 ## Standard Flow
 
@@ -42,8 +41,7 @@ python scripts/verify_repo.py
 python scripts/build_release.py
 python scripts/install_bundle.py forge-antigravity --build
 python scripts/install_bundle.py forge-codex --activate-codex
-python scripts/install_bundle.py forge-browse --target C:\tools\forge-browse --register-codex-runtime --register-gemini-runtime
-python scripts/install_bundle.py forge-design --target C:\tools\forge-design --register-codex-runtime --register-gemini-runtime
+python scripts/install_bundle.py forge-core --target C:\tools\forge-core
 ```
 
 Use `python scripts/verify_repo.py --profile fast` during the inner loop.
@@ -76,8 +74,7 @@ The UTF-8 helper is only needed when preferences explicitly set `language=vi`.
 python scripts/install_bundle.py forge-antigravity --dry-run
 python scripts/install_bundle.py forge-codex --dry-run
 python scripts/install_bundle.py forge-codex --dry-run --activate-codex
-python scripts/install_bundle.py forge-browse --dry-run --target C:\tools\forge-browse --register-codex-runtime --register-gemini-runtime
-python scripts/install_bundle.py forge-design --dry-run --target C:\tools\forge-design --register-codex-runtime --register-gemini-runtime
+python scripts/install_bundle.py forge-core --dry-run --target C:\tools\forge-core
 ```
 
 ## Safety
@@ -94,6 +91,4 @@ python scripts/install_bundle.py forge-design --dry-run --target C:\tools\forge-
 ```powershell
 python scripts/install_bundle.py forge-core --target C:\path\to\custom\runtime
 python scripts/install_bundle.py forge-antigravity --target C:\path\to\sandbox\forge-antigravity
-python scripts/install_bundle.py forge-browse --target C:\path\to\tools\forge-browse --register-codex-runtime
-python scripts/install_bundle.py forge-design --target C:\path\to\tools\forge-design --register-gemini-runtime
 ```

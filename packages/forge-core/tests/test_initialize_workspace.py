@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from support import forge_home_fixture, load_json_fixture, reference_companion_environment, run_python_script, workspace_fixture
+from support import forge_home_fixture, load_json_fixture, run_python_script, workspace_fixture
 
 import common  # noqa: E402
 
@@ -109,55 +109,22 @@ class InitializeWorkspaceTests(unittest.TestCase):
             self.assertTrue((workspace / ".brain" / "learnings.json").exists())
             self.assertIn("capture_continuity.py --constitution", report["recommended_action"])
 
-    def test_initialize_workspace_can_apply_companion_preset(self) -> None:
-        with reference_companion_environment() as (_, companion_env):
-            with TemporaryDirectory() as temp_dir:
-                workspace = Path(temp_dir) / "preset"
-                result = run_python_script(
-                    "initialize_workspace.py",
-                    "--workspace",
-                    str(workspace),
-                    "--project-name",
-                    "Preset Demo",
-                    "--preset",
-                    "nextjs-typescript-postgres/minimal-saas",
-                    "--apply",
-                    "--format",
-                    "json",
-                    env={"FORGE_HOME": str(Path(temp_dir) / "forge-home"), **companion_env},
-                )
+    def test_initialize_workspace_rejects_retired_preset_flag(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir) / "preset"
+            result = run_python_script(
+                "initialize_workspace.py",
+                "--workspace",
+                str(workspace),
+                "--preset",
+                "nextjs-typescript-postgres/minimal-saas",
+                "--format",
+                "json",
+                env={"FORGE_HOME": str(Path(temp_dir) / "forge-home")},
+            )
 
-                self.assertEqual(result.returncode, 0, result.stderr)
-                report = json.loads(result.stdout)
-                self.assertEqual(report["preset"], "nextjs-typescript-postgres/minimal-saas")
-                self.assertEqual(report["recommended_next_workflow"], "plan")
-                self.assertTrue((workspace / "package.json").exists())
-                self.assertTrue((workspace / "prisma" / "schema.prisma").exists())
-
-    def test_initialize_workspace_can_apply_billing_companion_preset(self) -> None:
-        with reference_companion_environment() as (_, companion_env):
-            with TemporaryDirectory() as temp_dir:
-                workspace = Path(temp_dir) / "preset"
-                result = run_python_script(
-                    "initialize_workspace.py",
-                    "--workspace",
-                    str(workspace),
-                    "--project-name",
-                    "Billing Demo",
-                    "--preset",
-                    "nextjs-typescript-postgres/billing-saas",
-                    "--apply",
-                    "--format",
-                    "json",
-                    env={"FORGE_HOME": str(Path(temp_dir) / "forge-home"), **companion_env},
-                )
-
-                self.assertEqual(result.returncode, 0, result.stderr)
-                report = json.loads(result.stdout)
-                self.assertEqual(report["preset"], "nextjs-typescript-postgres/billing-saas")
-                self.assertEqual(report["recommended_next_workflow"], "plan")
-                self.assertTrue((workspace / "app" / "(app)" / "billing" / "page.tsx").exists())
-                self.assertTrue((workspace / "app" / "api" / "webhooks" / "stripe" / "route.ts").exists())
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("--preset", result.stderr)
 
 
 if __name__ == "__main__":

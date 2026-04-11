@@ -226,7 +226,7 @@ class HelpNextTests(unittest.TestCase):
         self.assertIn("pending browser QA proof", report["recommended_action"])
         self.assertEqual(report["signals"]["workflow_summary"]["browser_qa_pending"], ["packet-checkout-ui"])
 
-    def test_next_flags_runtime_health_issue_from_run_report(self) -> None:
+    def test_next_flags_failed_run_report_as_blocked_debug_work(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir) / "workspace"
             workspace.mkdir(parents=True, exist_ok=True)
@@ -238,13 +238,11 @@ class HelpNextTests(unittest.TestCase):
                     "last_recorded_kind": "run-report",
                     "latest_run": {
                         "kind": "run-report",
-                        "label": "forge-design board --format json",
+                        "label": "browser qa evidence capture",
                         "state": "failed",
                         "command_kind": "browser-qa",
-                        "runtime_health_taxonomy": "stale-registration",
-                        "runtime_health_summary": "Runtime resolved through fallback because registry target is stale.",
-                        "runtime_doctor_command": "python scripts/invoke_runtime_tool.py --doctor forge-design",
-                        "warnings": []
+                        "recommended_action": "Reproduce the failing browser QA step before continuing.",
+                        "warnings": ["Latest browser evidence capture failed."]
                     }
                 },
             )
@@ -265,9 +263,8 @@ class HelpNextTests(unittest.TestCase):
 
         self.assertEqual(report["current_stage"], "blocked")
         self.assertEqual(report["suggested_workflow"], "debug")
-        self.assertIn("Runtime health issue detected", report["recommended_action"])
-        self.assertIn("stale-registration", report["recommended_action"])
-        self.assertIn("Doctor command", " ".join(report["alternatives"]))
+        self.assertIn("Reproduce the failing browser QA step", report["recommended_action"])
+        self.assertIn("Latest browser evidence capture failed.", " ".join(report["alternatives"]))
 
 
 if __name__ == "__main__":

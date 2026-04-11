@@ -402,7 +402,7 @@ Do not use vague sentences like "almost done", "basically okay", "probably can b
 
 Use this lens whenever the slice touches API, job, event, migration, or data-change work:
 
-- Medium/large backend slices should create or reuse a backend brief with `scripts/generate_backend_brief.py`; if a persisted brief is reused, validate it with `scripts/check_backend_brief.py` before broad edits.
+- Medium/large backend slices should create or reuse a scoped backend brief or checklist in `docs/specs/` or `.forge-artifacts/backend-briefs/` before broad edits.
 - Keep the service shape explicit: validate input -> authorize when needed -> business logic -> persistence -> map back to transport.
 - Keep business logic out of controllers, handlers, and transport adapters even when the slice is small.
 - Make contract and compatibility explicit: caller/consumer lockstep updates, compatibility window, migration/backfill sequencing, and expand-contract stance when needed.

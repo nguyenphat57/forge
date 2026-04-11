@@ -31,7 +31,11 @@ class ReleaseAccelerationTests(unittest.TestCase):
         step_names = [name for name, _, _ in verify_repo.build_step_specs("full")]
 
         self.assertIn("build_release", step_names)
-        self.assertIn("install_dry_run.forge-browse", step_names)
+        self.assertIn("install_dry_run.forge-core", step_names)
+        self.assertIn("install_dry_run.forge-antigravity", step_names)
+        self.assertIn("install_dry_run.forge-codex", step_names)
+        self.assertNotIn("install_dry_run.forge-browse", step_names)
+        self.assertNotIn("install_dry_run.forge-design", step_names)
         self.assertTrue(any(name.startswith("dist.") for name in step_names))
 
     def test_repeated_build_release_skips_when_inputs_match(self) -> None:

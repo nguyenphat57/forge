@@ -1,26 +1,25 @@
 # Forge
 ### Process-first execution for coding agents in real repos.
 
-**1 core kernel · 2 host adapters · 2 runtime tools · stable 1.17.0**
+**1 core kernel, 2 host adapters, stable 2.0.0**
 
-![Version](https://img.shields.io/badge/version-1.17.0-2563eb)
+![Version](https://img.shields.io/badge/version-2.0.0-2563eb)
 ![License](https://img.shields.io/badge/license-MIT-16a34a)
 ![Verification](https://img.shields.io/badge/verify-repo_passed-22c55e)
 ![Adapters](https://img.shields.io/badge/adapters-Codex%20%7C%20Antigravity-f59e0b)
 
 Forge is a process-first orchestration system for coding agents.
-This repository is the source monorepo for Forge: `forge-core + host adapters + runtime tools + optional companions`.
+This repository is the source monorepo for Forge: `forge-core + host adapters`.
 
 Current maintainer docs live under `docs/current/`.
-The active repo-level roadmap line is `docs/plans/2026-04-11-forge-slim-refactor-v2.md`.
+The active repo-level roadmap line is `docs/plans/forge_refactor_V3.md`.
 Historical plans and specs now live under `docs/archive/`.
 
 Forge is built around a simple split:
 
 - `forge-core` owns routing, packetized execution, verification discipline, release-state thinking, and durable work artifacts.
 - Host adapters such as `forge-codex` and `forge-antigravity` adapt Forge to a specific host without pushing host UX into core.
-- Runtime tools such as `forge-browse` and `forge-design` stay outside the orchestrator so they can evolve independently.
-- Companions are optional stack-aware accelerators, not the identity of Forge itself.
+- The shipped product line is kernel-only: `forge-core`, `forge-codex`, and `forge-antigravity`.
 
 ### If Forge improves your workflow, give the repo a Star.
 
@@ -57,9 +56,7 @@ graph TD
     A["Forge"] --> B["forge-core<br/>routing, packets, proof gates"]
     A --> C["forge-codex<br/>AGENTS + Codex operator surface"]
     A --> D["forge-antigravity<br/>GEMINI + Antigravity operator surface"]
-    A --> E["forge-browse<br/>browser proof runtime"]
-    A --> F["forge-design<br/>design packet runtime"]
-    A --> G["companions<br/>optional stack accelerators"]
+    A --> E["kernel-only shipping line<br/>3 bundles"]
 ```
 
 Forge is not a prompt wrapper.
@@ -82,7 +79,6 @@ graph LR
     E --> F["Review"]
     F --> G["Quality Gate"]
     G --> H["Deploy"]
-
 ```
 
 ### Host-Neutral Core, Host-Specific Surfaces
@@ -121,7 +117,7 @@ graph LR
 
 - License: `MIT`
 - Repo maturity: stable release available
-- Current stable release: `1.17.0`
+- Current stable release: `2.0.0`
 - Canonical verification gate: `python scripts/verify_repo.py`
 - `forge-antigravity` is currently the most mature adapter for real rollout
 - `forge-codex` ships in the current stable release after passing the canonical release gates
@@ -137,10 +133,8 @@ Public-readiness notes live in `docs/release/public-readiness.md`.
 | `forge-core` | host-agnostic execution kernel | no default target |
 | `forge-antigravity` | Antigravity host adapter | `~/.gemini/antigravity/skills/forge-antigravity` |
 | `forge-codex` | Codex host adapter | `~/.codex/skills/forge-codex` |
-| `forge-browse` | optional browser proof runtime | explicit `--target` required |
-| `forge-design` | optional design packet runtime | explicit `--target` required |
 
-The example companion package `forge-nextjs-typescript-postgres` stays in source to prove the adaptation model, but it is not the center of the Forge product story.
+The kernel-only release line keeps the shipped bundle table intentionally short.
 
 ---
 
@@ -164,7 +158,7 @@ What `verify_repo.py` covers:
 - repo-level unit tests
 - bundle verification
 - release build
-- install dry-runs for shipped bundles
+- install dry-runs for the shipped kernel and host adapter bundles
 - dist bundle verification
 
 ### Start Here (Solo Operator)
@@ -215,17 +209,6 @@ If you want Forge to rewrite the global Gemini entrypoint from the bundle templa
 python scripts/install_bundle.py forge-antigravity --activate-gemini
 ```
 
-### Install Runtime Tools
-
-Install both runtime tools and register them for both Codex and Antigravity:
-
-```powershell
-python scripts/install_bundle.py forge-browse --target C:\tools\forge-browse --register-codex-runtime --register-gemini-runtime
-python scripts/install_bundle.py forge-design --target C:\tools\forge-design --register-codex-runtime --register-gemini-runtime
-```
-
-If only one host should discover a runtime tool, pass only that host's registration flag.
-
 ### Install Forge Core Explicitly
 
 `forge-core` has no default host target, so install it only when you have a specific runtime path in mind:
@@ -251,10 +234,7 @@ forge/
 |-- packages/
 |   |-- forge-core/
 |   |-- forge-antigravity/
-|   |-- forge-codex/
-|   |-- forge-browse/
-|   |-- forge-design/
-|   `-- forge-nextjs-typescript-postgres/
+|   `-- forge-codex/
 |-- docs/
 |   |-- architecture/
 |   |-- archive/
@@ -273,7 +253,7 @@ forge/
 - Evidence before claims: verification is part of the contract, not optional polish.
 - Brownfield-safe: optimize for real repos with real history.
 - Host-neutral core: adapters shape UX, not semantics.
-- Optional companions: accelerators are welcome, but core discipline must stand on its own.
+- Kernel-only shipping: keep the shipped bundle line small and explicit.
 
 ---
 

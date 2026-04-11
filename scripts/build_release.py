@@ -12,7 +12,7 @@ from bundle_fingerprint import bundle_fingerprint_matches_manifest, compute_bund
 from host_artifact_manifest import MANIFEST_PATH, generated_host_artifact_records_for_bundle
 from host_artifacts_support import ensure_generated_host_artifacts
 from overlay_route_fixtures import materialize_overlay_route_fixtures
-from package_matrix import PACKAGE_MATRIX_PATH, bundle_package_spec, bundle_required_path_texts, bundle_required_paths
+from package_matrix import PACKAGE_MATRIX_PATH, bundle_names, bundle_package_spec, bundle_required_path_texts, bundle_required_paths
 from release_package_specs import discover_package_specs
 from release_fs import IGNORE_PATTERNS, copy_file, copy_tree as copy_tree_with_retries, remove_path, remove_tree, should_ignore_relative_path
 from release_registry import materialize_overlay_registry
@@ -147,7 +147,6 @@ def build_state_metadata(package_name: str, host: str, runtime_state: dict | Non
             "scope": "adapter-global",
             "preferences_relative_path": "state/preferences.json",
             "extra_preferences_relative_path": "state/extra_preferences.json",
-            "runtime_tools_relative_path": "state/runtime-tools.json",
             "dev_root": {
                 "strategy": "bundle-parent-relative",
                 "path_relative": "forge-core-state",
@@ -158,7 +157,6 @@ def build_state_metadata(package_name: str, host: str, runtime_state: dict | Non
             "scope": "adapter-global",
             "preferences_relative_path": "state/preferences.json",
             "extra_preferences_relative_path": "state/extra_preferences.json",
-            "runtime_tools_relative_path": "state/runtime-tools.json",
             "dev_root": {
                 "strategy": "host-home-relative",
                 "env_var": "CODEX_HOME",
@@ -171,7 +169,6 @@ def build_state_metadata(package_name: str, host: str, runtime_state: dict | Non
             "scope": "adapter-global",
             "preferences_relative_path": "state/preferences.json",
             "extra_preferences_relative_path": "state/extra_preferences.json",
-            "runtime_tools_relative_path": "state/runtime-tools.json",
             "dev_root": {
                 "strategy": "host-home-relative",
                 "env_var": "GEMINI_HOME",
@@ -412,45 +409,6 @@ def build_adapter_bundle(spec: dict, metadata: dict[str, object], *, force: bool
     }
 
 
-def build_runtime_bundle(spec: dict, metadata: dict[str, object], *, force: bool = False) -> dict:
-    package_dir = spec["package_dir"]
-    destination = DIST_DIR / spec["name"]
-    source_input_fingerprint = compute_source_input_fingerprint(spec["name"], package_dir=package_dir)
-    if not force and can_skip_build(
-        destination,
-        spec["name"],
-        spec["host"],
-        metadata,
-        source_input_fingerprint=source_input_fingerprint,
-    ):
-        return {"name": spec["name"], "path": str(destination), "host": spec["host"], "version": metadata["version"], "skipped": True}
-    for attempt in range(BUNDLE_BUILD_ATTEMPTS):
-        clean_dir(destination)
-        copy_tree(package_dir, destination)
-        write_build_manifest(
-            destination,
-            spec["name"],
-            spec["host"],
-            str(package_dir.relative_to(ROOT_DIR)),
-            metadata,
-            state_metadata=build_state_metadata(spec["name"], spec["host"], spec.get("state")),
-            source_input_fingerprint=source_input_fingerprint,
-        )
-        prune_cached_python_artifacts(destination)
-        try:
-            wait_for_bundle_ready(destination, spec["name"], spec["host"])
-            break
-        except FileNotFoundError:
-            if attempt == BUNDLE_BUILD_ATTEMPTS - 1:
-                raise
-            time.sleep(BUNDLE_BUILD_DELAY_SECONDS * (attempt + 1))
-    return {"name": spec["name"], "path": str(destination), "host": spec["host"], "version": metadata["version"], "skipped": False}
-
-
-def build_companion_bundle(spec: dict, metadata: dict[str, object], *, force: bool = False) -> dict:
-    return build_runtime_bundle(spec, metadata, force=force)
-
-
 def build_all(*, force: bool = False) -> list[dict]:
     git_tree = resolve_git_tree_provenance(ROOT_DIR)
     DIST_DIR.mkdir(parents=True, exist_ok=True)
@@ -463,8 +421,8 @@ def build_all(*, force: bool = False) -> list[dict]:
         )
     metadata = {"version": read_version(), "git_revision": resolve_git_revision(), "git_tree": git_tree}
     all_specs = discover_package_specs(PACKAGES_DIR, include_examples=True)
-    release_specs = [spec for spec in all_specs if spec.get("distribution") != "example"]
-    release_bundle_names = {"forge-core", *(spec["name"] for spec in release_specs)}
+    release_bundle_names = set(bundle_names())
+    release_specs = [spec for spec in all_specs if spec["name"] in release_bundle_names]
     for spec in all_specs:
         if spec["name"] not in release_bundle_names:
             clean_dir(DIST_DIR / spec["name"])
@@ -472,12 +430,10 @@ def build_all(*, force: bool = False) -> list[dict]:
     for spec in release_specs:
         if spec["kind"] == "adapter":
             outputs.append(build_adapter_bundle(spec, metadata, force=force))
-            continue
-        if spec["kind"] == "companion":
-            outputs.append(build_companion_bundle(spec, metadata, force=force))
-            continue
-        outputs.append(build_runtime_bundle(spec, metadata, force=force))
     prune_cached_python_artifacts(DIST_DIR)
+    for child in DIST_DIR.iterdir():
+        if child.is_dir() and child.name not in release_bundle_names:
+            clean_dir(child)
     for item in outputs:
         wait_for_bundle_ready(Path(item["path"]), item["name"], item["host"])
     return outputs
@@ -493,7 +449,7 @@ def format_text(outputs: list[dict]) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build Forge release bundles from core, adapters, and runtime tools.")
+    parser = argparse.ArgumentParser(description="Build Forge release bundles from the core kernel and host adapters.")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     parser.add_argument("--force", action="store_true", help="Rebuild every bundle even when dist already matches the current source inputs.")
     args = parser.parse_args()

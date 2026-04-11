@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.0 (stable) - 2026-04-11
+
+- Contract Forge as a kernel-only product line by shipping only `forge-core`, `forge-codex`, and `forge-antigravity`, while retiring `forge-browse`, `forge-design`, `forge-design-state`, and the source-only Next.js Postgres companion from the active repo surface.
+- Remove runtime-tool, companion-preset, canary, lane-scoring, and brief-generator subsystems from `forge-core`, and realign route preview, workspace init, bundle verification, reference docs, and skill overlays to the kernel-only contract.
+- Refresh release-facing and continuity surfaces so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/decisions.json` align on `2.0.0` as the current stable release after the V3 contraction cut.
+- Rebuild release artifacts and sync the verified `forge-antigravity` and `forge-codex` runtime installs from `dist/` after the canonical repo gate passes.
+
+
 ## 1.17.0 (stable) - 2026-04-11
 
 - Retire nine low-value Forge workflows from the live core surface: `change`, `verify-change`, `review-pack`, `release-doc-sync`, `release-readiness`, `adoption-check`, `doctor`, `dashboard`, and `map-codebase`.

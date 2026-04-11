@@ -44,7 +44,6 @@ from route_process_requirements import (
     review_artifact_required,
 )
 from route_stage_contract import build_required_stages
-from companion_matching import match_companions
 from route_local_companions import infer_local_companions, resolve_workspace_router
 from workflow_state_support import record_workflow_event
 
@@ -172,7 +171,6 @@ def build_report(args: argparse.Namespace) -> dict:
         complexity,
         registry,
     )
-    first_party_companions = match_companions(args.prompt, args.repo_signal)
     runtimes = detect_runtimes(args.repo_signal, registry)
     active_routing_locales = routing_locale_names()
     required_stages = required_stage_contract["required_stages"]
@@ -232,7 +230,7 @@ def build_report(args: argparse.Namespace) -> dict:
             "host_dispatch_mode": host_tier.get("dispatch_mode"),
             "resolved_delegation_preference": resolved_delegation_preference,
             "effective_delegation_mode": effective_delegation_mode,
-            "first_party_companions": [item["id"] for item in first_party_companions],
+            "first_party_companions": [],
             "local_companions": local_companions,
             "runtimes": runtimes,
             "routing_locales": active_routing_locales,
@@ -265,7 +263,7 @@ def build_report(args: argparse.Namespace) -> dict:
             intent=intent,
             complexity=complexity,
             profile=required_stage_contract["profile"],
-            skills=" + ".join([*forge_skills, *host_skills, *[item["id"] for item in first_party_companions], *local_companions])
+            skills=" + ".join([*forge_skills, *host_skills, *local_companions])
             or current_bundle_skill_name(),
         ),
         "registry_source": " + ".join(registry_sources()),

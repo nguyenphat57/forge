@@ -1,7 +1,7 @@
 # Forge Public Readiness
 
 Date: 2026-04-11
-Status: `1.17.0` is the current stable release after the workflow slim-down release cut.
+Status: `2.0.0` is the current stable release after the kernel-only contraction release cut.
 
 ## What This Checklist Covers
 
@@ -18,7 +18,7 @@ This checklist is for publishing the Forge monorepo to a public audience without
 
 ## Optional Hardening Items
 
-- keep optional live runtime smoke evidence current for browser-backed flows
+- keep optional host-backed smoke evidence current for changed adapter flows
 
 ## Latest Evidence
 
@@ -26,9 +26,9 @@ This checklist is for publishing the Forge monorepo to a public audience without
 - release and install flows are documented under `docs/release/`
 - final GitHub visibility steps are documented in `docs/release/github-public-switch-checklist.md`
 - real-repo canary and authenticated QA evidence is recorded in the 2026-03-29 project reports
-- release-facing docs now align on `1.17.0` as the stable source version
+- release-facing docs now align on `2.0.0` as the stable source version
 
 ## Verdict
 
-Forge `1.17.0` is in a reasonable state for public stable release under the current policy.
+Forge `2.0.0` is in a reasonable state for public stable release under the current policy.
 The hardening item above is optional evidence, not a release precondition.

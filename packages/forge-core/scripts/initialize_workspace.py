@@ -6,8 +6,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from common import configure_stdio, preference_defaults, resolve_forge_home, resolve_global_preferences_path
-from companion_invoke import invoke_companion_preset
-from companion_matching import resolve_companion_preset
 
 
 IGNORED_EXISTING_ENTRIES = {
@@ -103,15 +101,6 @@ def build_plan(args: argparse.Namespace) -> dict:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(content, encoding="utf-8")
 
-    preset_report: dict | None = None
-    if args.preset:
-        preset = resolve_companion_preset(args.preset)
-        preset_report = invoke_companion_preset(preset, workspace, args.project_name, args.apply)
-        created_directories.extend(item for item in preset_report.get("created_directories", []) if item not in created_directories)
-        created_files.extend(item for item in preset_report.get("created_files", []) if item not in created_files)
-        reused_paths.extend(item for item in preset_report.get("reused_paths", []) if item not in reused_paths)
-        warnings.append(f"Preset scaffold attached via companion `{preset['companion_id']}`.")
-
     recommended_next_workflow = "brainstorm" if mode == "greenfield" else "plan"
     recommended_action = (
         "Start with `brainstorm` to lock the product direction before implementation."
@@ -120,9 +109,6 @@ def build_plan(args: argparse.Namespace) -> dict:
     )
     if args.seed_continuity:
         recommended_action += " After direction lock, capture any repo-local rules with `capture_continuity.py --constitution`."
-    if preset_report is not None:
-        recommended_next_workflow = "plan"
-        recommended_action = "Run `python scripts/verify_repo.py --profile fast` if repo health is unclear, then use `plan` against the scaffolded preset before extending scope."
 
     return {
         "status": "PASS",
@@ -136,8 +122,6 @@ def build_plan(args: argparse.Namespace) -> dict:
         "created_directories": created_directories,
         "created_files": created_files,
         "reused_paths": reused_paths,
-        "preset": args.preset,
-        "preset_report": preset_report,
         "recommended_next_workflow": recommended_next_workflow,
         "recommended_action": recommended_action,
         "warnings": warnings,
@@ -177,8 +161,6 @@ def format_text(report: dict) -> str:
 
     lines.append(f"- Next workflow: {report['recommended_next_workflow']}")
     lines.append(f"- Recommended action: {report['recommended_action']}")
-    if report.get("preset"):
-        lines.append(f"- Preset: {report['preset']}")
     if report["warnings"]:
         lines.append("- Warnings:")
         for item in report["warnings"]:
@@ -199,7 +181,6 @@ def main() -> int:
     )
     parser.add_argument("--project-name", default=None, help="Optional project name to seed into session metadata")
     parser.add_argument("--mode", choices=["auto", "greenfield", "existing"], default="auto", help="Override workspace classification")
-    parser.add_argument("--preset", default=None, help="Optional companion preset such as nextjs-typescript-postgres/minimal-saas")
     parser.add_argument("--seed-preferences", action="store_true", help="Also create the adapter-global Forge preferences file with schema defaults")
     parser.add_argument("--seed-continuity", action="store_true", help="Also create empty decisions/learnings continuity files")
     parser.add_argument("--apply", action="store_true", help="Create the planned directories/files")

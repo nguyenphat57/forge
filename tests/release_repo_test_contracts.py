@@ -119,34 +119,13 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertEqual(manifest["git_tree"]["untracked_files"], ["leak.env"])
         self.assertIn("git_revision", manifest)
 
-    def test_build_release_includes_runtime_tool_bundle(self) -> None:
+    def test_build_release_excludes_retired_bundle_outputs(self) -> None:
         build_release.build_all()
-        manifest = json.loads((ROOT_DIR / "dist" / "forge-browse" / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
+        for bundle_name in ("forge-browse", "forge-design", "forge-nextjs-typescript-postgres"):
+            with self.subTest(bundle=bundle_name):
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name).exists())
 
-        self.assertEqual(manifest["version"], build_release.read_version())
-        self.assertEqual(manifest["package"], "forge-browse")
-        self.assertEqual(manifest["host"], "runtime")
-        self.assertEqual(manifest["packaging"]["default_target_strategy"], "explicit")
-        self.assertIn("scripts/forge_browse.py", manifest["packaging"]["required_bundle_paths"])
-        self.assertIn("scripts/browse_packets.py", manifest["packaging"]["required_bundle_paths"])
-        self.assertIn("scripts/browse_runtime.py", manifest["packaging"]["required_bundle_paths"])
-        self.assertEqual(manifest["generated_artifacts"]["artifacts"], [])
-        self.assertTrue((ROOT_DIR / "dist" / "forge-browse" / "runtime.json").exists())
-
-    def test_build_release_includes_design_runtime_bundle(self) -> None:
-        build_release.build_all()
-        manifest = json.loads((ROOT_DIR / "dist" / "forge-design" / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
-
-        self.assertEqual(manifest["version"], build_release.read_version())
-        self.assertEqual(manifest["package"], "forge-design")
-        self.assertEqual(manifest["host"], "runtime")
-        self.assertEqual(manifest["packaging"]["default_target_strategy"], "explicit")
-        self.assertIn("scripts/forge_design.py", manifest["packaging"]["required_bundle_paths"])
-        self.assertIn("scripts/design_browse_live_smoke.py", manifest["packaging"]["required_bundle_paths"])
-        self.assertIn("scripts/design_packet.py", manifest["packaging"]["required_bundle_paths"])
-        self.assertTrue((ROOT_DIR / "dist" / "forge-design" / "runtime.json").exists())
-
-    def test_build_release_skips_source_only_example_companion(self) -> None:
+    def test_build_release_skips_source_only_example_bundle(self) -> None:
         stale_dist = ROOT_DIR / "dist" / "forge-nextjs-typescript-postgres"
         stale_dist.mkdir(parents=True, exist_ok=True)
         (stale_dist / "stale.txt").write_text("stale", encoding="utf-8")
@@ -234,61 +213,6 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
                     self.assertEqual(payload["state_root"], str(expected_state_root))
                     self.assertEqual(payload["path"], str((expected_state_root / "state" / "preferences.json").resolve()))
                     self.assertFalse((home / ".forge").exists())
-
-    def test_uninstalled_dist_runtime_tool_uses_bundle_state_root(self) -> None:
-        build_release.build_all()
-        script_path = ROOT_DIR / "dist" / "forge-browse" / "scripts" / "forge_browse.py"
-        expected_state_root = (ROOT_DIR / "dist" / "forge-browse-state").resolve()
-        try:
-            result = subprocess.run(
-                [
-                    sys.executable,
-                    str(script_path),
-                    "session-create",
-                    "--label",
-                    "smoke",
-                    "--format",
-                    "json",
-                ],
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                check=False,
-            )
-            self.assertEqual(result.returncode, 0, result.stderr)
-            payload = json.loads(result.stdout)
-
-            self.assertEqual(payload["state"]["root"], str(expected_state_root))
-            self.assertEqual(payload["state"]["sessions_path"], str((expected_state_root / "state" / "sessions.json").resolve()))
-            self.assertTrue(payload["session"]["artifacts_dir"].startswith(str(expected_state_root)))
-        finally:
-            shutil.rmtree(expected_state_root, ignore_errors=True)
-
-    def test_uninstalled_dist_host_bundle_reads_runtime_registry_path_from_manifest(self) -> None:
-        build_release.build_all()
-        script_path = ROOT_DIR / "dist" / "forge-codex" / "scripts" / "resolve_runtime_tool.py"
-
-        result = subprocess.run(
-            [
-                sys.executable,
-                str(script_path),
-                "forge-browse",
-                "--format",
-                "json",
-            ],
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            check=False,
-        )
-        self.assertEqual(result.returncode, 0, result.stderr)
-        payload = json.loads(result.stdout)
-
-        self.assertEqual(
-            payload["registry_path"],
-            str((ROOT_DIR / "dist" / "forge-codex" / "state" / "runtime-tools.json").resolve()),
-        )
-        self.assertEqual(payload["resolution_source"], "bundle-neighbor")
 
     def test_114_target_and_competitive_closure_tokens_are_visible(self) -> None:
         target_state = (ROOT_DIR / "packages" / "forge-core" / "references" / "target-state.md").read_text(encoding="utf-8")

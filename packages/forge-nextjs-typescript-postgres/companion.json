@@ -1,8 +1,0 @@
-{
-  "name": "forge-nextjs-typescript-postgres",
-  "kind": "companion",
-  "host": "companion",
-  "distribution": "example",
-  "description": "Source-only example reference companion for the Next.js + TypeScript + Postgres stack path, including auth, billing, and deploy-observability presets",
-  "capabilities_path": "data/companion-capabilities.json"
-}

@@ -5,7 +5,6 @@ from pathlib import Path
 
 import build_release
 from bundle_fingerprint import compute_bundle_fingerprint, fingerprint_matches
-from companion_install_support import apply_companion_registrations, plan_companion_registrations
 from install_bundle_host import (
     apply_codex_host_activation,
     apply_gemini_host_activation,
@@ -23,10 +22,9 @@ from install_bundle_paths import (
     resolve_install_target,
     validate_install_paths,
 )
-from install_bundle_report import build_companion_compatibility, build_install_transition, format_text, load_companion_compatibility, load_install_manifest, write_install_manifest
-from package_matrix import resolve_default_install_target
+from install_bundle_report import build_install_transition, format_text, load_install_manifest, write_install_manifest
+from package_matrix import bundle_names, resolve_default_install_target
 from release_fs import copy_tree, remove_path, sync_tree
-from runtime_tool_install_support import apply_runtime_tool_registrations, plan_runtime_tool_registrations
 
 
 def _resolve_requested_target(
@@ -58,12 +56,10 @@ def plan_install(
     codex_home: str | None = None,
     activate_gemini: bool = False,
     gemini_home: str | None = None,
-    register_codex_runtime: bool = False,
-    register_gemini_runtime: bool = False,
-    register_codex_companion: bool = False,
-    register_gemini_companion: bool = False,
     intent: str = "install",
 ) -> dict:
+    if bundle_name not in bundle_names():
+        raise KeyError(f"Unknown bundle in package matrix: {bundle_name}")
     source_path = resolve_bundle_source(bundle_name, source)
     if build:
         build_release.build_all()
@@ -79,13 +75,6 @@ def plan_install(
     source_fingerprint = build_manifest.get("bundle_fingerprint")
     installed_fingerprint = compute_bundle_fingerprint(target_path) if target_path.exists() and target_path.is_dir() else None
     bundle_sync_required = not fingerprint_matches(source_fingerprint, installed_fingerprint)
-    if (register_codex_runtime or register_gemini_runtime) and build_manifest.get("host") != "runtime":
-        raise ValueError("Runtime-tool registration is only supported for bundles with host=runtime.")
-    if intent == "inspect":
-        register_codex_runtime = False
-        register_gemini_runtime = False
-        register_codex_companion = False
-        register_gemini_companion = False
     install_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     backup_root = Path(backup_dir).expanduser().resolve() if backup_dir else DEFAULT_BACKUP_DIR.resolve()
     backup_path = (
@@ -100,14 +89,6 @@ def plan_install(
         intent=intent,
         bundle_sync_required=bundle_sync_required,
     )
-    compatibility = None
-    if build_manifest.get("host") == "companion":
-        companion_version, companion_bounds = load_companion_compatibility(source_path)
-        compatibility = build_companion_compatibility(
-            core_version=build_release.read_version(),
-            companion_version=companion_version or str(build_manifest.get("version") or "unknown"),
-            bounds=companion_bounds,
-        )
 
     codex_host_activation = plan_codex_host_activation(
         bundle_name=bundle_name,
@@ -129,21 +110,6 @@ def plan_install(
         activate_gemini=activate_gemini,
         gemini_home=gemini_home,
     )
-    runtime_registrations = plan_runtime_tool_registrations(
-        bundle_name,
-        register_codex_runtime=register_codex_runtime,
-        codex_home=codex_home,
-        register_gemini_runtime=register_gemini_runtime,
-        gemini_home=gemini_home,
-    )
-    companion_registrations = plan_companion_registrations(
-        bundle_name,
-        bundle_host=build_manifest.get("host"),
-        register_codex_companion=register_codex_companion,
-        codex_home=codex_home,
-        register_gemini_companion=register_gemini_companion,
-        gemini_home=gemini_home,
-    )
 
     return {
         "bundle": bundle_name,
@@ -159,7 +125,6 @@ def plan_install(
         "backup_path": str(backup_path) if backup_path else None,
         "bundle_sync_required": bundle_sync_required,
         "source_build_manifest": build_manifest,
-        "compatibility": compatibility,
         "transition": transition,
         "bundle_fingerprint": {
             "source": source_fingerprint,
@@ -169,10 +134,6 @@ def plan_install(
         },
         "codex_host_activation": codex_host_activation,
         "gemini_host_activation": gemini_host_activation,
-        "codex_runtime_registration": runtime_registrations["codex"],
-        "gemini_runtime_registration": runtime_registrations["gemini"],
-        "codex_companion_registration": companion_registrations["codex"],
-        "gemini_companion_registration": companion_registrations["gemini"],
         "state": build_state_metadata(
             bundle_name,
             target_path,
@@ -221,8 +182,6 @@ def install_from_plan(report: dict) -> dict:
     ensure_state_layout(report)
     apply_codex_host_activation(report)
     apply_gemini_host_activation(report)
-    apply_runtime_tool_registrations(report)
-    apply_companion_registrations(report)
     installed_fingerprint = compute_bundle_fingerprint(target_path)
     source_fingerprint = report["source_build_manifest"].get("bundle_fingerprint")
     report["bundle_fingerprint"] = {
@@ -248,10 +207,6 @@ def install_bundle(
     codex_home: str | None = None,
     activate_gemini: bool = False,
     gemini_home: str | None = None,
-    register_codex_runtime: bool = False,
-    register_gemini_runtime: bool = False,
-    register_codex_companion: bool = False,
-    register_gemini_companion: bool = False,
     intent: str = "install",
 ) -> dict:
     report = plan_install(
@@ -266,10 +221,6 @@ def install_bundle(
         codex_home=codex_home,
         activate_gemini=activate_gemini,
         gemini_home=gemini_home,
-        register_codex_runtime=register_codex_runtime,
-        register_gemini_runtime=register_gemini_runtime,
-        register_codex_companion=register_codex_companion,
-        register_gemini_companion=register_gemini_companion,
         intent=intent,
     )
     if intent == "inspect":
