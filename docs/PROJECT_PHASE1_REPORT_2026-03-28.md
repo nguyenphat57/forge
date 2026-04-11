@@ -10,8 +10,8 @@ Scope:
 
 Inputs:
 - [2026-03-28-forge-solo-dev-roadmap.md](plans/2026-03-28-forge-solo-dev-roadmap.md)
-- [2026-03-28-phase-1-build-spec.md](specs/2026-03-28-phase-1-build-spec.md)
-- [2026-03-28-phase-1-issue-breakdown.md](specs/2026-03-28-phase-1-issue-breakdown.md)
+- [2026-03-28-phase-1-build-spec.md](archive/specs/2026-03-28-phase-1-build-spec.md)
+- [2026-03-28-phase-1-issue-breakdown.md](archive/specs/2026-03-28-phase-1-issue-breakdown.md)
 
 ## Summary
 

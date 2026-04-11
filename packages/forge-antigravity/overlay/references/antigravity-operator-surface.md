@@ -9,8 +9,8 @@
 | `/help` | `workflows/operator/help.md` | `scripts/resolve_help_next.py --workspace <workspace> --mode help` |
 | `/next` | `workflows/operator/next.md` | `scripts/resolve_help_next.py --workspace <workspace> --mode next` |
 | `/run` | `workflows/operator/run.md` | `scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>` |
-| `/bump` | `workflows/operator/bump.md` | `scripts/prepare_bump.py --workspace <workspace> <version|major|minor|patch>` |
-| `/rollback` | `workflows/operator/rollback.md` | `scripts/resolve_rollback.py --workspace <workspace> --scope <scope>` |
+| `/bump` | `workflows/operator/bump.md` | `scripts/prepare_bump.py --workspace <workspace> --bump <version|major|minor|patch>` |
+| `/rollback` | `workflows/operator/rollback.md` | `scripts/resolve_rollback.py --scope <scope>` |
 | `/customize` | `workflows/operator/customize.md` | `scripts/resolve_preferences.py --workspace <workspace> --format json && scripts/write_preferences.py` |
 | `/init` | `workflows/operator/init.md` | `scripts/initialize_workspace.py --workspace <workspace>` |
 

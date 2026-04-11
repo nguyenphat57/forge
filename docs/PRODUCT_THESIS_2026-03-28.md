@@ -3,7 +3,7 @@
 Date: 2026-03-28
 Status: historical, superseded by `docs/PRODUCT_THESIS_2026-03-29.md`
 Inputs:
-- `docs/plans/2026-03-28-forge-solo-dev-roadmap.md`
+- `docs/archive/plans/2026-03-28-forge-solo-dev-roadmap.md`
 - `docs/PROJECT_PHASE1_REPORT_2026-03-28.md`
 - `docs/PROJECT_PHASE2_DEEPENING_REPORT_2026-03-28.md`
 - `docs/PROJECT_PHASE3_REPORT_2026-03-28.md`

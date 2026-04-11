@@ -9,7 +9,7 @@ Scope:
 
 Inputs:
 - [2026-03-28-forge-solo-dev-roadmap.md](plans/2026-03-28-forge-solo-dev-roadmap.md)
-- [2026-03-28-nextjs-typescript-postgres-companion.md](specs/2026-03-28-nextjs-typescript-postgres-companion.md)
+- [2026-03-28-nextjs-typescript-postgres-companion.md](archive/specs/2026-03-28-nextjs-typescript-postgres-companion.md)
 
 ## Summary
 

@@ -1,0 +1,22 @@
+---
+name: {{FORGE_CODEX_OPERATOR_NAME}}
+type: flexible
+triggers:
+{{FORGE_CODEX_OPERATOR_TRIGGERS}}
+quality_gates:
+{{FORGE_CODEX_OPERATOR_QUALITY_GATES}}
+---
+
+# {{FORGE_CODEX_OPERATOR_HEADING}}
+
+> Goal: {{FORGE_CODEX_OPERATOR_GOAL}}
+
+## Process
+
+{{FORGE_CODEX_OPERATOR_PROCESS}}
+
+## Activation Announcement
+
+```text
+{{FORGE_CODEX_OPERATOR_ANNOUNCEMENT}}
+```

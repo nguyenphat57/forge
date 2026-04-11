@@ -17,14 +17,7 @@ ENTRYPOINT_CANDIDATES = (
     "pages/index.tsx",
 )
 OPERATOR_ENTRYPOINT_CANDIDATES = (
-    "scripts/resolve_help_next.py",
-    "scripts/run_with_guidance.py",
-    "scripts/session_context.py",
-    "scripts/prepare_bump.py",
-    "scripts/resolve_rollback.py",
-    "scripts/resolve_preferences.py",
-    "scripts/write_preferences.py",
-    "scripts/initialize_workspace.py",
+    "scripts/repo_operator.py",
 )
 
 

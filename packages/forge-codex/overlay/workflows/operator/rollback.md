@@ -21,7 +21,7 @@ quality_gates:
 1. Resolve using core planner:
 
 ```powershell
-python scripts/resolve_rollback.py --workspace <workspace> --scope deploy --format json
+python scripts/resolve_rollback.py --scope <scope> --format json
 ```
 
 2. Short answer:

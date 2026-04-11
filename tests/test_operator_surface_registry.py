@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import sys
 import unittest
 from pathlib import Path
@@ -61,13 +60,13 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         primary_section = antigravity_global.split("Primary operator aliases:", maxsplit=1)[1].split("Session requests stay natural-language:", maxsplit=1)[0]
         self.assertNotIn("/save-brain", primary_section)
 
-    def test_plan_doc_is_maintenance_safe(self) -> None:
-        plan_path = ROOT_DIR / "docs" / "plans" / "PLAN.md"
-        text = plan_path.read_text(encoding="utf-8")
+    def test_current_roadmap_doc_is_clean_and_active(self) -> None:
+        roadmap_path = ROOT_DIR / "docs" / "plans" / "2026-04-11-forge-slim-refactor-v2.md"
+        text = roadmap_path.read_text(encoding="utf-8")
 
-        self.assertIn("Status: implemented", text)
+        self.assertIn("Status: current roadmap", text)
         self.assertNotIn("\ufffd", text)
-        self.assertTrue(any(char in text for char in "ặếộự"))
+        self.assertIn("scripts/repo_operator.py", text)
 
 
 if __name__ == "__main__":
