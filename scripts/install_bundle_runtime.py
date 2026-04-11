@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import build_release
-from bundle_fingerprint import compute_bundle_fingerprint
+from bundle_fingerprint import compute_bundle_fingerprint, fingerprint_matches
 from companion_install_support import apply_companion_registrations, plan_companion_registrations
 from install_bundle_host import (
     apply_codex_host_activation,
@@ -76,6 +76,9 @@ def plan_install(
     ensure_bundle_source_ready(bundle_name, source_path)
 
     build_manifest = load_build_manifest(source_path)
+    source_fingerprint = build_manifest.get("bundle_fingerprint")
+    installed_fingerprint = compute_bundle_fingerprint(target_path) if target_path.exists() and target_path.is_dir() else None
+    bundle_sync_required = not fingerprint_matches(source_fingerprint, installed_fingerprint)
     if (register_codex_runtime or register_gemini_runtime) and build_manifest.get("host") != "runtime":
         raise ValueError("Runtime-tool registration is only supported for bundles with host=runtime.")
     if intent == "inspect":
@@ -85,9 +88,18 @@ def plan_install(
         register_gemini_companion = False
     install_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     backup_root = Path(backup_dir).expanduser().resolve() if backup_dir else DEFAULT_BACKUP_DIR.resolve()
-    backup_path = backup_root / f"{bundle_name}-{install_id}" if backup and target_path.exists() and intent != "inspect" else None
+    backup_path = (
+        backup_root / f"{bundle_name}-{install_id}"
+        if backup and target_path.exists() and intent != "inspect" and bundle_sync_required
+        else None
+    )
     existing_install = load_install_manifest(target_path)
-    transition = build_install_transition(existing_install, current_version=str(build_manifest.get("version") or "unknown"), intent=intent)
+    transition = build_install_transition(
+        existing_install,
+        current_version=str(build_manifest.get("version") or "unknown"),
+        intent=intent,
+        bundle_sync_required=bundle_sync_required,
+    )
     compatibility = None
     if build_manifest.get("host") == "companion":
         companion_version, companion_bounds = load_companion_compatibility(source_path)
@@ -143,15 +155,16 @@ def plan_install(
         "mode": intent,
         "build_requested": build,
         "dry_run": dry_run or intent == "inspect",
-        "backup_enabled": backup and intent != "inspect",
+        "backup_enabled": backup and intent != "inspect" and bundle_sync_required,
         "backup_path": str(backup_path) if backup_path else None,
+        "bundle_sync_required": bundle_sync_required,
         "source_build_manifest": build_manifest,
         "compatibility": compatibility,
         "transition": transition,
         "bundle_fingerprint": {
-            "source": build_manifest.get("bundle_fingerprint"),
-            "installed": None,
-            "matches_source": None,
+            "source": source_fingerprint,
+            "installed": installed_fingerprint,
+            "matches_source": fingerprint_matches(source_fingerprint, installed_fingerprint),
             "host_mutation_expected": activate_codex or activate_gemini,
         },
         "codex_host_activation": codex_host_activation,
@@ -196,14 +209,15 @@ def install_from_plan(report: dict) -> dict:
     target_path = Path(report["target"])
     backup_path = Path(report["backup_path"]) if report["backup_path"] else None
 
-    if backup_path:
+    if report.get("bundle_sync_required", True) and backup_path:
         backup_path.parent.mkdir(parents=True, exist_ok=True)
         copy_tree(target_path, backup_path)
 
-    if target_path.exists() and not target_path.is_dir():
+    if report.get("bundle_sync_required", True) and target_path.exists() and not target_path.is_dir():
         remove_path(target_path)
 
-    sync_tree(source_path, target_path)
+    if report.get("bundle_sync_required", True):
+        sync_tree(source_path, target_path)
     ensure_state_layout(report)
     apply_codex_host_activation(report)
     apply_gemini_host_activation(report)
@@ -214,11 +228,7 @@ def install_from_plan(report: dict) -> dict:
     report["bundle_fingerprint"] = {
         "source": source_fingerprint,
         "installed": installed_fingerprint,
-        "matches_source": (
-            isinstance(source_fingerprint, dict)
-            and source_fingerprint.get("sha256") == installed_fingerprint["sha256"]
-            and source_fingerprint.get("file_count") == installed_fingerprint["file_count"]
-        ),
+        "matches_source": fingerprint_matches(source_fingerprint, installed_fingerprint),
         "host_mutation_expected": report["codex_host_activation"]["enabled"] or report["gemini_host_activation"]["enabled"],
     }
     write_install_manifest(target_path, report)

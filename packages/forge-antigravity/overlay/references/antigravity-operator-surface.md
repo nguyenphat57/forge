@@ -14,18 +14,14 @@
 | `/customize` | `workflows/operator/customize.md` | `scripts/resolve_preferences.py --workspace <workspace> --format json && scripts/write_preferences.py` |
 | `/init` | `workflows/operator/init.md` | `scripts/initialize_workspace.py --workspace <workspace>` |
 
-## Compatibility Wrappers
+## Natural-Language Session Requests
 
-| Alias | Wrapper | Core contract |
-|-------|---------|---------------|
-| `/recap` | `workflows/operator/recap.md` | `workflows/execution/session.md` restore mode |
-| `/save-brain` | `workflows/operator/save-brain.md` | `workflows/execution/session.md` save mode |
-| `/handover` | `workflows/operator/handover.md` | `workflows/execution/session.md` handover mode |
+- "Continue the task we were working on yesterday and tell me the best next step." -> `resume`
+- "Save context for this task before I close the window." -> `save context`
+- "Create a short handover with the next step and verification already run." -> `handover`
 
-Legacy session aliases stay available for one stable line and should emit a deprecation warning instead of behaving like a primary surface.
-
-## Compatibility Rules
+## Session Rules
 
 - Wrapper docs may use a more operator-friendly presentation.
 - Core semantics, schema, and deterministic scripts must not be forked.
-- Aliases exist only to reduce migration friction from AWF or older Antigravity versions; they do not create new intents.
+- Session requests should stay natural-language first: ask to `resume`, `save context`, or leave a `handover`.

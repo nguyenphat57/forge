@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import subprocess
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from bundle_fingerprint import compute_bundle_fingerprint
+from bundle_fingerprint import bundle_fingerprint_matches_manifest, compute_bundle_fingerprint, compute_path_fingerprint, fingerprint_matches
 from host_artifact_manifest import MANIFEST_PATH, generated_host_artifact_records_for_bundle
 from host_artifacts_support import ensure_generated_host_artifacts
 from overlay_route_fixtures import materialize_overlay_route_fixtures
@@ -26,6 +27,21 @@ BUNDLE_BUILD_ATTEMPTS = 3
 BUNDLE_BUILD_DELAY_SECONDS = 0.2
 BUNDLE_READY_ATTEMPTS = 10
 BUNDLE_READY_DELAY_SECONDS = 0.1
+COMMON_BUILD_INPUTS = (
+    ROOT_DIR / "VERSION",
+    ROOT_DIR / "docs" / "release" / "package-matrix.json",
+    ROOT_DIR / "docs" / "architecture" / "host-artifacts-manifest.json",
+    ROOT_DIR / "scripts" / "build_release.py",
+    ROOT_DIR / "scripts" / "bundle_fingerprint.py",
+    ROOT_DIR / "scripts" / "host_artifact_manifest.py",
+    ROOT_DIR / "scripts" / "host_artifact_specs.py",
+    ROOT_DIR / "scripts" / "host_artifacts_support.py",
+    ROOT_DIR / "scripts" / "operator_surface_support.py",
+    ROOT_DIR / "scripts" / "overlay_route_fixtures.py",
+    ROOT_DIR / "scripts" / "package_matrix.py",
+    ROOT_DIR / "scripts" / "release_package_specs.py",
+    ROOT_DIR / "scripts" / "release_registry.py",
+)
 
 def read_version() -> str:
     version = VERSION_FILE.read_text(encoding="utf-8").strip()
@@ -166,6 +182,27 @@ def build_state_metadata(package_name: str, host: str, runtime_state: dict | Non
     return None
 
 
+def build_input_paths(package_name: str, *, package_dir: Path | None = None, overlay_dir: Path | None = None) -> list[Path]:
+    paths = list(COMMON_BUILD_INPUTS)
+    if package_name == "forge-core":
+        paths.append(CORE_DIR)
+        return paths
+    if package_dir is None:
+        raise ValueError(f"package_dir is required for bundle inputs: {package_name}")
+    if overlay_dir is not None:
+        paths.extend([CORE_DIR, overlay_dir])
+        return paths
+    paths.append(package_dir)
+    return paths
+
+
+def compute_source_input_fingerprint(package_name: str, *, package_dir: Path | None = None, overlay_dir: Path | None = None) -> dict[str, object]:
+    return compute_path_fingerprint(
+        build_input_paths(package_name, package_dir=package_dir, overlay_dir=overlay_dir),
+        relative_to=ROOT_DIR,
+    )
+
+
 def write_build_manifest(
     destination: Path,
     package_name: str,
@@ -174,6 +211,7 @@ def write_build_manifest(
     metadata: dict[str, object],
     *,
     state_metadata: dict | None = None,
+    source_input_fingerprint: dict | None = None,
 ) -> None:
     package_spec = bundle_package_spec(package_name)
     git_tree = metadata.get("git_tree")
@@ -193,6 +231,7 @@ def write_build_manifest(
             "required_bundle_paths": bundle_required_path_texts(package_name),
         },
         "bundle_fingerprint": compute_bundle_fingerprint(destination),
+        "source_input_fingerprint": copy.deepcopy(source_input_fingerprint),
         "generated_artifacts": {
             "manifest_path": str(MANIFEST_PATH.relative_to(ROOT_DIR).as_posix()),
             "artifacts": generated_host_artifact_records_for_bundle(package_name, output_root=destination),
@@ -214,6 +253,40 @@ def required_bundle_paths(destination: Path, package_name: str, host: str) -> li
     if build_manifest_path not in paths:
         paths.append(build_manifest_path)
     return paths
+
+
+def load_existing_build_manifest(destination: Path) -> dict[str, object] | None:
+    manifest_path = destination / "BUILD-MANIFEST.json"
+    if not manifest_path.exists():
+        return None
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    return payload if isinstance(payload, dict) else None
+
+
+def can_skip_build(
+    destination: Path,
+    package_name: str,
+    host: str,
+    metadata: dict[str, object],
+    *,
+    source_input_fingerprint: dict[str, object],
+) -> bool:
+    manifest = load_existing_build_manifest(destination)
+    if manifest is None:
+        return False
+    if manifest.get("version") != metadata["version"]:
+        return False
+    if manifest.get("git_revision") != metadata["git_revision"]:
+        return False
+    if manifest.get("git_tree") != metadata["git_tree"]:
+        return False
+    if not fingerprint_matches(manifest.get("source_input_fingerprint"), source_input_fingerprint):
+        return False
+    missing = [path for path in required_bundle_paths(destination, package_name, host) if not path.exists()]
+    if missing:
+        return False
+    matches_manifest, _, _ = bundle_fingerprint_matches_manifest(destination, manifest)
+    return matches_manifest
 
 
 def verify_host_artifacts(destination: Path, package_name: str) -> None:
@@ -248,12 +321,34 @@ def wait_for_bundle_ready(destination: Path, package_name: str, host: str) -> No
         raise FileNotFoundError(f"Missing build artifacts for {package_name}: {missing[0]}")
 
 
-def build_core_bundle(metadata: dict[str, object]) -> dict:
+def build_core_bundle(metadata: dict[str, object], *, force: bool = False) -> dict:
     destination = DIST_DIR / "forge-core"
+    source_input_fingerprint = compute_source_input_fingerprint("forge-core")
+    if not force and can_skip_build(
+        destination,
+        "forge-core",
+        "generic",
+        metadata,
+        source_input_fingerprint=source_input_fingerprint,
+    ):
+        return {
+            "name": "forge-core",
+            "path": str(destination),
+            "host": "generic",
+            "version": metadata["version"],
+            "skipped": True,
+        }
     for attempt in range(BUNDLE_BUILD_ATTEMPTS):
         clean_dir(destination)
         copy_tree(CORE_DIR, destination)
-        write_build_manifest(destination, "forge-core", "generic", "packages/forge-core", metadata)
+        write_build_manifest(
+            destination,
+            "forge-core",
+            "generic",
+            "packages/forge-core",
+            metadata,
+            source_input_fingerprint=source_input_fingerprint,
+        )
         prune_cached_python_artifacts(destination)
         try:
             wait_for_bundle_ready(destination, "forge-core", "generic")
@@ -262,13 +357,28 @@ def build_core_bundle(metadata: dict[str, object]) -> dict:
             if attempt == BUNDLE_BUILD_ATTEMPTS - 1:
                 raise
             time.sleep(BUNDLE_BUILD_DELAY_SECONDS * (attempt + 1))
-    return {"name": "forge-core", "path": str(destination), "host": "generic", "version": metadata["version"]}
+    return {"name": "forge-core", "path": str(destination), "host": "generic", "version": metadata["version"], "skipped": False}
 
 
-def build_adapter_bundle(spec: dict, metadata: dict[str, object]) -> dict:
+def build_adapter_bundle(spec: dict, metadata: dict[str, object], *, force: bool = False) -> dict:
     package_dir = spec["package_dir"]
     destination = DIST_DIR / spec["name"]
     overlay_dir = package_dir / spec["overlay_dir"]
+    source_input_fingerprint = compute_source_input_fingerprint(spec["name"], package_dir=package_dir, overlay_dir=overlay_dir)
+    if not force and can_skip_build(
+        destination,
+        spec["name"],
+        spec["host"],
+        metadata,
+        source_input_fingerprint=source_input_fingerprint,
+    ):
+        return {
+            "name": spec["name"],
+            "path": str(destination),
+            "host": spec["host"],
+            "version": metadata["version"],
+            "skipped": True,
+        }
     for attempt in range(BUNDLE_BUILD_ATTEMPTS):
         clean_dir(destination)
         copy_tree(CORE_DIR, destination)
@@ -282,6 +392,7 @@ def build_adapter_bundle(spec: dict, metadata: dict[str, object]) -> dict:
             str(package_dir.relative_to(ROOT_DIR)),
             metadata,
             state_metadata=build_state_metadata(spec["name"], spec["host"], spec.get("state")),
+            source_input_fingerprint=source_input_fingerprint,
         )
         prune_cached_python_artifacts(destination)
         try:
@@ -297,12 +408,22 @@ def build_adapter_bundle(spec: dict, metadata: dict[str, object]) -> dict:
         "path": str(destination),
         "host": spec["host"],
         "version": metadata["version"],
+        "skipped": False,
     }
 
 
-def build_runtime_bundle(spec: dict, metadata: dict[str, object]) -> dict:
+def build_runtime_bundle(spec: dict, metadata: dict[str, object], *, force: bool = False) -> dict:
     package_dir = spec["package_dir"]
     destination = DIST_DIR / spec["name"]
+    source_input_fingerprint = compute_source_input_fingerprint(spec["name"], package_dir=package_dir)
+    if not force and can_skip_build(
+        destination,
+        spec["name"],
+        spec["host"],
+        metadata,
+        source_input_fingerprint=source_input_fingerprint,
+    ):
+        return {"name": spec["name"], "path": str(destination), "host": spec["host"], "version": metadata["version"], "skipped": True}
     for attempt in range(BUNDLE_BUILD_ATTEMPTS):
         clean_dir(destination)
         copy_tree(package_dir, destination)
@@ -313,6 +434,7 @@ def build_runtime_bundle(spec: dict, metadata: dict[str, object]) -> dict:
             str(package_dir.relative_to(ROOT_DIR)),
             metadata,
             state_metadata=build_state_metadata(spec["name"], spec["host"], spec.get("state")),
+            source_input_fingerprint=source_input_fingerprint,
         )
         prune_cached_python_artifacts(destination)
         try:
@@ -322,14 +444,14 @@ def build_runtime_bundle(spec: dict, metadata: dict[str, object]) -> dict:
             if attempt == BUNDLE_BUILD_ATTEMPTS - 1:
                 raise
             time.sleep(BUNDLE_BUILD_DELAY_SECONDS * (attempt + 1))
-    return {"name": spec["name"], "path": str(destination), "host": spec["host"], "version": metadata["version"]}
+    return {"name": spec["name"], "path": str(destination), "host": spec["host"], "version": metadata["version"], "skipped": False}
 
 
-def build_companion_bundle(spec: dict, metadata: dict[str, object]) -> dict:
-    return build_runtime_bundle(spec, metadata)
+def build_companion_bundle(spec: dict, metadata: dict[str, object], *, force: bool = False) -> dict:
+    return build_runtime_bundle(spec, metadata, force=force)
 
 
-def build_all() -> list[dict]:
+def build_all(*, force: bool = False) -> list[dict]:
     git_tree = resolve_git_tree_provenance(ROOT_DIR)
     DIST_DIR.mkdir(parents=True, exist_ok=True)
     host_artifact_report = ensure_generated_host_artifacts(check=True)
@@ -346,15 +468,15 @@ def build_all() -> list[dict]:
     for spec in all_specs:
         if spec["name"] not in release_bundle_names:
             clean_dir(DIST_DIR / spec["name"])
-    outputs = [build_core_bundle(metadata)]
+    outputs = [build_core_bundle(metadata, force=force)]
     for spec in release_specs:
         if spec["kind"] == "adapter":
-            outputs.append(build_adapter_bundle(spec, metadata))
+            outputs.append(build_adapter_bundle(spec, metadata, force=force))
             continue
         if spec["kind"] == "companion":
-            outputs.append(build_companion_bundle(spec, metadata))
+            outputs.append(build_companion_bundle(spec, metadata, force=force))
             continue
-        outputs.append(build_runtime_bundle(spec, metadata))
+        outputs.append(build_runtime_bundle(spec, metadata, force=force))
     prune_cached_python_artifacts(DIST_DIR)
     for item in outputs:
         wait_for_bundle_ready(Path(item["path"]), item["name"], item["host"])
@@ -365,16 +487,18 @@ def format_text(outputs: list[dict]) -> str:
     version = outputs[0]["version"] if outputs else read_version()
     lines = [f"Forge Release Build (version {version})"]
     for item in outputs:
-        lines.append(f"- {item['name']} [{item['host']}] -> {item['path']}")
+        suffix = " (unchanged)" if item.get("skipped") else ""
+        lines.append(f"- {item['name']} [{item['host']}] -> {item['path']}{suffix}")
     return "\n".join(lines)
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build Forge release bundles from core, adapters, and runtime tools.")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
+    parser.add_argument("--force", action="store_true", help="Rebuild every bundle even when dist already matches the current source inputs.")
     args = parser.parse_args()
 
-    outputs = build_all()
+    outputs = build_all(force=args.force)
     if args.format == "json":
         print(json.dumps({"bundles": outputs}, indent=2, ensure_ascii=False))
     else:

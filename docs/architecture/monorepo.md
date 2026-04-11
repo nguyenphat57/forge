@@ -49,7 +49,7 @@ Adapter overlay for Antigravity:
 - host-specific `SKILL.md`
 - `agents/openai.yaml`
 - 7 primary operator wrapper workflows for `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`
-- 3 compatibility session wrappers for `recap`, `save-brain`, and `handover`
+- natural-language session guidance for `resume`, `save context`, and `handover`
 - one adapter data compatibility file: `data/preferences-compat.json`
 - one adapter reference: `references/antigravity-operator-surface.md`
 - Antigravity-oriented host boundary wording
@@ -90,7 +90,7 @@ Runtime tool package for design review artifacts:
 
 ## Adapter Surface Differences
 
-- Antigravity keeps dedicated compatibility aliases such as `/recap`, `/save-brain`, and `/handover`, but they are not its primary surface.
+- Antigravity keeps the same session modes as core, but presents them as natural-language requests rather than dedicated wrapper aliases.
 - Codex does not mirror those legacy wrappers; it keeps a thinner operator surface and adds native multi-agent dispatch instead.
 - This is an intentional adapter-level UX difference, not a parity bug in `forge-core`.
 

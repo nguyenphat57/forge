@@ -14,6 +14,7 @@ python scripts/session_context.py resume --workspace <repo> --format json
 python scripts/resolve_help_next.py --workspace <repo> --mode help
 python scripts/resolve_help_next.py --workspace <repo> --mode next
 python scripts/run_with_guidance.py --workspace <repo> --timeout-ms 20000 -- <command>
+python scripts/verify_repo.py --profile fast
 ```
 
 Installed runtime flow:
@@ -41,6 +42,12 @@ python scripts/install_bundle.py forge-codex --activate-codex
 python scripts/install_bundle.py forge-browse --target C:\tools\forge-browse --register-codex-runtime --register-gemini-runtime
 python scripts/install_bundle.py forge-design --target C:\tools\forge-design --register-codex-runtime --register-gemini-runtime
 ```
+
+Use `python scripts/verify_repo.py --profile fast` during the inner loop.
+Use the default full profile before release or installation.
+
+`build_release.py` now skips unchanged bundles when the current `dist/` output already matches the source inputs.
+`install_bundle.py` now skips file sync when the target already matches the source bundle fingerprint.
 
 If Windows Codex is expected to reply in Vietnamese with full diacritics, run the bundled UTF-8 helper after `--activate-codex`:
 

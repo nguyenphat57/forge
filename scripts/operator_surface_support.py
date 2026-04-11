@@ -17,10 +17,10 @@ HOST_BY_BUNDLE = {
     "forge-antigravity": "antigravity",
     "forge-codex": "codex",
 }
-SESSION_COMPATIBILITY_WRAPPERS = {
-    "restore": "workflows/operator/recap.md",
-    "save": "workflows/operator/save-brain.md",
-    "handover": "workflows/operator/handover.md",
+SESSION_MODE_LABELS = {
+    "restore": "resume",
+    "save": "save context",
+    "handover": "handover",
 }
 
 
@@ -120,45 +120,28 @@ def render_antigravity_primary_wrapper_table() -> str:
     return "\n".join(lines)
 
 
-def render_antigravity_compatibility_wrapper_table() -> str:
-    lines = [
-        "| Alias | Wrapper | Core contract |",
-        "|-------|---------|---------------|",
-    ]
-    for mode_name, metadata in operator_surface("forge-antigravity")["session_modes"].items():
-        if not isinstance(metadata, dict):
-            continue
-        aliases = _host_values(metadata, "compatibility_aliases_by_host", bundle_name="forge-antigravity")
-        if not aliases:
-            continue
-        workflow = metadata.get("workflow", "")
-        wrapper = SESSION_COMPATIBILITY_WRAPPERS.get(mode_name, workflow)
-        lines.append(f"| `{aliases[0]}` | `{wrapper}` | `{workflow}` {mode_name} mode |")
-    return "\n".join(lines)
-
-
-def render_antigravity_compatibility_alias_rows() -> str:
+def render_session_request_examples(bundle_name: str) -> str:
     lines: list[str] = []
-    for mode_name, metadata in operator_surface("forge-antigravity")["session_modes"].items():
+    for mode_name, metadata in operator_surface(bundle_name)["session_modes"].items():
         if not isinstance(metadata, dict):
             continue
-        aliases = _host_values(metadata, "compatibility_aliases_by_host", bundle_name="forge-antigravity")
-        if not aliases:
+        examples = _host_values(metadata, "natural_language_examples_by_host", bundle_name=bundle_name)
+        if not examples:
             continue
-        wrapper = SESSION_COMPATIBILITY_WRAPPERS.get(mode_name, metadata.get("workflow", ""))
-        lines.append(f"| `{aliases[0]}` | `{_workflow_label(wrapper)}` |")
+        label = SESSION_MODE_LABELS.get(mode_name, mode_name)
+        lines.append(f'- "{examples[0]}" -> `{label}`')
     return "\n".join(lines)
 
 
 def render_registry_placeholders(source_text: str, bundle_name: str) -> str:
     replacements = {
         "{{FORGE_CODEX_OPERATOR_ALIAS_ROWS}}": render_operator_alias_rows("forge-codex"),
+        "{{FORGE_CODEX_SESSION_REQUEST_EXAMPLES}}": render_session_request_examples("forge-codex"),
         "{{FORGE_ANTIGRAVITY_PRIMARY_OPERATOR_ALIAS_ROWS}}": render_operator_alias_rows("forge-antigravity"),
-        "{{FORGE_ANTIGRAVITY_COMPAT_OPERATOR_ALIAS_ROWS}}": render_antigravity_compatibility_alias_rows(),
+        "{{FORGE_ANTIGRAVITY_SESSION_REQUEST_EXAMPLES}}": render_session_request_examples("forge-antigravity"),
         "{{FORGE_CODEX_NATURAL_LANGUAGE_EXAMPLES}}": render_codex_natural_language_examples(),
         "{{FORGE_CODEX_OPTIONAL_ALIASES}}": render_codex_optional_aliases(),
         "{{FORGE_ANTIGRAVITY_PRIMARY_WRAPPER_TABLE}}": render_antigravity_primary_wrapper_table(),
-        "{{FORGE_ANTIGRAVITY_COMPATIBILITY_WRAPPER_TABLE}}": render_antigravity_compatibility_wrapper_table(),
     }
     rendered = source_text
     for placeholder, replacement in replacements.items():

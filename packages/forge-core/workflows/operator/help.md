@@ -15,7 +15,7 @@ quality_gates:
 > Goal: provide guidance that is short, in context, and based on the actual repo state available.
 
 <HARD-GATE>
-- Do not suggest `/recap` or `/save-brain` as reflex.
+- Do not suggest legacy slash-session aliases as reflex.
 - Do not fabricate current state if the repo/artifact has not been confirmed.
 - Do not give more than 1 main direction and maximum 2 alternatives.
 </HARD-GATE>

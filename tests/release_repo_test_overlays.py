@@ -87,9 +87,6 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "data" / "orchestrator-registry.json",
             overlay_root / "workflows" / "operator" / "customize.md",
             overlay_root / "workflows" / "operator" / "init.md",
-            overlay_root / "workflows" / "operator" / "recap.md",
-            overlay_root / "workflows" / "operator" / "save-brain.md",
-            overlay_root / "workflows" / "operator" / "handover.md",
             overlay_root / "workflows" / "operator" / "help.md",
             overlay_root / "workflows" / "operator" / "next.md",
             overlay_root / "workflows" / "operator" / "run.md",
@@ -108,7 +105,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         skill = (overlay_root / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("/customize", skill)
         self.assertIn("/init", skill)
-        self.assertIn("/save-brain", skill)
+        self.assertIn("save context", skill)
         self.assertIn("Solo Profile And Workflow-State Contract", skill)
         self.assertIn("review-pack", skill)
         self.assertIn("release-readiness", skill)
@@ -129,11 +126,11 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         gemini_text = (overlay_root / "GEMINI.global.md").read_text(encoding="utf-8")
         self.assertIn("GENERATED FILE", gemini_text)
         self.assertIn("There is no `/gate` alias", gemini_text)
-        self.assertIn("Compatibility aliases:", gemini_text)
-        primary_alias_section = gemini_text.split("Primary operator aliases:", maxsplit=1)[1].split("Compatibility aliases:", maxsplit=1)[0]
+        self.assertIn("Session requests stay natural-language:", gemini_text)
+        primary_alias_section = gemini_text.split("Primary operator aliases:", maxsplit=1)[1].split("Session requests stay natural-language:", maxsplit=1)[0]
         self.assertNotIn("/recap", primary_alias_section)
         self.assertNotIn("/save-brain", primary_alias_section)
-        self.assertIn("/recap", gemini_text.split("Compatibility aliases:", maxsplit=1)[1])
+        self.assertNotIn("/recap", gemini_text)
 
     def test_materialized_antigravity_wave_b_overlay_contract(self) -> None:
         dist_root = ROOT_DIR / "dist" / "forge-antigravity"
@@ -147,7 +144,9 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertTrue((dist_root / "workflows" / "operator" / "rollback.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
-        self.assertTrue((dist_root / "workflows" / "operator" / "recap.md").exists())
+        self.assertFalse((dist_root / "workflows" / "operator" / "recap.md").exists())
+        self.assertFalse((dist_root / "workflows" / "operator" / "save-brain.md").exists())
+        self.assertFalse((dist_root / "workflows" / "operator" / "handover.md").exists())
         self.assertTrue((dist_root / "references" / "antigravity-operator-surface.md").exists())
         self.assertTrue((dist_root / "data" / "preferences-compat.json").exists())
         self.assertTrue((dist_root / "data" / "routing-locales.json").exists())
@@ -193,8 +192,8 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             label="dist forge-antigravity gemini",
         )
         rendered_gemini = (dist_root / "GEMINI.global.md").read_text(encoding="utf-8")
-        self.assertIn("Compatibility aliases:", rendered_gemini)
-        self.assertIn("one stable line", rendered_gemini)
+        self.assertIn("Session requests stay natural-language:", rendered_gemini)
+        self.assertNotIn("/recap", rendered_gemini)
         self.assert_routing_locale_config(dist_root / "data" / "routing-locales.json", label="dist forge-antigravity")
         self.assert_output_contract_profiles(dist_root / "data" / "output-contracts.json", label="dist forge-antigravity")
         self.assert_session_restores_preferences(

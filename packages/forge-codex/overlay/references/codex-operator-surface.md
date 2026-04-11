@@ -26,6 +26,12 @@ Optional aliases:
 - `/customize`
 - `/init`
 
+Session requests:
+
+- "Continue the task we were working on yesterday and tell me the best next step." -> `resume`
+- "Save context for this task before I close the window." -> `save context`
+- "Create a short handover with the next step and verification already run." -> `handover`
+
 ## Codex Rules
 
 - Natural language is the primary surface. Aliases are optional.

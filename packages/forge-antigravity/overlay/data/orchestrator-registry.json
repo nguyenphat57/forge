@@ -1,32 +1,4 @@
 {
-  "intents": {
-    "SESSION": {
-      "shortcuts": [
-        "/recap",
-        "/save-brain",
-        "/handover"
-      ]
-    }
-  },
-  "session_modes": {
-    "restore": {
-      "shortcuts": [
-        "/recap",
-        "/recap full",
-        "/recap deep"
-      ]
-    },
-    "save": {
-      "shortcuts": [
-        "/save-brain"
-      ]
-    },
-    "handover": {
-      "shortcuts": [
-        "/handover"
-      ]
-    }
-  },
   "operator_surface": {
     "actions": {
       "help": {
@@ -140,49 +112,31 @@
         "hosts": [
           "antigravity"
         ],
-        "compatibility_aliases_by_host": {
-          "antigravity": [
-            "/recap"
-          ]
-        },
         "natural_language_examples_by_host": {
           "antigravity": [
             "Continue the task we were working on yesterday and tell me the best next step."
           ]
-        },
-        "deprecation_line": "1 stable line"
+        }
       },
       "save": {
         "hosts": [
           "antigravity"
         ],
-        "compatibility_aliases_by_host": {
-          "antigravity": [
-            "/save-brain"
-          ]
-        },
         "natural_language_examples_by_host": {
           "antigravity": [
             "Save context for this task before I close the window."
           ]
-        },
-        "deprecation_line": "1 stable line"
+        }
       },
       "handover": {
         "hosts": [
           "antigravity"
         ],
-        "compatibility_aliases_by_host": {
-          "antigravity": [
-            "/handover"
-          ]
-        },
         "natural_language_examples_by_host": {
           "antigravity": [
             "Create a short handover with the next step and verification already run."
           ]
-        },
-        "deprecation_line": "1 stable line"
+        }
       }
     }
   },

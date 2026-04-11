@@ -145,15 +145,11 @@ Primary operator aliases:
 | `/customize` | `operator/customize.md` |
 | `/init` | `operator/init.md` |
 
-Compatibility aliases:
+Session requests stay natural-language:
 
-Legacy session aliases stay available for one stable line and should emit a deprecation warning instead of acting as primary surface.
-
-| Command | Workflow |
-|---------|----------|
-| `/recap` | `operator/recap.md` |
-| `/save-brain` | `operator/save-brain.md` |
-| `/handover` | `operator/handover.md` |
+- "Continue the task we were working on yesterday and tell me the best next step." -> `resume`
+- "Save context for this task before I close the window." -> `save context`
+- "Create a short handover with the next step and verification already run." -> `handover`
 
 There is no `/gate` alias; `quality-gate` stays the workflow stage name.
 

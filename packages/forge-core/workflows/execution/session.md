@@ -42,7 +42,7 @@ quality_gates:
 - `.brain` is opt-in: only read/write when the user requests or handover really reduces risk.
 - Do not turn "save context" into a mandatory end-of-task ritual.
 - If you have memory, read according to the smallest scope enough to use: global -> module -> current task, do not load it everywhere.
-- Adapters may keep compatibility aliases such as `/recap`, `/save-brain`, or `/handover` for one stable line, but those aliases must not redefine the core mode contract.
+- Adapters may phrase session requests differently, but they must not redefine the core restore/save/handover contract.
 
 ---
 

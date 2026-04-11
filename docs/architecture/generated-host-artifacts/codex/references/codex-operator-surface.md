@@ -10,6 +10,10 @@ Optional aliases:
 
 {{FORGE_CODEX_OPTIONAL_ALIASES}}
 
+Session requests:
+
+{{FORGE_CODEX_SESSION_REQUEST_EXAMPLES}}
+
 ## Codex Rules
 
 - Natural language is the primary surface. Aliases are optional.

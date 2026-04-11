@@ -137,13 +137,9 @@ Primary operator aliases:
 |---------|----------|
 {{FORGE_ANTIGRAVITY_PRIMARY_OPERATOR_ALIAS_ROWS}}
 
-Compatibility aliases:
+Session requests stay natural-language:
 
-Legacy session aliases stay available for one stable line and should emit a deprecation warning instead of acting as primary surface.
-
-| Command | Workflow |
-|---------|----------|
-{{FORGE_ANTIGRAVITY_COMPAT_OPERATOR_ALIAS_ROWS}}
+{{FORGE_ANTIGRAVITY_SESSION_REQUEST_EXAMPLES}}
 
 There is no `/gate` alias; `quality-gate` stays the workflow stage name.
 

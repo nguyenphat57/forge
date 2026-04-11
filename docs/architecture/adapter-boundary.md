@@ -45,7 +45,7 @@ Adapters own:
 
 - host entry files
 - host command aliases and wrapper UX
-- host-specific onboarding and compatibility shims
+- host-specific onboarding and session phrasing
 - host metadata and installation surfaces
 - thin mapping from host surface to Forge core capabilities
 - adapter docs that describe how overlay deltas become materialized release bundles
@@ -54,7 +54,7 @@ Adapters own:
 Examples of adapter-only wrappers:
 
 - `customize` and `init` when they are host-facing UX around shared core scripts such as `write_preferences.py` and `initialize_workspace.py`
-- Antigravity-only compatibility aliases such as `/recap`, `/save-brain`, and `/handover`
+- Antigravity-only session phrasing and natural-language guidance
 - Codex-native delegation surfaces such as `dispatch-subagents.md`
 
 ## Decision test for new features

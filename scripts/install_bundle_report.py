@@ -80,7 +80,13 @@ def build_companion_compatibility(*, core_version: str, companion_version: str, 
     }
 
 
-def build_install_transition(existing_install: dict | None, *, current_version: str, intent: str) -> dict[str, object]:
+def build_install_transition(
+    existing_install: dict | None,
+    *,
+    current_version: str,
+    intent: str,
+    bundle_sync_required: bool = True,
+) -> dict[str, object]:
     if existing_install is None:
         return {
             "status": "inspect" if intent == "inspect" else "new-install",
@@ -92,6 +98,9 @@ def build_install_transition(existing_install: dict | None, *, current_version: 
     if intent == "inspect":
         status = "inspect-existing"
         message = f"Existing install found at version {previous_version}."
+    elif not bundle_sync_required:
+        status = "already-current"
+        message = f"Target already matches source bundle {current_version}; skipping file sync."
     elif intent == "upgrade":
         status = "upgrade"
         message = (
@@ -175,6 +184,8 @@ def format_text(report: dict) -> str:
         lines.append(f"- Transition: {transition['status']} - {transition['message']}")
     if report["backup_enabled"]:
         lines.append(f"- Backup: {report['backup_path'] or '(not needed)'}")
+    if not report.get("bundle_sync_required", True):
+        lines.append("- Bundle sync: skipped (target already matches source)")
     if report["codex_host_activation"]["enabled"]:
         activation = report["codex_host_activation"]
         lines.append("- Codex host activation: yes")

@@ -102,10 +102,7 @@
         "workflows/operator/bump.md",
         "workflows/operator/rollback.md",
         "workflows/operator/customize.md",
-        "workflows/operator/init.md",
-        "workflows/operator/recap.md",
-        "workflows/operator/save-brain.md",
-        "workflows/operator/handover.md"
+        "workflows/operator/init.md"
       ]
     },
     {

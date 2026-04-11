@@ -16,6 +16,7 @@ PACKAGES_DIR = ROOT_DIR / "packages"
 DIST_DIR = ROOT_DIR / "dist"
 SCRIPTS_DIR = ROOT_DIR / "scripts"
 TESTS_DIR = ROOT_DIR / "tests"
+CORE_TESTS_DIR = PACKAGES_DIR / "forge-core" / "tests"
 
 
 def configure_stdio() -> None:
@@ -69,105 +70,149 @@ def format_text(steps: list[dict]) -> str:
     return "\n".join(lines)
 
 
-def main() -> int:
-    configure_stdio()
-
-    parser = argparse.ArgumentParser(description="Run the canonical verification pipeline for the Forge monorepo.")
-    parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
-    args = parser.parse_args()
-
+def repo_python_files() -> list[str]:
     python_files = sorted(str(path) for path in SCRIPTS_DIR.glob("*.py"))
     python_files.extend(sorted(str(path) for path in TESTS_DIR.glob("*.py")))
+    return python_files
 
-    steps = [
-        run_step(
+
+def build_step_specs(profile: str) -> list[tuple[str, list[str], Path]]:
+    step_specs: list[tuple[str, list[str], Path]] = [
+        (
             "repo.generated_host_artifacts",
             [sys.executable, str(ROOT_DIR / "scripts" / "generate_host_artifacts.py"), "--check", "--format", "json"],
             ROOT_DIR,
         ),
-        run_step(
+        (
             "repo.py_compile",
-            [sys.executable, "-m", "py_compile", *python_files],
+            [sys.executable, "-m", "py_compile", *repo_python_files()],
             ROOT_DIR,
         ),
-        run_step(
+        (
             "repo.secret_scan",
             [sys.executable, str(ROOT_DIR / "scripts" / "scan_repo_secrets.py")],
             ROOT_DIR,
         ),
-        run_step(
-            "repo.unittest",
-            [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"],
-            ROOT_DIR,
-        ),
-        run_step(
-            "forge-core.verify_bundle",
-            [sys.executable, str(PACKAGES_DIR / "forge-core" / "scripts" / "verify_bundle.py")],
-            ROOT_DIR,
-        ),
-        run_step(
-            "build_release",
-            [sys.executable, str(ROOT_DIR / "scripts" / "build_release.py")],
-            ROOT_DIR,
-        ),
-        run_step(
-            "install_dry_run.forge-antigravity",
-            [sys.executable, str(ROOT_DIR / "scripts" / "install_bundle.py"), "forge-antigravity", "--dry-run"],
-            ROOT_DIR,
-        ),
-        run_step(
-            "install_dry_run.forge-codex",
-            [sys.executable, str(ROOT_DIR / "scripts" / "install_bundle.py"), "forge-codex", "--dry-run"],
-            ROOT_DIR,
-        ),
-        run_step(
-            "install_dry_run.forge-codex.activate_codex",
-            [
-                sys.executable,
-                str(ROOT_DIR / "scripts" / "install_bundle.py"),
-                "forge-codex",
-                "--dry-run",
-                "--activate-codex",
-            ],
-            ROOT_DIR,
-        ),
-        run_step(
-            "install_dry_run.forge-browse",
-            [
-                sys.executable,
-                str(ROOT_DIR / "scripts" / "install_bundle.py"),
-                "forge-browse",
-                "--dry-run",
-                "--target",
-                str((Path.home() / ".forge" / "tools" / "forge-browse").resolve()),
-            ],
-            ROOT_DIR,
-        ),
-        run_step(
-            "install_dry_run.forge-design",
-            [
-                sys.executable,
-                str(ROOT_DIR / "scripts" / "install_bundle.py"),
-                "forge-design",
-                "--dry-run",
-                "--target",
-                str((Path.home() / ".forge" / "tools" / "forge-design").resolve()),
-            ],
-            ROOT_DIR,
-        ),
     ]
+    if profile == "fast":
+        step_specs.extend(
+            [
+                (
+                    "repo.unittest.fast.generated_host_artifacts",
+                    [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_generated_host_artifacts.py", "-v"],
+                    ROOT_DIR,
+                ),
+                (
+                    "repo.unittest.fast.operator_surface_registry",
+                    [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_operator_surface_registry.py", "-v"],
+                    ROOT_DIR,
+                ),
+                (
+                    "repo.unittest.fast.repo_operator_shims",
+                    [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_repo_operator_script_shims.py", "-v"],
+                    ROOT_DIR,
+                ),
+                (
+                    "forge-core.unittest.fast.contracts",
+                    [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_contracts.py", "-v"],
+                    PACKAGES_DIR / "forge-core",
+                ),
+                (
+                    "forge-core.unittest.fast.map_codebase",
+                    [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_map_codebase.py", "-v"],
+                    PACKAGES_DIR / "forge-core",
+                ),
+            ]
+        )
+        return step_specs
 
+    step_specs.extend(
+        [
+            (
+                "repo.unittest",
+                [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"],
+                ROOT_DIR,
+            ),
+            (
+                "forge-core.verify_bundle",
+                [sys.executable, str(PACKAGES_DIR / "forge-core" / "scripts" / "verify_bundle.py")],
+                ROOT_DIR,
+            ),
+            (
+                "build_release",
+                [sys.executable, str(ROOT_DIR / "scripts" / "build_release.py")],
+                ROOT_DIR,
+            ),
+            (
+                "install_dry_run.forge-antigravity",
+                [sys.executable, str(ROOT_DIR / "scripts" / "install_bundle.py"), "forge-antigravity", "--dry-run"],
+                ROOT_DIR,
+            ),
+            (
+                "install_dry_run.forge-codex",
+                [sys.executable, str(ROOT_DIR / "scripts" / "install_bundle.py"), "forge-codex", "--dry-run"],
+                ROOT_DIR,
+            ),
+            (
+                "install_dry_run.forge-codex.activate_codex",
+                [
+                    sys.executable,
+                    str(ROOT_DIR / "scripts" / "install_bundle.py"),
+                    "forge-codex",
+                    "--dry-run",
+                    "--activate-codex",
+                ],
+                ROOT_DIR,
+            ),
+            (
+                "install_dry_run.forge-browse",
+                [
+                    sys.executable,
+                    str(ROOT_DIR / "scripts" / "install_bundle.py"),
+                    "forge-browse",
+                    "--dry-run",
+                    "--target",
+                    str((Path.home() / ".forge" / "tools" / "forge-browse").resolve()),
+                ],
+                ROOT_DIR,
+            ),
+            (
+                "install_dry_run.forge-design",
+                [
+                    sys.executable,
+                    str(ROOT_DIR / "scripts" / "install_bundle.py"),
+                    "forge-design",
+                    "--dry-run",
+                    "--target",
+                    str((Path.home() / ".forge" / "tools" / "forge-design").resolve()),
+                ],
+                ROOT_DIR,
+            ),
+        ]
+    )
     for bundle_name in bundle_names():
-        steps.append(
-            run_step(
+        step_specs.append(
+            (
                 f"dist.{bundle_name}.verify_bundle",
                 [sys.executable, str(DIST_DIR / bundle_name / "scripts" / "verify_bundle.py")],
                 ROOT_DIR,
             )
         )
+    return step_specs
+
+
+def main() -> int:
+    configure_stdio()
+
+    parser = argparse.ArgumentParser(description="Run the canonical verification pipeline for the Forge monorepo.")
+    parser.add_argument("--profile", choices=["fast", "full"], default="full", help="Verification profile")
+    parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
+    args = parser.parse_args()
+    steps = [run_step(name, command, cwd) for name, command, cwd in build_step_specs(args.profile)]
 
     payload = {
         "status": "PASS" if all(step["status"] == "PASS" for step in steps) else "FAIL",
+        "profile": args.profile,
         "steps": steps,
     }
     if args.format == "json":

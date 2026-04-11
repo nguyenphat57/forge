@@ -20,7 +20,7 @@ Core files and adapter files appear together in a single runtime layout.
 - `SKILL.md`: entrypoint to route intent, pair skills, and hold delivery guardrails
 - `workflows/design/`: planning, architecture, spec-review, and visualize
 - `workflows/execution/`: build, debug, test, review, refactor, secure, deploy, session
-- `workflows/operator/`: help, next, run, bump, rollback, primary wrappers such as customize/init, and compatibility wrappers for recap/save-brain/handover
+- `workflows/operator/`: help, next, run, bump, rollback, and primary wrappers such as customize/init
 - `domains/`: core domain guidance for frontend and backend
 - `data/`: machine-readable registry for intent, matrix, verification profiles, quality profiles, execution pipelines, and lane model policy
 - `scripts/`: deterministic tooling for route preview, scoped continuity capture, and optional checks for workspaces with local layers
@@ -141,14 +141,11 @@ forge-antigravity/
     └── operator/
         ├── bump.md
         ├── customize.md
-        ├── handover.md
         ├── help.md
         ├── init.md
         ├── next.md
-        ├── recap.md
         ├── rollback.md
         ├── run.md
-        └── save-brain.md
 ```
 
 ## Host Boundary
@@ -273,8 +270,8 @@ For detailed command examples or artifact behavior, read `references/tooling.md`
 - Error translation still reads from the core helper `scripts/translate_error.py`; this adapter only changes presentation, not the pattern database.
 - `/bump` and `/rollback` may be explicitly exposed in Antigravity, but must still maintain the user-requested/inference-justified and risk-first contract of core.
 - `/init` may be richer in onboarding, but the reusable workspace skeleton must still go through `scripts/initialize_workspace.py`.
-- Compatibility aliases like `/recap`, `/save-brain`, and `/handover` may stay available during migration, but they are not the primary surface.
-- Compatibility wrappers may be richer in UX, but must not change `state`, `command_kind`, or `suggested_workflow` from core, and they must emit deprecation warnings.
+- Session requests should stay natural-language first: ask to `resume`, `save context`, or leave a `handover`.
+- Session guidance may be richer in UX, but it must not change `state`, `command_kind`, or `suggested_workflow` from core.
 
 ---
 
@@ -305,17 +302,15 @@ Primary wrappers:
 | `/customize` | `workflows/operator/customize.md` | `scripts/resolve_preferences.py` + `scripts/write_preferences.py` |
 | `/init` | `workflows/operator/init.md` | `scripts/initialize_workspace.py` |
 
-Compatibility session wrappers:
+Natural-language session requests:
 
-| Alias | Wrapper | Core contract |
-|-------|---------|---------------|
-| `/recap` | `workflows/operator/recap.md` | `workflows/execution/session.md` restore mode |
-| `/save-brain` | `workflows/operator/save-brain.md` | `workflows/execution/session.md` save mode |
-| `/handover` | `workflows/operator/handover.md` | `workflows/execution/session.md` handover mode |
+- `resume` or `continue` -> `workflows/execution/session.md` restore mode
+- `save context` -> `workflows/execution/session.md` save mode
+- `handover` -> `workflows/execution/session.md` handover mode
 
-Compatibility rules:
+Session rules:
 
-- Aliases exist only to reduce migration friction, not to create new intents.
+- Session requests stay natural-language first; do not reintroduce dedicated wrapper aliases here.
 - Wrapper docs may be more operator-friendly, but deterministic semantics must still be read from core.
 - Detailed mapping: `references/antigravity-operator-surface.md`.
 
@@ -454,7 +449,7 @@ Verification profiles canonical source: `data/orchestrator-registry.json`.
 **Rigid skills:** must not skip evidence and quality gates.
 **Flexible skills:** adapt to context, but must still produce clear output and next step.
 
-Compatibility wrappers for `/recap`, `/save-brain`, and `/handover` remain in `workflows/operator/` for one stable line and should only be presented as deprecated migration surfaces.
+Session requests should stay natural-language first; do not reintroduce dedicated wrapper aliases in `workflows/operator/`.
 
 ---
 
