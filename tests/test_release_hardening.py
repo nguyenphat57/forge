@@ -248,15 +248,18 @@ class ReleaseHardeningTests(unittest.TestCase):
         verify_repo = (ROOT_DIR / "scripts" / "verify_repo.py").read_text(encoding="utf-8")
         self.assertIn("repo.secret_scan", verify_repo)
         self.assertIn("repo.generated_host_artifacts", verify_repo)
+        self.assertIn("repo.generated_overlay_skills", verify_repo)
         self.assertIn("install_dry_run.forge-core", verify_repo)
         self.assertNotIn("install_dry_run.forge-browse", verify_repo)
         self.assertNotIn("install_dry_run.forge-design", verify_repo)
         self.assertTrue((ROOT_DIR / "scripts" / "scan_repo_secrets.py").exists())
         self.assertTrue((ROOT_DIR / "scripts" / "generate_host_artifacts.py").exists())
+        self.assertTrue((ROOT_DIR / "scripts" / "generate_overlay_skills.py").exists())
 
     def test_build_release_requires_fresh_generated_host_artifacts(self) -> None:
         build_script = (ROOT_DIR / "scripts" / "build_release.py").read_text(encoding="utf-8")
         self.assertIn("ensure_generated_host_artifacts(check=True)", build_script)
+        self.assertIn("ensure_generated_overlay_skills(check=True)", build_script)
 
     def test_install_bundle_rejects_custom_source_with_drifted_fingerprint(self) -> None:
         self._run_build_release()

@@ -24,6 +24,7 @@ Other current kernel tools:
 - `resolve_preferences.py`
 - `write_preferences.py`
 - `initialize_workspace.py`
+- `generate_overlay_skills.py`
 - `capture_continuity.py`
 - `check_workspace_router.py`
 - `prepare_bump.py`
@@ -38,6 +39,11 @@ Other current kernel tools:
 - `check_spec_packet.py`
 - `prepare_worktree.py`
 - `session_context.py`
+
+Adapter SKILL composition:
+
+- `generate_overlay_skills.py --check` verifies that checked-in adapter `overlay/SKILL.md` files still match `forge-core/SKILL.md` plus each adapter `SKILL.delta.md`.
+- `generate_overlay_skills.py --apply` refreshes those generated source artifacts after editing core shared sections or adapter deltas.
 
 ## Workspace Bootstrap
 

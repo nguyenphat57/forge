@@ -82,6 +82,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         overlay_root = ROOT_DIR / "packages" / "forge-antigravity" / "overlay"
         expected_files = [
             overlay_root / "GEMINI.global.md",
+            overlay_root / "SKILL.delta.md",
             overlay_root / "SKILL.md",
             overlay_root / "agents" / "openai.yaml",
             overlay_root / "data" / "orchestrator-registry.json",
@@ -138,6 +139,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         dist_root = ROOT_DIR / "dist" / "forge-antigravity"
         self.assertTrue((dist_root / "GEMINI.global.md").exists())
         self.assertTrue((dist_root / "SKILL.md").exists())
+        self.assertFalse((dist_root / "SKILL.delta.md").exists())
         self.assertTrue((dist_root / "agents" / "openai.yaml").exists())
         self.assertTrue((dist_root / "data" / "orchestrator-registry.json").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "help.md").exists())
@@ -207,6 +209,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         overlay_root = ROOT_DIR / "packages" / "forge-codex" / "overlay"
         expected_files = [
             overlay_root / "AGENTS.global.md",
+            overlay_root / "SKILL.delta.md",
             overlay_root / "SKILL.md",
             overlay_root / "data" / "orchestrator-registry.json",
             overlay_root / "data" / "routing-locales.json",
@@ -262,6 +265,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         dist_root = ROOT_DIR / "dist" / "forge-codex"
         self.assertTrue((dist_root / "AGENTS.global.md").exists())
         self.assertTrue((dist_root / "SKILL.md").exists())
+        self.assertFalse((dist_root / "SKILL.delta.md").exists())
         self.assertTrue((dist_root / "data" / "orchestrator-registry.json").exists())
         self.assertTrue((dist_root / "data" / "routing-locales.json").exists())
         self.assertTrue((dist_root / "data" / "routing-locales" / "vi.json").exists())

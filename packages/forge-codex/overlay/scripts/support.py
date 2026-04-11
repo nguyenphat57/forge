@@ -11,6 +11,7 @@ from pathlib import Path
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
+SOURCE_REPO_SCRIPTS_DIR = ROOT_DIR.parents[2] / "scripts"
 
 
 def resolve_core_root_dir() -> Path:
@@ -67,13 +68,18 @@ def stage_bundle_root() -> Path:
     if CORE_ROOT_DIR == ROOT_DIR:
         return ROOT_DIR
 
+    if str(SOURCE_REPO_SCRIPTS_DIR) not in sys.path:
+        sys.path.insert(0, str(SOURCE_REPO_SCRIPTS_DIR))
+
+    from skill_bundle_composer import write_composed_adapter_skill  # noqa: E402
+
     stage_root = Path(tempfile.mkdtemp(prefix="forge-codex-bundle-"))
     stage_data_dir = stage_root / "data"
     core_data_dir = CORE_ROOT_DIR / "data"
     overlay_data_dir = ROOT_DIR / "data"
 
     shutil.copytree(core_data_dir, stage_data_dir, dirs_exist_ok=True)
-    shutil.copy2(ROOT_DIR / "SKILL.md", stage_root / "SKILL.md")
+    write_composed_adapter_skill("forge-codex", stage_root / "SKILL.md")
 
     core_registry = load_json(core_data_dir / "orchestrator-registry.json")
     overlay_registry = load_json(overlay_data_dir / "orchestrator-registry.json")

@@ -84,6 +84,11 @@ def build_step_specs(profile: str) -> list[tuple[str, list[str], Path]]:
             ROOT_DIR,
         ),
         (
+            "repo.generated_overlay_skills",
+            [sys.executable, str(ROOT_DIR / "scripts" / "generate_overlay_skills.py"), "--check", "--format", "json"],
+            ROOT_DIR,
+        ),
+        (
             "repo.py_compile",
             [sys.executable, "-m", "py_compile", *repo_python_files()],
             ROOT_DIR,

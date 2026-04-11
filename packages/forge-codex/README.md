@@ -4,7 +4,8 @@ Codex adapter overlay for Forge.
 
 Contents:
 
-- Codex-oriented `SKILL.md`
+- `SKILL.delta.md` as the canonical Codex-only source
+- generated `SKILL.md` as the checked-in merged source artifact
 - `AGENTS.example.md` for workspace integration
 - `AGENTS.global.md` for taking over the global Codex host entrypoint
 - `workflows/execution/dispatch-subagents.md` for Codex-native multi-agent delegation
@@ -30,4 +31,4 @@ powershell -ExecutionPolicy Bypass -File scripts/enable_windows_utf8.ps1
 powershell -ExecutionPolicy Bypass -File scripts/enable_windows_utf8.ps1 -Persist
 ```
 
-Build output is produced by overlaying these files on top of `forge-core`.
+Build output is produced by overlaying adapter files on top of `forge-core`, then composing the shipped `SKILL.md` directly from core shared sections plus `SKILL.delta.md`.

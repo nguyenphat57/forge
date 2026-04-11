@@ -16,6 +16,7 @@ from package_matrix import PACKAGE_MATRIX_PATH, bundle_names, bundle_package_spe
 from release_package_specs import discover_package_specs
 from release_fs import IGNORE_PATTERNS, copy_file, copy_tree as copy_tree_with_retries, remove_path, remove_tree, should_ignore_relative_path
 from release_registry import materialize_overlay_registry
+from skill_bundle_composer import ensure_generated_overlay_skills, write_composed_adapter_skill
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -39,8 +40,10 @@ COMMON_BUILD_INPUTS = (
     ROOT_DIR / "scripts" / "operator_surface_support.py",
     ROOT_DIR / "scripts" / "overlay_route_fixtures.py",
     ROOT_DIR / "scripts" / "package_matrix.py",
+    ROOT_DIR / "scripts" / "generate_overlay_skills.py",
     ROOT_DIR / "scripts" / "release_package_specs.py",
     ROOT_DIR / "scripts" / "release_registry.py",
+    ROOT_DIR / "scripts" / "skill_bundle_composer.py",
 )
 
 def read_version() -> str:
@@ -125,12 +128,15 @@ def prune_cached_python_artifacts(root: Path) -> None:
             remove_path(path)
 
 
-def apply_overlay(overlay_dir: Path, destination: Path) -> None:
+def apply_overlay(overlay_dir: Path, destination: Path, *, ignored_relative_paths: set[str] | None = None) -> None:
+    ignored_relative_paths = ignored_relative_paths or set()
     if not overlay_dir.exists():
         return
     for path in sorted(overlay_dir.rglob("*")):
         relative = path.relative_to(overlay_dir)
         if should_ignore_relative_path(relative):
+            continue
+        if relative.as_posix() in ignored_relative_paths:
             continue
         target = destination / relative
         if path.is_dir():
@@ -379,9 +385,14 @@ def build_adapter_bundle(spec: dict, metadata: dict[str, object], *, force: bool
     for attempt in range(BUNDLE_BUILD_ATTEMPTS):
         clean_dir(destination)
         copy_tree(CORE_DIR, destination)
-        apply_overlay(overlay_dir, destination)
+        apply_overlay(
+            overlay_dir,
+            destination,
+            ignored_relative_paths={"SKILL.md", "SKILL.delta.md"},
+        )
         materialize_overlay_registry(CORE_DIR, overlay_dir, destination)
         materialize_overlay_route_fixtures(spec["name"], destination)
+        write_composed_adapter_skill(spec["name"], destination / "SKILL.md")
         write_build_manifest(
             destination,
             spec["name"],
@@ -418,6 +429,13 @@ def build_all(*, force: bool = False) -> list[dict]:
         raise ValueError(
             "Generated host artifacts are stale. "
             f"Run `python scripts/generate_host_artifacts.py --apply`. First stale output: {first_stale}"
+        )
+    overlay_skill_report = ensure_generated_overlay_skills(check=True)
+    if overlay_skill_report["status"] != "PASS":
+        first_stale = overlay_skill_report["stale_outputs"][0]["path"]
+        raise ValueError(
+            "Generated overlay skills are stale. "
+            f"Run `python scripts/generate_overlay_skills.py --apply`. First stale output: {first_stale}"
         )
     metadata = {"version": read_version(), "git_revision": resolve_git_revision(), "git_tree": git_tree}
     all_specs = discover_package_specs(PACKAGES_DIR, include_examples=True)

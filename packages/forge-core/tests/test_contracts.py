@@ -16,6 +16,10 @@ from support import (
 
 
 class BundleContractTests(unittest.TestCase):
+    def _raw_line_count(self, path: Path) -> int:
+        text = path.read_text(encoding="utf-8")
+        return text.count("\n") + (0 if text.endswith("\n") else 1)
+
     def test_core_runtime_assets_do_not_embed_codex_assumptions(self) -> None:
         if not is_core_bundle():
             self.skipTest("Adapter bundles may add host-specific behavior on top of Forge core.")
@@ -250,6 +254,7 @@ class BundleContractTests(unittest.TestCase):
         tooling = (ROOT_DIR / "references" / "kernel-tooling.md").read_text(encoding="utf-8")
         self.assertIn("generate_requirements_checklist.py", tooling)
         self.assertIn("check_spec_packet.py", tooling)
+        self.assertIn("generate_overlay_skills.py", tooling)
         self.assertIn("prepare_worktree.py", tooling)
         self.assertIn("run_smoke_matrix.py", tooling)
         self.assertIn("verify_bundle.py", tooling)
@@ -264,6 +269,42 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("host-artifacts-manifest.json", tooling)
         self.assertIn("write_preferences.py", tooling)
         self.assertIn("initialize_workspace.py", tooling)
+
+    def test_skill_bootstrap_contract_sections_remain_visible(self) -> None:
+        skill = (ROOT_DIR / "SKILL.md").read_text(encoding="utf-8")
+        for heading in (
+            "## Bootstrap Rules",
+            "## Routing Contract",
+            "## Verification Contract",
+            "## Solo Profile And Workflow-State Contract",
+            "## Skill Laws",
+            "## Reference Map",
+        ):
+            with self.subTest(heading=heading):
+                self.assertIn(heading, skill)
+        for token in ("data/orchestrator-registry.json", "references/kernel-tooling.md"):
+            with self.subTest(token=token):
+                self.assertIn(token, skill)
+
+    def test_skill_bootstrap_contract_does_not_regrow_removed_lookup_sections(self) -> None:
+        skill = (ROOT_DIR / "SKILL.md").read_text(encoding="utf-8")
+        for heading in (
+            "## Bundle Layout",
+            "## Executable Tooling",
+            "## Intent Detection",
+            "## Complexity Assessment",
+            "## Skill Composition Matrix",
+            "## Skill Registry",
+            "## Global Resilience",
+            "## Golden Rules",
+        ):
+            with self.subTest(heading=heading):
+                self.assertNotIn(heading, skill)
+
+    def test_core_skill_line_budget_remains_thin(self) -> None:
+        if not is_core_bundle():
+            self.skipTest("Core line budget only applies to the core source bundle.")
+        self.assertLessEqual(self._raw_line_count(ROOT_DIR / "SKILL.md"), 80)
 
     def test_session_workflow_mentions_preferences_restore_contract(self) -> None:
         session = (ROOT_DIR / "workflows" / "execution" / "session.md").read_text(encoding="utf-8")

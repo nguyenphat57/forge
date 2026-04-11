@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.0 (stable) - 2026-04-11
+
+- Shrink `forge-core/SKILL.md` into a bootstrap contract and move adapter-specific host behavior into canonical `SKILL.delta.md` sources for `forge-codex` and `forge-antigravity`.
+- Add dedicated SKILL composition tooling so adapter `overlay/SKILL.md` files are generated from core shared sections plus adapter deltas, while release builds compose shipped bundle skills directly instead of copying source overlays blindly.
+- Harden the repo gate around thin-SKILL by adding generated-overlay verification, anti-dup and line-budget tests, and release checks that reject stale adapter skill artifacts in source or dist.
+- Refresh release-facing and continuity surfaces so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/decisions.json` align on `2.1.0` as the current stable release after the thin-SKILL refactor cut.
+- Rebuild release artifacts and sync the verified `forge-antigravity` and `forge-codex` runtime installs from `dist/` after the canonical repo gate passes.
+
+
 ## 2.0.0 (stable) - 2026-04-11
 
 - Contract Forge as a kernel-only product line by shipping only `forge-core`, `forge-codex`, and `forge-antigravity`, while retiring `forge-browse`, `forge-design`, `forge-design-state`, and the source-only Next.js Postgres companion from the active repo surface.
