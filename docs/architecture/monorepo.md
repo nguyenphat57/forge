@@ -2,20 +2,19 @@
 
 ## Goal
 
-Keep one canonical implementation of Forge while supporting multiple host surfaces.
+Keep one canonical implementation of Forge while supporting multiple host surfaces without leaving retired runtime-era packages on the active maintainer path.
 
 Boundary reference: see `docs/architecture/adapter-boundary.md`.
 Bundle-layer ownership reference: see `packages/forge-core/references/architecture-layers.md`.
 
-## Source of Truth vs Build Artifacts
+## Source Of Truth vs Build Artifacts
 
-- `packages/` is the development source of truth.
-- Each adapter package keeps its overlay delta under `packages/<adapter>/overlay/`.
-- Generated host artifacts stay source-controlled, but their canonical inventory lives in `docs/architecture/host-artifacts-manifest.json` and their canonical text lives beside that manifest, including thin Codex host wrappers that should not drift from their canonical source.
-- `dist/` is generated release output built either from `forge-core` plus one adapter overlay delta, or from a standalone runtime tool package.
-- Do not treat `dist/` as an independent source tree; fixes belong in `packages/` and are verified again after rebuild.
+- `packages/forge-core`, `packages/forge-codex`, and `packages/forge-antigravity` are the active source-of-truth packages.
+- Generated host artifacts stay source-controlled, but their canonical inventory lives in `docs/architecture/host-artifacts-manifest.json`.
+- `dist/` is generated release output built from `forge-core` plus one active adapter overlay.
+- Do not treat `dist/` as an independent source tree; fixes belong in active source packages and are verified again after rebuild.
 - Materialized adapter registries under `dist/<adapter>/data/orchestrator-registry.json` are release-contract outputs, not source-edit targets.
-- Release-facing semantics stay canonical in `forge-core`, but the public tail is now `self-review` -> `secure` -> `quality-gate` -> `deploy` rather than separate release-tail workflows.
+- Historical runtime-era package implementations are preserved in git history and versioned release notes, not on the active maintainer path.
 
 ## Four-Layer Model
 
@@ -28,7 +27,9 @@ Forge changes should respect four layers:
 
 The canonical layer contract lives in `packages/forge-core/references/architecture-layers.md`.
 
-## Package Roles
+In the current kernel-only line, `runtime tools` is a historical concept preserved through git history and versioned release notes, not as an active package role in the shipped product line.
+
+## Active Package Roles
 
 ### `forge-core`
 
@@ -36,9 +37,8 @@ Canonical source-of-truth for:
 
 - orchestrator registry
 - routing logic
-- verification and canary scripts
-- shared workflows, domains, and references
-- tests
+- operator state and workflow-state semantics
+- shared workflows, domains, references, and tests
 
 `forge-core` should not depend on a single host-specific entry file.
 
@@ -53,7 +53,6 @@ Adapter overlay for Antigravity:
 - one adapter data compatibility file: `data/preferences-compat.json`
 - one adapter reference: `references/antigravity-operator-surface.md`
 - Antigravity-oriented host boundary wording
-- Antigravity materialized bundle checks should read from `dist/forge-antigravity/`
 
 ### `forge-codex`
 
@@ -68,25 +67,12 @@ Adapter overlay for Codex:
 - one adapter data override: `data/orchestrator-registry.json`
 - one adapter script: `scripts/enable_windows_utf8.ps1`
 - Codex-oriented host boundary wording
-- Codex materialized bundle checks should read from `dist/forge-codex/`
 
-### `forge-browse`
+## Historical Runtime Tools
 
-Runtime tool package for browser-side actuation:
+The runtime tools layer remains part of Forge history, but no longer lives on the active maintainer path.
 
-- persistent logical browsing sessions
-- HTTP control plane for open, snapshot, and assert flows
-- bundle-local verify/tests that do not depend on `forge-core`
-- runtime-tool state rooted beside the installed bundle
-
-### `forge-design`
-
-Runtime tool package for design review artifacts:
-
-- consumes persisted Forge UI briefs
-- renders HTML design packets and optional evidence boards without depending on `forge-core` at runtime
-- records render history under a runtime-tool state root
-- bundle-local verify/tests that stay isolated from adapter logic
+Historical implementation evidence is preserved in git history and versioned release notes. It is not built, installed, or verified as part of the current kernel-only release line.
 
 ## Adapter Surface Differences
 
@@ -101,18 +87,17 @@ Runtime tool package for design review artifacts:
 3. Refresh generated host artifacts from canonical sources before adapter overlays are copied.
 4. Copy core into each adapter bundle under `dist/`.
 5. Overlay adapter files on top of the copied core to materialize the adapter bundle and its registries.
-6. Copy runtime-tool bundles directly from `packages/` into `dist/`.
-7. Run verify on the built bundles.
-8. Install from `dist/` into runtime paths with `scripts/install_bundle.py`.
+6. Run verify on the built bundles.
+7. Install from `dist/` into runtime paths with `scripts/install_bundle.py`.
 
-This avoids three drifting copies of the same logic.
+This keeps one active implementation tree for the current product line.
 
 ## Rules
 
 - Routing logic changes belong in `forge-core`.
 - Host entry files and adapter UX wrappers belong in adapters.
-- Runtime actuators belong in runtime tool packages.
-- Shared tests belong in `forge-core`.
+- Historical runtime tools stay out of the current source tree unless a future roadmap explicitly restores them.
+- Shared tests belong in `forge-core` or root `tests/`.
 - Installed bundles under `dist/` are release artifacts, not development source.
 - Materialized adapter registries in `dist/` are the contract to verify after build, not the place to edit overlay deltas.
 - Canonical version lives in `/VERSION`, not in installed runtimes.

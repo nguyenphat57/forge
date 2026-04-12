@@ -53,6 +53,38 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertIn("modified_files", release_process)
         self.assertIn("untracked_files", release_process)
 
+    def test_runtime_era_packages_are_archived_out_of_current_package_root(self) -> None:
+        self.assertFalse((ROOT_DIR / "packages" / "forge-browse").exists())
+        self.assertFalse((ROOT_DIR / "packages" / "forge-design").exists())
+        self.assertFalse((ROOT_DIR / "archive" / "packages" / "forge-browse").exists())
+        self.assertFalse((ROOT_DIR / "archive" / "packages" / "forge-design").exists())
+
+    def test_current_docs_do_not_reference_retired_runtime_tool_commands(self) -> None:
+        current_paths = [
+            ROOT_DIR / "README.md",
+            ROOT_DIR / "docs" / "architecture" / "monorepo.md",
+            ROOT_DIR / "docs" / "current" / "architecture.md",
+            ROOT_DIR / "docs" / "current" / "install-and-activation.md",
+            ROOT_DIR / "docs" / "current" / "operator-surface.md",
+            ROOT_DIR / "docs" / "release" / "install.md",
+            ROOT_DIR / "docs" / "release" / "release-process.md",
+            ROOT_DIR / "packages" / "forge-core" / "references" / "backend-briefs.md",
+            ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md",
+            ROOT_DIR / "packages" / "forge-core" / "references" / "tooling.md",
+            ROOT_DIR / "packages" / "forge-core" / "references" / "ui-briefs.md",
+        ]
+
+        for needle in (
+            "resolve_runtime_tool.py",
+            "invoke_runtime_tool.py",
+            "forge-browse",
+            "forge-design",
+            "archive/packages/",
+        ):
+            for path in current_paths:
+                with self.subTest(path=path.name, needle=needle):
+                    self.assertNotIn(needle, path.read_text(encoding="utf-8"))
+
     def test_build_release_manifest_carries_version(self) -> None:
         build_release.build_all()
         manifest = json.loads((ROOT_DIR / "dist" / "forge-core" / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))

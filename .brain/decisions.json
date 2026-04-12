@@ -273,8 +273,8 @@
         "id":  "20260411-184500",
         "kind":  "decision",
         "scope":  "forge-2-1-stable-status",
-        "summary":  "Treat 2.1.1 as the current stable Forge release because the operator-state cleanup patch, release sync, and canonical repo verification gate are all green.",
-        "status":  "resolved",
+        "summary":  "Treat 2.1.1 as a superseded Forge stable slice because the operator-state cleanup patch, release sync, and canonical repo verification gate were all green at the time.",
+        "status":  "superseded",
         "evidence":  [
                          "docs/plans/Thin-SKILL Staged Implementation Plan.md",
                          "CHANGELOG.md",
@@ -291,9 +291,37 @@
                      "thin-skill",
                      "routing",
                      "workflow-surface"
-                 ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 2.1.1 verification evidence.",
+        ],
+        "revisit_if":  "Release archaeology needs the original 2.1.1 proof chain or later evidence invalidates the recorded verification.",
         "trigger":  "minor-release",
         "resume_hint":  "Resume only if a later audit needs the original 2.1.1 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260412-220000",
+        "kind":  "decision",
+        "scope":  "forge-2-2-stable-status",
+        "summary":  "Treat 2.2.0 as the current stable Forge release because the V4.1 full lean pass, release sync, and canonical repo verification gate are all green.",
+        "status":  "resolved",
+        "evidence":  [
+                         "CHANGELOG.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "packages/forge-core/scripts/operator_state_resolution.py",
+                         "packages/forge-core/scripts/route_preview.py",
+                         "python scripts/verify_repo.py --format json -> PASS on 2026-04-12"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "lean-pass",
+                     "routing",
+                     "workflow-surface"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 2.2.0 verification evidence.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 2.2.0 proof chain or invalidates the recorded verification."
     }
 ]

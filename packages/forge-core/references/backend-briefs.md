@@ -1,65 +1,23 @@
 # Backend Briefs
 
-> Use this when the backend task is medium/large, touches contracts, schema, jobs, or events, or has unclear caller impact.
+> Use this file when the repo already contains persisted backend brief artifacts and the task needs to validate or interpret them. Forge no longer ships the older backend brief generator as part of the current kernel-only surface.
 
-## Why This Exists
+## Why This Still Exists
 
-Backend implementation needs an initial artifact, just as UI implementation does, but it focuses on:
+Persisted backend briefs remain useful when a repo already tracks them for:
 
-- contract or surface in scope
-- validation and authorization boundary
-- data model / migration impact
-- consistency / idempotency / retry behavior
-- observability / ops notes
-- caller / consumer compatibility
+- contract or surface scope
+- validation and authorization boundaries
+- data model or migration impact
+- consistency, idempotency, and retry behavior
+- observability and rollback notes
+- caller and consumer compatibility
 
-## Generate A Backend Brief
+This file documents the artifact shape and current checker behavior. It does not define an active generator flow.
 
-### Sync API
+## Expected Artifact Shape
 
-```powershell
-python scripts/generate_backend_brief.py "Add bulk order cancellation endpoint" `
-  --pattern sync-api `
-  --runtime node-service `
-  --surface cancel-orders
-```
-
-### Async Job
-
-```powershell
-python scripts/generate_backend_brief.py "Reconcile failed payouts in background worker" `
-  --pattern async-job `
-  --runtime python-service `
-  --surface payout-reconcile
-```
-
-### Event Flow
-
-```powershell
-python scripts/generate_backend_brief.py "Version order-paid event for downstream inventory" `
-  --pattern event-flow `
-  --runtime go-service `
-  --surface order-paid
-```
-
-### Data Change
-
-```powershell
-python scripts/generate_backend_brief.py "Split customer table into profile + preferences" `
-  --pattern data-change `
-  --runtime java-service `
-  --surface customer-schema
-```
-
-## Persisted Master + Surface Override Pattern
-
-When the task is long or has many APIs/jobs/events:
-
-```powershell
-python scripts/generate_backend_brief.py "..." --persist --project-name "Example Project" --surface cancel-orders
-```
-
-Generated artifacts:
+Historical or repo-local backend brief artifacts typically follow:
 
 ```text
 .forge-artifacts/backend-briefs/<project-slug>/MASTER.md
@@ -69,18 +27,23 @@ Generated artifacts:
 
 Reading order:
 1. `MASTER.md`
-2. `surfaces/<surface>.md` if the surface has override
+2. `surfaces/<surface>.md` when the surface has an override
 
 ## Minimum Brief Quality
 
-- Clear contract or surface definition
-- Clear compatibility and caller impact
-- A note on migration or persistence impact when data changes
-- A note on idempotency/retry/replay for async or evented work
-- A note on observability or rollback risk
+- clear contract or surface definition
+- explicit caller impact and compatibility notes
+- migration or persistence notes when data changes
+- idempotency, retry, or replay notes for async work
+- observability or rollback notes
 
 ## Validate A Persisted Brief
 
 ```powershell
 python scripts/check_backend_brief.py .forge-artifacts/backend-briefs/<project-slug> --surface cancel-orders
 ```
+
+## Historical Note
+
+- Older Forge versions shipped backend brief generators. The current kernel-only line keeps only the checker for already-persisted artifacts.
+- If a repo needs a brand-new backend brief, create it as a repo-local artifact or from a future roadmap tranche; it is not part of the current shipped tooling surface.

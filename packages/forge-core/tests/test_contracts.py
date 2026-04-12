@@ -306,6 +306,20 @@ class BundleContractTests(unittest.TestCase):
             self.skipTest("Core line budget only applies to the core source bundle.")
         self.assertLessEqual(self._raw_line_count(ROOT_DIR / "SKILL.md"), 80)
 
+    def test_v41_facade_line_budgets_hold(self) -> None:
+        budgets = {
+            "scripts/workflow_state_projection.py": 140,
+            "scripts/operator_state_resolution.py": 140,
+            "scripts/route_delegation.py": 180,
+            "scripts/route_analysis.py": 180,
+            "scripts/route_preview.py": 280,
+            "scripts/workflow_state_support.py": 220,
+            "scripts/help_next_support.py": 260,
+        }
+        for relative_path, limit in budgets.items():
+            with self.subTest(path=relative_path):
+                self.assertLessEqual(self._raw_line_count(ROOT_DIR / relative_path), limit)
+
     def test_session_workflow_mentions_preferences_restore_contract(self) -> None:
         session = (ROOT_DIR / "workflows" / "execution" / "session.md").read_text(encoding="utf-8")
 

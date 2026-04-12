@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.2.0 (stable) - 2026-04-12
+
+- Remove the retired runtime-era package subtrees from the repo and clean current docs so historical runtime-tool names remain only in archive/history surfaces and git history.
+- Continue the V4 lean pass by splitting operator-state and workflow-state projection internals into focused modules while keeping `help`, `next`, `save`, and `resume` contracts stable.
+- Continue the V4 lean pass by splitting route analysis, delegation, and route-preview internals into focused modules while keeping route-preview payloads, delegation semantics, and bundle contracts stable.
+- Add V4.1 facade line-budget guardrails and rerun canonical repo, bundle, and route/state verification on the kernel-only shipping line.
+
+
 ## 2.1.1 (stable) - 2026-04-11
 
 - Fix `next` and `save context` so stale `ready-for-merge` workflow summaries stop overriding a clean, synced repo after handoff.

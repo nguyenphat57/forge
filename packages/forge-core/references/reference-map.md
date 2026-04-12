@@ -21,6 +21,7 @@
 | `constitution-lite.md` | Record or reuse repo-local principles without adding a heavier governance artifact |
 | `target-state.md` | Re-anchor Forge strategy and operator choices to the north-star target state, including the shipped `1.15.x` closure target, the maintenance boundary, and the explicit `1.16.x` reopen |
 | `execution-delivery.md` | Select execution mode, checkpoint, and completion state for large builds |
+| `backend-briefs.md` | Validate or interpret persisted backend brief artifacts that already exist in the repo |
 | `failure-recovery-playbooks.md` | Use when the chain is stalled, a gate is blocked, review is deadlocked, or deployment fails and you need a clear recovery path |
 | `frontend-stack-profiles.md` | Choose stack lens for UI implementation or visualization |
 | `ui-quality-checklist.md` | Quick review of UI anti-patterns and delivery criteria |
@@ -28,6 +29,7 @@
 | `ui-good-bad-examples.md` | Concrete good/bad patterns so the agent does not have to infer anti-patterns alone |
 | `ui-heuristics.md` | Global heuristics for touch-heavy, dashboard, dense-data UI |
 | `ui-progress.md` | Track progress for long UI tasks |
+| `ui-briefs.md` | Validate or interpret persisted UI brief artifacts that already exist in the repo |
 | `architecture-layers.md` | When deciding whether a capability belongs in core, generated artifacts, or workflow state |
 | `extension-presets.md` | When defining bounded packet templates, workflow overlays, or planning presets without weakening core contracts |
 | `kernel-tooling.md` | When you need the current kernel-only tooling surface, artifact paths, and verification entrypoints |

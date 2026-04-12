@@ -2,7 +2,7 @@
 
 ## Source of Truth
 
-- Only edit `packages/forge-core`, adapter overlays, and standalone runtime packages.
+- Only edit `packages/forge-core` and adapter overlays.
 - `dist/` is the release artifact.
 - Installed runtimes are not development surfaces.
 - Current maintainer docs live under `docs/current/`.
@@ -48,11 +48,10 @@ The canonical boundary policy lives in `docs/architecture/adapter-boundary.md`.
 
 - Public preview is acceptable after `verify_repo.py` passes, public-facing root docs exist, and public docs have been scrubbed of maintainer-local paths.
 - General public release uses the canonical verification gate above; extra runtime evidence is optional hardening, not a release precondition.
-- Forge `2.1.1` is the current stable release after the operator-state cleanup patch and the latest canonical verification gate both passed.
+- Forge `2.2.0` is the current stable release after the V4.1 full lean pass and the latest canonical verification gate both passed.
 - `forge-antigravity` is currently the most mature adapter for real rollout.
 - `forge-codex` has passed internal verification and is eligible for release under the current policy.
 - `forge-codex` host wrappers and global entry files should stay generated from canonical host-artifact sources instead of being maintained by hand.
-- `forge-browse` and `forge-design` are historical names and are no longer part of the shipped product line.
 - For Codex host takeover, use `install_bundle.py forge-codex --activate-codex` to rewrite global `AGENTS.md` and retire the legacy runtime in one backed-up step.
 - `forge-core` must not absorb host-specific UX just to serve one current adapter.
 - Only tag a release after `verify_repo.py` passes.

@@ -3,6 +3,11 @@
 Historical roadmap and spec material moved here to keep the active maintainer reading path narrow.
 Use this index when release archaeology or old design context is needed.
 
+## Runtime-Era History
+
+- `docs/archive/history/2026-03-runtime-era/` keeps the dated reports and thesis docs that described the old browse/design runtime-tool line.
+- Retired runtime-era package implementations are preserved through git history rather than a live package subtree in the current repo.
+
 ## Plans
 
 | Title | Original path | Status | Current replacement |
