@@ -283,20 +283,21 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         for token in (
             "1.15.x` closure target",
             "maintenance boundary",
-            "When closing a roadmap into maintenance mode",
+            "When validating maintenance-only posture",
         ):
             with self.subTest(reference_token=token):
                 self.assertIn(token, reference_map)
 
-    def test_116_surface_slim_reopen_tokens_are_visible(self) -> None:
+    def test_116_surface_slim_closure_tokens_are_visible(self) -> None:
         target_state = (ROOT_DIR / "packages" / "forge-core" / "references" / "target-state.md").read_text(encoding="utf-8")
         reference_map = (ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md").read_text(encoding="utf-8")
 
         for token in (
-            "## 1.16.x Surface Slim Target",
+            "## 1.16.x Surface Slim Closure",
             "docs/current/",
             "scripts/repo_operator.py",
             "shared generator path",
+            "There is no active roadmap tranche now.",
         ):
             with self.subTest(target_token=token):
                 self.assertIn(token, target_state)

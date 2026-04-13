@@ -1,9 +1,9 @@
 # Forge
 ### Process-first execution for coding agents in real repos.
 
-**1 core kernel, 2 host adapters, stable 2.4.0**
+**1 core kernel, 2 host adapters, stable 2.5.0**
 
-![Version](https://img.shields.io/badge/version-2.4.0-2563eb)
+![Version](https://img.shields.io/badge/version-2.5.0-2563eb)
 ![License](https://img.shields.io/badge/license-MIT-16a34a)
 ![Verification](https://img.shields.io/badge/verify-repo_passed-22c55e)
 ![Adapters](https://img.shields.io/badge/adapters-Codex%20%7C%20Antigravity-f59e0b)
@@ -12,7 +12,7 @@ Forge is a process-first orchestration system for coding agents.
 This repository is the source monorepo for Forge: `forge-core + host adapters`.
 
 Current maintainer docs live under `docs/current/`.
-The active repo-level roadmap line is `docs/plans/forge_refactor_V3.md`.
+Forge is currently in maintenance-only mode; reopen only under the criteria in `packages/forge-core/references/target-state.md`.
 Historical plans and specs now live under `docs/archive/`.
 
 Forge is built around a simple split:
@@ -117,7 +117,7 @@ graph LR
 
 - License: `MIT`
 - Repo maturity: stable release available
-- Current stable release: `2.4.0`
+- Current stable release: `2.5.0`
 - Canonical verification gate: `python scripts/verify_repo.py`
 - `forge-antigravity` is currently the most mature adapter for real rollout
 - `forge-codex` ships in the current stable release after passing the canonical release gates

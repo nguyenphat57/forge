@@ -116,11 +116,12 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         primary_section = antigravity_global.split("Primary operator aliases:", maxsplit=1)[1].split("Session requests stay natural-language:", maxsplit=1)[0]
         self.assertNotIn("/save-brain", primary_section)
 
-    def test_current_roadmap_doc_is_clean_and_active(self) -> None:
+    def test_kernel_contraction_plan_is_historical_and_clean(self) -> None:
         roadmap_path = ROOT_DIR / "docs" / "plans" / "forge_refactor_V3.md"
         text = roadmap_path.read_text(encoding="utf-8")
 
-        self.assertIn("Status: current roadmap", text)
+        self.assertIn("Status: historical implemented contraction tranche", text)
+        self.assertNotIn("Status: current roadmap", text)
         self.assertNotIn("\ufffd", text)
         self.assertIn("scripts/repo_operator.py", text)
 
@@ -128,7 +129,8 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         reference_map = (ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md").read_text(encoding="utf-8")
         archive_index = (ROOT_DIR / "docs" / "archive" / "INDEX.md").read_text(encoding="utf-8")
 
-        self.assertIn("docs/plans/forge_refactor_V3.md", reference_map)
+        self.assertIn("maintenance-only posture", reference_map)
+        self.assertNotIn("Active roadmap tranche for the current kernel-only contraction line", reference_map)
         self.assertNotIn("docs/plans/2026-04-11-forge-slim-refactor-v2.md", reference_map)
         self.assertIn("docs/plans/forge_refactor_V3.md", archive_index)
         self.assertNotIn("docs/plans/2026-04-11-forge-slim-refactor-v2.md", archive_index)

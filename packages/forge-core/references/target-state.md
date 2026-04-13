@@ -94,19 +94,19 @@ Challenge a change when it mainly adds:
 - generated host artifacts stay bootstrap-only; canonical wording lives in tracked source references and overlay sources, not hand-edited runtime wrappers
 - release hardening keeps catching version or story drift before a cut can claim stable status
 
-## 1.16.x Surface Slim Target
+## 1.16.x Surface Slim Closure
 
-`1.16.x` should reopen the roadmap narrowly and make Forge easier to operate without changing the shipped release contract:
+`1.16.x` completed the narrow reopen that made Forge easier to operate without changing the shipped release contract:
 
-- current maintainer guidance lives in `docs/current/` instead of being spread across active plans and specs
-- historical plans and specs move to `docs/archive/` and stop pretending to be current instructions
-- source-repo operator entry collapses to `scripts/repo_operator.py` instead of multiple repo-root proxy files
-- Codex keeps the same installed workflow outputs, but canonical wrapper source collapses to a shared generator path
-- release/install behavior, bundle fingerprints, and adapter-global state contracts stay stable while the surface is slimmed
+- current maintainer guidance now lives in `docs/current/` instead of being spread across live plans and specs
+- historical plans and specs are marked historical and route through `docs/archive/` instead of pretending to be current instructions
+- source-repo operator entry collapsed to `scripts/repo_operator.py` instead of multiple repo-root proxy files
+- Codex keeps the same installed workflow outputs, but canonical wrapper source collapsed to a shared generator path
+- release/install behavior, bundle fingerprints, and adapter-global state contracts stayed stable while the surface was slimmed
 
 ## Maintenance Boundary
 
-After the `1.15.x` closure line, Forge defaulted to maintenance mode:
+After the `1.15.x` closure line, and again after the bounded `1.16.x` surface-slim closure, Forge defaults to maintenance mode:
 
 - accept drift correction that keeps release-facing docs, host entry surfaces, and generated artifacts aligned with the shipped product story
 - accept compatibility repairs, defect fixes, and verification hardening when they preserve the current execution-kernel contract
@@ -120,7 +120,8 @@ Reopen the roadmap only if:
 - a release-facing inconsistency survives the current verification stack, proving the drift checks are materially incomplete
 - a proposed addition changes the behavior bar enough that calling it maintenance would hide real product risk
 
-The active `1.16.x` surface-slim tranche is the explicit reopen that follows that rule.
+There is no active roadmap tranche now.
+Current maintainer guidance lives in `docs/current/*` and this reference, while historical plans remain historical input only.
 
 ## Deferred Boundary
 

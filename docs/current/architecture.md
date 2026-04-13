@@ -26,9 +26,9 @@ Describe the current maintainer-facing structure of Forge without forcing reader
 - install safety and backup behavior remain intact
 - installed runtime workflow paths remain stable
 
-## Active refactor focus
+## Current maintenance posture
 
-- reduce source-repo wrapper sprawl
-- reduce Codex canonical wrapper duplication
-- reduce active-doc sprawl
-- keep release and install contracts aligned with the three-bundle product line
+- no active roadmap tranche is open; `docs/current/*` plus `packages/forge-core/references/target-state.md` are the live maintainer source of truth
+- changes should default to drift correction, compatibility repair, and verification hardening
+- source-repo operator guidance stays centered on `scripts/repo_operator.py`
+- release and install contracts stay aligned with the three-bundle product line

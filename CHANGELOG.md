@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.5.0 (stable) - 2026-04-13
+
+- Close the remaining governance gap around `forge-core` by promoting `docs/current/*` plus `target-state.md` to the live maintainer source of truth and retiring the last active-roadmap wording from current docs, archive pointers, and continuity state.
+- Mark the `1.16.x` surface-slim work as completed closure instead of an active reopen, and align `README.md`, release docs, audits, historical plan statuses, and `.brain/*` around one maintenance-only story.
+- Harden maintenance-only regression coverage so repo, release, and dist-bundle verification fail if active-roadmap posture or source-repo-only assumptions leak back into current docs or shipped bundle tests.
+
+
 ## 2.4.0 (stable) - 2026-04-13
 
 - Split the source-repo operator contract from installed host operator surfaces, generate `docs/current/operator-surface.md` from canonical source, and harden drift gates around repo-vs-host boundaries.

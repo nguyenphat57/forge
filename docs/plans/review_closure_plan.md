@@ -1,3 +1,5 @@
+Status: historical feedback
+
 # Review: Forge Core 9.3+ Closure Plan
 
 **Tài liệu được đánh giá:** [Forge Core Closure Plan.md](file:///c:/Users/Admin/.gemini/forge/docs/plans/Forge%20Core%20Closure%20Plan.md)

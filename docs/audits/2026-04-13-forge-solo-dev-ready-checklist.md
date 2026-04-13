@@ -16,14 +16,14 @@ This checklist scores Forge in three states:
 | Route from intent to delivery | `PASS` | The current contract keeps an explicit solo chain through planning, build, verification, review, gate, and deploy. |
 | Session continuity and resume | `PASS` | Canonical `workflow-state` is now the source of truth for `help`, `next`, `save`, and `resume`. |
 | Proof before claims | `PASS` | Verification and gate posture are explicit, and deploy-sensitive work is blocked from soft approval paths. |
-| Stable release and public readiness | `PASS` | Forge `2.3.1` is marked stable and public-ready under the current release policy. |
+| Stable release and public readiness | `PASS` | Forge `2.5.0` is marked stable and public-ready under the current release policy. |
 
 ## B. Solo-Dev Product Ergonomics
 
 | Area | Status | Why |
 |---|---|---|
 | Codex adapter maturity | `PARTIAL` | `forge-codex` ships in the stable release, but repo docs still describe `forge-antigravity` as the most mature adapter for real rollout. |
-| First-party lanes and presets in the current shipped line | `MISSING` | The current roadmap is a kernel-only contraction; the shipped line is `forge-core`, `forge-codex`, and `forge-antigravity`, not a richer lane catalog. |
+| First-party lanes and presets in the current shipped line | `MISSING` | The current shipped line is `forge-core`, `forge-codex`, and `forge-antigravity`, not a richer lane catalog. |
 | Brownfield operator ergonomics | `MISSING` | Useful solo-dev surfaces such as `doctor`, `map-codebase`, and `dashboard` exist mainly in archived runtime-era history, not the current shipped contract. |
 | Real-world shipping intelligence breadth | `PARTIAL` | Real canary and authenticated QA evidence exists, but the archived follow-up still says shipping intelligence is not yet tuned enough from live usage. |
 
@@ -56,6 +56,7 @@ The practical verdict is:
 - `CHANGELOG.md`
 - `docs/release/public-readiness.md`
 - `docs/release/release-process.md`
-- `docs/plans/forge_refactor_V3.md`
+- `docs/current/architecture.md`
+- `packages/forge-core/references/target-state.md`
 - `docs/audits/2026-03-28-solo-dev-ecosystem-review.md`
 - `docs/archive/history/2026-03-runtime-era/PROJECT_COMPATIBILITY_AND_CANARY_FOLLOWUP_2026-03-29.md`

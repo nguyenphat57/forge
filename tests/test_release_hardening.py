@@ -99,7 +99,7 @@ class ReleaseHardeningTests(unittest.TestCase):
             f"Top changelog release does not match VERSION: {first_release_heading}",
         )
 
-    def test_plan_inventory_reflects_current_roadmap_and_archive_boundary(self) -> None:
+    def test_plan_inventory_reflects_maintenance_only_posture_and_archive_boundary(self) -> None:
         closure_path = ROOT_DIR / "docs" / "plans" / "2026-04-02-forge-1.15.x-maintenance-closure.md"
         roadmap_path = ROOT_DIR / "docs" / "plans" / "forge_refactor_V3.md"
         archive_index = ROOT_DIR / "docs" / "archive" / "INDEX.md"
@@ -108,10 +108,11 @@ class ReleaseHardeningTests(unittest.TestCase):
         archive_text = archive_index.read_text(encoding="utf-8")
 
         self.assertIn("Status: historical maintenance closure", closure_text)
-        self.assertIn("Status: current roadmap", roadmap_text)
+        self.assertIn("Status: historical implemented contraction tranche", roadmap_text)
+        self.assertNotIn("Status: current roadmap", roadmap_text)
         self.assertIn("Historical roadmap and spec material moved here", archive_text)
         self.assertIn("All roadmap files under `docs/plans/` should now be one of:", closure_text)
-        self.assertIn("current roadmap", closure_text)
+        self.assertNotIn("current roadmap", closure_text)
         self.assertTrue((ROOT_DIR / "docs" / "current" / "architecture.md").exists())
         self.assertTrue((ROOT_DIR / "docs" / "current" / "operator-surface.md").exists())
         self.assertTrue((ROOT_DIR / "docs" / "current" / "install-and-activation.md").exists())
@@ -121,7 +122,6 @@ class ReleaseHardeningTests(unittest.TestCase):
             re.compile(r"^Status: historical"),
             re.compile(r"^Status: implemented"),
             re.compile(r"^Status: historical maintenance closure"),
-            re.compile(r"^Status: current roadmap$"),
         )
 
         for path in sorted((ROOT_DIR / "docs" / "plans").glob("*.md")):
@@ -163,6 +163,11 @@ class ReleaseHardeningTests(unittest.TestCase):
         self.assertEqual(closure["status"], "resolved")
         self.assertIn("docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md", closure["evidence"])
         self.assertIn("packages/forge-core/references/target-state.md", closure["evidence"])
+
+        handover = (ROOT_DIR / ".brain" / "handover.md").read_text(encoding="utf-8")
+        self.assertIn(version, handover)
+        self.assertIn("docs/current/*", handover)
+        self.assertNotIn("active roadmap", handover)
 
     def test_changelog_is_english_first_public_text(self) -> None:
         changelog = (ROOT_DIR / "CHANGELOG.md").read_text(encoding="utf-8")

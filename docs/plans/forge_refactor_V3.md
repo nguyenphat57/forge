@@ -1,28 +1,29 @@
 Date: 2026-04-11
-Status: current roadmap
+Status: historical implemented contraction tranche
 
 # Forge V3 - Kernel-Only Contraction
 
 ## Summary
 
-Forge is being narrowed to a kernel-only product line.
-The shipped surface becomes `forge-core`, `forge-codex`, and `forge-antigravity`.
-This tranche removes runtime-tool and companion expectations from repo-root release, install, verify, and docs surfaces.
+Forge was narrowed to a kernel-only product line.
+The shipped surface became `forge-core`, `forge-codex`, and `forge-antigravity`.
+This tranche removed runtime-tool and companion expectations from repo-root release, install, verify, and docs surfaces.
+It is complete; current maintainer guidance now lives in `docs/current/*` and `packages/forge-core/references/target-state.md`.
 
 ## Scope
 
-- update current roadmap references from V2 to V3
-- shrink shipped bundle and release/install/verify contracts to 3 bundles
-- remove runtime-tool and companion references from repo-root docs, tests, and scripts
-- keep package-level refactors out of this slice
+- updated roadmap references from V2 to V3 during the contraction cut
+- shrank shipped bundle and release/install/verify contracts to 3 bundles
+- removed runtime-tool and companion references from repo-root docs, tests, and scripts
+- kept package-level refactors out of this slice
 
 ## Phases
 
 ### Phase A: Roadmap reset
 
-- publish this file as the current roadmap
-- mark the previous V2 roadmap as historical and superseded
-- keep the current docs spine pointed at V3
+- published this file as the contraction roadmap for the cut
+- marked the previous V2 roadmap as historical and superseded
+- pointed the current docs spine at the contraction outcomes
 
 ### Phase B: Bundle contraction
 
@@ -41,4 +42,3 @@ This tranche removes runtime-tool and companion expectations from repo-root rele
 - `python scripts/verify_repo.py --profile fast`
 - `python scripts/verify_repo.py --format json`
 - root test files that encode release/install contracts
-

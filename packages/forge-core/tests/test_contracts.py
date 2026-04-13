@@ -217,10 +217,22 @@ class BundleContractTests(unittest.TestCase):
             with self.subTest(reference=name):
                 self.assertTrue((ROOT_DIR / "references" / name).exists(), name)
 
-    def test_reference_map_points_to_current_repo_roadmap(self) -> None:
+    def test_reference_map_points_to_current_docs_not_an_active_roadmap(self) -> None:
         reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
-        self.assertIn("docs/plans/forge_refactor_V3.md", reference_map)
+        architecture_path = ROOT_DIR.parents[1] / "docs" / "current" / "architecture.md"
+        if not architecture_path.exists():
+            self.skipTest("Current source-repo docs only exist in the source repository layout.")
+        architecture = architecture_path.read_text(encoding="utf-8")
+        target_state = (ROOT_DIR / "references" / "target-state.md").read_text(encoding="utf-8")
+        self.assertIn("docs/current/architecture.md", reference_map)
+        self.assertIn("maintenance-only posture", reference_map)
+        self.assertNotIn("Active roadmap tranche for the current kernel-only contraction line", reference_map)
         self.assertNotIn("docs/plans/2026-04-11-forge-slim-refactor-v2.md", reference_map)
+        self.assertIn("## Current maintenance posture", architecture)
+        self.assertNotIn("## Active refactor focus", architecture)
+        self.assertIn("## 1.16.x Surface Slim Closure", target_state)
+        self.assertIn("There is no active roadmap tranche now.", target_state)
+        self.assertNotIn("The active `1.16.x` surface-slim tranche", target_state)
 
     def test_help_next_contract_prefers_workflow_state_and_runtime_recovery_guidance(self) -> None:
         help_next = (ROOT_DIR / "references" / "help-next.md").read_text(encoding="utf-8")
@@ -438,7 +450,10 @@ class BundleContractTests(unittest.TestCase):
 
     def test_release_bundle_matrix_stays_kernel_only(self) -> None:
         repo_root = ROOT_DIR.parents[1]
-        package_matrix = json.loads((repo_root / "docs" / "release" / "package-matrix.json").read_text(encoding="utf-8"))
+        package_matrix_path = repo_root / "docs" / "release" / "package-matrix.json"
+        if not package_matrix_path.exists():
+            self.skipTest("Release package matrix only exists in the source repository layout.")
+        package_matrix = json.loads(package_matrix_path.read_text(encoding="utf-8"))
         self.assertEqual(
             [bundle["name"] for bundle in package_matrix["bundles"]],
             ["forge-core", "forge-antigravity", "forge-codex"],

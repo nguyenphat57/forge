@@ -1,3 +1,5 @@
+Status: implemented
+
 # Forge Core 9.3+ Closure Plan
 
 ## Summary

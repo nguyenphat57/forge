@@ -6,10 +6,9 @@
 
 | File | When to read |
 | --- | --- |
-| docs/current/architecture.md | Current maintainer view of package boundaries, archive policy, and the active surface-slim focus |
+| docs/current/architecture.md | Current maintainer view of package boundaries, archive policy, and the maintenance-only posture |
 | docs/current/operator-surface.md | Current source-repo operator contract, `repo_operator.py`, and dispatcher behavior |
 | docs/current/install-and-activation.md | Current source-repo versus installed-runtime guidance, activation rules, and rollout sync |
-| docs/plans/forge_refactor_V3.md | Active roadmap tranche for the current kernel-only contraction line |
 | docs/archive/INDEX.md | Find historical plans and specs after they leave the active reading path |
 
 ## Reference Registry
@@ -19,7 +18,7 @@
 | `smoke-tests.md` | Smoke-test host routing and Forge's general behavior |
 | `smoke-test-checklist.md` | Record smoke-test results for each case |
 | `constitution-lite.md` | Record or reuse repo-local principles without adding a heavier governance artifact |
-| `target-state.md` | Re-anchor Forge strategy and operator choices to the north-star target state, including the shipped `1.15.x` closure target, the maintenance boundary, and the explicit `1.16.x` reopen |
+| `target-state.md` | Re-anchor Forge strategy and operator choices to the north-star target state, including the shipped `1.15.x` closure target, the `1.16.x` surface-slim closure, and the current maintenance boundary |
 | `execution-delivery.md` | Select execution mode, checkpoint, and completion state for large builds |
 | `backend-briefs.md` | Validate or interpret persisted backend brief artifacts that already exist in the repo |
 | `failure-recovery-playbooks.md` | Use when the chain is stalled, a gate is blocked, review is deadlocked, or deployment fails and you need a clear recovery path |
@@ -42,6 +41,12 @@
 | `rollback-guidance.md` | When editing rollback planning, risk framing, or recovery strategy selection |
 | `companion-skill-contract.md` | Design or update companion skills when the repo really has an extended runtime or framework layer |
 | `companion-routing-smoke-tests.md` | Check routing between Forge and companion skills when the workspace uses a companion or local layer |
+
+## Historical Planning Context
+
+| File | When to read |
+| --- | --- |
+| docs/plans/forge_refactor_V3.md | Read only when the completed kernel-only contraction tranche itself matters as historical context |
 
 ## Reading Order
 
@@ -124,13 +129,14 @@
 6. execution-delivery.md if the chain is long or high-risk
 ```
 
-### When closing a roadmap into maintenance mode
+### When validating maintenance-only posture
 
 ```text
-1. target-state.md to confirm the active `1.15.x` closure target, maintenance boundary, and reopen criteria
-2. bump-release.md if the stable version line or release-note surface changes
-3. kernel-tooling.md if you need deterministic checks to keep release-facing docs and generated artifacts aligned
-4. docs/archive/INDEX.md if you need to map the resulting historical plan inventory
+1. target-state.md to confirm the `1.15.x` closure target, the `1.16.x` surface-slim closure, the maintenance boundary, and reopen criteria
+2. docs/current/architecture.md to confirm the live maintainer surface stays in current docs instead of roadmap files
+3. bump-release.md if the stable version line or release-note surface changes
+4. kernel-tooling.md if you need deterministic checks to keep release-facing docs and generated artifacts aligned
+5. docs/archive/INDEX.md if you need to map the resulting historical plan inventory
 ```
 
 ### When working on backend tasks
