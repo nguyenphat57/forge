@@ -124,7 +124,7 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
             write_report = json.loads(write_result.stdout)
 
             self.assertEqual(write_report["state_root"], str(expected_state_root))
-            self.assertEqual(write_report["path"], str(expected_preferences))
+            self.assertEqual(write_report["targets"], [str(expected_preferences)])
             self.assertTrue(expected_preferences.exists())
 
 

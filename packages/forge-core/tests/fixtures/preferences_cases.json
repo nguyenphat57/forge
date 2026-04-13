@@ -10,9 +10,9 @@
       "autonomy_level": "balanced",
       "pace": "balanced",
       "feedback_style": "balanced",
-      "personality": "default"
+      "personality": "default",
+      "delegation_preference": "auto"
     },
-    "expected_extra": {},
     "expected_response_style": {
       "terminology_mode": "mixed",
       "response_verbosity": "balanced",
@@ -34,9 +34,9 @@
       "autonomy_level": "autonomous",
       "pace": "fast",
       "feedback_style": "direct",
-      "personality": "strict-coach"
+      "personality": "strict-coach",
+      "delegation_preference": "auto"
     },
-    "expected_extra": {},
     "expected_response_style": {
       "terminology_mode": "standard",
       "response_verbosity": "concise",
@@ -47,20 +47,19 @@
     }
   },
   {
-    "name": "global_preferences_take_precedence_over_workspace_legacy",
+    "name": "workspace_preferences_override_global_per_key",
     "workspace_fixture": "preferences_workspace",
     "forge_home_fixture": "global_preferences",
     "expected_status": "PASS",
-    "expected_source_type": "global",
+    "expected_source_type": "merged",
     "expected_preferences": {
-      "technical_level": "technical",
-      "detail_level": "concise",
+      "technical_level": "newbie",
+      "detail_level": "detailed",
       "autonomy_level": "autonomous",
       "pace": "fast",
       "feedback_style": "direct",
-      "personality": "strict-coach"
-    },
-    "expected_extra": {
+      "personality": "mentor",
+      "delegation_preference": "auto",
       "tone_detail": "Address the user as lead engineer.",
       "language": "en",
       "orthography": "plain_english",
@@ -75,28 +74,27 @@
       ]
     },
     "expected_response_style": {
-      "terminology_mode": "standard",
-      "response_verbosity": "concise",
+      "terminology_mode": "translated",
+      "response_verbosity": "detailed",
       "decision_mode": "propose-best-path-and-execute-safe-slices",
       "delivery_pace": "fast",
       "feedback_mode": "direct",
-      "teaching_mode": "best-practice-first"
+      "teaching_mode": "explain-why"
     }
   },
   {
-    "name": "workspace_legacy_preferences_still_supported",
+    "name": "workspace_preferences_still_supported",
     "workspace_fixture": "preferences_workspace",
     "expected_status": "PASS",
-    "expected_source_type": "workspace-legacy",
+    "expected_source_type": "workspace",
     "expected_preferences": {
       "technical_level": "newbie",
       "detail_level": "detailed",
       "autonomy_level": "autonomous",
       "pace": "fast",
       "feedback_style": "direct",
-      "personality": "mentor"
-    },
-    "expected_extra": {
+      "personality": "mentor",
+      "delegation_preference": "auto",
       "tone_detail": "Address the user as lead engineer.",
       "language": "en",
       "orthography": "plain_english",
@@ -123,17 +121,15 @@
     "name": "invalid_preferences_warn_and_fall_back",
     "workspace_fixture": "invalid_preferences_workspace",
     "expected_status": "WARN",
-    "expected_source_type": "workspace-legacy",
+    "expected_source_type": "workspace",
     "expected_preferences": {
       "technical_level": "basic",
       "detail_level": "balanced",
       "autonomy_level": "guided",
       "pace": "steady",
       "feedback_style": "gentle",
-      "personality": "strict-coach"
-    },
-    "expected_extra": {
-      "unknown_field": "ignored"
+      "personality": "strict-coach",
+      "delegation_preference": "auto"
     },
     "expected_response_style": {
       "terminology_mode": "mixed",
@@ -145,7 +141,8 @@
     },
     "expected_warning_contains": [
       "technical_level",
-      "detail_level"
+      "detail_level",
+      "unknown_field"
     ]
   }
 ]

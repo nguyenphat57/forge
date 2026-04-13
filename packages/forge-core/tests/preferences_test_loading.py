@@ -19,16 +19,18 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
         self.assertEqual(report["source"]["type"], "defaults")
         self.assertEqual(
             report["preferences"],
-            {
-                "technical_level": "basic",
-                "detail_level": "balanced",
-                "autonomy_level": "balanced",
-                "pace": "balanced",
-                "feedback_style": "balanced",
-                "personality": "default",
-            },
+            self.expected_extra(
+                {
+                    "technical_level": "basic",
+                    "detail_level": "balanced",
+                    "autonomy_level": "balanced",
+                    "pace": "balanced",
+                    "feedback_style": "balanced",
+                    "personality": "default",
+                }
+            ),
         )
-        self.assertEqual(report["extra"], self.expected_extra({}))
+        self.assertEqual(report["sources"]["delegation_preference"], "default")
         self.assertEqual(report["warnings"], [])
 
     def test_global_preferences_override_defaults(self) -> None:
@@ -41,16 +43,18 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
         self.assertEqual(report["source"]["type"], "global")
         self.assertEqual(
             report["preferences"],
-            {
-                "technical_level": "technical",
-                "detail_level": "concise",
-                "autonomy_level": "autonomous",
-                "pace": "fast",
-                "feedback_style": "direct",
-                "personality": "strict-coach",
-            },
+            self.expected_extra(
+                {
+                    "technical_level": "technical",
+                    "detail_level": "concise",
+                    "autonomy_level": "autonomous",
+                    "pace": "fast",
+                    "feedback_style": "direct",
+                    "personality": "strict-coach",
+                }
+            ),
         )
-        self.assertEqual(report["extra"], self.expected_extra({}))
+        self.assertEqual(report["sources"]["technical_level"], "global")
         self.assertEqual(style["terminology_mode"], "standard")
         self.assertEqual(style["response_verbosity"], "concise")
         self.assertEqual(style["decision_mode"], "propose-best-path-and-execute-safe-slices")
@@ -100,8 +104,9 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
 
             self.assertEqual(report["source"]["type"], "explicit")
             self.assertEqual(report["preferences"]["technical_level"], "technical")
-            self.assertEqual(report["extra"]["language"], "en")
-            self.assertEqual(report["extra"]["orthography"], "plain_english")
+            self.assertEqual(report["preferences"]["language"], "en")
+            self.assertEqual(report["preferences"]["orthography"], "plain_english")
+            self.assertEqual(report["sources"]["language"], "explicit")
 
     def test_load_preferences_repairs_mojibake_extra_preferences(self) -> None:
         from pathlib import Path
@@ -133,10 +138,10 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
                     {
                         "language": "vi",
                         "orthography": "vietnamese_diacritics",
-                        "tone_detail": self.mojibake("Gá»i Sáº¿p, xÆ°ng Em"),
+                        "tone_detail": self.mojibake("Gọi Sếp, xưng Em"),
                         "custom_rules": [
-                            self.mojibake("LuÃ´n dÃ¹ng TypeScript thay vÃ¬ JavaScript."),
-                            self.mojibake("LuÃ´n sá»­ dá»¥ng ; thay vÃ¬ && cho PowerShell."),
+                            self.mojibake("Luôn dùng TypeScript thay vì JavaScript."),
+                            self.mojibake("Luôn sử dụng ; thay vì && cho PowerShell."),
                         ],
                     },
                     indent=2,
@@ -152,16 +157,16 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
             )
 
             self.assertEqual(report["source"]["type"], "global")
-            self.assertEqual(report["extra"]["tone_detail"], "Gá»i Sáº¿p, xÆ°ng Em")
+            self.assertEqual(report["preferences"]["tone_detail"], "Gọi Sếp, xưng Em")
             self.assertEqual(
-                report["extra"]["custom_rules"],
+                report["preferences"]["custom_rules"],
                 [
-                    "LuÃ´n dÃ¹ng TypeScript thay vÃ¬ JavaScript.",
-                    "LuÃ´n sá»­ dá»¥ng ; thay vÃ¬ && cho PowerShell.",
+                    "Luôn dùng TypeScript thay vì JavaScript.",
+                    "Luôn sử dụng ; thay vì && cho PowerShell.",
                 ],
             )
-            self.assertEqual(report["output_contract"], expected_output_contract(report["extra"]))
-            self.assertEqual(report["output_contract"]["tone_detail"], "Gá»i Sáº¿p, xÆ°ng Em")
+            self.assertEqual(report["output_contract"], expected_output_contract(report["preferences"]))
+            self.assertEqual(report["output_contract"]["tone_detail"], "Gọi Sếp, xưng Em")
 
     def test_resolve_preferences_explicit_legacy_file_is_read_only(self) -> None:
         from pathlib import Path
@@ -198,32 +203,34 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
             report = json.loads(result.stdout)
 
             self.assertEqual(report["status"], "PASS")
-            self.assertEqual(report["extra"]["language"], "en")
+            self.assertEqual(report["preferences"]["language"], "en")
             self.assertFalse((legacy_path.parent / "extra_preferences.json").exists())
             self.assertFalse((legacy_path.parent / "preferences.json.legacy.bak").exists())
 
-    def test_global_preferences_take_precedence_over_workspace_legacy(self) -> None:
+    def test_workspace_preferences_override_global_per_key(self) -> None:
         report = common.load_preferences(
             workspace=workspace_fixture("preferences_workspace"),
             forge_home=forge_home_fixture("global_preferences"),
         )
         style = common.resolve_response_style(report["preferences"])
 
-        self.assertEqual(report["source"]["type"], "global")
-        self.assertEqual(report["extra"], self.expected_extra({}))
-        self.assertEqual(report["preferences"]["technical_level"], "technical")
-        self.assertEqual(report["preferences"]["personality"], "strict-coach")
-        self.assertEqual(style["teaching_mode"], "best-practice-first")
+        self.assertEqual(report["source"]["type"], "merged")
+        self.assertEqual(report["preferences"]["technical_level"], "newbie")
+        self.assertEqual(report["preferences"]["personality"], "mentor")
+        self.assertEqual(report["preferences"]["language"], "en")
+        self.assertEqual(report["sources"]["technical_level"], "workspace")
+        self.assertEqual(report["sources"]["language"], "workspace")
+        self.assertEqual(style["teaching_mode"], "explain-why")
 
-    def test_workspace_legacy_preferences_still_override_defaults_when_no_global_exists(self) -> None:
+    def test_workspace_preferences_override_defaults_when_no_global_exists(self) -> None:
         report = common.load_preferences(
             workspace=workspace_fixture("preferences_workspace"),
             forge_home=forge_home_fixture("empty"),
         )
         style = common.resolve_response_style(report["preferences"])
-        contract = common.resolve_output_contract(report["extra"])
+        contract = common.resolve_output_contract(report["preferences"])
 
-        self.assertEqual(report["source"]["type"], "workspace-legacy")
+        self.assertEqual(report["source"]["type"], "workspace")
         self.assertEqual(
             report["preferences"],
             {
@@ -233,26 +240,20 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
                 "pace": "fast",
                 "feedback_style": "direct",
                 "personality": "mentor",
+                "delegation_preference": "auto",
+                "tone_detail": "Address the user as lead engineer.",
+                "language": "en",
+                "orthography": "plain_english",
+                "output_quality": "production_ready",
+                "custom_rules": [
+                    "Keep each file under 300 lines unless a split would reduce clarity.",
+                    "Keep one responsibility per file and avoid overlapping concerns.",
+                    "Prefer TypeScript over JavaScript.",
+                    "Prefer PowerShell over Command Prompt on Windows.",
+                    "Use semicolons in PowerShell examples instead of shell chaining operators.",
+                    "Log observable evidence before guessing a root cause.",
+                ],
             },
-        )
-        self.assertEqual(
-            report["extra"],
-            self.expected_extra(
-                {
-                    "tone_detail": "Address the user as lead engineer.",
-                    "language": "en",
-                    "orthography": "plain_english",
-                    "output_quality": "production_ready",
-                    "custom_rules": [
-                        "Keep each file under 300 lines unless a split would reduce clarity.",
-                        "Keep one responsibility per file and avoid overlapping concerns.",
-                        "Prefer TypeScript over JavaScript.",
-                        "Prefer PowerShell over Command Prompt on Windows.",
-                        "Use semicolons in PowerShell examples instead of shell chaining operators.",
-                        "Log observable evidence before guessing a root cause.",
-                    ],
-                }
-            ),
         )
         self.assertEqual(style["terminology_mode"], "translated")
         self.assertEqual(style["response_verbosity"], "detailed")
@@ -260,7 +261,7 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
         self.assertEqual(style["delivery_pace"], "fast")
         self.assertEqual(style["feedback_mode"], "direct")
         self.assertEqual(style["teaching_mode"], "explain-why")
-        self.assertEqual(contract, expected_output_contract(report["extra"]))
+        self.assertEqual(contract, expected_output_contract(report["preferences"]))
         self.assertEqual(contract["language"], "en")
         self.assertEqual(contract["orthography"], "plain-english")
         self.assertEqual(contract["tone_detail"], "Address the user as lead engineer.")
@@ -272,16 +273,17 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
             forge_home=forge_home_fixture("empty"),
         )
 
-        self.assertEqual(report["source"]["type"], "workspace-legacy")
-        self.assertEqual(report["extra"], self.expected_extra({"unknown_field": "ignored"}))
+        self.assertEqual(report["source"]["type"], "workspace")
         self.assertEqual(report["preferences"]["technical_level"], "basic")
         self.assertEqual(report["preferences"]["detail_level"], "balanced")
         self.assertEqual(report["preferences"]["autonomy_level"], "guided")
         self.assertEqual(report["preferences"]["pace"], "steady")
         self.assertEqual(report["preferences"]["feedback_style"], "gentle")
         self.assertEqual(report["preferences"]["personality"], "strict-coach")
+        self.assertEqual(report["preferences"]["delegation_preference"], "auto")
         self.assertTrue(any("technical_level" in warning for warning in report["warnings"]))
         self.assertTrue(any("detail_level" in warning for warning in report["warnings"]))
+        self.assertTrue(any("unknown_field" in warning for warning in report["warnings"]))
 
     def test_invalid_preferences_raise_in_strict_mode(self) -> None:
         with self.assertRaises(ValueError):
@@ -335,5 +337,9 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
                 forge_home=forge_home,
             )
 
-        self.assertEqual(report["extra"]["delegation_preference"], "auto")
+        self.assertEqual(report["preferences"]["delegation_preference"], "auto")
         self.assertIn("legacy_delegation_rule_detected", report["warnings"])
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-from common import DEFAULT_DELEGATION_PREFERENCE, compat_default_extra, load_preferences_compat, merge_extra_preferences
-
-
 def _expect_equal(failures: list[str], actual: object, expected: object, label: str) -> None:
     if actual != expected:
         failures.append(f"{label}: expected {expected!r}, got {actual!r}")
@@ -103,13 +100,6 @@ def validate_preferences_case(case: dict, report: dict) -> list[str]:
     _expect_equal(failures, report["status"], case["expected_status"], "status")
     _expect_equal(failures, report["source"]["type"], case["expected_source_type"], "source_type")
     _expect_equal(failures, report["preferences"], case["expected_preferences"], "preferences")
-    if "expected_extra" in case:
-        expected_extra = merge_extra_preferences(
-            compat_default_extra(load_preferences_compat()),
-            {"delegation_preference": DEFAULT_DELEGATION_PREFERENCE},
-        )
-        expected_extra = merge_extra_preferences(expected_extra, case["expected_extra"])
-        _expect_equal(failures, report.get("extra", {}), expected_extra, "extra")
     for key, expected in case.get("expected_response_style", {}).items():
         _expect_equal(failures, report["response_style"].get(key), expected, f"response_style.{key}")
     for expected in case.get("expected_warning_contains", []):

@@ -68,7 +68,6 @@ Active persistent artifacts still include:
 - `.forge-artifacts/workflow-state/<project>/events.jsonl`
 - `.forge-artifacts/workflow-state/<project>/packet-index.json`
 - `<adapter-state-root>/state/preferences.json`
-- `<adapter-state-root>/state/extra_preferences.json`
 - `.brain/decisions.json`
 - `.brain/learnings.json`
 

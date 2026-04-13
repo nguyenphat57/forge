@@ -85,13 +85,11 @@ class CodexHostInstallTests(unittest.TestCase):
             agents_text = agents_path.read_text(encoding="utf-8")
             expected_state_root = str((codex_home / "forge-codex").resolve())
             expected_preferences = str((codex_home / "forge-codex" / "state" / "preferences.json").resolve())
-            expected_extra_preferences = str((codex_home / "forge-codex" / "state" / "extra_preferences.json").resolve())
             expected_skill = str((target / "SKILL.md").resolve())
             self.assertIn("Use `forge-codex` as the only global orchestrator for Codex.", agents_text)
             self.assertIn(expected_skill, agents_text)
             self.assertIn(expected_state_root, agents_text)
             self.assertIn(expected_preferences, agents_text)
-            self.assertIn(expected_extra_preferences, agents_text)
             self.assertIn(f"python {target.resolve() / 'scripts' / 'resolve_preferences.py'}", agents_text)
             self.assertNotIn("{{FORGE_CODEX_SKILL}}", agents_text)
             self.assertNotRegex(agents_text, re.compile(r"\{\{[A-Z0-9_]+\}\}"))
@@ -172,7 +170,7 @@ class CodexHostInstallTests(unittest.TestCase):
             write_report = json.loads(write_result.stdout)
 
             self.assertEqual(write_report["state_root"], str(expected_state_root))
-            self.assertEqual(write_report["path"], str(expected_preferences))
+            self.assertEqual(write_report["targets"], [str(expected_preferences)])
             self.assertTrue(expected_preferences.exists())
 
             resolve_result = subprocess.run(

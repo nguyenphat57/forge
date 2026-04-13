@@ -4,38 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from common import (
-    configure_stdio,
-    extract_extras,
-    load_preferences,
-    merge_extra_preferences,
-    resolve_delegation_preference,
-    resolve_output_contract,
-    resolve_response_style,
-    resolve_workspace_preferences_path,
-)
-
-
-def load_workspace_extra_preferences(
-    workspace: Path | None,
-    *,
-    strict: bool = False,
-) -> tuple[dict[str, object], list[str]]:
-    if workspace is None:
-        return {}, []
-
-    path = resolve_workspace_preferences_path(workspace)
-    if not path.exists():
-        return {}, []
-
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        if strict:
-            raise ValueError(f"Invalid JSON in preferences file: {path}") from exc
-        return {}, [f"Invalid JSON in workspace extra preferences file '{path.name}'. Ignoring extras."]
-
-    return extract_extras(payload), []
+from common import configure_stdio, load_preferences, resolve_response_style
 
 
 def build_payload(args: argparse.Namespace) -> dict:
@@ -46,37 +15,18 @@ def build_payload(args: argparse.Namespace) -> dict:
         forge_home=args.forge_home,
     )
     warnings = list(report["warnings"])
-    extra = report.get("extra", {})
 
-    if args.workspace is not None and report["source"]["type"] != "workspace-legacy":
-        workspace_extra, workspace_warnings = load_workspace_extra_preferences(
-            args.workspace,
-            strict=args.strict,
-        )
-        extra = merge_extra_preferences(extra, workspace_extra)
-        for warning in workspace_warnings:
-            if warning not in warnings:
-                warnings.append(warning)
-
-    delegation_preference, delegation_warnings, _ = resolve_delegation_preference(
-        extra,
-        strict=args.strict,
-    )
-    extra["delegation_preference"] = delegation_preference
-    for warning in delegation_warnings:
-        if warning not in warnings:
-            warnings.append(warning)
-
-    payload = {
+    return {
         "status": "WARN" if warnings else "PASS",
         "source": report["source"],
+        "paths": report.get("paths", {}),
+        "allowed_scopes": ["global", "workspace", "both"] if args.workspace is not None else ["global"],
         "preferences": report["preferences"],
-        "extra": extra,
-        "output_contract": resolve_output_contract(extra),
+        "sources": report.get("sources", {}),
+        "output_contract": report["output_contract"],
         "response_style": resolve_response_style(report["preferences"]),
         "warnings": warnings,
     }
-    return payload
 
 
 def format_text(payload: dict) -> str:
@@ -88,13 +38,11 @@ def format_text(payload: dict) -> str:
         "- Preferences:",
     ]
     for key, value in payload["preferences"].items():
+        rendered = json.dumps(value, ensure_ascii=False) if isinstance(value, list) else value
+        lines.append(f"  - {key}: {rendered}")
+    lines.append("- Sources:")
+    for key, value in payload["sources"].items():
         lines.append(f"  - {key}: {value}")
-    if payload["extra"]:
-        lines.append("- Extra:")
-        for line in json.dumps(payload["extra"], indent=2, ensure_ascii=False).splitlines():
-            lines.append(f"  {line}")
-    else:
-        lines.append("- Extra: (none)")
     if payload["output_contract"]:
         lines.append("- Output contract:")
         for line in json.dumps(payload["output_contract"], indent=2, ensure_ascii=False).splitlines():
@@ -104,6 +52,7 @@ def format_text(payload: dict) -> str:
     lines.append("- Response style:")
     for key, value in payload["response_style"].items():
         lines.append(f"  - {key}: {value}")
+    lines.append(f"- Allowed scopes: {', '.join(payload['allowed_scopes'])}")
     if payload["warnings"]:
         lines.append("- Warnings:")
         for warning in payload["warnings"]:
@@ -119,7 +68,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Resolve Forge response-style preferences from adapter-global state or an explicit file."
     )
-    parser.add_argument("--workspace", type=Path, default=None, help="Optional workspace root to inspect for legacy .brain/preferences.json")
+    parser.add_argument("--workspace", type=Path, default=None, help="Optional workspace root to inspect for .brain/preferences.json")
     parser.add_argument(
         "--forge-home",
         type=Path,
@@ -137,7 +86,7 @@ def main() -> int:
         if args.format == "json":
             print(json.dumps({"status": "FAIL", "error": str(exc)}, indent=2, ensure_ascii=False))
         else:
-            print("\n".join(["Forge Preferences", f"- Status: FAIL", f"- Error: {exc}"]))
+            print("\n".join(["Forge Preferences", "- Status: FAIL", f"- Error: {exc}"]))
         return 1
 
     if args.format == "json":

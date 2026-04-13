@@ -23,7 +23,6 @@ CODEX_LEGACY_SKILL_GLOB = "awf-*"
 ADAPTER_STATE_SCOPE = "adapter-global"
 STATE_SCOPE = ADAPTER_STATE_SCOPE
 STATE_PREFERENCES_RELATIVE_PATH = Path("state") / "preferences.json"
-STATE_EXTRA_PREFERENCES_RELATIVE_PATH = Path("state") / "extra_preferences.json"
 
 
 def resolve_bundle_source(bundle_name: str, source: str | None) -> Path:
@@ -122,7 +121,6 @@ def build_state_metadata(
             relative_fields += 1
     if relative_fields == 0:
         metadata["preferences_path"] = str((state_root / STATE_PREFERENCES_RELATIVE_PATH).resolve())
-        metadata["extra_preferences_path"] = str((state_root / STATE_EXTRA_PREFERENCES_RELATIVE_PATH).resolve())
     return metadata
 
 

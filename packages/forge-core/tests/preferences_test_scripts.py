@@ -6,10 +6,9 @@ import unittest
 from support import expected_output_contract, forge_home_fixture, run_python_script, workspace_fixture
 
 import common  # noqa: E402
-from preferences_test_support import PreferencesTestSupport
 
 
-class PreferencesScriptTests(PreferencesTestSupport, unittest.TestCase):
+class PreferencesScriptTests(unittest.TestCase):
     def test_resolve_preferences_script_reports_global_payload(self) -> None:
         result = run_python_script(
             "resolve_preferences.py",
@@ -26,8 +25,8 @@ class PreferencesScriptTests(PreferencesTestSupport, unittest.TestCase):
         self.assertEqual(report["source"]["type"], "global")
         self.assertEqual(report["preferences"]["technical_level"], "technical")
         self.assertEqual(report["preferences"]["pace"], "fast")
-        self.assertEqual(report["extra"], self.expected_extra({}))
-        self.assertEqual(report["extra"]["delegation_preference"], "auto")
+        self.assertEqual(report["preferences"]["delegation_preference"], "auto")
+        self.assertEqual(report["sources"]["technical_level"], "global")
         self.assertEqual(report["response_style"]["teaching_mode"], "best-practice-first")
 
     def test_resolve_preferences_script_warns_for_invalid_workspace_payload(self) -> None:
@@ -46,10 +45,9 @@ class PreferencesScriptTests(PreferencesTestSupport, unittest.TestCase):
         self.assertGreaterEqual(len(report["warnings"]), 1)
         self.assertEqual(report["preferences"]["personality"], "strict-coach")
         self.assertEqual(report["preferences"]["feedback_style"], "gentle")
-        self.assertEqual(report["extra"], self.expected_extra({"unknown_field": "ignored"}))
-        self.assertEqual(report["extra"]["delegation_preference"], "auto")
+        self.assertEqual(report["preferences"]["delegation_preference"], "auto")
 
-    def test_resolve_preferences_includes_workspace_extras(self) -> None:
+    def test_resolve_preferences_prefers_workspace_over_global(self) -> None:
         result = run_python_script(
             "resolve_preferences.py",
             "--workspace",
@@ -62,27 +60,12 @@ class PreferencesScriptTests(PreferencesTestSupport, unittest.TestCase):
         report = json.loads(result.stdout)
 
         self.assertEqual(report["status"], "PASS")
-        self.assertEqual(report["source"]["type"], "global")
-        self.assertEqual(
-            report["extra"],
-            self.expected_extra(
-                {
-                    "tone_detail": "Address the user as lead engineer.",
-                    "language": "en",
-                    "orthography": "plain_english",
-                    "output_quality": "production_ready",
-                    "custom_rules": [
-                        "Keep each file under 300 lines unless a split would reduce clarity.",
-                        "Keep one responsibility per file and avoid overlapping concerns.",
-                        "Prefer TypeScript over JavaScript.",
-                        "Prefer PowerShell over Command Prompt on Windows.",
-                        "Use semicolons in PowerShell examples instead of shell chaining operators.",
-                        "Log observable evidence before guessing a root cause.",
-                    ],
-                }
-            ),
-        )
-        self.assertEqual(report["output_contract"], expected_output_contract(report["extra"]))
+        self.assertEqual(report["source"]["type"], "merged")
+        self.assertEqual(report["preferences"]["technical_level"], "newbie")
+        self.assertEqual(report["preferences"]["language"], "en")
+        self.assertEqual(report["sources"]["technical_level"], "workspace")
+        self.assertEqual(report["sources"]["language"], "workspace")
+        self.assertEqual(report["output_contract"], expected_output_contract(report["preferences"]))
         self.assertEqual(report["output_contract"]["language"], "en")
         self.assertEqual(report["output_contract"]["orthography"], "plain-english")
         self.assertNotIn("delegation_preference", report["output_contract"])
@@ -137,5 +120,9 @@ class PreferencesScriptTests(PreferencesTestSupport, unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             report = json.loads(result.stdout)
 
-        self.assertEqual(report["extra"]["delegation_preference"], "auto")
+        self.assertEqual(report["preferences"]["delegation_preference"], "auto")
         self.assertIn("legacy_delegation_rule_detected", report["warnings"])
+
+
+if __name__ == "__main__":
+    unittest.main()

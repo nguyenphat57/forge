@@ -141,7 +141,8 @@
     },
     "output_quality": {
       "paths": [
-        "technical.quality"
+        "technical.quality",
+        "technical.output_quality"
       ]
     },
     "custom_rules": {

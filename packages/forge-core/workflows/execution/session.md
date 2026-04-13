@@ -7,7 +7,7 @@ triggers:
   - adapter compatibility aliases may exist during migration, but they are not the core primary surface
 quality_gates:
   - Context restored or handover note restored
-  - Response personalization resolved from adapter-global split preferences state when available
+  - Response personalization resolved from adapter-global canonical preferences state when available
   - Scope-filtered continuity used when available
   - Structured continuous capture stays evidence-backed and scoped
 ---
@@ -35,7 +35,7 @@ quality_gates:
 
 ## Operating Rules
 
-- Global preferences live in adapter-global split state: canonical fields in `state/preferences.json`, adapter extras in `state/extra_preferences.json`, and only fall back to `.brain/preferences.json` for legacy workspaces that still need migration.
+- Global preferences live in adapter-global `state/preferences.json`, and workspace-local overrides live in `.brain/preferences.json` when a repo needs different durable behavior.
 
 - Repo-first: priority `git status`, changed files, docs, plans, task notes.
 - Prefer `.forge-artifacts/workflow-state/<project>/latest.json` when trackers have already recorded execution, chain, or UI progress.
@@ -63,7 +63,7 @@ If a host still ships a legacy restore alias during migration, treat it only as 
 1. docs/plans/, docs/specs/, open task notes
 2. git status / changed files / recent commits (if git exists)
 3. `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, or UI trackers have already persisted state
-4. Adapter-global split preferences state (`state/preferences.json` + `state/extra_preferences.json`) via `python scripts/resolve_preferences.py --workspace <workspace> --format json`
+4. Adapter-global preferences state (`state/preferences.json`) via `python scripts/resolve_preferences.py --workspace <workspace> --format json`
 5. .brain/handover.md
 6. .brain/session.json
 7. .brain/decisions.json

@@ -32,12 +32,12 @@ def build_output_contract(
         forge_home=forge_home,
         preferences_file=preferences_file,
     )
-    extra = dict(report.get("extra", {}))
+    preferences = dict(report.get("preferences", {}))
     if language:
-        extra["language"] = language
+        preferences["language"] = language
     if orthography:
-        extra["orthography"] = orthography
-    return resolve_output_contract(extra), report["source"]
+        preferences["orthography"] = orthography
+    return resolve_output_contract(preferences), report["source"]
 
 
 def format_text(report: dict[str, object]) -> str:

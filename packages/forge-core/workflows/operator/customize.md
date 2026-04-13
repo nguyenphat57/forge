@@ -7,7 +7,7 @@ triggers:
 quality_gates:
   - Current preferences are inspected before changing anything
   - Durable changes use the canonical core schema and writer
-  - Workspace `.brain/preferences.json` is only for legacy fallback or workspace-local overrides
+  - Workspace `.brain/preferences.json` is a supported repo-local scope, not a legacy-only escape hatch
   - Read-only inspection does not mutate state files
   - The response states what changed and how interaction will feel different
 ---
@@ -21,7 +21,7 @@ quality_gates:
 - Do not overwrite the whole preference state when the user only changes one or two fields.
 - Do not mutate state during `resolve_preferences.py` inspection.
 - Keep `output_contract` intact in resolver/writer output.
-- Preserve workspace `.brain/preferences.json` as legacy fallback or workspace-only override, not as the default durable state.
+- Preserve workspace `.brain/preferences.json` as a first-class repo-local scope without cloning the full global state.
 </HARD-GATE>
 
 ## Process
@@ -40,24 +40,25 @@ python scripts/resolve_preferences.py --format json
    - `feedback_style`
    - `personality`
 
-3. If the user wants durable language, orthography, or adapter-global writing rules:
+3. If the user wants durable language, orthography, or writing rules:
    - persist them through `scripts/write_preferences.py`
-   - keep them in adapter-global extras, not in the six canonical fields
+   - keep them in the unified canonical preferences object
    - let adapters expand locale-specific output policy through bundle-local data instead of core-specific branching
-   - use workspace `.brain/preferences.json` only when the user explicitly wants repo-scoped behavior
+   - offer `--scope global|workspace|both` and preview the exact write plan before apply
 
 4. Preview or persist with the writer:
 
 ```powershell
 python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct
-python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct --apply
-python scripts/write_preferences.py --language en --orthography plain_english --apply
+python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct --scope global --apply
+python scripts/write_preferences.py --language en --orthography plain_english --scope workspace --apply
 ```
 
 5. Persistence notes:
-   - canonical values live in `state/preferences.json`
-   - extras live in `state/extra_preferences.json`
-   - legacy single-file state may be migrated on `--apply`
+   - adapter-global values live in `state/preferences.json`
+   - repo-local values live in `.brain/preferences.json`
+   - workspace files stay sparse and only persist selected keys
+   - legacy split or native state may be migrated on `--apply`
    - explicit `--preferences-file` inspection stays read-only
 
 6. Reply briefly with:

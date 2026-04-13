@@ -21,6 +21,7 @@ VALID_ACTIONS = (
 )
 
 WRITE_PREFERENCE_FLAGS = {
+    "--scope",
     "--technical-level",
     "--detail-level",
     "--autonomy-level",
@@ -29,7 +30,11 @@ WRITE_PREFERENCE_FLAGS = {
     "--personality",
     "--language",
     "--orthography",
+    "--tone-detail",
+    "--output-quality",
+    "--custom-rule",
     "--delegation-preference",
+    "--clear-field",
     "--clear-language",
     "--clear-orthography",
     "--clear-delegation-preference",

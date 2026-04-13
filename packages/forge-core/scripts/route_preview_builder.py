@@ -66,7 +66,7 @@ def build_report(args: argparse.Namespace, *, load_registry_fn=load_registry) ->
             format="json",
         )
     )
-    resolved_delegation_preference = preferences_payload.get("extra", {}).get("delegation_preference")
+    resolved_delegation_preference = preferences_payload.get("preferences", {}).get("delegation_preference")
     explicit_delegation_preference = getattr(args, "delegation_preference", None)
     if explicit_delegation_preference is not None:
         resolved_delegation_preference = explicit_delegation_preference

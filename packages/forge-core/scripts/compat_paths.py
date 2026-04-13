@@ -15,6 +15,12 @@ CANONICAL_PREFERENCE_KEYS = (
     "pace",
     "feedback_style",
     "personality",
+    "language",
+    "orthography",
+    "tone_detail",
+    "output_quality",
+    "custom_rules",
+    "delegation_preference",
 )
 
 
@@ -100,15 +106,15 @@ def compat_canonical_paths(compat: dict | None) -> set[str]:
     if not isinstance(compat, dict):
         return set()
     read_config = compat.get("read")
-    if not isinstance(read_config, dict):
-        return set()
-    fields = read_config.get("canonical_fields")
-    if not isinstance(fields, dict):
-        return set()
     paths: set[str] = set()
-    for entry in fields.values():
-        if isinstance(entry, dict):
-            paths.update(compat_entry_paths(entry))
+    if isinstance(read_config, dict):
+        fields = read_config.get("canonical_fields")
+        if isinstance(fields, dict):
+            for entry in fields.values():
+                if isinstance(entry, dict):
+                    paths.update(compat_entry_paths(entry))
+    for entry in compat_extra_fields(compat).values():
+        paths.update(compat_entry_paths(entry))
     return paths
 
 

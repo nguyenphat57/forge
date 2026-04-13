@@ -20,10 +20,8 @@ Use `forge-codex` as the only global orchestrator for Codex.
 - Preferences resolver: `{{FORGE_CODEX_RESOLVER}} --workspace <workspace> --format json`
 - Canonical resolver script: `scripts/resolve_preferences.py`
 - State root: `{{FORGE_CODEX_STATE_ROOT}}`
-- Canonical state layout: `state/preferences.json` + `state/extra_preferences.json` under the state root above.
-- Preferences files:
-  - `{{FORGE_CODEX_PREFERENCES_PATH}}`
-  - `{{FORGE_CODEX_EXTRA_PREFERENCES_PATH}}`
+- Canonical state layout: `state/preferences.json` under the state root above.
+- Preferences file: `{{FORGE_CODEX_PREFERENCES_PATH}}`
 
 ## Scope Of This File
 
@@ -34,17 +32,17 @@ Use `forge-codex` as the only global orchestrator for Codex.
 ## Thread Bootstrap
 
 - On every new thread, restore Forge response personalization before the first substantive reply.
-- Resolve adapter-global preferences from `{{FORGE_CODEX_PREFERENCES_PATH}}` plus `{{FORGE_CODEX_EXTRA_PREFERENCES_PATH}}`.
+- Resolve adapter-global preferences from `{{FORGE_CODEX_PREFERENCES_PATH}}`.
 - Treat `{{FORGE_CODEX_STATE_ROOT}}` as the canonical adapter-global state root; only fall back to the equivalent `$FORGE_HOME/state/...` paths when the install target is intentionally overridden.
 - Prefer the canonical resolver at `{{FORGE_CODEX_RESOLVER}} --workspace <workspace> --format json` when the merged payload is needed.
-- If a merged payload is not needed, read both state files directly instead of only one.
+- If a merged payload is not needed, read the preference file directly instead of only one field subset.
 - Apply the resolved language, orthography, tone detail, and custom writing rules as active instructions; do not wait for the user to repeat customization in each new thread.
 
 ## Mandatory First Action
 
 Before the first substantive reply in every new thread:
 
-1. Restore personalization from the resolver above, or read the two preference files directly when a merged payload is not needed.
+1. Restore personalization from the resolver above, or read the preference file directly when a merged payload is not needed.
 2. Apply language, orthography, tone detail, and custom rules immediately.
 3. If the resolved language is Vietnamese, use full Vietnamese diacritics and repair mojibake instead of copying corrupted text.
 4. If preferences are unavailable, continue with concise, direct, technical output in the host-default language.
@@ -63,7 +61,7 @@ Before the first substantive reply in every new thread:
 - Prefer repo state, plans, specs, and scoped `.brain/` artifacts over session ceremony.
 - Keep scope minimal; ask before new dependencies, schema changes, or folder-structure changes.
 - Do not fabricate telemetry, token counters, or progress percentages.
-- Durable preferences live in Codex-global adapter state `{{FORGE_CODEX_STATE_ROOT}}`, with canonical fields in `{{FORGE_CODEX_PREFERENCES_PATH}}` and adapter extras in `{{FORGE_CODEX_EXTRA_PREFERENCES_PATH}}`.
+- Durable preferences live in Codex-global adapter state `{{FORGE_CODEX_STATE_ROOT}}`, in the canonical file `{{FORGE_CODEX_PREFERENCES_PATH}}`.
 
 ## Global Verification Rule
 

@@ -39,6 +39,35 @@
       "enum": ["default", "mentor", "strict-coach"],
       "default": "default",
       "description": "Preferred coaching style."
+    },
+    "language": {
+      "type": "string",
+      "description": "Optional output language hint."
+    },
+    "orthography": {
+      "type": "string",
+      "description": "Optional orthography hint."
+    },
+    "tone_detail": {
+      "type": "string",
+      "description": "Optional tone detail or honorific hint."
+    },
+    "output_quality": {
+      "type": "string",
+      "description": "Optional output quality hint kept string-compatible during the storage cut."
+    },
+    "custom_rules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional custom writing or execution rules."
+    },
+    "delegation_preference": {
+      "type": "string",
+      "enum": ["off", "auto", "review-lanes", "parallel-workers"],
+      "default": "auto",
+      "description": "Preferred delegation mode for compatible hosts."
     }
   },
   "additionalProperties": false

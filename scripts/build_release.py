@@ -152,7 +152,6 @@ def build_state_metadata(package_name: str, host: str, runtime_state: dict | Non
         return {
             "scope": "adapter-global",
             "preferences_relative_path": "state/preferences.json",
-            "extra_preferences_relative_path": "state/extra_preferences.json",
             "dev_root": {
                 "strategy": "bundle-parent-relative",
                 "path_relative": "forge-core-state",
@@ -162,7 +161,6 @@ def build_state_metadata(package_name: str, host: str, runtime_state: dict | Non
         return {
             "scope": "adapter-global",
             "preferences_relative_path": "state/preferences.json",
-            "extra_preferences_relative_path": "state/extra_preferences.json",
             "dev_root": {
                 "strategy": "host-home-relative",
                 "env_var": "CODEX_HOME",
@@ -174,7 +172,6 @@ def build_state_metadata(package_name: str, host: str, runtime_state: dict | Non
         return {
             "scope": "adapter-global",
             "preferences_relative_path": "state/preferences.json",
-            "extra_preferences_relative_path": "state/extra_preferences.json",
             "dev_root": {
                 "strategy": "host-home-relative",
                 "env_var": "GEMINI_HOME",

@@ -81,14 +81,12 @@ class AntigravityHostInstallTests(unittest.TestCase):
             rendered = gemini_md_path.read_text(encoding="utf-8")
             expected_state_root = str((gemini_home / "antigravity" / "forge-antigravity").resolve())
             expected_preferences = str((gemini_home / "antigravity" / "forge-antigravity" / "state" / "preferences.json").resolve())
-            expected_extra_preferences = str((gemini_home / "antigravity" / "forge-antigravity" / "state" / "extra_preferences.json").resolve())
             expected_skill = str((target / "SKILL.md").resolve())
 
             self.assertIn("Use `forge-antigravity` as the global orchestrator for Gemini workspaces.", rendered)
             self.assertIn(expected_skill, rendered)
             self.assertIn(expected_state_root, rendered)
             self.assertIn(expected_preferences, rendered)
-            self.assertIn(expected_extra_preferences, rendered)
             self.assertIn(f"python {target.resolve() / 'scripts' / 'resolve_preferences.py'}", rendered)
 
             host_backup_path = Path(report["gemini_host_activation"]["host_backup_path"])
@@ -127,8 +125,14 @@ class AntigravityHostInstallTests(unittest.TestCase):
             self.assertEqual(payload["status"], "PASS")
             self.assertEqual(payload["source"]["type"], "defaults")
             self.assertEqual(
-                payload["extra"],
+                payload["preferences"],
                 {
+                    "technical_level": "basic",
+                    "detail_level": "balanced",
+                    "autonomy_level": "balanced",
+                    "pace": "balanced",
+                    "feedback_style": "balanced",
+                    "personality": "default",
                     "language": "vi",
                     "orthography": "vietnamese_diacritics",
                     "delegation_preference": "auto",
@@ -167,6 +171,15 @@ class AntigravityHostInstallTests(unittest.TestCase):
                     "pace": "steady",
                     "feedback_style": "direct",
                     "personality": "default",
+                    "delegation_preference": "auto",
+                    "language": "vi",
+                    "orthography": "vietnamese_diacritics",
+                    "tone_detail": "Goi Sep, xung Em",
+                    "output_quality": "production_ready",
+                    "custom_rules": [
+                        "Moi file khong duoc vuot qua 300 dong",
+                        "Luon dung PowerShell thay vi Command Prompt",
+                    ],
                 },
             )
             self.assertEqual(payload["warnings"], [])
@@ -177,7 +190,6 @@ class AntigravityHostInstallTests(unittest.TestCase):
             temp_root = Path(temp_dir)
             report, target = self.install_antigravity_bundle(temp_root)
             preferences_path = Path(report["state"]["preferences_path"])
-            extra_preferences_path = preferences_path.with_name("extra_preferences.json")
             preferences_path.parent.mkdir(parents=True, exist_ok=True)
             preferences_path.write_text(
                 json.dumps(NATIVE_ANTIGRAVITY_PREFERENCES, indent=2, ensure_ascii=False) + "\n",
@@ -206,8 +218,6 @@ class AntigravityHostInstallTests(unittest.TestCase):
             self.assertTrue(payload["migrated_legacy_global_preferences"])
 
             written = json.loads(preferences_path.read_text(encoding="utf-8"))
-            written_extra = json.loads(extra_preferences_path.read_text(encoding="utf-8"))
-
             self.assertEqual(
                 written,
                 {
@@ -217,15 +227,14 @@ class AntigravityHostInstallTests(unittest.TestCase):
                     "pace": "fast",
                     "feedback_style": "gentle",
                     "personality": "default",
+                    "language": "vi",
+                    "tone_detail": "Goi Sep, xung Em",
+                    "output_quality": "production_ready",
+                    "custom_rules": NATIVE_ANTIGRAVITY_PREFERENCES["custom_rules"],
                 },
             )
-            self.assertEqual(written_extra["language"], "vi")
-            self.assertEqual(written_extra["orthography"], "vietnamese_diacritics")
-            self.assertEqual(written_extra["tone_detail"], "Goi Sep, xung Em")
-            self.assertEqual(written_extra["technical"]["output_quality"], "production_ready")
-            self.assertEqual(written_extra["custom_rules"], NATIVE_ANTIGRAVITY_PREFERENCES["custom_rules"])
-            self.assertEqual(written_extra["communication"]["tone"], "custom")
             self.assertTrue((preferences_path.parent / "preferences.json.legacy.bak").exists())
+            self.assertFalse(preferences_path.with_name("extra_preferences.json").exists())
 
 
 if __name__ == "__main__":

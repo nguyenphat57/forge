@@ -4,9 +4,9 @@ import copy
 import json
 from functools import lru_cache
 
-from compat import filter_canonical_preferences
+from compat import compat_default_extra, filter_canonical_preferences, load_preferences_compat
 from preferences_paths import OUTPUT_CONTRACTS_PATH, PREFERENCES_SCHEMA_PATH
-from text_utils import normalize_choice_token, normalize_text
+from text_utils import normalize_choice_token, normalize_text, repair_text_artifacts
 
 
 PREFERENCE_ALIASES = {
@@ -82,6 +82,13 @@ PREFERENCE_ALIASES = {
 }
 
 DEFAULT_DELEGATION_PREFERENCE = "auto"
+CANONICAL_OPTIONAL_STRING_FIELDS = (
+    "language",
+    "orthography",
+    "tone_detail",
+    "output_quality",
+)
+CANONICAL_LIST_FIELDS = ("custom_rules",)
 DELEGATION_PREFERENCE_ALIASES = {
     "off": "off",
     "none": "off",
@@ -121,12 +128,15 @@ def load_output_contract_profiles() -> dict | None:
     return payload if isinstance(payload, dict) else None
 
 
-def preference_defaults() -> dict[str, str]:
-    defaults: dict[str, str] = {}
+def preference_defaults() -> dict[str, object]:
+    defaults: dict[str, object] = {}
     for key, config in load_preferences_schema().get("properties", {}).items():
         default_value = config.get("default")
-        if isinstance(default_value, str):
-            defaults[key] = default_value
+        if isinstance(default_value, (str, list)):
+            defaults[key] = copy.deepcopy(default_value)
+    for key, value in compat_default_extra(load_preferences_compat()).items():
+        if key not in defaults:
+            defaults[key] = copy.deepcopy(value)
     return defaults
 
 
@@ -179,15 +189,15 @@ def resolve_delegation_preference(
     return DEFAULT_DELEGATION_PREFERENCE, warnings, source
 
 
-def resolve_output_contract(extra: object) -> dict[str, object]:
-    if not isinstance(extra, dict):
+def resolve_output_contract(preferences: object) -> dict[str, object]:
+    if not isinstance(preferences, dict):
         return {}
 
     contract: dict[str, object] = {}
     profiles = load_output_contract_profiles()
     language_profile: dict[str, object] | None = None
 
-    language = extra.get("language")
+    language = preferences.get("language")
     if isinstance(language, str) and language.strip():
         normalized_language = normalize_choice_token(language)
         contract["language"] = normalized_language
@@ -201,7 +211,7 @@ def resolve_output_contract(extra: object) -> dict[str, object]:
                     if isinstance(profile_contract, dict):
                         contract.update(copy.deepcopy(profile_contract))
 
-    orthography = extra.get("orthography")
+    orthography = preferences.get("orthography")
     if isinstance(orthography, str) and orthography.strip():
         normalized_orthography = normalize_choice_token(orthography)
         contract["orthography"] = normalized_orthography
@@ -212,11 +222,11 @@ def resolve_output_contract(extra: object) -> dict[str, object]:
                 if isinstance(profile, dict):
                     contract.update(copy.deepcopy(profile))
 
-    tone_detail = extra.get("tone_detail")
+    tone_detail = preferences.get("tone_detail")
     if isinstance(tone_detail, str) and tone_detail.strip():
         contract["tone_detail"] = tone_detail.strip()
 
-    custom_rules = extra.get("custom_rules")
+    custom_rules = preferences.get("custom_rules")
     if isinstance(custom_rules, list):
         normalized_rules = [item.strip() for item in custom_rules if isinstance(item, str) and item.strip()]
         if normalized_rules:
@@ -237,8 +247,13 @@ def resolve_output_contract(extra: object) -> dict[str, object]:
     return contract
 
 
-def normalize_preferences(payload: object, *, strict: bool = False) -> tuple[dict[str, str], list[str]]:
-    defaults = preference_defaults()
+def normalize_preferences(
+    payload: object,
+    *,
+    strict: bool = False,
+    include_defaults: bool = True,
+) -> tuple[dict[str, object], list[str]]:
+    defaults = preference_defaults() if include_defaults else {}
     warnings: list[str] = []
     if payload is None:
         return defaults, warnings
@@ -248,7 +263,7 @@ def normalize_preferences(payload: object, *, strict: bool = False) -> tuple[dic
         raise ValueError("Preferences payload must be a JSON object.")
 
     properties = load_preferences_schema().get("properties", {})
-    normalized = defaults.copy()
+    normalized = copy.deepcopy(defaults)
     allowed_keys = set(properties)
 
     for key in sorted(payload):
@@ -260,24 +275,93 @@ def normalize_preferences(payload: object, *, strict: bool = False) -> tuple[dic
             continue
 
         raw_value = payload[key]
-        if not isinstance(raw_value, str):
-            message = f"Preference '{key}' must be a string."
-            if strict:
-                raise ValueError(message)
-            warnings.append(message)
+        if key in PREFERENCE_ALIASES:
+            if not isinstance(raw_value, str):
+                message = f"Preference '{key}' must be a string."
+                if strict:
+                    raise ValueError(message)
+                warnings.append(message)
+                continue
+
+            token = normalize_choice_token(raw_value)
+            aliases = PREFERENCE_ALIASES.get(key, {})
+            canonical = aliases.get(token)
+            if canonical is None:
+                allowed = ", ".join(properties[key].get("enum", []))
+                message = f"Preference '{key}' must be one of: {allowed}."
+                if strict:
+                    raise ValueError(message)
+                warnings.append(message)
+                continue
+
+            normalized[key] = canonical
             continue
 
-        token = normalize_choice_token(raw_value)
-        aliases = PREFERENCE_ALIASES.get(key, {})
-        canonical = aliases.get(token)
-        if canonical is None:
-            allowed = ", ".join(properties[key].get("enum", []))
-            message = f"Preference '{key}' must be one of: {allowed}."
-            if strict:
-                raise ValueError(message)
-            warnings.append(message)
+        if key == "delegation_preference":
+            normalized_delegation_preference = normalize_delegation_preference(raw_value)
+            if normalized_delegation_preference is None:
+                message = "Delegation preference must be one of: off, auto, review-lanes, parallel-workers."
+                if strict:
+                    raise ValueError(message)
+                warnings.append(message)
+                continue
+            normalized[key] = normalized_delegation_preference
             continue
 
-        normalized[key] = canonical
+        if key in CANONICAL_OPTIONAL_STRING_FIELDS:
+            if not isinstance(raw_value, str):
+                message = f"Preference '{key}' must be a string."
+                if strict:
+                    raise ValueError(message)
+                warnings.append(message)
+                continue
+            value = repair_text_artifacts(raw_value.strip())
+            if not isinstance(value, str) or not value:
+                message = f"Preference '{key}' must be a non-empty string."
+                if strict:
+                    raise ValueError(message)
+                warnings.append(message)
+                continue
+            normalized[key] = value
+            continue
+
+        if key in CANONICAL_LIST_FIELDS:
+            if not isinstance(raw_value, list):
+                message = f"Preference '{key}' must be a list of strings."
+                if strict:
+                    raise ValueError(message)
+                warnings.append(message)
+                continue
+            values = [
+                repaired
+                for item in raw_value
+                if isinstance(item, str)
+                for repaired in [repair_text_artifacts(item.strip())]
+                if isinstance(repaired, str) and repaired
+            ]
+            if not values:
+                normalized.pop(key, None)
+                continue
+            normalized[key] = values
+            continue
+
+        message = f"Preference '{key}' is not supported."
+        if strict:
+            raise ValueError(message)
+        warnings.append(message)
+
+    delegation_payload = {
+        "delegation_preference": normalized.get("delegation_preference", payload.get("delegation_preference")),
+        "custom_rules": normalized.get("custom_rules", payload.get("custom_rules")),
+    }
+    delegation_preference, delegation_warnings, delegation_source = resolve_delegation_preference(
+        delegation_payload,
+        strict=strict,
+    )
+    for warning in delegation_warnings:
+        if warning not in warnings:
+            warnings.append(warning)
+    if include_defaults or delegation_source != "default" or "delegation_preference" in payload:
+        normalized["delegation_preference"] = delegation_preference
 
     return normalized, warnings

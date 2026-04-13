@@ -15,12 +15,10 @@ Use `forge-antigravity` as the global orchestrator for Gemini workspaces.
 
 - Bundle root: `{{FORGE_ANTIGRAVITY_BUNDLE_ROOT}}`
 - State root: `{{FORGE_ANTIGRAVITY_STATE_ROOT}}`
-- Canonical state layout: `state/preferences.json` + `state/extra_preferences.json` under the state root above.
+- Canonical state layout: `state/preferences.json` under the state root above.
 - Canonical resolver script: `scripts/resolve_preferences.py`
 - Preferences resolver: `{{FORGE_ANTIGRAVITY_RESOLVER}} --workspace <workspace> --format json`
-- Preferences files:
-  - `{{FORGE_ANTIGRAVITY_PREFERENCES_PATH}}`
-  - `{{FORGE_ANTIGRAVITY_EXTRA_PREFERENCES_PATH}}`
+- Preferences file: `{{FORGE_ANTIGRAVITY_PREFERENCES_PATH}}`
 
 ## Scope Of This File
 
@@ -32,7 +30,7 @@ Use `forge-antigravity` as the global orchestrator for Gemini workspaces.
 
 Before the first substantive reply in every new conversation:
 
-1. Restore personalization from the resolver above, or read the two preference files directly when a merged payload is not needed.
+1. Restore personalization from the resolver above, or read the preference file directly when a merged payload is not needed.
 2. Apply language, orthography, tone detail, and custom rules immediately.
 3. If the resolved language is Vietnamese, use full Vietnamese diacritics and repair mojibake instead of copying corrupted text.
 4. If preferences are unavailable, continue with concise, direct, technical output in the host-default language.
@@ -52,7 +50,7 @@ Before the first substantive reply in every new conversation:
 - If no memory data is available, continue from repo state instead of stopping.
 - Keep scope minimal; ask before new dependencies, schema changes, or folder-structure changes.
 - Do not fabricate telemetry, token counters, or progress percentages.
-- Durable preferences live in Antigravity-global adapter state `{{FORGE_ANTIGRAVITY_STATE_ROOT}}`, with canonical fields in `{{FORGE_ANTIGRAVITY_PREFERENCES_PATH}}` and adapter extras in `{{FORGE_ANTIGRAVITY_EXTRA_PREFERENCES_PATH}}`.
+- Durable preferences live in Antigravity-global adapter state `{{FORGE_ANTIGRAVITY_STATE_ROOT}}`, in the canonical file `{{FORGE_ANTIGRAVITY_PREFERENCES_PATH}}`.
 
 ## Global Verification Rule
 

@@ -243,7 +243,10 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
                     payload = json.loads(result.stdout)
 
                     self.assertEqual(payload["state_root"], str(expected_state_root))
-                    self.assertEqual(payload["path"], str((expected_state_root / "state" / "preferences.json").resolve()))
+                    self.assertEqual(
+                        payload["targets"],
+                        [str((expected_state_root / "state" / "preferences.json").resolve())],
+                    )
                     self.assertFalse((home / ".forge").exists())
 
     def test_114_target_and_competitive_closure_tokens_are_visible(self) -> None:

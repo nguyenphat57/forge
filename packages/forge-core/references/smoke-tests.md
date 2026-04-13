@@ -258,7 +258,7 @@ The default is to explain more thoroughly, give more direct feedback, and go fas
 
 - Host adapter route into flow `customize`
 - Preferences are mapped into Forge's canonical schema
-- If the adapter writes preferences, canonical fields go to adapter-global `state/preferences.json` and adapter extras go to `state/extra_preferences.json`
+- If the adapter writes preferences, canonical fields go to the selected `state/preferences.json` or workspace `.brain/preferences.json` scope as one unified object
 - Do not invent separate schema just for hosts
 
 **Fail if**

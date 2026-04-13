@@ -328,15 +328,15 @@
         "id":  "20260413-000000",
         "kind":  "decision",
         "scope":  "forge-2-3-stable-status",
-        "summary":  "Treat 2.3.0 as the current stable Forge release because the end-to-end state machine cut, release sync, and canonical repo verification gate are all green.",
+        "summary":  "Treat 2.3.2 as the current stable Forge release because the unified preferences cut, release sync, and canonical repo verification gate are all green.",
         "status":  "resolved",
         "evidence":  [
                          "CHANGELOG.md",
                          "README.md",
                          "docs/release/public-readiness.md",
                          "docs/release/release-process.md",
-                         "packages/forge-core/scripts/record_stage_state.py",
-                         "packages/forge-core/scripts/bootstrap_workflow_state.py",
+                         "packages/forge-core/scripts/preferences_store.py",
+                         "packages/forge-core/scripts/write_preferences.py",
                          "python scripts/verify_repo.py -> PASS on 2026-04-13"
                      ],
         "next":  [
@@ -349,8 +349,8 @@
                      "routing",
                      "workflow-state"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 2.3.0 verification evidence.",
+        "revisit_if":  "A later release changes the stable line or invalidates the 2.3.2 verification evidence.",
         "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.3.0 proof chain or invalidates the recorded verification."
+        "resume_hint":  "Resume only if a later audit needs the original 2.3.2 proof chain or invalidates the recorded verification."
     }
 ]

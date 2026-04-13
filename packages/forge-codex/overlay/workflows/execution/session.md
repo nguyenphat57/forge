@@ -35,7 +35,7 @@ quality_gates:
 
 ## Operating Rules
 
-- Resolve adapter-global Forge preferences early through `scripts/resolve_preferences.py` so the recap follows the user's response settings; `--workspace` only keeps legacy `.brain/preferences.json` fallback alive.
+- Resolve adapter-global Forge preferences early through `scripts/resolve_preferences.py` so the recap follows the user's response settings; `--workspace` enables repo-local `.brain/preferences.json` overrides when present.
 
 - Repo-first: start from `git status`, changed files, plans, specs, and current docs.
 - Prefer `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, or UI trackers have already persisted a current slice.
@@ -57,7 +57,7 @@ python scripts/session_context.py resume --workspace <workspace> --format json
 1. docs/plans/, docs/specs/, task notes that match the current scope
 2. git status / changed files / recent commits when git exists
 3. `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, or UI trackers have already persisted state
-4. Codex-global split preferences state (`state/preferences.json` + `state/extra_preferences.json`) via `python scripts/resolve_preferences.py --workspace <workspace> --format json`
+4. Codex-global preferences state (`state/preferences.json`) via `python scripts/resolve_preferences.py --workspace <workspace> --format json`
 5. .brain/handover.md
 6. .brain/session.json
 7. .brain/decisions.json

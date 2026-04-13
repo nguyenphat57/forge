@@ -1,7 +1,7 @@
 [
   {
     "name": "merge_preview_with_aliases_from_global_preferences",
-    "workspace_fixture": "preferences_workspace",
+    "workspace_fixture": "no_preferences",
     "forge_home_fixture": "global_preferences",
     "args": [
       "--feedback-style",
@@ -16,18 +16,21 @@
       "autonomy_level": "autonomous",
       "pace": "steady",
       "feedback_style": "balanced",
-      "personality": "strict-coach"
+      "personality": "strict-coach",
+      "delegation_preference": "auto"
     },
     "expected_changed_fields": [
-      "pace",
-      "feedback_style"
+      "feedback_style",
+      "pace"
     ]
   },
   {
-    "name": "replace_preview_resets_unspecified_fields",
+    "name": "replace_preview_resets_unspecified_workspace_fields",
     "workspace_fixture": "preferences_workspace",
-    "forge_home_fixture": "global_preferences",
+    "forge_home_fixture": "empty",
     "args": [
+      "--scope",
+      "workspace",
       "--replace",
       "--technical-level",
       "technical"
@@ -39,21 +42,30 @@
       "autonomy_level": "balanced",
       "pace": "balanced",
       "feedback_style": "balanced",
-      "personality": "default"
+      "personality": "default",
+      "delegation_preference": "auto"
     },
     "expected_changed_fields": [
-      "detail_level",
       "autonomy_level",
-      "pace",
+      "custom_rules",
+      "detail_level",
       "feedback_style",
-      "personality"
+      "language",
+      "orthography",
+      "output_quality",
+      "pace",
+      "personality",
+      "technical_level",
+      "tone_detail"
     ]
   },
   {
-    "name": "workspace_legacy_preferences_are_used_as_migration_base",
+    "name": "workspace_scope_preview_uses_workspace_base",
     "workspace_fixture": "preferences_workspace",
     "forge_home_fixture": "empty",
     "args": [
+      "--scope",
+      "workspace",
       "--feedback-style",
       "balanced",
       "--pace",
@@ -66,11 +78,24 @@
       "autonomy_level": "autonomous",
       "pace": "steady",
       "feedback_style": "balanced",
-      "personality": "mentor"
+      "personality": "mentor",
+      "delegation_preference": "auto",
+      "tone_detail": "Address the user as lead engineer.",
+      "language": "en",
+      "orthography": "plain_english",
+      "output_quality": "production_ready",
+      "custom_rules": [
+        "Keep each file under 300 lines unless a split would reduce clarity.",
+        "Keep one responsibility per file and avoid overlapping concerns.",
+        "Prefer TypeScript over JavaScript.",
+        "Prefer PowerShell over Command Prompt on Windows.",
+        "Use semicolons in PowerShell examples instead of shell chaining operators.",
+        "Log observable evidence before guessing a root cause."
+      ]
     },
     "expected_changed_fields": [
-      "pace",
-      "feedback_style"
+      "feedback_style",
+      "pace"
     ]
   }
 ]

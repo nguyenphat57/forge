@@ -8,12 +8,11 @@
 - Canonical resolver: `scripts/resolve_preferences.py`
 - Canonical writer: `scripts/write_preferences.py`
 - Installed adapters default to adapter-global state under `<host-home>/<adapter-name>/state/`
-- Canonical fields persist in `state/preferences.json`
-- Adapter-global extras persist in `state/extra_preferences.json`
+- Canonical preferences persist in `state/preferences.json`
 - `$FORGE_HOME` remains the explicit dev/test override root
 - Adapters may ship `data/preferences-compat.json` to translate legacy host-native payloads back into the canonical schema without forking core logic
-- Adapters may ship `data/output-contracts.json` to expand bundle-local language or orthography policies from generic extra fields
-- `output_contract` is still derived from `extra` and remains part of the public resolver/writer output
+- Adapters may ship `data/output-contracts.json` to expand bundle-local language or orthography policies from generic canonical preference fields
+- `output_contract` is derived from canonical preferences and remains part of the public resolver/writer output
 
 ## Supported Fields
 
@@ -28,34 +27,23 @@
 
 ## Persistence Layout
 
-Steady-state adapter-global persistence uses two files:
+Steady-state persistence uses one canonical file per scope:
 
 ```text
 <adapter-home>/state/
-|-- preferences.json
-`-- extra_preferences.json
+`-- preferences.json
 ```
 
-`preferences.json` contains only the six canonical fields.
+`state/preferences.json` and workspace `.brain/preferences.json` both use the same flat canonical object. Workspace files stay sparse and only persist selected repo-local overrides.
 
-`extra_preferences.json` contains adapter-global extras such as:
-
-- `language`
-- `orthography`
-- `tone_detail`
-- `output_quality`
-- `custom_rules`
-
-Legacy single-file state is still readable during rollout, but new durable writes target the split-file layout.
+Legacy split or native state is still readable during rollout, but new durable writes target the unified canonical layout.
 
 ## Resolution Order
 
 1. If `--preferences-file` is provided, inspect that file read-only and fail if it does not exist.
-2. If adapter-global split-file state exists, read `state/preferences.json` plus sibling `state/extra_preferences.json` when present.
-3. If only adapter-global `state/preferences.json` exists, read it as canonical or legacy single-file state.
-4. If there is no adapter-global state and `--workspace` is provided, read legacy `.brain/preferences.json` as canonical fallback.
-5. When adapter-global state exists, workspace `.brain/preferences.json` may still contribute workspace-local extra overrides.
-6. If no valid file exists, use schema defaults plus any compat defaults.
+2. If adapter-global `state/preferences.json` exists, read it as canonical or legacy native state.
+3. If `--workspace` is provided and `.brain/preferences.json` exists, overlay it per key on top of adapter-global state.
+4. If no valid file exists, use schema defaults plus any compat defaults.
 
 Important:
 
@@ -80,7 +68,7 @@ The resolver does not create host-specific command surfaces. It returns a respon
 - feedback style
 - tone, teaching mode, and challenge level
 
-When `extra` contains host-native rules, core also emits `output_contract` for:
+When canonical preferences contain host-native rules, core also emits `output_contract` for:
 
 - language policy
 - orthography policy
@@ -94,36 +82,35 @@ When `extra` contains host-native rules, core also emits `output_contract` for:
 When an adapter wants to record durable preferences:
 
 ```powershell
-python scripts/write_preferences.py --technical-level newbie --pace fast --feedback-style direct --apply
-python scripts/write_preferences.py --language en --orthography plain_english --apply
-python scripts/write_preferences.py --clear-language --clear-orthography --apply
+python scripts/write_preferences.py --technical-level newbie --pace fast --feedback-style direct --scope global --apply
+python scripts/write_preferences.py --language en --orthography plain_english --scope workspace --apply
+python scripts/write_preferences.py --clear-field language --clear-field orthography --scope workspace --apply
 ```
 
 Rules:
 
 - The writer merges with existing preferences by default
-- `--replace` resets omitted canonical fields to schema defaults
+- `--replace` clears the target scope first, then writes only explicit keys
 - Durable adapter-wide language or orthography rules should go through `scripts/write_preferences.py`
 - Workspace-local overrides may still live in `.brain/preferences.json` when the user explicitly wants repo-specific behavior
 - Adapters cannot invent host-local canonical schema or change the meaning of the six canonical fields
-- Applying a write may migrate legacy adapter-global single-file state into split canonical + extra files
+- Applying a write may migrate legacy adapter-global split or native state into the unified canonical file
 
 ## Workspace Legacy Behavior
 
-Workspace `.brain/preferences.json` is still supported as:
+Workspace `.brain/preferences.json` is supported as:
 
-- legacy canonical fallback when no adapter-global state exists
-- workspace-local extra override when a repo needs rules different from the adapter-wide default
+- workspace-local override when a repo needs rules different from the adapter-wide default
 
-This means workspace legacy is not reduced to extras-only. Existing repos that still rely on canonical fields in `.brain/preferences.json` continue to resolve correctly.
+Existing repos that already rely on canonical fields in `.brain/preferences.json` continue to resolve correctly.
 
 ## Writing Templates
 
 Use the writer for adapter-wide durable rules:
 
 ```powershell
-python scripts/write_preferences.py --language en --orthography plain_english --apply
-python scripts/write_preferences.py --language en --clear-orthography --apply
+python scripts/write_preferences.py --language en --orthography plain_english --scope global --apply
+python scripts/write_preferences.py --language en --clear-field orthography --scope workspace --apply
 ```
 
 Use workspace `.brain/preferences.json` only when the repo needs local overrides that should not become adapter-wide defaults.
@@ -167,7 +154,7 @@ Operator rule:
 
 - If the user asks how to set language durably, point to `scripts/write_preferences.py` first
 - Only point to workspace `.brain/preferences.json` when the user explicitly wants workspace-scoped behavior or a repo-specific override
-- Only surface the six canonical fields when the user is changing tone, detail, autonomy, pace, feedback, or personality
+- Only surface grouped display sections for readability; storage stays one flat canonical object
 
 ## Adapter Boundary
 

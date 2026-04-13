@@ -62,19 +62,25 @@ def translate_preferences_payload(payload: object, compat: dict | None = None) -
     if not isinstance(read_config, dict):
         return payload
 
-    fields = read_config.get("canonical_fields")
-    if not isinstance(fields, dict):
-        return payload
-
     translated: dict[str, object] = {}
-    for key, entry in fields.items():
-        if not isinstance(entry, dict):
-            continue
+    fields = read_config.get("canonical_fields")
+    if isinstance(fields, dict):
+        for key, entry in fields.items():
+            if not isinstance(entry, dict):
+                continue
+            for path in compat_entry_paths(entry):
+                raw_value = get_nested_value(payload, path)
+                if raw_value is None:
+                    continue
+                translated[key] = compat_read_value(raw_value, entry)
+                break
+
+    for key, entry in compat_extra_fields(compat).items():
         for path in compat_entry_paths(entry):
             raw_value = get_nested_value(payload, path)
             if raw_value is None:
                 continue
-            translated[key] = compat_read_value(raw_value, entry)
+            translated[key] = copy.deepcopy(compat_read_value(raw_value, entry))
             break
 
     return translated
@@ -130,8 +136,7 @@ def filter_canonical_preferences(raw_payload: object, compat_config: dict | None
     if preferences_compat_matches(raw_payload, compat):
         return translate_preferences_payload(raw_payload, compat)
 
-    allowed_keys = canonical_preference_keys()
-    return {key: raw_payload[key] for key in raw_payload if key in allowed_keys}
+    return copy.deepcopy(raw_payload)
 
 
 def resolve_extra_preferences(

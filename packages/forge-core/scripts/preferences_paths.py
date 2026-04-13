@@ -23,7 +23,8 @@ INSTALL_MANIFEST_PATH = ROOT_DIR / "INSTALL-MANIFEST.json"
 BUILD_MANIFEST_PATH = ROOT_DIR / "BUILD-MANIFEST.json"
 DEFAULT_FALLBACK_STATE_ROOT = Path.home() / ".forge"
 GLOBAL_PREFERENCES_RELATIVE_PATH = Path("state") / "preferences.json"
-GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH = Path("state") / "extra_preferences.json"
+LEGACY_GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH = Path("state") / "extra_preferences.json"
+GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH = LEGACY_GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH
 LEGACY_WORKSPACE_PREFERENCES_RELATIVE_PATH = Path(".brain") / "preferences.json"
 
 
@@ -129,12 +130,12 @@ def resolve_installed_preferences_path() -> Path | None:
 def resolve_installed_extra_preferences_path() -> Path | None:
     installed_preferences_path = resolve_installed_preferences_path()
     if installed_preferences_path is not None:
-        return installed_preferences_path.with_name(GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH.name)
+        return installed_preferences_path.with_name(LEGACY_GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH.name)
 
     state_root = resolve_installed_state_root()
     if state_root is None:
         return None
-    return state_root / GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH
+    return state_root / LEGACY_GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH
 
 
 def resolve_forge_home(forge_home: Path | str | None = None) -> Path:
@@ -166,7 +167,7 @@ def resolve_global_extra_preferences_path(forge_home: Path | str | None = None) 
         installed_extra_path = resolve_installed_extra_preferences_path()
         if installed_extra_path is not None:
             return installed_extra_path
-    return resolve_forge_home(forge_home) / GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH
+    return resolve_forge_home(forge_home) / LEGACY_GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH
 
 
 def resolve_workspace_preferences_path(workspace: Path | None = None) -> Path:

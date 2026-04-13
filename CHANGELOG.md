@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.2 (stable) - 2026-04-13
+
+- Unify preference persistence into a single canonical `preferences.json` per scope, retire `extra_preferences.json` from steady-state storage, and make workspace preferences a first-class sparse override over global state.
+- Extend `resolve_preferences.py`, `write_preferences.py`, and `repo_operator.py customize` with flat canonical fields, per-key source reporting, scoped writes across `global`, `workspace`, and `both`, plus legacy split-state migration with backup.
+- Refresh install/build metadata, generated Codex and Antigravity runtime artifacts, and regression coverage so source repo, dist bundles, and installed runtimes all verify against the unified preference contract.
+
+
 ## 2.3.1 (stable) - 2026-04-13
 
 - Describe release changes.

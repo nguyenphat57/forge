@@ -9,7 +9,7 @@ triggers:
 quality_gates:
   - Current preferences are inspected first
   - Durable changes use the core canonical schema and writer
-  - Durable language rules live in adapter-global extras; workspace `.brain/preferences.json` is only for workspace-specific overrides
+  - Durable language rules live in the unified canonical preferences object; workspace `.brain/preferences.json` is a first-class repo-local scope
   - The response states what changed and how interaction will feel different
 ---
 
@@ -22,7 +22,7 @@ quality_gates:
 Fast path for language requests:
 
 - If the user only asks how to set language, Vietnamese diacritics, or writing conventions:
-  - point first to durable adapter-global updates through `scripts/write_preferences.py`
+  - point first to durable updates through `scripts/write_preferences.py`
   - only point to workspace `.brain/preferences.json` when they explicitly want repo-scoped overrides
   - reuse the short templates in `references/personalization.md`
 
@@ -41,23 +41,23 @@ python scripts/resolve_preferences.py --format json
    - `personality`
 
 3. If the user wants durable language, orthography, or host-native writing rules:
-   - persist them through adapter-global extras with `scripts/write_preferences.py`
-   - keep them out of the six canonical fields
+   - persist them through the unified canonical preferences file with `scripts/write_preferences.py`
+   - offer `--scope global|workspace|both` and keep workspace files sparse
    - use workspace `.brain/preferences.json` only for workspace-only overrides
 
 4. Preview or persist using the core writer:
 
 ```powershell
 python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct
-python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct --apply
-python scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --apply
+python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct --scope global --apply
+python scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --scope workspace --apply
 ```
 
 5. Persistence notes:
-   - canonical fields persist in `state/preferences.json`
-   - extras persist in `state/extra_preferences.json`
+   - adapter-global preferences persist in `state/preferences.json`
+   - workspace-local overrides persist in `.brain/preferences.json`
    - explicit `resolve_preferences.py --preferences-file ...` stays read-only
-   - legacy single-file adapter-global state may be migrated on `--apply`
+   - legacy split or native state may be migrated on `--apply`
 
 6. Short answer:
    - which fields changed
