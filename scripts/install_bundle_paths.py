@@ -91,7 +91,7 @@ def _resolve_state_root(
             canonical_target = (resolve_gemini_home(gemini_home) / "antigravity" / "skills" / bundle_name).resolve()
             if target_path.resolve() != canonical_target:
                 return resolve_adapter_state_root(target_path)
-            return (resolve_gemini_home(gemini_home) / Path(path_relative)).resolve()
+            return (resolve_gemini_home(gemini_home) / "antigravity" / Path(path_relative)).resolve()
     return resolve_adapter_state_root(target_path)
 
 

@@ -96,6 +96,8 @@ class AntigravityHostInstallTests(unittest.TestCase):
             manifest = json.loads((target / "INSTALL-MANIFEST.json").read_text(encoding="utf-8"))
             self.assertTrue(manifest["gemini_host_activation"]["enabled"])
             self.assertEqual(manifest["gemini_host_activation"]["gemini_md_path"], str(gemini_md_path.resolve()))
+            self.assertEqual(manifest["state"]["root"], expected_state_root)
+            self.assertEqual(manifest["state"]["preferences_path"], expected_preferences)
             self.assertTrue(manifest["bundle_fingerprint"]["host_mutation_expected"])
             self.assertTrue(manifest["bundle_fingerprint"]["matches_source"])
             self.assertEqual(len(manifest["bundle_fingerprint"]["installed"]["sha256"]), 64)
