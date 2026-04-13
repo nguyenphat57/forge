@@ -6,7 +6,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from common import configure_stdio, default_artifact_dir, slugify, timestamp_slug
-from workflow_state_support import record_workflow_event
+from record_stage_state import persist_stage_report
+
+
+# DEPRECATED(state-machine-cutover): remove after first stable release following generic stage-state rollout.
 
 
 VALID_STAGE_STATUSES = ("pending", "required", "active", "completed", "skipped", "blocked")
@@ -65,22 +68,14 @@ def format_text(report: dict) -> str:
 
 
 def persist_report(report: dict, output_dir: str | None) -> tuple[Path, Path]:
-    artifact_dir = default_artifact_dir(output_dir, "direction") / slugify(report["project"])
-    history_dir = artifact_dir / "history"
-    history_dir.mkdir(parents=True, exist_ok=True)
-    stem = f"{timestamp_slug()}-{slugify(report['summary'])[:48]}"
-    latest_json = artifact_dir / "latest.json"
-    latest_md = artifact_dir / "latest.md"
-    json_path = history_dir / f"{stem}.json"
-    md_path = history_dir / f"{stem}.md"
-    payload = json.dumps(report, indent=2, ensure_ascii=False)
-    latest_json.write_text(payload, encoding="utf-8")
-    json_path.write_text(payload, encoding="utf-8")
-    text = format_text(report)
-    latest_md.write_text(text, encoding="utf-8")
-    md_path.write_text(text, encoding="utf-8")
-    record_workflow_event("direction-state", report, output_dir=output_dir, source_path=json_path)
-    return json_path, md_path
+    return persist_stage_report(
+        report,
+        output_dir,
+        artifact_kind="direction",
+        workflow_kind="direction-state",
+        stem_label=report["summary"],
+        formatter=format_text,
+    )
 
 
 def main() -> int:

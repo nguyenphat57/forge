@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.0 (stable) - 2026-04-13
+
+- Upgrade the build chain into a canonical end-to-end workflow-state machine by adding schema `v1`, a generic stage-state recorder, bootstrap seeding, stale-transition guards, and canonical stage-ledger normalization for `help`, `next`, `save`, and `resume`.
+- Cut `help`, `next`, and session continuity consumers over to canonical workflow-state so plan or spec docs, session or handover notes, packet index, and legacy workflow artifacts remain sidecars until bootstrap seeds the machine root.
+- Add repo-operator `bootstrap`, extend regression coverage for bootstrap, blocked or override transitions, empty or corrupt machine roots, and deploy or secure edge cases, then refactor workflow-state internals into smaller focused modules while keeping release and bundle contracts stable.
+
+
 ## 2.2.0 (stable) - 2026-04-12
 
 - Remove the retired runtime-era package subtrees from the repo and clean current docs so historical runtime-tool names remain only in archive/history surfaces and git history.

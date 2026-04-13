@@ -7,7 +7,11 @@ from pathlib import Path
 
 from common import configure_stdio, default_artifact_dir, slugify, timestamp_slug
 from quality_gate_artifacts import validate_supporting_artifacts
-from workflow_state_support import record_workflow_event, resolve_workflow_state
+from record_stage_state import persist_stage_report
+from workflow_state_support import resolve_workflow_state
+
+
+# DEPRECATED(state-machine-cutover): remove after first stable release following generic stage-state rollout.
 
 
 VALID_PROFILES = (
@@ -100,15 +104,14 @@ def format_text(report: dict) -> str:
 
 
 def persist_report(report: dict, output_dir: str | None) -> tuple[Path, Path]:
-    artifact_dir = default_artifact_dir(output_dir, "quality-gates") / slugify(report["project"])
-    artifact_dir.mkdir(parents=True, exist_ok=True)
-    stem = f"{timestamp_slug()}-{report['decision']}-{slugify(report['target_claim'])}"
-    json_path = artifact_dir / f"{stem}.json"
-    md_path = artifact_dir / f"{stem}.md"
-    json_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
-    md_path.write_text(format_text(report), encoding="utf-8")
-    record_workflow_event("quality-gate", report, output_dir=output_dir, source_path=json_path)
-    return json_path, md_path
+    return persist_stage_report(
+        report,
+        output_dir,
+        artifact_kind="quality-gates",
+        workflow_kind="quality-gate",
+        stem_label=f"{report['decision']}-{report['target_claim']}",
+        formatter=format_text,
+    )
 
 
 def main() -> int:

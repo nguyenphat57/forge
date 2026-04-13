@@ -52,6 +52,7 @@ class RepoOperatorScriptShimTests(unittest.TestCase):
         self.assertIn("python scripts/repo_operator.py handover --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
         self.assertIn("python scripts/repo_operator.py help --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
         self.assertIn("python scripts/repo_operator.py next --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
+        self.assertIn("python scripts/repo_operator.py bootstrap --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
         self.assertIn("python scripts/repo_operator.py run --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
         self.assertIn("python scripts/repo_operator.py bump --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
         self.assertIn("python scripts/repo_operator.py rollback --scope <scope> --format json", agents)
@@ -103,10 +104,37 @@ class RepoOperatorScriptShimTests(unittest.TestCase):
 
         self.assertEqual(report["status"], "PASS")
         self.assertEqual(report["mode"], "resume")
-        self.assertEqual(report["current_stage"], "session-active")
-        self.assertEqual(report["current_focus"], "Session task: Finish checkout retry slice")
+        self.assertEqual(report["current_stage"], "unscoped")
+        self.assertEqual(report["current_focus"], "No active work slice detected from repo state.")
         self.assertEqual(report["pending_work"], ["Run browser QA on checkout"])
         self.assertIn("Verification: pytest tests/test_checkout.py", report["relevant_continuity"])
+
+    def test_repo_operator_bootstrap_seeds_canonical_workflow_state(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir) / "workspace"
+            workspace.mkdir(parents=True, exist_ok=True)
+            (workspace / "README.md").write_text("# Checkout Workspace\n", encoding="utf-8")
+            (workspace / "docs" / "plans").mkdir(parents=True, exist_ok=True)
+            (workspace / "docs" / "plans" / "checkout.md").write_text(
+                "# Plan: Checkout rollback hardening\n\n- Validate retry path.\n",
+                encoding="utf-8",
+            )
+
+            bootstrapped = self._run_repo_operator(
+                "bootstrap",
+                "--workspace",
+                str(workspace),
+                "--project-name",
+                "Checkout Workspace",
+                "--format",
+                "json",
+            )
+            self.assertEqual(bootstrapped.returncode, 0, bootstrapped.stderr)
+            report = json.loads(bootstrapped.stdout)
+
+        self.assertEqual(report["status"], "PASS")
+        self.assertEqual(report["bootstrap_source"], "plan")
+        self.assertTrue(report["latest_path"].endswith("latest.json"))
 
     def test_repo_operator_rejects_unknown_action(self) -> None:
         result = self._run_repo_operator("unknown-action")

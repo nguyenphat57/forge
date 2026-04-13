@@ -1,30 +1,74 @@
 from __future__ import annotations
 
+from workflow_state_canonical import (
+    SCHEMA_VERSION,
+    canonical_chain,
+    canonical_stage_summary,
+    normalize_summary_workflow,
+    normalized_last_transition,
+)
 from workflow_state_io import string_list
-from workflow_state_summary import summarize_workflow_state, workflow_hint_for_stage
+from workflow_state_summary import summarize_workflow_state
+
+
+LATEST_ENTRY_FIELDS = (
+    "latest_chain",
+    "latest_execution",
+    "latest_ui",
+    "latest_run",
+    "latest_gate",
+    "latest_review",
+    "latest_route_preview",
+    "latest_direction",
+    "latest_spec_review",
+)
+
+
+def latest_entries_from_state(state: dict | None) -> dict[str, dict | None]:
+    payload = state if isinstance(state, dict) else {}
+    return {field: payload.get(field) if isinstance(payload.get(field), dict) else None for field in LATEST_ENTRY_FIELDS}
+
+
+def _summary_from_latest_entries(latest_entries: dict[str, dict | None], *, preferred_kind: str | None) -> dict:
+    return summarize_workflow_state(
+        latest_entries.get("latest_chain"),
+        latest_entries.get("latest_execution"),
+        latest_entries.get("latest_ui"),
+        latest_entries.get("latest_run"),
+        latest_entries.get("latest_gate"),
+        latest_entries.get("latest_review"),
+        latest_entries.get("latest_route_preview"),
+        preferred_kind=preferred_kind,
+    )
 
 
 def build_workflow_state(
     *,
     project: str,
     preferred_kind: str,
-    latest_chain: dict | None,
-    latest_execution: dict | None,
-    latest_ui: dict | None,
-    latest_run: dict | None,
-    latest_gate: dict | None,
-    latest_review: dict | None,
-    latest_route_preview: dict | None,
-    latest_direction: dict | None,
-    latest_spec_review: dict | None,
+    latest_entries: dict[str, dict | None],
     profile: str | None,
     intent: str | None,
     current_stage: str | None,
     required_stage_chain: list[str],
     stages: dict,
+    last_transition: dict | None,
     updated_at: str,
 ) -> dict:
+    normalized_latest_entries = latest_entries_from_state(latest_entries)
+    summary = _summary_from_latest_entries(normalized_latest_entries, preferred_kind=preferred_kind)
+    canonical_summary = canonical_stage_summary(
+        last_transition,
+        current_stage=current_stage,
+        required_stage_chain=required_stage_chain,
+        stages=stages if isinstance(stages, dict) else {},
+    )
+    if preferred_kind == "stage-state" and canonical_summary is not None:
+        summary = canonical_summary
+    elif isinstance(summary, dict) and summary.get("status") == "empty" and canonical_summary is not None:
+        summary = canonical_summary
     return {
+        "schema_version": SCHEMA_VERSION,
         "project": project,
         "updated_at": updated_at,
         "last_recorded_kind": preferred_kind,
@@ -33,31 +77,16 @@ def build_workflow_state(
         "current_stage": current_stage,
         "required_stage_chain": required_stage_chain,
         "stages": stages,
-        "latest_chain": latest_chain,
-        "latest_execution": latest_execution,
-        "latest_ui": latest_ui,
-        "latest_run": latest_run,
-        "latest_gate": latest_gate,
-        "latest_review": latest_review,
-        "latest_route_preview": latest_route_preview,
-        "latest_direction": latest_direction,
-        "latest_spec_review": latest_spec_review,
-        "summary": summarize_workflow_state(
-            latest_chain,
-            latest_execution,
-            latest_ui,
-            latest_run,
-            latest_gate,
-            latest_review,
-            latest_route_preview,
-            preferred_kind=preferred_kind,
-        ),
+        "last_transition": last_transition,
+        **normalized_latest_entries,
+        "summary": summary,
     }
 
 
 def build_packet_index(state: dict) -> dict:
-    latest_execution = state.get("latest_execution") if isinstance(state.get("latest_execution"), dict) else {}
-    latest_chain = state.get("latest_chain") if isinstance(state.get("latest_chain"), dict) else {}
+    latest_entries = latest_entries_from_state(state)
+    latest_execution = latest_entries["latest_execution"] or {}
+    latest_chain = latest_entries["latest_chain"] or {}
     summary = state.get("summary") if isinstance(state.get("summary"), dict) else {}
     active_packets = string_list(latest_chain.get("active_packets"))
     packet_id = latest_execution.get("packet_id")
@@ -111,34 +140,33 @@ def merge_browser_proof_into_execution(current_execution: dict | None, run_entry
 
 def refresh_loaded_summary(state: dict) -> dict:
     refreshed = dict(state)
+    refreshed["schema_version"] = (
+        refreshed.get("schema_version")
+        if isinstance(refreshed.get("schema_version"), int) and refreshed.get("schema_version") >= 1
+        else SCHEMA_VERSION
+    )
+    refreshed["last_transition"] = normalized_last_transition(refreshed)
+
     summary = refreshed.get("summary")
     if not isinstance(summary, dict):
-        refreshed["summary"] = summarize_workflow_state(
-            refreshed.get("latest_chain"),
-            refreshed.get("latest_execution"),
-            refreshed.get("latest_ui"),
-            refreshed.get("latest_run"),
-            refreshed.get("latest_gate"),
-            refreshed.get("latest_review"),
-            refreshed.get("latest_route_preview"),
+        refreshed["summary"] = _summary_from_latest_entries(
+            latest_entries_from_state(refreshed),
             preferred_kind=refreshed.get("last_recorded_kind"),
         )
-        return refreshed
+    else:
+        refreshed["summary"] = normalize_summary_workflow(summary, refreshed.get("current_stage"))
 
-    normalized_summary = dict(summary)
-    primary_kind = normalized_summary.get("primary_kind")
-    default_workflow = {
-        "execution-progress": "build",
-        "quality-gate": "review",
-        "review-state": "review",
-        "route-preview": "plan",
-        "run-report": "test",
-        "ui-progress": "session",
-        "chain-status": "session",
-    }.get(primary_kind, "session")
-    normalized_summary["suggested_workflow"] = workflow_hint_for_stage(
-        normalized_summary.get("suggested_workflow") or normalized_summary.get("current_stage") or refreshed.get("current_stage"),
-        default=default_workflow,
+    canonical_summary = canonical_stage_summary(
+        refreshed.get("last_transition"),
+        current_stage=refreshed.get("current_stage"),
+        required_stage_chain=canonical_chain(refreshed),
+        stages=refreshed.get("stages") if isinstance(refreshed.get("stages"), dict) else {},
     )
-    refreshed["summary"] = normalized_summary
+    if canonical_summary is not None and (
+        refreshed.get("last_recorded_kind") == "stage-state"
+        or refreshed["summary"].get("status") == "empty"
+    ):
+        refreshed["summary"] = canonical_summary
+
+    refreshed["summary"] = normalize_summary_workflow(refreshed["summary"], refreshed.get("current_stage"))
     return refreshed

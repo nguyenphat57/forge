@@ -4,17 +4,23 @@ import json
 from pathlib import Path
 
 from common import default_artifact_dir, slugify
-from workflow_state_io import mtime_rank, now_iso, pick_latest_json, pick_latest_named_json, read_json_object, string_list
+from workflow_stage_machine import (
+    current_stage_after_transition,
+    seed_required_stages,
+    stage_entry,
+    transition_entry,
+    validate_transition,
+)
+from workflow_state_io import pick_latest_named_json, read_json_object, string_list
 from workflow_state_projection import (
     build_packet_index,
     build_workflow_state,
+    latest_entries_from_state,
     merge_browser_proof_into_execution,
     refresh_loaded_summary,
-    route_preview_current_stage,
     route_preview_detected,
     route_preview_required_stage_chain,
     route_preview_stage_entries,
-    stage_entry,
     workflow_entry,
 )
 
@@ -23,49 +29,76 @@ WORKFLOW_STATE_DIR = "workflow-state"
 EVENT_RETENTION = 200
 
 
+def _event_root(output_dir: str | None, project: str) -> Path:
+    root = default_artifact_dir(output_dir, WORKFLOW_STATE_DIR) / slugify(project)
+    root.mkdir(parents=True, exist_ok=True)
+    return root
+
+
+def _merge_stage_snapshot(stages: dict, stage_snapshot: tuple[str, dict] | None) -> dict:
+    merged = dict(stages) if isinstance(stages, dict) else {}
+    if stage_snapshot is None:
+        return merged
+    stage_name, snapshot = stage_snapshot
+    existing = merged.get(stage_name, {})
+    merged[stage_name] = {**existing, **snapshot}
+    return merged
+
+
 def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = None, source_path: Path | None = None) -> tuple[Path, Path]:
     entry = workflow_entry(kind, report, source_path)
-    if entry is None:
+    transition = transition_entry(kind, report, str(source_path) if source_path else None)
+    if entry is None and transition is None:
         raise ValueError(f"Workflow event '{kind}' requires a JSON object report.")
 
-    root = default_artifact_dir(output_dir, WORKFLOW_STATE_DIR) / slugify(str(entry.get("project", "workspace")))
-    root.mkdir(parents=True, exist_ok=True)
+    project = (
+        str((entry or {}).get("project") or report.get("project") or "workspace")
+        if isinstance(report, dict)
+        else "workspace"
+    )
+    root = _event_root(output_dir, project)
     latest_path = root / "latest.json"
-    current = read_json_object(latest_path, "workflow state", []) if latest_path.exists() else {}
-    stages = dict(current.get("stages", {})) if isinstance(current.get("stages"), dict) else {}
-    required_stage_chain = string_list(report.get("required_stage_chain")) or string_list(current.get("required_stage_chain"))
+    current_payload = read_json_object(latest_path, "workflow state", []) if latest_path.exists() else {}
+    current = refresh_loaded_summary(current_payload) if isinstance(current_payload, dict) else {}
 
+    if transition is not None:
+        validate_transition(current, transition)
+
+    recorded_at = (
+        str((entry or {}).get("recorded_at") or (transition or {}).get("recorded_at") or report.get("recorded_at"))
+        if isinstance(report, dict)
+        else None
+    )
+    required_stage_chain = string_list(report.get("required_stage_chain")) if isinstance(report, dict) else []
     if not required_stage_chain and kind == "route-preview":
         required_stage_chain = route_preview_required_stage_chain(report)
-    for stage_name in required_stage_chain:
-        existing = stages.get(stage_name)
-        if isinstance(existing, dict):
-            continue
-        stages[stage_name] = {
-            "status": "required",
-            "updated_at": entry["recorded_at"],
-            "source_path": None,
-        }
+    if not required_stage_chain:
+        required_stage_chain = string_list(current.get("required_stage_chain"))
+
+    stages = seed_required_stages(
+        current.get("stages") if isinstance(current.get("stages"), dict) else {},
+        required_stage_chain,
+        recorded_at or current.get("updated_at") or "",
+    )
     if kind == "route-preview":
+        preview_recorded_at = str((entry or {}).get("recorded_at") or report.get("recorded_at"))
         for stage_name, snapshot in route_preview_stage_entries(
             report,
-            updated_at=entry["recorded_at"],
+            updated_at=preview_recorded_at,
             source_path=source_path,
         ).items():
             existing = stages.get(stage_name, {})
             stages[stage_name] = {**existing, **snapshot}
+    stages = _merge_stage_snapshot(stages, stage_entry(kind, report, source_path))
 
-    stage_snapshot = stage_entry(kind, report, source_path)
-    if stage_snapshot is not None:
-        stage_name, snapshot = stage_snapshot
-        existing = stages.get(stage_name, {})
-        stages[stage_name] = {**existing, **snapshot}
-
-    current_stage = report.get("current_stage")
-    profile = report.get("operating_profile") or report.get("profile")
-    intent = report.get("intent")
-    if kind == "route-preview" and not current_stage:
-        current_stage = route_preview_current_stage(report, current.get("current_stage"))
+    current_stage = current_stage_after_transition(
+        current.get("current_stage"),
+        required_stage_chain,
+        stages,
+        transition,
+    )
+    profile = report.get("operating_profile") or report.get("profile") or current.get("profile") if isinstance(report, dict) else current.get("profile")
+    intent = report.get("intent") or current.get("intent") if isinstance(report, dict) else current.get("intent")
     if kind == "route-preview":
         detected = route_preview_detected(report)
         profile = detected.get("profile") or profile
@@ -75,24 +108,32 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
     if kind == "run-report":
         latest_execution = merge_browser_proof_into_execution(latest_execution, entry)
 
+    latest_entries = latest_entries_from_state(current)
+    latest_entries.update(
+        {
+            "latest_chain": entry if kind == "chain-status" else latest_entries.get("latest_chain"),
+            "latest_execution": latest_execution,
+            "latest_ui": entry if kind == "ui-progress" else latest_entries.get("latest_ui"),
+            "latest_run": entry if kind == "run-report" else latest_entries.get("latest_run"),
+            "latest_gate": entry if kind == "quality-gate" else latest_entries.get("latest_gate"),
+            "latest_review": entry if kind == "review-state" else latest_entries.get("latest_review"),
+            "latest_route_preview": entry if kind == "route-preview" else latest_entries.get("latest_route_preview"),
+            "latest_direction": entry if kind == "direction-state" else latest_entries.get("latest_direction"),
+            "latest_spec_review": entry if kind == "spec-review-state" else latest_entries.get("latest_spec_review"),
+        }
+    )
+
     state = build_workflow_state(
-        project=entry["project"],
+        project=project,
         preferred_kind=kind,
-        latest_chain=entry if kind == "chain-status" else current.get("latest_chain"),
-        latest_execution=latest_execution,
-        latest_ui=entry if kind == "ui-progress" else current.get("latest_ui"),
-        latest_run=entry if kind == "run-report" else current.get("latest_run"),
-        latest_gate=entry if kind == "quality-gate" else current.get("latest_gate"),
-        latest_review=entry if kind == "review-state" else current.get("latest_review"),
-        latest_route_preview=entry if kind == "route-preview" else current.get("latest_route_preview"),
-        latest_direction=entry if kind == "direction-state" else current.get("latest_direction"),
-        latest_spec_review=entry if kind == "spec-review-state" else current.get("latest_spec_review"),
-        profile=profile or current.get("profile"),
-        intent=intent or current.get("intent"),
-        current_stage=current_stage or (stage_snapshot[0] if stage_snapshot else current.get("current_stage")),
+        latest_entries=latest_entries,
+        profile=profile,
+        intent=intent,
+        current_stage=current_stage,
         required_stage_chain=required_stage_chain,
         stages=stages,
-        updated_at=entry["recorded_at"],
+        last_transition=transition or current.get("last_transition"),
+        updated_at=str((entry or {}).get("recorded_at") or (transition or {}).get("recorded_at") or current.get("updated_at")),
     )
     packet_index = build_packet_index(state)
     state["packet_index"] = packet_index
@@ -104,10 +145,13 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
     events_path = root / "events.jsonl"
     event = {
         "kind": kind,
-        "label": entry["label"],
-        "project": entry["project"],
-        "recorded_at": entry["recorded_at"],
-        "source_path": entry["source_path"],
+        "label": (entry or {}).get("label") or project,
+        "project": project,
+        "recorded_at": (entry or {}).get("recorded_at") or (transition or {}).get("recorded_at"),
+        "source_path": (entry or {}).get("source_path") or (transition or {}).get("source_path"),
+        "stage_name": (transition or {}).get("stage_name"),
+        "stage_status": (transition or {}).get("stage_status"),
+        "transition_id": (transition or {}).get("transition_id"),
     }
     with events_path.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(event, ensure_ascii=False) + "\n")
@@ -132,71 +176,10 @@ def resolve_workflow_state(workspace: Path, warnings: list[str] | None = None) -
                 packet_index_payload = read_json_object(packet_index_path, "packet index", local_warnings) if packet_index_path else None
                 refreshed["packet_index"] = packet_index_payload if isinstance(packet_index_payload, dict) else build_packet_index(refreshed)
             return {"state": refreshed, "path": str(latest_path), "source": "workflow-state"}
-
-    if packet_index_path is not None:
-        packet_index_payload = read_json_object(packet_index_path, "packet index", local_warnings)
-        if isinstance(packet_index_payload, dict):
-            state = {
-                "project": packet_index_payload.get("project", "workspace"),
-                "updated_at": packet_index_payload.get("updated_at"),
-                "last_recorded_kind": "packet-index",
-                "current_stage": packet_index_payload.get("current_stage"),
-                "required_stage_chain": [],
-                "stages": {},
-                "latest_chain": None,
-                "latest_execution": None,
-                "latest_ui": None,
-                "latest_run": None,
-                "latest_gate": None,
-                "latest_review": None,
-                "latest_route_preview": None,
-                "latest_direction": None,
-                "latest_spec_review": None,
-                "packet_index": packet_index_payload,
-                "summary": packet_index_payload.get("summary", {}),
-            }
-            return {"state": refresh_loaded_summary(state), "path": str(packet_index_path), "source": "packet-index"}
-
-    sources = {
-        "execution-progress": pick_latest_json(workspace / ".forge-artifacts" / "execution-progress"),
-        "chain-status": pick_latest_json(workspace / ".forge-artifacts" / "chain-status"),
-        "ui-progress": pick_latest_json(workspace / ".forge-artifacts" / "ui-progress"),
-        "run-report": pick_latest_json(workspace / ".forge-artifacts" / "run-reports"),
-        "quality-gate": pick_latest_json(workspace / ".forge-artifacts" / "quality-gates"),
-        "review-state": pick_latest_json(workspace / ".forge-artifacts" / "reviews"),
-        "route-preview": pick_latest_json(workspace / ".forge-artifacts" / "route-previews"),
-        "direction-state": pick_latest_json(workspace / ".forge-artifacts" / "direction"),
-        "spec-review-state": pick_latest_json(workspace / ".forge-artifacts" / "spec-review"),
-    }
-    if not any(sources.values()):
+        if packet_index_path is not None:
+            local_warnings.append("Ignored packet-index because canonical workflow-state root is missing or invalid.")
         return {"state": None, "path": None, "source": None}
 
-    preferred_kind = max(
-        sources.items(),
-        key=lambda item: mtime_rank(item[1]) if item[1] else (float("-inf"), ""),
-    )[0]
-
-    state = build_workflow_state(
-        project="workspace",
-        preferred_kind=preferred_kind,
-        latest_chain=workflow_entry("chain-status", read_json_object(sources["chain-status"], "chain status", local_warnings), sources["chain-status"]),
-        latest_execution=workflow_entry("execution-progress", read_json_object(sources["execution-progress"], "execution progress", local_warnings), sources["execution-progress"]),
-        latest_ui=workflow_entry("ui-progress", read_json_object(sources["ui-progress"], "ui progress", local_warnings), sources["ui-progress"]),
-        latest_run=workflow_entry("run-report", read_json_object(sources["run-report"], "run report", local_warnings), sources["run-report"]),
-        latest_gate=workflow_entry("quality-gate", read_json_object(sources["quality-gate"], "quality gate", local_warnings), sources["quality-gate"]),
-        latest_review=workflow_entry("review-state", read_json_object(sources["review-state"], "review state", local_warnings), sources["review-state"]),
-        latest_route_preview=workflow_entry("route-preview", read_json_object(sources["route-preview"], "route preview", local_warnings), sources["route-preview"]),
-        latest_direction=workflow_entry("direction-state", read_json_object(sources["direction-state"], "direction state", local_warnings), sources["direction-state"]),
-        latest_spec_review=workflow_entry("spec-review-state", read_json_object(sources["spec-review-state"], "spec review state", local_warnings), sources["spec-review-state"]),
-        profile=None,
-        intent=None,
-        current_stage=None,
-        required_stage_chain=[],
-        stages={},
-        updated_at=now_iso(),
-    )
-    project_entry = next((value for value in state.values() if isinstance(value, dict) and value.get("project")), None)
-    if project_entry is not None:
-        state["project"] = project_entry["project"]
-    first_path = next((path for path in sources.values() if path is not None), None)
-    return {"state": state, "path": str(first_path) if first_path else None, "source": "legacy-artifacts"}
+    if packet_index_path is not None:
+        local_warnings.append("Ignored packet-index because canonical workflow-state root is not seeded yet.")
+    return {"state": None, "path": None, "source": None}

@@ -379,9 +379,18 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
             (state_dir / "latest.json").write_text(
                 json.dumps(
                     {
+                        "schema_version": 1,
                         "project": "Workflow Workspace",
                         "current_stage": "quality-gate",
                         "last_recorded_kind": "quality-gate",
+                        "last_transition": {
+                            "kind": "quality-gate",
+                            "stage_name": "quality-gate",
+                            "stage_status": "completed",
+                            "transition_id": "gate-ready-for-merge",
+                            "recorded_at": "2026-04-02T00:00:00+00:00",
+                            "source_path": None,
+                        },
                         "latest_gate": {
                             "kind": "quality-gate",
                             "project": "Workflow Workspace",
@@ -430,7 +439,7 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
             report["warnings"],
         )
 
-    def test_next_can_resume_from_packet_index_when_latest_workflow_state_is_missing(self) -> None:
+    def test_next_ignores_packet_index_without_canonical_workflow_root(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
             project_slug = "workflow-workspace"
@@ -479,11 +488,317 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stderr)
         report = json.loads(result.stdout)
+        self.assertEqual(report["status"], "WARN")
+        self.assertIsNone(report["signals"]["workflow_state_source"])
+        self.assertEqual(report["current_stage"], "unscoped")
+        self.assertEqual(report["current_focus"], "No active work slice detected from repo state.")
+        self.assertIn("bootstrap_workflow_state.py", report["recommended_action"])
+
+    def test_next_treats_legacy_artifacts_and_docs_as_sidecars_until_bootstrapped(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
+            (workspace / "docs" / "plans").mkdir(parents=True, exist_ok=True)
+            (workspace / "docs" / "plans" / "checkout.md").write_text("# Plan: Checkout hardening\n", encoding="utf-8")
+            (workspace / ".brain").mkdir(parents=True, exist_ok=True)
+            (workspace / ".brain" / "session.json").write_text(
+                json.dumps(
+                    {
+                        "working_on": {"task": "Finish checkout hardening", "status": "active", "files": []},
+                        "pending_tasks": ["Run checkout smoke"],
+                        "verification": [],
+                        "decisions_made": [],
+                        "risks": [],
+                        "blockers": [],
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+            legacy_execution_dir = workspace / ".forge-artifacts" / "execution-progress" / "workflow-workspace"
+            legacy_execution_dir.mkdir(parents=True, exist_ok=True)
+            (legacy_execution_dir / "latest.json").write_text(
+                json.dumps(
+                    {
+                        "recorded_at": "2026-04-02T00:00:00+00:00",
+                        "project": "Workflow Workspace",
+                        "task": "Checkout hardening",
+                        "status": "active",
+                        "current_stage": "integration",
+                        "completion_state": "in-progress",
+                        "proof": ["pytest tests/test_checkout.py"],
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["status"], "WARN")
+        self.assertEqual(report["current_stage"], "unscoped")
+        self.assertIsNone(report["signals"]["workflow_state_source"])
+        self.assertEqual(report["signals"]["latest_plan_title"], "Checkout hardening")
+        self.assertIn("bootstrap_workflow_state.py", report["recommended_action"])
+
+    def test_next_can_resume_after_bootstrap_seeds_canonical_workflow_root(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
+            (workspace / "docs" / "plans").mkdir(parents=True, exist_ok=True)
+            (workspace / "docs" / "plans" / "checkout.md").write_text(
+                "# Plan: Checkout hardening\n\n- Validate retry path.\n",
+                encoding="utf-8",
+            )
+
+            bootstrap = run_python_script(
+                "bootstrap_workflow_state.py",
+                "--workspace",
+                str(workspace),
+                "--project-name",
+                "Workflow Workspace",
+                "--format",
+                "json",
+            )
+            self.assertEqual(bootstrap.returncode, 0, bootstrap.stderr)
+            bootstrap_report = json.loads(bootstrap.stdout)
+            self.assertEqual(bootstrap_report["status"], "PASS")
+            self.assertEqual(bootstrap_report["bootstrap_source"], "plan")
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
         self.assertEqual(report["status"], "PASS")
-        self.assertEqual(report["signals"]["workflow_state_source"], "packet-index")
+        self.assertEqual(report["signals"]["workflow_state_source"], "workflow-state")
         self.assertEqual(report["current_stage"], "session-active")
-        self.assertEqual(report["current_focus"], "Fast-lane packet: Checkout copy polish [packet-checkout-ui]")
-        self.assertEqual(report["suggested_workflow"], "build")
+        self.assertEqual(report["current_focus"], "Recorded workflow stage: plan")
+        self.assertEqual(report["suggested_workflow"], "plan")
+
+    def test_next_handles_empty_canonical_root_without_activating_work(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            state_dir = workspace / ".forge-artifacts" / "workflow-state" / "workflow-workspace"
+            state_dir.mkdir(parents=True, exist_ok=True)
+            (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
+            (state_dir / "latest.json").write_text("{}", encoding="utf-8")
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["current_stage"], "unscoped")
+        self.assertEqual(report["signals"]["workflow_state_source"], "workflow-state")
+        self.assertEqual(report["current_focus"], "No active work slice detected from repo state.")
+
+    def test_next_ignores_corrupt_canonical_root_and_packet_index(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            state_dir = workspace / ".forge-artifacts" / "workflow-state" / "workflow-workspace"
+            state_dir.mkdir(parents=True, exist_ok=True)
+            (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
+            (state_dir / "latest.json").write_text("{not-json", encoding="utf-8")
+            (state_dir / "packet-index.json").write_text(
+                json.dumps({"project": "Workflow Workspace", "current_stage": "build"}, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["current_stage"], "unscoped")
+        self.assertIsNone(report["signals"]["workflow_state_source"])
+        self.assertTrue(any("Invalid JSON in workflow state" in warning for warning in report["warnings"]), report["warnings"])
+        self.assertTrue(any("packet-index" in warning for warning in report["warnings"]), report["warnings"])
+
+    def test_next_uses_blocked_secure_stage_recorded_via_stage_state(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
+
+            secure = run_python_script(
+                "record_stage_state.py",
+                "--workspace",
+                str(workspace),
+                "--project-name",
+                "Workflow Workspace",
+                "--stage-name",
+                "secure",
+                "--stage-status",
+                "blocked",
+                "--required-stage",
+                "self-review",
+                "--required-stage",
+                "secure",
+                "--required-stage",
+                "quality-gate",
+                "--required-stage",
+                "deploy",
+                "--activation-reason",
+                "Security review started.",
+                "--summary",
+                "Secure stage blocked on release finding",
+                "--next-action",
+                "Fix the release hardening finding before reopening the gate.",
+                "--persist",
+                "--output-dir",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(secure.returncode, 0, secure.stderr)
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["current_stage"], "blocked")
+        self.assertEqual(report["suggested_workflow"], "secure")
+        self.assertEqual(report["current_focus"], "Blocked workflow stage: secure")
+        self.assertIn("Fix the release hardening finding", report["recommended_action"])
+
+    def test_next_bootstrap_can_seed_from_spec_sidecar(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
+            (workspace / "docs" / "specs").mkdir(parents=True, exist_ok=True)
+            (workspace / "docs" / "specs" / "checkout.md").write_text(
+                "# Spec: Checkout architecture hardening\n\n- Narrow the release boundary.\n",
+                encoding="utf-8",
+            )
+
+            bootstrap = run_python_script(
+                "bootstrap_workflow_state.py",
+                "--workspace",
+                str(workspace),
+                "--project-name",
+                "Workflow Workspace",
+                "--format",
+                "json",
+            )
+            self.assertEqual(bootstrap.returncode, 0, bootstrap.stderr)
+            bootstrap_report = json.loads(bootstrap.stdout)
+            self.assertEqual(bootstrap_report["bootstrap_source"], "spec")
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["signals"]["workflow_state_source"], "workflow-state")
+        self.assertEqual(report["current_focus"], "Recorded workflow stage: architect")
+        self.assertEqual(report["suggested_workflow"], "architect")
+
+    def test_next_bootstrap_can_seed_from_legacy_direction_artifact(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            legacy_dir = workspace / ".forge-artifacts" / "direction" / "workflow-workspace"
+            legacy_dir.mkdir(parents=True, exist_ok=True)
+            (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
+            (legacy_dir / "latest.json").write_text(
+                json.dumps(
+                    {
+                        "recorded_at": "2026-04-02T00:00:00+00:00",
+                        "project": "Workflow Workspace",
+                        "profile": "solo-internal",
+                        "intent": "BUILD",
+                        "current_stage": "brainstorm",
+                        "required_stage_chain": ["brainstorm", "plan", "build"],
+                        "stage_name": "brainstorm",
+                        "stage_status": "active",
+                        "mode": "discovery-lite",
+                        "decision_state": "direction-locked",
+                        "activation_reason": "Legacy brainstorm state.",
+                        "summary": "Choose the checkout hardening direction",
+                        "notes": [],
+                        "next_actions": ["Move into planning."],
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            bootstrap = run_python_script(
+                "bootstrap_workflow_state.py",
+                "--workspace",
+                str(workspace),
+                "--project-name",
+                "Workflow Workspace",
+                "--format",
+                "json",
+            )
+            self.assertEqual(bootstrap.returncode, 0, bootstrap.stderr)
+            bootstrap_report = json.loads(bootstrap.stdout)
+            self.assertEqual(bootstrap_report["bootstrap_source"], "direction-state")
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["signals"]["workflow_state_source"], "workflow-state")
+        self.assertEqual(report["current_focus"], "Recorded workflow stage: brainstorm")
+        self.assertEqual(report["suggested_workflow"], "brainstorm")
 
 
 if __name__ == "__main__":

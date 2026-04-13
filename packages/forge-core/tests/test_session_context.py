@@ -130,14 +130,18 @@ class SessionContextTests(unittest.TestCase):
 
         self.assertEqual(report["status"], "PASS")
         self.assertEqual(report["mode"], "resume")
-        self.assertEqual(report["current_stage"], "session-active")
-        self.assertEqual(report["current_focus"], "Session task: Finish checkout retry slice")
+        self.assertEqual(report["current_stage"], "unscoped")
+        self.assertEqual(report["current_focus"], "No active work slice detected from repo state.")
         self.assertEqual(report["pending_work"], ["Run browser QA on checkout"])
         self.assertIn("Verification: pytest tests/test_checkout.py", report["relevant_continuity"])
         self.assertTrue(report["session_file"])
         self.assertTrue(report["handover_file"])
+        self.assertTrue(
+            any("Session context is available only as continuity sidecar." in warning for warning in report["warnings"]),
+            report["warnings"],
+        )
 
-    def test_resume_can_fall_back_to_repo_state_without_saved_session(self) -> None:
+    def test_resume_keeps_plan_docs_as_sidecar_without_machine_root(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
             (workspace / "README.md").write_text("# Checkout Workspace\n", encoding="utf-8")
@@ -155,14 +159,14 @@ class SessionContextTests(unittest.TestCase):
                 "--format",
                 "json",
             )
-            self.assertEqual(resumed.returncode, 0, resumed.stderr)
+            self.assertEqual(resumed.returncode, 1, resumed.stderr)
             report = json.loads(resumed.stdout)
 
-        self.assertEqual(report["status"], "PASS")
+        self.assertEqual(report["status"], "WARN")
         self.assertEqual(report["mode"], "resume")
-        self.assertEqual(report["current_stage"], "planned")
-        self.assertEqual(report["current_focus"], "Plan: Checkout rollback hardening")
-        self.assertEqual(report["best_next_step"], "Start the first concrete slice from plan 'Checkout rollback hardening'.")
+        self.assertEqual(report["current_stage"], "unscoped")
+        self.assertEqual(report["current_focus"], "No active work slice detected from repo state.")
+        self.assertIn("bootstrap_workflow_state.py", report["best_next_step"])
         self.assertIn("plan:", " ".join(report["restored_from"]))
 
     def test_resume_filters_stale_session_follow_ups_when_repo_is_clean_and_synced(self) -> None:

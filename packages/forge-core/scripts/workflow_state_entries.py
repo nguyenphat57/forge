@@ -56,38 +56,6 @@ def route_preview_stage_entries(report: dict | None, *, updated_at: str, source_
         stages[stage_name] = entry
     return stages
 
-
-def stage_entry(kind: str, report: dict, source_path: Path | None = None) -> tuple[str, dict] | None:
-    stage_name = report.get("stage_name")
-    if not isinstance(stage_name, str) or not stage_name.strip():
-        return None
-    entry = {
-        "status": report.get("stage_status", "required"),
-        "updated_at": report.get("recorded_at") or report.get("updated_at") or now_iso(),
-        "source_path": str(source_path) if source_path else None,
-    }
-    for key in (
-        "mode",
-        "activation_reason",
-        "skip_reason",
-        "artifact",
-        "decision",
-        "decision_state",
-        "target",
-        "summary",
-    ):
-        value = report.get(key)
-        if value is not None:
-            entry[key] = value
-    if kind == "direction-state":
-        entry["decision_state"] = report.get("decision_state")
-    if kind == "spec-review-state":
-        entry["decision"] = report.get("decision")
-        entry["review_iteration"] = report.get("review_iteration")
-        entry["max_review_iterations"] = report.get("max_review_iterations")
-    return stage_name, entry
-
-
 def workflow_entry(kind: str, report: dict | None, source_path: Path | None = None) -> dict | None:
     if not isinstance(report, dict):
         return None
@@ -279,6 +247,17 @@ def workflow_entry(kind: str, report: dict | None, source_path: Path | None = No
             "browser_qa_classification": detected.get("browser_qa_classification"),
             "browser_qa_scope": string_list(detected.get("browser_qa_scope")),
             "packet_mode": detected.get("packet_mode"),
+        }
+
+    if kind == "stage-state":
+        stage_name = report.get("stage_name") or report.get("current_stage") or "unknown"
+        return {
+            **common_fields,
+            "label": report.get("summary") or stage_name,
+            "status": report.get("stage_status", "active"),
+            "current_stage": stage_name,
+            "next_steps": as_string_list(report.get("next_actions")),
+            "notes": as_string_list(report.get("notes")),
         }
 
     return {

@@ -34,6 +34,7 @@ def build_report(workspace: Path, mode: str) -> dict:
     readme = first_existing_file(workspace, ("README.md", "README"))
     latest_plan = find_latest_markdown(workspace, "docs/plans")
     latest_spec = find_latest_markdown(workspace, "docs/specs")
+    packet_index_sidecar = find_latest_named_file(workspace, ".forge-artifacts/workflow-state", "packet-index.json")
     session_path = workspace / ".brain" / "session.json"
     session = read_json_object(session_path, "session context", warnings)
     handover_path = workspace / ".brain" / "handover.md"
@@ -43,6 +44,20 @@ def build_report(workspace: Path, mode: str) -> dict:
     workflow_report = resolve_workflow_state(workspace, warnings)
     workflow_state = workflow_report["state"]
     filtered_workflow_summary = effective_workflow_summary(workflow_state, git_state)
+    has_bootstrap_sidecars = False
+    if workflow_state is None:
+        if session_path.exists():
+            warnings.append("Session context is available only as continuity sidecar.")
+            has_bootstrap_sidecars = True
+        if handover_path.exists():
+            warnings.append("Handover notes are available only as continuity sidecar.")
+            has_bootstrap_sidecars = True
+        if latest_plan or latest_spec:
+            warnings.append("Plan/spec docs are sidecars until canonical workflow-state is seeded.")
+            has_bootstrap_sidecars = True
+        if packet_index_sidecar is not None:
+            warnings.append("Packet index is a sidecar until canonical workflow-state is seeded.")
+            has_bootstrap_sidecars = True
     if workflow_summary_is_stale_merge_handoff((workflow_state or {}).get("summary") if isinstance(workflow_state, dict) else None, git_state):
         warnings.append("Filtered stale merge-ready workflow-state because the repo is already clean and synced.")
 
@@ -54,8 +69,10 @@ def build_report(workspace: Path, mode: str) -> dict:
         workflow_state=workflow_state,
     )
     if stage == "unscoped":
-        warnings.append("No session context found.")
-        warnings.append("No active plan or spec found.")
+        if not session_path.exists():
+            warnings.append("No session context found.")
+        if not latest_plan and not latest_spec:
+            warnings.append("No active plan or spec found.")
 
     focus = build_focus(
         stage,
@@ -74,6 +91,7 @@ def build_report(workspace: Path, mode: str) -> dict:
         latest_spec=latest_spec,
         handover_excerpt=handover_excerpt,
         workflow_state=workflow_state,
+        has_bootstrap_sidecars=has_bootstrap_sidecars,
     )
 
     return {

@@ -40,30 +40,10 @@ def determine_stage(
         if summary_text(summary, "primary_kind") == "route-preview":
             return "change-active"
         return "session-active"
-    working_on = session.get("working_on") if isinstance(session, dict) else None
-    if isinstance(working_on, dict) and isinstance(working_on.get("status"), str) and working_on["status"].strip().lower() == "blocked":
-        return "blocked"
-    if session_blocker(session):
-        return "blocked"
-    pending = filtered_pending_tasks(session, git_state)
-    session_status = session_status_value(session)
-    if pending:
-        return "session-active"
-    if session_task(session):
-        if (
-            session_status in {"active", "completed", "idle"}
-            and git_handoff_clean(git_state)
-            and not workflow_state_has_actionable_slice(workflow_state, git_state)
-        ):
-            pass
-        else:
-            return "session-active"
     if workflow_state_has_actionable_slice(workflow_state, git_state):
         return "change-active"
     if git_state["changed_files"] or git_state["untracked_files"]:
         return "active-changes"
-    if latest_plan or latest_spec:
-        return "planned"
     return "unscoped"
 
 
@@ -106,7 +86,7 @@ def build_focus(
     if stage == "session-active":
         if workflow_status == "active" and workflow_focus:
             return workflow_focus
-        return f"Session task: {session_task(session) or pending[0]}"
+        return "Recorded workflow slice is still active."
     if stage == "change-active":
         if workflow_focus:
             return workflow_focus
@@ -135,6 +115,7 @@ def build_recommendations(
     latest_spec: Path | None,
     handover_excerpt: str | None,
     workflow_state: dict | None = None,
+    has_bootstrap_sidecars: bool = False,
     codebase_summary: Path | None = None,
     active_change: dict | None = None,
     release_readiness: dict | None = None,
@@ -173,10 +154,8 @@ def build_recommendations(
         alternatives.append("If the blocker keeps drifting, capture a fresh handover with the missing evidence.")
         return "debug", f"Resolve the blocker first: {blocker}.", alternatives[:2]
     if stage == "session-active":
-        primary = f"Resume the highest-priority pending task: {pending[0]}." if pending else f"Continue the active task: {session_task(session)}."
-        alternatives: list[str] = []
-        if len(pending) > 1:
-            alternatives.append(f"Continue secondary pending task: {pending[1]}.")
+        primary = workflow_action or "Resume the recorded workflow slice before opening new scope."
+        alternatives: list[str] = workflow_alternatives[:]
         if plan_title:
             alternatives.append(f"Re-open the latest {plan_kind} '{plan_title}' if priorities changed.")
         return "session", primary, alternatives[:1] if mode == "next" else alternatives[:2]
@@ -203,6 +182,18 @@ def build_recommendations(
         label = plan_title or "the latest plan"
         alternatives = ["If scope is still fuzzy, tighten the plan before writing code.", "If repo health is unclear, run a fast repo verification before implementation."]
         return "plan", f"Start the first concrete slice from {plan_kind} '{label}'.", alternatives[:1] if mode == "next" else alternatives[:2]
+    if has_bootstrap_sidecars:
+        alternatives = []
+        if plan_title:
+            alternatives.append(f"Re-open the latest {plan_kind} '{plan_title}' after seeding canonical workflow-state.")
+        if handover_excerpt:
+            alternatives.append("Keep the latest handover only as continuity notes after the bootstrap step.")
+        alternatives.append("If repo health is unclear, run a fast repo verification before seeding the next slice.")
+        return (
+            "plan",
+            "Seed canonical workflow-state with `python scripts/bootstrap_workflow_state.py --workspace <workspace>` before resuming this slice.",
+            alternatives[:1] if mode == "next" else alternatives[:2],
+        )
     alternatives = [
         "If runtime/browser proof is failing because the runtime looks stale, run runtime doctor on the affected tool before retrying.",
         "Then state one bounded slice so Forge can route directly without reopening broad discovery.",
