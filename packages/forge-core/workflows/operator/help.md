@@ -24,10 +24,9 @@ quality_gates:
 
 1. Read the most useful repo state:
    - `git status`
-   - Latest plans/spec docs
-   - Persisted workflow-state when it exists
    - `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, UI, run, or quality-gate artifacts have already persisted state
    - `.forge-artifacts/workflow-state/<project>/packet-index.json` for a cheap continuity read before expanding to full workflow-state
+   - Latest plans/spec docs as sidecars when workflow-state is missing or not seeded yet
    - `.brain/session.json` or `.brain/handover.md` if available
    - `references/target-state.md` if the repo under maintenance is Forge itself or if multiple valid directions need a policy tie-break
 2. Resolve with:

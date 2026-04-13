@@ -197,6 +197,26 @@ class BundleContractTests(unittest.TestCase):
             with self.subTest(reference=name):
                 self.assertTrue((ROOT_DIR / "references" / name).exists(), name)
 
+    def test_reference_map_points_to_current_repo_roadmap(self) -> None:
+        reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
+        self.assertIn("docs/plans/forge_refactor_V3.md", reference_map)
+        self.assertNotIn("docs/plans/2026-04-11-forge-slim-refactor-v2.md", reference_map)
+
+    def test_help_next_contract_prefers_workflow_state_and_runtime_recovery_guidance(self) -> None:
+        help_next = (ROOT_DIR / "references" / "help-next.md").read_text(encoding="utf-8")
+        operator_recommendations = (ROOT_DIR / "scripts" / "operator_recommendations.py").read_text(encoding="utf-8")
+        workflow_summary = (ROOT_DIR / "scripts" / "workflow_state_summary.py").read_text(encoding="utf-8")
+        target_state = (ROOT_DIR / "references" / "target-state.md").read_text(encoding="utf-8")
+
+        self.assertLess(
+            help_next.index(".forge-artifacts/workflow-state/<project>/latest.json"),
+            help_next.index("docs/plans/"),
+        )
+        self.assertNotIn("runtime doctor", help_next)
+        self.assertNotIn("runtime doctor", operator_recommendations)
+        self.assertNotIn("runtime doctor", workflow_summary)
+        self.assertNotIn("doctor-style diagnostics", target_state)
+
     def test_fixture_manifests_resolve_real_paths(self) -> None:
         for case in load_json_fixture("route_preview_cases.json"):
             fixture_name = case.get("workspace_fixture")

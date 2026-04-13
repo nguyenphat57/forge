@@ -9,9 +9,9 @@
 - Strategic policy filter for Forge-maintenance choices: `references/target-state.md`
 - Preferred sources, in order:
   1. `git status`
-  2. `docs/plans/` and `docs/specs/`
+  2. `.forge-artifacts/workflow-state/<project>/latest.json` when execution or stage state is already persisted
   3. `.forge-artifacts/workflow-state/<project>/packet-index.json` for low-cost continuity resume
-  4. `.forge-artifacts/workflow-state/<project>/latest.json` when full workflow-state detail is needed
+  4. `docs/plans/` and `docs/specs/` as sidecars when workflow-state is missing, incomplete, or not seeded yet
   5. `.brain/session.json`
   6. `.brain/handover.md`
   7. `README`
@@ -31,7 +31,7 @@
 
 | Stage | First operator move |
 |---|---|
-| `blocked` | inspect the blocker, reopen the right workflow, and only use runtime doctor when browser proof tooling is stale |
+| `blocked` | inspect the blocker, reopen the right workflow, and only use recorded runtime recovery guidance when browser proof tooling is stale |
 | `planned` | use `plan`, `spec-review`, or a direct task prompt now that a bounded slice exists |
 | `unscoped` | run `python scripts/verify_repo.py --profile fast` if repo health is unclear, then state one bounded slice |
 | `change-active` | use `next` to resume the recorded slice instead of rediscovering context |
@@ -53,7 +53,7 @@
 - Do not give a vague next step when the slice can be named more precisely.
 - For medium+ work, prefer answers that point at the durable artifact to create or refresh next.
 - When context is weak, say clearly that the repo does not provide enough signal.
-- If runtime health is stale or broken for browser proof, recommend runtime doctor before retrying packet proof claims.
+- If runtime health is stale or broken for browser proof, recommend the recorded runtime recovery command or guidance before retrying packet proof claims.
 - When operating on Forge itself or choosing between multiple valid Forge directions, prefer the move that best matches `references/target-state.md`.
 
 ## Adapter Boundary

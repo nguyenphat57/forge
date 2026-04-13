@@ -368,7 +368,7 @@ def summarize_workflow_state(
             if stale_runtime_proof:
                 alternatives = combine_unique(
                     alternatives,
-                    ["If runtime resolution fails, run runtime doctor before retrying browser proof."],
+                    ["If runtime resolution fails, follow the recorded runtime recovery guidance before retrying browser proof."],
                 )[:2]
             if isinstance(merge_target, str) and merge_target.strip():
                 alternatives = combine_unique(alternatives, [f"Next merge target: {merge_target.strip()}."])[:2]
@@ -403,7 +403,11 @@ def summarize_workflow_state(
                 blocked = True
                 action = (
                     f"Runtime health issue detected ({runtime_taxonomy}). "
-                    + (runtime_summary if isinstance(runtime_summary, str) and runtime_summary.strip() else "Run runtime doctor before retrying.")
+                    + (
+                        runtime_summary
+                        if isinstance(runtime_summary, str) and runtime_summary.strip()
+                        else "Resolve the runtime health issue before retrying."
+                    )
                 )
                 if isinstance(runtime_doctor, str) and runtime_doctor.strip():
                     alternatives = combine_unique([f"Doctor command: {runtime_doctor.strip()}"], alternatives)[:2]

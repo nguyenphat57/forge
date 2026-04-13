@@ -1,6 +1,11 @@
 # Changelog
 
-## 2.3.0 (stable) - 2026-04-13
+## 2.3.1 (stable) - 2026-04-13
+
+- Describe release changes.
+
+
+## 2.3.0 - 2026-04-13
 
 - Upgrade the build chain into a canonical end-to-end workflow-state machine by adding schema `v1`, a generic stage-state recorder, bootstrap seeding, stale-transition guards, and canonical stage-ledger normalization for `help`, `next`, `save`, and `resume`.
 - Cut `help`, `next`, and session continuity consumers over to canonical workflow-state so plan or spec docs, session or handover notes, packet index, and legacy workflow artifacts remain sidecars until bootstrap seeds the machine root.

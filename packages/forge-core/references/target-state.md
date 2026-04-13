@@ -78,7 +78,7 @@ Challenge a change when it mainly adds:
 
 - fast lane is explicit for small low-risk slices, but it still keeps proof-before-claims, verification rerun, and residual-risk capture
 - packet graph fields are canonical in packet state (`depends_on_packets`, `unblocks_packets`, merge intent, overlap risk, readiness, and completion gate)
-- runtime health and doctor-style diagnostics are explicit for browser-capable runtime paths before claiming browser proof
+- runtime health diagnostics are explicit for browser-capable runtime paths before claiming browser proof
 - host capability contract v2 stays explanatory (`tier`, dispatch reasons, fallback reasons) without changing packet semantics
 - continuity depth stays bounded through a packet index read model that summarizes packet state without replacing workflow-state
 - extension and preset boundaries stay narrow: packet templates, workflow overlays, and planning presets cannot override core verification and state contracts

@@ -11,7 +11,7 @@ from record_stage_state import persist_stage_report
 from workflow_state_support import resolve_workflow_state
 
 
-# DEPRECATED(state-machine-cutover): remove after first stable release following generic stage-state rollout.
+# DEPRECATED(state-machine-cutover): retained as a compatibility wrapper until the current tooling surface removes this shim explicitly.
 
 
 VALID_PROFILES = (

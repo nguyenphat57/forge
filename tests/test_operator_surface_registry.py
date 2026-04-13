@@ -68,6 +68,16 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         self.assertNotIn("\ufffd", text)
         self.assertIn("scripts/repo_operator.py", text)
 
+    def test_current_reference_pointers_do_not_target_superseded_roadmaps(self) -> None:
+        reference_map = (ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md").read_text(encoding="utf-8")
+        archive_index = (ROOT_DIR / "docs" / "archive" / "INDEX.md").read_text(encoding="utf-8")
+
+        self.assertIn("docs/plans/forge_refactor_V3.md", reference_map)
+        self.assertNotIn("docs/plans/2026-04-11-forge-slim-refactor-v2.md", reference_map)
+        self.assertIn("docs/plans/forge_refactor_V3.md", archive_index)
+        self.assertNotIn("docs/plans/2026-04-11-forge-slim-refactor-v2.md", archive_index)
+        self.assertNotIn("docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md` |", archive_index)
+
 
 if __name__ == "__main__":
     unittest.main()

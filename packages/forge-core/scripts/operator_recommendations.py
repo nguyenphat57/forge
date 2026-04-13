@@ -195,7 +195,7 @@ def build_recommendations(
             alternatives[:1] if mode == "next" else alternatives[:2],
         )
     alternatives = [
-        "If runtime/browser proof is failing because the runtime looks stale, run runtime doctor on the affected tool before retrying.",
+        "If runtime/browser proof is failing because the runtime looks stale, follow the recorded runtime recovery guidance before retrying.",
         "Then state one bounded slice so Forge can route directly without reopening broad discovery.",
     ]
     return (

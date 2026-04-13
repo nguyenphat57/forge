@@ -9,7 +9,7 @@
 | docs/current/architecture.md | Current maintainer view of package boundaries, archive policy, and the active surface-slim focus |
 | docs/current/operator-surface.md | Current source-repo operator contract, `repo_operator.py`, and dispatcher behavior |
 | docs/current/install-and-activation.md | Current source-repo versus installed-runtime guidance, activation rules, and rollout sync |
-| docs/plans/2026-04-11-forge-slim-refactor-v2.md | Active roadmap tranche for the `1.16.x` surface-slim reopen |
+| docs/plans/forge_refactor_V3.md | Active roadmap tranche for the current kernel-only contraction line |
 | docs/archive/INDEX.md | Find historical plans and specs after they leave the active reading path |
 
 ## Reference Registry

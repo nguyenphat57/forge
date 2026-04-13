@@ -9,7 +9,7 @@ from common import configure_stdio, default_artifact_dir, slugify, timestamp_slu
 from record_stage_state import persist_stage_report
 
 
-# DEPRECATED(state-machine-cutover): remove after first stable release following generic stage-state rollout.
+# DEPRECATED(state-machine-cutover): retained as a compatibility wrapper until the current tooling surface removes this shim explicitly.
 
 
 VALID_STAGE_STATUSES = ("pending", "required", "active", "completed", "skipped", "blocked")
