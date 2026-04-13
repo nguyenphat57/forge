@@ -65,7 +65,7 @@ class WritePreferencesTests(unittest.TestCase):
             self.assertEqual(written["feedback_style"], "direct")
             self.assertEqual(written["language"], "en")
             self.assertEqual(written["orthography"], "plain_english")
-            self.assertFalse(common.resolve_global_extra_preferences_path(forge_home).exists())
+            self.assertFalse(common.resolve_legacy_global_extra_preferences_path(forge_home).exists())
             self.assertEqual(report["output_contract"], expected_output_contract(report["preferences"]))
             self.assertEqual(report["output_contract"]["language"], "en")
             self.assertEqual(report["output_contract"]["orthography"], "plain-english")
@@ -154,7 +154,7 @@ class WritePreferencesTests(unittest.TestCase):
             workspace = Path(temp_dir)
             forge_home = Path(temp_dir) / "forge-home"
             preferences_path = common.resolve_global_preferences_path(forge_home)
-            extra_path = common.resolve_global_extra_preferences_path(forge_home)
+            extra_path = common.resolve_legacy_global_extra_preferences_path(forge_home)
             preferences_path.parent.mkdir(parents=True, exist_ok=True)
             preferences_path.write_text(
                 json.dumps(

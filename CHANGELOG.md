@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.4.0 (stable) - 2026-04-13
+
+- Split the source-repo operator contract from installed host operator surfaces, generate `docs/current/operator-surface.md` from canonical source, and harden drift gates around repo-vs-host boundaries.
+- Retire public repo `bootstrap`, auto-seed canonical `workflow-state` from legacy JSON or latest plan/spec during `help`, `next`, and `resume`, and keep `bootstrap_workflow_state.py` as internal engine tooling only.
+- Keep preference persistence on the lean canonical path by tightening legacy `extra_preferences.json` handling, renaming active helper surfaces to explicit `legacy_*` semantics, and refreshing regression coverage plus runtime overlays for both shipped adapters.
+
+
 ## 2.3.2 (stable) - 2026-04-13
 
 - Unify preference persistence into a single canonical `preferences.json` per scope, retire `extra_preferences.json` from steady-state storage, and make workspace preferences a first-class sparse override over global state.

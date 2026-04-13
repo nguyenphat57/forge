@@ -34,11 +34,15 @@ def _sha256_text(text: str) -> str:
 
 
 def _bundle_output_relative(spec: dict) -> str:
+    if spec.get("target_kind") != "bundle-overlay":
+        return Path(spec["output"]).as_posix()
     output_parts = Path(spec["output"]).parts
     return Path(*output_parts[3:]).as_posix()
 
 
 def _resolve_record_output_path(spec: dict, output_root: Path | None) -> Path:
+    if spec.get("target_kind") != "bundle-overlay":
+        return spec["output_path"]
     if output_root is None:
         return spec["output_path"]
     return output_root / _bundle_output_relative(spec)
@@ -56,10 +60,13 @@ def generated_host_artifact_specs() -> list[dict]:
         source = item.get("source")
         output = item.get("output")
         context = item.get("context", {})
+        target_kind = item.get("target_kind", "bundle-overlay")
         if not all(isinstance(value, str) and value.strip() for value in (name, bundle, source, output)):
             raise ValueError(f"Generated host artifact manifest entry #{index} is missing name, bundle, source, or output")
         if context is not None and not isinstance(context, dict):
             raise ValueError(f"Generated host artifact manifest entry #{index} has non-object context")
+        if target_kind not in {"bundle-overlay", "repo-file"}:
+            raise ValueError(f"Generated host artifact manifest entry #{index} has unsupported target_kind: {target_kind}")
         if name in seen_names:
             raise ValueError(f"Duplicate generated host artifact name: {name}")
         source_path, source_rel = _resolve_repo_path(source, "source", name)
@@ -67,8 +74,9 @@ def generated_host_artifact_specs() -> list[dict]:
         if not source_path.exists():
             raise FileNotFoundError(f"Missing canonical source for generated host artifact {name}: {source_rel}")
         output_parts = Path(output_rel).parts
-        if len(output_parts) < 4 or output_parts[:3] != ("packages", bundle, "overlay"):
-            raise ValueError(f"Generated host artifact {name} output must live under packages/{bundle}/overlay: {output_rel}")
+        if target_kind == "bundle-overlay":
+            if len(output_parts) < 4 or output_parts[:3] != ("packages", bundle, "overlay"):
+                raise ValueError(f"Generated host artifact {name} output must live under packages/{bundle}/overlay: {output_rel}")
         if output_rel in seen_outputs:
             raise ValueError(f"Duplicate generated host artifact output path: {output_rel}")
         seen_names.add(name)
@@ -82,6 +90,7 @@ def generated_host_artifact_specs() -> list[dict]:
                 "source_path": source_path,
                 "output_path": output_path,
                 "context": context or {},
+                "target_kind": target_kind,
             }
         )
     return specs
@@ -111,6 +120,7 @@ def generated_host_artifact_records(
                 "source_sha256": _sha256_text(source_text),
                 "output_sha256": _sha256_text(output_text) if output_text is not None else None,
                 "context": dict(spec.get("context", {})),
+                "target_kind": spec.get("target_kind", "bundle-overlay"),
             }
         )
     return records

@@ -230,8 +230,47 @@
       "shortcuts": []
     }
   },
-  "operator_surface": {
+  "repo_operator_surface": {
     "actions": {
+      "resume": {
+        "repo_entrypoint": "scripts/repo_operator.py resume --workspace <workspace> --format json",
+        "core_engine_entrypoint": "scripts/session_context.py resume --workspace <workspace> --format json",
+        "workflow": "workflows/execution/session.md",
+        "hosts": [
+          "source-repo"
+        ],
+        "primary_aliases_by_host": {},
+        "compatibility_aliases_by_host": {},
+        "natural_language_examples_by_host": {},
+        "deprecation_line": null,
+        "status": "primary"
+      },
+      "save": {
+        "repo_entrypoint": "scripts/repo_operator.py save --workspace <workspace> --format json",
+        "core_engine_entrypoint": "scripts/session_context.py save --workspace <workspace> --format json",
+        "workflow": "workflows/execution/session.md",
+        "hosts": [
+          "source-repo"
+        ],
+        "primary_aliases_by_host": {},
+        "compatibility_aliases_by_host": {},
+        "natural_language_examples_by_host": {},
+        "deprecation_line": null,
+        "status": "primary"
+      },
+      "handover": {
+        "repo_entrypoint": "scripts/repo_operator.py handover --workspace <workspace> --format json",
+        "core_engine_entrypoint": "scripts/session_context.py save --workspace <workspace> --write-handover --format json",
+        "workflow": "workflows/execution/session.md",
+        "hosts": [
+          "source-repo"
+        ],
+        "primary_aliases_by_host": {},
+        "compatibility_aliases_by_host": {},
+        "natural_language_examples_by_host": {},
+        "deprecation_line": null,
+        "status": "primary"
+      },
       "help": {
         "repo_entrypoint": "scripts/repo_operator.py help --workspace <workspace> --format json",
         "core_engine_entrypoint": "scripts/resolve_help_next.py --workspace <workspace> --mode help",
@@ -262,19 +301,6 @@
         "repo_entrypoint": "scripts/repo_operator.py run --workspace <workspace> --timeout-ms 20000 -- <command>",
         "core_engine_entrypoint": "scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>",
         "workflow": "workflows/operator/run.md",
-        "hosts": [
-          "source-repo"
-        ],
-        "primary_aliases_by_host": {},
-        "compatibility_aliases_by_host": {},
-        "natural_language_examples_by_host": {},
-        "deprecation_line": null,
-        "status": "primary"
-      },
-      "delegate": {
-        "repo_entrypoint": "workflows/execution/dispatch-subagents.md",
-        "core_engine_entrypoint": "workflows/execution/dispatch-subagents.md",
-        "workflow": "workflows/execution/dispatch-subagents.md",
         "hosts": [
           "source-repo"
         ],
@@ -337,14 +363,94 @@
         "status": "primary"
       }
     },
+    "session_modes": {}
+  },
+  "host_operator_surface": {
+    "actions": {
+      "help": {
+        "repo_entrypoint": "",
+        "core_engine_entrypoint": "scripts/resolve_help_next.py --workspace <workspace> --mode help",
+        "workflow": "workflows/operator/help.md",
+        "hosts": [],
+        "primary_aliases_by_host": {},
+        "compatibility_aliases_by_host": {},
+        "natural_language_examples_by_host": {},
+        "deprecation_line": null,
+        "status": "primary"
+      },
+      "next": {
+        "repo_entrypoint": "",
+        "core_engine_entrypoint": "scripts/resolve_help_next.py --workspace <workspace> --mode next",
+        "workflow": "workflows/operator/next.md",
+        "hosts": [],
+        "primary_aliases_by_host": {},
+        "compatibility_aliases_by_host": {},
+        "natural_language_examples_by_host": {},
+        "deprecation_line": null,
+        "status": "primary"
+      },
+      "run": {
+        "repo_entrypoint": "",
+        "core_engine_entrypoint": "scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>",
+        "workflow": "workflows/operator/run.md",
+        "hosts": [],
+        "primary_aliases_by_host": {},
+        "compatibility_aliases_by_host": {},
+        "natural_language_examples_by_host": {},
+        "deprecation_line": null,
+        "status": "primary"
+      },
+      "bump": {
+        "repo_entrypoint": "",
+        "core_engine_entrypoint": "scripts/prepare_bump.py --workspace <workspace> --bump <version|major|minor|patch>",
+        "workflow": "workflows/operator/bump.md",
+        "hosts": [],
+        "primary_aliases_by_host": {},
+        "compatibility_aliases_by_host": {},
+        "natural_language_examples_by_host": {},
+        "deprecation_line": null,
+        "status": "primary"
+      },
+      "rollback": {
+        "repo_entrypoint": "",
+        "core_engine_entrypoint": "scripts/resolve_rollback.py --scope <scope>",
+        "workflow": "workflows/operator/rollback.md",
+        "hosts": [],
+        "primary_aliases_by_host": {},
+        "compatibility_aliases_by_host": {},
+        "natural_language_examples_by_host": {},
+        "deprecation_line": null,
+        "status": "primary"
+      },
+      "customize": {
+        "repo_entrypoint": "",
+        "core_engine_entrypoint": "scripts/resolve_preferences.py --workspace <workspace> --format json && scripts/write_preferences.py",
+        "workflow": "workflows/operator/customize.md",
+        "hosts": [],
+        "primary_aliases_by_host": {},
+        "compatibility_aliases_by_host": {},
+        "natural_language_examples_by_host": {},
+        "deprecation_line": null,
+        "status": "primary"
+      },
+      "init": {
+        "repo_entrypoint": "",
+        "core_engine_entrypoint": "scripts/initialize_workspace.py --workspace <workspace>",
+        "workflow": "workflows/operator/init.md",
+        "hosts": [],
+        "primary_aliases_by_host": {},
+        "compatibility_aliases_by_host": {},
+        "natural_language_examples_by_host": {},
+        "deprecation_line": null,
+        "status": "primary"
+      }
+    },
     "session_modes": {
       "restore": {
-        "repo_entrypoint": "scripts/repo_operator.py resume --workspace <workspace> --format json",
+        "repo_entrypoint": "",
         "core_engine_entrypoint": "scripts/session_context.py resume --workspace <workspace> --format json",
         "workflow": "workflows/execution/session.md",
-        "hosts": [
-          "source-repo"
-        ],
+        "hosts": [],
         "primary_aliases_by_host": {},
         "compatibility_aliases_by_host": {},
         "natural_language_examples_by_host": {},
@@ -352,12 +458,10 @@
         "status": "primary"
       },
       "save": {
-        "repo_entrypoint": "scripts/repo_operator.py save --workspace <workspace> --format json",
+        "repo_entrypoint": "",
         "core_engine_entrypoint": "scripts/session_context.py save --workspace <workspace> --format json",
         "workflow": "workflows/execution/session.md",
-        "hosts": [
-          "source-repo"
-        ],
+        "hosts": [],
         "primary_aliases_by_host": {},
         "compatibility_aliases_by_host": {},
         "natural_language_examples_by_host": {},
@@ -365,12 +469,10 @@
         "status": "primary"
       },
       "handover": {
-        "repo_entrypoint": "scripts/repo_operator.py handover --workspace <workspace> --format json",
+        "repo_entrypoint": "",
         "core_engine_entrypoint": "scripts/session_context.py save --workspace <workspace> --write-handover --format json",
         "workflow": "workflows/execution/session.md",
-        "hosts": [
-          "source-repo"
-        ],
+        "hosts": [],
         "primary_aliases_by_host": {},
         "compatibility_aliases_by_host": {},
         "natural_language_examples_by_host": {},

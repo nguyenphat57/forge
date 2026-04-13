@@ -18,6 +18,8 @@ python scripts/resolve_preferences.py --preferences-file C:\path\to\adapter-stat
 python scripts/resolve_preferences.py --workspace C:\path\to\workspace --strict
 ```
 
+Point `--preferences-file` at the canonical `preferences.json` file. Legacy `extra_preferences.json` is migration-only input, not a public inspection path.
+
 Update adapter-global preferences:
 
 ```powershell

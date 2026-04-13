@@ -15,7 +15,7 @@
       "shortcuts": []
     }
   },
-  "operator_surface": {
+  "host_operator_surface": {
     "actions": {
       "help": {
         "hosts": [
@@ -63,6 +63,9 @@
         }
       },
       "delegate": {
+        "repo_entrypoint": "",
+        "core_engine_entrypoint": "workflows/execution/dispatch-subagents.md",
+        "workflow": "workflows/execution/dispatch-subagents.md",
         "hosts": [
           "codex"
         ],
@@ -71,11 +74,14 @@
             "/delegate"
           ]
         },
+        "compatibility_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "codex": [
             "Split these independent slices across subagents"
           ]
-        }
+        },
+        "deprecation_line": null,
+        "status": "primary"
       },
       "bump": {
         "hosts": [

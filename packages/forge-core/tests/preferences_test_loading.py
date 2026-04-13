@@ -69,7 +69,7 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             forge_home = Path(temp_dir) / "forge-home"
             preferences_path = common.resolve_global_preferences_path(forge_home)
-            extra_path = common.resolve_global_extra_preferences_path(forge_home)
+            extra_path = common.resolve_legacy_global_extra_preferences_path(forge_home)
             preferences_path.parent.mkdir(parents=True, exist_ok=True)
             preferences_path.write_text(
                 json.dumps(
@@ -108,6 +108,30 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
             self.assertEqual(report["preferences"]["orthography"], "plain_english")
             self.assertEqual(report["sources"]["language"], "explicit")
 
+    def test_explicit_legacy_extra_preferences_file_is_rejected(self) -> None:
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+
+        with TemporaryDirectory() as temp_dir:
+            forge_home = Path(temp_dir) / "forge-home"
+            extra_path = common.resolve_legacy_global_extra_preferences_path(forge_home)
+            extra_path.parent.mkdir(parents=True, exist_ok=True)
+            extra_path.write_text(
+                json.dumps(
+                    {
+                        "language": "en",
+                        "orthography": "plain_english",
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ValueError, "Legacy extra preferences files are migration input only"):
+                common.load_preferences(preferences_file=extra_path, forge_home=forge_home)
+
     def test_load_preferences_repairs_mojibake_extra_preferences(self) -> None:
         from pathlib import Path
         from tempfile import TemporaryDirectory
@@ -115,7 +139,7 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             forge_home = Path(temp_dir) / "forge-home"
             preferences_path = common.resolve_global_preferences_path(forge_home)
-            extra_path = common.resolve_global_extra_preferences_path(forge_home)
+            extra_path = common.resolve_legacy_global_extra_preferences_path(forge_home)
             preferences_path.parent.mkdir(parents=True, exist_ok=True)
             preferences_path.write_text(
                 json.dumps(
@@ -300,7 +324,7 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             forge_home = Path(temp_dir) / "forge-home"
             preferences_path = common.resolve_global_preferences_path(forge_home)
-            extra_path = common.resolve_global_extra_preferences_path(forge_home)
+            extra_path = common.resolve_legacy_global_extra_preferences_path(forge_home)
             preferences_path.parent.mkdir(parents=True, exist_ok=True)
             preferences_path.write_text(
                 json.dumps(

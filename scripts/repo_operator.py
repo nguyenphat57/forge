@@ -11,13 +11,11 @@ VALID_ACTIONS = (
     "handover",
     "help",
     "next",
-    "bootstrap",
     "run",
     "bump",
     "rollback",
     "customize",
     "init",
-    "capture-continuity",
 )
 
 WRITE_PREFERENCE_FLAGS = {
@@ -57,7 +55,6 @@ def _usage() -> str:
             "Examples:",
             "  python scripts/repo_operator.py help --workspace <workspace> --format json",
             "  python scripts/repo_operator.py next --workspace <workspace> --format json",
-            "  python scripts/repo_operator.py bootstrap --workspace <workspace> --format json",
             "  python scripts/repo_operator.py run --workspace <workspace> --timeout-ms 20000 -- <command>",
             "  python scripts/repo_operator.py customize --workspace <workspace> --format json",
             "  python scripts/repo_operator.py customize --workspace <workspace> --detail-level concise --apply",
@@ -106,8 +103,6 @@ def _dispatch(action: str, args: list[str]) -> tuple[str, list[str]]:
         return "resolve_help_next.py", ["--mode", "help", *args]
     if action == "next":
         return "resolve_help_next.py", ["--mode", "next", *args]
-    if action == "bootstrap":
-        return "bootstrap_workflow_state.py", args
     if action == "run":
         return "run_with_guidance.py", args
     if action == "bump":
@@ -118,8 +113,6 @@ def _dispatch(action: str, args: list[str]) -> tuple[str, list[str]]:
         return _customize_script_and_args(args)
     if action == "init":
         return "initialize_workspace.py", args
-    if action == "capture-continuity":
-        return "capture_continuity.py", args
     raise ValueError(f"Unsupported repo operator action: {action}")
 
 

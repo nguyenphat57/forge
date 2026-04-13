@@ -30,17 +30,22 @@ def _load_json(path: Path) -> object:
 
 
 @lru_cache(maxsize=None)
-def load_bundle_registry(bundle_name: str) -> dict:
+def load_core_registry() -> dict:
     registry = _load_json(CORE_REGISTRY_PATH)
+    return registry if isinstance(registry, dict) else {}
+
+
+@lru_cache(maxsize=None)
+def load_bundle_registry(bundle_name: str) -> dict:
+    registry = load_core_registry()
     overlay_path = OVERLAY_REGISTRY_PATHS.get(bundle_name)
     if overlay_path and overlay_path.exists():
         registry = merge_json_overlay(registry, _load_json(overlay_path))
     return registry
 
 
-def operator_surface(bundle_name: str) -> dict:
-    registry = load_bundle_registry(bundle_name)
-    section = registry.get("operator_surface", {})
+def _surface_section(registry: dict, section_name: str) -> dict:
+    section = registry.get(section_name, {})
     if not isinstance(section, dict):
         return {"actions": {}, "session_modes": {}}
     actions = section.get("actions", {})
@@ -49,6 +54,18 @@ def operator_surface(bundle_name: str) -> dict:
         "actions": actions if isinstance(actions, dict) else {},
         "session_modes": session_modes if isinstance(session_modes, dict) else {},
     }
+
+
+def repo_operator_surface() -> dict:
+    return _surface_section(load_core_registry(), "repo_operator_surface")
+
+
+def host_operator_surface(bundle_name: str) -> dict:
+    return _surface_section(load_bundle_registry(bundle_name), "host_operator_surface")
+
+
+def operator_surface(bundle_name: str) -> dict:
+    return host_operator_surface(bundle_name)
 
 
 def host_name(bundle_name: str) -> str:
@@ -71,7 +88,7 @@ def _workflow_label(path_text: str) -> str:
 
 def _primary_action_rows(bundle_name: str) -> list[tuple[str, dict]]:
     rows: list[tuple[str, dict]] = []
-    for action_name, metadata in operator_surface(bundle_name)["actions"].items():
+    for action_name, metadata in host_operator_surface(bundle_name)["actions"].items():
         if not isinstance(metadata, dict):
             continue
         aliases = _host_values(metadata, "primary_aliases_by_host", bundle_name=bundle_name)
@@ -121,9 +138,16 @@ def render_antigravity_primary_wrapper_table() -> str:
     return "\n".join(lines)
 
 
+def render_repo_public_action_bullets() -> str:
+    lines: list[str] = []
+    for action_name in repo_operator_surface()["actions"]:
+        lines.append(f"- `{action_name}`")
+    return "\n".join(lines)
+
+
 def render_session_request_examples(bundle_name: str) -> str:
     lines: list[str] = []
-    for mode_name, metadata in operator_surface(bundle_name)["session_modes"].items():
+    for mode_name, metadata in host_operator_surface(bundle_name)["session_modes"].items():
         if not isinstance(metadata, dict):
             continue
         examples = _host_values(metadata, "natural_language_examples_by_host", bundle_name=bundle_name)
@@ -135,7 +159,7 @@ def render_session_request_examples(bundle_name: str) -> str:
 
 
 def _metadata_by_name(bundle_name: str, section_name: str, item_name: str) -> dict:
-    section = operator_surface(bundle_name).get(section_name, {})
+    section = host_operator_surface(bundle_name).get(section_name, {})
     metadata = section.get(item_name, {})
     return metadata if isinstance(metadata, dict) else {}
 
@@ -403,7 +427,7 @@ def render_codex_operator_wrapper(action_name: str) -> str:
 def render_contextual_placeholders(source_text: str, bundle_name: str, context: dict | None = None) -> str:
     context = context or {}
     action_name = context.get("action")
-    if bundle_name == "forge-codex" and action_name in operator_surface(bundle_name)["actions"]:
+    if bundle_name == "forge-codex" and action_name in host_operator_surface(bundle_name)["actions"]:
         return render_codex_operator_wrapper(action_name)
     return source_text
 
@@ -411,6 +435,7 @@ def render_contextual_placeholders(source_text: str, bundle_name: str, context: 
 def render_registry_placeholders(source_text: str, bundle_name: str, context: dict | None = None) -> str:
     rendered = render_contextual_placeholders(source_text, bundle_name, context=context)
     replacements = {
+        "{{FORGE_REPO_PUBLIC_ACTIONS}}": render_repo_public_action_bullets(),
         "{{FORGE_CODEX_OPERATOR_ALIAS_ROWS}}": render_operator_alias_rows("forge-codex"),
         "{{FORGE_CODEX_SESSION_REQUEST_EXAMPLES}}": render_session_request_examples("forge-codex"),
         "{{FORGE_ANTIGRAVITY_PRIMARY_OPERATOR_ALIAS_ROWS}}": render_operator_alias_rows("forge-antigravity"),

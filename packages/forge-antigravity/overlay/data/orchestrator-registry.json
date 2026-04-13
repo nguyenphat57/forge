@@ -1,5 +1,5 @@
 {
-  "operator_surface": {
+  "host_operator_surface": {
     "actions": {
       "help": {
         "hosts": [

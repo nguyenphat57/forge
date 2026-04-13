@@ -11,6 +11,8 @@ class GeneratedHostArtifactTests(ReleaseRepoTestSupport):
         self.assertEqual(report["status"], "PASS")
         self.assertEqual(report["stale_outputs"], [])
         self.assertGreaterEqual(len(report["artifacts"]), 10)
+        names = {artifact["name"] for artifact in report["artifacts"]}
+        self.assertIn("source-repo-operator-surface", names)
         for artifact in report["artifacts"]:
             with self.subTest(artifact=artifact["name"]):
                 self.assertTrue(artifact["output_exists"])
@@ -18,13 +20,17 @@ class GeneratedHostArtifactTests(ReleaseRepoTestSupport):
                 self.assertEqual(len(artifact["source_sha256"]), 64)
                 self.assertEqual(len(artifact["output_sha256"]), 64)
 
-    def test_manifest_entries_resolve_to_bundle_overlay_outputs(self) -> None:
+    def test_manifest_entries_resolve_to_valid_outputs(self) -> None:
         specs = host_artifact_manifest.generated_host_artifact_specs()
         self.assertGreaterEqual(len(specs), 10)
         for spec in specs:
             with self.subTest(name=spec["name"]):
                 self.assertTrue(spec["source_path"].exists())
-                self.assertTrue(spec["output"].startswith(f"packages/{spec['bundle']}/overlay/"))
+                if spec["target_kind"] == "bundle-overlay":
+                    self.assertTrue(spec["output"].startswith(f"packages/{spec['bundle']}/overlay/"))
+                else:
+                    self.assertEqual(spec["bundle"], "source-repo")
+                    self.assertEqual(spec["output"], "docs/current/operator-surface.md")
 
 
 if __name__ == "__main__":

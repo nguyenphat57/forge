@@ -7,10 +7,10 @@ from pathlib import Path
 from compat import canonical_preference_keys, filter_canonical_preferences, load_preferences_compat, preferences_compat_matches
 from preferences_contract import normalize_preferences, preference_defaults, resolve_output_contract
 from preferences_paths import (
-    GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH,
     GLOBAL_PREFERENCES_RELATIVE_PATH,
+    LEGACY_GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH,
     resolve_forge_home,
-    resolve_global_extra_preferences_path,
+    resolve_legacy_global_extra_preferences_path,
     resolve_global_preferences_path,
     resolve_workspace_preferences_path,
 )
@@ -208,7 +208,7 @@ def load_preferences(
     defaults = preference_defaults()
 
     global_path = resolve_global_preferences_path(forge_home)
-    global_extra_path = resolve_global_extra_preferences_path(forge_home)
+    global_extra_path = resolve_legacy_global_extra_preferences_path(forge_home)
     workspace_path = resolve_workspace_preferences_path(workspace) if workspace is not None else None
 
     explicit_state: dict[str, object] | None = None
@@ -216,27 +216,23 @@ def load_preferences(
         explicit_path = Path(preferences_file).resolve()
         if not explicit_path.exists():
             raise FileNotFoundError(f"Preferences file does not exist: {explicit_path}")
+        if explicit_path.name == LEGACY_GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH.name:
+            raise ValueError(
+                "Legacy extra preferences files are migration input only. "
+                "Inspect the canonical preferences.json file instead."
+            )
 
-        if explicit_path.name == GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH.name:
-            sibling_preferences = explicit_path.with_name(GLOBAL_PREFERENCES_RELATIVE_PATH.name)
-            explicit_state = _load_scope_state(
-                sibling_preferences,
-                strict=strict,
-                label="preferences file",
-                legacy_extra_path=explicit_path,
-            )
-        else:
-            sibling_extra = None
-            if explicit_path.name == GLOBAL_PREFERENCES_RELATIVE_PATH.name:
-                candidate = explicit_path.with_name(GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH.name)
-                if candidate.exists():
-                    sibling_extra = candidate
-            explicit_state = _load_scope_state(
-                explicit_path,
-                strict=strict,
-                label="preferences file",
-                legacy_extra_path=sibling_extra,
-            )
+        sibling_extra = None
+        if explicit_path.name == GLOBAL_PREFERENCES_RELATIVE_PATH.name:
+            candidate = explicit_path.with_name(LEGACY_GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH.name)
+            if candidate.exists():
+                sibling_extra = candidate
+        explicit_state = _load_scope_state(
+            explicit_path,
+            strict=strict,
+            label="preferences file",
+            legacy_extra_path=sibling_extra,
+        )
         warnings.extend(explicit_state["warnings"])
         report = _build_effective_report(
             defaults=defaults,
@@ -377,7 +373,7 @@ def write_preferences(
         clear_fields = {field for field in clear_fields if field in CANONICAL_PREFERENCE_KEYS}
 
     global_path = resolve_global_preferences_path(forge_home_path)
-    global_extra_path = resolve_global_extra_preferences_path(forge_home_path)
+    global_extra_path = resolve_legacy_global_extra_preferences_path(forge_home_path)
     resolved_workspace_path = resolve_workspace_preferences_path(workspace_path) if workspace_path is not None else None
     base_global = copy.deepcopy(existing["scope_payloads"].get("global", {}))
     base_workspace = copy.deepcopy(existing["scope_payloads"].get("workspace", {}))

@@ -530,7 +530,7 @@ class RoutePreviewTests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             forge_home = Path(temp_dir) / "forge-home"
             preferences_path = common.resolve_global_preferences_path(forge_home)
-            extra_path = common.resolve_global_extra_preferences_path(forge_home)
+            extra_path = common.resolve_legacy_global_extra_preferences_path(forge_home)
             preferences_path.parent.mkdir(parents=True, exist_ok=True)
             preferences_path.write_text(
                 json.dumps(

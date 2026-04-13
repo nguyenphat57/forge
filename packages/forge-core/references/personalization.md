@@ -48,6 +48,7 @@ Legacy split or native state is still readable during rollout, but new durable w
 Important:
 
 - `resolve_preferences.py --preferences-file ...` is read-only inspection. It must not rename, migrate, or rewrite the inspected file.
+- Explicit inspection should target the canonical `preferences.json` file. Legacy `extra_preferences.json` remains migration input for the surrounding global state and is not a first-class inspection target.
 - Migration belongs on write/apply flows, not read-only inspection.
 
 ## Validation Rules

@@ -9,22 +9,22 @@ Preferred user phrasing:
 - "Help me figure out the next step" -> `help`
 - "What should I do next?" -> `next`
 - "Run `npm test` and tell me what to do after" -> `run`
-- "Split these independent slices across subagents" -> `delegate`
 - "Bump this to 0.5.0" -> `bump`
 - "We need to roll back the last deployment" -> `rollback`
 - "Give shorter answers and move faster" -> `customize`
 - "Bootstrap this workspace for Forge" -> `init`
+- "Split these independent slices across subagents" -> `delegate`
 
 Optional aliases:
 
 - `/help`
 - `/next`
 - `/run`
-- `/delegate`
 - `/bump`
 - `/rollback`
 - `/customize`
 - `/init`
+- `/delegate`
 
 Session requests:
 

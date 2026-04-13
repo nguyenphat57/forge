@@ -16,7 +16,6 @@ Forge remains the process-first orchestrator for this workspace. This file is on
 - Use `python scripts/repo_operator.py handover --workspace C:\Users\Admin\.gemini\forge --format json` for `handover`.
 - Use `python scripts/repo_operator.py help --workspace C:\Users\Admin\.gemini\forge --format json` for `help`.
 - Use `python scripts/repo_operator.py next --workspace C:\Users\Admin\.gemini\forge --format json` for `next`.
-- Use `python scripts/repo_operator.py bootstrap --workspace C:\Users\Admin\.gemini\forge --format json` to seed canonical `workflow-state` from one legacy sidecar before `help`, `next`, or `resume`.
 - Use `python scripts/repo_operator.py run --workspace C:\Users\Admin\.gemini\forge --timeout-ms 20000 -- <command>` for `run`.
 - Use `python scripts/repo_operator.py bump --workspace C:\Users\Admin\.gemini\forge <version|major|minor|patch>` for `bump`.
 - Use `python scripts/repo_operator.py rollback --scope <scope> --format json` for `rollback`.
@@ -27,4 +26,5 @@ Forge remains the process-first orchestrator for this workspace. This file is on
 ## Notes
 
 - Keep this file thin; do not duplicate Forge routing, verification, or workflow semantics here.
+- `help`, `next`, and `resume` may auto-seed canonical `workflow-state` from a legacy JSON artifact or the latest plan/spec when no canonical root exists yet.
 - Prefer natural-language requests first. Slash commands remain optional aliases.

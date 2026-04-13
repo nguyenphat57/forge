@@ -141,7 +141,7 @@ class SessionContextTests(unittest.TestCase):
             report["warnings"],
         )
 
-    def test_resume_keeps_plan_docs_as_sidecar_without_machine_root(self) -> None:
+    def test_resume_auto_seeds_plan_docs_into_canonical_workflow_state(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
             (workspace / "README.md").write_text("# Checkout Workspace\n", encoding="utf-8")
@@ -159,14 +159,15 @@ class SessionContextTests(unittest.TestCase):
                 "--format",
                 "json",
             )
-            self.assertEqual(resumed.returncode, 1, resumed.stderr)
+            self.assertEqual(resumed.returncode, 0, resumed.stderr)
             report = json.loads(resumed.stdout)
 
-        self.assertEqual(report["status"], "WARN")
+        self.assertEqual(report["status"], "PASS")
         self.assertEqual(report["mode"], "resume")
-        self.assertEqual(report["current_stage"], "unscoped")
-        self.assertEqual(report["current_focus"], "No active work slice detected from repo state.")
-        self.assertIn("bootstrap_workflow_state.py", report["best_next_step"])
+        self.assertEqual(report["current_stage"], "session-active")
+        self.assertEqual(report["current_focus"], "Recorded workflow stage: plan")
+        self.assertIn("Resume the recorded workflow stage 'plan'", report["best_next_step"])
+        self.assertNotIn("bootstrap_workflow_state.py", report["best_next_step"])
         self.assertIn("plan:", " ".join(report["restored_from"]))
 
     def test_resume_filters_stale_session_follow_ups_when_repo_is_clean_and_synced(self) -> None:

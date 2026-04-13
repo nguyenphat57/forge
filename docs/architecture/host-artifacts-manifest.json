@@ -1,6 +1,13 @@
 {
   "artifacts": [
     {
+      "name": "source-repo-operator-surface",
+      "bundle": "source-repo",
+      "source": "docs/architecture/generated-host-artifacts/source-repo/operator-surface.md",
+      "output": "docs/current/operator-surface.md",
+      "target_kind": "repo-file"
+    },
+    {
       "name": "forge-codex-global-agents",
       "bundle": "forge-codex",
       "source": "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",

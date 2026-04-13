@@ -59,7 +59,7 @@ python scripts/write_preferences.py --language en --orthography plain_english --
    - repo-local values live in `.brain/preferences.json`
    - workspace files stay sparse and only persist selected keys
    - legacy split or native state may be migrated on `--apply`
-   - explicit `--preferences-file` inspection stays read-only
+   - explicit `--preferences-file` inspection stays read-only and should target canonical `preferences.json`, not legacy `extra_preferences.json`
 
 6. Reply briefly with:
    - which fields changed

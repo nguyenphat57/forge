@@ -492,9 +492,10 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
         self.assertIsNone(report["signals"]["workflow_state_source"])
         self.assertEqual(report["current_stage"], "unscoped")
         self.assertEqual(report["current_focus"], "No active work slice detected from repo state.")
-        self.assertIn("bootstrap_workflow_state.py", report["recommended_action"])
+        self.assertIn("verify_repo.py --profile fast", report["recommended_action"])
+        self.assertNotIn("bootstrap_workflow_state.py", report["recommended_action"])
 
-    def test_next_treats_legacy_artifacts_and_docs_as_sidecars_until_bootstrapped(self) -> None:
+    def test_next_auto_seeds_from_legacy_artifacts_when_canonical_root_is_missing(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
             (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
@@ -547,13 +548,14 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0, result.stderr)
         report = json.loads(result.stdout)
-        self.assertEqual(report["status"], "WARN")
-        self.assertEqual(report["current_stage"], "unscoped")
-        self.assertIsNone(report["signals"]["workflow_state_source"])
+        self.assertEqual(report["status"], "PASS")
+        self.assertEqual(report["current_stage"], "session-active")
+        self.assertEqual(report["suggested_workflow"], "build")
+        self.assertEqual(report["signals"]["workflow_state_source"], "workflow-state")
         self.assertEqual(report["signals"]["latest_plan_title"], "Checkout hardening")
-        self.assertIn("bootstrap_workflow_state.py", report["recommended_action"])
+        self.assertNotIn("bootstrap_workflow_state.py", report["recommended_action"])
 
-    def test_next_can_resume_after_bootstrap_seeds_canonical_workflow_root(self) -> None:
+    def test_next_auto_seeds_plan_sidecar_into_canonical_workflow_root(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
             (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
@@ -562,20 +564,6 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
                 "# Plan: Checkout hardening\n\n- Validate retry path.\n",
                 encoding="utf-8",
             )
-
-            bootstrap = run_python_script(
-                "bootstrap_workflow_state.py",
-                "--workspace",
-                str(workspace),
-                "--project-name",
-                "Workflow Workspace",
-                "--format",
-                "json",
-            )
-            self.assertEqual(bootstrap.returncode, 0, bootstrap.stderr)
-            bootstrap_report = json.loads(bootstrap.stdout)
-            self.assertEqual(bootstrap_report["status"], "PASS")
-            self.assertEqual(bootstrap_report["bootstrap_source"], "plan")
 
             result = run_python_script(
                 "resolve_help_next.py",
@@ -594,6 +582,7 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
         self.assertEqual(report["current_stage"], "session-active")
         self.assertEqual(report["current_focus"], "Recorded workflow stage: plan")
         self.assertEqual(report["suggested_workflow"], "plan")
+        self.assertNotIn("bootstrap_workflow_state.py", report["recommended_action"])
 
     def test_next_handles_empty_canonical_root_without_activating_work(self) -> None:
         with TemporaryDirectory() as temp_dir:

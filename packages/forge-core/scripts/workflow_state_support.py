@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from common import default_artifact_dir, slugify
+from workflow_state_bootstrap_support import seed_workflow_state_from_sidecars
 from workflow_stage_machine import (
     current_stage_after_transition,
     seed_required_stages,
@@ -162,7 +163,12 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
     return latest_path, events_path
 
 
-def resolve_workflow_state(workspace: Path, warnings: list[str] | None = None) -> dict:
+def resolve_workflow_state(
+    workspace: Path,
+    warnings: list[str] | None = None,
+    *,
+    auto_seed_missing: bool = False,
+) -> dict:
     local_warnings = warnings if warnings is not None else []
     workflow_root = workspace / ".forge-artifacts" / WORKFLOW_STATE_DIR
     latest_path = pick_latest_named_json(workflow_root, "latest.json")
@@ -179,6 +185,9 @@ def resolve_workflow_state(workspace: Path, warnings: list[str] | None = None) -
         if packet_index_path is not None:
             local_warnings.append("Ignored packet-index because canonical workflow-state root is missing or invalid.")
         return {"state": None, "path": None, "source": None}
+
+    if auto_seed_missing and seed_workflow_state_from_sidecars(workspace, local_warnings, record_event=record_workflow_event) is not None:
+        return resolve_workflow_state(workspace, local_warnings, auto_seed_missing=False)
 
     if packet_index_path is not None:
         local_warnings.append("Ignored packet-index because canonical workflow-state root is not seeded yet.")

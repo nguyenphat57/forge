@@ -17,7 +17,7 @@ def _write_json(path: Path, payload: dict) -> None:
 
 
 class HelpNextTests(unittest.TestCase):
-    def test_help_keeps_session_as_continuity_sidecar_without_machine_root(self) -> None:
+    def test_help_auto_seeds_latest_plan_even_when_session_sidecar_exists(self) -> None:
         result = run_python_script(
             "resolve_help_next.py",
             "--workspace",
@@ -30,15 +30,17 @@ class HelpNextTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         report = json.loads(result.stdout)
 
-        self.assertEqual(report["status"], "WARN")
-        self.assertEqual(report["current_stage"], "unscoped")
+        self.assertEqual(report["status"], "PASS")
+        self.assertEqual(report["current_stage"], "session-active")
         self.assertEqual(report["suggested_workflow"], "plan")
-        self.assertEqual(report["current_focus"], "No active work slice detected from repo state.")
-        self.assertIn("bootstrap_workflow_state.py", report["recommended_action"])
-        self.assertTrue(any("Session context is available only as continuity sidecar." in item for item in report["warnings"]))
+        self.assertEqual(report["current_focus"], "Recorded workflow stage: plan")
+        self.assertEqual(report["signals"]["latest_plan_title"], "Loyalty Points Rollout")
+        self.assertEqual(report["signals"]["workflow_state_source"], "workflow-state")
+        self.assertNotIn("bootstrap_workflow_state.py", report["recommended_action"])
+        self.assertEqual(report["warnings"], [])
         self.assertEqual(report["response_style"]["teaching_mode"], "explain-why")
 
-    def test_next_keeps_latest_plan_as_sidecar_when_no_machine_root_exists(self) -> None:
+    def test_next_auto_seeds_latest_plan_when_no_machine_root_exists(self) -> None:
         result = run_python_script(
             "resolve_help_next.py",
             "--workspace",
@@ -51,12 +53,13 @@ class HelpNextTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         report = json.loads(result.stdout)
 
-        self.assertEqual(report["status"], "WARN")
-        self.assertEqual(report["current_stage"], "unscoped")
+        self.assertEqual(report["status"], "PASS")
+        self.assertEqual(report["current_stage"], "session-active")
         self.assertEqual(report["suggested_workflow"], "plan")
-        self.assertEqual(report["current_focus"], "No active work slice detected from repo state.")
+        self.assertEqual(report["current_focus"], "Recorded workflow stage: plan")
         self.assertEqual(report["signals"]["latest_plan_title"], "Checkout Rollout")
-        self.assertIn("bootstrap_workflow_state.py", report["recommended_action"])
+        self.assertEqual(report["signals"]["workflow_state_source"], "workflow-state")
+        self.assertNotIn("bootstrap_workflow_state.py", report["recommended_action"])
 
     def test_help_warns_when_repo_has_no_strong_context(self) -> None:
         result = run_python_script(
@@ -158,9 +161,9 @@ class HelpNextTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         report = json.loads(result.stdout)
 
-        self.assertEqual(report["current_stage"], "unscoped")
+        self.assertEqual(report["current_stage"], "session-active")
         self.assertEqual(report["signals"]["latest_plan_title"], "Newer Slice")
-        self.assertEqual(report["current_focus"], "No active work slice detected from repo state.")
+        self.assertEqual(report["current_focus"], "Recorded workflow stage: plan")
 
     def test_next_prefers_packet_resume_and_browser_qa_when_execution_packet_requires_it(self) -> None:
         with TemporaryDirectory() as temp_dir:

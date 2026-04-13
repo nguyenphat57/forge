@@ -115,7 +115,7 @@ def build_recommendations(
     latest_spec: Path | None,
     handover_excerpt: str | None,
     workflow_state: dict | None = None,
-    has_bootstrap_sidecars: bool = False,
+    has_continuity_sidecars: bool = False,
     codebase_summary: Path | None = None,
     active_change: dict | None = None,
     release_readiness: dict | None = None,
@@ -182,16 +182,14 @@ def build_recommendations(
         label = plan_title or "the latest plan"
         alternatives = ["If scope is still fuzzy, tighten the plan before writing code.", "If repo health is unclear, run a fast repo verification before implementation."]
         return "plan", f"Start the first concrete slice from {plan_kind} '{label}'.", alternatives[:1] if mode == "next" else alternatives[:2]
-    if has_bootstrap_sidecars:
+    if has_continuity_sidecars:
         alternatives = []
-        if plan_title:
-            alternatives.append(f"Re-open the latest {plan_kind} '{plan_title}' after seeding canonical workflow-state.")
         if handover_excerpt:
-            alternatives.append("Keep the latest handover only as continuity notes after the bootstrap step.")
-        alternatives.append("If repo health is unclear, run a fast repo verification before seeding the next slice.")
+            alternatives.append("Keep the latest handover only as continuity notes while restating the active slice.")
+        alternatives.append("If repo health is unclear, run a fast repo verification before reopening the slice.")
         return (
             "plan",
-            "Seed canonical workflow-state with `python scripts/bootstrap_workflow_state.py --workspace <workspace>` before resuming this slice.",
+            "Use the saved continuity notes as context, then state one bounded slice so Forge can route directly.",
             alternatives[:1] if mode == "next" else alternatives[:2],
         )
     alternatives = [

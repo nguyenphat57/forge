@@ -78,6 +78,26 @@ class BundleContractTests(unittest.TestCase):
             profile_contract["stage_statuses"],
             ["pending", "required", "active", "completed", "skipped", "blocked"],
         )
+        self.assertEqual(
+            set(profile_contract["stages"]),
+            {
+                "brainstorm",
+                "plan",
+                "visualize",
+                "architect",
+                "spec-review",
+                "build",
+                "test",
+                "self-review",
+                "secure",
+                "quality-gate",
+                "deploy",
+                "debug",
+                "refactor",
+                "review",
+                "session",
+            },
+        )
 
         for stage_name, stage in profile_contract["stages"].items():
             with self.subTest(stage=stage_name):
@@ -353,9 +373,20 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("Response Personalization", session)
         self.assertIn("workflow-state", session)
 
+    def test_preferences_surface_uses_legacy_extra_helper_names_only(self) -> None:
+        common_text = (ROOT_DIR / "scripts" / "common.py").read_text(encoding="utf-8")
+        preferences_text = (ROOT_DIR / "scripts" / "preferences.py").read_text(encoding="utf-8")
+
+        for text in (common_text, preferences_text):
+            self.assertRegex(text, r"\bLEGACY_GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH\b")
+            self.assertRegex(text, r"\bresolve_legacy_global_extra_preferences_path\b")
+            self.assertRegex(text, r"\bresolve_legacy_installed_extra_preferences_path\b")
+            self.assertNotRegex(text, r"\bGLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH\b")
+            self.assertNotRegex(text, r"\bresolve_global_extra_preferences_path\b")
+            self.assertNotRegex(text, r"\bresolve_installed_extra_preferences_path\b")
+
     def test_operator_surface_registry_metadata_is_complete(self) -> None:
         registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
-        surface = registry["operator_surface"]
         required_fields = {
             "repo_entrypoint",
             "core_engine_entrypoint",
@@ -368,20 +399,50 @@ class BundleContractTests(unittest.TestCase):
             "status",
         }
 
-        for section_name in ("actions", "session_modes"):
-            section = surface[section_name]
-            self.assertIsInstance(section, dict)
-            self.assertTrue(section)
-            for item_name, metadata in section.items():
-                with self.subTest(section=section_name, item=item_name):
-                    self.assertTrue(required_fields.issubset(metadata))
-                    self.assertIn(metadata["status"], {"primary", "compat"})
-                    self.assertIsInstance(metadata["hosts"], list)
-                    self.assertIsInstance(metadata["primary_aliases_by_host"], dict)
-                    self.assertIsInstance(metadata["compatibility_aliases_by_host"], dict)
-                    self.assertIsInstance(metadata["natural_language_examples_by_host"], dict)
-                    if metadata["status"] == "compat":
-                        self.assertTrue(metadata["deprecation_line"])
+        self.assertNotIn("operator_surface", registry)
+
+        expected_non_empty = {
+            "repo_operator_surface": {"actions"},
+            "host_operator_surface": {"actions", "session_modes"},
+        }
+
+        for surface_name, non_empty_sections in expected_non_empty.items():
+            surface = registry[surface_name]
+            for section_name in ("actions", "session_modes"):
+                section = surface[section_name]
+                self.assertIsInstance(section, dict)
+                if section_name in non_empty_sections:
+                    self.assertTrue(section)
+                for item_name, metadata in section.items():
+                    with self.subTest(surface=surface_name, section=section_name, item=item_name):
+                        self.assertTrue(required_fields.issubset(metadata))
+                        self.assertIn(metadata["status"], {"primary", "compat"})
+                        self.assertIsInstance(metadata["hosts"], list)
+                        self.assertIsInstance(metadata["primary_aliases_by_host"], dict)
+                        self.assertIsInstance(metadata["compatibility_aliases_by_host"], dict)
+                        self.assertIsInstance(metadata["natural_language_examples_by_host"], dict)
+                        if metadata["status"] == "compat":
+                            self.assertTrue(metadata["deprecation_line"])
+
+    def test_operator_surface_workflow_paths_stay_bounded(self) -> None:
+        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
+
+        for surface_name in ("repo_operator_surface", "host_operator_surface"):
+            surface = registry[surface_name]
+            for section_name in ("actions", "session_modes"):
+                for item_name, metadata in surface[section_name].items():
+                    workflow = metadata["workflow"]
+                    with self.subTest(surface=surface_name, section=section_name, item=item_name):
+                        self.assertTrue(workflow.startswith("workflows/"))
+                        self.assertTrue((ROOT_DIR / workflow).exists(), workflow)
+
+    def test_release_bundle_matrix_stays_kernel_only(self) -> None:
+        repo_root = ROOT_DIR.parents[1]
+        package_matrix = json.loads((repo_root / "docs" / "release" / "package-matrix.json").read_text(encoding="utf-8"))
+        self.assertEqual(
+            [bundle["name"] for bundle in package_matrix["bundles"]],
+            ["forge-core", "forge-antigravity", "forge-codex"],
+        )
 
     def test_tooling_docs_mention_workflow_state_artifacts(self) -> None:
         tooling = (ROOT_DIR / "references" / "kernel-tooling.md").read_text(encoding="utf-8")

@@ -41,23 +41,21 @@ def build_report(workspace: Path, mode: str) -> dict:
     handover_excerpt = read_handover_excerpt(handover_path)
     git_state = read_git_status(workspace)
     repo_signals = collect_repo_signals(workspace)
-    workflow_report = resolve_workflow_state(workspace, warnings)
+    workflow_report = resolve_workflow_state(workspace, warnings, auto_seed_missing=True)
     workflow_state = workflow_report["state"]
     filtered_workflow_summary = effective_workflow_summary(workflow_state, git_state)
-    has_bootstrap_sidecars = False
+    has_continuity_sidecars = False
     if workflow_state is None:
         if session_path.exists():
             warnings.append("Session context is available only as continuity sidecar.")
-            has_bootstrap_sidecars = True
+            has_continuity_sidecars = True
         if handover_path.exists():
             warnings.append("Handover notes are available only as continuity sidecar.")
-            has_bootstrap_sidecars = True
+            has_continuity_sidecars = True
         if latest_plan or latest_spec:
-            warnings.append("Plan/spec docs are sidecars until canonical workflow-state is seeded.")
-            has_bootstrap_sidecars = True
+            warnings.append("Plan/spec docs are present but canonical workflow-state is unavailable.")
         if packet_index_sidecar is not None:
             warnings.append("Packet index is a sidecar until canonical workflow-state is seeded.")
-            has_bootstrap_sidecars = True
     if workflow_summary_is_stale_merge_handoff((workflow_state or {}).get("summary") if isinstance(workflow_state, dict) else None, git_state):
         warnings.append("Filtered stale merge-ready workflow-state because the repo is already clean and synced.")
 
@@ -91,7 +89,7 @@ def build_report(workspace: Path, mode: str) -> dict:
         latest_spec=latest_spec,
         handover_excerpt=handover_excerpt,
         workflow_state=workflow_state,
-        has_bootstrap_sidecars=has_bootstrap_sidecars,
+        has_continuity_sidecars=has_continuity_sidecars,
     )
 
     return {

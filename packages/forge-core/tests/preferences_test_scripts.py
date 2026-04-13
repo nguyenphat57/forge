@@ -77,7 +77,7 @@ class PreferencesScriptTests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             forge_home = Path(temp_dir) / "forge-home"
             preferences_path = common.resolve_global_preferences_path(forge_home)
-            extra_path = common.resolve_global_extra_preferences_path(forge_home)
+            extra_path = common.resolve_legacy_global_extra_preferences_path(forge_home)
             preferences_path.parent.mkdir(parents=True, exist_ok=True)
             preferences_path.write_text(
                 json.dumps(
@@ -122,6 +122,37 @@ class PreferencesScriptTests(unittest.TestCase):
 
         self.assertEqual(report["preferences"]["delegation_preference"], "auto")
         self.assertIn("legacy_delegation_rule_detected", report["warnings"])
+
+    def test_resolve_preferences_script_rejects_explicit_legacy_extra_preferences_file(self) -> None:
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+
+        with TemporaryDirectory() as temp_dir:
+            extra_path = Path(temp_dir) / "extra_preferences.json"
+            extra_path.write_text(
+                json.dumps(
+                    {
+                        "language": "en",
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            result = run_python_script(
+                "resolve_preferences.py",
+                "--preferences-file",
+                str(extra_path),
+                "--format",
+                "json",
+            )
+
+            self.assertEqual(result.returncode, 1)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["status"], "FAIL")
+            self.assertIn("migration input only", report["error"])
 
 
 if __name__ == "__main__":
