@@ -357,8 +357,8 @@
         "id":  "20260417-000000",
         "kind":  "decision",
         "scope":  "forge-2-6-stable-status",
-        "summary":  "Treat 2.6.0 as the current stable Forge release because the response-contract token-trim cut, release-facing doc sync, and targeted verification gate are all green.",
-        "status":  "resolved",
+        "summary":  "Treat 2.6.0 as a superseded Forge stable slice because the later namespaced workflow alias release replaced its stable line after a fresh release sync and verification gate pass.",
+        "status":  "superseded",
         "evidence":  [
                          "CHANGELOG.md",
                          "README.md",
@@ -380,5 +380,34 @@
         "revisit_if":  "A later release changes the stable line or invalidates the 2.6.0 verification evidence.",
         "trigger":  "minor-release",
         "resume_hint":  "Resume only if a later audit needs the original 2.6.0 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260417-120000",
+        "kind":  "decision",
+        "scope":  "forge-2-7-stable-status",
+        "summary":  "Treat 2.7.0 as the current stable Forge release because the namespaced workflow alias cut, release-facing doc sync, and fresh verification gate are all green.",
+        "status":  "resolved",
+        "evidence":  [
+                         "CHANGELOG.md",
+                         "README.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "packages/forge-core/scripts/workflow_aliases.py",
+                         "python scripts/verify_repo.py -> PASS on 2026-04-17"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "maintenance",
+                     "workflow-aliases",
+                     "routing",
+                     "workflow-surface"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 2.7.0 verification evidence.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 2.7.0 proof chain or invalidates the recorded verification."
     }
 ]

@@ -89,7 +89,7 @@ def build_report(args: argparse.Namespace, *, load_registry_fn=load_registry) ->
     quality_profile = policy["quality_profile"]
     required_stage_contract = policy["required_stage_contract"]
     forge_skills = list(required_stage_contract["workflow_chain"]) or list(intent_config["chains"][complexity])
-    if intent in {"REVIEW", "SESSION"}:
+    if intent in {"REVIEW", "SESSION"} and not policy.get("explicit_workflow"):
         forge_skills = list(intent_config["chains"][complexity])
     execution_mode = policy["execution_mode"]
     execution_pipeline_key, execution_pipeline = choose_execution_pipeline(
@@ -157,6 +157,7 @@ def build_report(args: argparse.Namespace, *, load_registry_fn=load_registry) ->
         "workspace_router": str(workspace_router) if workspace_router else None,
         "detected": {
             "intent": intent,
+            "explicit_workflow": policy.get("explicit_workflow"),
             "session_mode": session_mode,
             "complexity": complexity,
             "profile": required_stage_contract["profile"],

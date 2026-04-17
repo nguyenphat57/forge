@@ -19,6 +19,31 @@ from route_execution_advice import (
 )
 from route_process_requirements import recommended_isolation_stance, review_artifact_required
 from route_stage_contract import build_required_stages
+from workflow_aliases import resolve_explicit_workflow_alias, strip_explicit_workflow_alias
+
+
+def _explicit_workflow_contract(workflow_name: str, profile: str) -> dict:
+    return {
+        "profile": profile,
+        "required_stages": [
+            {
+                "stage": workflow_name,
+                "workflow": workflow_name,
+                "status": "required",
+                "activation_reason": "explicit_alias",
+            }
+        ],
+        "required_stage_chain": [workflow_name],
+        "workflow_chain": [workflow_name],
+        "release_context": {
+            "release_candidate": workflow_name == "deploy",
+            "shared_env_release": workflow_name == "deploy",
+            "public_release": False,
+            "critical_internal_release": False,
+            "release_surface_change": workflow_name in {"secure", "quality-gate", "deploy"},
+            "broad_public_release": False,
+        },
+    }
 
 
 def resolve_route_policy(
@@ -29,34 +54,39 @@ def resolve_route_policy(
     has_harness: str,
     registry: dict,
 ) -> dict:
-    intent, intent_config = detect_intent(prompt, registry)
-    complexity = detect_complexity(prompt, changed_files, registry)
-    session_mode = detect_session_mode(prompt, registry) if intent == "SESSION" else None
+    explicit_workflow = resolve_explicit_workflow_alias(prompt)
+    prompt_for_analysis = strip_explicit_workflow_alias(prompt) if explicit_workflow else prompt
+    intent, intent_config = detect_intent(prompt_for_analysis, registry)
+    complexity = detect_complexity(prompt_for_analysis, changed_files, registry)
+    session_mode = detect_session_mode(prompt_for_analysis, registry) if intent == "SESSION" or explicit_workflow == "session" else None
     verification_key, verification = choose_verification_profile(
         intent,
-        prompt,
+        prompt_for_analysis,
         repo_signals,
         registry,
         has_harness,
     )
     quality_profile_key, quality_profile = choose_quality_profile(
-        prompt,
+        prompt_for_analysis,
         repo_signals,
         intent,
         complexity,
         registry,
     )
-    required_stage_contract = build_required_stages(
-        prompt,
+    stage_contract = build_required_stages(
+        prompt_for_analysis,
         repo_signals,
         intent,
         complexity,
         quality_profile_key,
         registry,
     )
+    required_stage_contract = (
+        _explicit_workflow_contract(explicit_workflow, stage_contract["profile"]) if explicit_workflow else stage_contract
+    )
     required_stages = required_stage_contract["required_stages"]
-    execution_mode = choose_execution_mode(prompt, intent, complexity, registry)
-    precheck_required = process_precheck_required(intent, prompt, registry)
+    execution_mode = choose_execution_mode(prompt_for_analysis, intent, complexity, registry)
+    precheck_required = process_precheck_required(intent, prompt_for_analysis, registry)
     baseline_proof_required = baseline_required(intent, complexity)
     review_state_required = review_artifact_required(intent, complexity, None, required_stages)
     durable_process_artifacts_required = any(
@@ -75,6 +105,7 @@ def resolve_route_policy(
     return {
         "intent": intent,
         "intent_config": intent_config,
+        "explicit_workflow": explicit_workflow,
         "session_mode": session_mode,
         "complexity": complexity,
         "verification_key": verification_key,
@@ -106,6 +137,7 @@ def complete_route_policy(
     repo_signals: list[str],
 ) -> dict:
     required_stages = policy["required_stage_contract"]["required_stages"]
+    prompt_for_analysis = strip_explicit_workflow_alias(prompt) if policy.get("explicit_workflow") else prompt
     isolation_recommendation = recommended_isolation_stance(
         policy["intent"],
         policy["complexity"],
@@ -116,14 +148,14 @@ def complete_route_policy(
     worktree_bootstrap = build_worktree_bootstrap(isolation_recommendation)
     review_sequence = build_review_sequence(execution_pipeline_key)
     browser_qa = classify_browser_qa(
-        prompt,
+        prompt_for_analysis,
         intent=policy["intent"],
         complexity=policy["complexity"],
         repo_signals=repo_signals,
         registry=registry,
     )
     packet_mode = classify_packet_mode(
-        prompt,
+        prompt_for_analysis,
         intent=policy["intent"],
         complexity=policy["complexity"],
         execution_mode=policy["execution_mode"],

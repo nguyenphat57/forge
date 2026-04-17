@@ -1,9 +1,9 @@
 # Forge
 ### Process-first execution for coding agents in real repos.
 
-**1 core kernel, 2 host adapters, stable 2.6.0**
+**1 core kernel, 2 host adapters, stable 2.7.0**
 
-![Version](https://img.shields.io/badge/version-2.6.0-2563eb)
+![Version](https://img.shields.io/badge/version-2.7.0-2563eb)
 ![License](https://img.shields.io/badge/license-MIT-16a34a)
 ![Verification](https://img.shields.io/badge/verify-repo_passed-22c55e)
 ![Adapters](https://img.shields.io/badge/adapters-Codex%20%7C%20Antigravity-f59e0b)
@@ -97,7 +97,7 @@ graph LR
 
 - Low-risk slices can use fast lane while still keeping proof-before-claims.
 - Medium and large slices keep explicit packet state, merge readiness, and residual risk.
-- Forge stays brownfield-safe instead of assuming a clean greenfield repo.
+- Forge stays repo-safe instead of assuming ideal project conditions.
 
 ---
 
@@ -117,7 +117,7 @@ graph LR
 
 - License: `MIT`
 - Repo maturity: stable release available
-- Current stable release: `2.6.0`
+- Current stable release: `2.7.0`
 - Canonical verification gate: `python scripts/verify_repo.py`
 - `forge-antigravity` is currently the most mature adapter for real rollout
 - `forge-codex` ships in the current stable release after passing the canonical release gates
@@ -251,7 +251,7 @@ forge/
 
 - Process-first: understand the work before editing.
 - Evidence before claims: verification is part of the contract, not optional polish.
-- Brownfield-safe: optimize for real repos with real history.
+- Repo-safe: support both new repos and existing repos without changing the verification bar.
 - Host-neutral core: adapters shape UX, not semantics.
 - Kernel-only shipping: keep the shipped bundle line small and explicit.
 

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-04-11T16:48:00+00:00",
+  "updated_at": "2026-04-17T13:11:22+00:00",
   "working_on": {
     "feature": "operator-state-cleanup",
     "task": "Fix stale next/save state handling after a clean merge-ready handoff",
@@ -11,18 +11,43 @@
       "packages/forge-core/tests/test_help_next_workflow_state.py",
       "packages/forge-core/tests/test_session_context.py",
       ".forge-artifacts/workflow-state/forge-self-hosted-tdd-sdd-adoption/latest.json",
-      ".brain/session.json"
+      ".brain/session.json",
+      "CHANGELOG.md",
+      "README.md",
+      "VERSION",
+      "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
+      "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-antigravity/overlay/GEMINI.global.md",
+      "packages/forge-codex/overlay/AGENTS.global.md",
+      "packages/forge-core/references/target-state.md",
+      "packages/forge-core/scripts/route_policy.py",
+      "packages/forge-core/scripts/route_preview_builder.py"
     ]
   },
-  "pending_tasks": [],
+  "pending_tasks": [
+    "Review the current changed files and run the nearest verification before adding new edits."
+  ],
   "recent_changes": [
-    "packages/forge-core/scripts/help_next_support.py",
-    "packages/forge-core/scripts/resolve_help_next.py",
-    "packages/forge-core/scripts/session_context.py",
-    "packages/forge-core/tests/test_help_next_workflow_state.py",
-    "packages/forge-core/tests/test_session_context.py",
-    ".forge-artifacts/workflow-state/forge-self-hosted-tdd-sdd-adoption/latest.json",
-    ".brain/session.json"
+    "CHANGELOG.md",
+    "README.md",
+    "VERSION",
+    "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
+    "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
+    "docs/release/public-readiness.md",
+    "docs/release/release-process.md",
+    "packages/forge-antigravity/overlay/GEMINI.global.md",
+    "packages/forge-codex/overlay/AGENTS.global.md",
+    "packages/forge-core/references/target-state.md",
+    "packages/forge-core/scripts/route_policy.py",
+    "packages/forge-core/scripts/route_preview_builder.py",
+    "packages/forge-core/tests/test_route_preview.py",
+    "scripts/operator_surface_support.py",
+    "tests/test_operator_surface_registry.py",
+    "docs/plans/2026-04-17-forge-namespaced-workflow-aliases-plan.md",
+    "docs/specs/2026-04-17-forge-namespaced-workflow-aliases.md",
+    "packages/forge-core/scripts/workflow_aliases.py"
   ],
   "verification": [
     "python -m unittest discover -s packages/forge-core/tests -p test_session_context.py -v -> PASS",
@@ -36,7 +61,12 @@
   "risks": [],
   "blockers": [],
   "source_artifacts": [
+    "readme: C:\\Users\\Admin\\.gemini\\forge\\README.md",
+    "plan: C:\\Users\\Admin\\.gemini\\forge\\docs\\plans\\2026-04-17-forge-namespaced-workflow-aliases-plan.md",
+    "spec: C:\\Users\\Admin\\.gemini\\forge\\docs\\specs\\2026-04-17-forge-namespaced-workflow-aliases.md",
     "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
+    "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
+    "git: 18 working tree item(s)",
     "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\workflow-state\\forge-self-hosted-tdd-sdd-adoption\\latest.json"
   ]
 }

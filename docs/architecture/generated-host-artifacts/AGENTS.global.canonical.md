@@ -96,20 +96,17 @@ Rules:
 
 Treat each slash command as a workflow alias, not a filesystem path. Read the mapped workflow from `{{FORGE_CODEX_WORKFLOWS}}`.
 
-Workflow aliases:
+Namespaced workflow aliases:
 
 | Command | Workflow |
 |---------|----------|
-| `/brainstorm` | `design/brainstorm.md` |
-| `/plan` | `design/plan.md` |
-| `/design` | `design/architect.md` |
-| `/visualize` | `design/visualize.md` |
-| `/code` | `execution/build.md` |
-| `/debug` | `execution/debug.md` |
-| `/test` | `execution/test.md` |
-| `/review` | `execution/review.md` |
-| `/refactor` | `execution/refactor.md` |
-| `/deploy` | `execution/deploy.md` |
+{{FORGE_CODEX_NAMESPACED_WORKFLOW_ALIAS_ROWS}}
+
+Compatibility workflow aliases:
+
+| Command | Workflow |
+|---------|----------|
+{{FORGE_CODEX_LEGACY_WORKFLOW_ALIAS_ROWS}}
 
 Operator aliases:
 

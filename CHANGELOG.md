@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.7.0 (stable) - 2026-04-17
+
+- Standardize exact `/forge:<workflow>` aliases across the live workflow surface, keep legacy short aliases as compatibility entrypoints, and regenerate host bootstrap artifacts so Codex and Antigravity advertise the same namespaced workflow contract.
+- Add routing and generator coverage for explicit workflow aliases, including regression tests plus source-of-truth spec and plan artifacts for the namespaced workflow slice.
+- Remove brownfield-first product-positioning language from live Forge definitions, replacing it with repo-safe and safe-execution wording while leaving operational greenfield-versus-existing workspace routing rules intact.
+- Refresh release-facing and continuity surfaces so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` all agree on `2.7.0` as the current stable release.
+
+
 ## 2.6.0 (stable) - 2026-04-17
 
 - Trim the Forge response-provenance contract by removing the mandatory `Skill selection` rationale block, keeping only workflow-skill names in `Skills used: ...`, and omitting skill reporting entirely when no workflow skill ran.

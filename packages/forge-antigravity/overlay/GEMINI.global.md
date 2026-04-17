@@ -89,7 +89,26 @@ Rules:
 
 Treat each slash command as a workflow alias, not a filesystem path. Read the mapped workflow from `{{FORGE_ANTIGRAVITY_WORKFLOWS}}`.
 
-Workflow aliases:
+Namespaced workflow aliases:
+
+| Command | Workflow |
+|---------|----------|
+| `/forge:brainstorm` | `design/brainstorm.md` |
+| `/forge:plan` | `design/plan.md` |
+| `/forge:architect` | `design/architect.md` |
+| `/forge:spec-review` | `design/spec-review.md` |
+| `/forge:visualize` | `design/visualize.md` |
+| `/forge:build` | `execution/build.md` |
+| `/forge:debug` | `execution/debug.md` |
+| `/forge:test` | `execution/test.md` |
+| `/forge:review` | `execution/review.md` |
+| `/forge:refactor` | `execution/refactor.md` |
+| `/forge:secure` | `execution/secure.md` |
+| `/forge:quality-gate` | `execution/quality-gate.md` |
+| `/forge:deploy` | `execution/deploy.md` |
+| `/forge:session` | `execution/session.md` |
+
+Compatibility workflow aliases:
 
 | Command | Workflow |
 |---------|----------|

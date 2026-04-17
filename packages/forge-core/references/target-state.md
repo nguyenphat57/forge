@@ -27,7 +27,7 @@ That means Forge should be:
 - strict on high-risk work
 - artifact-driven during execution
 - evidence-backed at handoff
-- useful in brownfield repos, not only ideal greenfield setups
+- useful across both new repos and existing repos without relying on idealized setup assumptions
 
 ## Decision Filter
 
@@ -50,7 +50,7 @@ Challenge a change when it mainly adds:
 - Medium and risky work should prefer artifacts over chat memory.
 - Verification language must be earned with fresh proof.
 - Companions may accelerate delivery, but they must not become core crutches.
-- Brownfield safety matters more than greenfield spectacle.
+- Safe execution matters more than product-positioning narratives.
 
 ## 1.12.x Target
 
