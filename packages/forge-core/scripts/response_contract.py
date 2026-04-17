@@ -52,11 +52,14 @@ def validate_skill_usage_footer(
     require_footer = bool(footer_contract.get("require_on_every_response", False))
     require_final_line = bool(footer_contract.get("require_final_line", True))
     require_unique_skills = bool(footer_contract.get("require_unique_skills", True))
+    allow_none_token = bool(footer_contract.get("allow_none_token", True))
 
     findings: list[str] = []
     nonempty_lines = [line.strip() for line in text.splitlines() if line.strip()]
     footer_line = nonempty_lines[-1] if nonempty_lines else None
     normalized_expected = _normalize_expected_skills(expected_skills)
+    if normalized_expected:
+        require_footer = True
 
     if not footer_line:
         if require_footer:
@@ -98,6 +101,8 @@ def validate_skill_usage_footer(
 
     if payload.casefold() == none_token.casefold():
         actual_skills: list[str] = []
+        if not allow_none_token:
+            findings.append("Skill usage footer must be omitted when no workflow skills were used.")
     else:
         actual_skills = []
         seen: set[str] = set()
@@ -144,10 +149,23 @@ def validate_skill_selection_explanation(
     require_at_start = bool(explanation_contract.get("require_at_start", True))
     require_reason_text = bool(explanation_contract.get("require_reason_text", True))
     require_match_with_footer = bool(explanation_contract.get("require_match_with_footer", True))
+    allow_explanation = bool(explanation_contract.get("allow_in_responses", True))
 
     findings: list[str] = []
     nonempty_lines = [line.strip() for line in text.splitlines() if line.strip()]
     normalized_expected = _normalize_expected_skills(expected_skills)
+
+    if not allow_explanation:
+        block_lines = [line for line in nonempty_lines if line.casefold().startswith(heading.casefold())]
+        if block_lines:
+            findings.append("Skill selection explanation is deprecated; report workflow skill names only in `Skills used:`.")
+        return {
+            "status": "PASS" if not findings else "FAIL",
+            "mode": None,
+            "skills": [],
+            "block_lines": block_lines,
+            "findings": findings,
+        }
 
     if not nonempty_lines:
         if require_block:

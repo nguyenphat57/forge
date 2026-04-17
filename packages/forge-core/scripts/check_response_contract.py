@@ -107,7 +107,7 @@ def main() -> int:
     parser.add_argument(
         "--expected-skills",
         default=None,
-        help="Optional comma-separated Forge skill names expected in the final `Skills used:` footer, or `none`.",
+        help="Optional comma-separated Forge workflow skill names expected in the final `Skills used:` footer. Use `none` for direct/no-skill responses.",
     )
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     args = parser.parse_args()

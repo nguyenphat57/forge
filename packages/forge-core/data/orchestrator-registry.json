@@ -1350,18 +1350,20 @@
     "prefix": "Skills used:",
     "none_token": "none",
     "separator": ",",
-    "require_on_every_response": true,
+    "require_on_every_response": false,
     "require_final_line": true,
-    "require_unique_skills": true
+    "require_unique_skills": true,
+    "allow_none_token": false
   },
   "skill_selection_explanation_contract": {
     "heading": "Skill selection:",
     "none_prefix": "none -",
     "bullet_prefix": "- ",
-    "require_on_every_response": true,
+    "require_on_every_response": false,
     "require_at_start": true,
-    "require_reason_text": true,
-    "require_match_with_footer": true
+    "require_reason_text": false,
+    "require_match_with_footer": true,
+    "allow_in_responses": false
   },
   "skill_selection_reason_labels": {
     "default_chain": "selected by the default chain for this intent and complexity.",

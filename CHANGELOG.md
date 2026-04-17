@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.6.0 (stable) - 2026-04-17
+
+- Trim the Forge response-provenance contract by removing the mandatory `Skill selection` rationale block, keeping only workflow-skill names in `Skills used: ...`, and omitting skill reporting entirely when no workflow skill ran.
+- Update the response-contract registry, validators, generated host global artifacts, and regression fixtures so Codex and Antigravity share the same lower-token reporting rule without drifting from the core contract.
+- Refresh release-facing and continuity surfaces so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` all agree on `2.6.0` as the current stable release.
+
+
 ## 2.5.0 (stable) - 2026-04-13
 
 - Close the remaining governance gap around `forge-core` by promoting `docs/current/*` plus `target-state.md` to the live maintainer source of truth and retiring the last active-roadmap wording from current docs, archive pointers, and continuity state.

@@ -75,47 +75,21 @@ Before closing a task:
 6. If verification cannot run, say `not verified`, name the blocker, and do not turn partial evidence into a completion claim.
 7. Docs-only changes must use path, content, or diff verification; do not pretend there was a test.
 
-## Global Skill Selection Explanation
-
-Every user-facing response must begin with a short block that explains why Forge selected the used Forge skills.
-
-```text
-Skill selection:
-- brainstorm: selected because the request opens a new feature direction that needs explicit planning first.
-- build: selected by the default chain for this intent and complexity.
-I verified: pytest -q passed. Correct because the routed work was completed with fresh evidence.
-Skills used: brainstorm, build
-```
-
-```text
-Skill selection: none - answered directly because no Forge skill added value.
-Clarification needed: Which file should own this contract?
-Skills used: none
-```
-
-Rules:
-
-- Use the exact heading `Skill selection:`
-- If Forge skills were used, add one bullet per used Forge skill in the form `- <skill>: <reason>`
-- If no Forge skill was used, write `Skill selection: none - <reason>`
-- Keep the skill names unique and aligned with the final `Skills used:` footer
-- Place this explanation block at the start of the response
-
 ## Global Skill Usage Footer
 
-Every user-facing response must end with one final non-empty line in exactly one of these forms:
+When one or more Forge workflow skills were used for the response, end the response with one final non-empty line in this form:
 
 ```text
-Skills used: none
 Skills used: brainstorm, build, quality-gate
 ```
 
 Rules:
 
 - Use the exact prefix `Skills used:`
-- If no Forge skill was used for the response, write `Skills used: none`
-- If one or more Forge skills were used, list each used skill name exactly once
-- Keep the `Skills used:` line as the final non-empty line of the response
+- List only Forge workflow skill names that were actually used for the response
+- Keep the skill names unique
+- Omit the footer entirely when no Forge workflow skill was used
+- Keep the `Skills used:` line as the final non-empty line when it is present
 - Do not add any content after that line
 
 ## Command Aliases

@@ -120,9 +120,10 @@ class BundleContractTests(unittest.TestCase):
         self.assertEqual(footer["prefix"], "Skills used:")
         self.assertEqual(footer["none_token"], "none")
         self.assertEqual(footer["separator"], ",")
-        self.assertTrue(footer["require_on_every_response"])
+        self.assertFalse(footer["require_on_every_response"])
         self.assertTrue(footer["require_final_line"])
         self.assertTrue(footer["require_unique_skills"])
+        self.assertFalse(footer["allow_none_token"])
 
     def test_skill_selection_explanation_contract_is_defined(self) -> None:
         registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
@@ -132,10 +133,11 @@ class BundleContractTests(unittest.TestCase):
         self.assertEqual(explanation["heading"], "Skill selection:")
         self.assertEqual(explanation["none_prefix"], "none -")
         self.assertEqual(explanation["bullet_prefix"], "- ")
-        self.assertTrue(explanation["require_on_every_response"])
+        self.assertFalse(explanation["require_on_every_response"])
         self.assertTrue(explanation["require_at_start"])
-        self.assertTrue(explanation["require_reason_text"])
+        self.assertFalse(explanation["require_reason_text"])
         self.assertTrue(explanation["require_match_with_footer"])
+        self.assertFalse(explanation["allow_in_responses"])
         self.assertIn("default_chain", reason_labels)
         self.assertIn("boundary_risk", reason_labels)
 

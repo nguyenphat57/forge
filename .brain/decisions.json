@@ -328,8 +328,8 @@
         "id":  "20260413-000000",
         "kind":  "decision",
         "scope":  "forge-2-5-stable-status",
-        "summary":  "Treat 2.5.0 as the current stable Forge release because the maintenance-only closure sync, historical-roadmap retirement, release-facing docs, and canonical repo verification gate are all green.",
-        "status":  "resolved",
+        "summary":  "Treat 2.5.0 as a superseded Forge stable slice because the later response-contract token-trim release replaced its stable line after a fresh release sync and targeted verification pass.",
+        "status":  "superseded",
         "evidence":  [
                          "CHANGELOG.md",
                          "README.md",
@@ -352,5 +352,33 @@
         "revisit_if":  "A later release changes the stable line or invalidates the 2.5.0 verification evidence.",
         "trigger":  "minor-release",
         "resume_hint":  "Resume only if a later audit needs the original 2.5.0 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260417-000000",
+        "kind":  "decision",
+        "scope":  "forge-2-6-stable-status",
+        "summary":  "Treat 2.6.0 as the current stable Forge release because the response-contract token-trim cut, release-facing doc sync, and targeted verification gate are all green.",
+        "status":  "resolved",
+        "evidence":  [
+                         "CHANGELOG.md",
+                         "README.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "packages/forge-core/scripts/response_contract.py",
+                         "python -m pytest packages/forge-core/tests/test_response_contract.py packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-17"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "maintenance",
+                     "response-provenance",
+                     "workflow-surface"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 2.6.0 verification evidence.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 2.6.0 proof chain or invalidates the recorded verification."
     }
 ]
