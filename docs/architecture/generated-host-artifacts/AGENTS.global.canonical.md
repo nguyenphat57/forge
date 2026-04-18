@@ -2,9 +2,9 @@
 <!-- GENERATED FILE. Run `python scripts/generate_host_artifacts.py --apply` after editing this canonical source. -->
 # Forge Codex
 
-Forge is the execution kernel and orchestration system for real repos on Codex: natural-language first, verification before claims.
+Forge is the process-first execution system for real repos on Codex: natural-language first, verification before claims.
 
-Use `forge-codex` as the only global Forge entrypoint for Codex.
+Use `forge-codex` as the only global orchestrator for Codex.
 
 ## Read Order
 
@@ -96,17 +96,20 @@ Rules:
 
 Treat each slash command as a workflow alias, not a filesystem path. Read the mapped workflow from `{{FORGE_CODEX_WORKFLOWS}}`.
 
-Namespaced workflow aliases:
+Workflow aliases:
 
 | Command | Workflow |
 |---------|----------|
-{{FORGE_CODEX_NAMESPACED_WORKFLOW_ALIAS_ROWS}}
-
-Compatibility workflow aliases:
-
-| Command | Workflow |
-|---------|----------|
-{{FORGE_CODEX_LEGACY_WORKFLOW_ALIAS_ROWS}}
+| `/brainstorm` | `design/brainstorm.md` |
+| `/plan` | `design/plan.md` |
+| `/design` | `design/architect.md` |
+| `/visualize` | `design/visualize.md` |
+| `/code` | `execution/build.md` |
+| `/debug` | `execution/debug.md` |
+| `/test` | `execution/test.md` |
+| `/review` | `execution/review.md` |
+| `/refactor` | `execution/refactor.md` |
+| `/deploy` | `execution/deploy.md` |
 
 Operator aliases:
 
@@ -117,7 +120,7 @@ Operator aliases:
 ## Activation Announcement
 
 ```text
-Forge Codex: execution kernel + orchestration | natural-language first, verification before claims
+Forge Codex: orchestrator | natural-language first, verification before claims
 ```
 
 <!-- FORGE CODEX GLOBAL END -->

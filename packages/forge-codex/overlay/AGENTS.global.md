@@ -4,9 +4,9 @@
 <!-- GENERATED FILE. Run `python scripts/generate_host_artifacts.py --apply` after editing this canonical source. -->
 # Forge Codex
 
-Forge is the execution kernel and orchestration system for real repos on Codex: natural-language first, verification before claims.
+Forge is the process-first execution system for real repos on Codex: natural-language first, verification before claims.
 
-Use `forge-codex` as the only global Forge entrypoint for Codex.
+Use `forge-codex` as the only global orchestrator for Codex.
 
 ## Read Order
 
@@ -98,27 +98,7 @@ Rules:
 
 Treat each slash command as a workflow alias, not a filesystem path. Read the mapped workflow from `{{FORGE_CODEX_WORKFLOWS}}`.
 
-Namespaced workflow aliases:
-
-| Command | Workflow |
-|---------|----------|
-| `/forge:brainstorm` | `design/brainstorm.md` |
-| `/forge:plan` | `design/plan.md` |
-| `/forge:architect` | `design/architect.md` |
-| `/forge:spec-review` | `design/spec-review.md` |
-| `/forge:visualize` | `design/visualize.md` |
-| `/forge:build` | `execution/build.md` |
-| `/forge:debug` | `execution/debug.md` |
-| `/forge:test` | `execution/test.md` |
-| `/forge:review` | `execution/review.md` |
-| `/forge:refactor` | `execution/refactor.md` |
-| `/forge:secure` | `execution/secure.md` |
-| `/forge:quality-gate` | `execution/quality-gate.md` |
-| `/forge:deploy` | `execution/deploy.md` |
-| `/forge:session` | `execution/session.md` |
-| `/forge:dispatch-subagents` | `execution/dispatch-subagents.md` |
-
-Compatibility workflow aliases:
+Workflow aliases:
 
 | Command | Workflow |
 |---------|----------|
@@ -149,7 +129,7 @@ Operator aliases:
 ## Activation Announcement
 
 ```text
-Forge Codex: execution kernel + orchestration | natural-language first, verification before claims
+Forge Codex: orchestrator | natural-language first, verification before claims
 ```
 
 <!-- FORGE CODEX GLOBAL END -->

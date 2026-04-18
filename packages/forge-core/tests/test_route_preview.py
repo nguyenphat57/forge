@@ -180,24 +180,6 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["skill_selection_rationale"][0]["skill"], "brainstorm")
         self.assertEqual(report["detected"]["skill_selection_rationale"][0]["reason_code"], "default_chain")
 
-    def test_namespaced_brainstorm_alias_invokes_exact_workflow(self) -> None:
-        report = route_preview.build_report(
-            self.build_args("/forge:brainstorm Should we use web or native for the new checkout flow?")
-        )
-
-        self.assertEqual(report["detected"]["explicit_workflow"], "brainstorm")
-        self.assertEqual(report["detected"]["forge_skills"], ["brainstorm"])
-        self.assertEqual(report["detected"]["required_stage_chain"], ["brainstorm"])
-
-    def test_namespaced_quality_gate_alias_invokes_exact_workflow(self) -> None:
-        report = route_preview.build_report(
-            self.build_args("/forge:quality-gate Review merge readiness for checkout release")
-        )
-
-        self.assertEqual(report["detected"]["explicit_workflow"], "quality-gate")
-        self.assertEqual(report["detected"]["forge_skills"], ["quality-gate"])
-        self.assertEqual(report["detected"]["required_stage_chain"], ["quality-gate"])
-
     def test_backward_compatibility_boundary_inserts_spec_review(self) -> None:
         report = route_preview.build_report(
             self.build_args(
@@ -246,7 +228,7 @@ class RoutePreviewTests(unittest.TestCase):
                 "\n".join(
                     [
                         "## Scope Policy",
-                        "Global Forge entrypoint is `forge-runtime`.",
+                        "Global orchestrator is `forge-runtime`.",
                         "## Local Skill Inventory",
                         "- `python-fastapi`",
                         "## Routing Map",
@@ -273,7 +255,7 @@ class RoutePreviewTests(unittest.TestCase):
                 "\n".join(
                     [
                         "## Scope Policy",
-                        "Global Forge entrypoint is `forge-runtime`.",
+                        "Global orchestrator is `forge-runtime`.",
                         "## Local Skill Inventory",
                         "- `capacitor-android`",
                         "## Routing Map",

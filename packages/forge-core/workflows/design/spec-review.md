@@ -2,7 +2,6 @@
 name: spec-review
 type: rigid
 triggers:
-  - shortcut: /forge:spec-review
   - before build for large implementations
   - before build when medium task touches contract, migration, auth, payment, or public interface
 quality_gates:

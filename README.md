@@ -1,14 +1,14 @@
 # Forge
-### Execution kernel + orchestration system for coding agents in real repos.
+### Process-first execution for coding agents in real repos.
 
-**1 core kernel, 2 host adapters, stable 2.8.0**
+**1 core kernel, 2 host adapters, stable 2.6.0**
 
-![Version](https://img.shields.io/badge/version-2.8.0-2563eb)
+![Version](https://img.shields.io/badge/version-2.6.0-2563eb)
 ![License](https://img.shields.io/badge/license-MIT-16a34a)
 ![Verification](https://img.shields.io/badge/verify-repo_passed-22c55e)
 ![Adapters](https://img.shields.io/badge/adapters-Codex%20%7C%20Antigravity-f59e0b)
 
-Forge is an execution kernel and orchestration system for coding agents working in real repos.
+Forge is a process-first orchestration system for coding agents.
 This repository is the source monorepo for Forge: `forge-core + host adapters`.
 
 Current maintainer docs live under `docs/current/`.
@@ -42,9 +42,9 @@ Forge exists to close those gaps without turning every small task into ceremony.
 
 ---
 
-## The Solution: One Execution Kernel, One Orchestration System
+## The Solution: A Shared Execution Kernel
 
-Forge combines a shared execution kernel with one orchestration system:
+Forge gives coding agents one shared operating model:
 
 - route the task by intent and complexity
 - keep medium and risky work in repo-visible artifacts
@@ -60,7 +60,7 @@ graph TD
 ```
 
 Forge is not a prompt wrapper.
-It is an execution kernel and orchestration system for real repos, with a process-first operating model for work where the cost of being confidently wrong is high.
+It is a process-first execution system meant for real repos where the cost of being confidently wrong is high.
 
 ---
 
@@ -85,7 +85,7 @@ graph LR
 
 - Core semantics live in `forge-core`.
 - Host adapters change UX surface, not the meaning of routing, packets, verification, or release gates.
-- Generated `AGENTS.global.md` and `GEMINI.global.md` stay thin bootstrap files, not competing orchestration layers.
+- Generated `AGENTS.global.md` and `GEMINI.global.md` stay thin bootstrap files, not second orchestrators.
 
 ### Evidence Before Claims
 
@@ -97,7 +97,7 @@ graph LR
 
 - Low-risk slices can use fast lane while still keeping proof-before-claims.
 - Medium and large slices keep explicit packet state, merge readiness, and residual risk.
-- Forge stays repo-safe instead of assuming ideal project conditions.
+- Forge stays brownfield-safe instead of assuming a clean greenfield repo.
 
 ---
 
@@ -117,7 +117,7 @@ graph LR
 
 - License: `MIT`
 - Repo maturity: stable release available
-- Current stable release: `2.8.0`
+- Current stable release: `2.6.0`
 - Canonical verification gate: `python scripts/verify_repo.py`
 - `forge-antigravity` is currently the most mature adapter for real rollout
 - `forge-codex` ships in the current stable release after passing the canonical release gates
@@ -183,7 +183,7 @@ python scripts/install_bundle.py forge-codex --activate-codex
 What `--activate-codex` does:
 
 - installs `forge-codex` into the default Codex skill path
-- rewrites `~/.codex/AGENTS.md` so Forge becomes the global entrypoint
+- rewrites `~/.codex/AGENTS.md` so Forge becomes the global orchestrator
 - retires legacy `awf-codex` runtime artifacts and matching legacy skills
 
 If Codex should reply in Vietnamese with full diacritics on Windows:
@@ -251,7 +251,7 @@ forge/
 
 - Process-first: understand the work before editing.
 - Evidence before claims: verification is part of the contract, not optional polish.
-- Repo-safe: support both new repos and existing repos without changing the verification bar.
+- Brownfield-safe: optimize for real repos with real history.
 - Host-neutral core: adapters shape UX, not semantics.
 - Kernel-only shipping: keep the shipped bundle line small and explicit.
 

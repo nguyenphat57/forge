@@ -109,13 +109,6 @@ class BundleContractTests(unittest.TestCase):
                     self.assertTrue(order)
                     self.assertTrue(set(order).issubset(set(profile_contract["stages"])))
 
-    def test_design_and_execution_workflows_materialize_namespaced_shortcuts(self) -> None:
-        for section in ("design", "execution"):
-            for path in sorted((ROOT_DIR / "workflows" / section).glob("*.md")):
-                text = path.read_text(encoding="utf-8")
-                with self.subTest(section=section, workflow=path.stem):
-                    self.assertIn(f"- shortcut: /forge:{path.stem}", text)
-
     def test_canonical_registry_stays_ascii_only(self) -> None:
         registry_text = (ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8")
         self.assertTrue(registry_text.isascii())

@@ -2,7 +2,6 @@
 name: brainstorm
 type: flexible
 triggers:
-  - shortcut: /forge:brainstorm
   - task is ambiguous, high-tradeoff, or asks for options before planning
   - shortcut: /brainstorm
 quality_gates:

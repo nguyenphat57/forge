@@ -64,7 +64,7 @@ The UTF-8 helper is only needed when preferences explicitly set `language=vi`.
 `--activate-codex` is for real Codex rollout:
 
 - sync `forge-codex` into `~/.codex/skills/forge-codex`
-- rewrite `~/.codex/AGENTS.md` so `forge-codex` becomes the only global Forge entrypoint
+- rewrite `~/.codex/AGENTS.md` so `forge-codex` becomes the only global orchestrator
 - retire `~/.codex/awf-codex`
 - retire legacy global skills matching `~/.codex/skills/awf-*`
 

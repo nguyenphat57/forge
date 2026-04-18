@@ -94,7 +94,6 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         codex_surface = (ROOT_DIR / "packages" / "forge-codex" / "overlay" / "references" / "codex-operator-surface.md").read_text(encoding="utf-8")
         antigravity_surface = (ROOT_DIR / "packages" / "forge-antigravity" / "overlay" / "references" / "antigravity-operator-surface.md").read_text(encoding="utf-8")
         antigravity_global = (ROOT_DIR / "packages" / "forge-antigravity" / "overlay" / "GEMINI.global.md").read_text(encoding="utf-8")
-        codex_global = (ROOT_DIR / "packages" / "forge-codex" / "overlay" / "AGENTS.global.md").read_text(encoding="utf-8")
 
         self.assertNotIn("`bootstrap`", repo_surface)
         self.assertNotIn("`delegate`", repo_surface)
@@ -114,27 +113,8 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         self.assertIn("save context", antigravity_surface)
         self.assertIn("Session requests stay natural-language", antigravity_global)
         self.assertNotIn("/recap", antigravity_global)
-        self.assertIn("/forge:brainstorm", codex_global)
-        self.assertIn("/forge:architect", codex_global)
-        self.assertIn("/forge:build", codex_global)
-        self.assertIn("/forge:quality-gate", codex_global)
-        self.assertIn("/forge:session", codex_global)
-        self.assertIn("/forge:dispatch-subagents", codex_global)
-        self.assertIn("/design", codex_global)
-        self.assertIn("/code", codex_global)
-        self.assertIn("/forge:brainstorm", antigravity_global)
-        self.assertIn("/forge:secure", antigravity_global)
-        self.assertIn("/forge:quality-gate", antigravity_global)
-        self.assertIn("/audit", antigravity_global)
         primary_section = antigravity_global.split("Primary operator aliases:", maxsplit=1)[1].split("Session requests stay natural-language:", maxsplit=1)[0]
         self.assertNotIn("/save-brain", primary_section)
-
-    def test_codex_dispatch_subagents_materializes_namespaced_shortcut(self) -> None:
-        dispatch = (
-            ROOT_DIR / "packages" / "forge-codex" / "overlay" / "workflows" / "execution" / "dispatch-subagents.md"
-        ).read_text(encoding="utf-8")
-
-        self.assertIn("- shortcut: /forge:dispatch-subagents", dispatch)
 
     def test_kernel_contraction_plan_is_historical_and_clean(self) -> None:
         roadmap_path = ROOT_DIR / "docs" / "plans" / "forge_refactor_V3.md"

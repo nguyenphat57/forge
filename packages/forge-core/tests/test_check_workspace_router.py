@@ -32,7 +32,7 @@ class WorkspaceRouterCheckTests(unittest.TestCase):
                 "\n".join(
                     [
                         "## Scope Policy",
-                        "Global Forge entrypoint is `forge-runtime`.",
+                        "Global orchestrator is `forge-runtime`.",
                         "## Local Skill Inventory",
                         "- `python-fastapi`",
                         "## Routing Map",

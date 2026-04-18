@@ -2,7 +2,6 @@
 name: build
 type: rigid
 triggers:
-  - shortcut: /forge:build
   - intent: BUILD
   - shortcut: /code
   - explicit quick hint for small, clear, low-risk work

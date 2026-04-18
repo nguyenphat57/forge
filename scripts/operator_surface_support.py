@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 from functools import lru_cache
 from pathlib import Path
 
@@ -24,51 +23,6 @@ SESSION_MODE_LABELS = {
     "handover": "handover",
 }
 CODEX_OPERATOR_SHARED_TEMPLATE_PATH = "docs/architecture/generated-host-artifacts/codex/workflows/operator/_shared_wrapper.md"
-WORKFLOW_SURFACE_SECTIONS = ("design", "execution")
-WORKFLOW_ORDER = {
-    "brainstorm": 10,
-    "plan": 20,
-    "architect": 30,
-    "spec-review": 40,
-    "visualize": 50,
-    "build": 60,
-    "debug": 70,
-    "test": 80,
-    "review": 90,
-    "refactor": 100,
-    "secure": 110,
-    "quality-gate": 120,
-    "deploy": 130,
-    "session": 140,
-    "dispatch-subagents": 150,
-}
-LEGACY_WORKFLOW_EXPOSURE_BY_BUNDLE = {
-    "forge-codex": {
-        "brainstorm",
-        "plan",
-        "architect",
-        "visualize",
-        "build",
-        "debug",
-        "test",
-        "review",
-        "refactor",
-        "deploy",
-    },
-    "forge-antigravity": {
-        "brainstorm",
-        "plan",
-        "architect",
-        "visualize",
-        "build",
-        "debug",
-        "test",
-        "review",
-        "refactor",
-        "secure",
-        "deploy",
-    },
-}
 
 
 def _load_json(path: Path) -> object:
@@ -116,67 +70,6 @@ def operator_surface(bundle_name: str) -> dict:
 
 def host_name(bundle_name: str) -> str:
     return HOST_BY_BUNDLE[bundle_name]
-
-
-def _workflow_doc_roots(bundle_name: str) -> list[Path]:
-    roots = [ROOT_DIR / "packages" / "forge-core" / "workflows"]
-    overlay_root = ROOT_DIR / "packages" / bundle_name / "overlay" / "workflows"
-    if overlay_root.exists():
-        roots.append(overlay_root)
-    return roots
-
-
-def _parse_workflow_shortcut(path: Path) -> str | None:
-    for shortcut in _parse_workflow_shortcuts(path):
-        if not shortcut.startswith("/forge:"):
-            return shortcut
-    return None
-
-
-def _parse_workflow_shortcuts(path: Path) -> list[str]:
-    text = path.read_text(encoding="utf-8")
-    return [match.strip() for match in re.findall(r"(?m)^\s*-\s+shortcut:\s*(/\S+)\s*$", text)]
-
-
-@lru_cache(maxsize=None)
-def workflow_alias_entries(bundle_name: str) -> list[dict[str, str]]:
-    entries_by_workflow: dict[str, dict[str, str]] = {}
-    for workflows_root in _workflow_doc_roots(bundle_name):
-        for section in WORKFLOW_SURFACE_SECTIONS:
-            section_root = workflows_root / section
-            if not section_root.exists():
-                continue
-            for path in sorted(section_root.glob("*.md")):
-                workflow = path.stem
-                entries_by_workflow[workflow] = {
-                    "workflow": workflow,
-                    "relative_path": f"{section}/{path.name}",
-                    "legacy_alias": _parse_workflow_shortcut(path) or "",
-                }
-    return sorted(
-        entries_by_workflow.values(),
-        key=lambda item: (WORKFLOW_ORDER.get(item["workflow"], 1000), item["workflow"]),
-    )
-
-
-def render_namespaced_workflow_alias_rows(bundle_name: str) -> str:
-    lines: list[str] = []
-    for item in workflow_alias_entries(bundle_name):
-        lines.append(f"| `/forge:{item['workflow']}` | `{item['relative_path']}` |")
-    return "\n".join(lines)
-
-
-def render_legacy_workflow_alias_rows(bundle_name: str) -> str:
-    lines: list[str] = []
-    allowed_workflows = LEGACY_WORKFLOW_EXPOSURE_BY_BUNDLE.get(bundle_name, set())
-    for item in workflow_alias_entries(bundle_name):
-        if item["workflow"] not in allowed_workflows:
-            continue
-        legacy_alias = item["legacy_alias"]
-        if not legacy_alias:
-            continue
-        lines.append(f"| `{legacy_alias}` | `{item['relative_path']}` |")
-    return "\n".join(lines)
 
 
 def _host_values(metadata: dict, field: str, *, bundle_name: str) -> list[str]:
@@ -543,12 +436,8 @@ def render_registry_placeholders(source_text: str, bundle_name: str, context: di
     rendered = render_contextual_placeholders(source_text, bundle_name, context=context)
     replacements = {
         "{{FORGE_REPO_PUBLIC_ACTIONS}}": render_repo_public_action_bullets(),
-        "{{FORGE_CODEX_NAMESPACED_WORKFLOW_ALIAS_ROWS}}": render_namespaced_workflow_alias_rows("forge-codex"),
-        "{{FORGE_CODEX_LEGACY_WORKFLOW_ALIAS_ROWS}}": render_legacy_workflow_alias_rows("forge-codex"),
         "{{FORGE_CODEX_OPERATOR_ALIAS_ROWS}}": render_operator_alias_rows("forge-codex"),
         "{{FORGE_CODEX_SESSION_REQUEST_EXAMPLES}}": render_session_request_examples("forge-codex"),
-        "{{FORGE_ANTIGRAVITY_NAMESPACED_WORKFLOW_ALIAS_ROWS}}": render_namespaced_workflow_alias_rows("forge-antigravity"),
-        "{{FORGE_ANTIGRAVITY_LEGACY_WORKFLOW_ALIAS_ROWS}}": render_legacy_workflow_alias_rows("forge-antigravity"),
         "{{FORGE_ANTIGRAVITY_PRIMARY_OPERATOR_ALIAS_ROWS}}": render_operator_alias_rows("forge-antigravity"),
         "{{FORGE_ANTIGRAVITY_SESSION_REQUEST_EXAMPLES}}": render_session_request_examples("forge-antigravity"),
         "{{FORGE_CODEX_NATURAL_LANGUAGE_EXAMPLES}}": render_codex_natural_language_examples(),

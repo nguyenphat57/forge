@@ -1,6 +1,6 @@
 # forge-codex
 
-Codex adapter overlay for the Forge execution kernel and orchestration system.
+Codex adapter overlay for Forge.
 
 Contents:
 

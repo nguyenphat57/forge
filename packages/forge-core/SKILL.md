@@ -1,6 +1,6 @@
 ---
 name: forge-core
-description: "Forge Core - host-neutral source-of-truth for the Forge execution kernel, orchestration system, routing, verification, workflow-state, and delivery guardrails."
+description: "Forge Core - host-neutral orchestrator source-of-truth for routing, verification, workflow-state, and delivery guardrails across planning, implementation, review, testing, and deployment."
 ---
 
 # Forge Core - Host-Neutral Execution Kernel
@@ -11,7 +11,7 @@ description: "Forge Core - host-neutral source-of-truth for the Forge execution 
 
 ## Bootstrap Rules
 
-- Forge is the global-first execution kernel and orchestration system for real repos.
+- Forge is the global-first orchestrator for real repos.
 - Natural language is the primary surface; host aliases are optional wrappers.
 - Read only the files needed for the current task.
 - Workspace-local routers and companion skills are optional augmentation, not replacements.
@@ -67,5 +67,5 @@ description: "Forge Core - host-neutral source-of-truth for the Forge execution 
 ## Activation Announcement
 
 ```text
-Forge Core: execution kernel + orchestration | route the right intent, keep evidence before claims
+Forge Core: orchestrator | route the right intent, keep evidence before claims
 ```

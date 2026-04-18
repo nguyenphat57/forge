@@ -2,7 +2,6 @@
 name: architect
 type: flexible
 triggers:
-  - shortcut: /forge:architect
   - intent: BUILD (complexity large)
   - shortcut: /design
 quality_gates:

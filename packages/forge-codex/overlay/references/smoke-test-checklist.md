@@ -1,6 +1,6 @@
 # Forge Codex Smoke Test Checklist
 
-Goal: record a fast pass/fail verdict for the Codex host surface after `forge-codex` becomes the global Forge entrypoint.
+Goal: record a fast pass/fail verdict for the Codex host surface after `forge-codex` becomes the global orchestrator.
 
 ## Metadata
 

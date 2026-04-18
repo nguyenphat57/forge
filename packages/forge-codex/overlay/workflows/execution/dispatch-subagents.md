@@ -2,7 +2,6 @@
 name: dispatch-subagents
 type: flexible
 triggers:
-  - shortcut: /forge:dispatch-subagents
   - host supports native subagents and the task has clear independent slices
   - host supports native subagents and reviewer lanes must stay independent
   - explicit request to delegate or split safe parallel work

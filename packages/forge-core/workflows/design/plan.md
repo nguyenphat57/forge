@@ -2,7 +2,6 @@
 name: plan
 type: flexible
 triggers:
-  - shortcut: /forge:plan
   - intent: BUILD (complexity medium+)
   - shortcut: /plan
 quality_gates:

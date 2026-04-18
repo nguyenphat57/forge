@@ -2,7 +2,6 @@
 name: review
 type: flexible
 triggers:
-  - shortcut: /forge:review
   - intent: REVIEW
   - shortcut: /review
 quality_gates:

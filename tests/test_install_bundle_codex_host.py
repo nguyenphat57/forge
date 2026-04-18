@@ -86,7 +86,7 @@ class CodexHostInstallTests(unittest.TestCase):
             expected_state_root = str((codex_home / "forge-codex").resolve())
             expected_preferences = str((codex_home / "forge-codex" / "state" / "preferences.json").resolve())
             expected_skill = str((target / "SKILL.md").resolve())
-            self.assertIn("Use `forge-codex` as the only global Forge entrypoint for Codex.", agents_text)
+            self.assertIn("Use `forge-codex` as the only global orchestrator for Codex.", agents_text)
             self.assertIn(expected_skill, agents_text)
             self.assertIn(expected_state_root, agents_text)
             self.assertIn(expected_preferences, agents_text)

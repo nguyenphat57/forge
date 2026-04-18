@@ -312,7 +312,7 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
 
     def test_readme_start_here_onboarding_tokens_remain_visible(self) -> None:
         readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
-        self.assertIn("execution kernel and orchestration system", readme)
+        self.assertIn("process-first orchestration system", readme)
         self.assertIn("Current stable release", readme)
         self.assertIn("Start Here (Solo Operator)", readme)
         self.assertIn("verify_repo.py --profile fast", readme)

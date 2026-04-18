@@ -1,9 +1,9 @@
 <!-- GENERATED FILE. Run `python scripts/generate_host_artifacts.py --apply` after editing this canonical source. -->
 # Forge Antigravity
 
-Forge is the execution kernel and orchestration system for real repos on Gemini workspaces: natural-language first, verification before claims.
+Forge is the process-first execution system for real repos on Gemini workspaces: natural-language first, verification before claims.
 
-Use `forge-antigravity` as the global Forge entrypoint for Gemini workspaces.
+Use `forge-antigravity` as the global orchestrator for Gemini workspaces.
 
 ## Read Order
 
@@ -87,17 +87,21 @@ Rules:
 
 Treat each slash command as a workflow alias, not a filesystem path. Read the mapped workflow from `{{FORGE_ANTIGRAVITY_WORKFLOWS}}`.
 
-Namespaced workflow aliases:
+Workflow aliases:
 
 | Command | Workflow |
 |---------|----------|
-{{FORGE_ANTIGRAVITY_NAMESPACED_WORKFLOW_ALIAS_ROWS}}
-
-Compatibility workflow aliases:
-
-| Command | Workflow |
-|---------|----------|
-{{FORGE_ANTIGRAVITY_LEGACY_WORKFLOW_ALIAS_ROWS}}
+| `/brainstorm` | `design/brainstorm.md` |
+| `/plan` | `design/plan.md` |
+| `/design` | `design/architect.md` |
+| `/visualize` | `design/visualize.md` |
+| `/code` | `execution/build.md` |
+| `/debug` | `execution/debug.md` |
+| `/test` | `execution/test.md` |
+| `/review` | `execution/review.md` |
+| `/refactor` | `execution/refactor.md` |
+| `/audit` | `execution/secure.md` |
+| `/deploy` | `execution/deploy.md` |
 
 Primary operator aliases:
 
@@ -114,5 +118,5 @@ There is no `/gate` alias; `quality-gate` stays the workflow stage name.
 ## Activation Announcement
 
 ```text
-Forge Antigravity: execution kernel + orchestration | natural-language first, verification before claims
+Forge Antigravity: orchestrator | natural-language first, verification before claims
 ```

@@ -2,7 +2,6 @@
 name: debug
 type: rigid
 triggers:
-  - shortcut: /forge:debug
   - intent: DEBUG
   - error detected
   - shortcut: /debug

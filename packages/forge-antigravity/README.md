@@ -1,6 +1,6 @@
 # forge-antigravity
 
-Antigravity adapter overlay for the Forge execution kernel and orchestration system.
+Antigravity adapter overlay for Forge.
 
 Contents:
 

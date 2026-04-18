@@ -32,7 +32,7 @@ A companion should appear only when it clearly improves accuracy.
 
 ## Mental Model
 
-Forge is the **execution kernel and orchestration system**.
+Forge is the **process and orchestration layer**.
 A companion skill is the **runtime or framework layer**.
 
 Forge decides:
@@ -111,7 +111,7 @@ A companion must not:
 - bypass Forge's failing-test or reproduction gate when a harness exists
 - lower the evidence bar just because the framework is familiar
 - replace Forge's handoff or report format
-- turn itself into a second orchestration layer
+- turn itself into a second orchestrator
 
 ## Optional Workspace-Local Layer
 
@@ -119,7 +119,7 @@ Companion skills may live in:
 - a global skill library
 - a workspace-local skill folder near the repo
 
-Workspace-local companions apply only when the workspace uses the `global Forge entrypoint + local companions` model.
+Workspace-local companions apply only when the workspace uses the `global orchestrator + local companions` model.
 
 A workspace-local companion is valid when:
 - the workspace has `AGENTS.md` or a router doc that points to it
@@ -142,7 +142,7 @@ If the workspace does not have a local layer, do not invent a fake router or loc
 
 ## Workspace Router Contract
 
-This section applies only when the workspace uses the `global Forge entrypoint + local companion skills` model.
+This section applies only when the workspace uses the `global orchestrator + local companion skills` model.
 
 Keep:
 - a slim `AGENTS.md` with workspace identification, read order, and a pointer to the router/source-of-truth doc
@@ -205,7 +205,7 @@ Companion skills should:
 - go straight to runtime-specific heuristics
 - discover commands from the real repo whenever possible
 - avoid hardcoding a framework unless the repo proves it
-- keep references short instead of turning into a second orchestration layer
+- keep references short instead of turning into a second orchestrator
 
 ## Anti-Patterns
 
