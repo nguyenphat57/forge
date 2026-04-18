@@ -1,9 +1,9 @@
 <!-- GENERATED FILE. Run `python scripts/generate_host_artifacts.py --apply` after editing this canonical source. -->
 # Forge Antigravity
 
-Forge is the process-first execution system for real repos on Gemini workspaces: natural-language first, verification before claims.
+Forge is the execution kernel and orchestration system for real repos on Gemini workspaces: natural-language first, verification before claims.
 
-Use `forge-antigravity` as the global orchestrator for Gemini workspaces.
+Use `forge-antigravity` as the global Forge entrypoint for Gemini workspaces.
 
 ## Read Order
 
@@ -114,5 +114,5 @@ There is no `/gate` alias; `quality-gate` stays the workflow stage name.
 ## Activation Announcement
 
 ```text
-Forge Antigravity: orchestrator | natural-language first, verification before claims
+Forge Antigravity: execution kernel + orchestration | natural-language first, verification before claims
 ```

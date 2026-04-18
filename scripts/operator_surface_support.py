@@ -127,12 +127,15 @@ def _workflow_doc_roots(bundle_name: str) -> list[Path]:
 
 
 def _parse_workflow_shortcut(path: Path) -> str | None:
+    for shortcut in _parse_workflow_shortcuts(path):
+        if not shortcut.startswith("/forge:"):
+            return shortcut
+    return None
+
+
+def _parse_workflow_shortcuts(path: Path) -> list[str]:
     text = path.read_text(encoding="utf-8")
-    match = re.search(r"(?m)^\s*-\s+shortcut:\s*(/\S+)\s*$", text)
-    if not match:
-        return None
-    shortcut = match.group(1).strip()
-    return shortcut or None
+    return [match.strip() for match in re.findall(r"(?m)^\s*-\s+shortcut:\s*(/\S+)\s*$", text)]
 
 
 @lru_cache(maxsize=None)

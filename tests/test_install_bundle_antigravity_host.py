@@ -83,7 +83,7 @@ class AntigravityHostInstallTests(unittest.TestCase):
             expected_preferences = str((gemini_home / "antigravity" / "forge-antigravity" / "state" / "preferences.json").resolve())
             expected_skill = str((target / "SKILL.md").resolve())
 
-            self.assertIn("Use `forge-antigravity` as the global orchestrator for Gemini workspaces.", rendered)
+            self.assertIn("Use `forge-antigravity` as the global Forge entrypoint for Gemini workspaces.", rendered)
             self.assertIn(expected_skill, rendered)
             self.assertIn(expected_state_root, rendered)
             self.assertIn(expected_preferences, rendered)

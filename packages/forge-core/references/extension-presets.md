@@ -1,6 +1,6 @@
 # Forge Extension And Preset Boundary
 
-> Goal: keep extension leverage bounded so Forge stays process-first instead of turning into plugin sprawl.
+> Goal: keep extension leverage bounded so Forge stays a focused execution kernel and orchestration system instead of turning into plugin sprawl.
 
 ## Allowed Surface For 1.14.x
 

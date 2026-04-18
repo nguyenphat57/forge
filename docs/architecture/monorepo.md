@@ -2,7 +2,7 @@
 
 ## Goal
 
-Keep one canonical implementation of Forge while supporting multiple host surfaces without leaving retired runtime-era packages on the active maintainer path.
+Keep one canonical implementation of the Forge execution kernel and orchestration system while supporting multiple host surfaces without leaving retired runtime-era packages on the active maintainer path.
 
 Boundary reference: see `docs/architecture/adapter-boundary.md`.
 Bundle-layer ownership reference: see `packages/forge-core/references/architecture-layers.md`.
@@ -39,6 +39,7 @@ Canonical source-of-truth for:
 - routing logic
 - operator state and workflow-state semantics
 - shared workflows, domains, references, and tests
+- the host-neutral execution-kernel and orchestration contract
 
 `forge-core` should not depend on a single host-specific entry file.
 

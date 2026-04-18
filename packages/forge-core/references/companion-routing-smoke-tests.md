@@ -4,7 +4,7 @@
 
 ## Pass Criteria
 
-- Forge remains the process and orchestration layer.
+- Forge remains the execution kernel and orchestration system.
 - Companion skills are selected correctly from repo signals or explicit stack cues.
 - A clear runtime artifact such as `pyproject.toml`, `go.mod`, or `*.csproj` can be enough to select the right companion when the router inventory is clear.
 - The router doc is treated as a reference, not as a skill.

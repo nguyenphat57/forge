@@ -1,8 +1,8 @@
 # Codex Workspace Entry
 
-Forge is the process-first execution system for this workspace. Keep this entry thin and let the bundle own routing, verification, and packet semantics.
+Forge is the execution kernel and orchestration system for this workspace. Keep this entry thin and let the bundle own routing, verification, and packet semantics.
 
-Use `forge-codex` as the global orchestrator for this workspace.
+Use `forge-codex` as the global Forge entrypoint for this workspace.
 
 ## Read Order
 

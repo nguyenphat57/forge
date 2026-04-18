@@ -3,10 +3,11 @@
 ## Goal
 
 Describe the current maintainer-facing structure of Forge without forcing readers through archived roadmap or spec history.
+Forge is maintained as one execution kernel and orchestration system, with host adapters shaping entry surfaces instead of redefining the core contract.
 
 ## Current topology
 
-- `packages/forge-core/` owns routing, workflow-state, verification discipline, and the host-neutral execution contract.
+- `packages/forge-core/` owns the host-neutral execution-kernel and orchestration contract: routing, workflow-state, verification discipline, and shared semantics.
 - `packages/forge-codex/overlay/` and `packages/forge-antigravity/overlay/` adapt that core contract to host-native entry surfaces.
 - The shipped product line is kernel-only: `forge-core`, `forge-codex`, and `forge-antigravity`.
 - `docs/current/` is the active maintainer docs spine.

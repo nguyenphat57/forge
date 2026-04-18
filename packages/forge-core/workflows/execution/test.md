@@ -2,6 +2,7 @@
 name: test
 type: rigid
 triggers:
+  - shortcut: /forge:test
   - intent: TEST
   - after: build
   - shortcut: /test

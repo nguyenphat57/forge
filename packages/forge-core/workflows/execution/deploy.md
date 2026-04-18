@@ -2,6 +2,7 @@
 name: deploy
 type: rigid
 triggers:
+  - shortcut: /forge:deploy
   - intent: DEPLOY
   - shortcut: /deploy
 quality_gates:

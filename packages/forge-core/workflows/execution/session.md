@@ -2,6 +2,7 @@
 name: session
 type: flexible
 triggers:
+  - shortcut: /forge:session
   - resume/continue/context restore
   - explicit save/handover request
   - adapter compatibility aliases may exist during migration, but they are not the core primary surface

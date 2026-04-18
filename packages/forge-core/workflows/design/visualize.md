@@ -2,6 +2,7 @@
 name: visualization
 type: flexible
 triggers:
+  - shortcut: /forge:visualize
   - intent: VISUALIZE
   - shortcut: /visualize
 quality_gates:

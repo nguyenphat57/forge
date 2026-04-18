@@ -2,6 +2,7 @@
 name: quality-gate
 type: rigid
 triggers:
+  - shortcut: /forge:quality-gate
   - before deployment
   - before completion claim
   - when long-running chain needs explicit go/no-go

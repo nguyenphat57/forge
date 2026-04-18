@@ -1,11 +1,11 @@
 ---
 name: forge-antigravity
-description: "Forge Antigravity - skill-oriented orchestrator optimized for Antigravity workspaces. Use when a request needs Forge routing, verification guardrails, Antigravity-native wrappers, and natural-language session handling."
+description: "Forge Antigravity - skill-oriented host adapter optimized for Antigravity workspaces. Use when a request needs Forge routing, verification guardrails, Antigravity-native wrappers, and natural-language session handling."
 ---
 
-# Forge Antigravity - Core Orchestrator
+# Forge Antigravity - Host Adapter
 
-> Forge Antigravity maps the Forge process-first kernel onto Gemini workspaces through `GEMINI.md`, Antigravity-native operator wrappers, and the same shared verification contract as core.
+> Forge Antigravity maps the Forge execution kernel and orchestration system onto Gemini workspaces through `GEMINI.md`, Antigravity-native operator wrappers, and the same shared verification contract as core.
 
 ## Host Boundary
 
@@ -43,5 +43,5 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 ## Activation Announcement
 
 ```text
-Forge Antigravity: orchestrator | route intent correctly, evidence before claims
+Forge Antigravity: execution kernel + orchestration | route intent correctly, evidence before claims
 ```

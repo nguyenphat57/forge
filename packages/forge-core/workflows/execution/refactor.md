@@ -2,6 +2,7 @@
 name: refactor
 type: rigid
 triggers:
+  - shortcut: /forge:refactor
   - intent: OPTIMIZE
   - shortcut: /refactor
 quality_gates:

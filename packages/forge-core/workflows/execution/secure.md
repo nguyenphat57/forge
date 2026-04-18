@@ -2,6 +2,7 @@
 name: secure
 type: rigid
 triggers:
+  - shortcut: /forge:secure
   - intent: AUDIT
   - before deployment
   - shortcut: /audit

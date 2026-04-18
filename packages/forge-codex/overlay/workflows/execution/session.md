@@ -4,6 +4,7 @@
 name: session
 type: flexible
 triggers:
+  - shortcut: /forge:session
   - continue/resume/context restore
   - explicit continuous capture request
   - explicit handover request

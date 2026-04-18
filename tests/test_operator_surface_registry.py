@@ -129,6 +129,13 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         primary_section = antigravity_global.split("Primary operator aliases:", maxsplit=1)[1].split("Session requests stay natural-language:", maxsplit=1)[0]
         self.assertNotIn("/save-brain", primary_section)
 
+    def test_codex_dispatch_subagents_materializes_namespaced_shortcut(self) -> None:
+        dispatch = (
+            ROOT_DIR / "packages" / "forge-codex" / "overlay" / "workflows" / "execution" / "dispatch-subagents.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("- shortcut: /forge:dispatch-subagents", dispatch)
+
     def test_kernel_contraction_plan_is_historical_and_clean(self) -> None:
         roadmap_path = ROOT_DIR / "docs" / "plans" / "forge_refactor_V3.md"
         text = roadmap_path.read_text(encoding="utf-8")

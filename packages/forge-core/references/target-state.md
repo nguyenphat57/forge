@@ -19,7 +19,7 @@ Read this reference when:
 
 ## North Star
 
-Forge should be the most dependable process-first execution system for a solo developer shipping real work in a real repo.
+Forge should be the most dependable execution kernel and orchestration system for a solo developer shipping real work in a real repo.
 
 That means Forge should be:
 - lightweight on small tasks
@@ -89,7 +89,7 @@ Challenge a change when it mainly adds:
 `1.15.x` should close the original roadmap and leave Forge in maintenance mode instead of reopening product sprawl by accident:
 
 - release-facing docs, `VERSION`, and the latest stable changelog entry agree on the same stable release line
-- core, Codex, and Antigravity entry surfaces tell one honest story about process-first execution, delegation posture, and generated host artifacts
+- core, Codex, and Antigravity entry surfaces tell one honest story about the execution kernel, orchestration system, delegation posture, and generated host artifacts
 - target-state and reference-map make the maintenance boundary explicit so future edits default to drift correction, compatibility repair, and verification hardening
 - generated host artifacts stay bootstrap-only; canonical wording lives in tracked source references and overlay sources, not hand-edited runtime wrappers
 - release hardening keeps catching version or story drift before a cut can claim stable status
