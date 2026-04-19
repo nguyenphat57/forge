@@ -88,6 +88,50 @@ Impact:
 - [...]
 ```
 
+## Example
+
+User request:
+
+```text
+Only in this repo, answer in Vietnamese with diacritics and keep status updates short.
+```
+
+Apply the skill like this:
+
+1. Inspect first so the workspace override is visible:
+
+```powershell
+python <forge-bundle>/scripts/resolve_preferences.py --workspace <workspace> --format json
+```
+
+2. Map the request to canonical fields:
+   - `language`: `vi`
+   - `orthography`: `vietnamese_diacritics`
+   - `custom_rules`: `["Keep status updates short and operational."]`
+3. Persist only the repo-local override:
+
+```powershell
+python <forge-bundle>/scripts/write_preferences.py --workspace <workspace> --language vi --orthography vietnamese_diacritics --scope workspace --apply
+```
+
+4. Close out briefly:
+
+```text
+Changed:
+- Set `language` to `vi`
+- Set `orthography` to `vietnamese_diacritics`
+
+Scope:
+- Workspace only
+
+New style:
+- Vietnamese with diacritics in this repo
+- Shorter operational status updates
+
+Impact:
+- Other workspaces keep their current defaults
+```
+
 ## Common Mistakes
 
 - Guessing the active bundle or state root instead of using [references/forge-paths.md](references/forge-paths.md).

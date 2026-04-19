@@ -57,6 +57,7 @@ class PublicCustomizeSkillTests(unittest.TestCase):
         self.assertIn("## When to Use", body)
         self.assertIn("## Quick Reference", body)
         self.assertIn("## Implementation", body)
+        self.assertIn("## Example", body)
         self.assertIn("## Common Mistakes", body)
         self.assertIn("## References", body)
         self.assertRegex(body, re.compile(r"When NOT to use|Do not use", re.IGNORECASE))
@@ -64,6 +65,9 @@ class PublicCustomizeSkillTests(unittest.TestCase):
         self.assertIn("references/forge-paths.md", body)
         self.assertIn("write_preferences.py", body)
         self.assertIn("resolve_preferences.py", body)
+        self.assertIn("--scope workspace", body)
+        self.assertIn("orthography", body)
+        self.assertIn("Changed:", body)
         self.assertNotIn("package-matrix.json", body)
         self.assertLessEqual(len(text.splitlines()), 220, "Public standalone skill should stay concise.")
 
