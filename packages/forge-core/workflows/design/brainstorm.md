@@ -2,94 +2,131 @@
 name: brainstorm
 type: flexible
 triggers:
-  - task is ambiguous, high-tradeoff, or asks for options before planning
+  - intent: BUILD with behavioral change
+  - intent: VISUALIZE
+  - user asks to explore options, design a feature, or compare approaches
   - shortcut: /brainstorm
 quality_gates:
-  - Qualified problem statement created
-  - 2-3 options compared when more than one viable direction exists
-  - Recommended direction chosen with why-now, why-not-others, first proof, and reversal signal
+  - Context is inspected before proposing solutions
+  - Visual Companion is offered as its own message when visual questions are ahead
+  - Questions are asked one question at a time
+  - 2-3 approaches are compared when alternatives exist
+  - Design doc is written to docs/specs/YYYY-MM-DD-<topic>-design.md
+  - Design document is committed to git before user review
+  - Self-review and user review are complete before planning
   - Plan-readiness handoff covers assumptions, boundaries, and proof for all behavioral build work
-  - If no direction can be chosen, exactly one open decision question recorded
 ---
 
-# Brainstorm - Direction Selection
+# Brainstorm - Design Doc Generator
 
 ## The Iron Law
 
 ```text
-NO AMBIGUOUS MEDIUM/LARGE WORK WITHOUT CHOOSING A DIRECTION FIRST
+NO BEHAVIORAL BUILD OR VISUAL DESIGN WORK WITHOUT AN APPROVED DESIGN DOC FIRST
 ```
 
-> Brainstorm is for choosing a direction, not for expanding scope.
+Brainstorm is Forge's full design doc generator. It converts unclear intent into an approved design, not just a quick direction note.
 
-<HARD-GATE>
-Use this workflow when:
-- the task is medium or large and the problem statement is still vague
-- the task is small but still contains a meaningful design, UX, or behavior choice
-- there are 2+ materially different solutions
-- the user asks to compare options, explore directions, or choose an approach
-- the initial decision changes scope, UX shape, ownership, or blast radius
+## Hard Gate
 
-Do not use this workflow when:
-- the task is small and clear
-- the direction is already locked and only execution planning remains
-- only implementation details are missing, not strategic direction
-</HARD-GATE>
+Use this workflow for:
+- all behavioral build work
+- all visual design or visualization work
+- any task that changes UX, workflow, data flow, public behavior, boundaries, ownership, or rollout shape
+- any request that asks for options, exploration, design, or tradeoff comparison
 
-## Small Creative Work
+Do not use this workflow for:
+- pure typo, formatting, rename, dependency, generated artifact, or mechanical maintenance work
+- implementation after an approved design and plan already exist
+- debugging where the next step is reproduction, unless the fix will require new behavior design
 
-Small does not mean unreviewed.
+## Context First
 
-If the slice still changes behavior, UX, flow, or ownership, write a compact direction brief, get approval, and only then move into build. Keep the packet short, but do not skip the approval step just because the slice is small.
+Before proposing solutions:
+- inspect the relevant files, docs, tests, commands, current artifacts, and existing user constraints
+- restate the problem as a qualified problem statement
+- identify the smallest missing fact that blocks the next design decision
 
-## Completion Rule
+Ask one question at a time. Do not batch a list of clarifications. If the user says "you decide", make a controlled assumption and label it in the design doc.
 
-Brainstorm starts with `discovery-lite` and only escalates to `discovery-full` when the first pass still leaves boundary risk, conflicting options, or an unresolved decision that would change scope.
+## Offer Visual Companion
 
-Brainstorm ends in exactly one of these states:
+When upcoming questions may involve mockups, layout, diagrams, architecture shapes, or visual comparisons, offer the Visual Companion before asking clarifying questions.
 
-1. `direction-locked`: the recommendation is strong enough to move into `plan`
-2. `decision-blocked`: exactly one unresolved question prevents a safe decision
+This offer MUST be its own message. Do not combine it with clarifying questions, context summaries, approach comparisons, or any other content.
 
-Do not end with:
-- "needs more thought"
-- "several directions could work"
-- "let the plan decide"
+Use this offer shape:
 
-If more than one decision question remains open, the brainstorm is incomplete.
-When blocked, surface exactly one precise clarification question instead of a list.
+```text
+Some of what we're working on might be easier to explain if I can show it in a browser. I can put together mockups, diagrams, comparisons, and other visuals as we go. Want to try it? This requires opening a local URL.
+```
 
-## Flat Readiness Checkpoint
+If the user declines, continue text-only brainstorming.
 
-Forge uses one flat build path for all behavioral build work. Brainstorm no longer hands off to a separate pre-build review fork; it must make the direction safe enough for `plan` to lock scope and proof.
+If the user accepts, decide per question: would the user understand this better by seeing it than reading it?
 
-Before handoff, check:
-- the accepted tradeoff is explicit
-- assumptions that would change scope are named
-- security, migration, auth, payment, public-interface, or compatibility boundaries are not hidden
-- the first proof can expose the main failure mode
-- the reversal signal says when to reopen the decision instead of pushing uncertainty into build
+Start the local browser server with the bundled Forge tool:
 
-If any item is still unresolved, do not downgrade the risk or rely on a later fork. Return `decision-blocked` with one decisive question, or escalate from `discovery-lite` to `discovery-full`.
+```bash
+tools/visual-companion/scripts/start-server.sh --project-dir <workspace>
+```
+
+On Windows PowerShell, use:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/visual-companion/scripts/start-server.ps1 -ProjectDir <workspace>
+```
+
+The server writes session files under:
+
+```text
+<workspace>/.forge-artifacts/visual-companion/<session-id>
+```
+
+Use the JSON `server-started` output as the source of truth:
+- open `url` in the browser
+- write each HTML screen or fragment into `screen_dir`
+- read browser click choices from `state_dir/events`
+- when returning to terminal-only work, write a waiting screen or stop the server with `stop-server.*`
+
+Use the browser for:
+- UI mockups, wireframes, visual hierarchy, spacing, side-by-side visual designs
+- architecture diagrams, data flow diagrams, state machines, relationship maps
+- visual comparisons where the user's answer depends on seeing the options
+
+Use the terminal for:
+- requirements and scope questions
+- conceptual A/B/C choices
+- tradeoff lists and technical decisions
+- clarifying questions where the answer is words, not visual preference
+
+The Visual Companion is a tool, not a mode. A visual topic is not automatically a visual question.
 
 ## Process
 
 ```mermaid
 flowchart TD
-    A[Input / brief / prompt] --> B[Qualified problem statement]
-    B --> C[Discovery-lite]
-    C --> D{More clarity needed?}
-    D -->|Yes| E[Discovery-full]
-    D -->|No| F[Decision criteria]
-    E --> F
-    F --> G[Generate 2-3 materially different options]
-    G --> H[Compare tradeoffs]
-    H --> I{Direction clear enough?}
-    I -->|No| J[Record one decisive question]
-    I -->|Yes| K[Recommendation + first proof]
-    J --> L[Clarify with user]
-    K --> M[Direction brief]
-    M --> N[-> plan]
+    A[User intent] --> B[Inspect context]
+    B --> C{Visual questions ahead?}
+    C -->|Yes| D[Offer Visual Companion]
+    C -->|No| E[Qualified problem statement]
+    D --> E
+    E --> F{One blocking fact missing?}
+    F -->|Yes| G[Ask one question at a time]
+    G --> B
+    F -->|No| H[Generate 2-3 approaches]
+    H --> I[Compare tradeoffs]
+    I --> J[Choose recommended design]
+    J --> K[Write design doc]
+    K --> L[Commit design document]
+    L --> M[Self-review]
+    M --> N{Self-review finds gaps?}
+    N -->|Yes| B
+    N -->|No| O[User review]
+    O --> P{Approved?}
+    P -->|No| B
+    P -->|Yes| Q[Plan-readiness handoff]
+    Q --> R[Next workflow: plan]
 ```
 
 ## Qualified Problem Statement
@@ -100,163 +137,233 @@ Who: [pain, unmet need, or job-to-be-done]
 That: [desired outcome, business impact, or success signal]
 ```
 
-If you cannot write these three lines, you are not ready to compare options.
+If these three lines cannot be written from available context, ask one question at a time until they can.
 
-`discovery-lite` should make these lines crisp enough for a safe recommendation. `discovery-full` is for the cases where the first pass cannot safely lock scope, boundaries, or tradeoffs.
+## Approach Generation
 
-## Decision Criteria
+Compare 2-3 approaches when more than one real design shape exists.
 
-Choose 3-5 criteria so the decision is grounded in tradeoffs instead of instinct.
+Good approach differences include:
+- different UX or interaction model
+- different data flow or ownership boundary
+- different migration or compatibility strategy
+- different rollout or reversibility model
+- different operational or security posture
 
-Common criteria:
-- speed to ship
-- blast radius
-- maintainability
-- UX clarity
-- migration safety
-- operational simplicity
-
-Pick only the criteria that matter for this problem.
-
-## Lightweight Scoring
-
-When 2-3 options are viable, use quick scoring instead of a long debate.
-
-|Criteria | How to read scores|
-|----------|-------------------|
-|Feasibility | `1` hard with the current repo/team, `2` possible with caveats, `3` straightforward|
-|Impact | `1` small impact, `2` moderate improvement, `3` strong effect on the main outcome|
-|Effort | `1` low effort, `2` medium effort, `3` high effort|
-
-Template:
-
-```text
-Approach A
-- Feasibility: [1-3]
-- Impact: [1-3]
-- Effort: [1-3]
-- Notes: [...]
-```
-
-Rules:
-- do not turn scoring into pseudo-science
-- prefer options with strong impact and acceptable feasibility
-- use `effort` to compare tradeoffs, not as an automatic veto
-- if the scores and the chosen direction differ, explain why
-
-## Decision Rules
-
-- compare at most 3 options
-- each option must differ in real shape: rollout model, UX model, data flow, ownership, or blast radius
-- each option must state its core tradeoff, not just generic pros and cons
-- merge options that differ only superficially
-- default toward the simpler direction if it still reaches the success signal and reduces blast radius
-- if there is not enough information to decide, record exactly one user-facing decision question
-
-## Options Comparison
-
-Compare at least 2 options when:
-- more than one direction is plausible
-- or the user explicitly asks to choose between directions
-
-This is the main place where Forge should compare options. Once the direction is locked, `plan` should inherit it instead of repeating the same comparison.
+Avoid fake alternatives that only rename the same design.
 
 Template:
 
 ```text
 Approach A - [name]
 - Shape: [...]
-- Pros: [...]
+- Benefits: [...]
 - Risks: [...]
+- Cost: [...]
 
 Approach B - [name]
 - Shape: [...]
-- Pros: [...]
+- Benefits: [...]
 - Risks: [...]
+- Cost: [...]
 
 Approach C - [optional]
 - Shape: [...]
-- Pros: [...]
+- Benefits: [...]
 - Risks: [...]
+- Cost: [...]
 
 Recommendation:
 - Choose: [A/B/C]
-- Why: [briefly, using the decision criteria]
-```
-
-Rules:
-- options must be genuinely different
-- combine options that are nearly identical
-- if there is only one reasonable direction, say explicitly why the others are not worth pursuing
-
-## Recommendation Quality
-
-Every recommendation must answer all four points below:
-
-```text
-- Why now: why this direction fits the current problem
-- Why not the others: why the remaining options lose right now
-- First proof: the smallest milestone that validates the direction
-- Reversal signal: what would justify reopening the decision
-```
-
-If any of these are missing, the recommendation is not ready for handoff to `plan`.
-
-## Direction Brief
-
-Before handing off to `plan`, produce:
-
-```text
-Direction ready:
-- Problem statement: [...]
-- Decision criteria: [...]
-- Options considered: [A/B/C]
-- Recommended direction: [...]
-- Key tradeoff accepted: [...]
-- Boundary assumptions: [...]
+- Why this fits now: [...]
 - Why not the others: [...]
+```
+
+## Optional Lenses
+
+Brainstorm owns the default design doc. Other workflows are optional lenses, not required stages.
+
+Use `visualize` as a lens when interaction, layout, visual hierarchy, mobile behavior, or companion mockups would make the design safer.
+
+Use `architect` as a lens when system boundaries, data ownership, compatibility, migration, auth, payment, or public API shape need a deeper structural pass.
+
+When a lens is useful:
+- call it out in the design doc
+- keep the primary route flat: `brainstorm -> plan -> build`
+- do not insert the lens as a mandatory stage unless the user explicitly asks
+
+## Flat Readiness Checkpoint
+
+Forge uses one flat build path for all behavioral build work. Brainstorm no longer hands off to a separate pre-build review fork; it must make the design safe enough for `plan` to lock scope, slices, and proof.
+
+Before handoff, confirm:
+- the accepted tradeoff is explicit
+- assumptions that would change scope are named
+- security, migration, auth, payment, public-interface, or compatibility boundaries are not hidden
+- the first proof can expose the main failure mode
+- the reversal signal says when to reopen the design instead of pushing uncertainty into build
+
+If any item is unresolved, continue design work or ask one precise question. Do not rely on `plan` or `build` to discover the missing design decision.
+
+## Write Design Doc
+
+Write design docs here:
+
+```text
+docs/specs/YYYY-MM-DD-<topic>-design.md
+```
+
+Use this structure:
+
+```markdown
+# [Feature Name] Design
+
+## Problem
+
+For: [...]
+Who: [...]
+That: [...]
+
+## Context
+
+- Existing behavior: [...]
+- Constraints: [...]
+- Relevant files/docs/tests: [...]
+- Assumptions: [...]
+
+## Goals
+
+- [...]
+
+## Non-Goals
+
+- [...]
+
+## Approaches Considered
+
+### Approach A - [...]
+- Shape: [...]
+- Benefits: [...]
+- Risks: [...]
+- Cost: [...]
+
+### Approach B - [...]
+- Shape: [...]
+- Benefits: [...]
+- Risks: [...]
+- Cost: [...]
+
+### Approach C - [...]
+- Shape: [...]
+- Benefits: [...]
+- Risks: [...]
+- Cost: [...]
+
+## Recommended Design
+
+- Chosen approach: [...]
+- Why this direction wins now: [...]
+- Why not the others: [...]
+- Accepted tradeoff: [...]
+
+## Detailed Design
+
+- User flow: [...]
+- Data flow: [...]
+- API/contract changes: [...]
+- State/model changes: [...]
+- Error states: [...]
+- Security/privacy boundaries: [...]
+- Migration/compatibility: [...]
+- Rollout/reversibility: [...]
+
+## Proof Plan
+
 - First proof: [...]
-- Revisit only if: [...]
-- Open questions: [none or exactly 1]
-- Next: plan
+- Test strategy: [...]
+- Manual checks: [...]
+- Reversal signal: [...]
+
+## Open Questions
+
+- None
+```
+
+For small behavioral work, keep sections compact, but still write the doc.
+
+After writing and self-reviewing the file, commit the design document to git before user review. Keep the commit scoped to the design doc and directly related reference updates.
+
+## Self-Review
+
+Before user review, reread the design and answer:
+- Does the design solve the stated problem?
+- Are all material approaches represented or intentionally rejected?
+- Are boundary, auth, payment, migration, public-interface, and compatibility risks explicit?
+- Is the proof plan strong enough to catch the main failure mode?
+- Is the design small enough for one implementation plan, or should it be split?
+
+If self-review finds a gap, revise the design before asking for user review.
+
+## User Review
+
+After self-review, request user review with the smallest useful packet:
+
+```text
+Design ready for review:
+- Design doc: docs/specs/YYYY-MM-DD-<topic>-design.md
+- Git commit: [commit hash or pending if user requested no commit]
+- Recommended design: [...]
+- Accepted tradeoff: [...]
+- First proof: [...]
+- Reversal signal: [...]
+- Please approve or request changes before plan.
+```
+
+Brainstorm ends in exactly one of these states:
+- `design-approved`: user has approved the design and `plan` can start
+- `design-blocked`: one precise design question must be answered before approval
+
+## Plan-Readiness Handoff
+
+When approved, hand off:
+
+```text
+Brainstorm complete:
+- State: design-approved
+- Design doc: docs/specs/YYYY-MM-DD-<topic>-design.md
+- Chosen design: [...]
+- Plan-readiness handoff: [scope assumptions, boundary assumptions, proof expectation]
+- First proof: [...]
+- Reversal signal: [...]
+- Optional design lenses: [none / visualize / architect]
+- Next workflow: plan
+```
+
+When blocked, hand off:
+
+```text
+Brainstorm blocked:
+- State: design-blocked
+- Missing answer: [...]
+- Why it matters: [...]
+- Clarification needed: [one precise question]
+- Next step: answer the question, then revise the design doc
 ```
 
 ## Anti-Patterns
 
-- using brainstorm to widen scope beyond the request
-- listing many small variations instead of materially different options
-- deferring the choice to `plan`
-- calling a direction "good enough" without explaining the tradeoff
-- reopening the same debate without new evidence
-
-## Handover
-
-If the direction is locked, hand off:
-
-```text
-Brainstorm complete:
-- Chosen direction: [...]
-- Why this direction wins now: [...]
-- Plan-readiness handoff: [scope assumptions, boundary assumptions, proof expectation]
-- First proof: [...]
-- Reversal signal: [...]
-- Next workflow: plan
-```
-
-If the decision is blocked, hand off:
-
-```text
-Decision blocked:
-- Missing answer: [...]
-- Why it matters: [...]
-- Clarification needed: [one precise question]
-- Next step: clarify with user
-```
+- proposing solutions before reading context
+- asking several questions at once
+- combining the Visual Companion offer with any other content
+- skipping the design doc because the work is small
+- treating `visualize` or `architect` as default stages instead of lenses
+- deferring unresolved design decisions to `plan`
+- hiding high-risk boundaries behind a flat route
 
 ## Activation Announcement
 
 ```text
-Forge: brainstorm | choose a direction before planning
+Forge: brainstorm | generate and approve design before plan
 ```
 
 ## Response Footer

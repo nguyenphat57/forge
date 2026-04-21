@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from common import normalize_text, score_keywords
+from route_intent_detection import infer_change_type
 from route_risk import should_insert_brainstorm
 
 
@@ -109,6 +110,12 @@ def _packet_unclear(prompt_text: str, registry: dict) -> bool:
     return score_keywords(normalized, registry.get("solo_profiles", {}).get("packet_unclear_markers", [])) > 0
 
 
+def _requires_brainstorm_design_doc(intent: str, prompt_text: str, registry: dict) -> bool:
+    if intent == "VISUALIZE":
+        return True
+    return intent == "BUILD" and infer_change_type(prompt_text, registry) == "behavioral"
+
+
 def _release_context(
     prompt_text: str,
     repo_signals: list[str],
@@ -164,21 +171,20 @@ def build_required_stages(
 ) -> dict:
     profile, profile_definition = resolve_profile(prompt_text, repo_signals, registry)
     order = list(profile_definition.get("intent_orders", {}).get(intent, []))
-    non_behavioral = score_keywords(
-        normalize_text(prompt_text),
-        registry.get("change_type_hints", {}).get("non_behavioral_keywords", []),
-    ) > 0
     ui_work = _looks_like_ui_work(prompt_text, repo_signals, registry)
     interaction_model_change = _interaction_model_change(prompt_text)
     greenfield_feature = _looks_like_greenfield_feature(prompt_text, intent)
-    brainstorm_required = should_insert_brainstorm(prompt_text, intent, complexity, registry) or (
-        greenfield_feature and complexity in {"medium", "large"}
+    brainstorm_required = _requires_brainstorm_design_doc(intent, prompt_text, registry) or should_insert_brainstorm(
+        prompt_text,
+        intent,
+        complexity,
+        registry,
     )
     brainstorm_mode = "discovery-full" if brainstorm_required and (
         complexity == "large"
         or score_keywords(normalize_text(prompt_text), ["workflow", "approval flow", "multiple actors", "journey", "process"]) > 0
     ) else "discovery-lite"
-    architect_required = _system_shape_change(prompt_text, complexity)
+    architect_lens = _system_shape_change(prompt_text, complexity) and intent in {"BUILD", "VISUALIZE", "DEBUG"}
     release_context = _release_context(prompt_text, repo_signals, intent, profile, quality_profile_key, registry)
     secure_required = (
         release_context["public_release"]
@@ -186,9 +192,14 @@ def build_required_stages(
     )
     if intent == "REVIEW":
         secure_required = True
-    visualize_required = intent == "VISUALIZE" or (
+    visualize_lens = intent == "VISUALIZE" or (
         intent == "BUILD" and ui_work and complexity in {"medium", "large"} and interaction_model_change
     )
+    optional_design_lenses: list[str] = []
+    if visualize_lens:
+        optional_design_lenses.append("visualize")
+    if architect_lens:
+        optional_design_lenses.append("architect")
     self_review_required = intent in {"BUILD", "DEBUG", "OPTIMIZE", "DEPLOY"} and (
         complexity in {"medium", "large"} or release_context["release_candidate"]
     )
@@ -215,24 +226,9 @@ def build_required_stages(
             continue
 
         if stage_name == "visualize":
-            if visualize_required:
-                reason = "interaction_model_change" if interaction_model_change else "ui_medium_plus"
-                _append_stage(decisions, registry, stage_name, status="required", activation_reason=reason)
-            elif intent in {"BUILD", "VISUALIZE"}:
-                _append_stage(
-                    decisions,
-                    registry,
-                    stage_name,
-                    status="skipped",
-                    skip_reason="direction_locked" if ui_work else "non_ui",
-                )
             continue
 
         if stage_name == "architect":
-            if architect_required and intent in {"BUILD", "VISUALIZE", "DEBUG"}:
-                _append_stage(decisions, registry, stage_name, status="required", activation_reason="default_chain")
-            elif intent in {"BUILD", "VISUALIZE", "DEBUG"} and complexity in {"medium", "large"}:
-                _append_stage(decisions, registry, stage_name, status="skipped", skip_reason="packet_clear")
             continue
 
         if stage_name in {"build", "test", "debug", "refactor", "review", "session"}:
@@ -266,5 +262,6 @@ def build_required_stages(
         "required_stages": decisions,
         "required_stage_chain": _active_chain(decisions, "stage"),
         "workflow_chain": _active_chain(decisions, "workflow"),
+        "optional_design_lenses": optional_design_lenses,
         "release_context": release_context,
     }

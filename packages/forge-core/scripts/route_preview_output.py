@@ -17,6 +17,7 @@ def format_text(report: dict) -> str:
         f"- Complexity: {detected['complexity']}",
         f"- Profile: {detected['profile']}",
         f"- Forge skills: {' -> '.join(detected['forge_skills'])}",
+        f"- Optional design lenses: {', '.join(detected['optional_design_lenses']) or '(none)'}",
         "- Skill selection rationale:",
         f"- Required stage chain: {' -> '.join(detected['required_stage_chain']) or '(none)'}",
         f"- Execution mode: {detected['execution_mode'] or '(n/a)'}",

@@ -2,238 +2,273 @@
 name: plan
 type: flexible
 triggers:
-  - intent: BUILD (complexity medium+)
+  - intent: BUILD
+  - approved design doc exists
+  - user asks for implementation plan
   - shortcut: /plan
 quality_gates:
-  - Spec or plan document created
-  - Implementation-ready plan packet explicit for medium/large task
-  - Behavioral build path stays on the shared plan -> build contract
-  - User approved before building medium/large tasks
+  - Implementation plan is written to docs/plans/YYYY-MM-DD-<topic>-implementation-plan.md
+  - Plan follows the Superpowers writing-plans checklist format
+  - Plan starts with the agentic-worker header
+  - No placeholders, TODOs, or vague implementation tasks remain
+  - Every slice has tests or proof commands
+  - Plan includes execution choice before build
+  - Build does not start until the user chooses an execution mode
 ---
 
-# Plan - Planning & Feature Discovery
+# Plan - Implementation Plan Writer
 
 ## The Iron Law
 
 ```text
-NO MEDIUM/LARGE BUILD WITHOUT A CONFIRMED PLAN FIRST
+NO BUILD WITHOUT A WRITTEN IMPLEMENTATION PLAN AND EXECUTION CHOICE
 ```
 
-<HARD-GATE>
-For medium, large, or vague tasks:
-- do not move into `build` until scope and success criteria are clear
-- the plan may be short, but it must be specific enough to prevent guesswork
-- if the task came from `brainstorm`, inherit the locked direction unless new evidence forces a reversal
-- for solo-profile work, make the discovery path explicit: `discovery-lite` for the first pass, `discovery-full` only when ambiguity or boundary risk remains
+`plan` is Forge's version of Superpowers `writing-plans`. It turns an approved design or clear user request into an executable checklist. It does not brainstorm alternative designs.
 
-For small, clear tasks:
-- skip formal phase generation
-- do a quick scope reset plus a verification plan, then build only after a compact approval
-- if the slice is creative or behavior-changing, keep the packet short but still get explicit sign-off before build
+Write plans as if the implementer is skilled but has zero context for this codebase. Give exact files, exact commands, expected outcomes, code snippets, tests, docs, and commit points. Use DRY, YAGNI, TDD, and frequent commits.
 
-Quick path:
-- use it only for clearly small, bounded work
-- it may be triggered by a short prompt, `quick`, or `/quick`
-- do not use it for multi-direction work or slices that still need architectural clarification
-</HARD-GATE>
+## Hard Gate
 
-## Process
-
-```mermaid
-flowchart TD
-    A[Input] --> B{Brief/spec already exists?}
-    B -->|Yes| C[Extract scope + assumptions]
-    B -->|No| D[Ask 1 decisive framing question]
-    D --> E[Qualified problem statement]
-    C --> E
-    E --> F{Direction locked?}
-    F -->|No| G[-> brainstorm]
-    F -->|Yes| H[Recommended scope and stack]
-    H --> I{User confirms?}
-    I -->|Edit| G
-    I -->|OK| J[Discovery-lite]
-    J --> K{Need discovery-full?}
-    K -->|Yes| L[Discovery-full]
-    K -->|No| M[Data flow + user flow]
-    L --> M
-    M --> N[Phase generation]
-    N --> O[Create plan/spec]
-    O --> P[Plan readiness review]
-    P --> Q{Need architect?}
-    Q -->|Yes| R[-> architect]
-    Q -->|No| U[-> build]
-```
-
-## Framing Question Discipline
-
-```text
-Ask one decisive question at a time:
-- What are we building or managing?
-- Who uses it?
-- If only one thing works perfectly, what must it be?
-```
+Use this workflow for every `BUILD` route.
 
 Rules:
-- ask the smallest question that unlocks the next planning decision
-- if the user says "you decide", you may make a controlled assumption, but you must state it explicitly
-- do not batch multiple open clarification questions into one handoff
+- always write or update a plan file, even for small work
+- inherit the approved design from `brainstorm` when one exists
+- if behavior or visual design is not approved, return to `brainstorm`
+- if system shape needs deeper analysis, mark `architect` as an optional lens instead of inserting it into the default route
+- stop at execution choice before `build`
 
-## Qualified Problem Statement
+## Required Output File
 
-Use this for medium, large, or vague work:
-
-```text
-For: [persona / team / workflow]
-Who: [pain, unmet need, or job-to-be-done]
-That: [desired outcome, business impact, or success signal]
-```
-
-Do not move into phase generation until this statement is clear enough to constrain the solution.
-
-## Proposal Shape
+Write implementation plans here:
 
 ```text
-Recommended: [name]
-Type: [web / mobile / backend / internal tool]
-Core scope:
-1. [...]
-2. [...]
-3. [...]
-Suggested stack: [...]
-Assumptions: [...]
+docs/plans/YYYY-MM-DD-<topic>-implementation-plan.md
 ```
 
-## Quick Approval
+Use this title:
 
-For small creative work, the plan may be just one compact packet. It still needs the same essentials: chosen direction, exact scope, baseline proof, and explicit approval before build.
+```markdown
+# [Feature Name] Implementation Plan
+```
 
-## Direction Intake
+Every plan MUST start with this header:
 
-`Plan` is not a second brainstorm.
+```markdown
+# [Feature Name] Implementation Plan
 
-Continue only when one of these is true:
-- a `direction brief` already exists from `brainstorm`
-- or the brief/spec/user input already locks the direction clearly enough
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** [One sentence describing what this builds]
+
+**Architecture:** [2-3 sentences about the approach]
+
+**Tech Stack:** [Key technologies/libraries]
+
+---
+```
+
+## File Structure
+
+Before defining tasks, map the files that will be created or modified and what each file is responsible for.
 
 Rules:
-- if the approach is still genuinely contested, go back to `brainstorm`
-- plan may summarize the chosen approach, but should not rerun a full option comparison
-- only reopen a locked direction when the reversal signal fires or new evidence changes the tradeoff materially
+- every file should have one clear responsibility
+- follow existing codebase patterns
+- split by responsibility, not by technical layer
+- include targeted cleanup only when it serves the current goal
+- exact paths are required whenever they can be known
 
-## Feature Discovery
+This file map locks the task decomposition. Do not write tasks until the likely file/surface boundaries are clear enough.
 
-Always check:
-- auth and roles
-- validation and error states
-- search, filter, and pagination
-- import, export, and audit trail
-- offline, concurrency, and approval flows where the domain makes them risky
+## Bite-Sized Task Granularity
 
-Use `discovery-lite` to collect only the facts needed to lock the recommendation. Escalate to `discovery-full` when the first pass cannot answer the release, boundary, or UX tradeoff safely.
+Each step is one action (2-5 minutes).
 
-## Phase Generation
+Good steps:
+- Write the failing test
+- Run test to verify it fails
+- Implement the minimal passing change
+- Run test to verify it passes
+- Commit
 
-|Complexity | Pattern|
-|------------|--------|
-|**small** | Skip formal planning; restore scope and verification only|
-|**medium** | Setup -> core backend/data -> UI/integration -> test/review|
-|**large** | Discovery -> architecture -> implementation phases -> integration -> deploy prep|
+Bad steps:
+- Build the feature
+- Add validation and edge cases
+- Clean up everything
+- Test the above
 
-If a phase grows beyond 20 tasks, split it.
+## Required Plan Structure
 
-## Implementation-Ready Plan Packet
+```markdown
+# [Feature Name] Implementation Plan
 
-For medium and large work, the plan must be concrete enough that implementation does not have to guess.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-Lock at least:
-- `Source of truth`: which brief/spec/direction is authoritative
-- `File or surface map`: the exact files, modules, boundaries, or contracts likely to change
-- `Baseline`: the current command or check that proves the slice is starting from a known state
-- `Task slices`: each slice has a clear goal and an independent proof
-- `Acceptance & proof`: which test or check proves each slice
-- `Out of scope`: what not to touch in this slice
-- `Dependencies & order`: what must happen first and what follows
-- `Reopen conditions`: when to return to `brainstorm`, `plan`, or `architect`
+**Goal:** [One sentence describing what this builds]
 
-Template:
+**Architecture:** [2-3 sentences about the approach]
 
-```text
-Implementation-ready packet:
-- Sources: [...]
-- File/surface map: [...]
-- Baseline: [...]
-- Slice 1: [goal] | Files/boundary: [...] | Proof: [...]
-- Slice 2: [goal] | Files/boundary: [...] | Proof: [...]
-- Out of scope: [...]
-- Dependencies/order: [...]
-- Reopen only if: [...]
+**Tech Stack:** [Key technologies/libraries]
+
+---
+
+## Source And Current State
+
+- Source design: docs/specs/YYYY-MM-DD-<topic>-design.md
+- Existing behavior: [...]
+- Relevant files: [...]
+- Relevant tests: [...]
+- Baseline command: [...]
+
+## Desired End State
+
+- [...]
+
+## Out Of Scope
+
+- [...]
+
+## Implementation Tasks
+
+### Task 1: [Component Name]
+
+**Files:**
+- Create: `exact/path/to/new_file.py`
+- Modify: `exact/path/to/existing_file.py`
+- Test: `tests/exact/path/test_file.py`
+
+- [ ] **Step 1: Write the failing test**
+
+```python
+def test_specific_behavior():
+    result = function_under_test("input")
+    assert result == "expected"
 ```
 
-Rules:
-- if the implementer still has to guess the main scope, sequence, or proof, the plan is not ready
-- you do not need a perfect file list early on, but you do need clear boundaries
-- if the plan is too large for a compact packet, split it into phases
-- if the requirements still feel vague, run `python scripts/generate_requirements_checklist.py ...` before handoff
+- [ ] **Step 2: Run test to verify it fails**
 
-## Plan Review Loop
+Run: `pytest tests/exact/path/test_file.py::test_specific_behavior -v`
+Expected: FAIL because the behavior is not implemented.
 
-Before handing off to `architect` or `build`, reread the plan like a reviewer.
+- [ ] **Step 3: Write minimal implementation**
 
-### Pass 1: Scope & Sequence
-- Is scope in/out clearly locked?
-- Can the work be built slice by slice?
-- Are there any slices that secretly depend on each other because the contract is still unclear?
-
-### Pass 2: Proof & Risk
-- Does each slice have a real proof/check?
-- Are migration, auth, public interface, or boundary risks understated?
-- Is there any assumption that would invalidate the whole plan if wrong?
-
-Rules:
-- this review loop is required for large work and for public-interface, migration, auth, or payment changes
-- if two review passes still cannot lock sequence or proof, go back to `brainstorm` or `architect`
-- if packet readiness is unclear, run `python scripts/check_spec_packet.py --source <plan-or-spec>` and surface only the first clarification question
-
-## Output Files
-
-Prefer:
-
-```text
-docs/plans/[YYYY-MM-DD]-[feature]-plan.md
-docs/specs/[feature]-spec.md
+```python
+def function_under_test(value):
+    return "expected"
 ```
 
-A plan should include:
-- qualified problem statement
-- discovery path: `discovery-lite` only, or `discovery-lite` -> `discovery-full` when needed
-- goal and success signal
-- scope in/out
-- file/surface map
-- task slices with proof per slice
-- risks and assumptions
-- phases/tasks
-- verification strategy
+- [ ] **Step 4: Run test to verify it passes**
 
-## Handover
+Run: `pytest tests/exact/path/test_file.py::test_specific_behavior -v`
+Expected: PASS
 
-Before moving to `build` or `architect`, summarize:
+- [ ] **Step 5: Commit**
+
+```bash
+git add tests/exact/path/test_file.py exact/path/to/new_file.py
+git commit -m "feat: add specific behavior"
+```
+
+## Acceptance Criteria
+
+- [...]
+
+## Verification
+
+- Red test command: [...]
+- Green test command: [...]
+- Full check: [...]
+
+## Risks And Rollback
+
+- Risk: [...]
+- Mitigation: [...]
+- Rollback: [...]
+
+## Execution Mode
+
+- Subagent-Driven: use when the plan has independent tasks that can be safely split.
+- Inline Execution: use when the plan is small, tightly coupled, or the host lacks useful delegation.
+- execution choice: the user must choose Subagent-Driven or Inline Execution before `build`.
+```
+
+## Required Sub-Skill Line
+
+Every plan must include:
 
 ```text
-Plan ready:
-- Problem statement: [...]
-- Chosen approach: [...]
-- Why this direction now: [...]
-- Scope in/out: [...]
-- Task slices: [...]
-- Verification strategy: [...]
-- Reopen only if: [...]
-- Next workflow: [architect / build]
+REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans
 ```
+
+If Inline Execution is chosen later, keep the line and execute through `superpowers:executing-plans`.
+
+## Planning Rules
+
+- Make each task small enough to execute in one focused pass.
+- Put exact file or module boundaries on each step whenever known.
+- Start implementation with a failing test or failing content check.
+- Do not include vague tasks such as "polish", "cleanup", or "handle edge cases" without proof.
+- Include commands that prove the current step and the full change.
+- Include rollback or recovery when state, migration, release, or public behavior changes.
+- Avoid re-comparing design options unless the design's reversal signal fired.
+
+## No Placeholders
+
+Every step must contain the actual content an engineer needs.
+
+Plan failures:
+- `TBD`, `TODO`, `implement later`, or `fill in details`
+- "Add appropriate error handling"
+- "Add validation"
+- "Handle edge cases"
+- "Write tests for the above"
+- "Similar to Task N"
+- references to functions, types, or files not defined in the plan
+
+Complete code in every step that changes code. If a step writes or edits code, show the code or the exact diff shape needed. If a step runs a command, include the exact command and expected output.
+
+## Execution Choice Gate
+
+The final output of `plan` is not `build`. The final output is an execution choice.
+
+After writing and reviewing the plan, stop with:
+
+```text
+Plan complete and saved to `docs/plans/YYYY-MM-DD-<topic>-implementation-plan.md`. Two execution options:
+
+1. Subagent-Driven (recommended) - dispatch a fresh subagent per task, review between tasks, fast iteration
+2. Inline Execution - execute tasks in this session using executing-plans, batch execution with checkpoints
+
+Which approach?
+```
+
+Record the stage decision as:
+
+```text
+decision: execution-choice-required
+next_action: Choose Subagent-Driven or Inline Execution before build.
+```
+
+`next` must keep focus on `plan` while this decision is pending.
+
+## Plan Self-Review
+
+Before handoff, review the plan:
+- Does every implementation step have a proof?
+- Is the first step a failing test or failing check?
+- Are files and boundaries specific enough for implementation?
+- Are design assumptions inherited rather than re-decided?
+- Are risky areas paired with rollback or recovery guidance?
+- Is the execution choice explicit?
+
+If any answer is no, revise the plan before asking for execution choice.
 
 ## Activation Announcement
 
 ```text
-Forge: plan | lock scope, slices, and proof before build
+Forge: plan | write implementation plan and request execution choice
 ```
 
 ## Response Footer

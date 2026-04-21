@@ -217,7 +217,7 @@ def workflow_entry(kind: str, report: dict | None, source_path: Path | None = No
             "status": report.get("stage_status", "required"),
             "current_stage": report.get("stage_name", "brainstorm"),
             "mode": report.get("mode", "discovery-lite"),
-            "decision_state": report.get("decision_state", "direction-locked"),
+            "decision_state": report.get("decision_state", "design-approved"),
             "next_steps": as_string_list(report.get("next_actions")),
             "notes": as_string_list(report.get("notes")),
         }

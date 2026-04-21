@@ -139,6 +139,7 @@ def build_report(args: argparse.Namespace, *, load_registry_fn=load_registry) ->
     runtimes = detect_runtimes(args.repo_signal, registry)
     active_routing_locales = routing_locale_names()
     required_stages = required_stage_contract["required_stages"]
+    optional_design_lenses = list(required_stage_contract.get("optional_design_lenses", []))
     skill_selection_rationale = build_skill_selection_rationale(required_stages, registry)
     precheck_required = policy["precheck_required"]
     baseline_proof_required = policy["baseline_proof_required"]
@@ -163,6 +164,7 @@ def build_report(args: argparse.Namespace, *, load_registry_fn=load_registry) ->
             "forge_skills": forge_skills,
             "required_stage_chain": required_stage_contract["required_stage_chain"],
             "required_stages": required_stages,
+            "optional_design_lenses": optional_design_lenses,
             "skill_selection_rationale": skill_selection_rationale,
             "host_skills": host_skills,
             "host_supports_subagents": host_supports_subagents,

@@ -6,6 +6,9 @@ from workflow_stage_fields import transition_entry
 from workflow_state_io import string_list
 
 
+EXECUTION_CHOICE_PENDING_DECISIONS = {"execution-choice-required", "execution-choice-pending"}
+
+
 def stage_entry(kind: str, report: dict | None, source_path: Path | None = None) -> tuple[str, dict] | None:
     transition = transition_entry(kind, report, str(source_path) if source_path else None)
     if not isinstance(transition, dict):
@@ -119,5 +122,11 @@ def current_stage_after_transition(
     if not isinstance(stage_name, str) or not stage_name.strip():
         return previous_stage
     if stage_status in {"completed", "skipped"}:
+        if (
+            stage_name == "plan"
+            and stage_status == "completed"
+            and transition.get("decision") in EXECUTION_CHOICE_PENDING_DECISIONS
+        ):
+            return stage_name
         return next_stage_after(stage_name, required_stage_chain, stages) or stage_name
     return stage_name

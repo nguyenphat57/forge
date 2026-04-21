@@ -41,6 +41,12 @@
 | `rollback-guidance.md` | When editing rollback planning, risk framing, or recovery strategy selection |
 | `companion-skill-contract.md` | Design or update companion skills when the repo really has an extended runtime or framework layer |
 | `companion-routing-smoke-tests.md` | Check routing between Forge and companion skills when the workspace uses a companion or local layer |
+| `design/design-doc-template.md` | Write Forge brainstorm design docs under `docs/specs/YYYY-MM-DD-<topic>-design.md` |
+| `design/design-review-checklist.md` | Self-review a brainstorm design doc before user review |
+| `design/visual-companion-guidance.md` | Decide when the optional `visualize` lens should inform a design without becoming a default stage |
+| `planning/implementation-plan-template.md` | Write Forge implementation plans under `docs/plans/YYYY-MM-DD-<topic>-implementation-plan.md` |
+| `planning/plan-self-review-checklist.md` | Review plan readiness before asking for execution choice |
+| `planning/execution-handoff.md` | Record the execution-choice gate before `build` |
 
 ## Historical Planning Context
 
@@ -106,16 +112,19 @@
 ### When doing implementation after plan or design
 
 ```text
-1. docs/current/operator-surface.md if the change touches source-repo routing or wrappers
-2. target-state.md if the change affects Forge process direction or strictness
-3. execution-delivery.md
-4. build.md when defining or updating the canonical build packet
-5. test.md when the proof chain or browser QA evidence changes
-6. debug.md when reproduction or root-cause packet changes
-7. failure-recovery-playbooks.md if the chain has risk stall or block
-8. kernel-tooling.md if checkpoint artifact is needed
-9. review.md if you need to clear disposition last
-10. quality-gate.md if you need to go or no-go clearly before claiming or deploying
+1. planning/implementation-plan-template.md when writing the implementation plan
+2. planning/plan-self-review-checklist.md before asking for execution choice
+3. planning/execution-handoff.md before moving from plan to build
+4. docs/current/operator-surface.md if the change touches source-repo routing or wrappers
+5. target-state.md if the change affects Forge process direction or strictness
+6. execution-delivery.md
+7. build.md when defining or updating the canonical build packet
+8. test.md when the proof chain or browser QA evidence changes
+9. debug.md when reproduction or root-cause packet changes
+10. failure-recovery-playbooks.md if the chain has risk stall or block
+11. kernel-tooling.md if checkpoint artifact is needed
+12. review.md if you need to clear disposition last
+13. quality-gate.md if you need to go or no-go clearly before claiming or deploying
 ```
 
 ### When doing release-critical flow
@@ -154,13 +163,15 @@
 ### When doing frontend or visualization
 
 ```text
-1. frontend-stack-profiles.md
-2. ui-quality-checklist.md
-3. ui-good-bad-examples.md
-4. ui-heuristics.md
-5. ui-escalation.md if the visual guide is too open
-6. ui-progress.md if the task takes a long time
-7. kernel-tooling.md if you want deterministic artifact or verification helpers
+1. design/design-doc-template.md when the work changes behavior or visual design
+2. design/visual-companion-guidance.md when deciding whether to use the visual lens
+3. frontend-stack-profiles.md
+4. ui-quality-checklist.md
+5. ui-good-bad-examples.md
+6. ui-heuristics.md
+7. ui-escalation.md if the visual guide is too open
+8. ui-progress.md if the task takes a long time
+9. kernel-tooling.md if you want deterministic artifact or verification helpers
 ```
 
 ### When stalled or blocked

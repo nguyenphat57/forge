@@ -12,7 +12,15 @@ from pathlib import Path
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-CORE_ROOT_DIR = ROOT_DIR.parents[1] / "forge-core"
+
+
+def resolve_core_root() -> Path:
+    if (ROOT_DIR / "scripts").exists() and (ROOT_DIR / "data").exists():
+        return ROOT_DIR
+    return ROOT_DIR.parents[1] / "forge-core"
+
+
+CORE_ROOT_DIR = resolve_core_root()
 CORE_SCRIPTS_DIR = CORE_ROOT_DIR / "scripts"
 DEFAULT_TEST_FORGE_HOME = (CORE_ROOT_DIR / "tests" / "fixtures" / "forge-homes" / "empty").resolve()
 
@@ -65,7 +73,8 @@ def stage_bundle_root() -> Path:
     return stage_root
 
 
-os.environ.setdefault("FORGE_BUNDLE_ROOT", str(stage_bundle_root()))
+if "FORGE_BUNDLE_ROOT" not in os.environ:
+    os.environ["FORGE_BUNDLE_ROOT"] = str(stage_bundle_root())
 
 if str(CORE_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(CORE_SCRIPTS_DIR))

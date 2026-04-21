@@ -1,7 +1,7 @@
 # Forge Public Readiness
 
 Date: 2026-04-21
-Status: `2.9.0` is the current stable release after the flat-build-routing release sync and the latest verification gate.
+Status: `2.10.0` is the current stable release after the flat-routing and Visual Companion release sync and the latest verification gate.
 
 ## What This Checklist Covers
 
@@ -29,9 +29,9 @@ This checklist is for publishing the Forge monorepo to a public audience without
 - release and install flows are documented under `docs/release/`
 - final GitHub visibility steps are documented in `docs/release/github-public-switch-checklist.md`
 - real-repo canary and authenticated QA evidence is recorded in the 2026-03-29 project reports
-- release-facing docs now align on `2.9.0` as the stable source version
+- release-facing docs now align on `2.10.0` as the stable source version
 
 ## Verdict
 
-Forge `2.9.0` is in a reasonable state for public stable release under the current policy.
+Forge `2.10.0` is in a reasonable state for public stable release under the current policy.
 The hardening item above is optional evidence, not a release precondition.

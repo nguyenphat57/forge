@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.10.0 (stable) - 2026-04-21
+
+- Align Forge design flow more closely with Superpowers by making `brainstorm` the design-doc generator, making `plan` the writing-plan style implementation gate, and flattening BUILD routing across risk levels.
+- Ship the Forge Visual Companion script layer with a local browser server, frame/helper assets, shell plus PowerShell wrappers, persistent `.forge-artifacts/visual-companion` sessions, and release bundle coverage for all shipped hosts.
+- Refresh release-facing and continuity surfaces so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` all agree on `2.10.0` as the current stable release.
+
+
 ## 2.9.0 (stable) - 2026-04-21
 
 - Flatten Forge BUILD routing across risk levels by removing the active `spec-review` fork, deleting the standalone workflow/recorder surfaces, and keeping medium/large BUILD work on `brainstorm? -> plan -> architect? -> build -> test -> self-review -> quality-gate`.

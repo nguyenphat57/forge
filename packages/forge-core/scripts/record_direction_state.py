@@ -13,7 +13,7 @@ from record_stage_state import persist_stage_report
 
 
 VALID_STAGE_STATUSES = ("pending", "required", "active", "completed", "skipped", "blocked")
-VALID_DECISION_STATES = ("direction-locked", "decision-blocked")
+VALID_DECISION_STATES = ("design-approved", "design-blocked", "direction-locked", "decision-blocked")
 
 
 def build_report(args: argparse.Namespace) -> dict:

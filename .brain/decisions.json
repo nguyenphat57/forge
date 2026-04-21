@@ -357,7 +357,7 @@
         "id":  "20260417-000000",
         "kind":  "decision",
         "scope":  "forge-2-6-stable-status",
-        "summary":  "Treat 2.6.0 as the current stable Forge release because the response-contract token-trim cut, release-facing doc sync, and targeted verification gate are all green.",
+        "summary":  "Treat 2.6.0 as a superseded Forge stable slice because the later 2.10.0 release replaced its stable line after later release sync and verification passes.",
         "status":  "superseded",
         "evidence":  [
                          "CHANGELOG.md",
@@ -412,8 +412,8 @@
         "id":  "20260421-120000",
         "kind":  "decision",
         "scope":  "forge-2-9-stable-status",
-        "summary":  "Treat 2.9.0 as the current stable Forge release because the flat-build-routing tranche, release-facing doc sync, full core unittest discovery, adapter locale checks, and fast repo verification gate are all green.",
-        "status":  "resolved",
+        "summary":  "Treat 2.9.0 as a superseded Forge stable slice because the later 2.10.0 release replaced its stable line after a fresh release sync and verification pass.",
+        "status":  "superseded",
         "evidence":  [
                          "VERSION",
                          "CHANGELOG.md",
@@ -435,8 +435,43 @@
                      "routing",
                      "workflow-surface"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 2.9.0 verification evidence.",
+        "revisit_if":  "Release archaeology needs the original 2.9.0 proof chain or later evidence invalidates the recorded verification.",
         "trigger":  "minor-release",
         "resume_hint":  "Resume only if a later audit needs the original 2.9.0 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260421-130500",
+        "kind":  "decision",
+        "scope":  "forge-2-10-stable-status",
+        "summary":  "Treat 2.10.0 as the current stable Forge release because the Superpowers-aligned design flow, Visual Companion script layer, release-facing doc sync, full core unittest discovery, and release verification gate are all green.",
+        "status":  "resolved",
+        "evidence":  [
+                         "VERSION",
+                         "CHANGELOG.md",
+                         "README.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "packages/forge-core/workflows/design/brainstorm.md",
+                         "packages/forge-core/workflows/design/plan.md",
+                         "packages/forge-core/tools/visual-companion/scripts/server.cjs",
+                         "python -m unittest discover -s packages/forge-core/tests -p test_visual_companion.py -v -> PASS on 2026-04-21",
+                         "python -m unittest discover -s packages/forge-core/tests -v -> PASS on 2026-04-21",
+                         "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-21",
+                         "python scripts/build_release.py --force --format json -> PASS on 2026-04-21"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "maintenance",
+                     "routing",
+                     "visual-companion",
+                     "workflow-surface"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 2.10.0 verification evidence.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 2.10.0 proof chain or invalidates the recorded verification."
     }
 ]

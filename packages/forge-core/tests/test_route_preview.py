@@ -83,7 +83,7 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["profile"], "solo-internal")
         self.assertEqual(
             report["detected"]["required_stage_chain"],
-            ["plan", "build", "test", "self-review", "quality-gate"],
+            ["brainstorm", "plan", "build", "test", "self-review", "quality-gate"],
         )
         self.assertEqual(report["detected"]["execution_pipeline"], "implementer-quality")
         self.assertTrue(report["detected"]["durable_process_artifacts_required"])
@@ -108,7 +108,7 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["complexity"], "small")
         self.assertEqual(report["detected"]["forge_skills"], ["plan", "build", "test"])
         self.assertEqual(report["detected"]["required_stage_chain"], ["plan", "build", "test"])
-        self.assertFalse(report["detected"]["durable_process_artifacts_required"])
+        self.assertTrue(report["detected"]["durable_process_artifacts_required"])
         self.assertFalse(report["detected"]["process_precheck_required"])
         self.assertFalse(report["detected"]["baseline_proof_required"])
         self.assertFalse(report["detected"]["review_artifact_required"])
@@ -121,9 +121,10 @@ class RoutePreviewTests(unittest.TestCase):
 
         self.assertEqual(report["detected"]["intent"], "VISUALIZE")
         self.assertEqual(report["detected"]["complexity"], "small")
-        self.assertEqual(report["detected"]["forge_skills"], ["plan", "visualize"])
-        self.assertEqual(report["detected"]["required_stage_chain"], ["plan", "visualize"])
-        self.assertFalse(report["detected"]["durable_process_artifacts_required"])
+        self.assertEqual(report["detected"]["forge_skills"], ["brainstorm", "plan"])
+        self.assertEqual(report["detected"]["required_stage_chain"], ["brainstorm", "plan"])
+        self.assertEqual(report["detected"]["optional_design_lenses"], ["visualize"])
+        self.assertTrue(report["detected"]["durable_process_artifacts_required"])
         self.assertTrue(report["detected"]["process_precheck_required"])
         self.assertFalse(report["detected"]["baseline_proof_required"])
         self.assertFalse(report["detected"]["review_artifact_required"])
@@ -138,7 +139,7 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["complexity"], "small")
         self.assertTrue(report["detected"]["process_precheck_required"])
         self.assertFalse(report["detected"]["baseline_proof_required"])
-        self.assertFalse(report["detected"]["durable_process_artifacts_required"])
+        self.assertTrue(report["detected"]["durable_process_artifacts_required"])
 
     def test_session_prompt_skips_edit_verification_profile(self) -> None:
         report = route_preview.build_report(self.build_args("Continue the task in progress"))
@@ -193,7 +194,7 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["execution_pipeline"], "implementer-quality")
         self.assertEqual(
             report["detected"]["required_stage_chain"],
-            ["plan", "build", "test", "self-review", "quality-gate"],
+            ["brainstorm", "plan", "build", "test", "self-review", "quality-gate"],
         )
 
     def test_public_release_resolves_solo_public_profile(self) -> None:

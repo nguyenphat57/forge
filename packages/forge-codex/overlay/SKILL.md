@@ -27,9 +27,12 @@ description: "Forge Codex - Codex-oriented adapter for Forge core. Use when a re
 ## Routing Contract
 
 - Detect intent and complexity first, then choose the smallest Forge chain that can finish the work safely.
-- `REVIEW`, `SESSION`, and truly small tasks may stay prompt-led.
-- Medium or large `BUILD` or `VISUALIZE` work that is still ambiguous must go through `brainstorm` before `plan`.
-- Forge no longer inserts a separate pre-build review stage for boundary-sensitive `BUILD` work; behavioral build routing stays flat and relies on the shared plan/build/review contract instead.
+- `REVIEW`, `SESSION`, and truly non-behavioral maintenance tasks may stay prompt-led.
+- All behavioral `BUILD` work and all `VISUALIZE` work must go through `brainstorm` before `plan`.
+- `brainstorm` writes an approved design doc under `docs/specs/YYYY-MM-DD-<topic>-design.md`.
+- `plan` writes an implementation plan under `docs/plans/YYYY-MM-DD-<topic>-implementation-plan.md` and stops for execution choice before `build`.
+- Forge no longer inserts mandatory `architect` or `visualize` stages by risk; they are optional design lenses on the flat `brainstorm -> plan -> build` route.
+- Forge no longer inserts a separate pre-build review stage for boundary-sensitive `BUILD` work; behavioral build routing stays flat and relies on the shared design/plan/build/review contract instead.
 - Forge keeps packet semantics stable across `parallel-split`, `independent-reviewer`, and `controller-sequential`; host capability changes lane execution, not the packet contract.
 - Use `scripts/route_preview.py` when routing must be previewed deterministically.
 - Canonical thresholds, chains, and lane policy live in `data/orchestrator-registry.json`.
@@ -76,8 +79,8 @@ description: "Forge Codex - Codex-oriented adapter for Forge core. Use when a re
 
 ## Skill Laws
 
-- `brainstorm`: no ambiguous medium or large work without choosing a direction first.
-- `plan`: no medium or large build without a confirmed plan.
+- `brainstorm`: no behavioral build or visual design work without an approved design doc first.
+- `plan`: no build without a written implementation plan and execution choice first.
 - `build`: no behavioral change without defining verification first.
 - `review`: findings first, summary second.
 - `refactor`: no refactor without baseline and after verification.
