@@ -259,6 +259,8 @@ Before handoff, review the plan:
 - Does every implementation step have a proof?
 - Is the first step a failing test or failing check?
 - Are files and boundaries specific enough for implementation?
+- Do types, method signatures, and property names match across tasks?
+- Is type, method signature, and property name consistency maintained across the whole plan?
 - Are design assumptions inherited rather than re-decided?
 - Are risky areas paired with rollback or recovery guidance?
 - Is the execution choice explicit?

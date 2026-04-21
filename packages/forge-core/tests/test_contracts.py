@@ -371,13 +371,71 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("Code written before RED must be deleted", skill)
         self.assertIn("build`: no behavioral change with a viable harness without a failing test first", skill)
 
-    def test_build_workflow_hard_gates_delete_rule_and_tdd_reference(self) -> None:
+    def test_build_workflow_hard_gates_tdd_and_subagent_packet_fields(self) -> None:
         build = (ROOT_DIR / "workflows" / "execution" / "build.md").read_text(encoding="utf-8")
 
         self.assertIn("NO BEHAVIORAL CHANGE WITHOUT A FAILING TEST FIRST", build)
+        self.assertIn("one failing test MUST exist and fail for the correct reason before implementation code", build)
         self.assertIn("Code written before a failing test: delete it and start from RED.", build)
         self.assertIn("\"Keep as reference\" is not an exception. Delete means delete.", build)
         self.assertIn("references/tdd-discipline.md", build)
+        self.assertIn("implementer-subagent-quality", build)
+        self.assertIn("references/subagent-execution.md", build)
+        self.assertIn("Named baseline that must stay green", build)
+        self.assertIn("Baseline-green proof", build)
+
+    def test_test_workflow_matches_strict_tdd_contract(self) -> None:
+        test_workflow = (ROOT_DIR / "workflows" / "execution" / "test.md").read_text(encoding="utf-8")
+
+        self.assertIn("NO HARNESS-CAPABLE BEHAVIOR CHANGE WITHOUT VERIFIED RED FIRST", test_workflow)
+        self.assertIn("If implementation code exists before RED, delete it and restart from RED.", test_workflow)
+        self.assertIn("Do not claim GREEN until the original RED proof passes and the named baseline is green.", test_workflow)
+        self.assertIn("Delete it completely before restarting.", test_workflow)
+        self.assertIn("\"Deleting X hours is wasteful\"", test_workflow)
+        self.assertIn("## Red Flags - Stop And Start Over", test_workflow)
+        self.assertIn("Named baseline that must stay green", test_workflow)
+        self.assertIn("Baseline-green proof", test_workflow)
+
+    def test_subagent_reference_contract_exists(self) -> None:
+        reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
+        subagent_reference = ROOT_DIR / "references" / "subagent-execution.md"
+        prompt_dir = ROOT_DIR / "references" / "subagent-prompts"
+
+        self.assertIn("`subagent-execution.md`", reference_map)
+        self.assertIn("`subagent-prompts/final-reviewer-prompt.md`", reference_map)
+        self.assertTrue(subagent_reference.exists())
+        for name in (
+            "implementer-prompt.md",
+            "spec-reviewer-prompt.md",
+            "quality-reviewer-prompt.md",
+            "final-reviewer-prompt.md",
+        ):
+            with self.subTest(prompt=name):
+                self.assertTrue((prompt_dir / name).exists())
+
+        subagent_text = subagent_reference.read_text(encoding="utf-8")
+        self.assertIn("DONE_WITH_CONCERNS", subagent_text)
+        self.assertIn("spec compliance before code quality", subagent_text)
+        self.assertIn("packet-first dispatch", subagent_text)
+
+    def test_review_and_quality_gate_cover_final_review_and_branch_resolution(self) -> None:
+        review = (ROOT_DIR / "workflows" / "execution" / "review.md").read_text(encoding="utf-8")
+        quality_gate = (ROOT_DIR / "workflows" / "execution" / "quality-gate.md").read_text(encoding="utf-8")
+
+        self.assertIn("Final Implementation Review", review)
+        self.assertIn("holistic review", review)
+        self.assertIn("Branch Resolution", review)
+        self.assertIn("push-and-pr", review)
+        self.assertIn("Branch resolution", quality_gate)
+
+    def test_design_and_plan_workflows_include_v3_polish(self) -> None:
+        brainstorm = (ROOT_DIR / "workflows" / "design" / "brainstorm.md").read_text(encoding="utf-8")
+        plan = (ROOT_DIR / "workflows" / "design" / "plan.md").read_text(encoding="utf-8")
+
+        self.assertIn("multiple independent subsystems", brainstorm)
+        self.assertIn("decompose before designing", brainstorm)
+        self.assertIn("section-by-section approval", brainstorm)
+        self.assertIn("type, method signature, and property name consistency", plan)
 
     def test_tdd_discipline_reference_exists_and_captures_delete_rule(self) -> None:
         reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
@@ -390,6 +448,8 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("Delete means delete.", discipline)
         self.assertIn("RED -> GREEN -> REFACTOR", discipline)
         self.assertIn("Tests-after asks \"what does this code do?\"", discipline)
+        self.assertIn("named baseline is green too", discipline)
+        self.assertIn("## Red Flags", discipline)
 
     def test_skill_bootstrap_contract_does_not_regrow_removed_lookup_sections(self) -> None:
         skill = (ROOT_DIR / "SKILL.md").read_text(encoding="utf-8")

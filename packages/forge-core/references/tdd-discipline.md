@@ -24,6 +24,7 @@
 
 - Write the minimum code that makes the same proof pass.
 - Rerun that same proof before any broader suite.
+- Do not call GREEN complete until the named baseline is green too.
 - If the proof still fails, stay in GREEN. Do not jump to refactor or a larger suite.
 
 ### REFACTOR
@@ -71,6 +72,15 @@ Fallback rules:
 - rerun the same proof after editing
 - do not describe fallback as "equivalent TDD" when a harness was viable
 
+## Red Flags
+
+- implementation code existed before RED
+- RED passed immediately
+- RED failed for the wrong reason
+- the original RED proof was never rerun first in GREEN
+- the named baseline is still red
+- fallback proof was invented after editing
+
 ## Reset Conditions
 
 Reset and start over when:
@@ -78,5 +88,6 @@ Reset and start over when:
 - RED was never observed
 - the test failed for the wrong reason
 - code was written before RED and is still being adapted
+- the named baseline was not green
 - GREEN passed only in a broad suite, not in the slice proof
 - fallback proof was used without an explicit no-harness justification

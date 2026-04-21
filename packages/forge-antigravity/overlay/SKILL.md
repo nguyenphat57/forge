@@ -68,7 +68,7 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 - proof before claims is non-negotiable.
 - Define verification before editing when behavior changes.
 - With a viable harness, write and verify one failing test before implementation code.
-- Code written before RED must be deleted.
+- Code written before RED must be deleted, not adapted as "reference".
 - Without a harness, use the strongest available smoke, build, lint, typecheck, diff, or manual reproduction and say why.
 - `quality-gate` is the canonical go / no-go surface for merge-ready and deploy claims.
 - `deploy` only happens after fresh verification and explicit release posture.

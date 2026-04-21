@@ -69,6 +69,8 @@ Read from real artifact or new command output:
 - Verification/test output
 - Workflow-state or execution checkpoint for medium or large build work
 - Review disposition
+- Final Implementation Review disposition when required by `review`
+- Branch resolution requested by `review`
 - Security decision
 - Deploy target readiness
 - Residual risk notes
@@ -80,9 +82,26 @@ Fresh command output is necessary, but medium+ or behavior-changing work also ne
 - execution checkpoint or workflow-state record
 - workflow-state record when the work has already been tracked there
 - review disposition artifact when the slice is entering handoff
+- final implementation review artifact for large work or medium work with multi-file/subagent scope
 - stage-state record with explicit `pending`, `required`, `active`, `completed`, `skipped`, or `blocked` values when workflow-state is used
 
 Do not mark a medium+ slice ready from command output alone.
+
+## Branch Resolution Gate
+
+Branch resolution is part of a ready claim, not an afterthought.
+
+Allowed resolutions from review:
+- `merge-local`
+- `push-and-pr`
+- `keep-branch`
+- `discard-with-confirmation`
+
+Rules:
+- `merge-local` and `push-and-pr` require fresh verification plus a clean or accepted review disposition.
+- `keep-branch` is valid when evidence is conditional, follow-up remains, or the user has not chosen integration.
+- `discard-with-confirmation` is never automatic; require explicit user confirmation before destructive cleanup.
+- If branch resolution is missing, the gate decision cannot be `go` for a merge-ready or PR-ready claim.
 
 ## Evidence Response Contract
 
@@ -255,6 +274,8 @@ When blocked but the way out is unclear, read `references/failure-recovery-playb
 - [ ] Review/security disposition is clear if the task is reached
 - [ ] Residual risk was read, not just copied
 - [ ] A durable process artifact exists for medium+ or behavior-changing work
+- [ ] Final Implementation Review was read when required
+- [ ] Branch resolution is explicit before ready-for-merge, merge, or PR claims
 - [ ] Evidence response contract has been kept, no empty agreement is used
 - [ ] Gate decision is explicit
 - [ ] If release-critical, ordered gates have been fully read and `go` is truly justified
@@ -269,6 +290,7 @@ Quality gates:
 - Evidence read: [...]
 - Evidence response: [I verified:... / I investigated:... / Clarification needed:...]
 - Decision: [go / conditional / blocked]
+- Branch resolution: [merge-local / push-and-pr / keep-branch / discard-with-confirmation / n/a]
 - Why: [...]
 - Next evidence needed: [...]
 ```

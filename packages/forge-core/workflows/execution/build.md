@@ -7,6 +7,7 @@ triggers:
   - explicit quick hint for small, clear, bounded work
 quality_gates:
   - Verification strategy defined before editing
+  - TDD proof chain explicit for harness-capable behavior changes
   - Execution mode selected for medium/large work
   - Execution pipeline explicit for medium/large work
   - Execution packet explicit for medium/large work
@@ -109,6 +110,16 @@ Execution packet:
 - Merge target / strategy: [...]
 - Overlap risk / write-scope conflicts: [...]
 - Review readiness / merge readiness / completion gate: [...]
+- Harness stance: [viable / not-viable]
+- RED proof: [...]
+- Expected failure signal: [...]
+- Production code existed before RED: [yes/no]
+- Delete reset proof: [...]
+- GREEN proof: [...]
+- Named baseline that must stay green: [...]
+- Baseline-green proof: [...]
+- No-harness reason: [...]
+- Fallback proof: [...]
 - Verification to rerun: [...]
 - Browser QA classification: [not-needed / optional-accelerator / required-for-this-packet]
 - Proof before progress: [...]
@@ -119,6 +130,7 @@ Execution packet:
 Rules:
 - Do not edit until `current slice` is finalized
 - Do not edit until the baseline command or check is named.
+- Do not edit harness-capable behavior changes until `RED proof` and `Expected failure signal` are named.
 - Don't combine multiple slices into one edit just because it's "convenient".
 - If you need to touch a file/boundary outside the packet to save the design, stop and reopen `plan` or `architect`
 - `track_execution_progress.py` is the canonical packet record for medium/large build work; summaries and dispatch wrappers should read from that packet instead of inventing a second schema
@@ -139,6 +151,8 @@ Required fast lane fields:
 - `packet_id`, `packet_mode`, `label`, `goal`, `status`
 - `exact_files_or_paths_in_scope`, `owned_files_or_write_scope`
 - `baseline_or_clean_start_proof`, `proof_before_progress`, `verification_to_rerun`
+- `red_proof_or_no_harness_reason`, `green_proof`, `baseline_green_proof`
+- `delete_reset_state`
 - `residual_risk`, `next_steps`
 
 Rules:
@@ -175,12 +189,16 @@ Pipeline is Forge's way of separating implementation from review without reintro
 |----------|----------|-------|
 |`single-lane` | Small bounded slices | `implementer`|
 |`implementer-quality` | Medium/large build work that still needs an independent review lane | `implementer` -> `quality-reviewer`|
+|`implementer-subagent-quality` | Medium+ work with host subagents, independent packets, and clear write scopes | `implementer-subagent` -> `spec-reviewer` -> `quality-reviewer`|
 
 Rules:
 - `large` or stronger profile `standard` -> must have at least `quality-reviewer`
+- Host has subagents and the task is medium+ with an independent packet -> prefer `implementer-subagent-quality`
 - Host has subagents -> lane can run independently
 - Host does not have subagents -> still has to run sequentially in lanes, not combining thoughts into a single pass
+- If the packet is coupled, ambiguous, or lacks ownership, fallback to `implementer-quality` or return to `plan`
 - Reviewer lanes must close the slice explicitly before the implementer moves on.
+- Read `references/subagent-execution.md` and the prompt templates under `references/subagent-prompts/` before dispatching this pipeline.
 
 ## Lane Model Stance
 
@@ -190,7 +208,17 @@ Forge uses an abstract tier instead of a hard-coded vendor model:
 |------|--------------|
 |`navigator` | `cheap`|
 |`implementer` | `standard`|
+|`implementer-subagent` | `standard`|
+|`spec-reviewer` | `capable`|
 |`quality-reviewer` | `standard`|
+
+Task complexity signals:
+
+|Signal | Tier stance|
+|-------|------------|
+|Touches 1-2 files with a complete spec and no integration risk | `cheap` acceptable|
+|Touches multiple files with integration concerns | `standard` minimum|
+|Requires design judgment, broad codebase understanding, or release-risk review | `capable`|
 
 Rules:
 - `large` -> implement/review tilted lanes `capable`
@@ -236,6 +264,7 @@ Delegation packets:
 - Owned files / write scope: [...]
 - Depends on packets: [...]
 - Shared reads allowed: [...]
+- TDD stance: [RED required / no-harness fallback]
 - Proof before progress: [...]
 - Verification to rerun before handoff: [...]
 - Browser QA classification/scope/status: [...]
@@ -243,10 +272,28 @@ Delegation packets:
 ```
 
 Rules:
+- Dispatch packet-first; do not send a vague instruction to "go inspect the repo".
 - Use a fresh worker for each slice or review lane. Do not reuse stale context after the packet changes materially.
 - Do not assign overlapping write scopes between two subagents
 - If the repo is dirty or the blast radius is broad, consider `worktree` before `subagent-split`
 - If the packet does not clearly state proof or ownership, return `plan` or `architect` instead of blind dispatch
+- For `implementer-subagent-quality`, the spec compliance lane runs before code quality. Do not start quality review while spec gaps are open.
+
+## Subagent Status Protocol
+
+Subagents must return one of these statuses:
+
+|Status | Controller action|
+|-------|------------------|
+|`DONE` | Continue to spec compliance review, then quality review.|
+|`DONE_WITH_CONCERNS` | Read concerns before review; resolve correctness or scope concerns before continuing.|
+|`NEEDS_CONTEXT` | Provide the missing context and redispatch with the same packet.|
+|`BLOCKED` | Change something before retrying: add context, raise model tier, split the packet, or return upstream.|
+
+Rules:
+- Never ignore `DONE_WITH_CONCERNS`, `NEEDS_CONTEXT`, or `BLOCKED`.
+- Do not force the same retry without changing context, tier, or packet shape.
+- The final controller handoff must include subagent status, changed files, verification evidence, and residual risk.
 
 ## Flat Build Contract
 
@@ -271,10 +318,12 @@ For the strict reset rules and anti-rationalization language, read `references/t
 #### GREEN
 - Write the minimum implementation required to pass that same proof
 - Rerun the same proof first, then the needed boundary or relevant checks
+- Do not call GREEN complete until the named baseline is green too
 
 #### REFACTOR
 - Only after GREEN is real
 - Clean up lightly and keep the same proof green
+- Rerun the named baseline after refactor before keeping the slice green
 
 Rules:
 - Code written before RED must be deleted and restarted from RED
@@ -300,10 +349,11 @@ Rule:
 - 1. Packet + proof-before-progress locked
 - 2. One failing test captured and RED verified, or explicit no-harness fallback locked
 - 3. Minimal GREEN implementation pass
-- 4. Refactor pass stays green if refactor happened
-- 5. Boundary check pass if there is contract/schema/integration blast radius
-- 6. Reviewer lane or reviewer-style pass
-- 7. Quality gate / completion claim
+- 4. Named baseline green pass
+- 5. Refactor pass stays green if refactor happened
+- 6. Boundary check pass if there is contract/schema/integration blast radius
+- 7. Reviewer lane or reviewer-style pass
+- 8. Quality gate / completion claim
 
 Do not use large suites or the phrase "built pass" to skip steps 1-3.
 
@@ -311,6 +361,7 @@ Do not use large suites or the phrase "built pass" to skip steps 1-3.
 - Say "this task is too small to test"
 - Write implementation code first and call it "reference"
 - Reported test-first when in reality RED was never observed
+- Claim GREEN while the named baseline is still red
 - After editing, then think about how to verify
 - Use a big suite result to hide missing RED
 
@@ -400,6 +451,12 @@ Before handover, the build must clearly assign a state:
 |`ready-for-merge` | Only use when scope is small, verification is strong, and there are no known finding/blockers|
 |`blocked-by-residual-risk` | There is a large enough risk/blocker so it is not considered done|
 
+Subagent status can feed these completion states:
+- `DONE` can move to `ready-for-review` after controller verification.
+- `DONE_WITH_CONCERNS` cannot move past `ready-for-review` until concerns are dispositioned.
+- `NEEDS_CONTEXT` keeps the slice `in-progress`.
+- `BLOCKED` maps to `blocked-by-residual-risk` unless the packet is split or rerouted.
+
 Do not use vague sentences like "almost done", "basically okay", "probably can be merged".
 
 ## Verification Checklist
@@ -411,6 +468,7 @@ Do not use vague sentences like "almost done", "basically okay", "probably can b
 - [ ] Task medium/large already has an execution packet for the current slice
 - [ ] Behavioral change had one failing test first, or an explicit no-harness justification
 - [ ] Any pre-RED implementation code was deleted instead of adapted
+- [ ] Subagent status and concerns are dispositioned when subagents were used
 - [ ] Slice proof has been run before proceeding to the next slice
 - [ ] Long task has updated checkpoint or clearly stated why it is not needed
 - [ ] Related checks have been rerun after correction
@@ -459,9 +517,10 @@ Use this lens whenever the slice ships UI implementation instead of only a mocku
 Build report:
 - Scope: [...]
 - Execution mode: [single-track/checkpoint-batch/parallel-safe]
-- Execution pipeline: [single-lane/implementer-quality]
+- Execution pipeline: [single-lane/implementer-quality/implementer-subagent-quality]
 - Isolation stance: [same-tree/worktree/subagent-split]
 - Lane model stance: [implementer=standard, quality-reviewer=standard]
+- Subagent status: [n/a / DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED]
 - Current/last slice: [...]
 - Progress checkpoint: [artifact path or n/a]
 - Files changed: [...]

@@ -20,6 +20,12 @@
 | `constitution-lite.md` | Record or reuse repo-local principles without adding a heavier governance artifact |
 | `target-state.md` | Re-anchor Forge strategy and operator choices to the north-star target state, including the shipped `1.15.x` closure target, the `1.16.x` surface-slim closure, and the current maintenance boundary |
 | `execution-delivery.md` | Select execution mode, checkpoint, and completion state for large builds |
+| `tdd-discipline.md` | Apply strict RED -> GREEN -> REFACTOR, delete-rule, anti-rationalization, and no-harness fallback discipline |
+| `subagent-execution.md` | Dispatch packet-first implementer/reviewer subagents, status protocol, final review handoff, and lane fallback rules |
+| `subagent-prompts/implementer-prompt.md` | Prompt an implementer subagent from a Forge execution packet |
+| `subagent-prompts/spec-reviewer-prompt.md` | Prompt the spec compliance review lane before quality review |
+| `subagent-prompts/quality-reviewer-prompt.md` | Prompt the code/content quality review lane after spec compliance |
+| `subagent-prompts/final-reviewer-prompt.md` | Prompt the holistic final reviewer before quality gate |
 | `backend-briefs.md` | Validate or interpret persisted backend brief artifacts that already exist in the repo |
 | `failure-recovery-playbooks.md` | Use when the chain is stalled, a gate is blocked, review is deadlocked, or deployment fails and you need a clear recovery path |
 | `frontend-stack-profiles.md` | Choose stack lens for UI implementation or visualization |
@@ -119,14 +125,15 @@
 4. docs/current/operator-surface.md if the change touches source-repo routing or wrappers
 5. target-state.md if the change affects Forge process direction or strictness
 6. execution-delivery.md
-7. tdd-discipline.md when tightening or auditing strict TDD behavior
-8. build.md when defining or updating the canonical build packet
-9. test.md when the proof chain or browser QA evidence changes
-10. debug.md when reproduction or root-cause packet changes
-11. failure-recovery-playbooks.md if the chain has risk stall or block
-12. kernel-tooling.md if checkpoint artifact is needed
-13. review.md if you need to clear disposition last
-14. quality-gate.md if you need to go or no-go clearly before claiming or deploying
+7. tdd-discipline.md when the task changes behavior or the proof chain is being tightened
+8. subagent-execution.md when the host can dispatch implementer or reviewer lanes
+9. build.md when defining or updating the canonical build packet
+10. test.md when the proof chain or browser QA evidence changes
+11. debug.md when reproduction or root-cause packet changes
+12. failure-recovery-playbooks.md if the chain has risk stall or block
+13. kernel-tooling.md if checkpoint artifact is needed
+14. review.md if you need to clear disposition last
+15. quality-gate.md if you need to go or no-go clearly before claiming or deploying
 ```
 
 ### When doing release-critical flow

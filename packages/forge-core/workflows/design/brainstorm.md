@@ -10,6 +10,7 @@ quality_gates:
   - Context is inspected before proposing solutions
   - Visual Companion is offered as its own message when visual questions are ahead
   - Questions are asked one question at a time
+  - Multi-subsystem scope is decomposed before approach generation
   - 2-3 approaches are compared when alternatives exist
   - Design doc is written to docs/specs/YYYY-MM-DD-<topic>-design.md
   - Design document is committed to git before user review
@@ -114,19 +115,23 @@ flowchart TD
     E --> F{One blocking fact missing?}
     F -->|Yes| G[Ask one question at a time]
     G --> B
-    F -->|No| H[Generate 2-3 approaches]
-    H --> I[Compare tradeoffs]
-    I --> J[Choose recommended design]
-    J --> K[Write design doc]
-    K --> L[Commit design document]
-    L --> M[Self-review]
-    M --> N{Self-review finds gaps?}
-    N -->|Yes| B
-    N -->|No| O[User review]
-    O --> P{Approved?}
-    P -->|No| B
-    P -->|Yes| Q[Plan-readiness handoff]
-    Q --> R[Next workflow: plan]
+    F -->|No| H{Multiple independent subsystems?}
+    H -->|Yes| I[Flag and decompose scope]
+    I --> J[Assign spec -> plan -> build cycles]
+    H -->|No| K[Generate 2-3 approaches]
+    J --> K
+    K --> L[Compare tradeoffs]
+    L --> M[Choose recommended design]
+    M --> N[Write design doc]
+    N --> O[Commit design document]
+    O --> P[Self-review]
+    P --> Q{Self-review finds gaps?}
+    Q -->|Yes| B
+    Q -->|No| R[User review]
+    R --> S{Approved?}
+    S -->|No| B
+    S -->|Yes| T[Plan-readiness handoff]
+    T --> U[Next workflow: plan]
 ```
 
 ## Qualified Problem Statement
@@ -138,6 +143,19 @@ That: [desired outcome, business impact, or success signal]
 ```
 
 If these three lines cannot be written from available context, ask one question at a time until they can.
+
+## Scope Decomposition
+
+Before approach generation, check whether the request describes multiple independent subsystems.
+
+If it does:
+- flag the scope as multi-subsystem before designing
+- decompose it into named sub-projects with clear ownership boundaries
+- give each sub-project its own spec -> plan -> build cycle when independent implementation is safer and its design section is approved
+- identify shared contracts, ordering constraints, or coupling that prevent a clean split
+
+Do not compare whole-system approaches until the decomposition is explicit. If the split changes the problem statement, revise it first.
+Use this as the default rule: decompose before designing whenever multiple independent subsystems are present. If shared contracts are not locked, keep the related sub-projects in one approval group.
 
 ## Approach Generation
 
@@ -323,6 +341,8 @@ Brainstorm ends in exactly one of these states:
 - `design-approved`: user has approved the design and `plan` can start
 - `design-blocked`: one precise design question must be answered before approval
 
+For large designs, approval may happen section by section. Treat this as section-by-section approval: scale each review packet to the section's complexity, keep unresolved sections marked as blocked, and do not start `plan` for an unresolved section. An independent sub-project may enter its own `plan` only after its section is approved and any shared contracts it depends on are locked.
+
 ## Plan-Readiness Handoff
 
 When approved, hand off:
@@ -355,7 +375,9 @@ Brainstorm blocked:
 - proposing solutions before reading context
 - asking several questions at once
 - combining the Visual Companion offer with any other content
+- generating approaches before decomposing multiple independent subsystems
 - skipping the design doc because the work is small
+- treating section-by-section approval as permission to plan unfinished or contract-dependent sections
 - treating `visualize` or `architect` as default stages instead of lenses
 - deferring unresolved design decisions to `plan`
 - hiding high-risk boundaries behind a flat route

@@ -17,15 +17,17 @@ quality_gates:
 ## The Iron Law
 
 ```
-TESTS MUST PROOVE BEHAVIOR, NOT DECORATE FINISHED CODE
+NO HARNESS-CAPABLE BEHAVIOR CHANGE WITHOUT VERIFIED RED FIRST
 ```
 
 > If the proof chain has not been shown clearly enough, it cannot be called verified.
 
 <HARD-GATE>
-- If the task changes behavior and has a viable harness, prioritize RED before GREEN.
+- If the task changes behavior and has a viable harness, RED is mandatory before any implementation code.
+- If implementation code exists before RED, delete it and restart from RED.
 - If the harness is available and RED was not observed, reset the packet instead of moving forward.
-- If there is no harness, it must be clearly stated and use verification instead.
+- If there is no harness, the exact reason must be stated and the fallback proof must be locked before editing.
+- Do not claim GREEN until the original RED proof passes and the named baseline is green.
 - Do not report test pass/coverage if it has not been run yet.
 - Do not artificially force TDD for task docs/config/release chores.
 </HARD-GATE>
@@ -38,27 +40,34 @@ TESTS MUST PROOVE BEHAVIOR, NOT DECORATE FINISHED CODE
 flowchart LR
     A[Select test target] --> B[Select scope]
     B --> C{Is there a viable harness?}
-    C -->|Yes| D[RED: failing test]
-    C -->|No| E[Alternative verification]
-    D --> F[GREEN: implement/fix]
-    E --> F
-    F --> G[Run targeted/full checks]
-    G --> H[Review gaps + residual risk]
+    C -->|Yes| D[RED: one failing test]
+    D --> E[Verify RED for correct reason]
+    C -->|No| F[Alternative verification]
+    E --> G[GREEN: minimal code]
+    F --> G
+    G --> H[Verify original proof passes]
+    H --> I[Verify named baseline is green]
+    I --> J{Refactor needed?}
+    J -->|Yes| K[Refactor and stay green]
+    J -->|No| L[Review gaps + residual risk]
+    K --> H
 ```
 
 ## Proof Before Progress
 
 Testing in Forge is more than just "having tests". It must generate proofs in the order:
 
-1. `Failing proof` or verify instead before repair
-2. `Passing proof` for the newly changed behavior
-3. `Boundary proof` if you just touched contract/integration/schema/auth
-4. `Broader proof` when blast radius is wide enough or released
+1. `RED proof` or explicit fallback proof before repair
+2. `GREEN proof` for the newly changed behavior
+3. `Named baseline green proof` for the selected suite/check set
+4. `Boundary proof` if you just touched contract/integration/schema/auth
+5. `Broader proof` when blast radius is wide enough or released
 
 Rules:
 - Do not report `GREEN` if `RED` has not been found in case the harness is feasible
+- If implementation code existed before RED, delete it before continuing
 - Do not say "verified" if no command/scenario has been described yet
-- If using verification instead, must describe the iteration clearly as a test packet
+- If using fallback verification instead, the exact no-harness reason and replacement proof must be recorded
 
 ## Test Strategy Selection
 
@@ -83,27 +92,40 @@ Rules:
 - "This repo has little testing" is not enough reason to jump down to manual
 - When manual is the best choice, the scenario must be described in enough detail for others to rerun
 - If a harness exists and RED was skipped, the test packet is invalid and must be rewritten.
+- Fallback verification is not equivalent TDD when a viable harness existed.
 
 ## RED-GREEN-REFACTOR
 
 ### RED
-- A single behavior
+- One behavior
 - The test name describes the behavior
 - Failed for the right reason and needs to be fixed
 - Observe the actual output failure, don't guess
+- Production code written before RED is invalid and must be deleted
 
 ### GREEN
 - Minimum implementation to pass
 - Do not take advantage of additional features
-- Rerun the failing proof correctly adding before wider checks
+- Rerun the original failing proof first
+- Do not call GREEN complete until the named baseline is green too
+- If the proof still fails, stay in GREEN instead of widening the suite
 
 ### REFACTOR
 - Only after the green
 - Lightly clean, no change in behavior
+- Keep the original proof and named baseline green
+
+## Delete Rule
+
+- Code written before a verified RED is invalid for harness-capable behavioral work.
+- Delete it completely before restarting.
+- Do not keep it "as reference".
+- Do not adapt it after the test is written.
+- Do not use sunk cost as a reason to keep weak proof chains alive.
 
 ## Verification Ladder
 
-After having `GREEN`, choose the appropriate verification level:
+After the original RED proof is green, choose the appropriate verification level:
 
 |Level | Use when|
 |-----|----------|
@@ -114,6 +136,7 @@ After having `GREEN`, choose the appropriate verification level:
 
 Minimum release ladder:
 - targeted proof pass
+- named baseline green pass
 - boundary or integration check pass
 - suite/check related pass
 - Residual risk note clearly if there is still a gap
@@ -126,10 +149,17 @@ For important `medium/large` or verification tasks, write a short packet:
 Test packets:
 - Packet ID / parent packet: [...]
 - Behavior under proof: [...]
+- Harness stance: [viable / not-viable]
 - Baseline verification: [current command/reproduction before edit]
 - RED proof: [test/command/scenario]
 - Expected failure signal: [...]
+- Production code existed before RED: [yes/no]
+- Delete reset proof: [...]
 - GREEN proof: [test/command/scenario]
+- Named baseline that must stay green: [...]
+- Baseline-green proof: [...]
+- No-harness reason: [...]
+- Fallback proof: [...]
 - Boundary checks: [...]
 - Broader checks: [...]
 - Verification to rerun before handoff: [...]
@@ -139,8 +169,11 @@ Test packets:
 
 Rules:
 - If you can't write `Expected fail signal`, RED is too vague
+- If you can't write `Baseline-green proof`, GREEN is incomplete
 - If you can't write `Boundary checks` for public interface/migration/auth, verification is too weak
 - If RED was skipped while the harness was viable, `Baseline verification` alone does not save the packet; rewrite it correctly
+- If production code existed before RED and `Delete reset proof` is missing, the packet is invalid
+- If the harness is not viable and `No-harness reason` is missing, the packet is invalid
 - If browser QA is part of the packet, it is an execution proof for that packet, not a separate sidecar proof chain
 
 ## Evidence Response Contract
@@ -177,13 +210,18 @@ Reject:
 |Defense | Truth|
 |----------|---------|
 |"Small tasks avoid testing" | Small or large, both require appropriate evidence|
-| "Manual testing is enough" | Manual testing is only sufficient when it is descriptive and repeatable
+|"Tests after achieve same goals" | Tests-after asks "what does this code do?" Tests-first asks "what should this code do?"|
+|"Manual testing is enough" | Manual testing is only sufficient when it is descriptive and repeatable|
 |"Repo has no tests so ignore" | No harness != no need to verify|
+|"Keep as reference, write tests first" | You'll adapt it. Delete means delete.|
+|"Already manually tested" | Ad-hoc checks are not systematic proof.|
+|"TDD will slow me down" | Debugging unknown behavior is usually slower than a clean RED/GREEN/REFACTOR loop.|
+|"Deleting X hours is wasteful" | That is sunk cost fallacy, not evidence.|
 |"It's okay to test later" | Test-after does not prove the original intention|
-|"It's okay to keep the old code for reference" | Referencing old code does not prove that behavior is being protected|
 |"Need to explore first before writing RED" | Explore is ok, but when the harness is viable, RED is still the best proof against GREEN|
-| "TDD is not practical" | If you remove RED, you must clearly state the technical limitations and what the alternative verification is
+|"TDD is not practical" | If you remove RED, you must clearly state the technical limitations and what the alternative verification is|
 |"If it's difficult to test, skip" | Difficult to test means by changing scope or verification strategy, not skipping|
+|"Plan clearly, just code at once" | Planning does not replace RED/GREEN/REFACTOR.|
 |"Big suite pass is enough" | Big Suite is not a substitute for failing proof, the behavior just changed|
 
 Code examples:
@@ -206,14 +244,27 @@ Good (harness available):
 "RED: run [test] and fail correctly because of [signal]. GREEN: minimally fix the pass. Then run [boundary/suite check] because it just touched [contract/integration]."
 ```
 
+## Red Flags - Stop And Start Over
+
+- Implementation code existed before RED
+- RED passed immediately
+- RED failed for the wrong reason
+- The original RED proof was never rerun first in GREEN
+- The named baseline is still red
+- No-harness fallback was invented after editing
+- You are rationalizing "just this once"
+
 ## Reset Rules
 
 Testing must be stopped and reset when:
 - RED fails because the setup is wrong or the test writes the wrong intent
+- implementation code existed before RED and was adapted instead of deleted
 - GREEN was achieved but RED was never observed in the harness-capable task
+- GREEN was claimed before the named baseline was green
 - baseline verification was never captured before editing and the report is reconstructing proof after the fact
 - The boundary has just changed but the test packet still only has targeted happy path
 - suite pass but original reproduction has not been proven yet
+- fallback proof was used without an explicit no-harness justification
 
 Reset here means going back to rewriting the proof properly, not trying to keep a weak verification chain just because it's a waste of effort
 
@@ -222,8 +273,10 @@ Reset here means going back to rewriting the proof properly, not trying to keep 
 - [ ] The correct test/check scope has been selected
 - [ ] There is a failing test when the harness allows it
 - [ ] Or there is a clear reason for verification instead
+- [ ] Any implementation code written before RED was deleted
 - [ ] Have a test packet or proof chain clear enough for important tasks
 - [ ] Observed real fail/pass, not just speculation
+- [ ] The named baseline is green before calling the slice GREEN
 - [ ] Boundary checks have been added when blast radius is required
 - [ ] Rerun checks after editing
 - [ ] Read the actual output

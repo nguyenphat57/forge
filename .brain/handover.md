@@ -1,14 +1,17 @@
 HANDOVER
-- Current task: Release the completed flat-routing plus Visual Companion tranche as Forge `2.10.0` from branch `codex/brainstorm-plan-superpowers`, then merge and push to `main`.
-- Done: Active BUILD routing is flat and no longer inserts a separate pre-build review stage for boundary-sensitive work.
-- Done: Brainstorm now owns the flat readiness checkpoint before handoff to plan, including assumptions, boundaries, first proof, and reversal signal.
-- Done: `spec-review` was removed from the active workflow/registry surface, including the workflow file, registry gate, pipeline, lane role, locale gate overlays, and recorder script.
-- Done: Legacy `.forge-artifacts/spec-review` bootstrap remains compatible through `legacy-spec-review-state`, but canonical workflow-state normalizes it to `plan -> build` and no longer stores `latest_spec_review`.
-- Done: `brainstorm` now works as a design-doc generator with optional browser-backed Visual Companion tooling under `packages/forge-core/tools/visual-companion/scripts/`.
-- Done: Release and continuity surfaces now point to `2.10.0` in `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/public-readiness.md`, `docs/release/release-process.md`, and `.brain/decisions.json`.
+- Current task: Release the completed Forge v3 strict TDD and subagent execution tranche as Forge `2.11.0` from branch `codex/brainstorm-plan-superpowers`, then push to `main`.
+- Done: Forge now requires a verified failing test before harness-capable behavior changes, with delete-before-RED reset rules and named baseline proof.
+- Done: `references/tdd-discipline.md` captures strict RED -> GREEN -> REFACTOR, anti-rationalization, red flags, and no-harness fallback rules.
+- Done: `build.md` and `test.md` enforce strict TDD packet fields, delete reset proof, baseline-green proof, and no-harness justification.
+- Done: `references/subagent-execution.md` and prompt templates define packet-first implementer, spec-reviewer, quality-reviewer, and final-reviewer lanes.
+- Done: `review.md` now has Final Implementation Review and Branch Resolution, while `quality-gate.md` reads both before ready/merge/PR claims.
+- Done: `brainstorm.md` and `plan.md` now cover multi-subsystem decomposition, section-by-section approval, and type/signature/property consistency.
+- Done: Release and continuity surfaces now point to `2.11.0` in `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/public-readiness.md`, `docs/release/release-process.md`, and `.brain/decisions.json`.
 - Done: Current maintainer posture still lives under `docs/current/*`; `.brain` remains continuity state, not the primary source of truth.
-- Verification run: `python -m unittest discover -s packages/forge-core/tests -p test_visual_companion.py -v` -> PASS, 4 tests, on 2026-04-21.
-- Verification run: `python -m unittest discover -s packages/forge-core/tests -v` -> PASS, 185 tests, 5 skipped, on 2026-04-21.
-- Verification run: `python scripts/verify_repo.py --profile fast` -> PASS on 2026-04-21.
-- Verification run: `python scripts/build_release.py --force --format json` -> PASS on 2026-04-21.
-- Next step: Commit the `2.10.0` release sync, merge into `main`, and push `origin/main`.
+- Verification run: `python -m pytest packages/forge-core/tests -q` -> PASS, 187 passed, 5 skipped, on 2026-04-21.
+- Verification run: `python -m pytest packages/forge-codex/overlay/tests -q` -> PASS, 9 passed, on 2026-04-21.
+- Verification run: `python -m pytest packages/forge-antigravity/overlay/tests -q` -> PASS, 12 passed, on 2026-04-21.
+- Verification run: `python -m pytest tests -q` -> PASS, 89 passed, on 2026-04-21.
+- Verification run: `python scripts/generate_overlay_skills.py --check` -> PASS on 2026-04-21.
+- Verification run: `python scripts/generate_host_artifacts.py --check --format json` -> PASS on 2026-04-21.
+- Next step: Commit the `2.11.0` release sync and push `origin/main`.

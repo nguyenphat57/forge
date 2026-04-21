@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.11.0 (stable) - 2026-04-21
+
+- Absorb Superpowers-style strict TDD into Forge by enforcing failing-test-first behavior changes, delete-before-RED reset rules, named baseline proof, expanded anti-rationalization coverage, and explicit no-harness fallback discipline.
+- Add packet-first subagent execution with implementer, spec-reviewer, quality-reviewer, and final-reviewer prompts, status handling for `DONE`, `DONE_WITH_CONCERNS`, `NEEDS_CONTEXT`, and `BLOCKED`, plus final holistic review before quality-gate claims.
+- Refresh release-facing and continuity surfaces so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` all agree on `2.11.0` as the current stable release.
+
+
 ## 2.10.0 (stable) - 2026-04-21
 
 - Align Forge design flow more closely with Superpowers by making `brainstorm` the design-doc generator, making `plan` the writing-plan style implementation gate, and flattening BUILD routing across risk levels.

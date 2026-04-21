@@ -68,9 +68,9 @@ Do not say `done`, `fixed`, or `tests pass` without fresh evidence.
 Before closing a task:
 
 1. Define the verification method before editing.
-2. For behavior changes with a viable harness, write and verify a failing test before implementation code.
-3. If implementation code was written before that RED, delete it and restart from RED; do not keep it "as reference".
-4. Without a harness, use the strongest available repro, smoke check, build, lint, typecheck, diff, or content check and state why.
+2. For behavior changes with a viable harness, one failing test must exist and fail for the correct reason before implementation code.
+3. Code written before RED must be deleted and restarted from RED; "keep as reference" is not an exception.
+4. Without a harness, use the strongest available repro, smoke check, build, lint, typecheck, diff, or content check and state why before editing.
 5. Re-run the same verification after the change; do not swap to a weaker check at the end.
 6. Report the latest result exactly, plus any unverified residual risk.
 7. If verification cannot run, say `not verified`, name the blocker, and do not turn partial evidence into a completion claim.
