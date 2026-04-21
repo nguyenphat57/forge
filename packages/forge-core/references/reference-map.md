@@ -119,13 +119,14 @@
 4. docs/current/operator-surface.md if the change touches source-repo routing or wrappers
 5. target-state.md if the change affects Forge process direction or strictness
 6. execution-delivery.md
-7. build.md when defining or updating the canonical build packet
-8. test.md when the proof chain or browser QA evidence changes
-9. debug.md when reproduction or root-cause packet changes
-10. failure-recovery-playbooks.md if the chain has risk stall or block
-11. kernel-tooling.md if checkpoint artifact is needed
-12. review.md if you need to clear disposition last
-13. quality-gate.md if you need to go or no-go clearly before claiming or deploying
+7. tdd-discipline.md when tightening or auditing strict TDD behavior
+8. build.md when defining or updating the canonical build packet
+9. test.md when the proof chain or browser QA evidence changes
+10. debug.md when reproduction or root-cause packet changes
+11. failure-recovery-playbooks.md if the chain has risk stall or block
+12. kernel-tooling.md if checkpoint artifact is needed
+13. review.md if you need to clear disposition last
+14. quality-gate.md if you need to go or no-go clearly before claiming or deploying
 ```
 
 ### When doing release-critical flow

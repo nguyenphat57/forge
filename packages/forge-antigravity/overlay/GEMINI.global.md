@@ -61,12 +61,13 @@ Do not say `done`, `fixed`, or `tests pass` without fresh evidence.
 Before closing a task:
 
 1. Define the verification method before editing.
-2. For behavior changes with a harness, start from a failing test or reproduction.
-3. Without a harness, use the strongest available repro, smoke check, build, lint, typecheck, diff, or content check and state why.
-4. Re-run the same verification after the change; do not swap to a weaker check at the end.
-5. Report the latest result exactly, plus any unverified residual risk.
-6. If verification cannot run, say `not verified`, name the blocker, and do not turn partial evidence into a completion claim.
-7. Docs-only changes must use path, content, or diff verification; do not pretend there was a test.
+2. For behavior changes with a viable harness, write and verify a failing test before implementation code.
+3. If implementation code was written before that RED, delete it and restart from RED; do not keep it "as reference".
+4. Without a harness, use the strongest available repro, smoke check, build, lint, typecheck, diff, or content check and state why.
+5. Re-run the same verification after the change; do not swap to a weaker check at the end.
+6. Report the latest result exactly, plus any unverified residual risk.
+7. If verification cannot run, say `not verified`, name the blocker, and do not turn partial evidence into a completion claim.
+8. Docs-only changes must use path, content, or diff verification; do not pretend there was a test.
 
 ## Global Skill Usage Footer
 

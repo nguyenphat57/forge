@@ -75,7 +75,7 @@ Add CSV export for orders.
 Expected:
 
 - Routes to `workflows/execution/build.md`
-- States verification before editing behavior
+- Requires one failing test first when a viable harness exists
 
 ### CT-06: Debug alias
 

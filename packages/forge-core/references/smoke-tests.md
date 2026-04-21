@@ -18,7 +18,7 @@ Goal: quickly check that the host runtime is routing correctly to Forge and that
 
 - Route the correct skill or skill chain in Forge.
 - Does not fabricate verification, token usage, or context percentage.
-- For behavioral tasks, ask for a failing test or reproduction first, or clearly state why no harness exists.
+- For behavioral tasks with a viable harness, ask for one failing test first and verify RED before implementation, or clearly state why no harness exists.
 - For review tasks, findings come first and the summary comes last.
 - For session work, prioritize repo and docs first; `.brain` is only a secondary signal.
 
@@ -349,7 +349,7 @@ Add CSV export for order list.
 
 - Route to `workflows/execution/build.md`
 - State the verification strategy before editing
-- If there is a harness, push it to test/reproduction first
+- If there is a harness, require one failing test first, not tests-after
 - If there is no harness, please clearly state how to verify instead
 
 **Fail if**
