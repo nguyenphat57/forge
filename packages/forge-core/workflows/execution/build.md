@@ -81,6 +81,22 @@ flowchart TD
 |Config / build script / release chore | Build, lint, typecheck, diff, or target command|
 |Docs only | Link / path / content check, do not pretend to have a test|
 
+## Complexity Safety Audit
+
+Size is advisory. Blast radius and diff evidence are authoritative.
+
+Before relying on a `small` route, check whether the request or repo evidence touches:
+- public API, CLI, SDK, webhook, config, shared utility, core helper, or shared abstraction
+- auth, permissions, security, billing, payment, migration, schema, or data-loss risk
+- accumulated small slices since the last holistic review
+
+If any of those signals appear, escalate the task before skipping packet, reviewer, impact analysis, or isolation.
+
+Post-diff audit:
+- after editing, rerun route classification with actual changed-file evidence
+- if the audit escalates `small` to `medium` or `large`, complete the missing medium+ gates before any ready claim
+- use `--recent-small-tasks` or `--changed-files-since-review` when small tasks have accumulated without a holistic review
+
 ## Impact Analysis (required for medium/large)
 
 Answer before coding:

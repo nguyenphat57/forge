@@ -77,11 +77,14 @@ def build_report(args: argparse.Namespace, *, load_registry_fn=load_registry) ->
         changed_files=args.changed_files,
         has_harness=args.has_harness,
         registry=registry,
+        recent_small_tasks=getattr(args, "recent_small_tasks", None),
+        changed_files_since_review=getattr(args, "changed_files_since_review", None),
     )
     intent = policy["intent"]
     intent_config = policy["intent_config"]
     session_mode = policy["session_mode"]
     complexity = policy["complexity"]
+    complexity_audit = policy["complexity_audit"]
     workspace_router = resolve_workspace_router(args.workspace_router)
     verification_key = policy["verification_key"]
     verification = policy["verification"]
@@ -160,6 +163,7 @@ def build_report(args: argparse.Namespace, *, load_registry_fn=load_registry) ->
             "intent": intent,
             "session_mode": session_mode,
             "complexity": complexity,
+            "complexity_audit": complexity_audit,
             "profile": required_stage_contract["profile"],
             "forge_skills": forge_skills,
             "required_stage_chain": required_stage_contract["required_stage_chain"],

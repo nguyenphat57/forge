@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.12.0 (stable) - 2026-04-21
+
+- Add route complexity safety gates so self-assessed `small` tasks are automatically escalated when they touch shared code, public/API boundaries, migrations, schema, auth, security, billing, payment, or other critical runtime surfaces.
+- Add accumulation triggers for repeated small-task work so a run of small changes can force a medium holistic review path before architectural drift builds up unnoticed.
+- Surface complexity audit authority and reasons in route preview output, registry data, workflow docs, and tests so the size decision is evidence-backed instead of purely agent-declared.
+
+
 ## 2.11.0 (stable) - 2026-04-21
 
 - Absorb Superpowers-style strict TDD into Forge by enforcing failing-test-first behavior changes, delete-before-RED reset rules, named baseline proof, expanded anti-rationalization coverage, and explicit no-harness fallback discipline.

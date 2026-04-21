@@ -32,6 +32,13 @@ def main() -> int:
     parser.add_argument("--workspace-router", type=Path, default=None, help="Optional AGENTS.md or workspace skill map")
     parser.add_argument("--workspace", type=Path, default=None, help="Optional workspace root for preference resolution")
     parser.add_argument("--changed-files", type=int, default=None, help="Optional changed file count to guide complexity")
+    parser.add_argument("--recent-small-tasks", type=int, default=None, help="Completed small slices since the last holistic review")
+    parser.add_argument(
+        "--changed-files-since-review",
+        type=int,
+        default=None,
+        help="Total changed files since the last holistic review",
+    )
     parser.add_argument("--has-harness", choices=["auto", "yes", "no"], default="auto", help="Whether a usable test harness is known")
     parser.add_argument(
         "--delegation-preference",

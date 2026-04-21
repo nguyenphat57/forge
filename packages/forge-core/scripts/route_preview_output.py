@@ -9,12 +9,14 @@ from workflow_state_support import record_workflow_event
 
 def format_text(report: dict) -> str:
     detected = report["detected"]
+    complexity_audit = detected.get("complexity_audit", {"authority": "heuristic", "reasons": []})
     lines = [
         "Forge Route Preview",
         f"- Prompt: {report['prompt']}",
         f"- Intent: {detected['intent']}",
         f"- Session mode: {detected['session_mode'] or '(n/a)'}",
         f"- Complexity: {detected['complexity']}",
+        f"- Complexity authority: {complexity_audit['authority']}",
         f"- Profile: {detected['profile']}",
         f"- Forge skills: {' -> '.join(detected['forge_skills'])}",
         f"- Optional design lenses: {', '.join(detected['optional_design_lenses']) or '(none)'}",
@@ -90,6 +92,10 @@ def format_text(report: dict) -> str:
     if detected["packet_mode_reasons"]:
         lines.append("- Packet mode reasons:")
         for reason in detected["packet_mode_reasons"][:3]:
+            lines.append(f"  - {reason}")
+    if complexity_audit["reasons"]:
+        lines.append("- Complexity audit reasons:")
+        for reason in complexity_audit["reasons"]:
             lines.append(f"  - {reason}")
     if report["delegation_plan"]:
         lines.append(f"- Delegation summary: {report['delegation_plan']['summary']}")

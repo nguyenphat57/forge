@@ -22,6 +22,8 @@ class RoutePreviewSmokeMatrixTests(unittest.TestCase):
                         workspace_router=workspace_router,
                         workspace=workspace_fixture(case["workspace_fixture"]) if case.get("workspace_fixture") and not case.get("workspace_router") else None,
                         changed_files=case.get("changed_files"),
+                        recent_small_tasks=case.get("recent_small_tasks"),
+                        changed_files_since_review=case.get("changed_files_since_review"),
                         has_harness=case.get("has_harness", "auto"),
                         delegation_preference=case.get("delegation_preference"),
                     )

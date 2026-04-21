@@ -157,11 +157,12 @@ Use this mode after a medium or large build chain has produced implementation ev
 Applicability:
 - large work: required
 - medium work: recommended, and required when multiple files, packets, subagents, or review concerns are involved
-- small work: optional unless risk signals appear
+- small work: optional unless blast-radius risk appears or accumulated small slices reach the holistic-review threshold
 
 Review inputs:
 - original request, accepted design/spec/plan, and execution packet history
 - changed files, ownership map, and relevant diff
+- route complexity audit, including initial complexity, final complexity, and escalation reasons
 - RED/GREEN/baseline evidence or explicit no-harness fallback
 - implementer, spec-reviewer, and quality-reviewer statuses when subagents were used
 - known residual risks and open concerns

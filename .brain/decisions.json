@@ -478,8 +478,8 @@
         "id":  "20260421-134500",
         "kind":  "decision",
         "scope":  "forge-2-11-stable-status",
-        "summary":  "Treat 2.11.0 as the current stable Forge release because the Forge v3 strict TDD and subagent execution upgrade, generated host overlays, release-facing doc sync, and targeted verification suites are green.",
-        "status":  "resolved",
+        "summary":  "Treat 2.11.0 as a superseded Forge stable slice because the later 2.12.0 release replaced its stable line after a fresh release sync and verification pass.",
+        "status":  "superseded",
         "evidence":  [
                          "VERSION",
                          "CHANGELOG.md",
@@ -510,8 +510,49 @@
                      "subagents",
                      "workflow-surface"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 2.11.0 verification evidence.",
+        "revisit_if":  "Release archaeology needs the original 2.11.0 proof chain or later evidence invalidates the recorded verification.",
         "trigger":  "minor-release",
         "resume_hint":  "Resume only if a later audit needs the original 2.11.0 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260421-171000",
+        "kind":  "decision",
+        "scope":  "forge-2-12-stable-status",
+        "summary":  "Treat 2.12.0 as the current stable Forge release because complexity safety gates now verify nominal small-task classification against blast-radius and accumulation triggers, with full repo verification green.",
+        "status":  "resolved",
+        "evidence":  [
+                         "VERSION",
+                         "CHANGELOG.md",
+                         "README.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "packages/forge-core/data/orchestrator-registry.json",
+                         "packages/forge-core/scripts/route_complexity_safety.py",
+                         "packages/forge-core/scripts/route_policy.py",
+                         "packages/forge-core/scripts/route_preview.py",
+                         "packages/forge-core/scripts/route_preview_builder.py",
+                         "packages/forge-core/scripts/route_preview_output.py",
+                         "packages/forge-core/tests/test_route_complexity_safety.py",
+                         "python -m pytest packages\\forge-core\\tests\\test_route_complexity_safety.py packages\\forge-core\\tests\\test_route_preview.py -q -> PASS on 2026-04-21",
+                         "python -m pytest packages\\forge-core\\tests -q -> PASS on 2026-04-21",
+                         "python -m pytest tests -q -> PASS on 2026-04-21",
+                         "python -m pytest packages\\forge-codex\\overlay\\tests -q -> PASS on 2026-04-21",
+                         "python -m pytest packages\\forge-antigravity\\overlay\\tests -q -> PASS on 2026-04-21",
+                         "python scripts\\verify_repo.py --profile full --format json -> PASS on 2026-04-21",
+                         "git diff --check -> PASS on 2026-04-21"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "routing",
+                     "complexity",
+                     "quality-gate"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 2.12.0 verification evidence.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 2.12.0 proof chain or invalidates the recorded verification."
     }
 ]

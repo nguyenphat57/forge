@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-04-21T13:45:00+07:00",
+  "updated_at": "2026-04-21T17:10:12+07:00",
   "working_on": {
-    "feature": "forge-v3-full-spectrum-release",
-    "task": "Release the completed Forge v3 strict TDD and subagent execution tranche as Forge 2.11.0, sync continuity surfaces, then push to main",
+    "feature": "forge-v3-complexity-safety-gates",
+    "task": "Release Forge v3 complexity safety gates as Forge 2.12.0, sync continuity surfaces, then push to main",
     "status": "ready-for-merge",
     "files": [
       "docs/plans/2026-04-21-forge-v3-full-spectrum-upgrade-plan.md",
@@ -17,39 +17,68 @@
       "packages/forge-core/workflows/execution/test.md",
       "packages/forge-core/workflows/execution/review.md",
       "packages/forge-core/workflows/execution/quality-gate.md",
-      "packages/forge-core/tests/test_contracts.py"
+      "packages/forge-core/tests/test_contracts.py",
+      "CHANGELOG.md",
+      "README.md",
+      "VERSION",
+      "packages/forge-core/data/orchestrator-registry.json",
+      "packages/forge-core/references/kernel-tooling.md",
+      "packages/forge-core/scripts/route_complexity_safety.py",
+      "packages/forge-core/scripts/route_policy.py",
+      "packages/forge-core/scripts/route_preview.py",
+      "packages/forge-core/scripts/route_preview_builder.py",
+      "packages/forge-core/scripts/route_preview_output.py",
+      "packages/forge-core/tests/support.py",
+      "packages/forge-core/tests/test_route_complexity_safety.py",
+      "packages/forge-core/tests/test_route_matrix.py"
     ]
   },
-  "pending_tasks": [],
+  "pending_tasks": [
+    "Rerun final verification after release surface sync, then commit and push origin/main."
+  ],
   "recent_changes": [
-    "Added strict TDD enforcement with failing-test-first, delete-before-RED, named baseline, and no-harness fallback contracts.",
-    "Added packet-first subagent execution with implementer, spec-reviewer, quality-reviewer, and final-reviewer prompts.",
-    "Added subagent status handling for DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, and BLOCKED.",
-    "Added Final Implementation Review, Branch Resolution, and quality-gate handoff rules.",
-    "Updated brainstorm and plan with scope decomposition, section-by-section approval, and type/signature consistency checks.",
-    "Bumped VERSION and release surfaces from 2.10.0 to 2.11.0."
+    "CHANGELOG.md",
+    "README.md",
+    "VERSION",
+    "packages/forge-core/data/orchestrator-registry.json",
+    "packages/forge-core/references/kernel-tooling.md",
+    "packages/forge-core/scripts/route_policy.py",
+    "packages/forge-core/scripts/route_preview.py",
+    "packages/forge-core/scripts/route_preview_builder.py",
+    "packages/forge-core/scripts/route_preview_output.py",
+    "packages/forge-core/tests/support.py",
+    "packages/forge-core/tests/test_route_matrix.py",
+    "packages/forge-core/workflows/execution/build.md",
+    "packages/forge-core/workflows/execution/quality-gate.md",
+    "packages/forge-core/workflows/execution/review.md",
+    "packages/forge-core/scripts/route_complexity_safety.py",
+    "packages/forge-core/tests/test_route_complexity_safety.py"
   ],
   "verification": [
-    "python -m pytest packages/forge-core/tests -q -> PASS, 187 passed, 5 skipped",
-    "python -m pytest packages/forge-codex/overlay/tests -q -> PASS, 9 passed",
-    "python -m pytest packages/forge-antigravity/overlay/tests -q -> PASS, 12 passed",
-    "python -m pytest tests -q -> PASS, 89 passed",
-    "python scripts/generate_overlay_skills.py --check -> PASS",
-    "python scripts/generate_host_artifacts.py --check --format json -> PASS"
+    "python -m pytest packages\\forge-core\\tests\\test_route_complexity_safety.py packages\\forge-core\\tests\\test_route_preview.py -q -> PASS, 30 passed",
+    "python -m pytest packages\\forge-core\\tests -q -> PASS, 193 passed, 5 skipped, 369 subtests passed",
+    "python -m pytest tests -q -> PASS, 89 passed, 329 subtests passed",
+    "python -m pytest packages\\forge-codex\\overlay\\tests -q -> PASS, 9 passed",
+    "python -m pytest packages\\forge-antigravity\\overlay\\tests -q -> PASS, 12 passed",
+    "python scripts\\verify_repo.py --profile full --format json -> PASS",
+    "git diff --check -> PASS"
   ],
   "decisions_made": [
-    "Harness-capable behavior changes require a verified failing test before implementation code.",
-    "Code written before RED must be deleted instead of adapted as reference.",
-    "Subagent execution remains packet-first and host-agnostic; hosts without subagents run the same lanes sequentially.",
-    "Independent sub-projects may enter plan only after their design section and shared contracts are approved."
+    "Complexity size is no longer agent authority alone; route policy now applies a deterministic safety audit after nominal classification.",
+    "Nominal small tasks touching shared code or public/API boundaries escalate to at least medium.",
+    "Nominal small tasks touching critical runtime, migrations, schema, auth, security, billing, payment, or data-loss surfaces escalate to large.",
+    "Repeated small-task accumulation can force a medium holistic-review path."
   ],
   "risks": [
     "The repo-level one-shot pytest command has known module-name collisions across overlay suites, so verification is run per suite."
   ],
   "blockers": [],
   "source_artifacts": [
-    "plan: C:\\Users\\Admin\\.gemini\\forge\\.worktrees\\brainstorm-plan-superpowers\\docs\\plans\\2026-04-21-forge-v3-full-spectrum-upgrade-plan.md",
-    "worktree: C:\\Users\\Admin\\.gemini\\forge\\.worktrees\\brainstorm-plan-superpowers",
-    "release-docs: C:\\Users\\Admin\\.gemini\\forge\\.worktrees\\brainstorm-plan-superpowers\\docs\\release"
+    "readme: C:\\Users\\Admin\\.gemini\\forge\\README.md",
+    "plan: C:\\Users\\Admin\\.gemini\\forge\\docs\\plans\\2026-04-21-forge-v3-full-spectrum-upgrade-plan.md",
+    "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
+    "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
+    "git: 16 working tree item(s)",
+    "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\workflow-state\\forge-self-hosted-tdd-sdd-adoption\\latest.json"
   ]
 }

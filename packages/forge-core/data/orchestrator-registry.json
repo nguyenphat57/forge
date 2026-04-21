@@ -486,6 +486,70 @@
       "small_max_changed_files": 2,
       "medium_max_changed_files": 10
     },
+    "safety_gates": {
+      "blast_radius": {
+        "medium": {
+          "reason": "blast-radius: public or shared interface",
+          "prompt_markers": [
+            "api",
+            "public api",
+            "contract",
+            "client",
+            "sdk",
+            "webhook",
+            "shared utility",
+            "shared util",
+            "core helper",
+            "shared abstraction",
+            "public interface",
+            "cli",
+            "config",
+            "runtime behavior"
+          ],
+          "repo_signal_markers": [
+            "api/",
+            "sdk",
+            "openapi",
+            "swagger",
+            "cli/",
+            "config",
+            "shared",
+            "core/",
+            "utils/",
+            "lib/"
+          ]
+        },
+        "large": {
+          "reason": "blast-radius: critical runtime surface",
+          "prompt_markers": [
+            "auth",
+            "permission",
+            "security",
+            "billing",
+            "payment",
+            "migration",
+            "schema",
+            "data loss"
+          ],
+          "repo_signal_markers": [
+            "auth",
+            "security",
+            "billing",
+            "payment",
+            "migrations",
+            "schema",
+            "prisma/",
+            "supabase/migrations/",
+            ".env"
+          ]
+        }
+      },
+      "accumulation": {
+        "minimum_complexity": "medium",
+        "recent_small_task_threshold": 5,
+        "changed_files_since_review_threshold": 10
+      }
+    },
     "prompt_hints": {
       "small": [
         "typo",

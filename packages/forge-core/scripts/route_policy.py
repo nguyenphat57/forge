@@ -10,6 +10,7 @@ from route_analysis import (
     detect_session_mode,
     process_precheck_required,
 )
+from route_complexity_safety import audit_complexity
 from route_execution_advice import (
     build_baseline_verification,
     build_review_sequence,
@@ -28,9 +29,21 @@ def resolve_route_policy(
     changed_files: int | None,
     has_harness: str,
     registry: dict,
+    recent_small_tasks: int | None = None,
+    changed_files_since_review: int | None = None,
 ) -> dict:
     intent, intent_config = detect_intent(prompt, registry)
-    complexity = detect_complexity(prompt, changed_files, registry)
+    initial_complexity = detect_complexity(prompt, changed_files, registry)
+    complexity_audit = audit_complexity(
+        initial_complexity=initial_complexity,
+        prompt_text=prompt,
+        repo_signals=repo_signals,
+        changed_files=changed_files,
+        recent_small_tasks=recent_small_tasks,
+        changed_files_since_review=changed_files_since_review,
+        registry=registry,
+    )
+    complexity = complexity_audit["final_complexity"]
     session_mode = detect_session_mode(prompt, registry) if intent == "SESSION" else None
     verification_key, verification = choose_verification_profile(
         intent,
@@ -77,6 +90,7 @@ def resolve_route_policy(
         "intent_config": intent_config,
         "session_mode": session_mode,
         "complexity": complexity,
+        "complexity_audit": complexity_audit,
         "verification_key": verification_key,
         "verification": verification,
         "quality_profile_key": quality_profile_key,

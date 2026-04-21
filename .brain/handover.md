@@ -1,17 +1,22 @@
 HANDOVER
-- Current task: Release the completed Forge v3 strict TDD and subagent execution tranche as Forge `2.11.0` from branch `codex/brainstorm-plan-superpowers`, then push to `main`.
-- Done: Forge now requires a verified failing test before harness-capable behavior changes, with delete-before-RED reset rules and named baseline proof.
-- Done: `references/tdd-discipline.md` captures strict RED -> GREEN -> REFACTOR, anti-rationalization, red flags, and no-harness fallback rules.
-- Done: `build.md` and `test.md` enforce strict TDD packet fields, delete reset proof, baseline-green proof, and no-harness justification.
-- Done: `references/subagent-execution.md` and prompt templates define packet-first implementer, spec-reviewer, quality-reviewer, and final-reviewer lanes.
-- Done: `review.md` now has Final Implementation Review and Branch Resolution, while `quality-gate.md` reads both before ready/merge/PR claims.
-- Done: `brainstorm.md` and `plan.md` now cover multi-subsystem decomposition, section-by-section approval, and type/signature/property consistency.
-- Done: Release and continuity surfaces now point to `2.11.0` in `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/public-readiness.md`, `docs/release/release-process.md`, and `.brain/decisions.json`.
-- Done: Current maintainer posture still lives under `docs/current/*`; `.brain` remains continuity state, not the primary source of truth.
-- Verification run: `python -m pytest packages/forge-core/tests -q` -> PASS, 187 passed, 5 skipped, on 2026-04-21.
-- Verification run: `python -m pytest packages/forge-codex/overlay/tests -q` -> PASS, 9 passed, on 2026-04-21.
-- Verification run: `python -m pytest packages/forge-antigravity/overlay/tests -q` -> PASS, 12 passed, on 2026-04-21.
-- Verification run: `python -m pytest tests -q` -> PASS, 89 passed, on 2026-04-21.
-- Verification run: `python scripts/generate_overlay_skills.py --check` -> PASS on 2026-04-21.
-- Verification run: `python scripts/generate_host_artifacts.py --check --format json` -> PASS on 2026-04-21.
-- Next step: Commit the `2.11.0` release sync and push `origin/main`.
+- Current task: Release the Forge v3 complexity safety gate tranche as Forge 2.12.0, sync continuity surfaces, then push to main.
+- Status: ready-for-merge
+- Pending: (none before commit/push; rerun verification after release surface sync)
+- Verification run:
+  - python -m pytest packages\forge-core\tests\test_route_complexity_safety.py packages\forge-core\tests\test_route_preview.py -q -> PASS, 30 passed
+  - python -m pytest packages\forge-core\tests -q -> PASS, 193 passed, 5 skipped, 369 subtests passed
+  - python -m pytest tests -q -> PASS, 89 passed, 329 subtests passed
+  - python -m pytest packages\forge-codex\overlay\tests -q -> PASS, 9 passed
+  - python -m pytest packages\forge-antigravity\overlay\tests -q -> PASS, 12 passed
+  - python scripts\verify_repo.py --profile full --format json -> PASS
+  - git diff --check -> PASS
+- Important decisions:
+  - Complexity size is no longer agent authority alone; route policy now applies a deterministic safety audit after nominal classification.
+  - Nominal small tasks touching shared code or public/API boundaries escalate to at least medium.
+  - Nominal small tasks touching critical runtime, migrations, schema, auth, security, billing, payment, or data-loss surfaces escalate to large.
+  - Repeated small-task accumulation can force a medium holistic-review path.
+- Risks:
+  - The repo-level one-shot pytest command has known module-name collisions across overlay suites, so verification is run per suite.
+- Source of truth: current maintainer posture remains under `docs/current/*`; `.brain` is continuity state.
+- Blockers: (none)
+- Next step: Commit the 2.12.0 release sync and push origin/main.

@@ -66,6 +66,7 @@ If the flow touches multiple profiles, select the profile with the higher blast 
 ## Gate Inputs
 
 Read from real artifact or new command output:
+- Route complexity audit from current diff evidence
 - Verification/test output
 - Workflow-state or execution checkpoint for medium or large build work
 - Review disposition
@@ -86,6 +87,8 @@ Fresh command output is necessary, but medium+ or behavior-changing work also ne
 - stage-state record with explicit `pending`, `required`, `active`, `completed`, `skipped`, or `blocked` values when workflow-state is used
 
 Do not mark a medium+ slice ready from command output alone.
+
+If the latest route complexity audit escalated a nominal small slice to medium or large, the gate must treat the escalated complexity as authoritative.
 
 ## Branch Resolution Gate
 

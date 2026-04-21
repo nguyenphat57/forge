@@ -13,7 +13,9 @@
 Use these deterministic scripts for the active Forge surface:
 
 ```powershell
-python scripts/route_preview.py --prompt "Implement checkout flow" --format json
+python scripts/route_preview.py "Implement checkout flow" --format json
+python scripts/route_preview.py "Update shared API helper" --changed-files 1 --repo-signal packages/core/api.py --format json
+python scripts/route_preview.py "Update docs" --changed-files 1 --recent-small-tasks 5 --format json
 python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode next --format json
 python scripts/run_with_guidance.py --workspace C:\path\to\workspace --timeout-ms 20000 -- npm test
 python scripts/verify_bundle.py --format json
@@ -39,6 +41,8 @@ Other current kernel tools:
 - `check_spec_packet.py`
 - `prepare_worktree.py`
 - `session_context.py`
+
+Route preview treats the requested size as advisory. The complexity audit can escalate a nominal small slice from blast-radius markers or accumulated small-task evidence before packet, review, and quality-gate decisions are made.
 
 Adapter SKILL composition:
 
