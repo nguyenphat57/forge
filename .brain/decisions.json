@@ -518,8 +518,8 @@
         "id":  "20260421-171000",
         "kind":  "decision",
         "scope":  "forge-2-12-stable-status",
-        "summary":  "Treat 2.12.0 as the current stable Forge release because complexity safety gates now verify nominal small-task classification against blast-radius and accumulation triggers, with full repo verification green.",
-        "status":  "resolved",
+        "summary":  "Treat 2.12.0 as a superseded Forge stable slice because the later 2.13.0 wave-execution release replaced its stable line after a fresh release sync and verification pass.",
+        "status":  "superseded",
         "evidence":  [
                          "VERSION",
                          "CHANGELOG.md",
@@ -551,8 +551,43 @@
                      "complexity",
                      "quality-gate"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 2.12.0 verification evidence.",
+        "revisit_if":  "Release archaeology needs the original 2.12.0 proof chain or later evidence invalidates the recorded verification.",
         "trigger":  "minor-release",
         "resume_hint":  "Resume only if a later audit needs the original 2.12.0 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260421-214538",
+        "kind":  "decision",
+        "scope":  "forge-2-13-stable-status",
+        "summary":  "Treat 2.13.0 as the current stable Forge release because wave execution now gives Codex packetized parallel-safe work a dependency-ordered controller with explicit shared verification and workflow-state guidance.",
+        "status":  "resolved",
+        "evidence":  [
+                         "VERSION",
+                         "CHANGELOG.md",
+                         "README.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "packages/forge-core/scripts/run_wave_execution.py",
+                         "packages/forge-core/scripts/wave_execution.py",
+                         "packages/forge-core/scripts/wave_execution_state.py",
+                         "packages/forge-core/scripts/workflow_state_summary.py",
+                         "packages/forge-core/tests/test_wave_execution.py",
+                         "packages/forge-core/tests/test_route_preview.py",
+                         "packages/forge-codex/overlay/workflows/execution/dispatch-subagents.md",
+                         "packages/forge-codex/overlay/tests/test_adapter_locales.py",
+                         "packages/forge-antigravity/overlay/tests/test_adapter_locales.py",
+                         "python scripts/verify_repo.py -> PASS on 2026-04-21"
+                     ],
+        "next":  [],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "wave-execution",
+                     "workflow-state",
+                     "delegation"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 2.13.0 verification evidence.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 2.13.0 proof chain or invalidates the recorded verification."
     }
 ]

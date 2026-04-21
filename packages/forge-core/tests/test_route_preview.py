@@ -317,7 +317,7 @@ class RoutePreviewTests(unittest.TestCase):
             )
 
         self.assertEqual(report["detected"]["execution_mode"], "parallel-safe")
-        self.assertEqual(report["detected"]["delegation_strategy"], "parallel-split")
+        self.assertEqual(report["detected"]["delegation_strategy"], "wave-execution")
         self.assertEqual(report["detected"]["host_capability_tier"], "parallel-workers")
         self.assertEqual(report["detected"]["resolved_delegation_preference"], "auto")
         self.assertEqual(report["detected"]["effective_delegation_mode"], "parallel-workers")
@@ -330,6 +330,16 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["delegation_plan"]["host_capability_tier"], "parallel-workers")
         self.assertEqual(report["delegation_plan"]["resolved_delegation_preference"], "auto")
         self.assertEqual(report["delegation_plan"]["effective_delegation_mode"], "parallel-workers")
+        self.assertEqual(report["delegation_plan"]["wave_execution"]["entrypoint"], "run_wave_execution.py")
+        self.assertEqual(
+            report["delegation_plan"]["controller_steps"],
+            [
+                "Build or refresh the wave plan before spawning workers.",
+                "Spawn one worker packet per ready slice in the current wave.",
+                "After each worker result, advance the persisted wave state before spawning the next wave.",
+                "Run shared verification when a wave completes before unlocking downstream packets.",
+            ],
+        )
         self.assertEqual(
             report["delegation_plan"]["packet_template"]["required_fields"],
             [

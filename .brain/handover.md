@@ -1,22 +1,16 @@
 HANDOVER
-- Current task: Release the Forge v3 complexity safety gate tranche as Forge 2.12.0, sync continuity surfaces, then push to main.
+- Current task: Release the Forge wave execution engine tranche as Forge 2.13.0, sync release and continuity surfaces, then push to main.
 - Status: ready-for-merge
 - Pending: (none before commit/push; rerun verification after release surface sync)
 - Verification run:
-  - python -m pytest packages\forge-core\tests\test_route_complexity_safety.py packages\forge-core\tests\test_route_preview.py -q -> PASS, 30 passed
-  - python -m pytest packages\forge-core\tests -q -> PASS, 193 passed, 5 skipped, 369 subtests passed
-  - python -m pytest tests -q -> PASS, 89 passed, 329 subtests passed
-  - python -m pytest packages\forge-codex\overlay\tests -q -> PASS, 9 passed
-  - python -m pytest packages\forge-antigravity\overlay\tests -q -> PASS, 12 passed
-  - python scripts\verify_repo.py --profile full --format json -> PASS
-  - git diff --check -> PASS
+  - python scripts\verify_repo.py -> PASS on 2026-04-21 before the 2.13.0 release sync
+  - python scripts\verify_repo.py -> PASS on 2026-04-21 after the 2.13.0 release sync
 - Important decisions:
-  - Complexity size is no longer agent authority alone; route policy now applies a deterministic safety audit after nominal classification.
-  - Nominal small tasks touching shared code or public/API boundaries escalate to at least medium.
-  - Nominal small tasks touching critical runtime, migrations, schema, auth, security, billing, payment, or data-loss surfaces escalate to large.
-  - Repeated small-task accumulation can force a medium holistic-review path.
+  - Codex parallel-worker delegation now uses wave execution instead of the older flat parallel split.
+  - Wave plans keep dependency order, prevent overlapping write scopes in the same wave, and require shared verification before later waves unlock.
+  - Workflow-state summaries now expose ready, running, blocked, and verification-gated wave status so `next` can guide the controller deterministically.
 - Risks:
-  - The repo-level one-shot pytest command has known module-name collisions across overlay suites, so verification is run per suite.
+  - Wave advancement depends on fresh persisted execution-progress and run-report artifacts for each packet.
 - Source of truth: current maintainer posture remains under `docs/current/*`; `.brain` is continuity state.
 - Blockers: (none)
-- Next step: Commit the 2.12.0 release sync and push origin/main.
+- Next step: Rerun `python scripts\verify_repo.py`, then commit the 2.13.0 release sync, merge to `main`, and push origin/main.

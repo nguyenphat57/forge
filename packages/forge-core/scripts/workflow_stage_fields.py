@@ -69,6 +69,10 @@ def transition_id_for(kind: str, report: dict, stage_name: str, recorded_at: str
     explicit = report.get("transition_id")
     if isinstance(explicit, str) and explicit.strip():
         return explicit.strip()
+    if kind == "execution-progress":
+        packet_id = report.get("packet_id")
+        if isinstance(packet_id, str) and packet_id.strip():
+            return f"{kind}:{stage_name}:{packet_id.strip()}:{recorded_at}"
     return f"{kind}:{stage_name}:{recorded_at}"
 
 

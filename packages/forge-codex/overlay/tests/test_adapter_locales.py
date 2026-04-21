@@ -117,6 +117,20 @@ class AdapterLocaleTests(unittest.TestCase):
         self.assertTrue(host["supports_parallel_subagents"])
         self.assertEqual(host["subagent_dispatch_skill"], "dispatch-subagents")
 
+    def test_parallel_safe_prompt_activates_wave_execution_on_codex(self) -> None:
+        report = route_preview.build_report(
+            build_route_args(
+                "Implement many screens and many endpoints in parallel",
+                changed_files=12,
+                delegation_preference="auto",
+            )
+        )
+
+        self.assertEqual(report["detected"]["execution_mode"], "parallel-safe")
+        self.assertEqual(report["detected"]["delegation_strategy"], "wave-execution")
+        self.assertEqual(report["detected"]["host_capability_tier"], "parallel-workers")
+        self.assertEqual(report["delegation_plan"]["wave_execution"]["entrypoint"], "run_wave_execution.py")
+
 
 if __name__ == "__main__":
     unittest.main()

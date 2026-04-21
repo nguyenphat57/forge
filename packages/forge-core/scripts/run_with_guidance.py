@@ -157,7 +157,8 @@ def format_text(report: dict) -> str:
 def persist_report(report: dict, output_dir: str | None) -> tuple[Path, Path]:
     artifact_dir = default_artifact_dir(output_dir, "run-reports")
     artifact_dir.mkdir(parents=True, exist_ok=True)
-    stem = f"{timestamp_slug()}-{slugify(Path(report['workspace']).name)}-{report['command_kind']}"
+    command_slug = slugify(report.get("command_display") or "command")[:48]
+    stem = f"{timestamp_slug()}-{slugify(Path(report['workspace']).name)}-{report['command_kind']}-{command_slug}"
     json_path = artifact_dir / f"{stem}.json"
     md_path = artifact_dir / f"{stem}.md"
     json_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")

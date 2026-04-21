@@ -86,13 +86,13 @@ import common  # noqa: E402
 import route_preview  # noqa: E402
 
 
-def build_route_args(prompt: str, *, repo_signals: list[str] | None = None) -> Namespace:
+def build_route_args(prompt: str, *, repo_signals: list[str] | None = None, changed_files: int | None = None) -> Namespace:
     return Namespace(
         prompt=prompt,
         repo_signal=repo_signals or [],
         workspace_router=None,
         workspace=None,
-        changed_files=None,
+        changed_files=changed_files,
         has_harness="auto",
         delegation_preference=None,
         forge_home=DEFAULT_TEST_FORGE_HOME,
@@ -254,6 +254,16 @@ class AdapterLocaleTests(unittest.TestCase):
         self.assertFalse(host["supports_subagents"])
         self.assertFalse(host["supports_parallel_subagents"])
         self.assertIsNone(host["subagent_dispatch_skill"])
+
+    def test_parallel_safe_prompt_stays_sequential_on_antigravity(self) -> None:
+        report = route_preview.build_report(
+            build_route_args("Implement many screens and many endpoints in parallel", changed_files=12)
+        )
+
+        self.assertEqual(report["detected"]["execution_mode"], "parallel-safe")
+        self.assertEqual(report["detected"]["host_capability_tier"], "controller-baseline")
+        self.assertEqual(report["detected"]["delegation_strategy"], "sequential-lanes")
+        self.assertEqual(report["detected"]["host_skills"], [])
 
 
 if __name__ == "__main__":

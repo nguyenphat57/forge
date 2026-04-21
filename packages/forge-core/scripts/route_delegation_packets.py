@@ -65,7 +65,7 @@ def build_delegation_packet_blueprints(
     execution_pipeline_key: str | None,
     registry: dict,
 ) -> list[dict]:
-    if strategy_key == "parallel-split":
+    if strategy_key in {"parallel-split", "wave-execution"}:
         return [
             {
                 "lane": "implementer",
@@ -163,9 +163,9 @@ def choose_delegation_plan(
         return None, None, []
 
     if uses_parallel_mode and supports_parallel_subagents:
-        key = "parallel-split"
-        label = "Parallel subagent split"
-        summary = "Independent slices can run in parallel under isolated ownership."
+        key = "wave-execution"
+        label = "Wave execution"
+        summary = "Independent slices can run in dependency-ordered waves under isolated ownership."
     elif supports_subagents and uses_review_lane:
         key = "independent-reviewer"
         label = "Independent reviewer subagent"
@@ -194,7 +194,7 @@ def choose_delegation_plan(
         "summary": summary,
         "dispatch_mode": (
             "parallel-workers"
-            if key == "parallel-split"
+            if key in {"parallel-split", "wave-execution"}
             else "independent-reviewers"
             if key == "independent-reviewer"
             else "controller-sequential"
@@ -209,5 +209,18 @@ def choose_delegation_plan(
         "controller_steps": build_delegation_controller_steps(key, execution_pipeline_key),
         "packet_template": build_delegation_packet_template(),
         "packet_blueprints": build_delegation_packet_blueprints(key, execution_pipeline_key, registry),
+        "wave_execution": {
+            "enabled": key == "wave-execution",
+            "entrypoint": "run_wave_execution.py" if key == "wave-execution" else None,
+            "commands": (
+                {
+                    "plan": "python scripts/run_wave_execution.py plan --workspace <workspace> --project-name <project> --packet-file <packet-file> --format json",
+                    "advance": "python scripts/run_wave_execution.py advance --workspace <workspace> --project-name <project> --format json",
+                    "status": "python scripts/run_wave_execution.py status --workspace <workspace> --project-name <project> --format json",
+                }
+                if key == "wave-execution"
+                else {}
+            ),
+        },
     }
     return key, plan, host_skills

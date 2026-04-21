@@ -128,11 +128,12 @@ Reviewer lanes should return:
 ```text
 1. Choose the delegation mode from Forge route/build policy
 2. Write packets before spawning
-3. Spawn implementers/reviewers with explicit ownership
-4. Do non-overlapping controller work immediately
-5. Integrate results
-6. Rerun shared verification
-7. Update chain status or checkpoint if the chain remains long
+3. If the mode is wave execution, run `python scripts/run_wave_execution.py plan --workspace <workspace> --project-name <project> --packet-file <packet-file> --format json`
+4. Spawn implementers/reviewers with explicit ownership
+5. Do non-overlapping controller work immediately
+6. After each worker result, persist execution progress and run `python scripts/run_wave_execution.py advance --workspace <workspace> --project-name <project> --format json`
+7. Integrate results and rerun shared verification when a wave closes
+8. Update chain status or checkpoint if the chain remains long
 ```
 
 ## Merge Discipline
