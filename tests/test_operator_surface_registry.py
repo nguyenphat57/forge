@@ -129,7 +129,7 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         reference_map = (ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md").read_text(encoding="utf-8")
         archive_index = (ROOT_DIR / "docs" / "archive" / "INDEX.md").read_text(encoding="utf-8")
 
-        self.assertIn("maintenance-only posture", reference_map)
+        self.assertIn("current repo posture", reference_map)
         self.assertNotIn("Active roadmap tranche for the current kernel-only contraction line", reference_map)
         self.assertNotIn("docs/plans/2026-04-11-forge-slim-refactor-v2.md", reference_map)
         self.assertIn("docs/plans/forge_refactor_V3.md", archive_index)

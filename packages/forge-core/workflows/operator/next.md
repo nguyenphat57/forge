@@ -29,7 +29,7 @@ quality_gates:
    - checkpoint artifact when the work is medium+ or already tracked
    - current working tree changes
    - session or handover artifacts if any
-   - `references/target-state.md` if working on Forge itself and the next move changes process direction or strictness
+   - `references/target-state.md` if working on Forge itself and the next move changes process direction, product surface, or strictness
 2. Resolve with:
 
 ```powershell
@@ -42,7 +42,7 @@ python scripts/resolve_help_next.py --workspace <workspace> --mode next
    - Maximum 1-2 alternatives when needed
 
 For medium+ slices, the next step usually favors creating or refreshing the durable artifact before more editing when no such artifact is present yet.
-For Forge-maintenance work, the next step should not optimize local convenience at the cost of target-state discipline.
+For Forge contract-sensitive work, the next step should not optimize local convenience at the cost of target-state discipline.
 For first-run workspaces with weak context, point to `plan` and a bounded slice; add `python scripts/verify_repo.py --profile fast` only when repo health is unclear.
 
 ## Output Contract

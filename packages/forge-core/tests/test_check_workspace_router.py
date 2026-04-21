@@ -49,7 +49,7 @@ class WorkspaceRouterCheckTests(unittest.TestCase):
                 "Covers `AGENTS.md` and `router.md`.\n",
                 encoding="utf-8",
             )
-            (agent_dir / "local-skill-maintenance.md").write_text(
+            (agent_dir / "local-skill-guidance.md").write_text(
                 "Keep local skills aligned with the workspace router.\n",
                 encoding="utf-8",
             )

@@ -26,7 +26,7 @@ Describe the current maintainer-facing structure of Forge without forcing reader
 - install safety and backup behavior remain intact
 - installed runtime workflow paths remain stable
 
-## Current maintenance posture
+## Current repo posture
 
 - no active roadmap tranche is open; `docs/current/*` plus `packages/forge-core/references/target-state.md` are the live maintainer source of truth
 - changes should default to drift correction, compatibility repair, and verification hardening

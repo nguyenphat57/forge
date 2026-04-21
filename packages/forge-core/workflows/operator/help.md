@@ -28,7 +28,7 @@ quality_gates:
    - `.forge-artifacts/workflow-state/<project>/packet-index.json` for a cheap continuity read before expanding to full workflow-state
    - Latest plans/spec docs as sidecars when workflow-state is missing or not seeded yet
    - `.brain/session.json` or `.brain/handover.md` if available
-   - `references/target-state.md` if the repo under maintenance is Forge itself or if multiple valid directions need a policy tie-break
+   - `references/target-state.md` if the repo is Forge itself or if multiple valid directions need a policy tie-break
 2. Resolve with:
 
 ```powershell
@@ -41,7 +41,7 @@ python scripts/resolve_help_next.py --workspace <workspace> --mode help
    - Maximum 2 alternatives if needed
 
 For medium+ slices, the main recommendation should point at the durable artifact that needs to be created, refreshed, or consulted next.
-For Forge-maintenance choices, prefer the recommendation that best preserves the target-state contract.
+For Forge contract-sensitive choices, prefer the recommendation that best preserves the target-state contract.
 For first-run or low-context repos, default to `plan` plus a bounded slice. If repo health is unclear, run `python scripts/verify_repo.py --profile fast` first.
 
 ## Output Contract

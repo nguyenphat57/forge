@@ -30,7 +30,7 @@ def router_candidate_rank(path: Path) -> tuple[int, int, str]:
         base = 9
 
     penalty = 0
-    if any(token in name for token in ("smoke", "test", "checklist", "maintenance")):
+    if any(token in name for token in ("smoke", "test", "checklist", "guidance")):
         penalty += 10
     return (base + penalty, len(path.parts), name)
 
@@ -92,7 +92,7 @@ def check_workspace(args: argparse.Namespace) -> dict:
     agents_path = args.agents.resolve() if args.agents else workspace / "AGENTS.md"
     router_map = args.router_map.resolve() if args.router_map else detect_router_map(workspace, agents_path)
     routing_smoke = workspace / ".agent" / "routing-smoke-tests.md"
-    maintenance_doc = workspace / ".agent" / "local-skill-maintenance.md"
+    guidance_doc = workspace / ".agent" / "local-skill-guidance.md"
     findings: list[dict] = []
 
     if not agents_path.exists():
@@ -158,10 +158,10 @@ def check_workspace(args: argparse.Namespace) -> dict:
     else:
         record(findings, "warn", "routing_smoke_missing", "Missing .agent/routing-smoke-tests.md")
 
-    if maintenance_doc.exists():
-        record(findings, "pass", "maintenance_doc_present", f"Maintenance guide found: {maintenance_doc}")
+    if guidance_doc.exists():
+        record(findings, "pass", "guidance_doc_present", f"Local skill guidance found: {guidance_doc}")
     else:
-        record(findings, "warn", "maintenance_doc_missing", "Missing .agent/local-skill-maintenance.md")
+        record(findings, "warn", "guidance_doc_missing", "Missing .agent/local-skill-guidance.md")
 
     if routing_smoke.exists():
         smoke_content = read_text(routing_smoke)

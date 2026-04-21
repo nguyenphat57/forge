@@ -162,7 +162,7 @@ workspace/
 `-- .agent/
     |-- workspace-skill-map.md
     |-- routing-smoke-tests.md
-    |-- local-skill-maintenance.md
+    |-- local-skill-guidance.md
     `-- skills/
         |-- skill-a/SKILL.md
         `-- skill-b/SKILL.md

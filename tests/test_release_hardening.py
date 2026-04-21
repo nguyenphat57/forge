@@ -99,7 +99,7 @@ class ReleaseHardeningTests(unittest.TestCase):
             f"Top changelog release does not match VERSION: {first_release_heading}",
         )
 
-    def test_plan_inventory_reflects_maintenance_only_posture_and_archive_boundary(self) -> None:
+    def test_plan_inventory_reflects_historical_closure_and_archive_boundary(self) -> None:
         closure_path = ROOT_DIR / "docs" / "plans" / "2026-04-02-forge-1.15.x-maintenance-closure.md"
         roadmap_path = ROOT_DIR / "docs" / "plans" / "forge_refactor_V3.md"
         archive_index = ROOT_DIR / "docs" / "archive" / "INDEX.md"
@@ -134,7 +134,7 @@ class ReleaseHardeningTests(unittest.TestCase):
             with self.subTest(path=path, status=status_line):
                 self.assertTrue(
                     any(pattern.match(status_line) for pattern in allowed_status_patterns),
-                    f"Plan doc status is not maintenance-safe: {path} -> {status_line}",
+                    f"Plan doc status is not archive-safe: {path} -> {status_line}",
                 )
 
     def test_brain_decisions_keep_only_one_current_stable_line(self) -> None:

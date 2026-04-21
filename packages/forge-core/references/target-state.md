@@ -13,7 +13,7 @@ Current maintainer docs:
 Read this reference when:
 - deciding between two valid implementation directions for Forge itself
 - adding or removing process, artifacts, or review gates
-- deciding whether a source-repo surface change is a bounded cleanup or a product-level reopen
+- deciding whether a source-repo surface change still fits the current contract or needs explicit product-level escalation
 - considering a new core dependency on a companion, runtime tool, or stack-specific layer
 - deciding whether a shortcut improves delivery or only weakens verification
 
@@ -86,11 +86,11 @@ Challenge a change when it mainly adds:
 
 ## 1.15.x Closure Target
 
-`1.15.x` should close the original roadmap and leave Forge in maintenance mode instead of reopening product sprawl by accident:
+`1.15.x` should close the original roadmap and leave Forge on a narrow operating contract instead of reopening product sprawl by accident:
 
 - release-facing docs, `VERSION`, and the latest stable changelog entry agree on the same stable release line
 - core, Codex, and Antigravity entry surfaces tell one honest story about evidence-first execution, delegation posture, and generated host artifacts
-- target-state and reference-map make the maintenance boundary explicit so future edits default to drift correction, compatibility repair, and verification hardening
+- target-state and reference-map make the current operating contract explicit so future edits default to drift correction, compatibility repair, and verification hardening
 - generated host artifacts stay bootstrap-only; canonical wording lives in tracked source references and overlay sources, not hand-edited runtime wrappers
 - release hardening keeps catching version or story drift before a cut can claim stable status
 
@@ -104,21 +104,21 @@ Challenge a change when it mainly adds:
 - Codex keeps the same installed workflow outputs, but canonical wrapper source collapsed to a shared generator path
 - release/install behavior, bundle fingerprints, and adapter-global state contracts stayed stable while the surface was slimmed
 
-## Maintenance Boundary
+## Current Operating Contract
 
-After the `1.15.x` closure line, and again after the bounded `1.16.x` surface-slim closure, Forge defaults to maintenance mode:
+After the `1.15.x` closure line, and again after the bounded `1.16.x` surface-slim closure, Forge defaults to a narrow operating contract:
 
 - accept drift correction that keeps release-facing docs, host entry surfaces, and generated artifacts aligned with the shipped product story
 - accept compatibility repairs, defect fixes, and verification hardening when they preserve the current execution-kernel contract
 - accept narrow operator-quality improvements only when they reduce ambiguity without adding new product surface area
 - reject new roadmap branches, new release postures, and broad companion or runtime expansion unless fresh evidence shows the current contract is insufficient
 
-Reopen the roadmap only if:
+Escalate into an explicit roadmap or product decision only if:
 
-- runtime health, packet execution, or host-neutral adapter contracts fail in real repos and cannot be fixed as bounded maintenance work
-- a source-repo surface or docs surface becomes heavy enough that maintenance framing now hides real product and operational risk
+- runtime health, packet execution, or host-neutral adapter contracts fail in real repos and cannot be fixed as bounded contract-preserving work
+- a source-repo surface or docs surface becomes heavy enough that the narrow operating-contract framing now hides real product and operational risk
 - a release-facing inconsistency survives the current verification stack, proving the drift checks are materially incomplete
-- a proposed addition changes the behavior bar enough that calling it maintenance would hide real product risk
+- a proposed addition changes the behavior bar enough that treating it as routine upkeep would hide real product risk
 
 There is no active roadmap tranche now.
 Current maintainer guidance lives in `docs/current/*` and this reference, while historical plans remain historical input only.

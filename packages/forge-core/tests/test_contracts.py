@@ -251,10 +251,10 @@ class BundleContractTests(unittest.TestCase):
         architecture = architecture_path.read_text(encoding="utf-8")
         target_state = (ROOT_DIR / "references" / "target-state.md").read_text(encoding="utf-8")
         self.assertIn("docs/current/architecture.md", reference_map)
-        self.assertIn("maintenance-only posture", reference_map)
+        self.assertIn("current repo posture", reference_map)
         self.assertNotIn("Active roadmap tranche for the current kernel-only contraction line", reference_map)
         self.assertNotIn("docs/plans/2026-04-11-forge-slim-refactor-v2.md", reference_map)
-        self.assertIn("## Current maintenance posture", architecture)
+        self.assertIn("## Current repo posture", architecture)
         self.assertNotIn("## Active refactor focus", architecture)
         self.assertIn("## 1.16.x Surface Slim Closure", target_state)
         self.assertIn("There is no active roadmap tranche now.", target_state)
@@ -604,7 +604,7 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("`current_stage`", help_next)
         self.assertIn("target-state.md", help_next)
 
-    def test_help_and_next_workflows_reference_target_state_for_forge_maintenance(self) -> None:
+    def test_help_and_next_workflows_reference_target_state_for_forge_contract_choices(self) -> None:
         help_workflow = (ROOT_DIR / "workflows" / "operator" / "help.md").read_text(encoding="utf-8")
         next_workflow = (ROOT_DIR / "workflows" / "operator" / "next.md").read_text(encoding="utf-8")
         self.assertIn("references/target-state.md", help_workflow)

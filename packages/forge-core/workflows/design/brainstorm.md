@@ -37,7 +37,7 @@ Use this workflow for:
 - any request that asks for options, exploration, design, or tradeoff comparison
 
 Do not use this workflow for:
-- pure typo, formatting, rename, dependency, generated artifact, or mechanical maintenance work
+- pure typo, formatting, rename, dependency, generated artifact, or other mechanical-only work
 - implementation after an approved design and plan already exist
 - debugging where the next step is reproduction, unless the fix will require new behavior design
 

@@ -39,7 +39,7 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 ## Routing Contract
 
 - Detect intent and complexity first, then choose the smallest Forge chain that can finish the work safely.
-- `REVIEW`, `SESSION`, and truly non-behavioral maintenance tasks may stay prompt-led.
+- `REVIEW`, `SESSION`, and truly non-behavioral upkeep tasks may stay prompt-led.
 - All behavioral `BUILD` work and all `VISUALIZE` work must go through `brainstorm` before `plan`.
 - `brainstorm` writes an approved design doc under `docs/specs/YYYY-MM-DD-<topic>-design.md`.
 - `plan` writes an implementation plan under `docs/plans/YYYY-MM-DD-<topic>-implementation-plan.md` and stops for execution choice before `build`.

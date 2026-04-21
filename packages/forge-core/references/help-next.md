@@ -6,7 +6,7 @@
 
 - Canonical engine: `scripts/resolve_help_next.py`
 - Workflow wrappers: `workflows/operator/help.md` and `workflows/operator/next.md`
-- Strategic policy filter for Forge-maintenance choices: `references/target-state.md`
+- Strategic policy filter for Forge contract-sensitive choices: `references/target-state.md`
 - Preferred sources, in order:
   1. `git status`
   2. `.forge-artifacts/workflow-state/<project>/latest.json` when execution or stage state is already persisted

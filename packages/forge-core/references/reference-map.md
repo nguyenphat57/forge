@@ -6,7 +6,7 @@
 
 | File | When to read |
 | --- | --- |
-| docs/current/architecture.md | Current maintainer view of package boundaries, archive policy, and the maintenance-only posture |
+| docs/current/architecture.md | Current maintainer view of package boundaries, archive policy, and the current repo posture |
 | docs/current/operator-surface.md | Current source-repo operator contract, `repo_operator.py`, and dispatcher behavior |
 | docs/current/install-and-activation.md | Current source-repo versus installed-runtime guidance, activation rules, and rollout sync |
 | docs/archive/INDEX.md | Find historical plans and specs after they leave the active reading path |
@@ -18,7 +18,7 @@
 | `smoke-tests.md` | Smoke-test host routing and Forge's general behavior |
 | `smoke-test-checklist.md` | Record smoke-test results for each case |
 | `constitution-lite.md` | Record or reuse repo-local principles without adding a heavier governance artifact |
-| `target-state.md` | Re-anchor Forge strategy and operator choices to the north-star target state, including the shipped `1.15.x` closure target, the `1.16.x` surface-slim closure, and the current maintenance boundary |
+| `target-state.md` | Re-anchor Forge strategy and operator choices to the north-star target state, including the shipped `1.15.x` closure target, the `1.16.x` surface-slim closure, and the current operating contract |
 | `execution-delivery.md` | Select execution mode, checkpoint, and completion state for large builds |
 | `tdd-discipline.md` | Apply strict RED -> GREEN -> REFACTOR, delete-rule, anti-rationalization, and no-harness fallback discipline |
 | `subagent-execution.md` | Dispatch packet-first implementer/reviewer subagents, status protocol, final review handoff, and lane fallback rules |
@@ -147,10 +147,10 @@
 6. execution-delivery.md if the chain is long or high-risk
 ```
 
-### When validating maintenance-only posture
+### When validating the current operating contract
 
 ```text
-1. target-state.md to confirm the `1.15.x` closure target, the `1.16.x` surface-slim closure, the maintenance boundary, and reopen criteria
+1. target-state.md to confirm the `1.15.x` closure target, the `1.16.x` surface-slim closure, the current operating contract, and escalation criteria
 2. docs/current/architecture.md to confirm the live maintainer surface stays in current docs instead of roadmap files
 3. bump-release.md if the stable version line or release-note surface changes
 4. kernel-tooling.md if you need deterministic checks to keep release-facing docs and generated artifacts aligned

@@ -266,15 +266,15 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
             with self.subTest(skill_token=token):
                 self.assertIn(token, skill)
 
-    def test_115_closure_target_and_maintenance_boundary_tokens_are_visible(self) -> None:
+    def test_115_closure_target_and_operating_contract_tokens_are_visible(self) -> None:
         target_state = (ROOT_DIR / "packages" / "forge-core" / "references" / "target-state.md").read_text(encoding="utf-8")
         reference_map = (ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md").read_text(encoding="utf-8")
 
         for token in (
             "## 1.15.x Closure Target",
-            "maintenance mode",
-            "## Maintenance Boundary",
-            "Reopen the roadmap only if",
+            "narrow operating contract",
+            "## Current Operating Contract",
+            "Escalate into an explicit roadmap or product decision only if",
             "beyond the `1.15.x` closure line",
         ):
             with self.subTest(target_token=token):
@@ -282,8 +282,8 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
 
         for token in (
             "1.15.x` closure target",
-            "maintenance boundary",
-            "When validating maintenance-only posture",
+            "current operating contract",
+            "When validating the current operating contract",
         ):
             with self.subTest(reference_token=token):
                 self.assertIn(token, reference_map)

@@ -12,7 +12,7 @@ Forge is an evidence-first execution kernel for coding agents.
 This repository is the source monorepo for Forge: `forge-core + host adapters`.
 
 Current maintainer docs live under `docs/current/`.
-Forge is currently in maintenance-only mode; reopen only under the criteria in `packages/forge-core/references/target-state.md`.
+Forge currently follows the operating contract in `packages/forge-core/references/target-state.md`.
 Historical plans and specs now live under `docs/archive/`.
 
 Forge is built around a simple split:
