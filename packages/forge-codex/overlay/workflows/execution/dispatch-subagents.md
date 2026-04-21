@@ -22,7 +22,7 @@ quality_gates:
 - Do not fork the full thread by default. Build a fresh packet first.
 - Do not send parallel implementers into the same write scope.
 - Do not wait on subagents while the controller still has non-overlapping work to do.
-- If the repo is dirty and the task is high-risk, reconsider `worktree` before `subagent-split`.
+- If the repo is dirty and the task has a broad or multi-slice blast radius, reconsider `worktree` before `subagent-split`.
 </HARD-GATE>
 
 ## When To Use
@@ -43,7 +43,7 @@ Do not use this workflow when:
 |Mode | Use when | Subagent pattern|
 |------|----------|-----------------|
 |`parallel-split` | Independent BUILD/DEBUG/OPTIMIZE slices with clear boundaries | 1 worker per slice, merged by the controller|
-|`independent-reviewer` | Forge requires spec/quality/deploy review lanes | 1 implementer worker + read-only reviewer lanes|
+|`independent-reviewer` | Forge requires quality/deploy review lanes | 1 implementer worker + read-only reviewer lanes|
 |`sequential-fallback` | Distinct lanes are needed but safe parallelism is not justified | No spawn; keep the lanes separate as controller-managed passes|
 
 ## Role Mapping
@@ -51,7 +51,6 @@ Do not use this workflow when:
 |Forge lane | Codex role | Notes|
 |-----------|------------|------|
 |`implementer` | `worker` | Owns code changes within an explicit file scope|
-|`spec-reviewer` | `default` | Read-only unless the controller explicitly reassigns fixes|
 |`quality-reviewer` | `default` | Findings first; patch only after ownership is reassigned|
 |`navigator` | controller or `explorer` | Use `explorer` only for bounded read-only codebase questions|
 
@@ -103,7 +102,7 @@ Controller duties:
 
 ### Independent Reviewers
 
-Use when Forge selected `implementer-quality`, `implementer-spec-quality`, or `deploy-gate`.
+Use when Forge selected `implementer-quality` or `deploy-gate`.
 
 Controller duties:
 1. let the implementer finish its slice and verification

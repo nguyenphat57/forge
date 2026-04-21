@@ -185,27 +185,6 @@
                                                     "lựa chọn"
                                                 ]
                         },
-    "spec_review_gate":  {
-                             "prompt_keywords":  [
-                                                     "di tru",
-                                                     "di trú",
-                                                     "hop dong",
-                                                     "hợp đồng",
-                                                     "tich hop",
-                                                     "tích hợp",
-                                                     "bao mat",
-                                                     "bảo mật",
-                                                     "rui ro cao",
-                                                     "rủi ro cao",
-                                                     "ban kinh anh huong",
-                                                     "bán kính ảnh hưởng",
-                                                     "quay lui",
-                                                     "xac thuc",
-                                                     "xác thực",
-                                                     "thanh toan",
-                                                     "thanh toán"
-                                                 ]
-                         },
     "change_type_hints":  {
                               "non_behavioral_keywords":  [
                                                               "tai lieu",

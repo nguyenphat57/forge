@@ -222,13 +222,15 @@ def workflow_entry(kind: str, report: dict | None, source_path: Path | None = No
             "notes": as_string_list(report.get("notes")),
         }
 
-    if kind == "spec-review-state":
+    if kind == "legacy-spec-review-state":
+        decision = report.get("decision", "go")
+        current_stage = "build" if decision == "go" and report.get("stage_status") == "completed" else "plan"
         return {
             **common_fields,
-            "label": report.get("summary", "spec-review"),
+            "label": report.get("summary", "legacy readiness checkpoint"),
             "status": report.get("stage_status", "required"),
-            "current_stage": report.get("stage_name", "spec-review"),
-            "decision": report.get("decision", "go"),
+            "current_stage": current_stage,
+            "decision": decision,
             "next_steps": as_string_list(report.get("next_actions")),
             "notes": as_string_list(report.get("notes")),
         }

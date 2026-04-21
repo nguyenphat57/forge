@@ -11,11 +11,6 @@ REVIEW_SEQUENCES = {
         {"sequence_index": 1, "lane": "implementer", "review_kind": None, "depends_on": []},
         {"sequence_index": 2, "lane": "quality-reviewer", "review_kind": "quality-pass", "depends_on": ["implementer"]},
     ],
-    "implementer-spec-quality": [
-        {"sequence_index": 1, "lane": "implementer", "review_kind": None, "depends_on": []},
-        {"sequence_index": 2, "lane": "spec-reviewer", "review_kind": "spec-compliance", "depends_on": ["implementer"]},
-        {"sequence_index": 3, "lane": "quality-reviewer", "review_kind": "quality-pass", "depends_on": ["spec-reviewer"]},
-    ],
     "deploy-gate": [
         {"sequence_index": 1, "lane": "deploy-reviewer", "review_kind": "release-review", "depends_on": []},
         {"sequence_index": 2, "lane": "quality-reviewer", "review_kind": "quality-pass", "depends_on": ["deploy-reviewer"]},
@@ -46,13 +41,6 @@ BROWSER_OPTIONAL_MARKERS = (
 )
 
 FAST_LANE_BLOCKER_KEYWORDS = (
-    "migration",
-    "schema",
-    "auth",
-    "payment",
-    "public api",
-    "public interface",
-    "breaking",
     "rollout",
     "release",
     "deploy",
@@ -181,10 +169,9 @@ def classify_packet_mode(
         reasons.append("Fast lane requires a single-lane packet.")
     if quality_profile_key != "standard":
         eligible = False
-        reasons.append("High-risk quality profile requires the standard packet mode.")
+        reasons.append("Non-standard release policy requires the standard packet mode.")
 
     blocked_stages = {
-        "spec-review",
         "self-review",
         "secure",
         "deploy",
@@ -194,7 +181,7 @@ def classify_packet_mode(
         reasons.append("Release or boundary stages require the full packet contract.")
     if any(keyword in prompt_lower for keyword in FAST_LANE_BLOCKER_KEYWORDS):
         eligible = False
-        reasons.append("Prompt includes high-risk markers that require full packetization.")
+        reasons.append("Prompt includes scale or release markers that require full packetization.")
 
     if eligible:
         return {
@@ -202,8 +189,8 @@ def classify_packet_mode(
             "eligible": True,
             "assumptions_first_mode": True,
             "reasons": [
-                "Small low-risk slice with single-track and single-lane execution.",
-                "No release-tail or high-risk boundary stage is active.",
+                "Small bounded slice with single-track and single-lane execution.",
+                "No release-tail stage is active.",
             ],
         }
 

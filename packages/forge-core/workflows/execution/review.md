@@ -58,7 +58,7 @@ flowchart TD
 
 ## Large-Task Review Discipline
 
-For `large`, `release-critical`, or `high-risk` work:
+For `large`, release-sensitive, or multi-boundary work:
 - prefer an independent review lane for the implemented flow
 - if the host supports reviewer subagents, use them
 - if not, still separate:
@@ -66,7 +66,7 @@ For `large`, `release-critical`, or `high-risk` work:
   - reviewer findings
   - final disposition
 - do not implement and declare merge-ready in the same pass
-- if the build chain used `implementer-quality` or `implementer-spec-quality`, the reviewer lane must remain independent in tone and judgment
+- if the build chain used `implementer-quality`, the reviewer lane must remain independent in tone and judgment
 
 ## Solo Self-Review
 
@@ -76,7 +76,7 @@ When the same person implements and reviews:
 - do not downgrade the bar because no separate reviewer is available
 - for release-sensitive or public-facing slices, keep the tail explicit as `self-review` -> `secure` -> `quality-gate` before deploy
 
-High-risk signals:
+Boundary signals:
 - auth, payment, or data migration
 - multiple boundaries or multiple skills changing at once
 - difficult production rollback

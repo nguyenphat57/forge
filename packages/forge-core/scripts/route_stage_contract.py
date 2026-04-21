@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from common import normalize_text, score_keywords
-from route_risk import matched_high_risk_categories, should_insert_brainstorm, should_insert_spec_review
+from route_risk import should_insert_brainstorm
 
 
 def _haystacks(prompt_text: str, repo_signals: list[str]) -> tuple[str, str]:
@@ -97,13 +97,9 @@ def _interaction_model_change(prompt_text: str) -> bool:
     ) > 0
 
 
-def _system_shape_change(prompt_text: str, quality_profile_key: str, risk_categories: list[str], complexity: str) -> bool:
+def _system_shape_change(prompt_text: str, complexity: str) -> bool:
     normalized = normalize_text(prompt_text)
     if complexity == "large":
-        return True
-    if quality_profile_key == "migration-critical":
-        return True
-    if any(category in risk_categories for category in ("data_schema", "integration")):
         return True
     return score_keywords(normalized, ["architecture", "state sync", "data flow", "auth model", "system shape"]) > 0
 
@@ -168,12 +164,10 @@ def build_required_stages(
 ) -> dict:
     profile, profile_definition = resolve_profile(prompt_text, repo_signals, registry)
     order = list(profile_definition.get("intent_orders", {}).get(intent, []))
-    risk_categories = matched_high_risk_categories(prompt_text, repo_signals)
     non_behavioral = score_keywords(
         normalize_text(prompt_text),
         registry.get("change_type_hints", {}).get("non_behavioral_keywords", []),
     ) > 0
-    effective_risk_categories = [] if non_behavioral else risk_categories
     ui_work = _looks_like_ui_work(prompt_text, repo_signals, registry)
     interaction_model_change = _interaction_model_change(prompt_text)
     greenfield_feature = _looks_like_greenfield_feature(prompt_text, intent)
@@ -184,18 +178,11 @@ def build_required_stages(
         complexity == "large"
         or score_keywords(normalize_text(prompt_text), ["workflow", "approval flow", "multiple actors", "journey", "process"]) > 0
     ) else "discovery-lite"
-    packet_unclear = _packet_unclear(prompt_text, registry)
-    spec_review_required = should_insert_spec_review(prompt_text, repo_signals, intent, complexity, registry)
-    if intent == "BUILD" and complexity == "small":
-        spec_review_required = spec_review_required and packet_unclear
-    architect_required = _system_shape_change(prompt_text, quality_profile_key, effective_risk_categories, complexity)
+    architect_required = _system_shape_change(prompt_text, complexity)
     release_context = _release_context(prompt_text, repo_signals, intent, profile, quality_profile_key, registry)
     secure_required = (
         release_context["public_release"]
         or release_context["critical_internal_release"]
-        or any(category in effective_risk_categories for category in ("auth_payment", "data_schema", "integration"))
-        or (quality_profile_key == "migration-critical" and complexity in {"medium", "large"})
-        or (quality_profile_key == "release-critical" and release_context["release_candidate"])
     )
     if intent == "REVIEW":
         secure_required = True
@@ -243,24 +230,9 @@ def build_required_stages(
 
         if stage_name == "architect":
             if architect_required and intent in {"BUILD", "VISUALIZE", "DEBUG"}:
-                reason = "boundary_risk" if risk_categories else "default_chain"
-                _append_stage(decisions, registry, stage_name, status="required", activation_reason=reason)
+                _append_stage(decisions, registry, stage_name, status="required", activation_reason="default_chain")
             elif intent in {"BUILD", "VISUALIZE", "DEBUG"} and complexity in {"medium", "large"}:
                 _append_stage(decisions, registry, stage_name, status="skipped", skip_reason="packet_clear")
-            continue
-
-        if stage_name == "spec-review":
-            if spec_review_required:
-                reason = "packet_unclear" if packet_unclear and not risk_categories else "boundary_risk" if risk_categories else "default_chain"
-                _append_stage(decisions, registry, stage_name, status="required", activation_reason=reason)
-            elif intent in {"BUILD", "DEBUG"} and (complexity in {"medium", "large"} or risk_categories or packet_unclear):
-                _append_stage(
-                    decisions,
-                    registry,
-                    stage_name,
-                    status="skipped",
-                    skip_reason="packet_clear" if packet_unclear else "low_risk_boundary",
-                )
             continue
 
         if stage_name in {"build", "test", "debug", "refactor", "review", "session"}:
@@ -274,10 +246,8 @@ def build_required_stages(
 
         if stage_name == "secure":
             if secure_required:
-                reason = "public_release" if release_context["public_release"] else "boundary_risk"
+                reason = "public_release" if release_context["public_release"] else "critical_internal_release"
                 _append_stage(decisions, registry, stage_name, status="required", activation_reason=reason)
-            elif intent in {"BUILD", "DEBUG", "DEPLOY"} and (complexity in {"medium", "large"} or release_context["release_candidate"]):
-                _append_stage(decisions, registry, stage_name, status="skipped", skip_reason="low_risk_boundary")
             continue
 
         if stage_name == "quality-gate":

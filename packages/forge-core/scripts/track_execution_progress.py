@@ -17,7 +17,7 @@ VALID_COMPLETION_STATES = (
     "ready-for-merge",
     "blocked-by-residual-risk",
 )
-VALID_LANES = ("navigator", "implementer", "spec-reviewer", "quality-reviewer", "deploy-reviewer")
+VALID_LANES = ("navigator", "implementer", "quality-reviewer", "deploy-reviewer")
 VALID_MODEL_TIERS = ("cheap", "standard", "capable")
 VALID_HARNESS_STATES = ("auto", "yes", "no")
 VALID_BROWSER_QA_CLASSIFICATIONS = ("not-needed", "optional-accelerator", "required-for-this-packet")

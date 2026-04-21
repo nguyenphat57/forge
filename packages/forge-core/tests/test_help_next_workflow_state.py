@@ -789,6 +789,69 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
         self.assertEqual(report["current_focus"], "Recorded workflow stage: brainstorm")
         self.assertEqual(report["suggested_workflow"], "brainstorm")
 
+    def test_next_bootstrap_normalizes_legacy_spec_review_artifact_to_flat_build_chain(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            legacy_dir = workspace / ".forge-artifacts" / "spec-review" / "workflow-workspace"
+            legacy_dir.mkdir(parents=True, exist_ok=True)
+            (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
+            (legacy_dir / "latest.json").write_text(
+                json.dumps(
+                    {
+                        "recorded_at": "2026-04-02T00:00:00+00:00",
+                        "project": "Workflow Workspace",
+                        "profile": "solo-internal",
+                        "intent": "BUILD",
+                        "current_stage": "spec-review",
+                        "required_stage_chain": ["plan", "spec-review", "build"],
+                        "stage_name": "spec-review",
+                        "stage_status": "completed",
+                        "decision": "go",
+                        "activation_reason": "Legacy spec review state.",
+                        "summary": "Packet is ready to implement",
+                        "notes": [],
+                        "next_actions": ["Proceed to build."],
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            bootstrap = run_python_script(
+                "bootstrap_workflow_state.py",
+                "--workspace",
+                str(workspace),
+                "--project-name",
+                "Workflow Workspace",
+                "--format",
+                "json",
+            )
+            self.assertEqual(bootstrap.returncode, 0, bootstrap.stderr)
+            bootstrap_report = json.loads(bootstrap.stdout)
+            self.assertEqual(bootstrap_report["bootstrap_source"], "legacy-spec-review-state")
+            state_path = Path(bootstrap_report["latest_path"])
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+            self.assertEqual(state["required_stage_chain"], ["plan", "build"])
+            self.assertNotIn("spec-review", state["stages"])
+            self.assertNotIn("latest_spec_review", state)
+
+            result = run_python_script(
+                "resolve_help_next.py",
+                "--workspace",
+                str(workspace),
+                "--mode",
+                "next",
+                "--format",
+                "json",
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["signals"]["workflow_state_source"], "workflow-state")
+        self.assertEqual(report["current_focus"], "Recorded workflow stage: build")
+        self.assertEqual(report["suggested_workflow"], "build")
+
 
 if __name__ == "__main__":
     unittest.main()

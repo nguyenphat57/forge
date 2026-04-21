@@ -107,14 +107,8 @@ def detect_session_mode(prompt_text: str, registry: dict) -> str | None:
 def detect_complexity(prompt_text: str, changed_files: int | None, registry: dict) -> str:
     normalized = normalize_text(prompt_text)
     quick_requested = normalized.startswith("/quick")
-    high_risk_keywords: list[str] = []
-    high_risk_keywords.extend(registry["complexity"]["prompt_hints"].get("large", []))
-    high_risk_keywords.extend(registry.get("spec_review_gate", {}).get("prompt_keywords", []))
-    for profile_name in ("release-critical", "migration-critical", "external-interface"):
-        high_risk_keywords.extend(
-            registry.get("quality_profiles", {}).get(profile_name, {}).get("prompt_keywords", [])
-        )
-    quick_high_risk = score_keywords(normalized, high_risk_keywords) > 0
+    quick_blockers = registry["complexity"]["prompt_hints"].get("large", [])
+    quick_high_risk = score_keywords(normalized, quick_blockers) > 0
 
     if quick_requested and not quick_high_risk:
         return "small"

@@ -116,20 +116,6 @@
                                                     "lựa chọn"
                                                 ]
                         },
-    "spec_review_gate":  {
-                             "prompt_keywords":  [
-                                                     "di trú",
-                                                     "hợp đồng",
-                                                     "tích hợp",
-                                                     "bảo mật",
-                                                     "rủi ro cao",
-                                                     "bán kính ảnh hưởng",
-                                                     "quay lui",
-                                                     "xác thực",
-                                                     "thanh toán",
-                                                     "tương thích ngược"
-                                                 ]
-                         },
     "change_type_hints":  {
                               "non_behavioral_keywords":  [
                                                               "tài liệu",

@@ -41,7 +41,7 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 - Detect intent and complexity first, then choose the smallest Forge chain that can finish the work safely.
 - `REVIEW`, `SESSION`, and truly small tasks may stay prompt-led.
 - Medium or large `BUILD` or `VISUALIZE` work that is still ambiguous must go through `brainstorm` before `plan`.
-- High-risk `BUILD` work must go through `spec-review` before `build`.
+- Forge no longer inserts a separate pre-build review stage for boundary-sensitive `BUILD` work; behavioral build routing stays flat and relies on the shared plan/build/review contract instead.
 - Forge keeps packet semantics stable across `parallel-split`, `independent-reviewer`, and `controller-sequential`; host capability changes lane execution, not the packet contract.
 - Use `scripts/route_preview.py` when routing must be previewed deterministically.
 - Canonical thresholds, chains, and lane policy live in `data/orchestrator-registry.json`.
@@ -83,7 +83,6 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 
 - `brainstorm`: no ambiguous medium or large work without choosing a direction first.
 - `plan`: no medium or large build without a confirmed plan.
-- `spec-review`: no high-risk build without a build-readiness review first.
 - `build`: no behavioral change without defining verification first.
 - `review`: findings first, summary second.
 - `refactor`: no refactor without baseline and after verification.

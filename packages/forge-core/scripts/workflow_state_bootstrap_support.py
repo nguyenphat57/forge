@@ -9,7 +9,7 @@ from workflow_state_io import now_iso, pick_latest_json, read_json_object
 LEGACY_BOOTSTRAP_SOURCES = (
     ("route-preview", ".forge-artifacts/route-previews", "route preview"),
     ("direction-state", ".forge-artifacts/direction", "direction state"),
-    ("spec-review-state", ".forge-artifacts/spec-review", "spec review state"),
+    ("legacy-spec-review-state", ".forge-artifacts/spec-review", "legacy spec review state"),
     ("execution-progress", ".forge-artifacts/execution-progress", "execution progress"),
     ("review-state", ".forge-artifacts/reviews", "review state"),
     ("quality-gate", ".forge-artifacts/quality-gates", "quality gate"),

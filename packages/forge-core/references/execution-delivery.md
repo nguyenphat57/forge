@@ -7,9 +7,9 @@
 - choose the right execution mode before batch coding
 - run a process precheck before any behavior-changing edit
 - require a quick plan/design approval path for small creative work
-- define the execution pipeline and reviewer lane for medium/large or high-risk work
+- define the execution pipeline and reviewer lane for medium/large work
 - choose lane tiers instead of pushing every lane to the same capability level
-- require `spec-review` before build when boundary or risk is still unclear
+- return to `brainstorm`, `plan`, or `architect` when the packet is unclear before build
 - make the execution packet explicit enough to run each slice without guessing
 - track progress with short artifacts instead of relying on session memory
 - end with a clear completion state instead of vague status language
@@ -39,13 +39,11 @@ Forge does not assume that every host supports true subagents. A `lane` is a log
 
 |Pipeline | Use when | Lanes|
 |---------|----------|------|
-|`single-lane` | Small or medium low-risk work | `implementer`|
-|`implementer-quality` | Medium/large work with clear enough specs but still needing independent quality review | `implementer` -> `quality-reviewer`|
-|`implementer-spec-quality` | Large work, or medium/high-risk work gated by `spec-review` | `implementer` -> `spec-reviewer` -> `quality-reviewer`|
+|`single-lane` | Small bounded work | `implementer`|
+|`implementer-quality` | Medium/large work with clear enough packets but still needing independent quality review | `implementer` -> `quality-reviewer`|
 |`deploy-gate` | Medium/large deploy or release-sensitive work | `deploy-reviewer` -> `quality-reviewer`|
 
 Rules:
-- if `BUILD` includes `spec-review`, default to `implementer-spec-quality`
 - `large` work or profiles stronger than `standard` must include at least `quality-reviewer`
 - every lane needs its own real input and output
 
@@ -57,36 +55,35 @@ Forge uses abstract tiers instead of hard-coding vendor models:
 |------|--------|
 |`cheap` | navigation, triage, artifact reading, status formatting|
 |`standard` | bounded implementation slices, standard review, day-to-day execution|
-|`capable` | high-risk implementation, spec review, release gates, migration/auth/payment review|
+|`capable` | large-scope implementation, release gates, migration/auth/payment implementation, stronger review|
 
 Default stance:
 - `navigator` -> `cheap`
 - `implementer` -> `standard`
-- `spec-reviewer` -> `capable`
 - `quality-reviewer` -> `standard`
 - `deploy-reviewer` -> `standard`
 
 Upgrade rules:
 - `large` -> implementation and review lanes lean toward `capable`
 - `release-critical`, `migration-critical`, `external-interface`, `regression-recovery` -> upgrade the relevant review lane to `capable`
-- do not force every lane to `capable` for a low-risk slice
+- do not force every lane to `capable` for a bounded slice
 
 ## Isolation & Reviewer Recommendations
 
-For `large`, `release-critical`, or `high-risk` work, choose from:
+For `large`, release-sensitive, dirty-repo, or multi-boundary work, choose from:
 
 |Recommendation | Use when|
 |----------------|--------|
 |`same-tree` | Clean repo, narrow scope, easy rollback|
-|`worktree` | Dirty repo, high-risk change set, or explicit isolation needed|
+|`worktree` | Dirty repo, broad change set, or explicit isolation needed|
 |`subagent-split` | The host supports subagents and boundaries are clearly separable|
 |`independent-reviewer` | The work needs an independent review lane after implementation|
 
 Rules:
-- dirty repo + medium/large/high-risk work -> default toward `worktree`
+- dirty repo + medium/large work -> default toward `worktree`
 - behavior-changing medium+ work -> default toward a clean baseline and usually a worktree unless the repo is already isolated and clean
 - multiple independent slices + host support -> `subagent-split` can be appropriate
-- auth/payment/migration/release-critical work -> lean toward `independent-reviewer`
+- auth/payment/migration/release-sensitive work -> lean toward `independent-reviewer`
 - if the boundary is not justified clearly, do not split the work
 
 Worktree bootstrap helper:
@@ -126,7 +123,7 @@ Execution progress:
 - Stage: [...]
 - Status: [active/completed/blocked]
 - Completion state: [in-progress/ready-for-review/ready-for-merge/blocked-by-residual-risk]
-- Lane: [navigator/implementer/spec-reviewer/quality-reviewer/deploy-reviewer]
+- Lane: [navigator/implementer/quality-reviewer/deploy-reviewer]
 - Model tier: [cheap/standard/capable]
 - Proof before progress: [...]
 - Done: [...]
@@ -143,7 +140,7 @@ Before editing a medium/large slice, the minimum packet should contain:
 
 ```text
 Execution packet:
-- Sources: [plan/spec/design/spec-review]
+- Sources: [brainstorm/plan/spec/design]
 - Current slice: [...]
 - File/surface scope: [...]
 - Baseline: [...]
@@ -153,7 +150,7 @@ Execution packet:
 - Reopen if: [...]
 ```
 
-This packet is the bridge between `plan/architect/spec-review` and `build`.
+This packet is the bridge between `brainstorm`/`plan`/`architect` and `build`.
 
 ## Stage Exit Criteria
 
@@ -191,13 +188,12 @@ Persist this with `scripts/track_chain_status.py` when:
 
 ## Bounded Review Loops
 
-Spec-review and review lanes cannot loop forever.
+Review lanes cannot loop forever.
 
 Default rules:
-- `spec-review` allows at most `3` `revise` rounds
-- exceeding that threshold becomes `blocked` and returns to `plan` or `architect`
+- repeated reviewer requests must become `blocked` and return to `plan` or `architect`
 - every revision round must name the exact fix, not repeat vague feedback
-- `implementer-spec-quality` runs as `implementer -> spec-compliance -> quality-pass`
+- `implementer-quality` runs as `implementer -> quality-pass`
 
 This keeps execution from degrading into endless review churn.
 

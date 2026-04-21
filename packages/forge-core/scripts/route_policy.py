@@ -62,7 +62,7 @@ def resolve_route_policy(
     durable_process_artifacts_required = any(
         isinstance(item, dict)
         and item.get("status") != "skipped"
-        and item.get("stage") in {"brainstorm", "spec-review", "self-review", "quality-gate"}
+        and item.get("stage") in {"brainstorm", "self-review", "quality-gate"}
         for item in required_stages
     )
     isolation_recommendation = None

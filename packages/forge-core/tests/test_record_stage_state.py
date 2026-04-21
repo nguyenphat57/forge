@@ -71,7 +71,7 @@ class RecordStageStateTests(unittest.TestCase):
         payload = json.loads(stale.stdout)
         self.assertIn("expected_previous_stage", payload["error"])
 
-    def test_spec_review_revise_keeps_blocked_transition_and_routes_back_to_plan(self) -> None:
+    def test_build_blocked_transition_can_route_back_to_plan(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
             (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
@@ -88,8 +88,6 @@ class RecordStageStateTests(unittest.TestCase):
                 "active",
                 "--required-stage",
                 "plan",
-                "--required-stage",
-                "spec-review",
                 "--required-stage",
                 "build",
                 "--activation-reason",
@@ -111,17 +109,15 @@ class RecordStageStateTests(unittest.TestCase):
                 "--project-name",
                 "Workflow Workspace",
                 "--stage-name",
-                "spec-review",
+                "build",
                 "--stage-status",
                 "blocked",
                 "--required-stage",
                 "plan",
                 "--required-stage",
-                "spec-review",
-                "--required-stage",
                 "build",
                 "--activation-reason",
-                "Spec review opened.",
+                "Build packet blocked.",
                 "--decision",
                 "revise",
                 "--next-stage-override",
@@ -129,7 +125,7 @@ class RecordStageStateTests(unittest.TestCase):
                 "--expected-previous-stage",
                 "plan",
                 "--summary",
-                "Spec review requested revisions",
+                "Build packet requested revisions",
                 "--next-action",
                 "Revise the plan packet before continuing build work.",
                 "--persist",
@@ -143,13 +139,13 @@ class RecordStageStateTests(unittest.TestCase):
             state = json.loads(state_path.read_text(encoding="utf-8"))
 
         self.assertEqual(state["current_stage"], "plan")
-        self.assertEqual(state["last_transition"]["stage_name"], "spec-review")
+        self.assertEqual(state["last_transition"]["stage_name"], "build")
         self.assertEqual(state["last_transition"]["stage_status"], "blocked")
         self.assertEqual(state["last_transition"]["decision"], "revise")
         self.assertEqual(state["last_transition"]["next_stage_override"], "plan")
-        self.assertEqual(state["stages"]["spec-review"]["status"], "blocked")
+        self.assertEqual(state["stages"]["build"]["status"], "blocked")
         self.assertEqual(state["summary"]["status"], "blocked")
-        self.assertEqual(state["summary"]["current_focus"], "Blocked workflow stage: spec-review")
+        self.assertEqual(state["summary"]["current_focus"], "Blocked workflow stage: build")
         self.assertEqual(state["summary"]["suggested_workflow"], "plan")
         self.assertIn("Revise the plan packet", state["summary"]["recommended_action"])
 

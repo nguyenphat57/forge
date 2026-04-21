@@ -111,7 +111,7 @@ Goal: quickly record results for each smoke test run on a real host rolling out 
 |Section | Results|
 |-----|---------|
 |Prompt used | build large/high-risk has open spec|
-|Is there a route via `spec-review`? |  |
+|Does the flat build route avoid a separate pre-build review fork? |  |
 |Does it indicate the current iteration? |  |
 |Is there a block after the maximum revision threshold? |  |
 |Score |  |
@@ -169,7 +169,7 @@ Goal: quickly record results for each smoke test run on a real host rolling out 
 |Prompt used | high-risk build/deploy prompt via `route_preview.py`|
 |Is there an execution pipeline present? |  |
 |Does lane model tiers appear? |  |
-|Does spec-review loop cap appear when applicable? |  |
+|Does the reviewer loop cap or blocked-state guidance appear when applicable? |  |
 |Score |  |
 |Notes |  |
 

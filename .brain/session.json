@@ -1,42 +1,47 @@
 {
-  "updated_at": "2026-04-11T16:48:00+00:00",
+  "updated_at": "2026-04-21T12:00:00+07:00",
   "working_on": {
-    "feature": "operator-state-cleanup",
-    "task": "Fix stale next/save state handling after a clean merge-ready handoff",
-    "status": "active",
+    "feature": "flat-build-routing-release",
+    "task": "Release the completed flat BUILD routing tranche as Forge 2.9.0 and sync continuity surfaces before pushing to main",
+    "status": "ready-for-merge",
     "files": [
-      "packages/forge-core/scripts/help_next_support.py",
-      "packages/forge-core/scripts/resolve_help_next.py",
-      "packages/forge-core/scripts/session_context.py",
+      "docs/plans/2026-04-21-brainstorm-v2-merge-spec-review-plan.md",
+      "packages/forge-core/data/orchestrator-registry.json",
+      "packages/forge-core/workflows/design/brainstorm.md",
+      "packages/forge-core/workflows/design/plan.md",
+      "packages/forge-core/workflows/design/architect.md",
+      "packages/forge-core/workflows/execution/build.md",
+      "packages/forge-core/scripts/workflow_state_bootstrap_support.py",
+      "packages/forge-core/tests/test_contracts.py",
       "packages/forge-core/tests/test_help_next_workflow_state.py",
-      "packages/forge-core/tests/test_session_context.py",
-      ".forge-artifacts/workflow-state/forge-self-hosted-tdd-sdd-adoption/latest.json",
-      ".brain/session.json"
+      "packages/forge-antigravity/overlay/tests/test_adapter_locales.py"
     ]
   },
   "pending_tasks": [],
   "recent_changes": [
-    "packages/forge-core/scripts/help_next_support.py",
-    "packages/forge-core/scripts/resolve_help_next.py",
-    "packages/forge-core/scripts/session_context.py",
-    "packages/forge-core/tests/test_help_next_workflow_state.py",
-    "packages/forge-core/tests/test_session_context.py",
-    ".forge-artifacts/workflow-state/forge-self-hosted-tdd-sdd-adoption/latest.json",
-    ".brain/session.json"
+    "Moved readiness checkpoint into Brainstorm v2 and the flat plan/build contract.",
+    "Removed active spec-review workflow, registry gate, execution pipeline, lane role, locale gates, and recorder script.",
+    "Normalized legacy spec-review artifact bootstrap into flat plan -> build workflow-state.",
+    "Fixed Antigravity overlay locale tests so they run from the source repo harness.",
+    "Bumped VERSION and release surfaces from 2.6.0 to 2.9.0."
   ],
   "verification": [
-    "python -m unittest discover -s packages/forge-core/tests -p test_session_context.py -v -> PASS",
-    "python -m unittest discover -s packages/forge-core/tests -p test_help_next_workflow_state.py -v -> PASS",
-    "python -m unittest discover -s packages/forge-core/tests -p test_help_next.py -v -> PASS"
+    "python -m unittest discover -s packages/forge-core/tests -v -> PASS, 174 tests, 5 skipped",
+    "python packages/forge-codex/overlay/tests/test_adapter_locales.py -> PASS, 9 tests",
+    "python packages/forge-antigravity/overlay/tests/test_adapter_locales.py -> PASS, 12 tests",
+    "python scripts/verify_repo.py --profile fast -> PASS"
   ],
   "decisions_made": [
-    "Treat stale ready-for-merge workflow summaries as historical once the repo is clean and synced.",
-    "Do not backfill generic unscoped recommendations into saved pending tasks."
+    "Keep Forge flat across risk levels: risk can affect proof/review strength but cannot insert a separate pre-build fork.",
+    "Keep legacy .forge-artifacts/spec-review readable only as compatibility input, not as a canonical active stage."
   ],
-  "risks": [],
+  "risks": [
+    "Line-budget preference still intersects with several pre-existing over-300-line Python test/support files touched by this slice."
+  ],
   "blockers": [],
   "source_artifacts": [
-    "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
-    "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\workflow-state\\forge-self-hosted-tdd-sdd-adoption\\latest.json"
+    "plan: C:\\Users\\Admin\\.gemini\\forge\\.worktrees\\flat-routing-model\\docs\\plans\\2026-04-21-brainstorm-v2-merge-spec-review-plan.md",
+    "worktree: C:\\Users\\Admin\\.gemini\\forge\\.worktrees\\flat-routing-model",
+    "release-docs: C:\\Users\\Admin\\.gemini\\forge\\.worktrees\\flat-routing-model\\docs\\release"
   ]
 }

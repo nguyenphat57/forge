@@ -143,11 +143,12 @@
 
 ```text
 1. build.md
-2. spec-review.md
-3. execution-delivery.md if the backend task spans multiple checkpoints
-4. failure-recovery-playbooks.md if the task is migration, recovery, or high-risk
-5. kernel-tooling.md if you need deterministic packet or verification helpers
-6. companion-skill-contract.md if the runtime or framework is clear and you want to add more layers
+2. plan.md when scope, compatibility, or verification is not locked
+3. architect.md when system shape or boundaries need design
+4. execution-delivery.md if the backend task spans multiple checkpoints
+5. failure-recovery-playbooks.md if the task is migration, recovery, or release-sensitive
+6. kernel-tooling.md if you need deterministic packet or verification helpers
+7. companion-skill-contract.md if the runtime or framework is clear and you want to add more layers
 ```
 
 ### When doing frontend or visualization

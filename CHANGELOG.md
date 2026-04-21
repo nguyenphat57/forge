@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.9.0 (stable) - 2026-04-21
+
+- Flatten Forge BUILD routing across risk levels by removing the active `spec-review` fork, deleting the standalone workflow/recorder surfaces, and keeping medium/large BUILD work on `brainstorm? -> plan -> architect? -> build -> test -> self-review -> quality-gate`.
+- Move the pre-build readiness checkpoint into Brainstorm v2 and the shared plan/build contract so boundary assumptions, first proof, and reversal signals stay explicit without reintroducing a separate risk lane.
+- Preserve legacy `.forge-artifacts/spec-review` continuity by normalizing old bootstrap artifacts into the flat `plan -> build` workflow-state path, refresh Codex and Antigravity locale overlays, and align `VERSION`, `README.md`, `docs/release/*`, and `.brain/*` on `2.9.0`.
+
+
 ## 2.6.0 (stable) - 2026-04-17
 
 - Trim the Forge response-provenance contract by removing the mandatory `Skill selection` rationale block, keeping only workflow-skill names in `Skills used: ...`, and omitting skill reporting entirely when no workflow skill ran.

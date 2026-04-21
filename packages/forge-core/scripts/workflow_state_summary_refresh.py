@@ -20,7 +20,6 @@ LATEST_ENTRY_FIELDS = (
     "latest_review",
     "latest_route_preview",
     "latest_direction",
-    "latest_spec_review",
 )
 
 

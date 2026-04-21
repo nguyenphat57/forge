@@ -1,8 +1,12 @@
 HANDOVER
-- Current task: Keep release and continuity surfaces aligned to the `2.6.0` stable line when future edits touch release-facing text or repo-state guidance.
-- Done: The older `1.17.0` slim-refactor handoff is historical; the current stable line in repo-facing docs is `2.6.0`.
-- Done: `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/public-readiness.md`, `docs/release/release-process.md`, and `.brain/decisions.json` agree on `2.6.0`.
-- Remaining: Do not revive superseded `1.17.0` release notes in `.brain/handover.md` or other continuity surfaces.
-- Important decisions: Treat `docs/current/*` plus `packages/forge-core/references/target-state.md` as the live maintainer source of truth and keep roadmap files historical unless reopen criteria are met.
-- Verification run: `python -m pytest packages/forge-core/tests/test_response_contract.py packages/forge-core/tests/test_contracts.py -q` -> PASS on 2026-04-17.
-- Next step: If a new tranche starts, route from current repo state, `docs/current/*`, and `packages/forge-core/references/target-state.md` instead of reusing superseded roadmap text.
+- Current task: Release the completed flat-build-routing tranche as Forge `2.9.0` from branch `codex/flat-routing-model`.
+- Done: Active BUILD routing is flat and no longer inserts a separate pre-build review stage for boundary-sensitive work.
+- Done: Brainstorm now owns the flat readiness checkpoint before handoff to plan, including assumptions, boundaries, first proof, and reversal signal.
+- Done: `spec-review` was removed from the active workflow/registry surface, including the workflow file, registry gate, pipeline, lane role, locale gate overlays, and recorder script.
+- Done: Legacy `.forge-artifacts/spec-review` bootstrap remains compatible through `legacy-spec-review-state`, but canonical workflow-state normalizes it to `plan -> build` and no longer stores `latest_spec_review`.
+- Done: Release and continuity surfaces now point to `2.9.0` in `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/public-readiness.md`, `docs/release/release-process.md`, and `.brain/decisions.json`.
+- Verification run: `python -m unittest discover -s packages/forge-core/tests -v` -> PASS, 174 tests, 5 skipped, on 2026-04-21.
+- Verification run: `python packages/forge-codex/overlay/tests/test_adapter_locales.py` -> PASS, 9 tests, on 2026-04-21.
+- Verification run: `python packages/forge-antigravity/overlay/tests/test_adapter_locales.py` -> PASS, 12 tests, on 2026-04-21.
+- Verification run: `python scripts/verify_repo.py --profile fast` -> PASS on 2026-04-21.
+- Next step: Commit the `2.9.0` release sync and push `codex/flat-routing-model` to `origin/main`.

@@ -7,7 +7,7 @@ triggers:
 quality_gates:
   - DESIGN.md is created with schema + API + flow
   - Build sequence, boundaries, and decision records explicit
-  - Build-readiness path states whether spec-review is still required
+  - Build-readiness path states whether the design is ready to hand directly to `build`
   - User approved
 ---
 
@@ -46,7 +46,7 @@ flowchart TD
     I --> J[User review]
     J --> K{Approved?}
     K -->|Revise| D
-    K -->|Yes| L[-> spec-review]
+    K -->|Yes| L[-> build]
 ```
 
 ## Data Design
@@ -136,7 +136,7 @@ Build sequence:
 
 ## Design Review Loop
 
-Before handing off to `spec-review`, reread the design in four passes:
+Before handing off to `build`, reread the design in four passes:
 
 1. `Data & lifecycle`: ownership, migrations, cleanup, retention
 2. `Contract & integration`: APIs, events, schemas, public boundaries, compatibility
@@ -169,7 +169,7 @@ Architecture ready:
 - Must-not-break boundaries: [...]
 - Verification shape: [...]
 - Reopen only if: [...]
-- Next workflow: spec-review
+- Next workflow: build
 ```
 
 ## Activation Announcement

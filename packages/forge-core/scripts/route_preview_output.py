@@ -90,11 +90,6 @@ def format_text(report: dict) -> str:
         lines.append("- Packet mode reasons:")
         for reason in detected["packet_mode_reasons"][:3]:
             lines.append(f"  - {reason}")
-    if detected["execution_pipeline"] == "implementer-spec-quality":
-        max_revisions = report["execution_pipeline"].get("max_revisions") if report["execution_pipeline"] else None
-        if max_revisions is None:
-            max_revisions = 3
-        lines.append(f"- Spec-review loop cap: {max_revisions}")
     if report["delegation_plan"]:
         lines.append(f"- Delegation summary: {report['delegation_plan']['summary']}")
         lines.append(f"- Delegation dispatch mode: {report['delegation_plan']['dispatch_mode']}")

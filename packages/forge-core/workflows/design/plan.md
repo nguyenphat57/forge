@@ -7,7 +7,7 @@ triggers:
 quality_gates:
   - Spec or plan document created
   - Implementation-ready plan packet explicit for medium/large task
-  - High-risk build path calls out spec-review when needed
+  - Behavioral build path stays on the shared plan -> build contract
   - User approved before building medium/large tasks
 ---
 
@@ -24,7 +24,6 @@ For medium, large, or vague tasks:
 - do not move into `build` until scope and success criteria are clear
 - the plan may be short, but it must be specific enough to prevent guesswork
 - if the task came from `brainstorm`, inherit the locked direction unless new evidence forces a reversal
-- call out whether `spec-review` is required before build
 - for solo-profile work, make the discovery path explicit: `discovery-lite` for the first pass, `discovery-full` only when ambiguity or boundary risk remains
 
 For small, clear tasks:
@@ -33,9 +32,9 @@ For small, clear tasks:
 - if the slice is creative or behavior-changing, keep the packet short but still get explicit sign-off before build
 
 Quick path:
-- use it only for clearly small, low-risk work
+- use it only for clearly small, bounded work
 - it may be triggered by a short prompt, `quick`, or `/quick`
-- do not use it for migration, contract, auth, public interface, or multi-direction work
+- do not use it for multi-direction work or slices that still need architectural clarification
 </HARD-GATE>
 
 ## Process
@@ -62,9 +61,7 @@ flowchart TD
     O --> P[Plan readiness review]
     P --> Q{Need architect?}
     Q -->|Yes| R[-> architect]
-    Q -->|No| S{Need spec-review?}
-    S -->|Yes| T[-> spec-review]
-    S -->|No| U[-> build]
+    Q -->|No| U[-> build]
 ```
 
 ## Framing Question Discipline
@@ -180,7 +177,7 @@ Rules:
 
 ## Plan Review Loop
 
-Before handing off to `architect`, `spec-review`, or `build`, reread the plan like a reviewer.
+Before handing off to `architect` or `build`, reread the plan like a reviewer.
 
 ### Pass 1: Scope & Sequence
 - Is scope in/out clearly locked?
@@ -195,7 +192,6 @@ Before handing off to `architect`, `spec-review`, or `build`, reread the plan li
 Rules:
 - this review loop is required for large work and for public-interface, migration, auth, or payment changes
 - if two review passes still cannot lock sequence or proof, go back to `brainstorm` or `architect`
-- plan review does not replace `spec-review`
 - if packet readiness is unclear, run `python scripts/check_spec_packet.py --source <plan-or-spec>` and surface only the first clarification question
 
 ## Output Files
@@ -215,7 +211,6 @@ A plan should include:
 - file/surface map
 - task slices with proof per slice
 - risks and assumptions
-- spec-review requirement: required / not required + why, with boundary-risk rationale when relevant
 - phases/tasks
 - verification strategy
 
@@ -232,7 +227,7 @@ Plan ready:
 - Task slices: [...]
 - Verification strategy: [...]
 - Reopen only if: [...]
-- Next workflow: [architect / spec-review / build]
+- Next workflow: [architect / build]
 ```
 
 ## Activation Announcement

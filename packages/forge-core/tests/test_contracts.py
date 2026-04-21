@@ -85,7 +85,6 @@ class BundleContractTests(unittest.TestCase):
                 "plan",
                 "visualize",
                 "architect",
-                "spec-review",
                 "build",
                 "test",
                 "self-review",
@@ -108,6 +107,31 @@ class BundleContractTests(unittest.TestCase):
                 with self.subTest(profile=profile_name, intent=intent):
                     self.assertTrue(order)
                     self.assertTrue(set(order).issubset(set(profile_contract["stages"])))
+
+    def test_flat_build_registry_has_no_active_spec_review_surface(self) -> None:
+        registry_text = (ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8")
+        registry = json.loads(registry_text)
+
+        self.assertNotIn("spec_review_gate", registry)
+        self.assertNotIn("implementer-spec-quality", registry.get("execution_pipelines", {}))
+        self.assertNotIn("spec-review", registry["solo_profiles"]["stages"])
+        for forbidden in (
+            "spec-reviewer",
+            "requires_spec_review",
+            "spec_review_loop_max_revisions",
+        ):
+            with self.subTest(token=forbidden):
+                self.assertNotIn(forbidden, registry_text)
+
+    def test_spec_review_workflow_is_not_shipped_as_active_workflow(self) -> None:
+        self.assertFalse((ROOT_DIR / "workflows" / "design" / "spec-review.md").exists())
+
+    def test_brainstorm_contract_owns_flat_readiness_checkpoint(self) -> None:
+        brainstorm = (ROOT_DIR / "workflows" / "design" / "brainstorm.md").read_text(encoding="utf-8")
+
+        self.assertIn("Flat Readiness Checkpoint", brainstorm)
+        self.assertIn("all behavioral build work", brainstorm)
+        self.assertIn("Plan-readiness handoff", brainstorm)
 
     def test_canonical_registry_stays_ascii_only(self) -> None:
         registry_text = (ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8")

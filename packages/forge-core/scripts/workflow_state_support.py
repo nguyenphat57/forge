@@ -46,6 +46,17 @@ def _merge_stage_snapshot(stages: dict, stage_snapshot: tuple[str, dict] | None)
     return merged
 
 
+def _required_stage_chain(kind: str, report: dict, current: dict) -> list[str]:
+    if kind == "legacy-spec-review-state":
+        return ["plan", "build"]
+    required_stage_chain = string_list(report.get("required_stage_chain"))
+    if not required_stage_chain and kind == "route-preview":
+        required_stage_chain = route_preview_required_stage_chain(report)
+    if not required_stage_chain:
+        required_stage_chain = string_list(current.get("required_stage_chain"))
+    return required_stage_chain
+
+
 def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = None, source_path: Path | None = None) -> tuple[Path, Path]:
     entry = workflow_entry(kind, report, source_path)
     transition = transition_entry(kind, report, str(source_path) if source_path else None)
@@ -70,11 +81,7 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
         if isinstance(report, dict)
         else None
     )
-    required_stage_chain = string_list(report.get("required_stage_chain")) if isinstance(report, dict) else []
-    if not required_stage_chain and kind == "route-preview":
-        required_stage_chain = route_preview_required_stage_chain(report)
-    if not required_stage_chain:
-        required_stage_chain = string_list(current.get("required_stage_chain"))
+    required_stage_chain = _required_stage_chain(kind, report, current) if isinstance(report, dict) else []
 
     stages = seed_required_stages(
         current.get("stages") if isinstance(current.get("stages"), dict) else {},
@@ -120,7 +127,6 @@ def record_workflow_event(kind: str, report: dict, *, output_dir: str | None = N
             "latest_review": entry if kind == "review-state" else latest_entries.get("latest_review"),
             "latest_route_preview": entry if kind == "route-preview" else latest_entries.get("latest_route_preview"),
             "latest_direction": entry if kind == "direction-state" else latest_entries.get("latest_direction"),
-            "latest_spec_review": entry if kind == "spec-review-state" else latest_entries.get("latest_spec_review"),
         }
     )
 

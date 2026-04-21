@@ -22,7 +22,7 @@ def review_artifact_required(
     if required_stages is not None:
         return _stage_required(required_stages, "self-review")
     return intent in EDITING_INTENTS and (
-        complexity in {"medium", "large"} or execution_pipeline_key in {"implementer-quality", "implementer-spec-quality"}
+        complexity in {"medium", "large"} or execution_pipeline_key == "implementer-quality"
     )
 
 

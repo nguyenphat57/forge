@@ -83,9 +83,9 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["profile"], "solo-internal")
         self.assertEqual(
             report["detected"]["required_stage_chain"],
-            ["plan", "spec-review", "build", "test", "self-review", "secure", "quality-gate"],
+            ["plan", "build", "test", "self-review", "quality-gate"],
         )
-        self.assertEqual(report["detected"]["execution_pipeline"], "implementer-spec-quality")
+        self.assertEqual(report["detected"]["execution_pipeline"], "implementer-quality")
         self.assertTrue(report["detected"]["durable_process_artifacts_required"])
         self.assertTrue(report["detected"]["process_precheck_required"])
         self.assertTrue(report["detected"]["baseline_proof_required"])
@@ -97,8 +97,7 @@ class RoutePreviewTests(unittest.TestCase):
             report["detected"]["review_sequence"],
             [
                 {"sequence_index": 1, "lane": "implementer", "review_kind": None, "depends_on": []},
-                {"sequence_index": 2, "lane": "spec-reviewer", "review_kind": "spec-compliance", "depends_on": ["implementer"]},
-                {"sequence_index": 3, "lane": "quality-reviewer", "review_kind": "quality-pass", "depends_on": ["spec-reviewer"]},
+                {"sequence_index": 2, "lane": "quality-reviewer", "review_kind": "quality-pass", "depends_on": ["implementer"]},
             ],
         )
 
@@ -180,7 +179,7 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["skill_selection_rationale"][0]["skill"], "brainstorm")
         self.assertEqual(report["detected"]["skill_selection_rationale"][0]["reason_code"], "default_chain")
 
-    def test_backward_compatibility_boundary_inserts_spec_review(self) -> None:
+    def test_backward_compatibility_boundary_uses_flat_build_chain(self) -> None:
         report = route_preview.build_report(
             self.build_args(
                 "Add a new endpoint for existing clients and keep backward compatibility",
@@ -189,7 +188,13 @@ class RoutePreviewTests(unittest.TestCase):
         )
 
         self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertIn("spec-review", report["detected"]["forge_skills"])
+        self.assertNotIn("spec-review", report["detected"]["forge_skills"])
+        self.assertNotIn("secure", report["detected"]["forge_skills"])
+        self.assertEqual(report["detected"]["execution_pipeline"], "implementer-quality")
+        self.assertEqual(
+            report["detected"]["required_stage_chain"],
+            ["plan", "build", "test", "self-review", "quality-gate"],
+        )
 
     def test_public_release_resolves_solo_public_profile(self) -> None:
         report = route_preview.build_report(
@@ -409,7 +414,7 @@ class RoutePreviewTests(unittest.TestCase):
         self.assertEqual(report["detected"]["browser_qa_classification"], "required-for-this-packet")
         self.assertIn("explicit browser reproduction", report["detected"]["browser_qa_scope"])
 
-    def test_backend_risk_prompt_keeps_spec_review_without_backend_skill_surface(self) -> None:
+    def test_backend_risk_prompt_uses_same_flat_build_chain_without_backend_skill_surface(self) -> None:
         report = route_preview.build_report(
             self.build_args(
                 "Add a new checkout flow with payment and auth",
@@ -418,7 +423,9 @@ class RoutePreviewTests(unittest.TestCase):
         )
 
         self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertIn("spec-review", report["detected"]["forge_skills"])
+        self.assertNotIn("spec-review", report["detected"]["forge_skills"])
+        self.assertNotIn("secure", report["detected"]["forge_skills"])
+        self.assertEqual(report["detected"]["execution_pipeline"], "implementer-quality")
         self.assertNotIn("domain_skills", report["detected"])
         self.assertNotIn("backend", report["activation_line"])
         self.assertNotIn("Domain skills:", route_preview.format_text(report))
@@ -490,7 +497,7 @@ class RoutePreviewTests(unittest.TestCase):
         strategy, plan, host_skills = route_preview.choose_delegation_plan(
             "BUILD",
             "parallel-safe",
-            "implementer-spec-quality",
+            "implementer-quality",
             registry,
             "review-lanes",
         )

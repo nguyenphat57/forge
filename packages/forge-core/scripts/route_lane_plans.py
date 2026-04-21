@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 
-REVIEW_PIPELINES = {"implementer-quality", "implementer-spec-quality", "deploy-gate"}
+REVIEW_PIPELINES = {"implementer-quality", "deploy-gate"}
 
 
 def choose_execution_pipeline(
@@ -16,18 +16,14 @@ def choose_execution_pipeline(
 
     pipelines = registry.get("execution_pipelines", {})
     rules = registry.get("execution_pipeline_rules", {})
-    high_risk_profiles = set(rules.get("high_risk_quality_profiles", []))
-    spec_review_required = "spec-review" in forge_skills
 
     if intent == "BUILD":
-        if spec_review_required:
-            pipeline_key = "implementer-spec-quality"
-        elif complexity in {"medium", "large"} or quality_profile_key in high_risk_profiles:
+        if complexity in {"medium", "large"}:
             pipeline_key = "implementer-quality"
         else:
             pipeline_key = rules.get("default", "single-lane")
     elif intent in {"DEBUG", "OPTIMIZE"}:
-        if complexity in {"medium", "large"} or quality_profile_key in high_risk_profiles:
+        if complexity in {"medium", "large"}:
             pipeline_key = "implementer-quality"
         else:
             pipeline_key = rules.get("default", "single-lane")
@@ -47,7 +43,6 @@ def choose_lane_model_assignments(
     policy = registry.get("lane_model_policy", {})
     assignments: dict[str, str] = dict(policy.get("default", {}))
     assignments.update(policy.get("by_complexity", {}).get(complexity, {}))
-    assignments.update(policy.get("quality_profile_upgrades", {}).get(quality_profile_key, {}))
 
     active_lanes: list[str] = []
     if any(skill in forge_skills for skill in ("brainstorm", "plan", "architect", "visualize")):
@@ -64,7 +59,7 @@ def choose_lane_model_assignments(
 def lane_runtime_role(lane: str) -> str:
     if lane == "implementer":
         return "worker"
-    if lane in {"spec-reviewer", "quality-reviewer"}:
+    if lane == "quality-reviewer":
         return "default"
     if lane == "navigator":
         return "explorer"
@@ -73,7 +68,6 @@ def lane_runtime_role(lane: str) -> str:
 
 def lane_review_kind(lane: str) -> str | None:
     mapping = {
-        "spec-reviewer": "spec-compliance",
         "quality-reviewer": "quality-pass",
         "deploy-reviewer": "release-review",
     }
@@ -89,13 +83,6 @@ def build_delegation_controller_steps(strategy_key: str, execution_pipeline_key:
             "Integrate results and rerun shared verification after the merge.",
         ]
     if strategy_key == "independent-reviewer":
-        if execution_pipeline_key == "implementer-spec-quality":
-            return [
-                "Let the implementer finish its slice and verification first.",
-                "Dispatch the spec-reviewer as a spec-compliance lane with packet, changed files, and evidence.",
-                "Only dispatch the quality-reviewer after spec-compliance returns clean.",
-                "If spec-compliance finds drift, hand ownership back to the implementer before quality review.",
-            ]
         return [
             "Let the implementer finish its slice and verification first.",
             "Dispatch reviewer packets with spec, changed files, and evidence.",

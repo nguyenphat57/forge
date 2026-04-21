@@ -8,6 +8,7 @@ quality_gates:
   - Qualified problem statement created
   - 2-3 options compared when more than one viable direction exists
   - Recommended direction chosen with why-now, why-not-others, first proof, and reversal signal
+  - Plan-readiness handoff covers assumptions, boundaries, and proof for all behavioral build work
   - If no direction can be chosen, exactly one open decision question recorded
 ---
 
@@ -57,6 +58,19 @@ Do not end with:
 
 If more than one decision question remains open, the brainstorm is incomplete.
 When blocked, surface exactly one precise clarification question instead of a list.
+
+## Flat Readiness Checkpoint
+
+Forge uses one flat build path for all behavioral build work. Brainstorm no longer hands off to a separate pre-build review fork; it must make the direction safe enough for `plan` to lock scope and proof.
+
+Before handoff, check:
+- the accepted tradeoff is explicit
+- assumptions that would change scope are named
+- security, migration, auth, payment, public-interface, or compatibility boundaries are not hidden
+- the first proof can expose the main failure mode
+- the reversal signal says when to reopen the decision instead of pushing uncertainty into build
+
+If any item is still unresolved, do not downgrade the risk or rely on a later fork. Return `decision-blocked` with one decisive question, or escalate from `discovery-lite` to `discovery-full`.
 
 ## Process
 
@@ -199,6 +213,7 @@ Direction ready:
 - Options considered: [A/B/C]
 - Recommended direction: [...]
 - Key tradeoff accepted: [...]
+- Boundary assumptions: [...]
 - Why not the others: [...]
 - First proof: [...]
 - Revisit only if: [...]
@@ -222,6 +237,7 @@ If the direction is locked, hand off:
 Brainstorm complete:
 - Chosen direction: [...]
 - Why this direction wins now: [...]
+- Plan-readiness handoff: [scope assumptions, boundary assumptions, proof expectation]
 - First proof: [...]
 - Reversal signal: [...]
 - Next workflow: plan

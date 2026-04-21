@@ -11,13 +11,15 @@ VALID_STAGE_STATUSES = ("pending", "required", "active", "completed", "skipped",
 def stage_name_for(kind: str, report: dict | None) -> str | None:
     if not isinstance(report, dict):
         return None
+    if kind == "legacy-spec-review-state":
+        decision = report.get("decision")
+        status = report.get("stage_status")
+        return "build" if decision == "go" and status == "completed" else "plan"
     explicit = report.get("stage_name")
     if isinstance(explicit, str) and explicit.strip():
         return explicit.strip()
     if kind == "direction-state":
         return "brainstorm"
-    if kind == "spec-review-state":
-        return "spec-review"
     if kind == "quality-gate":
         return "quality-gate"
     if kind == "review-state":
@@ -133,7 +135,9 @@ def transition_entry(kind: str, report: dict | None, source_path: str | None) ->
         "transition_id": transition_id_for(kind, report, stage_name, recorded_at),
         "source_path": source_path,
         "event_ref": source_path,
-        "required_stage_chain": string_list(report.get("required_stage_chain"))
+        "required_stage_chain": ["plan", "build"]
+        if kind == "legacy-spec-review-state"
+        else string_list(report.get("required_stage_chain"))
         if kind != "route-preview"
         else route_preview_required_stage_chain(report),
         "summary": coalesce_string(report, "summary"),
@@ -154,7 +158,4 @@ def transition_entry(kind: str, report: dict | None, source_path: str | None) ->
         "next_actions": as_string_list(report.get("next_actions")) or as_string_list(report.get("next_steps")),
         "post_deploy_verification": [item.strip() for item in report.get("post_deploy_verification", []) if isinstance(item, str) and item.strip()] if isinstance(report.get("post_deploy_verification"), list) else [],
     }
-    if kind == "spec-review-state":
-        transition["review_iteration"] = report.get("review_iteration")
-        transition["max_review_iterations"] = report.get("max_review_iterations")
     return transition

@@ -4,14 +4,13 @@ type: rigid
 triggers:
   - intent: BUILD
   - shortcut: /code
-  - explicit quick hint for small, clear, low-risk work
+  - explicit quick hint for small, clear, bounded work
 quality_gates:
   - Verification strategy defined before editing
   - Execution mode selected for medium/large work
-  - Execution pipeline explicit for medium/large or high-risk work
+  - Execution pipeline explicit for medium/large work
   - Execution packet explicit for medium/large work
-  - Isolation recommendation explicit for high-risk work
-  - Spec-review completed when required
+  - Isolation recommendation explicit for medium+ work in a dirty repo or multi-slice change
   - Relevant checks pass
   - Reviewer-style pass completed for medium/large
   - Completion state explicit before handover
@@ -30,10 +29,9 @@ NO BEHAVIORAL CHANGE WITHOUT DEFINING VERIFICATION FIRST
 - Small creative work still needs an approved quick plan/design packet before build.
 - Medium/large tasks: must have impact analysis before editing.
 - Large tasks: must select execution mode before batch coding.
-- Medium/large or high-risk work: must close the execution pipeline before expanding.
+- Medium/large work: must close the execution pipeline before expanding.
 - Medium+ work in a dirty repo should default toward `worktree` and a clean baseline before modifying.
-- High-risk or dirty-repo work: isolation stance must be locked (`same tree`, `worktree`, or host-supported subagent split`) before modifying.
-- Large/high-risk implementation: if `spec-review` applicable, build only starts when readiness is `go`.
+- Dirty-repo or multi-slice work: isolation stance must be locked (`same tree`, `worktree`, or host-supported subagent split`) before modifying.
 - Behavioral changes: prioritize failing test or reproduce before editing.
 - If there is no viable harness, you must clearly state why and use the strongest remaining verification method.
 - Do not claim "done" without new evidence.
@@ -94,7 +92,7 @@ Execution packet:
 - Packet ID: [...]
 - Packet mode: [standard / fast-lane]
 - Parent packet: [...]
-- Sources: [plan/spec/design/spec-review]
+- Sources: [plan/spec/design]
 - Goal: [...]
 - Current slice: [...]
 - Baseline: [...]
@@ -116,19 +114,19 @@ Rules:
 - Do not edit until `current slice` is finalized
 - Do not edit until the baseline command or check is named.
 - Don't combine multiple slices into one edit just because it's "convenient".
-- If you need to touch a file/boundary outside the packet to save the design, stop and reopen `plan`, `architect`, or `spec-review`
+- If you need to touch a file/boundary outside the packet to save the design, stop and reopen `plan` or `architect`
 - `track_execution_progress.py` is the canonical packet record for medium/large build work; summaries and dispatch wrappers should read from that packet instead of inventing a second schema
 
 ## Fast Lane Contract V1
 
-Fast lane is a light packet mode for truly small low-risk slices, not a second execution system.
+Fast lane is a light packet mode for truly small bounded slices, not a second execution system.
 
 Eligibility:
 
-- low blast radius
+- bounded blast radius
 - narrow owned write scope
 - no packet graph dependency or merge choreography needed
-- no schema/auth/payment/public-interface/release-tail boundary
+- no release-tail or deployment boundary
 
 Required fast lane fields:
 
@@ -165,21 +163,17 @@ To see the mode chooser and complete states more concisely, read `references/exe
 
 ## Execution Pipeline Selection
 
-Pipeline is Forge's way of separating implementation/spec/quality lanes to avoid both code and self-validation.
+Pipeline is Forge's way of separating implementation from review without reintroducing a separate pre-build risk fork.
 
 |Pipelines | Use when | Lanes|
 |----------|----------|-------|
-|`single-lane` | Small or medium low-risk | `implementer`|
-|`implementer-quality` | Medium/large with clear enough specs but still needs independent lane review | `implementer` -> `quality-reviewer`|
-|`implementer-spec-quality` | `spec-review` applicable or build high-risk | `implementer` -> `spec-reviewer` -> `quality-reviewer`|
+|`single-lane` | Small bounded slices | `implementer`|
+|`implementer-quality` | Medium/large build work that still needs an independent review lane | `implementer` -> `quality-reviewer`|
 
 Rules:
-- `BUILD` has `spec-review` -> defaults to `implementer-spec-quality`
 - `large` or stronger profile `standard` -> must have at least `quality-reviewer`
 - Host has subagents -> lane can run independently
 - Host does not have subagents -> still has to run sequentially in lanes, not combining thoughts into a single pass
-- `implementer-spec-quality` must run `spec-compliance` before `quality-pass`
-- If `spec-compliance` finds drift, return to implementer and do not advance to `quality-reviewer`
 - Reviewer lanes must close the slice explicitly before the implementer moves on.
 
 ## Lane Model Stance
@@ -190,23 +184,22 @@ Forge uses an abstract tier instead of a hard-coded vendor model:
 |------|--------------|
 |`navigator` | `cheap`|
 |`implementer` | `standard`|
-|`spec-reviewer` | `capable`|
 |`quality-reviewer` | `standard`|
 
 Rules:
 - `large` -> implement/review tilted lanes `capable`
 - `release-critical`, `migration-critical`, `external-interface`, `regression-recovery` -> related review lane must go to `capable`
-- If the task is just a bounded low-risk slice, keeping the cheaper lane is the right choice
+- If the task is just a bounded slice, keeping the cheaper lane is the right choice
 - Medium+ slices with behavior changes should favor the stronger review lane when the baseline is not trivial.
 
 ## Isolation Recommendation
 
-For multi-step `large` or `high-risk` work, lock the isolation stance before starting:
+For multi-step `large` work or any dirty-repo behavioral change, lock the isolation stance before starting:
 
 |Stance | Use when|
 |--------|----------|
-|`same-tree` | Small enough task or clean repo, low blast radius|
-|`worktree` | The repo is dirty, the task is high risk, or the change set needs to be isolated|
+|`same-tree` | Small enough task or clean repo, bounded blast radius|
+|`worktree` | The repo is dirty or the change set needs to be isolated|
 |`subagent-split` | Host supports subagents and tasks with many clear boundary slices|
 
 Rule:
@@ -246,19 +239,17 @@ Delegation packets:
 Rules:
 - Use a fresh worker for each slice or review lane. Do not reuse stale context after the packet changes materially.
 - Do not assign overlapping write scopes between two subagents
-- If the repo is dirty or the blast radius is high, consider `worktree` before `subagent-split`
-- If the packet does not clearly state proof or ownership, return `plan` / `spec-review` instead of blind dispatch
+- If the repo is dirty or the blast radius is broad, consider `worktree` before `subagent-split`
+- If the packet does not clearly state proof or ownership, return `plan` or `architect` instead of blind dispatch
 
-## Spec-Review Dependency
+## Flat Build Contract
 
-`Spec-review` is the gate before build when:
-- task `large`
-- task `medium` but has contract/schema/migration/auth/payment/public interface/high-risk boundary
+Forge no longer inserts a separate pre-build review stage for boundary-sensitive work.
 
-Build should not be considered "as if the spec is sufficient" if:
-- The plan also states open assumption
-- The architect just changed the system shape to a large extent
-- verification strategy is missing for important boundaries
+Build should not be considered ready just because the plan exists:
+- The plan cannot leave open assumptions that force policy guesses during implementation
+- The architect cannot hand off a design that still leaves the system shape ambiguous
+- verification strategy cannot be missing for important boundaries
 
 ## Verification Strategy
 
@@ -352,7 +343,6 @@ Rules:
 - Verification is enough for blast radius?
 
 If the execution pipeline has `quality-reviewer`, this pass must be read as a separate lane, not just looking at the code itself in the same execution rhythm.
-If the execution pipeline has `spec-reviewer`, it runs first as the `spec-compliance` lane and must close cleanly before `quality-reviewer` starts.
 If the host supports subagents, the reviewer lane should receive a shortened controller packet: scope, evidence, changed files/diff, and the specific review question. Do not force the reviewer to reconstruct intent from the full session.
 
 ## Drift / Reopen Rules
@@ -365,7 +355,7 @@ Build must stop and turn upstream when:
 
 Suggested routes:
 - drift to shape / scope / sequencing -> return to `plan`
-- drift about contract / schema / architecture -> return to `architect` or `spec-review`
+- drift about contract / schema / architecture -> return to `architect`
 - drift towards incomprehensible behavior -> to `debug`
 
 ## Completion States
@@ -386,9 +376,8 @@ Do not use vague sentences like "almost done", "basically okay", "probably can b
 - [ ] Verification strategy has been finalized before editing
 - [ ] Task medium/large already has impact analysis
 - [ ] Task medium/large has selected the appropriate execution mode
-- [ ] High-risk work has clear isolation recommendation
+- [ ] Dirty-repo or multi-slice work has clear isolation recommendation
 - [ ] Task medium/large already has an execution packet for the current slice
-- [ ] If applicable, spec-review returned `go`
 - [ ] Behavioral change had a failing test/reproduction or the reason for not having a harness
 - [ ] Slice proof has been run before proceeding to the next slice
 - [ ] Long task has updated checkpoint or clearly stated why it is not needed
@@ -438,10 +427,9 @@ Use this lens whenever the slice ships UI implementation instead of only a mocku
 Build report:
 - Scope: [...]
 - Execution mode: [single-track/checkpoint-batch/parallel-safe]
-- Execution pipeline: [single-lane/implementer-quality/implementer-spec-quality]
+- Execution pipeline: [single-lane/implementer-quality]
 - Isolation stance: [same-tree/worktree/subagent-split]
-- Lane model stance: [implementer=standard, spec-reviewer=capable, quality-reviewer=standard]
-- Spec-review: [go/n-a]
+- Lane model stance: [implementer=standard, quality-reviewer=standard]
 - Current/last slice: [...]
 - Progress checkpoint: [artifact path or n/a]
 - Files changed: [...]

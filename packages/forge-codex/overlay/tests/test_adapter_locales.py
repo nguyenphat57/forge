@@ -62,7 +62,7 @@ class AdapterLocaleTests(unittest.TestCase):
         self.assertEqual(report["detected"]["forge_skills"][0], "brainstorm")
         self.assertIn("vi", report["detected"]["routing_locales"])
 
-    def test_vietnamese_backward_compatibility_prompt_triggers_spec_review(self) -> None:
+    def test_vietnamese_backward_compatibility_prompt_uses_flat_build_chain(self) -> None:
         report = route_preview.build_report(
             build_route_args(
                 "Thêm endpoint mới cho client hiện tại, cần giữ tương thích ngược",
@@ -71,10 +71,11 @@ class AdapterLocaleTests(unittest.TestCase):
         )
 
         self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertIn("spec-review", report["detected"]["forge_skills"])
+        self.assertIn("build", report["detected"]["forge_skills"])
+        self.assertNotIn("spec-review", report["detected"]["forge_skills"])
         self.assertIn("vi", report["detected"]["routing_locales"])
 
-    def test_vietnamese_keep_legacy_api_phrase_triggers_spec_review(self) -> None:
+    def test_vietnamese_keep_legacy_api_phrase_uses_flat_build_chain(self) -> None:
         report = route_preview.build_report(
             build_route_args(
                 "Thêm endpoint mới nhưng vẫn giữ API cũ cho client hiện tại",
@@ -83,7 +84,8 @@ class AdapterLocaleTests(unittest.TestCase):
         )
 
         self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertIn("spec-review", report["detected"]["forge_skills"])
+        self.assertIn("build", report["detected"]["forge_skills"])
+        self.assertNotIn("spec-review", report["detected"]["forge_skills"])
         self.assertIn("vi", report["detected"]["routing_locales"])
 
     def test_bundle_language_profiles_expand_vietnamese_output_contract(self) -> None:

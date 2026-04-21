@@ -29,7 +29,6 @@
         "large": [
           "plan",
           "architect",
-          "spec-review",
           "build",
           "test",
           "quality-gate"
@@ -551,49 +550,6 @@
       "explore"
     ]
   },
-  "spec_review_gate": {
-    "eligible_intents": [
-      "BUILD"
-    ],
-    "eligible_complexities": [
-      "medium",
-      "large"
-    ],
-    "always_large": true,
-    "prompt_keywords": [
-      "migration",
-      "schema",
-      "backfill",
-      "contract",
-      "public api",
-      "external",
-      "integration",
-      "webhook",
-      "auth",
-      "payment",
-      "checkout",
-      "queue",
-      "worker",
-      "background",
-      "security",
-      "high-risk",
-      "blast radius",
-      "rollback",
-      "module"
-    ],
-    "repo_signals": [
-      "migrations",
-      "schema.sql",
-      "supabase",
-      "api/",
-      "functions/",
-      "server/",
-      "worker",
-      "queue",
-      "auth",
-      "payment"
-    ]
-  },
   "ui_detection": {
     "prompt_keywords": [
       "ui",
@@ -726,9 +682,6 @@
       "architect": {
         "workflow": "architect"
       },
-      "spec-review": {
-        "workflow": "spec-review"
-      },
       "build": {
         "workflow": "build"
       },
@@ -768,7 +721,6 @@
             "plan",
             "visualize",
             "architect",
-            "spec-review",
             "build",
             "test",
             "self-review",
@@ -779,7 +731,6 @@
           "DEBUG": [
             "debug",
             "plan",
-            "spec-review",
             "build",
             "test",
             "self-review",
@@ -820,7 +771,6 @@
             "plan",
             "visualize",
             "architect",
-            "spec-review",
             "build",
             "test",
             "self-review",
@@ -831,7 +781,6 @@
           "DEBUG": [
             "debug",
             "plan",
-            "spec-review",
             "build",
             "test",
             "self-review",
@@ -1211,23 +1160,6 @@
         "OPTIMIZE"
       ]
     },
-    "implementer-spec-quality": {
-      "label": "Implementer -> spec reviewer -> quality reviewer",
-      "lanes": [
-        "implementer",
-        "spec-reviewer",
-        "quality-reviewer"
-      ],
-      "recommended_for": [
-        "medium",
-        "large"
-      ],
-      "intent_bias": [
-        "BUILD"
-      ],
-      "requires_spec_review": true,
-      "max_revisions": 3
-    },
     "deploy-gate": {
       "label": "Deploy reviewer -> quality reviewer",
       "lanes": [
@@ -1244,14 +1176,7 @@
     }
   },
   "execution_pipeline_rules": {
-    "default": "single-lane",
-    "high_risk_quality_profiles": [
-      "release-critical",
-      "migration-critical",
-      "external-interface",
-      "regression-recovery"
-    ],
-    "spec_review_loop_max_revisions": 3
+    "default": "single-lane"
   },
   "model_tiers": {
     "cheap": {
@@ -1274,10 +1199,9 @@
     "capable": {
       "label": "Capable",
       "use_for": [
-        "high-risk implementation",
-        "spec review",
         "release gates",
-        "migration/auth/payment review"
+        "migration/auth/payment implementation",
+        "large-scope review"
       ]
     }
   },
@@ -1285,7 +1209,6 @@
     "default": {
       "navigator": "cheap",
       "implementer": "standard",
-      "spec-reviewer": "capable",
       "quality-reviewer": "standard",
       "deploy-reviewer": "standard"
     },
@@ -1296,13 +1219,11 @@
       },
       "medium": {
         "implementer": "standard",
-        "quality-reviewer": "standard",
-        "spec-reviewer": "capable"
+        "quality-reviewer": "standard"
       },
       "large": {
         "implementer": "capable",
         "quality-reviewer": "capable",
-        "spec-reviewer": "capable",
         "deploy-reviewer": "capable"
       }
     },
@@ -1314,11 +1235,9 @@
       },
       "migration-critical": {
         "implementer": "capable",
-        "spec-reviewer": "capable",
         "quality-reviewer": "capable"
       },
       "external-interface": {
-        "spec-reviewer": "capable",
         "quality-reviewer": "capable"
       },
       "regression-recovery": {

@@ -1,20 +1,129 @@
 from __future__ import annotations
 
+import copy
+import json
+import os
+import shutil
 import sys
+import tempfile
 import unittest
+from argparse import Namespace
 from pathlib import Path
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-SCRIPTS_DIR = ROOT_DIR / "scripts"
+CORE_ROOT_DIR = ROOT_DIR.parents[1] / "forge-core"
+CORE_SCRIPTS_DIR = CORE_ROOT_DIR / "scripts"
+DEFAULT_TEST_FORGE_HOME = (CORE_ROOT_DIR / "tests" / "fixtures" / "forge-homes" / "empty").resolve()
 
-if str(SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_DIR))
 
-from support import build_route_args, expected_output_contract  # noqa: E402
+def merge_overlay(base: object, overlay: object) -> object:
+    if isinstance(base, dict) and isinstance(overlay, dict):
+        merged = {key: copy.deepcopy(value) for key, value in base.items()}
+        for key, value in overlay.items():
+            merged[key] = merge_overlay(merged[key], value) if key in merged else copy.deepcopy(value)
+        return merged
+    if isinstance(base, list) and isinstance(overlay, list):
+        merged = [copy.deepcopy(item) for item in base]
+        seen = {json.dumps(item, sort_keys=True, ensure_ascii=False) for item in merged}
+        for item in overlay:
+            marker = json.dumps(item, sort_keys=True, ensure_ascii=False)
+            if marker not in seen:
+                seen.add(marker)
+                merged.append(copy.deepcopy(item))
+        return merged
+    return copy.deepcopy(overlay)
+
+
+def load_json(path: Path) -> object:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def write_json(path: Path, payload: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def stage_bundle_root() -> Path:
+    stage_root = Path(tempfile.mkdtemp(prefix="forge-antigravity-bundle-"))
+    stage_data_dir = stage_root / "data"
+    shutil.copytree(CORE_ROOT_DIR / "data", stage_data_dir, dirs_exist_ok=True)
+    write_json(
+        stage_data_dir / "orchestrator-registry.json",
+        merge_overlay(
+            load_json(CORE_ROOT_DIR / "data" / "orchestrator-registry.json"),
+            load_json(ROOT_DIR / "data" / "orchestrator-registry.json"),
+        ),
+    )
+    for filename in ("output-contracts.json", "routing-locales.json"):
+        source = ROOT_DIR / "data" / filename
+        if source.exists():
+            shutil.copy2(source, stage_data_dir / filename)
+    locale_dir = ROOT_DIR / "data" / "routing-locales"
+    if locale_dir.exists():
+        shutil.copytree(locale_dir, stage_data_dir / "routing-locales", dirs_exist_ok=True)
+    return stage_root
+
+
+os.environ.setdefault("FORGE_BUNDLE_ROOT", str(stage_bundle_root()))
+
+if str(CORE_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(CORE_SCRIPTS_DIR))
+
+for module_name in ("common", "preferences", "preferences_contract", "preferences_paths", "route_preview"):
+    sys.modules.pop(module_name, None)
 
 import common  # noqa: E402
 import route_preview  # noqa: E402
+
+
+def build_route_args(prompt: str, *, repo_signals: list[str] | None = None) -> Namespace:
+    return Namespace(
+        prompt=prompt,
+        repo_signal=repo_signals or [],
+        workspace_router=None,
+        workspace=None,
+        changed_files=None,
+        has_harness="auto",
+        delegation_preference=None,
+        forge_home=DEFAULT_TEST_FORGE_HOME,
+        format="json",
+        persist=False,
+        output_dir=None,
+    )
+
+
+def load_output_contract_profiles() -> dict | None:
+    if not common.OUTPUT_CONTRACTS_PATH.exists():
+        return None
+    payload = json.loads(common.OUTPUT_CONTRACTS_PATH.read_text(encoding="utf-8"))
+    return payload if isinstance(payload, dict) else None
+
+
+def expected_output_contract(extra: object) -> dict[str, object]:
+    if not isinstance(extra, dict):
+        return {}
+    contract: dict[str, object] = {}
+    profiles = load_output_contract_profiles()
+    language = extra.get("language")
+    if isinstance(language, str) and language.strip():
+        normalized_language = common.normalize_choice_token(language)
+        contract["language"] = normalized_language
+        languages = profiles.get("languages") if isinstance(profiles, dict) else None
+        profile = languages.get(normalized_language) if isinstance(languages, dict) else None
+        if isinstance(profile, dict):
+            profile_contract = profile.get("contract")
+            if isinstance(profile_contract, dict):
+                contract.update(copy.deepcopy(profile_contract))
+            default_orthography = profile.get("default_orthography")
+            if isinstance(default_orthography, str) and "orthography" not in contract:
+                normalized = common.normalize_choice_token(default_orthography)
+                contract["orthography"] = normalized
+                orthographies = profiles.get("orthographies") if isinstance(profiles, dict) else None
+                orthography_profile = orthographies.get(normalized) if isinstance(orthographies, dict) else None
+                if isinstance(orthography_profile, dict):
+                    contract.update(copy.deepcopy(orthography_profile))
+    return contract
 
 
 class AdapterLocaleTests(unittest.TestCase):
@@ -63,25 +172,27 @@ class AdapterLocaleTests(unittest.TestCase):
         self.assertEqual(report["detected"]["intent"], "BUILD")
         self.assertIn("brainstorm", report["detected"]["forge_skills"])
 
-    # --- Spec-review gate ---
+    # --- Flat build routing ---
 
-    def test_spec_review_gate_fires_on_vietnamese_high_risk_keywords(self) -> None:
-        # "bảo mật" (security) + "xác thực" (auth) → high-risk → spec-review gate
+    def test_vietnamese_high_risk_keywords_no_longer_activate_spec_review(self) -> None:
+        # Flat model: auth/security keywords keep BUILD routing but no longer add a separate spec-review stage
         report = route_preview.build_report(
             build_route_args("Xây dựng module xác thực và bảo mật cho hệ thống thanh toán")
         )
 
         self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertIn("spec-review", report["detected"]["forge_skills"])
+        self.assertIn("build", report["detected"]["forge_skills"])
+        self.assertNotIn("spec-review", report["detected"]["forge_skills"])
 
-    def test_spec_review_gate_fires_on_vietnamese_migration_keywords(self) -> None:
-        # "di trú" (migration) → spec-review gate
+    def test_vietnamese_migration_keywords_no_longer_activate_spec_review(self) -> None:
+        # Flat model: migration keywords keep BUILD routing but no longer add a separate spec-review stage
         report = route_preview.build_report(
             build_route_args("Tạo di trú database để thêm bảng mới cho module mới")
         )
 
         self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertIn("spec-review", report["detected"]["forge_skills"])
+        self.assertIn("build", report["detected"]["forge_skills"])
+        self.assertNotIn("spec-review", report["detected"]["forge_skills"])
 
     # --- Complexity detection ---
 

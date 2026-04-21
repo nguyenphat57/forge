@@ -119,7 +119,7 @@ def baseline_required(intent: str, complexity: str) -> bool:
 
 def review_artifact_required(intent: str, complexity: str, execution_pipeline_key: str | None) -> bool:
     return intent in EDITING_INTENTS and (
-        complexity in {"medium", "large"} or execution_pipeline_key in {"implementer-quality", "implementer-spec-quality"}
+        complexity in {"medium", "large"} or execution_pipeline_key == "implementer-quality"
     )
 
 
