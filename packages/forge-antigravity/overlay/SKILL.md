@@ -67,7 +67,8 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 
 - proof before claims is non-negotiable.
 - Define verification before editing when behavior changes.
-- With a viable harness, start from a failing test or reproduction.
+- With a viable harness, write and verify one failing test before implementation code.
+- Code written before RED must be deleted.
 - Without a harness, use the strongest available smoke, build, lint, typecheck, diff, or manual reproduction and say why.
 - `quality-gate` is the canonical go / no-go surface for merge-ready and deploy claims.
 - `deploy` only happens after fresh verification and explicit release posture.
@@ -86,7 +87,7 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 
 - `brainstorm`: no behavioral build or visual design work without an approved design doc first.
 - `plan`: no build without a written implementation plan and execution choice first.
-- `build`: no behavioral change without defining verification first.
+- `build`: no behavioral change with a viable harness without a failing test first.
 - `review`: findings first, summary second.
 - `refactor`: no refactor without baseline and after verification.
 - `run`: execute the real command, then route from evidence.

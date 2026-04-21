@@ -364,6 +364,33 @@ class BundleContractTests(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertIn(token, skill)
 
+    def test_shared_verification_contract_requires_red_before_implementation(self) -> None:
+        skill = (ROOT_DIR / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("write and verify one failing test before implementation code", skill)
+        self.assertIn("Code written before RED must be deleted", skill)
+        self.assertIn("build`: no behavioral change with a viable harness without a failing test first", skill)
+
+    def test_build_workflow_hard_gates_delete_rule_and_tdd_reference(self) -> None:
+        build = (ROOT_DIR / "workflows" / "execution" / "build.md").read_text(encoding="utf-8")
+
+        self.assertIn("NO BEHAVIORAL CHANGE WITHOUT A FAILING TEST FIRST", build)
+        self.assertIn("Code written before a failing test: delete it and start from RED.", build)
+        self.assertIn("\"Keep as reference\" is not an exception. Delete means delete.", build)
+        self.assertIn("references/tdd-discipline.md", build)
+
+    def test_tdd_discipline_reference_exists_and_captures_delete_rule(self) -> None:
+        reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
+        tdd_reference = ROOT_DIR / "references" / "tdd-discipline.md"
+
+        self.assertIn("`tdd-discipline.md`", reference_map)
+        self.assertTrue(tdd_reference.exists())
+
+        discipline = tdd_reference.read_text(encoding="utf-8")
+        self.assertIn("Delete means delete.", discipline)
+        self.assertIn("RED -> GREEN -> REFACTOR", discipline)
+        self.assertIn("Tests-after asks \"what does this code do?\"", discipline)
+
     def test_skill_bootstrap_contract_does_not_regrow_removed_lookup_sections(self) -> None:
         skill = (ROOT_DIR / "SKILL.md").read_text(encoding="utf-8")
         for heading in (

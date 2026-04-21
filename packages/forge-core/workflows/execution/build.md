@@ -21,19 +21,21 @@ quality_gates:
 ## The Iron Law
 
 ```
-NO BEHAVIORAL CHANGE WITHOUT DEFINING VERIFICATION FIRST
+NO BEHAVIORAL CHANGE WITHOUT A FAILING TEST FIRST
 ```
 
 <HARD-GATE>
 - Before any behavior-changing edit, run a process precheck: repo state, plan/spec/change artifact, and the baseline verification path.
+- Behavioral changes with a viable harness: one failing test MUST exist and fail for the correct reason before implementation code.
 - Small creative work still needs an approved quick plan/design packet before build.
 - Medium/large tasks: must have impact analysis before editing.
 - Large tasks: must select execution mode before batch coding.
 - Medium/large work: must close the execution pipeline before expanding.
 - Medium+ work in a dirty repo should default toward `worktree` and a clean baseline before modifying.
 - Dirty-repo or multi-slice work: isolation stance must be locked (`same tree`, `worktree`, or host-supported subagent split`) before modifying.
-- Behavioral changes: prioritize failing test or reproduce before editing.
-- If there is no viable harness, you must clearly state why and use the strongest remaining verification method.
+- Code written before a failing test: delete it and start from RED.
+- "Keep as reference" is not an exception. Delete means delete.
+- If there is no viable harness, you must explicitly justify why and lock the strongest remaining verification method before editing.
 - Do not claim "done" without new evidence.
 </HARD-GATE>
 
@@ -49,28 +51,32 @@ flowchart TD
     D --> E[Choose execution pipeline + lane stance]
     E --> F[Take execution packet]
     F --> G[Choose verification strategy]
-    G --> H{Behavior change + harness available?}
-    H -->|Yes| I[Write failing test/reproduction]
-    H -->|No| J[Lock fallback command/check]
-    I --> K[Act on one slice]
-    J --> K
-    K --> L[Run slice proof + boundary checks]
-    L --> M[Reflect: drift / next slice / reopen?]
-    M --> N{Pass + still on-plan?}
-    N -->|No| O[Fix from evidence or go back to plan/debug]
-    O --> F
-    N -->|Yes| P[Update checkpoint if the task is long-running]
-    P --> Q[Reviewer lane / reviewer-style pass]
-    Q --> R[Set completion state]
-    R --> S[Handover]
+    G --> H{Behavior change + viable harness?}
+    H -->|Yes| I[Write ONE failing test]
+    I --> J[Verify RED for the correct reason]
+    H -->|No| K[Lock fallback command/check + justification]
+    J --> L[Write minimal code for one slice]
+    K --> L
+    L --> M[Run GREEN proof + boundary checks]
+    M --> N{Refactor needed?}
+    N -->|Yes| O[Refactor lightly + stay green]
+    N -->|No| P[Reflect: drift / next slice / reopen?]
+    O --> P
+    P --> Q{Pass + still on-plan?}
+    Q -->|No| R[Fix from evidence or go back to plan/debug]
+    R --> F
+    Q -->|Yes| S[Update checkpoint if the task is long-running]
+    S --> T[Reviewer lane / reviewer-style pass]
+    T --> U[Set completion state]
+    U --> V[Handover]
 ```
 
 ## Task Classes
 
 |Task type | How to verify before editing|
 |-----------|---------------------------|
-|Feature / bugfix has test harness | Failing test or reproduction|
-|Feature / bugfix without harness | Manual reproduction is clear, failing command, or smoke path|
+|Feature / bugfix has test harness | One failing test first, and RED verified for the correct reason|
+|Feature / bugfix without harness | Explicit no-harness justification plus manual reproduction, failing command, or smoke path|
 |Config / build script / release chore | Build, lint, typecheck, diff, or target command|
 |Docs only | Link / path / content check, do not pretend to have a test|
 
@@ -253,16 +259,33 @@ Build should not be considered ready just because the plan exists:
 
 ## Verification Strategy
 
-### If there is a harness
-- Write failing test for behavior that needs to be changed
-- Verify test fails for correct reason
-- Minimum implementation
-- Rerun related tests and necessary checks
+For the strict reset rules and anti-rationalization language, read `references/tdd-discipline.md`.
+
+### With a viable harness: RED -> GREEN -> REFACTOR
+
+#### RED
+- Write one failing test for one behavior that must change
+- Verify the test fails for the correct reason before implementation code exists
+- Stop if the failure is vague or caused by the wrong setup
+
+#### GREEN
+- Write the minimum implementation required to pass that same proof
+- Rerun the same proof first, then the needed boundary or relevant checks
+
+#### REFACTOR
+- Only after GREEN is real
+- Clean up lightly and keep the same proof green
+
+Rules:
+- Code written before RED must be deleted and restarted from RED
+- "Keep as reference" is not an exception
+- Do not bundle multiple behaviors into one RED just to move faster
 
 ### Without harness
-- Clearly state the reason why the test cannot be used
-- Create specific reproduction/check before editing
+- Clearly state the reason why the harness cannot be used
+- Create specific reproduction/check before editing and lock it as the fallback proof
 - After editing, run the correct reproduction/check again
+- Tests-after is not an equivalent substitute when a viable harness existed
 
 ### Verification ladder
 - `Slice proof`: smallest check that proves the current slice is correct
@@ -275,29 +298,37 @@ Rule:
 
 ### Fast-Fail Order
 - 1. Packet + proof-before-progress locked
-- 2. Failing test or reproduction captured
-- 3. Slice proof pass
-- 4. Boundary check pass if there is contract/schema/integration blast radius
-- 5. Reviewer lane or reviewer-style pass
-- 6. Quality gate / completion claim
+- 2. One failing test captured and RED verified, or explicit no-harness fallback locked
+- 3. Minimal GREEN implementation pass
+- 4. Refactor pass stays green if refactor happened
+- 5. Boundary check pass if there is contract/schema/integration blast radius
+- 6. Reviewer lane or reviewer-style pass
+- 7. Quality gate / completion claim
 
 Do not use large suites or the phrase "built pass" to skip steps 1-3.
 
 ### Absolutely do not do it
 - Say "this task is too small to test"
-- Reported test-first when in reality there was no test
+- Write implementation code first and call it "reference"
+- Reported test-first when in reality RED was never observed
 - After editing, then think about how to verify
+- Use a big suite result to hide missing RED
 
 ## Anti-Rationalization
 
 |Defense | Truth|
 |----------|---------|
-|"Need to explore first before writing test/repro" | Explore may be needed, but the verification strategy for behavior change must still be finalized before editing|
+|"Need to explore first before writing test/repro" | Explore may be needed, but with a viable harness RED is still required before implementation|
+|"Tests after achieve same goals" | Tests-after asks "what does this code do?" Tests-first asks "what should this code do?"|
+|"Keep as reference, write tests first" | You'll adapt it. Delete means delete.|
+|"Already manually tested" | Ad-hoc checks are not systematic proof|
+|"TDD will slow me down" | Debugging unknown behavior is usually slower than a clean RED/GREEN/REFACTOR loop|
+|"Deleting X hours is wasteful" | That is sunk cost fallacy, not evidence|
 |"TDD is not practical in this repo" | If the harness can be used, there must be a specific technical reason for removing RED, not a feeling|
-|"Keeping the old code for reference should fix it temporarily" | Reference is not a substitute for reproduction/test; must know exactly which behavior is changing|
 |"It's difficult to test so skip quickly" | When testing is difficult, switch to a stronger reproduction/check instead of giving up verification|
 |"Fix it, then add more tests later" | Test-after easily validates the written code, but cannot prove the original intent|
-|"Plan clearly, just code at once" | Large work still needs execution mode and checkpoint to avoid drifting or missing handoff state|
+|"Plan clearly, just code at once" | Planning does not replace RED/GREEN/REFACTOR or the execution packet|
+|"Big suite pass is enough" | Large suites do not replace slice-level RED on the behavior that just changed|
 
 Code examples:
 
@@ -310,7 +341,7 @@ Bad:
 Good:
 
 ```text
-"Verification before editing: reproduce with [command/scenario]. Then change the code and rerun that exact check."
+"RED first: run [test] and fail for [signal]. Then write the minimum code, rerun the same proof, and only then widen checks."
 ```
 
 ## Reason -> Act -> Verify -> Reflect
@@ -378,7 +409,8 @@ Do not use vague sentences like "almost done", "basically okay", "probably can b
 - [ ] Task medium/large has selected the appropriate execution mode
 - [ ] Dirty-repo or multi-slice work has clear isolation recommendation
 - [ ] Task medium/large already has an execution packet for the current slice
-- [ ] Behavioral change had a failing test/reproduction or the reason for not having a harness
+- [ ] Behavioral change had one failing test first, or an explicit no-harness justification
+- [ ] Any pre-RED implementation code was deleted instead of adapted
 - [ ] Slice proof has been run before proceeding to the next slice
 - [ ] Long task has updated checkpoint or clearly stated why it is not needed
 - [ ] Related checks have been rerun after correction

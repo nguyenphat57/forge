@@ -37,6 +37,7 @@
 | `help-next.md` | When editing navigator logic for help or next, repo-state priority, or operator guidance wrappers |
 | `run-guidance.md` | When editing workflow `run`, ready-signal detection, command classification, or adapter wrappers for execute-then-route |
 | `error-translation.md` | When fixing database error patterns, sanitation rules, or how `run` or `debug` converts technical errors into readable guidance |
+| `tdd-discipline.md` | Apply strict RED -> GREEN -> REFACTOR and the delete-before-implementation rule for behavioral work with a viable harness |
 | `bump-release.md` | When editing version-bump checklist, semver math, or release artifact update flow |
 | `rollback-guidance.md` | When editing rollback planning, risk framing, or recovery strategy selection |
 | `companion-skill-contract.md` | Design or update companion skills when the repo really has an extended runtime or framework layer |
