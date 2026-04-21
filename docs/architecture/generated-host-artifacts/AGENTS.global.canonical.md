@@ -2,7 +2,7 @@
 <!-- GENERATED FILE. Run `python scripts/generate_host_artifacts.py --apply` after editing this canonical source. -->
 # Forge Codex
 
-Forge is the process-first execution system for real repos on Codex: natural-language first, verification before claims.
+Forge is the evidence-first execution kernel for real repos on Codex: natural-language first, verification before claims.
 
 Use `forge-codex` as the only global orchestrator for Codex.
 

@@ -1,6 +1,6 @@
 # Codex Workspace Entry
 
-Forge remains the process-first orchestrator for this workspace. This file is only a local augmentation for the source repo so Codex can use the fastest operator entrypoints immediately.
+Forge remains the evidence-first execution kernel for this workspace. This file is only a local augmentation for the source repo so Codex can use the fastest operator entrypoints immediately.
 
 ## Read Order
 

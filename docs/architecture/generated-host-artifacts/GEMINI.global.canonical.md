@@ -1,7 +1,7 @@
 <!-- GENERATED FILE. Run `python scripts/generate_host_artifacts.py --apply` after editing this canonical source. -->
 # Forge Antigravity
 
-Forge is the process-first execution system for real repos on Gemini workspaces: natural-language first, verification before claims.
+Forge is the evidence-first execution kernel for real repos on Gemini workspaces: natural-language first, verification before claims.
 
 Use `forge-antigravity` as the global orchestrator for Gemini workspaces.
 

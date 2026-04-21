@@ -1,5 +1,5 @@
 # Forge
-### Process-first execution for coding agents in real repos.
+### Evidence-first execution kernel.
 
 **1 core kernel, 2 host adapters, stable 2.11.0**
 
@@ -8,7 +8,7 @@
 ![Verification](https://img.shields.io/badge/verify-repo_passed-22c55e)
 ![Adapters](https://img.shields.io/badge/adapters-Codex%20%7C%20Antigravity-f59e0b)
 
-Forge is a process-first orchestration system for coding agents.
+Forge is an evidence-first execution kernel for coding agents.
 This repository is the source monorepo for Forge: `forge-core + host adapters`.
 
 Current maintainer docs live under `docs/current/`.
@@ -60,7 +60,7 @@ graph TD
 ```
 
 Forge is not a prompt wrapper.
-It is a process-first execution system meant for real repos where the cost of being confidently wrong is high.
+It is an evidence-first execution kernel meant for real repos where the cost of being confidently wrong is high.
 
 ---
 

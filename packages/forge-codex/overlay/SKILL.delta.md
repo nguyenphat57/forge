@@ -5,7 +5,7 @@ description: "Forge Codex - Codex-oriented adapter for Forge core. Use when a re
 
 # Forge Codex - Host Adapter
 
-> Forge Codex maps the Forge process-first kernel onto Codex through `AGENTS.md`, natural-language first operator wrappers, and native delegation when the slice is safe to split.
+> Forge Codex maps the Forge evidence-first kernel onto Codex through `AGENTS.md`, natural-language first operator wrappers, and native delegation when the slice is safe to split.
 
 ## Host Boundary
 
