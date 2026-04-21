@@ -31,4 +31,4 @@ Bring `skills/forge-customize/SKILL.md` in line with the `superpowers:writing-sk
 
 ## Verification
 
-- `python C:\Users\Admin\.gemini\forge\tests\test_public_customize_skill.py`
+- `python tests/test_public_customize_skill.py`
