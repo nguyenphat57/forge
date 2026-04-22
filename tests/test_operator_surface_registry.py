@@ -64,8 +64,8 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         self.assertNotIn("intents", registry)
         self.assertNotIn("session_modes", registry)
         self.assertEqual(
-            registry["host_operator_surface"]["actions"]["delegate"]["primary_aliases_by_host"]["codex"],
-            ["/delegate"],
+            registry["host_operator_surface"]["actions"]["delegate"]["primary_aliases_by_host"],
+            {},
         )
         self.assertEqual(
             registry["host_operator_surface"]["session_modes"]["restore"]["compatibility_aliases_by_host"],
@@ -97,20 +97,22 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         self.assertNotIn("scripts/resolve_help_next.py", repo_surface)
         self.assertNotIn("scripts/session_context.py", repo_surface)
         self.assertNotIn("scripts/bootstrap_workflow_state.py", repo_surface)
-        self.assertIn("/delegate", codex_surface)
+        self.assertNotIn("/delegate", codex_surface)
+        self.assertNotIn("Optional aliases:", codex_surface)
         self.assertNotIn("bootstrap", codex_surface)
         self.assertNotIn("capture-continuity", codex_surface)
         self.assertNotIn("/save-brain", codex_surface)
         self.assertIn("## Natural-Language Session Requests", antigravity_surface)
         self.assertNotIn("/delegate", antigravity_surface)
+        self.assertNotIn("Optional aliases:", antigravity_surface)
         self.assertNotIn("bootstrap", antigravity_surface)
         self.assertNotIn("capture-continuity", antigravity_surface)
         self.assertNotIn("/recap", antigravity_surface)
         self.assertIn("save context", antigravity_surface)
         self.assertIn("Session requests stay natural-language", antigravity_global)
         self.assertNotIn("/recap", antigravity_global)
-        primary_section = antigravity_global.split("Primary operator aliases:", maxsplit=1)[1].split("Session requests stay natural-language:", maxsplit=1)[0]
-        self.assertNotIn("/save-brain", primary_section)
+        self.assertNotIn("Primary operator aliases:", antigravity_global)
+        self.assertNotIn("Compatibility aliases:", antigravity_global)
 
     def test_kernel_contraction_plan_is_historical_and_clean(self) -> None:
         roadmap_path = ROOT_DIR / "docs" / "plans" / "forge_refactor_V3.md"

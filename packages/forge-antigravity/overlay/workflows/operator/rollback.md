@@ -2,7 +2,6 @@
 name: rollback
 type: flexible
 triggers:
-  - shortcut: /rollback
   - user asks for a rollback plan after a release or config failure
 quality_gates:
   - Scope and risk are stated before recommending a rollback
@@ -12,7 +11,7 @@ quality_gates:
 
 # Rollback - Antigravity Operator Wrapper
 
-> Goal: make `/rollback` clear for Antigravity users while preserving the core risk-first contract.
+> Goal: keep rollback requests clear for Antigravity users while preserving the core risk-first contract.
 
 ## Process
 

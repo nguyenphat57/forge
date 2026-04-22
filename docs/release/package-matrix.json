@@ -117,7 +117,7 @@
         "references/smoke-tests.md",
         "references/smoke-test-checklist.md",
         "workflows/execution/dispatch-subagents.md",
-        "workflows/execution/session.md",
+        "workflows/operator/session.md",
         "workflows/operator/help.md",
         "workflows/operator/next.md",
         "workflows/operator/run.md",

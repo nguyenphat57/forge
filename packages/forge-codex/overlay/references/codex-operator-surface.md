@@ -15,17 +15,6 @@ Preferred user phrasing:
 - "Bootstrap this workspace for Forge" -> `init`
 - "Split these independent slices across subagents" -> `delegate`
 
-Optional aliases:
-
-- `/help`
-- `/next`
-- `/run`
-- `/bump`
-- `/rollback`
-- `/customize`
-- `/init`
-- `/delegate`
-
 Session requests:
 
 - "Continue the task we were working on yesterday and tell me the best next step." -> `resume`
@@ -34,8 +23,8 @@ Session requests:
 
 ## Codex Rules
 
-- Natural language is the primary surface. Aliases are optional.
+- Natural language is the primary surface.
+- Explicit operator action names such as `help` or `delegate` are acceptable when a concise form helps.
 - Wrapper docs may clarify output shape, but they must not fork core semantics.
 - Do not add heavy session wrappers or onboarding ceremony here.
 - `AGENTS.md` should stay thin and point back to Forge instead of duplicating logic.
-- `/delegate` is a compatibility alias for `forge-dispatching-parallel-agents`: it maps Forge lane policy to native Codex subagents without replacing sibling build/debug/review skills.

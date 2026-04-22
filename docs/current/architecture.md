@@ -8,7 +8,7 @@ Describe the live Forge architecture after the split-skill cutover, without send
 
 - `packages/forge-core/` owns the host-neutral contract: bootstrap wording, sibling skill sources, workflow-state semantics, verification invariants, and preference/state tooling.
 - `packages/forge-core/skills/` is the source of truth for host-discoverable Forge process skills such as `forge-brainstorming`, `forge-writing-plans`, `forge-systematic-debugging`, and `forge-verification-before-completion`.
-- `packages/forge-core/workflows/` is compatibility only. These files keep slash aliases and older references working, but they point back to sibling skills.
+- `packages/forge-core/workflows/` is operator/session compatibility only. These files keep continuity wrappers working, but they point back to sibling skills.
 - `packages/forge-codex/overlay/` and `packages/forge-antigravity/overlay/` adapt the shared contract to host-native bootstrap files, installed skill layout, and operator wrappers.
 - `docs/current/` is the live maintainer-facing explanation surface; `docs/archive/` is historical context only.
 
@@ -27,7 +27,7 @@ Public contract:
 
 - natural language first
 - host-native Forge sibling skills as the activation surface
-- compatibility slash aliases that invoke skills, not workflow internals
+- operator/session wrapper paths that invoke skills, not workflow internals
 - artifact-backed `help` and `next`
 - explicit evidence before claims
 
@@ -36,7 +36,7 @@ Internal support surface:
 - workflow-state projection and refresh
 - preference resolution and writes
 - invariant verification and bundle checks
-- workflow wrappers for legacy aliases
+- operator/session wrappers for continuity requests
 - route-era helpers kept only for archived tests, deterministic inspection, or compatibility support
 
 `route_preview is not the current public contract`. If route-era files still exist, they are internal or historical support, not the operating model.

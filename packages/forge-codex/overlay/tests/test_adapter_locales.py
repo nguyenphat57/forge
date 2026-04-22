@@ -78,12 +78,12 @@ class AdapterLocaleTests(unittest.TestCase):
         self.assertTrue(host["supports_parallel_subagents"])
         self.assertEqual(host["subagent_dispatch_skill"], "forge-dispatching-parallel-agents")
 
-    def test_host_operator_surface_keeps_delegate_alias(self) -> None:
+    def test_host_operator_surface_keeps_delegate_action_without_aliases(self) -> None:
         registry = skill_routing.load_registry()
         delegate = registry["host_operator_surface"]["actions"]["delegate"]
 
         self.assertEqual(delegate["workflow"], "workflows/execution/dispatch-subagents.md")
-        self.assertEqual(delegate["primary_aliases_by_host"]["codex"], ["/delegate"])
+        self.assertEqual(delegate["primary_aliases_by_host"], {})
         self.assertEqual(delegate["hosts"], ["codex"])
 
 

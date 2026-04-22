@@ -30,12 +30,12 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 
 - At the start of each new thread, resolve preferences before the first substantive user-facing reply.
 - Read adapter-global state from `state/preferences.json`, using `scripts/resolve_preferences.py` when a merged payload is needed.
-- `forge-antigravity` may expose `/customize`, but durable updates still go through `scripts/write_preferences.py`.
+- `forge-antigravity` keeps customization natural-language first, but durable updates still go through `scripts/write_preferences.py`.
 - Clean installs default to Vietnamese with full diacritics until state or workspace overrides them.
 
 ## Antigravity Operator Surface
 
-- Primary wrappers are `/help`, `/next`, `/run`, `/bump`, `/rollback`, `/customize`, and `/init`.
+- Primary operator entrypoints are `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`.
 - Natural-language session requests stay primary: `resume`, `continue`, `save context`, and `handover`.
 - `quality-gate` and `deploy` keep their shared core meaning inside Antigravity bundles.
 - Wrapper UX may be richer, but deterministic semantics still come from core scripts and workflows.

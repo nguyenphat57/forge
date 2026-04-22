@@ -1,19 +1,18 @@
 HANDOVER
-- Current task: Release the Forge wave-execution removal as Forge 2.14.1, sync release and continuity surfaces, then push to main.
-- Status: ready-for-merge
-- Pending: commit the verified 2.14.1 release sync, merge to `main`, and push origin/main.
+- Current task: Forge 2.14.2 cleanup release is published as the current stable line after the forge-core cleanup and route-era retirement sweep.
+- Status: pushed-to-main
+- Pending: (none)
 - Verification run:
-  - python -m pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-22 after adapter bootstrap fix
-  - python -m pytest tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-22
-  - python scripts/generate_host_artifacts.py --check -> PASS on 2026-04-22
-  - python -m pytest packages/forge-core/tests -q -> PASS on 2026-04-22 after wave-execution removal
-  - python scripts/verify_repo.py -> PASS on 2026-04-22 after release surface sync
+  - python -m pytest packages/forge-core/tests -q -> PASS on 2026-04-22 after forge-core cleanup completion
+  - python -m pytest tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> PASS on 2026-04-22 after release surface alignment
+  - python scripts/build_release.py --force --format json -> PASS on 2026-04-22
+  - python scripts/verify_repo.py -> PASS on 2026-04-22 after 2.14.2 release sync
 - Important decisions:
-  - Forge now uses host-discoverable sibling skills as the primary process surface.
-  - The Superpowers-style 1% activation rule lives in bootstrap only; sibling descriptions stay as focused `Use when...` triggers.
-  - `parallel-split` is now the only active parallel-safe delegation path; the dedicated wave-execution path is removed.
+  - Forge core now keeps only the operator workflow compatibility surface, with `session.md` moved under `workflows/operator/`.
+  - Stale alias, companion, and route-preview-era core surfaces are retired instead of preserved as active compatibility debt.
+  - The shipped `writing-skills` bundle must include its referenced support files, not just the top-level skill entrypoint.
 - Risks:
-  - The release still changes active core routing and workflow-state surfaces, so canonical repo verification remains release-blocking.
+  - Historical `route-preview` workflow-state artifacts remain readable by compatibility code, so future cleanup must avoid breaking legacy state import.
 - Source of truth: current maintainer posture remains under `docs/current/*`; `.brain` is continuity state.
 - Blockers: (none)
-- Next step: Commit the 2.14.1 release sync, merge to `main`, and push origin/main.
+- Next step: Start the next work slice from the 2.14.2 stable baseline.

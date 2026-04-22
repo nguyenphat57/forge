@@ -2,7 +2,6 @@
 name: next
 type: flexible
 triggers:
-  - shortcut: /next
   - user wants the single best next step
 quality_gates:
   - One concrete next step, not vague momentum advice
@@ -12,7 +11,7 @@ quality_gates:
 
 # Next - Antigravity Operator Wrapper
 
-> Goal: make `/next` clear for Antigravity users while preserving the core repo-first contract.
+> Goal: keep next-step requests clear for Antigravity users while preserving the core repo-first contract.
 
 ## Process
 

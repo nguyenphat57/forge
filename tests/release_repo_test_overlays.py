@@ -111,15 +111,15 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         gemini_text = (overlay_root / "GEMINI.global.md").read_text(encoding="utf-8")
         self.assertIn("GENERATED FILE", gemini_text)
         self.assertIn("natural-language first", gemini_text)
-        self.assertIn("/customize", gemini_text)
-        self.assertIn("/init", gemini_text)
+        self.assertNotIn("/customize", gemini_text)
+        self.assertNotIn("/init", gemini_text)
         self.assertIn("save context", gemini_text)
-        self.assertIn("There is no `/gate` alias", gemini_text)
+        self.assertNotIn("There is no `/gate` alias", gemini_text)
+        self.assertNotIn("Compatibility aliases:", gemini_text)
+        self.assertNotIn("Primary operator aliases:", gemini_text)
         self.assertIn("Session requests stay natural-language:", gemini_text)
-        primary_alias_section = gemini_text.split("Primary operator aliases:", maxsplit=1)[1].split("Session requests stay natural-language:", maxsplit=1)[0]
-        self.assertNotIn("/recap", primary_alias_section)
-        self.assertNotIn("/save-brain", primary_alias_section)
         self.assertNotIn("/recap", gemini_text)
+        self.assertNotIn("/save-brain", gemini_text)
 
     def test_materialized_antigravity_wave_b_overlay_contract(self) -> None:
         dist_root = ROOT_DIR / "dist" / "forge-antigravity"
@@ -134,15 +134,17 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertTrue((dist_root / "workflows" / "operator" / "rollback.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "session.md").exists())
         self.assertFalse((dist_root / "workflows" / "operator" / "recap.md").exists())
         self.assertFalse((dist_root / "workflows" / "operator" / "save-brain.md").exists())
         self.assertFalse((dist_root / "workflows" / "operator" / "handover.md").exists())
+        self.assertFalse((dist_root / "workflows" / "execution" / "session.md").exists())
         self.assertTrue((dist_root / "references" / "antigravity-operator-surface.md").exists())
         self.assertTrue((dist_root / "data" / "preferences-compat.json").exists())
         self.assertTrue((dist_root / "data" / "routing-locales.json").exists())
         self.assertTrue((dist_root / "data" / "routing-locales" / "vi.json").exists())
         self.assertTrue((dist_root / "data" / "output-contracts.json").exists())
-        self.assertTrue((dist_root / "tests" / "fixtures" / "route_preview_cases.json").exists())
+        self.assertFalse((dist_root / "tests" / "fixtures" / "route_preview_cases.json").exists())
         self.assertIn("GENERATED FILE", (dist_root / "GEMINI.global.md").read_text(encoding="utf-8"))
         build_manifest = json.loads((dist_root / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
         self.assertEqual(build_manifest["state"]["dev_root"]["env_var"], "GEMINI_HOME")
@@ -182,10 +184,14 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         rendered_gemini = (dist_root / "GEMINI.global.md").read_text(encoding="utf-8")
         self.assertIn("Session requests stay natural-language:", rendered_gemini)
         self.assertNotIn("/recap", rendered_gemini)
+        self.assertNotIn("/customize", rendered_gemini)
+        self.assertNotIn("/init", rendered_gemini)
+        self.assertNotIn("Compatibility aliases:", rendered_gemini)
+        self.assertNotIn("Primary operator aliases:", rendered_gemini)
         self.assert_routing_locale_config(dist_root / "data" / "routing-locales.json", label="dist forge-antigravity")
         self.assert_output_contract_profiles(dist_root / "data" / "output-contracts.json", label="dist forge-antigravity")
         self.assert_session_restores_preferences(
-            dist_root / "workflows" / "execution" / "session.md",
+            dist_root / "workflows" / "operator" / "session.md",
             label="dist forge-antigravity session",
         )
 
@@ -202,7 +208,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "references" / "smoke-tests.md",
             overlay_root / "references" / "smoke-test-checklist.md",
             overlay_root / "workflows" / "execution" / "dispatch-subagents.md",
-            overlay_root / "workflows" / "execution" / "session.md",
+            overlay_root / "workflows" / "operator" / "session.md",
             overlay_root / "workflows" / "operator" / "help.md",
             overlay_root / "workflows" / "operator" / "next.md",
             overlay_root / "workflows" / "operator" / "run.md",
@@ -236,15 +242,17 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         agents_text = (overlay_root / "AGENTS.global.md").read_text(encoding="utf-8")
         self.assertIn("GENERATED FILE", agents_text)
         self.assertIn("natural-language first", agents_text)
-        self.assertIn("/customize", agents_text)
-        self.assertIn("/init", agents_text)
-        self.assertIn("/delegate", agents_text)
-        self.assertNotIn("/save-brain", (overlay_root / "workflows" / "execution" / "session.md").read_text(encoding="utf-8"))
+        self.assertNotIn("/customize", agents_text)
+        self.assertNotIn("/init", agents_text)
+        self.assertNotIn("/delegate", agents_text)
+        self.assertNotIn("Compatibility aliases:", agents_text)
+        self.assertNotIn("Operator aliases:", agents_text)
+        self.assertNotIn("/save-brain", (overlay_root / "workflows" / "operator" / "session.md").read_text(encoding="utf-8"))
         codex_surface = (overlay_root / "references" / "codex-operator-surface.md").read_text(encoding="utf-8")
-        self.assertIn("/delegate", codex_surface)
+        self.assertNotIn("/delegate", codex_surface)
         self.assertNotIn("/save-brain", codex_surface)
         self.assert_session_restores_preferences(
-            overlay_root / "workflows" / "execution" / "session.md",
+            overlay_root / "workflows" / "operator" / "session.md",
             label="forge-codex overlay session",
         )
 
@@ -260,7 +268,8 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertTrue((dist_root / "references" / "smoke-tests.md").exists())
         self.assertTrue((dist_root / "references" / "smoke-test-checklist.md").exists())
         self.assertTrue((dist_root / "workflows" / "execution" / "dispatch-subagents.md").exists())
-        self.assertTrue((dist_root / "workflows" / "execution" / "session.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "session.md").exists())
+        self.assertFalse((dist_root / "workflows" / "execution" / "session.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "help.md").exists())
@@ -292,7 +301,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             label="dist forge-codex agents",
         )
         self.assert_session_restores_preferences(
-            dist_root / "workflows" / "execution" / "session.md",
+            dist_root / "workflows" / "operator" / "session.md",
             label="dist forge-codex session",
         )
 
@@ -319,10 +328,15 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertNotIn("release-readiness", dist_skill)
         self.assertNotIn("adoption-check", dist_skill)
         self.assertNotIn("save-brain", dist_skill)
-        self.assertNotIn("/save-brain", (dist_root / "workflows" / "execution" / "session.md").read_text(encoding="utf-8"))
+        self.assertNotIn("/save-brain", (dist_root / "workflows" / "operator" / "session.md").read_text(encoding="utf-8"))
         dist_codex_surface = (dist_root / "references" / "codex-operator-surface.md").read_text(encoding="utf-8")
-        self.assertIn("/delegate", dist_codex_surface)
+        self.assertNotIn("/delegate", dist_codex_surface)
         self.assertNotIn("/save-brain", dist_codex_surface)
+        rendered_agents = (dist_root / "AGENTS.global.md").read_text(encoding="utf-8")
+        self.assertNotIn("/customize", rendered_agents)
+        self.assertNotIn("/init", rendered_agents)
+        self.assertNotIn("Compatibility aliases:", rendered_agents)
+        self.assertNotIn("Operator aliases:", rendered_agents)
 
         antigravity_dist_root = ROOT_DIR / "dist" / "forge-antigravity"
         self.assert_bump_wrapper_matches_release_contract(

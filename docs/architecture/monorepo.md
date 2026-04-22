@@ -39,7 +39,7 @@ Canonical source-of-truth for:
 - host-neutral bootstrap wording
 - sibling skill markdown under `skills/`
 - operator state and workflow-state semantics
-- compatibility workflow wrappers, references, and tests
+- operator/session compatibility wrappers, references, and tests
 
 `forge-core` should not depend on a single host-specific entry file.
 
@@ -62,7 +62,7 @@ Adapter overlay for Codex:
 - Codex-specific `SKILL.md`
 - `AGENTS.example.md` for workspace integration
 - `AGENTS.global.md` for global Codex host takeover
-- 2 execution-layer compatibility wrappers: `workflows/execution/dispatch-subagents.md` and a Codex-specific `session.md`
+- 2 adapter compatibility wrappers: `workflows/execution/dispatch-subagents.md` and `workflows/operator/session.md`
 - 7 thin operator wrappers for `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`
 - 3 adapter references: `codex-operator-surface.md`, `smoke-test-checklist.md`, `smoke-tests.md`
 - one adapter data override: `data/orchestrator-registry.json`

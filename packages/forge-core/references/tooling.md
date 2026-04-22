@@ -1,192 +1,24 @@
 # Forge Tooling
 
-> Deep reference for the current kernel-only tooling surface. Historical runtime-tool and canary-era commands are archived and are not part of the active contract.
+> Thin pointer for maintainers. Use `kernel-tooling.md` for the live command surface; use the specialized references below when a narrower artifact contract matters.
 
-## Canonical Source
+## Start Here
 
-- Machine-readable workflow-state and host/operator contract catalog: `data/orchestrator-registry.json`
-- Current maintainer entrypoints: `reference-map.md` and `kernel-tooling.md`
-- Canonical host artifact inventory: `docs/architecture/host-artifacts-manifest.json`
+- Current maintainer reading path: `reference-map.md`
+- Live deterministic command surface: `kernel-tooling.md`
+- Host/operator contract catalog: `data/orchestrator-registry.json`
+- Generated host artifact inventory: `docs/architecture/host-artifacts-manifest.json`
 
-## Preferences And Personalization
+## Specialized References
 
-Inspect or validate response-style preferences:
+- `personalization.md` for preference resolution and durable response-style writes
+- `workspace-init.md` for workspace bootstrap and skeleton creation
+- `help-next.md` and `run-guidance.md` for operator recovery and command-routing semantics
+- `backend-briefs.md` for persisted backend brief artifact validation
+- `ui-briefs.md` for persisted UI brief artifact validation
+- `ui-progress.md` for long-running frontend or visual-lens progress artifacts
 
-```powershell
-python scripts/resolve_preferences.py
-python scripts/resolve_preferences.py --preferences-file C:\path\to\adapter-state\state\preferences.json --format json
-python scripts/resolve_preferences.py --workspace C:\path\to\workspace --strict
-```
+## Historical Boundary
 
-Point `--preferences-file` at the canonical `preferences.json` file. Legacy `extra_preferences.json` is migration-only input, not a public inspection path.
-
-Update adapter-global preferences:
-
-```powershell
-python scripts/write_preferences.py --technical-level newbie --pace fast
-python scripts/write_preferences.py --feedback-style direct --apply
-```
-
-Detailed semantics: see `personalization.md`.
-
-## Workspace Bootstrap
-
-Preview or create a minimal Forge skeleton:
-
-```powershell
-python scripts/initialize_workspace.py --workspace C:\path\to\workspace
-python scripts/initialize_workspace.py --workspace C:\path\to\workspace --seed-preferences --apply
-```
-
-Detailed semantics: see `workspace-init.md`.
-
-## Packet Checks And Planning Validation
-
-Generate a quick ambiguity or measurability pass:
-
-```powershell
-python scripts/generate_requirements_checklist.py --requirement "Checkout retry must recover failed payments within 3 attempts and verify with a repeatable scenario." --format json
-```
-
-Check whether a plan or spec packet is build-ready:
-
-```powershell
-python scripts/check_spec_packet.py --source docs\plans\checkout-plan.md --source .forge-artifacts\execution-progress\checkout\latest.json --format json
-```
-
-## Host Artifact And Overlay Generation
-
-Refresh generated host artifacts from canonical sources:
-
-```powershell
-python scripts/generate_host_artifacts.py --check --format json
-python scripts/generate_host_artifacts.py --apply
-```
-
-Refresh generated adapter `SKILL.md` artifacts:
-
-```powershell
-python scripts/generate_overlay_skills.py --check
-python scripts/generate_overlay_skills.py --apply
-```
-
-## Operator State And Session Tools
-
-Resolve operator guidance from repo state:
-
-```powershell
-python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode help --format json
-python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode next --format json
-```
-
-Persist or restore session context:
-
-```powershell
-python scripts/session_context.py save --workspace C:\path\to\workspace --task "Finish checkout retry slice"
-python scripts/session_context.py resume --workspace C:\path\to\workspace --format json
-```
-
-Run a command and route the next step from real output:
-
-```powershell
-python scripts/run_with_guidance.py --workspace C:\path\to\workspace --timeout-ms 20000 -- npm run dev
-python scripts/run_with_guidance.py --workspace C:\path\to\workspace --format json -- python -m pytest tests/unit
-```
-
-Close a quality gate from fresh evidence:
-
-```powershell
-python scripts/record_quality_gate.py --workspace C:\path\to\workspace --profile standard --target-claim ready-for-merge --decision conditional --evidence "pytest tests/test_checkout.py" --response "I verified: ..." --why "..." --persist
-```
-
-Detailed semantics: see `help-next.md` and `run-guidance.md`.
-
-## Release And Recovery Helpers
-
-Prepare a version bump:
-
-```powershell
-python scripts/prepare_bump.py --workspace C:\path\to\workspace
-python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump minor
-```
-
-Resolve rollback guidance:
-
-```powershell
-python scripts/resolve_rollback.py --scope deploy --customer-impact broad --has-rollback-artifact
-```
-
-Prepare an isolated worktree:
-
-```powershell
-python scripts/prepare_worktree.py --workspace C:\path\to\workspace --name checkout-retry --baseline-command "python -m pytest tests/test_checkout.py -k retry" --format json
-```
-
-Translate raw error output:
-
-```powershell
-python scripts/translate_error.py --error-text "Module not found: payments.service"
-```
-
-## Brief Checkers
-
-Forge still ships checkers for persisted brief artifacts:
-
-```powershell
-python scripts/check_backend_brief.py .forge-artifacts/backend-briefs/<project-slug> --surface cancel-orders
-python scripts/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/frontend --mode frontend --screen checkout
-```
-
-Use `backend-briefs.md` and `ui-briefs.md` when a repo already carries those artifacts. Forge no longer ships the older brief generators as part of the current kernel-only surface.
-
-## Workflow State And Continuity
-
-Inspect durable workflow recovery guidance:
-
-```powershell
-python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode help --format json
-python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode next --format json
-python scripts/session_context.py resume --workspace C:\path\to\workspace --format json
-```
-
-Capture durable decisions or learnings:
-
-```powershell
-python scripts/capture_continuity.py "Compatibility window must stay at 1 release" --kind decision --scope orders-api --evidence "docs/DESIGN.md"
-```
-
-Track execution checkpoints:
-
-```powershell
-python scripts/track_execution_progress.py "Implement offline order reconciliation" --mode checkpoint-batch --stage integration --status active
-python scripts/track_chain_status.py "Checkout rewrite flow" --current-stage build --active-skill build --persist --project-name "Example Project"
-python scripts/track_ui_progress.py "Checkout tablet refresh" --mode frontend --stage implementation --status active
-```
-
-## Router And Smoke Checks
-
-Check a workspace router when the repo has local layers:
-
-```powershell
-python scripts/check_workspace_router.py C:\path\to\workspace
-python scripts/check_workspace_router.py C:\path\to\workspace --persist
-```
-
-Run smoke cases:
-
-```powershell
-python scripts/run_smoke_matrix.py
-python scripts/run_smoke_matrix.py --suite route-preview
-```
-
-Verify a built bundle:
-
-```powershell
-python scripts/verify_bundle.py
-python scripts/verify_bundle.py --format json
-```
-
-## Historical Notes
-
-- Historical runtime-tool resolver/invoker commands and canary-era commands are not part of the current kernel-only surface.
-- If a historical doc references those commands, treat it as archive context unless `docs/current/` explicitly points to it.
+- Runtime-tool, companion-package, preset-overlay, and canary-era command catalogs are not part of the active kernel contract.
+- If an older doc still teaches those surfaces, treat it as archive context unless `docs/current/` points to it explicitly.

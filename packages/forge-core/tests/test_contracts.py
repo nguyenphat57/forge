@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -11,95 +12,134 @@ FORGE_SPLIT_SKILLS = {
     "brainstorming": {
         "package": "forge-brainstorming",
         "path": "skills/brainstorming/SKILL.md",
-        "workflow": "workflows/design/brainstorm.md",
         "budget": 240,
     },
     "writing-plans": {
         "package": "forge-writing-plans",
         "path": "skills/writing-plans/SKILL.md",
-        "workflow": "workflows/design/plan.md",
         "budget": 200,
     },
     "executing-plans": {
         "package": "forge-executing-plans",
         "path": "skills/executing-plans/SKILL.md",
-        "workflow": "workflows/execution/build.md",
         "budget": 200,
     },
     "test-driven-development": {
         "package": "forge-test-driven-development",
         "path": "skills/test-driven-development/SKILL.md",
-        "workflow": "workflows/execution/test.md",
         "budget": 320,
     },
     "using-git-worktrees": {
         "package": "forge-using-git-worktrees",
         "path": "skills/using-git-worktrees/SKILL.md",
-        "workflow": "workflows/execution/build.md",
         "budget": 220,
     },
     "dispatching-parallel-agents": {
         "package": "forge-dispatching-parallel-agents",
         "path": "skills/dispatching-parallel-agents/SKILL.md",
-        "workflow": "workflows/execution/build.md",
         "budget": 200,
     },
     "subagent-driven-development": {
         "package": "forge-subagent-driven-development",
         "path": "skills/subagent-driven-development/SKILL.md",
-        "workflow": "workflows/execution/build.md",
         "budget": 280,
     },
     "systematic-debugging": {
         "package": "forge-systematic-debugging",
         "path": "skills/systematic-debugging/SKILL.md",
-        "workflow": "workflows/execution/debug.md",
         "budget": 320,
     },
     "requesting-code-review": {
         "package": "forge-requesting-code-review",
         "path": "skills/requesting-code-review/SKILL.md",
-        "workflow": "workflows/execution/review.md",
         "budget": 200,
     },
     "receiving-code-review": {
         "package": "forge-receiving-code-review",
         "path": "skills/receiving-code-review/SKILL.md",
-        "workflow": "workflows/execution/review.md",
         "budget": 200,
     },
     "verification-before-completion": {
         "package": "forge-verification-before-completion",
         "path": "skills/verification-before-completion/SKILL.md",
-        "workflow": "workflows/execution/quality-gate.md",
         "budget": 200,
     },
     "finishing-a-development-branch": {
         "package": "forge-finishing-a-development-branch",
         "path": "skills/finishing-a-development-branch/SKILL.md",
-        "workflow": "workflows/execution/review.md",
         "budget": 260,
     },
     "writing-skills": {
         "package": "forge-writing-skills",
         "path": "skills/writing-skills/SKILL.md",
-        "workflow": "workflows/execution/writing-skills.md",
         "budget": 720,
         "copied_superpowers_style": True,
     },
     "session-management": {
         "package": "forge-session-management",
         "path": "skills/session-management/SKILL.md",
-        "workflow": "workflows/execution/session.md",
         "budget": 200,
     },
 }
 
+OPERATOR_WORKFLOW_ALLOWLIST = {
+    "workflows/operator/bump.md",
+    "workflows/operator/customize.md",
+    "workflows/operator/help.md",
+    "workflows/operator/init.md",
+    "workflows/operator/next.md",
+    "workflows/operator/rollback.md",
+    "workflows/operator/run.md",
+    "workflows/operator/session.md",
+}
+
+OPTIONAL_ADAPTER_WORKFLOW_ALLOWLIST = {
+    "workflows/execution/dispatch-subagents.md",
+}
+
+FORBIDDEN_ACTIVE_TESTS = {
+    "tests/test_router_matrix.py",
+    "tests/test_route_complexity_safety.py",
+    "tests/test_route_matrix.py",
+    "tests/test_route_preview.py",
+    "tests/test_superpowers_route_preview.py",
+}
+
+FORBIDDEN_RESIDUE_DIRS = {
+    ".pytest_cache",
+    "scripts/__pycache__",
+    "tests/__pycache__",
+}
+
+RETIRED_ACTIVE_REFERENCES = {
+    "references/companion-skill-contract.md": "docs/archive/history/2026-04-forge-core-cleanup/companion-skill-contract.md",
+    "references/companion-routing-smoke-tests.md": "docs/archive/history/2026-04-forge-core-cleanup/companion-routing-smoke-tests.md",
+    "references/canary-rollout.md": "docs/archive/history/2026-04-forge-core-cleanup/canary-rollout.md",
+    "references/extension-presets.md": "docs/archive/history/2026-04-forge-core-cleanup/extension-presets.md",
+    "references/frontend-stack-profiles.md": "docs/archive/history/2026-04-forge-core-cleanup/frontend-stack-profiles.md",
+}
+
 
 class BundleContractTests(unittest.TestCase):
+    def _is_source_repo_context(self) -> bool:
+        return (ROOT_DIR.parents[1] / ".git").exists()
+
     def _raw_line_count(self, path: Path) -> int:
         text = path.read_text(encoding="utf-8")
         return text.count("\n") + (0 if text.endswith("\n") else 1)
+
+    def _tracked_repo_paths(self) -> set[str]:
+        if not self._is_source_repo_context():
+            return set()
+        result = subprocess.run(
+            ["git", "ls-files", "packages/forge-core"],
+            cwd=ROOT_DIR.parents[1],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=True,
+        )
+        return {line.strip().replace("\\", "/") for line in result.stdout.splitlines() if line.strip()}
 
     def test_core_skill_contains_superpowers_style_bootstrap_contract(self) -> None:
         skill = (ROOT_DIR / "SKILL.md").read_text(encoding="utf-8")
@@ -155,7 +195,7 @@ class BundleContractTests(unittest.TestCase):
             with self.subTest(skill=skill_name):
                 self.assertEqual(entry["package"], expected["package"])
                 self.assertEqual(entry["canonical_path"], expected["path"])
-                self.assertEqual(entry["compatibility_workflow_path"], expected["workflow"])
+                self.assertNotIn("compatibility_workflow_path", entry)
                 self.assertTrue(entry["trigger_summary"].strip())
 
     def test_workflow_priority_stays_process_first(self) -> None:
@@ -288,6 +328,7 @@ class BundleContractTests(unittest.TestCase):
 
     def test_writing_skills_is_copied_with_forge_brand_references(self) -> None:
         writing_skills = (ROOT_DIR / "skills" / "writing-skills" / "SKILL.md").read_text(encoding="utf-8")
+        writing_skill_dir = ROOT_DIR / "skills" / "writing-skills"
 
         self.assertIn("Writing skills IS Test-Driven Development applied to process documentation.", writing_skills)
         self.assertIn("Claude Search Optimization", writing_skills)
@@ -297,18 +338,122 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("forge-test-driven-development", writing_skills)
         self.assertIn("forge-systematic-debugging", writing_skills)
         self.assertNotIn("superpowers:", writing_skills)
+        for relative_path in (
+            "anthropic-best-practices.md",
+            "graphviz-conventions.dot",
+            "persuasion-principles.md",
+            "render-graphs.js",
+            "testing-skills-with-subagents.md",
+            "agents/openai.yaml",
+            "examples/CLAUDE_MD_TESTING.md",
+        ):
+            with self.subTest(path=relative_path):
+                self.assertTrue((writing_skill_dir / relative_path).exists())
+        testing_reference = (writing_skill_dir / "testing-skills-with-subagents.md").read_text(encoding="utf-8")
+        self.assertIn("forge-test-driven-development", testing_reference)
+        self.assertNotIn("superpowers:", testing_reference)
 
-    def test_workflow_files_are_thin_compatibility_wrappers(self) -> None:
-        workflow_paths = sorted((ROOT_DIR / "workflows" / "design").glob("*.md"))
-        workflow_paths.extend(sorted((ROOT_DIR / "workflows" / "execution").glob("*.md")))
+    def test_workflow_files_are_operator_only_thin_compatibility_wrappers(self) -> None:
+        workflow_paths = sorted((ROOT_DIR / "workflows").glob("*/*.md"))
+        relative_paths = {path.relative_to(ROOT_DIR).as_posix() for path in workflow_paths}
+
+        self.assertFalse(relative_paths - OPERATOR_WORKFLOW_ALLOWLIST - OPTIONAL_ADAPTER_WORKFLOW_ALLOWLIST)
+        self.assertFalse(OPERATOR_WORKFLOW_ALLOWLIST - relative_paths)
 
         for path in workflow_paths:
             text = path.read_text(encoding="utf-8")
             with self.subTest(path=str(path.relative_to(ROOT_DIR))):
-                self.assertLessEqual(self._raw_line_count(path), 40)
-                self.assertIn("Compatibility Wrapper", text)
-                self.assertIn("forge-", text)
                 self.assertNotIn("superpowers:", text)
+                if "Compatibility Wrapper" in text:
+                    self.assertLessEqual(self._raw_line_count(path), 40)
+                    self.assertIn("forge-", text)
+                else:
+                    self.assertLessEqual(self._raw_line_count(path), 100)
+                    self.assertTrue(
+                        "Operator Wrapper" in text
+                        or "Preference Wrapper" in text
+                        or "Workspace Bootstrap" in text
+                    )
+                    self.assertTrue(
+                        "Forge Codex:" in text
+                        or "Forge Antigravity:" in text
+                    )
+
+    def test_generated_cache_and_bytecode_dirs_are_git_ignored_not_tracked(self) -> None:
+        if not self._is_source_repo_context():
+            self.skipTest("git tracked-path check only applies in the source repo")
+        tracked_paths = self._tracked_repo_paths()
+
+        for relative_path in FORBIDDEN_RESIDUE_DIRS:
+            with self.subTest(path=relative_path):
+                pattern = f"packages/forge-core/{relative_path}/"
+                self.assertFalse(
+                    any(path == pattern[:-1] or path.startswith(pattern) for path in tracked_paths)
+                )
+
+    def test_archived_route_coverage_tests_are_not_in_active_test_package(self) -> None:
+        active_tests = {
+            path.relative_to(ROOT_DIR).as_posix()
+            for path in (ROOT_DIR / "tests").glob("test_*.py")
+        }
+        self.assertTrue(FORBIDDEN_ACTIVE_TESTS.isdisjoint(active_tests))
+
+    def test_dead_workspace_signals_script_is_removed(self) -> None:
+        self.assertFalse((ROOT_DIR / "scripts" / "workspace_signals.py").exists())
+
+    def test_retired_companion_and_canary_references_leave_active_tree_but_stay_archived(self) -> None:
+        reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
+        repo_root = ROOT_DIR.parents[1]
+
+        for active_path, archive_path in RETIRED_ACTIVE_REFERENCES.items():
+            active_name = Path(active_path).name
+            with self.subTest(reference=active_name):
+                self.assertNotIn(f"`{active_name}`", reference_map)
+                self.assertFalse((ROOT_DIR / active_path.removeprefix("references/")).exists())
+                if self._is_source_repo_context():
+                    self.assertTrue((repo_root / archive_path).exists())
+
+    def test_route_preview_generator_stack_is_retired(self) -> None:
+        smoke_matrix_suites = (ROOT_DIR / "scripts" / "smoke_matrix_suites.py").read_text(encoding="utf-8")
+        smoke_matrix_cases = (ROOT_DIR / "scripts" / "smoke_matrix_cases.py").read_text(encoding="utf-8")
+        smoke_matrix_validators = (ROOT_DIR / "scripts" / "smoke_matrix_validators.py").read_text(encoding="utf-8")
+
+        for relative_path in (
+            "scripts/route_local_companions.py",
+            "scripts/route_preview.py",
+            "scripts/route_preview_builder.py",
+            "scripts/route_preview_output.py",
+            "scripts/route_policy.py",
+            "scripts/route_analysis.py",
+            "scripts/route_execution_advice.py",
+            "scripts/route_process_requirements.py",
+            "scripts/route_stage_contract.py",
+            "scripts/route_intent_detection.py",
+            "scripts/route_quality_policy.py",
+            "scripts/route_risk.py",
+            "scripts/route_complexity_safety.py",
+            "scripts/route_delegation.py",
+            "tests/fixtures/route_preview_cases.json",
+        ):
+            with self.subTest(path=relative_path):
+                self.assertFalse((ROOT_DIR / relative_path).exists())
+
+        self.assertNotIn("route-preview", smoke_matrix_suites)
+        self.assertNotIn("ROUTE_CASES", smoke_matrix_cases)
+        self.assertNotIn("validate_route_case", smoke_matrix_validators)
+
+    def test_tooling_reference_is_a_thin_pointer_not_a_second_monolith(self) -> None:
+        tooling = ROOT_DIR / "references" / "tooling.md"
+        text = tooling.read_text(encoding="utf-8")
+
+        self.assertLessEqual(self._raw_line_count(tooling), 40)
+        self.assertIn("kernel-tooling.md", text)
+        self.assertIn("reference-map.md", text)
+        self.assertIn("backend-briefs.md", text)
+        self.assertIn("ui-briefs.md", text)
+        self.assertIn("ui-progress.md", text)
+        self.assertNotIn("python scripts/resolve_help_next.py", text)
+        self.assertNotIn("python scripts/run_with_guidance.py", text)
 
     def test_subagent_reference_contract_exists(self) -> None:
         reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")

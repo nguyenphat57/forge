@@ -2,7 +2,6 @@
 name: run
 type: flexible
 triggers:
-  - shortcut: /run
   - user asks to run the app, a script, or a verification command
 quality_gates:
   - Command actually runs; do not just restate it
@@ -12,7 +11,7 @@ quality_gates:
 
 # Run - Antigravity Operator Wrapper
 
-> Goal: make `/run` clear for Antigravity users while still routing from the real output of core `run_with_guidance.py`.
+> Goal: keep run requests clear for Antigravity users while still routing from the real output of core `run_with_guidance.py`.
 
 ## Process
 

@@ -34,7 +34,7 @@ If you were dispatched as a subagent to execute a specific task packet, skip thi
 ## How To Access Forge Workflows
 
 - `AGENTS.md` is the Codex bootstrap surface, not a replacement for sibling Forge skills.
-- Natural language is primary; slash aliases are optional convenience.
+- Natural language is primary; explicit skill invocation and plain action names are the concise forms when needed.
 - Sibling skills such as `forge-brainstorming`, `forge-writing-plans`, `forge-executing-plans`, `forge-systematic-debugging`, and `forge-verification-before-completion` are host-native skills.
 - Completion siblings include `forge-verification-before-completion` and `forge-finishing-a-development-branch`.
 - Compatibility files under `workflows/` are aliases, not the source of truth.

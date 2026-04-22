@@ -5,11 +5,7 @@
         "hosts": [
           "antigravity"
         ],
-        "primary_aliases_by_host": {
-          "antigravity": [
-            "/help"
-          ]
-        },
+        "primary_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "antigravity": [
             "Help me figure out the next step"
@@ -20,11 +16,7 @@
         "hosts": [
           "antigravity"
         ],
-        "primary_aliases_by_host": {
-          "antigravity": [
-            "/next"
-          ]
-        },
+        "primary_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "antigravity": [
             "What should I do next?"
@@ -35,11 +27,7 @@
         "hosts": [
           "antigravity"
         ],
-        "primary_aliases_by_host": {
-          "antigravity": [
-            "/run"
-          ]
-        },
+        "primary_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "antigravity": [
             "Run `npm test` and tell me what to do after"
@@ -50,11 +38,7 @@
         "hosts": [
           "antigravity"
         ],
-        "primary_aliases_by_host": {
-          "antigravity": [
-            "/bump"
-          ]
-        },
+        "primary_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "antigravity": [
             "Bump this to 0.5.0"
@@ -65,11 +49,7 @@
         "hosts": [
           "antigravity"
         ],
-        "primary_aliases_by_host": {
-          "antigravity": [
-            "/rollback"
-          ]
-        },
+        "primary_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "antigravity": [
             "We need to roll back the last deployment"
@@ -80,11 +60,7 @@
         "hosts": [
           "antigravity"
         ],
-        "primary_aliases_by_host": {
-          "antigravity": [
-            "/customize"
-          ]
-        },
+        "primary_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "antigravity": [
             "Give shorter answers and move faster"
@@ -95,11 +71,7 @@
         "hosts": [
           "antigravity"
         ],
-        "primary_aliases_by_host": {
-          "antigravity": [
-            "/init"
-          ]
-        },
+        "primary_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "antigravity": [
             "Bootstrap this workspace for Forge"

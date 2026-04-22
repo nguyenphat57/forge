@@ -5,7 +5,6 @@ name: customize
 type: flexible
 triggers:
   - natural-language request to change tone, detail, autonomy, pace, feedback style, or durable language rules
-  - optional alias: /customize
 quality_gates:
   - Current preferences are inspected first
   - Durable changes use the core canonical schema and writer

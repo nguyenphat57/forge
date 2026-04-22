@@ -5,11 +5,7 @@
         "hosts": [
           "codex"
         ],
-        "primary_aliases_by_host": {
-          "codex": [
-            "/help"
-          ]
-        },
+        "primary_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "codex": [
             "Help me figure out the next step"
@@ -20,11 +16,7 @@
         "hosts": [
           "codex"
         ],
-        "primary_aliases_by_host": {
-          "codex": [
-            "/next"
-          ]
-        },
+        "primary_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "codex": [
             "What should I do next?"
@@ -35,11 +27,7 @@
         "hosts": [
           "codex"
         ],
-        "primary_aliases_by_host": {
-          "codex": [
-            "/run"
-          ]
-        },
+        "primary_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "codex": [
             "Run `npm test` and tell me what to do after"
@@ -54,11 +42,7 @@
       "hosts": [
           "codex"
         ],
-        "primary_aliases_by_host": {
-          "codex": [
-            "/delegate"
-          ]
-        },
+        "primary_aliases_by_host": {},
         "compatibility_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "codex": [
@@ -72,11 +56,7 @@
         "hosts": [
           "codex"
         ],
-        "primary_aliases_by_host": {
-          "codex": [
-            "/bump"
-          ]
-        },
+        "primary_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "codex": [
             "Bump this to 0.5.0"
@@ -87,11 +67,7 @@
         "hosts": [
           "codex"
         ],
-        "primary_aliases_by_host": {
-          "codex": [
-            "/rollback"
-          ]
-        },
+        "primary_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "codex": [
             "We need to roll back the last deployment"
@@ -102,11 +78,7 @@
         "hosts": [
           "codex"
         ],
-        "primary_aliases_by_host": {
-          "codex": [
-            "/customize"
-          ]
-        },
+        "primary_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "codex": [
             "Give shorter answers and move faster"
@@ -117,11 +89,7 @@
         "hosts": [
           "codex"
         ],
-        "primary_aliases_by_host": {
-          "codex": [
-            "/init"
-          ]
-        },
+        "primary_aliases_by_host": {},
         "natural_language_examples_by_host": {
           "codex": [
             "Bootstrap this workspace for Forge"

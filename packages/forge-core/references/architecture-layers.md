@@ -17,7 +17,7 @@ If a change crosses layers, the change must say so explicitly and preserve the b
 Core is the reusable engine:
 
 - host-neutral bootstrap and sibling skill contract
-- execution/review/gate compatibility wrappers
+- operator/session compatibility wrappers
 - verification contracts
 - shared references and schemas
 - deterministic host-neutral scripts
@@ -55,7 +55,7 @@ Current canonical tooling:
 Current generated outputs:
 
 - `packages/forge-codex/overlay/AGENTS.global.md`
-- `packages/forge-codex/overlay/workflows/execution/session.md`
+- `packages/forge-codex/overlay/workflows/operator/session.md`
 - `packages/forge-codex/overlay/workflows/operator/help.md`
 - `packages/forge-codex/overlay/workflows/operator/next.md`
 - `packages/forge-codex/overlay/workflows/operator/run.md`

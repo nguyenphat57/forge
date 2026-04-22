@@ -16,8 +16,8 @@
     {
       "name": "forge-codex-session-wrapper",
       "bundle": "forge-codex",
-      "source": "docs/architecture/generated-host-artifacts/codex/workflows/execution/session.md",
-      "output": "packages/forge-codex/overlay/workflows/execution/session.md"
+      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/session.md",
+      "output": "packages/forge-codex/overlay/workflows/operator/session.md"
     },
     {
       "name": "forge-codex-help-wrapper",

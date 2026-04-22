@@ -24,7 +24,7 @@ Notes:
 
 Installed Codex and Antigravity adapters expose `forge-codex` or `forge-antigravity` as the bootstrap skill and install the sibling Forge skill family next to it.
 
-Workflow selection happens through bootstrap markdown and host-native skill discovery. Compatibility workflow files and slash aliases remain only as wrappers.
+Workflow selection happens through bootstrap markdown and host-native skill discovery. Compatibility workflow files remain internal support wrappers rather than the public action surface.
 
 ## Machine-Readable Contract
 

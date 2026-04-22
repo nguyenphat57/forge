@@ -168,20 +168,55 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
     def test_build_release_includes_codex_generated_wrapper_artifacts(self) -> None:
         build_release.build_all()
         manifest = json.loads((ROOT_DIR / "dist" / "forge-codex" / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
+        agents_text = (ROOT_DIR / "dist" / "forge-codex" / "AGENTS.global.md").read_text(encoding="utf-8")
+        gemini_text = (ROOT_DIR / "dist" / "forge-antigravity" / "GEMINI.global.md").read_text(encoding="utf-8")
 
         outputs = {item["bundle_output"] for item in manifest["generated_artifacts"]["artifacts"]}
         required = set(manifest["packaging"]["required_bundle_paths"])
 
-        self.assertIn("workflows/execution/session.md", required)
+        self.assertIn("workflows/operator/session.md", required)
         self.assertIn("workflows/operator/help.md", required)
         self.assertIn("workflows/operator/next.md", required)
         self.assertIn("workflows/operator/run.md", required)
         self.assertIn("workflows/operator/customize.md", required)
         self.assertIn("workflows/operator/init.md", required)
-        self.assertIn("workflows/execution/session.md", outputs)
+        self.assertIn("workflows/operator/session.md", outputs)
         self.assertIn("workflows/operator/help.md", outputs)
         self.assertIn("workflows/operator/next.md", outputs)
         self.assertIn("workflows/operator/run.md", outputs)
+        self.assertNotIn("Compatibility aliases:", agents_text)
+        self.assertNotIn("Operator aliases:", agents_text)
+        self.assertNotIn("/delegate", agents_text)
+        self.assertNotIn("/customize", agents_text)
+        self.assertNotIn("/init", agents_text)
+        self.assertNotIn("Compatibility aliases:", gemini_text)
+        self.assertNotIn("Primary operator aliases:", gemini_text)
+        self.assertNotIn("/customize", gemini_text)
+        self.assertNotIn("/init", gemini_text)
+
+    def test_core_workflow_tree_is_operator_only_in_source_and_dist(self) -> None:
+        build_release.build_all()
+        expected = {
+            "workflows/operator/bump.md",
+            "workflows/operator/customize.md",
+            "workflows/operator/help.md",
+            "workflows/operator/init.md",
+            "workflows/operator/next.md",
+            "workflows/operator/rollback.md",
+            "workflows/operator/run.md",
+            "workflows/operator/session.md",
+        }
+
+        for base in (
+            ROOT_DIR / "packages" / "forge-core",
+            ROOT_DIR / "dist" / "forge-core",
+        ):
+            with self.subTest(base=base):
+                actual = {
+                    path.relative_to(base).as_posix()
+                    for path in (base / "workflows").rglob("*.md")
+                }
+                self.assertEqual(actual, expected)
 
     def test_build_release_keeps_core_bundle_english_only(self) -> None:
         build_release.build_all()

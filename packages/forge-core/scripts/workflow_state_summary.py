@@ -76,9 +76,21 @@ def _gate_workflow(target_claim: str) -> str:
 @lru_cache(maxsize=1)
 def _known_workflow_names() -> set[str]:
     workflow_root = Path(__file__).resolve().parents[1] / "workflows"
+    canonical = {
+        "brainstorm",
+        "plan",
+        "build",
+        "test",
+        "review",
+        "debug",
+        "quality-gate",
+        "deploy",
+        "secure",
+        "session",
+    }
     if not workflow_root.exists():
-        return set()
-    return {candidate.stem.casefold() for candidate in workflow_root.rglob("*.md")}
+        return canonical
+    return canonical | {candidate.stem.casefold() for candidate in workflow_root.rglob("*.md")}
 
 
 def workflow_hint_for_stage(stage: str | None, *, default: str) -> str:

@@ -86,13 +86,13 @@ def _workflow_label(path_text: str) -> str:
     return path_text.removeprefix("workflows/")
 
 
-def _primary_action_rows(bundle_name: str) -> list[tuple[str, dict]]:
+def _host_action_rows(bundle_name: str) -> list[tuple[str, dict]]:
     rows: list[tuple[str, dict]] = []
     for action_name, metadata in host_operator_surface(bundle_name)["actions"].items():
         if not isinstance(metadata, dict):
             continue
-        aliases = _host_values(metadata, "primary_aliases_by_host", bundle_name=bundle_name)
-        if not aliases:
+        hosts = metadata.get("hosts", [])
+        if not isinstance(hosts, list) or host_name(bundle_name) not in hosts:
             continue
         rows.append((action_name, metadata))
     return rows
@@ -100,41 +100,23 @@ def _primary_action_rows(bundle_name: str) -> list[tuple[str, dict]]:
 
 def render_operator_alias_rows(bundle_name: str) -> str:
     lines: list[str] = []
-    for _, metadata in _primary_action_rows(bundle_name):
-        alias = _host_values(metadata, "primary_aliases_by_host", bundle_name=bundle_name)[0]
+    for _, metadata in _host_action_rows(bundle_name):
+        aliases = _host_values(metadata, "primary_aliases_by_host", bundle_name=bundle_name)
+        if not aliases:
+            continue
+        alias = aliases[0]
         target = metadata.get("skill") or _workflow_label(metadata.get("workflow", ""))
         lines.append(f"| `{alias}` | `{target}` |")
     return "\n".join(lines)
 
 
-def render_codex_natural_language_examples() -> str:
+def render_natural_language_examples(bundle_name: str) -> str:
     lines: list[str] = []
-    for action_name, metadata in _primary_action_rows("forge-codex"):
-        examples = _host_values(metadata, "natural_language_examples_by_host", bundle_name="forge-codex")
+    for action_name, metadata in _host_action_rows(bundle_name):
+        examples = _host_values(metadata, "natural_language_examples_by_host", bundle_name=bundle_name)
         if not examples:
             continue
         lines.append(f'- "{examples[0]}" -> `{action_name}`')
-    return "\n".join(lines)
-
-
-def render_codex_optional_aliases() -> str:
-    lines: list[str] = []
-    for _, metadata in _primary_action_rows("forge-codex"):
-        alias = _host_values(metadata, "primary_aliases_by_host", bundle_name="forge-codex")[0]
-        lines.append(f"- `{alias}`")
-    return "\n".join(lines)
-
-
-def render_antigravity_primary_wrapper_table() -> str:
-    lines = [
-        "| Surface | Wrapper | Core contract |",
-        "|---------|---------|---------------|",
-    ]
-    for _, metadata in _primary_action_rows("forge-antigravity"):
-        alias = _host_values(metadata, "primary_aliases_by_host", bundle_name="forge-antigravity")[0]
-        workflow = metadata.get("workflow", "")
-        core_contract = metadata.get("core_engine_entrypoint", "")
-        lines.append(f"| `{alias}` | `{workflow}` | `{core_contract}` |")
     return "\n".join(lines)
 
 
@@ -408,13 +390,13 @@ def _codex_action_config(action_name: str) -> dict:
 def render_codex_operator_wrapper(action_name: str) -> str:
     config = _codex_action_config(action_name)
     metadata = _metadata_by_name("forge-codex", "actions", action_name)
-    alias = _first_host_value(metadata, "primary_aliases_by_host", bundle_name="forge-codex")
     command = metadata.get("core_engine_entrypoint", "")
+    triggers = [config["trigger"]]
     source_text = (
         Path(ROOT_DIR / CODEX_OPERATOR_SHARED_TEMPLATE_PATH)
         .read_text(encoding="utf-8")
         .replace("{{FORGE_CODEX_OPERATOR_NAME}}", action_name)
-        .replace("{{FORGE_CODEX_OPERATOR_TRIGGERS}}", _yaml_list([config["trigger"], f"optional alias: {alias}"]))
+        .replace("{{FORGE_CODEX_OPERATOR_TRIGGERS}}", _yaml_list(triggers))
         .replace("{{FORGE_CODEX_OPERATOR_QUALITY_GATES}}", _yaml_list(config["quality_gates"]))
         .replace("{{FORGE_CODEX_OPERATOR_HEADING}}", config["heading"])
         .replace("{{FORGE_CODEX_OPERATOR_GOAL}}", config["goal"])
@@ -440,9 +422,8 @@ def render_registry_placeholders(source_text: str, bundle_name: str, context: di
         "{{FORGE_CODEX_SESSION_REQUEST_EXAMPLES}}": render_session_request_examples("forge-codex"),
         "{{FORGE_ANTIGRAVITY_PRIMARY_OPERATOR_ALIAS_ROWS}}": render_operator_alias_rows("forge-antigravity"),
         "{{FORGE_ANTIGRAVITY_SESSION_REQUEST_EXAMPLES}}": render_session_request_examples("forge-antigravity"),
-        "{{FORGE_CODEX_NATURAL_LANGUAGE_EXAMPLES}}": render_codex_natural_language_examples(),
-        "{{FORGE_CODEX_OPTIONAL_ALIASES}}": render_codex_optional_aliases(),
-        "{{FORGE_ANTIGRAVITY_PRIMARY_WRAPPER_TABLE}}": render_antigravity_primary_wrapper_table(),
+        "{{FORGE_CODEX_NATURAL_LANGUAGE_EXAMPLES}}": render_natural_language_examples("forge-codex"),
+        "{{FORGE_ANTIGRAVITY_NATURAL_LANGUAGE_EXAMPLES}}": render_natural_language_examples("forge-antigravity"),
     }
     for placeholder, replacement in replacements.items():
         rendered = rendered.replace(placeholder, replacement)

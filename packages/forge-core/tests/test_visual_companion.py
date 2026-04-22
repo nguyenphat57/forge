@@ -66,7 +66,7 @@ class VisualCompanionTests(unittest.TestCase):
 
     def test_current_docs_reference_forge_tooling_not_superpowers_paths(self):
         docs = [
-            ROOT_DIR / "workflows" / "design" / "brainstorm.md",
+            ROOT_DIR / "SKILL.md",
             ROOT_DIR / "references" / "design" / "visual-companion-guidance.md",
         ]
         text = "\n".join(path.read_text(encoding="utf-8") for path in docs)

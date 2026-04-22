@@ -17,7 +17,7 @@
 | --- | --- |
 | `packages/forge-core/SKILL.md` | Change the host-neutral bootstrap, 1% rule, or invariant boundary wording |
 | `packages/forge-core/skills/` | Change canonical process behavior for Forge sibling skills |
-| `packages/forge-core/workflows/` | Repair slash-alias compatibility wrappers only; these files are not the source of truth |
+| `packages/forge-core/workflows/` | Repair operator/session compatibility wrappers only; these files are not the source of truth |
 | `packages/forge-codex/overlay/SKILL.md` | Change Codex bootstrap access wording without forking skill meaning |
 | `packages/forge-antigravity/overlay/SKILL.md` | Change Antigravity bootstrap access wording without forking skill meaning |
 
@@ -32,7 +32,6 @@
 | `run-guidance.md` | Change `run` while preserving execute-then-route from evidence |
 | `workspace-init.md` | Change init or onboarding while keeping the bootstrap thin and skill-first |
 | `architecture-layers.md` | Decide whether a capability belongs in sibling skill markdown, deterministic state tooling, or generated artifacts |
-| `extension-presets.md` | Add bounded overlays or presets without weakening core workflow or verification invariants |
 | `tdd-discipline.md` | Apply RED -> GREEN -> REFACTOR and the delete-before-implementation rule for behavioral work |
 | `execution-delivery.md` | Shape medium or large execution flow without losing artifact-backed checkpoints |
 | `subagent-execution.md` | Shape subagent-driven execution without reintroducing a parallel orchestration model |
@@ -56,13 +55,11 @@
 | `planning/plan-self-review-checklist.md` | Review plan readiness before asking for execution choice |
 | `planning/execution-handoff.md` | Record the execution-choice gate before `forge-executing-plans` |
 
-## Companion And Adapter References
+## Adapter References
 
 | File | When to read |
 | --- | --- |
-| `companion-skill-contract.md` | Design or update a companion skill without weakening the core contract |
 | `packages/forge-core/skills/writing-skills/SKILL.md` | Create, edit, absorb, harden, test, or deploy Forge sibling skills |
-| `companion-routing-smoke-tests.md` | Verify local or companion activation without treating route-era tooling as canonical |
 | `bump-release.md` | Edit release bump flow or semver guidance |
 | `rollback-guidance.md` | Edit rollback planning and recovery framing |
 

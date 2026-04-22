@@ -2,7 +2,6 @@
 name: customize
 type: flexible
 triggers:
-  - shortcut: /customize
   - user wants to change explanation depth, tone, autonomy, pace, or feedback style
   - user asks how to set language, diacritics, or writing conventions
 quality_gates:
@@ -14,7 +13,7 @@ quality_gates:
 
 # Customize - Antigravity Preference Wrapper
 
-> Goal: give Antigravity users a clear `/customize` surface while keeping durable changes on the canonical Forge contract.
+> Goal: keep customization requests clear for Antigravity users while keeping durable changes on the canonical Forge contract.
 
 <HARD-GATE>
 - Do not create Antigravity-specific keys in adapter-global state.

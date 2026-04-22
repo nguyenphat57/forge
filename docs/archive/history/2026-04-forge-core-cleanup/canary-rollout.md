@@ -1,12 +1,14 @@
 # Forge Canary Rollout
 
-> Goal: replace "is it production-ready?" with a canary gate backed by artifacts, explicit thresholds, and a repeatable verdict.
+Archived from `packages/forge-core/references/canary-rollout.md` on 2026-04-22 during forge-core cleanup tranche 2.
+This file describes the retired canary rollout guide and remains for historical context only.
 
 ## When to read this file
 
-- When `verify_bundle.py` passes but you still need proof on the real host
-- When preparing the first 2-3 real workspaces for rollout
-- When deciding whether Forge is `controlled-rollout ready` or `broad ready`
+- When auditing older rollout guidance that still referenced the canary profile tooling directly
+- When comparing historical release-readiness thresholds against the current target-state docs
+
+> Goal: replace "is it production-ready?" with a canary gate backed by artifacts, explicit thresholds, and a repeatable verdict.
 
 ## Rollout Stages
 

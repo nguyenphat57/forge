@@ -1,6 +1,7 @@
 # Frontend Stack Profiles
 
-> Use this when a frontend task needs a stack-specific lens instead of only general guidance.
+Archived from `packages/forge-core/references/frontend-stack-profiles.md` on 2026-04-22 during forge-core cleanup tranche 4.
+This file describes a retired optional frontend-lens helper and remains for historical context only.
 
 ## generic-web
 

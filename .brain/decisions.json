@@ -594,7 +594,7 @@
         "id":  "20260422-000000",
         "kind":  "decision",
         "scope":  "forge-2-14-stable-status",
-        "summary":  "Treat 2.14.1 as the current stable Forge release because the wave-execution removal, restored parallel-split delegation path, and release surface sync are verified.",
+        "summary":  "Treat 2.14.2 as the current stable Forge release because the forge-core cleanup, operator-only workflow cutover, writing-skills bundle completion, and release surface sync are verified.",
         "status":  "resolved",
         "evidence":  [
                          "VERSION",
@@ -602,13 +602,15 @@
                          "README.md",
                          "docs/release/public-readiness.md",
                          "docs/release/release-process.md",
-                         "packages/forge-core/SKILL.md",
-                         "packages/forge-core/skills/",
                          "packages/forge-core/data/orchestrator-registry.json",
+                         "packages/forge-core/skills/writing-skills/",
+                         "packages/forge-core/workflows/operator/session.md",
+                         "packages/forge-codex/overlay/workflows/operator/session.md",
+                         "docs/plans/2026-04-22-forge-core-cleanup-implementation-plan.md",
                          "docs/release/package-matrix.json",
-                         "python -m pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-22",
-                         "python -m pytest tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-22",
-                         "python scripts/build_release.py --force -> PASS on 2026-04-22",
+                         "python -m pytest packages/forge-core/tests -q -> PASS on 2026-04-22",
+                         "python -m pytest tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> PASS on 2026-04-22",
+                         "python scripts/build_release.py --force --format json -> PASS on 2026-04-22",
                          "python scripts/verify_repo.py -> PASS on 2026-04-22"
                      ],
         "next":  [
@@ -617,12 +619,13 @@
         "tags":  [
                      "release",
                      "stable",
-                     "markdown-first",
-                     "sibling-skills",
-                     "superpowers-alignment"
+                     "forge-core",
+                     "cleanup",
+                     "operator-only",
+                     "writing-skills"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 2.14.1 verification evidence.",
+        "revisit_if":  "A later release changes the stable line or invalidates the 2.14.2 verification evidence.",
         "trigger":  "patch-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.14.1 proof chain or invalidates the recorded verification."
+        "resume_hint":  "Resume only if a later audit needs the original 2.14.2 proof chain or invalidates the recorded verification."
     }
 ]

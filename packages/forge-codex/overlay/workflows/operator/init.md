@@ -5,7 +5,6 @@ name: init
 type: flexible
 triggers:
   - natural-language request to bootstrap a workspace for Forge
-  - optional alias: /init
 quality_gates:
   - Workspace is classified before suggesting a next step
   - No existing file is overwritten

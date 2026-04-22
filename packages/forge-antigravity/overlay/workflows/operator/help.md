@@ -2,7 +2,6 @@
 name: help
 type: flexible
 triggers:
-  - shortcut: /help
   - user feels stuck or asks what to do next
 quality_gates:
   - Repo state inspected before giving advice
@@ -12,7 +11,7 @@ quality_gates:
 
 # Help - Antigravity Operator Wrapper
 
-> Goal: make `/help` clear for Antigravity users while still using Forge's core navigator.
+> Goal: keep help requests clear for Antigravity users while still using Forge's core navigator.
 
 ## Process
 

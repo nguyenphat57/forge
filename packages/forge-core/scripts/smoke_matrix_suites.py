@@ -12,7 +12,6 @@ from smoke_matrix_cases import (
     RESPONSE_CONTRACT_CASES,
     ROLLBACK_CASES,
     ROOT_DIR,
-    ROUTE_CASES,
     ROUTER_CASES,
     RUN_CASES,
     WORKSPACE_INIT_CASES,
@@ -25,7 +24,6 @@ from smoke_matrix_validators import (
     validate_error_translation_case,
     validate_help_next_case,
     validate_preferences_case,
-    validate_route_case,
     validate_router_case,
     validate_run_case,
 )
@@ -70,29 +68,6 @@ def _run_json_suite(
         report = _load_report(completed.stdout)
         results.append(case_result(suite, case["name"], validator(case, report)))
     return results
-
-
-def _route_command(case: dict) -> tuple[list[str], dict[str, str] | None]:
-    route_script = ROOT_DIR / "scripts" / "route_preview.py"
-    command = [sys.executable, str(route_script), case["prompt"], "--format", "json"]
-    for signal in case.get("repo_signals", []):
-        command.extend(["--repo-signal", signal])
-    if "changed_files" in case:
-        command.extend(["--changed-files", str(case["changed_files"])])
-    if "has_harness" in case:
-        command.extend(["--has-harness", case["has_harness"]])
-    if case.get("workspace_fixture"):
-        command.extend(["--workspace", str(workspace_path(case["workspace_fixture"]))])
-    if case.get("workspace_fixture") and case.get("workspace_router"):
-        router_path = workspace_path(case["workspace_fixture"]) / case["workspace_router"]
-        command.extend(["--workspace-router", str(router_path)])
-    if case.get("delegation_preference"):
-        command.extend(["--delegation-preference", case["delegation_preference"]])
-    return command, None
-
-
-def run_route_suite() -> list[dict]:
-    return _run_json_suite("route-preview", ROUTE_CASES, command_builder=_route_command, validator=validate_route_case)
 
 
 def run_router_suite() -> list[dict]:
@@ -307,7 +282,6 @@ def run_response_contract_suite() -> list[dict]:
 
 
 SUITE_RUNNERS = {
-    "route-preview": run_route_suite,
     "router-check": run_router_suite,
     "preferences": run_preferences_suite,
     "help-next": run_help_next_suite,

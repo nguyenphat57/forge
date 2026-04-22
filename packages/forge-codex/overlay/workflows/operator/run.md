@@ -5,7 +5,6 @@ name: run
 type: flexible
 triggers:
   - natural-language request to run a command, app, or check
-  - optional alias: /run
 quality_gates:
   - The command actually runs
   - Key output or failure signal is reported

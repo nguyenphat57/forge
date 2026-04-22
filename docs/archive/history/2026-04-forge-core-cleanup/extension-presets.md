@@ -1,6 +1,7 @@
 # Forge Extension And Preset Boundary
 
-> Goal: keep extension leverage bounded so Forge stays process-first instead of turning into plugin sprawl.
+Archived from `packages/forge-core/references/extension-presets.md` on 2026-04-22 during forge-core cleanup tranche 4.
+This file describes a retired optional preset/overlay boundary and remains for historical context only.
 
 ## Allowed Surface For 1.14.x
 

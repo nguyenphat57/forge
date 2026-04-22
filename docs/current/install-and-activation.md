@@ -8,7 +8,7 @@ Describe the current install and activation contract after the split-skill markd
 
 - Forge still builds the three kernel bundles: `forge-core`, `forge-codex`, and `forge-antigravity`.
 - Installing `forge-codex` or `forge-antigravity` also installs the sibling Forge skill family from `packages/forge-core/skills/`.
-- `forge-core` owns the host-neutral bootstrap, sibling skill sources, compatibility wrappers, and invariant tooling.
+- `forge-core` owns the host-neutral bootstrap, sibling skill sources, operator/session compatibility wrappers, and invariant tooling.
 - Host bundles add bootstrap files, wrapper language, host-specific access mapping, and shared-script access without forking skill meaning.
 
 ## Activation Model
@@ -57,7 +57,7 @@ The first operator-visible story should not be:
 - Install safety, backup behavior, and release verification remain intact.
 - Bundle fingerprints and release packaging stay canonical.
 - Python remains in place for invariants, state, and preferences.
-- Slash aliases remain compatibility entrypoints.
+- Operator/session wrappers remain thin compatibility entrypoints where needed.
 
 ## Maintainer Guardrails
 

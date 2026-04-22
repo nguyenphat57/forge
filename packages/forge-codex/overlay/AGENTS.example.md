@@ -15,7 +15,7 @@ Use `forge-codex` as the global orchestrator for this workspace.
 - Keep `AGENTS.md` thin.
 - Put repo-specific conventions in local docs, not a competing router.
 - Do not duplicate Forge orchestration rules inside local skills.
-- Prefer natural-language requests first. Keep slash forms only as optional aliases.
+- Prefer natural-language requests first. Use plain action names or explicit skill names when a concise form helps.
 - Suggested prompts:
   - "Help me figure out the next step"
   - "Run `npm test` and tell me what to do after"

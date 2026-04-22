@@ -8,6 +8,12 @@ Use this index when release archaeology or old design context is needed.
 - `docs/archive/history/2026-03-runtime-era/` keeps the dated reports and thesis docs that described the old browse/design runtime-tool line.
 - Retired runtime-era package implementations are preserved through git history rather than a live package subtree in the current repo.
 
+## Reference Retirements
+
+- `docs/archive/history/2026-04-forge-core-cleanup/` keeps retired `forge-core` companion and canary reference docs that no longer belong on the active maintainer reading path.
+- These files are historical context only; use `packages/forge-core/references/reference-map.md` for the live reading path.
+- The same archive folder also keeps retired optional reference docs such as `extension-presets.md` and `frontend-stack-profiles.md` after tranche-4 cleanup narrowed the active maintainer set.
+
 ## Plans
 
 | Title | Original path | Status | Current replacement |

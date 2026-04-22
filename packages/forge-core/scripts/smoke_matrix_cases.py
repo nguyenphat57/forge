@@ -10,7 +10,6 @@ WORKSPACES_DIR = FIXTURES_DIR / "workspaces"
 FORGE_HOMES_DIR = FIXTURES_DIR / "forge-homes"
 RUN_HELPERS_DIR = FIXTURES_DIR / "run_helpers"
 
-ROUTE_CASES = json.loads((FIXTURES_DIR / "route_preview_cases.json").read_text(encoding="utf-8"))
 ROUTER_CASES = json.loads((FIXTURES_DIR / "router_check_cases.json").read_text(encoding="utf-8"))
 PREFERENCES_CASES = json.loads((FIXTURES_DIR / "preferences_cases.json").read_text(encoding="utf-8"))
 HELP_NEXT_CASES = json.loads((FIXTURES_DIR / "help_next_cases.json").read_text(encoding="utf-8"))

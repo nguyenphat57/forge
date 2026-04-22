@@ -1,5 +1,8 @@
 # Companion Routing Smoke Tests
 
+Archived from `packages/forge-core/references/companion-routing-smoke-tests.md` on 2026-04-22 during forge-core cleanup tranche 2.
+This file covers the retired companion-routing model and remains for historical context only.
+
 > Use this file to stress test Forge when a workspace layers in companion skills. It is not a required smoke test for Forge core on its own.
 
 ## Pass Criteria

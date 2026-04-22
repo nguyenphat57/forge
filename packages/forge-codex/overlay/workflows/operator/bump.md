@@ -5,7 +5,6 @@ name: bump
 type: flexible
 triggers:
   - explicit request to bump version or prepare a release
-  - optional alias: /bump
 quality_gates:
   - User-requested only: do not treat generic wrap-up as a bump request
   - Current version is stated and target version is either explicit or justified by inference

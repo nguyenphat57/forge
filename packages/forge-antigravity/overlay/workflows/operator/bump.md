@@ -2,7 +2,6 @@
 name: bump
 type: flexible
 triggers:
-  - shortcut: /bump
   - user explicitly asks for a version bump or release prep
 quality_gates:
   - User-requested only: do not treat generic wrap-up as a bump request
@@ -12,7 +11,7 @@ quality_gates:
 
 # Bump - Antigravity Operator Wrapper
 
-> Goal: make `/bump` clear for Antigravity users while keeping semver logic and the release checklist in core.
+> Goal: keep version-bump requests clear for Antigravity users while keeping semver logic and the release checklist in core.
 
 ## Process
 

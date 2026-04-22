@@ -9,6 +9,7 @@ Contents:
 - `AGENTS.example.md` for workspace integration
 - `AGENTS.global.md` for taking over the global Codex host entrypoint
 - `workflows/execution/dispatch-subagents.md` as a thin compatibility wrapper for `forge-dispatching-parallel-agents`
+- `workflows/operator/session.md` as the thin compatibility wrapper for `forge-session-management`
 - sibling Forge skills installed next to `forge-codex` for process activation
 - thin operator wrappers for natural-language-first `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`
 - `codex-operator-surface.md` for the adapter boundary and alias policy

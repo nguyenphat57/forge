@@ -1,40 +1,36 @@
 {
-  "updated_at": "2026-04-22T12:02:01+07:00",
+  "updated_at": "2026-04-22T13:35:00+07:00",
   "working_on": {
-    "feature": "wave-execution-removal",
-    "task": "Release Forge wave-execution removal as Forge 2.14.1, sync release and continuity surfaces, then push to main",
-    "status": "ready-for-merge",
+    "feature": "forge-core-cleanup-release",
+    "task": "Publish Forge 2.14.2 as the stable release after the forge-core cleanup, operator-only workflow cutover, and route-era retirement sweep",
+    "status": "pushed-to-main",
     "files": [
-      "packages/forge-core/scripts/route_delegation_packets.py",
-      "packages/forge-core/scripts/route_lane_plans.py",
-      "packages/forge-core/scripts/workflow_state_entries.py",
+      "packages/forge-core/data/orchestrator-registry.json",
+      "packages/forge-core/skills/writing-skills/SKILL.md",
       "packages/forge-core/scripts/workflow_state_summary.py",
-      "packages/forge-core/scripts/workflow_state_summary_refresh.py",
-      "packages/forge-core/scripts/run_wave_execution.py",
-      "packages/forge-core/scripts/wave_execution.py",
-      "packages/forge-core/scripts/wave_execution_state.py",
-      "packages/forge-core/tests/test_wave_execution.py",
-      "packages/forge-core/tests/test_route_delegation_packets.py",
-      "packages/forge-core/tests/fixtures/route_preview_cases.json",
+      "packages/forge-core/tests/test_contracts.py",
+      "packages/forge-core/workflows/operator/session.md",
+      "packages/forge-codex/overlay/workflows/operator/session.md",
       "CHANGELOG.md",
       "README.md",
       "VERSION",
       "docs/release/release-process.md",
       "docs/release/public-readiness.md",
+      "docs/release/package-matrix.json",
+      "docs/architecture/host-artifacts-manifest.json",
       ".brain/session.json",
       ".brain/handover.md",
-      ".brain/decisions.json"
+      ".brain/decisions.json",
+      "docs/plans/2026-04-22-forge-core-cleanup-implementation-plan.md"
     ]
   },
-  "pending_tasks": [
-    "Commit the verified 2.14.1 release sync, merge to main, and push origin/main."
-  ],
+  "pending_tasks": [],
   "recent_changes": [
-    "packages/forge-core/scripts/route_delegation_packets.py",
-    "packages/forge-core/scripts/route_lane_plans.py",
-    "packages/forge-core/scripts/workflow_state_entries.py",
+    "packages/forge-core/data/orchestrator-registry.json",
+    "packages/forge-core/skills/writing-skills/SKILL.md",
     "packages/forge-core/scripts/workflow_state_summary.py",
-    "packages/forge-core/scripts/workflow_state_summary_refresh.py",
+    "packages/forge-core/tests/test_contracts.py",
+    "packages/forge-core/workflows/operator/session.md",
     "CHANGELOG.md",
     "README.md",
     "VERSION",
@@ -42,19 +38,18 @@
     "docs/release/public-readiness.md"
   ],
   "verification": [
-    "python -m pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-22 after adapter bootstrap fix",
-    "python -m pytest tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-22",
-    "python scripts/generate_host_artifacts.py --check -> PASS on 2026-04-22",
-    "python -m pytest packages/forge-core/tests -q -> PASS on 2026-04-22 after wave-execution removal",
-    "python scripts/verify_repo.py -> PASS on 2026-04-22 after release surface sync"
+    "python -m pytest packages/forge-core/tests -q -> PASS on 2026-04-22 after forge-core cleanup completion",
+    "python -m pytest tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> PASS on 2026-04-22 after release surface alignment",
+    "python scripts/build_release.py --force --format json -> PASS on 2026-04-22",
+    "python scripts/verify_repo.py -> PASS on 2026-04-22 after 2.14.2 release sync"
   ],
   "decisions_made": [
-    "Forge no longer ships a dedicated wave-execution path.",
-    "parallel-split is the active parallel-safe delegation strategy on capable hosts.",
-    "Release-facing docs and continuity artifacts must track 2.14.1 as the current stable line."
+    "Forge core now keeps only the operator workflow compatibility surface, with session continuity moved under workflows/operator/session.md.",
+    "The shipped writing-skills bundle must include its referenced support files rather than relying on external cached copies.",
+    "Release-facing docs and continuity artifacts must track 2.14.2 as the current stable line."
   ],
   "risks": [
-    "Core routing and workflow-state surfaces changed, so canonical repo verification remains release-blocking."
+    "Historical route-preview workflow-state artifacts still need compatibility reads even though the route-preview generation path is retired."
   ],
   "blockers": [],
   "source_artifacts": [

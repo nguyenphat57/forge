@@ -34,7 +34,7 @@ If you were dispatched as a subagent to execute a specific task packet, skip thi
 ## How To Access Forge Workflows
 
 - Host bootstrap files explain activation and bindings; they do not replace sibling Forge skills.
-- Natural language is primary; host wrappers and slash aliases are optional convenience.
+- Natural language is primary; host wrappers stay secondary to explicit skill invocation and plain action names.
 - Sibling skills such as `forge-brainstorming`, `forge-writing-plans`, `forge-executing-plans`, `forge-systematic-debugging`, and `forge-verification-before-completion` are host-native skills.
 - Completion siblings include `forge-verification-before-completion` and `forge-finishing-a-development-branch`.
 - Compatibility files under `workflows/` are aliases, not the source of truth.

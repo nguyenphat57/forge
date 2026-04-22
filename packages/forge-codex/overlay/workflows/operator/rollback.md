@@ -5,7 +5,6 @@ name: rollback
 type: flexible
 triggers:
   - natural-language request to undo or roll back a release
-  - optional alias: /rollback
 quality_gates:
   - Scope and risk are classified first
   - Recovery strategy comes from the core planner

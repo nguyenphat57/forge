@@ -1,97 +1,14 @@
 ---
 name: customize
-type: flexible
-triggers:
-  - user wants to change explanation depth, tone, autonomy, pace, or feedback style
-  - user asks how to set language, diacritics, or writing conventions
-quality_gates:
-  - Current preferences are inspected before changing anything
-  - Durable changes use the canonical core schema and writer
-  - Workspace `.brain/preferences.json` is a supported repo-local scope, not a legacy-only escape hatch
-  - Read-only inspection does not mutate state files
-  - The response states what changed and how interaction will feel different
+type: compatibility-wrapper
 ---
 
-# Customize - Core Preference Flow
+# Customize Compatibility Wrapper
 
-> Goal: update durable Forge preferences without inventing adapter-local canonical schema or mutating state during inspection.
+Use this file only as a thin compatibility wrapper.
 
-<HARD-GATE>
-- Do not invent new canonical preference keys.
-- Do not overwrite the whole preference state when the user only changes one or two fields.
-- Do not mutate state during `resolve_preferences.py` inspection.
-- Keep `output_contract` intact in resolver/writer output.
-- Preserve workspace `.brain/preferences.json` as a first-class repo-local scope without cloning the full global state.
-</HARD-GATE>
+Canonical activation stays natural-language first, `python scripts/repo_operator.py customize --workspace <workspace> --format json`, and host-native `forge-*` skill discovery.
 
-## Process
+Inspect with `python scripts/resolve_preferences.py --workspace <workspace> --format json` and persist with `python scripts/write_preferences.py ... --apply`.
 
-1. Read current preferences first:
-
-```powershell
-python scripts/resolve_preferences.py --format json
-```
-
-2. Map the request into canonical fields when it is about tone or delivery style:
-   - `technical_level`
-   - `detail_level`
-   - `autonomy_level`
-   - `pace`
-   - `feedback_style`
-   - `personality`
-
-3. If the user wants durable language, orthography, or writing rules:
-   - persist them through `scripts/write_preferences.py`
-   - keep them in the unified canonical preferences object
-   - let adapters expand locale-specific output policy through bundle-local data instead of core-specific branching
-   - offer `--scope global|workspace|both` and preview the exact write plan before apply
-
-4. Preview or persist with the writer:
-
-```powershell
-python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct
-python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct --scope global --apply
-python scripts/write_preferences.py --language en --orthography plain_english --scope workspace --apply
-```
-
-5. Persistence notes:
-   - adapter-global values live in `state/preferences.json`
-   - repo-local values live in `.brain/preferences.json`
-   - workspace files stay sparse and only persist selected keys
-   - legacy split or native state may be migrated on `--apply`
-   - explicit `--preferences-file` inspection stays read-only and should target canonical `preferences.json`, not legacy `extra_preferences.json`
-
-6. Reply briefly with:
-   - which fields changed
-   - how the new response style will feel different
-   - whether any workspace-only overrides remain separate from adapter-global state
-
-## Output Contract
-
-```text
-Changed:
-- [...]
-
-New style:
-- [...]
-
-Workspace override:
-- [...]
-
-Impact:
-- [...]
-```
-
-## Activation Announcement
-
-```text
-Forge: customize | update canonical preferences, keep read-only inspection side-effect free
-```
-
-## Response Footer
-
-When this skill is used to complete a task, record its exact skill name in the global final line:
-
-`Skills used: customize`
-
-When multiple Forge skills are used, list each used skill exactly once in the shared `Skills used:` line. When no Forge skill is used for the response, use `Skills used: none`. Keep that `Skills used:` line as the final non-empty line of the response and do not add anything after it.
+Keep writes sparse, preserve canonical preference keys, and do not mutate state during read-only inspection.

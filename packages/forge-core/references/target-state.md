@@ -57,7 +57,7 @@ Challenge a change when it mainly adds:
 
 - Apply the 1% rule before any substantive response or action.
 - Host-discoverable Forge sibling skills are the primary activation surface.
-- Compatibility workflow files are wrappers, not the source of truth.
+- Operator/session workflow files are wrappers, not the source of truth.
 - `help` and `next` are artifact-backed audit sidecars, not the source of truth.
 - Verification language must be earned with fresh proof.
 - Python is for invariants, state, and preferences, not the main public operating model.
@@ -79,7 +79,7 @@ The live contract after the split-skill cutover is intentionally narrow:
 
 - the public story is now skill-first rather than route-preview-first
 - `packages/forge-core/skills/*/SKILL.md` is the canonical process source
-- `packages/forge-core/workflows/` is compatibility wrapper surface only
+- `packages/forge-core/workflows/` is operator/session compatibility wrapper surface only
 - installing host adapters installs the sibling Forge skill family
 - the 1% rule is explicit before any substantive response or action
 - `help` and `next` are framed as artifact-backed audit sidecars

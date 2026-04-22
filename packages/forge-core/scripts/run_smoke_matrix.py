@@ -18,7 +18,7 @@ from smoke_matrix_suites import SUITE_RUNNERS
 def main() -> int:
     configure_stdio()
 
-    parser = argparse.ArgumentParser(description="Run Forge smoke matrices for route preview and router checks.")
+    parser = argparse.ArgumentParser(description="Run Forge smoke matrices for current operator flows and router checks.")
     parser.add_argument(
         "--suite",
         choices=[*SUITE_RUNNERS.keys(), "all"],

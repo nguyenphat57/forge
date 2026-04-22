@@ -5,7 +5,6 @@ name: next
 type: flexible
 triggers:
   - natural-language request for the next action
-  - optional alias: /next
 quality_gates:
   - Repo state inspected before advice
   - One concrete next step only

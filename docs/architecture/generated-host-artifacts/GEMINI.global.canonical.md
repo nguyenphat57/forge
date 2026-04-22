@@ -37,8 +37,8 @@ Before the first substantive reply in every new conversation:
 
 ## Core Routing Rules
 
-- Natural language is the primary surface; slash commands are optional aliases.
-- Unknown slash commands are plain user input unless they are mapped here or by a workspace-local router.
+- Natural language is the primary surface.
+- Unknown slash commands are plain user input unless the host maps them to an installed Forge skill or a workspace-local router.
 - Check Forge skills before any response or action. If there is even a 1% chance a Forge skill applies, invoke it first.
 - Process skills come before implementation skills.
 - Sibling Forge skills are host-native skills, not internal workflow files.
@@ -87,35 +87,16 @@ Rules:
 - Keep the `Skills used:` line as the final non-empty line when it is present
 - Do not add any content after that line
 
-## Command Aliases
+## Operator Surface
 
-Treat each slash command as a compatibility alias. Canonical activation happens through host-native Forge skill discovery.
-
-Compatibility aliases:
-
-| Command | Skill |
-|---------|----------|
-| `/brainstorm` | `forge-brainstorming` |
-| `/plan` | `forge-writing-plans` |
-| `/code` | `forge-executing-plans` |
-| `/debug` | `forge-systematic-debugging` |
-| `/test` | `forge-test-driven-development` |
-| `/review` | review wrapper chooses requesting vs receiving |
-| `/refactor` | `forge-test-driven-development` + `forge-executing-plans` |
-| `/audit` | `forge-requesting-code-review` + `forge-verification-before-completion` |
-| `/deploy` | `forge-verification-before-completion` |
-
-Primary operator aliases:
-
-| Command | Target |
-|---------|----------|
-{{FORGE_ANTIGRAVITY_PRIMARY_OPERATOR_ALIAS_ROWS}}
+- Natural-language requests remain the preferred entrypoint.
+- Explicit operator action names stay available when a concise form helps: `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`.
 
 Session requests stay natural-language:
 
 {{FORGE_ANTIGRAVITY_SESSION_REQUEST_EXAMPLES}}
 
-There is no `/gate` alias; completion claims use `forge-verification-before-completion`.
+Completion claims use `forge-verification-before-completion`.
 
 ## Activation Announcement
 

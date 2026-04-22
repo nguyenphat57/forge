@@ -49,7 +49,7 @@ Goal: record a fast pass/fail verdict for the Codex host surface after `forge-co
 
 |Item | Result|
 |------|--------|
-|Prompt used | `/help` or `Help me figure out the next step from the repo state.`|
+|Prompt used | `Help me figure out the next step from the repo state.`|
 |Used `help` sidecar? |  |
 |Repo-first? |  |
 |Score |  |
@@ -58,35 +58,35 @@ Goal: record a fast pass/fail verdict for the Codex host surface after `forge-co
 
 |Item | Result|
 |------|--------|
-|Prompt used | `/run` plus a real repo command|
+|Prompt used | A natural-language request to run a real repo command|
 |Command executed for real? |  |
 |Output summarized correctly? |  |
 |Suggested next skill or wrapper correct? |  |
 |Score |  |
 
-### CT-04: Build alias
+### CT-04: Build request
 
 |Item | Result|
 |------|--------|
-|Prompt used | `/code` plus a behavioral change|
+|Prompt used | A behavioral change request in natural language|
 |Invoked `forge-executing-plans`? |  |
 |Verification strategy stated before editing? |  |
 |Score |  |
 
-### CT-05: Review alias
+### CT-05: Review request
 
 |Item | Result|
 |------|--------|
-|Prompt used | `/review`|
+|Prompt used | `Review the current changes before merging.`|
 |Findings shown before the summary? |  |
 |Testing gaps stated? |  |
 |Score |  |
 
-### CT-06: Delegate alias
+### CT-06: Delegate request
 
 |Item | Result|
 |------|--------|
-|Prompt used | `/delegate` plus a clear splittable task|
+|Prompt used | A clear splittable delegation request in natural language|
 |Invoked `forge-dispatching-parallel-agents`? |  |
 |Ownership explicit before spawn? |  |
 |Reviewer independence preserved? |  |

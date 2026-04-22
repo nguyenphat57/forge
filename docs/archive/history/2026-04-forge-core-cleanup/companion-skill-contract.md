@@ -1,4 +1,7 @@
-## Companion Skill Contract
+# Companion Skill Contract
+
+Archived from `packages/forge-core/references/companion-skill-contract.md` on 2026-04-22 during forge-core cleanup tranche 2.
+This file describes the retired companion-skill extension model and remains for historical context only.
 
 > Goal: describe how Forge can add runtime or framework skills without diluting Forge's orchestration, verification, or reporting rules.
 > This is an optional extension layer. Forge core should remain effective even when no companion or local skills exist.

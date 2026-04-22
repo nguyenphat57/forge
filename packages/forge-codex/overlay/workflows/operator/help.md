@@ -5,7 +5,6 @@ name: help
 type: flexible
 triggers:
   - natural-language request for guidance or what to do next
-  - optional alias: /help
 quality_gates:
   - Repo state inspected before advice
   - One primary recommendation plus at most two alternatives

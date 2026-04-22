@@ -2,17 +2,17 @@
 
 # Antigravity Operator Surface
 
-## Primary Wrappers
+## Natural-Language First
 
-| Surface | Wrapper | Core contract |
-|---------|---------|---------------|
-| `/help` | `workflows/operator/help.md` | `scripts/resolve_help_next.py --workspace <workspace> --mode help` |
-| `/next` | `workflows/operator/next.md` | `scripts/resolve_help_next.py --workspace <workspace> --mode next` |
-| `/run` | `workflows/operator/run.md` | `scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>` |
-| `/bump` | `workflows/operator/bump.md` | `scripts/prepare_bump.py --workspace <workspace> --bump <version|major|minor|patch>` |
-| `/rollback` | `workflows/operator/rollback.md` | `scripts/resolve_rollback.py --scope <scope>` |
-| `/customize` | `workflows/operator/customize.md` | `scripts/resolve_preferences.py --workspace <workspace> --format json && scripts/write_preferences.py` |
-| `/init` | `workflows/operator/init.md` | `scripts/initialize_workspace.py --workspace <workspace>` |
+Preferred user phrasing:
+
+- "Help me figure out the next step" -> `help`
+- "What should I do next?" -> `next`
+- "Run `npm test` and tell me what to do after" -> `run`
+- "Bump this to 0.5.0" -> `bump`
+- "We need to roll back the last deployment" -> `rollback`
+- "Give shorter answers and move faster" -> `customize`
+- "Bootstrap this workspace for Forge" -> `init`
 
 ## Natural-Language Session Requests
 
@@ -22,6 +22,8 @@
 
 ## Session Rules
 
+- Natural language is the primary surface.
+- Explicit operator action names such as `help` or `customize` are acceptable when a concise form helps.
 - Wrapper docs may use a more operator-friendly presentation.
 - Core semantics, schema, and deterministic scripts must not be forked.
 - Session requests should stay natural-language first: ask to `resume`, `save context`, or leave a `handover`.

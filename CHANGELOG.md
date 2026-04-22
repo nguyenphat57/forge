@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.14.2 (stable) - 2026-04-22
+
+- Collapse the live `forge-core` workflow compatibility surface to `workflows/operator/*`, move `session.md` under `operator/`, retire stale workflow aliases, and align generated Codex host artifacts plus release metadata with the operator-only contract.
+- Fill the `forge-core` `writing-skills` bundle with the missing reference, example, agent, and graph-rendering support files so the shipped skill matches its documented surface and contract coverage.
+- Complete the `forge-core` cleanup sweep by archiving stale references, deleting dead workflow and route-preview-era scripts and tests, shrinking `tooling.md` into a thin pointer, and refreshing release plus continuity state around `2.14.2` as the current stable line.
+
+
 ## 2.14.1 (stable) - 2026-04-22
 
 - Remove the dedicated wave-execution path from Forge by deleting the wave planner and state scripts, retiring the wave-specific tests, and returning capable hosts to the simpler `parallel-split` delegation strategy.
