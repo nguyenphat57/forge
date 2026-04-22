@@ -11,6 +11,25 @@ from unittest.mock import patch
 
 from release_repo_test_support import ROOT_DIR, ReleaseRepoTestSupport, build_release
 
+EXPECTED_SIBLING_SKILL_REFERENCES = {
+    "forge-brainstorming": [
+        "references/design/architectural-lens.md",
+        "references/design/visual-companion-guidance.md",
+    ],
+    "forge-subagent-driven-development": [
+        "references/subagent-execution.md",
+        "references/subagent-prompts/final-reviewer-prompt.md",
+        "references/subagent-prompts/implementer-prompt.md",
+        "references/subagent-prompts/quality-reviewer-prompt.md",
+        "references/subagent-prompts/spec-reviewer-prompt.md",
+    ],
+    "forge-systematic-debugging": [
+        "references/debugging/condition-based-waiting.md",
+        "references/debugging/defense-in-depth.md",
+        "references/debugging/root-cause-tracing.md",
+    ],
+}
+
 
 class ReleaseRepoContractTests(ReleaseRepoTestSupport):
     def init_git_repo(self, root: Path) -> None:
@@ -66,12 +85,13 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
             ROOT_DIR / "docs" / "current" / "architecture.md",
             ROOT_DIR / "docs" / "current" / "install-and-activation.md",
             ROOT_DIR / "docs" / "current" / "operator-surface.md",
+            ROOT_DIR / "docs" / "current" / "kernel-tooling.md",
+            ROOT_DIR / "docs" / "current" / "target-state.md",
+            ROOT_DIR / "docs" / "architecture" / "architecture-layers.md",
             ROOT_DIR / "docs" / "release" / "install.md",
             ROOT_DIR / "docs" / "release" / "release-process.md",
-            ROOT_DIR / "packages" / "forge-core" / "references" / "backend-briefs.md",
-            ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md",
-            ROOT_DIR / "packages" / "forge-core" / "references" / "tooling.md",
-            ROOT_DIR / "packages" / "forge-core" / "references" / "ui-briefs.md",
+            ROOT_DIR / "packages" / "forge-skills" / "brainstorming" / "references" / "backend-briefs.md",
+            ROOT_DIR / "packages" / "forge-skills" / "brainstorming" / "references" / "ui-briefs.md",
         ]
 
         for needle in (
@@ -203,6 +223,12 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
             "workflows/operator/init.md",
             "workflows/operator/next.md",
             "workflows/operator/rollback.md",
+            "workflows/operator/references/bump-release.md",
+            "workflows/operator/references/help-next.md",
+            "workflows/operator/references/personalization.md",
+            "workflows/operator/references/rollback-guidance.md",
+            "workflows/operator/references/run-guidance.md",
+            "workflows/operator/references/workspace-init.md",
             "workflows/operator/run.md",
             "workflows/operator/session.md",
         }
@@ -285,8 +311,9 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
                     self.assertFalse((home / ".forge").exists())
 
     def test_split_skill_target_tokens_are_visible(self) -> None:
-        target_state = (ROOT_DIR / "packages" / "forge-core" / "references" / "target-state.md").read_text(encoding="utf-8")
-        reference_map = (ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md").read_text(encoding="utf-8")
+        target_state = (ROOT_DIR / "docs" / "current" / "target-state.md").read_text(encoding="utf-8")
+        architecture_layers = (ROOT_DIR / "docs" / "architecture" / "architecture-layers.md").read_text(encoding="utf-8")
+        help_next = (ROOT_DIR / "packages" / "forge-core" / "workflows" / "operator" / "references" / "help-next.md").read_text(encoding="utf-8")
         skill = (ROOT_DIR / "packages" / "forge-core" / "SKILL.md").read_text(encoding="utf-8")
 
         for token in (
@@ -298,17 +325,21 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
             with self.subTest(token=token):
                 self.assertIn(token, target_state)
 
-        for token in ("packages/forge-core/skills/", "architecture-layers.md", "help-next.md"):
+        for token, text in (
+            ("packages/forge-skills/", architecture_layers),
+            ("Sibling Skill Pack", architecture_layers),
+            ("docs/current/target-state.md", help_next),
+        ):
             with self.subTest(reference_token=token):
-                self.assertIn(token, reference_map)
+                self.assertIn(token, text)
 
         for token in ("Forge sibling skills", "1% chance", "Proof before claims"):
             with self.subTest(skill_token=token):
                 self.assertIn(token, skill)
 
     def test_current_split_skill_operating_contract_tokens_are_visible(self) -> None:
-        target_state = (ROOT_DIR / "packages" / "forge-core" / "references" / "target-state.md").read_text(encoding="utf-8")
-        reference_map = (ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md").read_text(encoding="utf-8")
+        target_state = (ROOT_DIR / "docs" / "current" / "target-state.md").read_text(encoding="utf-8")
+        operator_surface = (ROOT_DIR / "docs" / "current" / "operator-surface.md").read_text(encoding="utf-8")
 
         for token in (
             "## Current Contract Closure",
@@ -320,20 +351,20 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
                 self.assertIn(token, target_state)
 
         for token in (
-            "current split-skill",
-            "When verifying current contract alignment",
-            "Do not teach `workflows/` files as the primary activation surface.",
+            "Forge sibling skills",
+            "Source Repo",
+            "repo_operator.py",
         ):
             with self.subTest(reference_token=token):
-                self.assertIn(token, reference_map)
+                self.assertIn(token, operator_surface)
 
     def test_surface_slim_split_skill_tokens_are_visible(self) -> None:
-        target_state = (ROOT_DIR / "packages" / "forge-core" / "references" / "target-state.md").read_text(encoding="utf-8")
-        reference_map = (ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md").read_text(encoding="utf-8")
+        target_state = (ROOT_DIR / "docs" / "current" / "target-state.md").read_text(encoding="utf-8")
+        install_activation = (ROOT_DIR / "docs" / "current" / "install-and-activation.md").read_text(encoding="utf-8")
 
         for token in (
             "docs/current/",
-            "packages/forge-core/skills/*/SKILL.md",
+            "packages/forge-skills/*/SKILL.md",
             "generated host artifacts bootstrap-only",
             "There is no active roadmap tranche now.",
         ):
@@ -341,12 +372,12 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
                 self.assertIn(token, target_state)
 
         for token in (
-            "docs/current/operator-surface.md",
-            "docs/current/install-and-activation.md",
-            "docs/archive/INDEX.md",
+            "docs/current/",
+            "packages/forge-skills/",
+            "Generated host artifacts remain bootstrap-only",
         ):
             with self.subTest(reference_token=token):
-                self.assertIn(token, reference_map)
+                self.assertIn(token, install_activation)
 
     def test_readme_start_here_onboarding_tokens_remain_visible(self) -> None:
         readme = (ROOT_DIR / "README.md").read_text(encoding="utf-8")
@@ -382,3 +413,24 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         )
         self.assert_bump_wrapper_matches_release_contract(antigravity_bump, label="forge-antigravity")
         self.assert_bump_wrapper_matches_release_contract(codex_bump, label="forge-codex")
+
+    def test_sibling_skill_build_manifests_declare_self_contained_reference_files(self) -> None:
+        build_release.build_all()
+
+        for skill_name, relative_paths in EXPECTED_SIBLING_SKILL_REFERENCES.items():
+            manifest_path = ROOT_DIR / "dist" / skill_name / "BUILD-MANIFEST.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            required = set(manifest["packaging"]["required_bundle_paths"])
+            with self.subTest(skill=skill_name):
+                self.assertEqual(manifest["packaging"]["default_target_strategy"], "sibling-skill")
+                for relative_path in relative_paths:
+                    self.assertIn(relative_path, required)
+
+    def test_dist_sibling_skill_bundles_keep_their_local_reference_files(self) -> None:
+        build_release.build_all()
+
+        for skill_name, relative_paths in EXPECTED_SIBLING_SKILL_REFERENCES.items():
+            bundle_root = ROOT_DIR / "dist" / skill_name
+            for relative_path in relative_paths:
+                with self.subTest(skill=skill_name, path=relative_path):
+                    self.assertTrue((bundle_root / relative_path).exists())

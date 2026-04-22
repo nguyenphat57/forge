@@ -39,6 +39,7 @@ COMMON_BUILD_INPUTS = (
     ROOT_DIR / "VERSION",
     ROOT_DIR / "docs" / "release" / "package-matrix.json",
     ROOT_DIR / "docs" / "architecture" / "host-artifacts-manifest.json",
+    ROOT_DIR / "docs" / "current" / "target-state.md",
     ROOT_DIR / "scripts" / "build_release.py",
     ROOT_DIR / "scripts" / "bundle_fingerprint.py",
     ROOT_DIR / "scripts" / "host_artifact_manifest.py",
@@ -132,6 +133,16 @@ def prune_cached_python_artifacts(root: Path) -> None:
     for path in sorted(root.rglob("*")):
         if path.name == "__pycache__" or path.suffix.lower() == ".pyc":
             remove_path(path)
+
+
+def remove_bundled_skill_tree(destination: Path) -> None:
+    skill_dir = destination / "skills"
+    if skill_dir.exists():
+        remove_tree(skill_dir)
+
+
+def copy_runtime_docs(destination: Path) -> None:
+    copy_file(ROOT_DIR / "docs" / "current" / "target-state.md", destination / "docs" / "current" / "target-state.md")
 
 
 def apply_overlay(overlay_dir: Path, destination: Path, *, ignored_relative_paths: set[str] | None = None) -> None:
@@ -262,10 +273,16 @@ def write_sibling_skill_manifest(
     *,
     source_input_fingerprint: dict | None = None,
 ) -> None:
+    source_dir = sibling_skill_source_dir(package_name)
+    required_bundle_paths = ["BUILD-MANIFEST.json"] + [
+        str(path.relative_to(source_dir).as_posix())
+        for path in sorted(source_dir.rglob("*"))
+        if path.is_file()
+    ]
     manifest = {
         "package": package_name,
         "host": "skill",
-        "source": str(sibling_skill_source_dir(package_name).relative_to(ROOT_DIR)),
+        "source": str(source_dir.relative_to(ROOT_DIR)),
         "version": metadata["version"],
         "git_revision": metadata["git_revision"],
         "git_tree": metadata["git_tree"],
@@ -273,7 +290,7 @@ def write_sibling_skill_manifest(
         "packaging": {
             "matrix_path": str(PACKAGE_MATRIX_PATH.relative_to(ROOT_DIR).as_posix()),
             "default_target_strategy": "sibling-skill",
-            "required_bundle_paths": ["BUILD-MANIFEST.json", "SKILL.md"],
+            "required_bundle_paths": required_bundle_paths,
         },
         "bundle_fingerprint": compute_bundle_fingerprint(destination),
         "source_input_fingerprint": copy.deepcopy(source_input_fingerprint),
@@ -291,7 +308,13 @@ def write_sibling_skill_manifest(
 def required_bundle_paths(destination: Path, package_name: str, host: str) -> list[Path]:
     del host
     if package_name in sibling_skill_names():
-        return [destination / "SKILL.md", destination / "BUILD-MANIFEST.json"]
+        source_dir = sibling_skill_source_dir(package_name)
+        relative_files = [
+            path.relative_to(source_dir)
+            for path in sorted(source_dir.rglob("*"))
+            if path.is_file()
+        ]
+        return [destination / "BUILD-MANIFEST.json", *[destination / path for path in relative_files]]
     paths = bundle_required_paths(package_name, destination)
     build_manifest_path = destination / "BUILD-MANIFEST.json"
     if build_manifest_path not in paths:
@@ -385,6 +408,8 @@ def build_core_bundle(metadata: dict[str, object], *, force: bool = False) -> di
     for attempt in range(BUNDLE_BUILD_ATTEMPTS):
         clean_dir(destination)
         copy_tree(CORE_DIR, destination)
+        remove_bundled_skill_tree(destination)
+        copy_runtime_docs(destination)
         write_build_manifest(
             destination,
             "forge-core",
@@ -426,6 +451,8 @@ def build_adapter_bundle(spec: dict, metadata: dict[str, object], *, force: bool
     for attempt in range(BUNDLE_BUILD_ATTEMPTS):
         clean_dir(destination)
         copy_tree(CORE_DIR, destination)
+        remove_bundled_skill_tree(destination)
+        copy_runtime_docs(destination)
         apply_overlay(
             overlay_dir,
             destination,

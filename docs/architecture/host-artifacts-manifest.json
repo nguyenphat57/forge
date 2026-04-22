@@ -85,8 +85,8 @@
     {
       "name": "forge-codex-operator-surface-reference",
       "bundle": "forge-codex",
-      "source": "docs/architecture/generated-host-artifacts/codex/references/codex-operator-surface.md",
-      "output": "packages/forge-codex/overlay/references/codex-operator-surface.md"
+      "source": "docs/architecture/generated-host-artifacts/codex/docs/codex-operator-surface.md",
+      "output": "packages/forge-codex/overlay/docs/codex-operator-surface.md"
     },
     {
       "name": "forge-antigravity-global-gemini",
@@ -97,8 +97,8 @@
     {
       "name": "forge-antigravity-operator-surface-reference",
       "bundle": "forge-antigravity",
-      "source": "docs/architecture/generated-host-artifacts/antigravity/references/antigravity-operator-surface.md",
-      "output": "packages/forge-antigravity/overlay/references/antigravity-operator-surface.md"
+      "source": "docs/architecture/generated-host-artifacts/antigravity/docs/antigravity-operator-surface.md",
+      "output": "packages/forge-antigravity/overlay/docs/antigravity-operator-surface.md"
     }
   ]
 }

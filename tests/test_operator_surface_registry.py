@@ -56,7 +56,19 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
 
     def test_current_docs_spine_stays_closed(self) -> None:
         current_docs = {path.name for path in (ROOT_DIR / "docs" / "current").glob("*.md")}
-        self.assertEqual(current_docs, {"architecture.md", "install-and-activation.md", "operator-surface.md"})
+        self.assertEqual(
+            current_docs,
+            {
+                "architecture.md",
+                "constitution-lite.md",
+                "install-and-activation.md",
+                "kernel-tooling.md",
+                "operator-surface.md",
+                "smoke-test-checklist.md",
+                "smoke-tests.md",
+                "target-state.md",
+            },
+        )
 
     def test_codex_overlay_registry_keeps_session_surface_primary_only(self) -> None:
         registry = load_bundle_registry("forge-codex")
@@ -87,8 +99,8 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
 
     def test_generated_operator_surface_docs_reflect_registry_posture(self) -> None:
         repo_surface = (ROOT_DIR / "docs" / "current" / "operator-surface.md").read_text(encoding="utf-8")
-        codex_surface = (ROOT_DIR / "packages" / "forge-codex" / "overlay" / "references" / "codex-operator-surface.md").read_text(encoding="utf-8")
-        antigravity_surface = (ROOT_DIR / "packages" / "forge-antigravity" / "overlay" / "references" / "antigravity-operator-surface.md").read_text(encoding="utf-8")
+        codex_surface = (ROOT_DIR / "packages" / "forge-codex" / "overlay" / "docs" / "codex-operator-surface.md").read_text(encoding="utf-8")
+        antigravity_surface = (ROOT_DIR / "packages" / "forge-antigravity" / "overlay" / "docs" / "antigravity-operator-surface.md").read_text(encoding="utf-8")
         antigravity_global = (ROOT_DIR / "packages" / "forge-antigravity" / "overlay" / "GEMINI.global.md").read_text(encoding="utf-8")
 
         self.assertNotIn("`bootstrap`", repo_surface)
@@ -123,13 +135,16 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         self.assertNotIn("\ufffd", text)
         self.assertIn("scripts/repo_operator.py", text)
 
-    def test_current_reference_pointers_do_not_target_superseded_roadmaps(self) -> None:
-        reference_map = (ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md").read_text(encoding="utf-8")
+    def test_current_docs_do_not_target_superseded_roadmaps(self) -> None:
+        target_state = (ROOT_DIR / "docs" / "current" / "target-state.md").read_text(encoding="utf-8")
+        operator_surface = (ROOT_DIR / "docs" / "current" / "operator-surface.md").read_text(encoding="utf-8")
         archive_index = (ROOT_DIR / "docs" / "archive" / "INDEX.md").read_text(encoding="utf-8")
 
-        self.assertIn("current repo posture", reference_map)
-        self.assertNotIn("Active roadmap tranche for the current kernel-only contraction line", reference_map)
-        self.assertNotIn("docs/plans/2026-04-11-forge-slim-refactor-v2.md", reference_map)
+        self.assertIn("Current Contract Closure", target_state)
+        self.assertIn("## Source Repo", operator_surface)
+        self.assertIn("repo_operator.py", operator_surface)
+        self.assertNotIn("Active roadmap tranche for the current kernel-only contraction line", target_state)
+        self.assertNotIn("docs/plans/2026-04-11-forge-slim-refactor-v2.md", target_state)
         self.assertIn("docs/plans/forge_refactor_V3.md", archive_index)
         self.assertNotIn("docs/plans/2026-04-11-forge-slim-refactor-v2.md", archive_index)
         self.assertNotIn("docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md` |", archive_index)

@@ -196,7 +196,7 @@
         "status":  "resolved",
         "evidence":  [
                          "docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md",
-                         "packages/forge-core/references/target-state.md",
+                         "docs/current/target-state.md",
                          "packages/forge-core/references/reference-map.md",
                          "tests/test_release_hardening.py",
                          "python scripts/verify_repo.py -\u003e PASS on 2026-04-02"
@@ -594,7 +594,7 @@
         "id":  "20260422-000000",
         "kind":  "decision",
         "scope":  "forge-2-14-stable-status",
-        "summary":  "Treat 2.14.4 as the current stable Forge release because the superpowers-wording removal pass, release surface sync, and canonical verification checks are complete.",
+        "summary":  "Treat 2.14.4 as a superseded Forge stable slice because the later 2.14.5 sibling-skill and reference ownership migration release replaced its stable line after a fresh release sync and canonical verification checks.",
         "status":  "resolved",
         "evidence":  [
                          "VERSION",
@@ -624,8 +624,41 @@
                      "wording",
                      "verification"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 2.14.4 verification evidence.",
+        "revisit_if":  "Release archaeology needs the original 2.14.4 proof chain or later evidence invalidates the recorded verification.",
         "trigger":  "patch-release",
         "resume_hint":  "Resume only if a later audit needs the original 2.14.4 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260423-000000",
+        "kind":  "decision",
+        "scope":  "forge-2-14-5-stable-status",
+        "summary":  "Treat 2.14.5 as the current stable Forge release because the sibling-skill and reference ownership migration, release surface sync, and canonical verification checks are complete.",
+        "status":  "resolved",
+        "evidence":  [
+                         "VERSION",
+                         "CHANGELOG.md",
+                         "README.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "packages/forge-skills/",
+                         "packages/forge-core/workflows/operator/references/",
+                         "python -m pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-22",
+                         "python -m pytest tests/release_repo_test_contracts.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py tests/release_repo_test_overlays.py tests/test_operator_surface_registry.py tests/test_release_hardening.py -q -> PASS on 2026-04-22",
+                         "python scripts/build_release.py --format json -> PASS on 2026-04-22",
+                         "python scripts/verify_repo.py -> PASS on 2026-04-23"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "forge-skills",
+                     "references",
+                     "verification"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 2.14.5 verification evidence.",
+        "trigger":  "patch-release",
+        "resume_hint":  "Resume only if a later audit needs the original 2.14.5 proof chain or invalidates the recorded verification."
     }
 ]

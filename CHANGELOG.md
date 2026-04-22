@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.14.5 (stable) - 2026-04-23
+
+- Move canonical sibling skill ownership to `packages/forge-skills`, colocate skill-owned and workflow-owned references with their real owners, and remove the remaining root `references/` tree from active `forge-core` source plus runtime bundles.
+- Refresh release/build/install contracts so `forge-core`, `forge-codex`, and `forge-antigravity` ship runtime docs under `docs/**`, keep owner-local skill and workflow companions bundled in place, and align `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` on `2.14.5` as the current stable line.
+
+
 ## 2.14.4 (stable) - 2026-04-22
 
 - Remove the remaining `superpowers` wording from active skill, reference, test, and historical source surfaces, including legacy doc paths that still exposed the old label.

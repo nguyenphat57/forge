@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-04-22T13:18:52+00:00",
+  "updated_at": "2026-04-23T00:01:48.8371310+07:00",
   "working_on": {
     "feature": "forge-skill-wording-hardening-release",
-    "task": "Publish Forge 2.14.4 as the stable release after removing the remaining superpowers wording across source and release surfaces",
+    "task": "Publish Forge 2.14.5 as the stable release after migrating sibling skill ownership to forge-skills and removing the root references tree from active source and runtime bundles",
     "status": "pushed-to-main",
     "files": [
       "packages/forge-core/skills/brainstorming/SKILL.md",
@@ -56,12 +56,12 @@
     "pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-22 after the six-skill wording hardening pass",
     "python scripts/generate_host_artifacts.py --check --format json -> PASS on 2026-04-22",
     "python scripts/generate_overlay_skills.py --check --format json -> PASS on 2026-04-22",
-    "python scripts/verify_repo.py -> PASS on 2026-04-22 after 2.14.4 release sync"
+    "python scripts/verify_repo.py -> PASS on 2026-04-23 after 2.14.5 release sync"
   ],
   "decisions_made": [
     "Forge wording hardening should target six medium-leverage workflow skills instead of sweeping the entire skill set.",
     "The hardening pass should increase scanability and coercion with selective emphasis while preserving Forge's contract-first tone.",
-    "Release-facing docs and continuity artifacts must track 2.14.4 as the current stable line."
+    "Release-facing docs and continuity artifacts must track 2.14.5 as the current stable line."
   ],
   "risks": [
     "A later pass may still need to align the surface tone of subagent-driven-development and receiving-code-review with the hardened six-skill set."

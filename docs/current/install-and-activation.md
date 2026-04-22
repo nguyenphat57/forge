@@ -7,8 +7,9 @@ Describe the current install and activation contract after the split-skill markd
 ## Product Line
 
 - Forge still builds the three kernel bundles: `forge-core`, `forge-codex`, and `forge-antigravity`.
-- Installing `forge-codex` or `forge-antigravity` also installs the sibling Forge skill family from `packages/forge-core/skills/`.
-- `forge-core` owns the host-neutral bootstrap, sibling skill sources, operator/session compatibility wrappers, and invariant tooling.
+- Installing `forge-codex` or `forge-antigravity` also installs the sibling Forge skill family from `packages/forge-skills/`.
+- `forge-core` owns the host-neutral bootstrap, operator/session compatibility wrappers, and invariant tooling.
+- `packages/forge-skills/` owns the canonical sibling skill sources that host installs materialize.
 - Host bundles add bootstrap files, wrapper language, host-specific access mapping, and shared-script access without forking skill meaning.
 
 ## Activation Model
@@ -24,7 +25,7 @@ Describe the current install and activation contract after the split-skill markd
 
 ## Source Repo Versus Installed Runtime
 
-- Source repo docs under `docs/current/` and `packages/forge-core/references/` are the canonical maintainer explanation layer.
+- Source repo docs under `docs/current/`, `docs/architecture/`, and owner-local companion folders are the canonical maintainer explanation layer.
 - Installed runtime artifacts are distribution outputs and should stay aligned with those sources.
 - Installed sibling skills are lightweight markdown entrypoints. Shared scripts, data, and state machinery stay in the installed orchestrator bundle.
 - If installed wrappers drift from source markdown, fix the source markdown and generation path rather than teaching the generated wrapper as canonical.

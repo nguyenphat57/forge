@@ -105,4 +105,3 @@ Report:
 - Current state: `in-progress`, `ready-for-review`, or `blocked-by-residual-risk`
 - Next skill if needed
 
-Shared scripts and references live in the installed Forge orchestrator bundle.

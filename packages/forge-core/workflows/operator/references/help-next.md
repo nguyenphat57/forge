@@ -6,7 +6,7 @@
 
 - Canonical engine: `scripts/resolve_help_next.py`
 - Workflow wrappers: `workflows/operator/help.md` and `workflows/operator/next.md`
-- Strategic policy filter for Forge contract-sensitive choices: `references/target-state.md`
+- Strategic policy filter for Forge contract-sensitive choices: `docs/current/target-state.md`
 - Preferred sources, in order:
   1. `git status`
   2. `.forge-artifacts/workflow-state/<project>/latest.json` when execution or stage state is already persisted
@@ -54,7 +54,7 @@
 - For medium+ work, prefer answers that point at the durable artifact to create or refresh next.
 - When context is weak, say clearly that the repo does not provide enough signal.
 - If runtime health is stale or broken for browser proof, recommend the recorded runtime recovery command or guidance before retrying packet proof claims.
-- When operating on Forge itself or choosing between multiple valid Forge directions, prefer the move that best matches `references/target-state.md`.
+- When operating on Forge itself or choosing between multiple valid Forge directions, prefer the move that best matches `docs/current/target-state.md`.
 
 ## Adapter Boundary
 

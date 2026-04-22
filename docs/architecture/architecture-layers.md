@@ -16,7 +16,7 @@ If a change crosses layers, the change must say so explicitly and preserve the b
 
 Core is the reusable engine:
 
-- host-neutral bootstrap and sibling skill contract
+- host-neutral bootstrap and sibling skill activation contract
 - operator/session compatibility wrappers
 - verification contracts
 - shared references and schemas
@@ -25,13 +25,23 @@ Core is the reusable engine:
 Canonical locations:
 
 - `packages/forge-core/SKILL.md`
-- `packages/forge-core/skills/`
 - `packages/forge-core/workflows/`
-- `packages/forge-core/references/`
+- `docs/current/`
+- `docs/architecture/`
 - `packages/forge-core/data/`
 - `packages/forge-core/scripts/`
 
 Core must not depend on a single host entry file such as `AGENTS.md` or `GEMINI.md`.
+
+## Sibling Skill Pack
+
+The sibling skill pack is adjacent to core, not inside it:
+
+- `packages/forge-skills/`
+
+It owns public Forge process skill meaning and any skill-owned `references/**` companions. Core may name and activate sibling skills, but it must not carry a canonical `skills/` subtree or duplicate skill-owned references.
+
+Release builds materialize the skill pack as public `dist/forge-*` skill directories. Adapter bundles such as `dist/forge-codex` and `dist/forge-antigravity` must not contain an internal `skills/` subtree.
 
 ## Layer 2: Generated Artifacts
 

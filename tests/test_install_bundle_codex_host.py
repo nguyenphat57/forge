@@ -37,6 +37,25 @@ FORGE_SIBLING_SKILLS = [
     "forge-session-management",
 ]
 
+EXPECTED_SIBLING_SKILL_REFERENCES = {
+    "forge-brainstorming": [
+        "references/design/architectural-lens.md",
+        "references/design/visual-companion-guidance.md",
+    ],
+    "forge-subagent-driven-development": [
+        "references/subagent-execution.md",
+        "references/subagent-prompts/final-reviewer-prompt.md",
+        "references/subagent-prompts/implementer-prompt.md",
+        "references/subagent-prompts/quality-reviewer-prompt.md",
+        "references/subagent-prompts/spec-reviewer-prompt.md",
+    ],
+    "forge-systematic-debugging": [
+        "references/debugging/condition-based-waiting.md",
+        "references/debugging/defense-in-depth.md",
+        "references/debugging/root-cause-tracing.md",
+    ],
+}
+
 
 class CodexHostInstallTests(unittest.TestCase):
     def seed_codex_home(self, codex_home: Path, target: Path) -> tuple[Path, Path, Path]:
@@ -100,11 +119,16 @@ class CodexHostInstallTests(unittest.TestCase):
             )
 
             self.assertTrue((target / "SKILL.md").exists())
+            self.assertFalse((target / "skills").exists())
             for skill_name in FORGE_SIBLING_SKILLS:
                 with self.subTest(skill=skill_name):
                     self.assertTrue((codex_home / "skills" / skill_name / "SKILL.md").exists())
                     self.assertFalse((codex_home / "skills" / skill_name / "scripts").exists())
                     self.assertFalse((codex_home / "skills" / skill_name / "data").exists())
+            for skill_name, relative_paths in EXPECTED_SIBLING_SKILL_REFERENCES.items():
+                for relative_path in relative_paths:
+                    with self.subTest(skill=skill_name, path=relative_path):
+                        self.assertTrue((codex_home / "skills" / skill_name / relative_path).exists())
             self.assertFalse((target / "old.txt").exists())
             self.assertFalse(legacy_runtime.exists())
             self.assertFalse(legacy_skill.exists())

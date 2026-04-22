@@ -170,4 +170,3 @@ Do not start build until the user chooses or has already instructed the mode.
 - Calls next: `forge-subagent-driven-development` or `forge-executing-plans`, depending on the chosen execution mode.
 - Pairs with: `forge-session-management` for saving plan state and `forge-verification-before-completion` for end-of-plan closeout.
 
-Shared scripts and references live in the installed Forge orchestrator bundle.

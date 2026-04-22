@@ -7,80 +7,103 @@ from pathlib import Path
 
 from support import ROOT_DIR
 
+REPO_ROOT = ROOT_DIR.parents[1]
+SKILLS_ROOT = ROOT_DIR.parent / "forge-skills"
 
 FORGE_SPLIT_SKILLS = {
     "brainstorming": {
         "package": "forge-brainstorming",
-        "path": "skills/brainstorming/SKILL.md",
+        "path": "packages/forge-skills/brainstorming/SKILL.md",
         "budget": 240,
     },
     "writing-plans": {
         "package": "forge-writing-plans",
-        "path": "skills/writing-plans/SKILL.md",
+        "path": "packages/forge-skills/writing-plans/SKILL.md",
         "budget": 200,
     },
     "executing-plans": {
         "package": "forge-executing-plans",
-        "path": "skills/executing-plans/SKILL.md",
+        "path": "packages/forge-skills/executing-plans/SKILL.md",
         "budget": 200,
     },
     "test-driven-development": {
         "package": "forge-test-driven-development",
-        "path": "skills/test-driven-development/SKILL.md",
+        "path": "packages/forge-skills/test-driven-development/SKILL.md",
         "budget": 320,
     },
     "using-git-worktrees": {
         "package": "forge-using-git-worktrees",
-        "path": "skills/using-git-worktrees/SKILL.md",
+        "path": "packages/forge-skills/using-git-worktrees/SKILL.md",
         "budget": 220,
     },
     "dispatching-parallel-agents": {
         "package": "forge-dispatching-parallel-agents",
-        "path": "skills/dispatching-parallel-agents/SKILL.md",
+        "path": "packages/forge-skills/dispatching-parallel-agents/SKILL.md",
         "budget": 200,
     },
     "subagent-driven-development": {
         "package": "forge-subagent-driven-development",
-        "path": "skills/subagent-driven-development/SKILL.md",
+        "path": "packages/forge-skills/subagent-driven-development/SKILL.md",
         "budget": 280,
     },
     "systematic-debugging": {
         "package": "forge-systematic-debugging",
-        "path": "skills/systematic-debugging/SKILL.md",
+        "path": "packages/forge-skills/systematic-debugging/SKILL.md",
         "budget": 320,
     },
     "requesting-code-review": {
         "package": "forge-requesting-code-review",
-        "path": "skills/requesting-code-review/SKILL.md",
+        "path": "packages/forge-skills/requesting-code-review/SKILL.md",
         "budget": 200,
     },
     "receiving-code-review": {
         "package": "forge-receiving-code-review",
-        "path": "skills/receiving-code-review/SKILL.md",
+        "path": "packages/forge-skills/receiving-code-review/SKILL.md",
         "budget": 200,
     },
     "verification-before-completion": {
         "package": "forge-verification-before-completion",
-        "path": "skills/verification-before-completion/SKILL.md",
+        "path": "packages/forge-skills/verification-before-completion/SKILL.md",
         "budget": 200,
     },
     "finishing-a-development-branch": {
         "package": "forge-finishing-a-development-branch",
-        "path": "skills/finishing-a-development-branch/SKILL.md",
+        "path": "packages/forge-skills/finishing-a-development-branch/SKILL.md",
         "budget": 260,
     },
     "writing-skills": {
         "package": "forge-writing-skills",
-        "path": "skills/writing-skills/SKILL.md",
+        "path": "packages/forge-skills/writing-skills/SKILL.md",
         "budget": 720,
         "copied_tdd_doc_style": True,
     },
     "session-management": {
         "package": "forge-session-management",
-        "path": "skills/session-management/SKILL.md",
+        "path": "packages/forge-skills/session-management/SKILL.md",
         "budget": 200,
     },
 }
+
+EXPECTED_SKILL_LOCAL_REFERENCES = {
+    "brainstorming": [
+        "references/design/architectural-lens.md",
+        "references/design/visual-companion-guidance.md",
+    ],
+    "subagent-driven-development": [
+        "references/subagent-execution.md",
+        "references/subagent-prompts/final-reviewer-prompt.md",
+        "references/subagent-prompts/implementer-prompt.md",
+        "references/subagent-prompts/quality-reviewer-prompt.md",
+        "references/subagent-prompts/spec-reviewer-prompt.md",
+    ],
+    "systematic-debugging": [
+        "references/debugging/condition-based-waiting.md",
+        "references/debugging/defense-in-depth.md",
+        "references/debugging/root-cause-tracing.md",
+    ],
+}
+
+FORBIDDEN_SHARED_REFERENCE_FALLBACK = "Shared scripts and references live in the installed Forge orchestrator bundle"
 
 OPERATOR_WORKFLOW_ALLOWLIST = {
     "workflows/operator/bump.md",
@@ -119,10 +142,22 @@ RETIRED_ACTIVE_REFERENCES = {
     "references/frontend-stack-profiles.md": "docs/archive/history/2026-04-forge-core-cleanup/frontend-stack-profiles.md",
 }
 
+ALLOWED_OWNER_LOCAL_REFERENCE_ROOTS = (
+    "packages/forge-skills/",
+    "packages/forge-core/workflows/operator/references/",
+)
+
 
 class BundleContractTests(unittest.TestCase):
     def _is_source_repo_context(self) -> bool:
         return (ROOT_DIR.parents[1] / ".git").exists()
+
+    def _has_skill_source_tree(self) -> bool:
+        return SKILLS_ROOT.is_dir()
+
+    def _require_skill_source_tree(self) -> None:
+        if not self._has_skill_source_tree():
+            self.skipTest("canonical forge-skills source tree is not bundled in copied dist verification")
 
     def _raw_line_count(self, path: Path) -> int:
         text = path.read_text(encoding="utf-8")
@@ -165,8 +200,9 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn('This workflow feels like overkill.', skill)
 
     def test_canonical_forge_skills_have_frontmatter_trigger_language_integration_and_line_budgets(self) -> None:
+        self._require_skill_source_tree()
         for skill_name, expected in FORGE_SPLIT_SKILLS.items():
-            path = ROOT_DIR / expected["path"]
+            path = REPO_ROOT / expected["path"]
             text = path.read_text(encoding="utf-8")
             frontmatter = text.split("---", 2)[1]
             lowered = text.casefold()
@@ -198,6 +234,126 @@ class BundleContractTests(unittest.TestCase):
                 self.assertNotIn("compatibility_workflow_path", entry)
                 self.assertTrue(entry["trigger_summary"].strip())
 
+    def test_forge_skills_package_is_the_only_canonical_sibling_skill_root(self) -> None:
+        self._require_skill_source_tree()
+        self.assertTrue(SKILLS_ROOT.is_dir())
+        self.assertFalse((ROOT_DIR / "skills").exists())
+        self.assertEqual(
+            sorted(path.name for path in SKILLS_ROOT.iterdir() if path.is_dir()),
+            sorted(FORGE_SPLIT_SKILLS),
+        )
+
+    def test_forge_core_has_no_root_references_tree(self) -> None:
+        self.assertFalse((ROOT_DIR / "references").exists())
+
+    def test_active_tree_does_not_reference_retired_core_skill_source_root(self) -> None:
+        retired_roots = (
+            "packages/forge-core" + "/skills",
+            "forge-core" + "/skills",
+        )
+        scanned_suffixes = {".md", ".py", ".json", ".yaml", ".yml"}
+        skipped_parts = {
+            ".brain",
+            ".forge-artifacts",
+            ".git",
+            ".install-backups",
+            ".pytest_cache",
+            "dist",
+            "docs/audits",
+            "docs/archive",
+            "docs/plans",
+        }
+
+        for path in REPO_ROOT.rglob("*"):
+            if path.is_dir() or path.suffix.lower() not in scanned_suffixes:
+                continue
+            relative = path.relative_to(REPO_ROOT).as_posix()
+            if any(relative == part or relative.startswith(f"{part}/") for part in skipped_parts):
+                continue
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            for retired_root in retired_roots:
+                with self.subTest(path=relative, retired_root=retired_root):
+                    self.assertNotIn(retired_root, text)
+
+    def test_active_tree_does_not_reference_retired_core_references_source_root(self) -> None:
+        retired_root = "packages/forge-core" + "/references"
+        scanned_suffixes = {".md", ".py", ".json", ".yaml", ".yml"}
+        skipped_parts = {
+            ".brain",
+            ".forge-artifacts",
+            ".git",
+            ".install-backups",
+            ".pytest_cache",
+            "dist",
+            "docs/audits",
+            "docs/archive",
+            "docs/plans",
+            "packages/forge-core/tests",
+            "tests",
+        }
+
+        for path in REPO_ROOT.rglob("*"):
+            if path.is_dir() or path.suffix.lower() not in scanned_suffixes:
+                continue
+            relative = path.relative_to(REPO_ROOT).as_posix()
+            if any(relative == part or relative.startswith(f"{part}/") for part in skipped_parts):
+                continue
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            with self.subTest(path=relative):
+                self.assertNotIn(retired_root, text)
+
+    def test_retired_root_runtime_reference_paths_are_absent(self) -> None:
+        retired_paths = (
+            "target-state.md",
+            "reference-map.md",
+            "help-next.md",
+            "personalization.md",
+            "run-guidance.md",
+            "rollback-guidance.md",
+            "bump-release.md",
+            "workspace-init.md",
+            "codex-operator-surface.md",
+            "antigravity-operator-surface.md",
+            "smoke-tests.md",
+            "smoke-test-checklist.md",
+        )
+        retired_tokens = [
+            token
+            for filename in retired_paths
+            for token in (
+                f"`references/{filename}`",
+                f'"references/{filename}"',
+                f"'references/{filename}'",
+            )
+        ]
+        scanned_suffixes = {".md", ".py", ".json", ".yaml", ".yml"}
+        skipped_parts = {
+            ".brain",
+            ".forge-artifacts",
+            ".git",
+            ".install-backups",
+            ".pytest_cache",
+            "dist",
+            "docs/audits",
+            "docs/archive",
+            "docs/plans",
+            "packages/forge-core/tests",
+            "tests",
+        }
+
+        for path in REPO_ROOT.rglob("*"):
+            if path.is_dir() or path.suffix.lower() not in scanned_suffixes:
+                continue
+            relative = path.relative_to(REPO_ROOT).as_posix()
+            if any(relative == part or relative.startswith(f"{part}/") for part in skipped_parts):
+                continue
+            if relative.startswith(ALLOWED_OWNER_LOCAL_REFERENCE_ROOTS):
+                continue
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            for retired_token in retired_tokens:
+                with self.subTest(path=relative, retired_token=retired_token):
+                    self.assertNotIn(retired_token, text)
+
     def test_workflow_priority_stays_process_first(self) -> None:
         registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
         priority = registry["workflow_priority"]
@@ -207,13 +363,14 @@ class BundleContractTests(unittest.TestCase):
         self.assertEqual(priority["implementation"], ["build", "refactor", "test", "review", "deploy", "secure"])
 
     def test_split_skills_own_tdd_debug_review_and_completion_contracts(self) -> None:
-        build = (ROOT_DIR / "skills" / "executing-plans" / "SKILL.md").read_text(encoding="utf-8")
-        tdd = (ROOT_DIR / "skills" / "test-driven-development" / "SKILL.md").read_text(encoding="utf-8")
-        debug = (ROOT_DIR / "skills" / "systematic-debugging" / "SKILL.md").read_text(encoding="utf-8")
-        review_request = (ROOT_DIR / "skills" / "requesting-code-review" / "SKILL.md").read_text(encoding="utf-8")
-        review_receive = (ROOT_DIR / "skills" / "receiving-code-review" / "SKILL.md").read_text(encoding="utf-8")
-        finish = (ROOT_DIR / "skills" / "finishing-a-development-branch" / "SKILL.md").read_text(encoding="utf-8")
-        verify = (ROOT_DIR / "skills" / "verification-before-completion" / "SKILL.md").read_text(encoding="utf-8")
+        self._require_skill_source_tree()
+        build = (SKILLS_ROOT / "executing-plans" / "SKILL.md").read_text(encoding="utf-8")
+        tdd = (SKILLS_ROOT / "test-driven-development" / "SKILL.md").read_text(encoding="utf-8")
+        debug = (SKILLS_ROOT / "systematic-debugging" / "SKILL.md").read_text(encoding="utf-8")
+        review_request = (SKILLS_ROOT / "requesting-code-review" / "SKILL.md").read_text(encoding="utf-8")
+        review_receive = (SKILLS_ROOT / "receiving-code-review" / "SKILL.md").read_text(encoding="utf-8")
+        finish = (SKILLS_ROOT / "finishing-a-development-branch" / "SKILL.md").read_text(encoding="utf-8")
+        verify = (SKILLS_ROOT / "verification-before-completion" / "SKILL.md").read_text(encoding="utf-8")
 
         self.assertIn("Execution Loop", build)
         self.assertIn("Stop And Ask For Help", build)
@@ -286,8 +443,9 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("Docs-only changes still need path, content, or diff verification.", verify)
 
     def test_design_and_plan_split_skills_include_richer_guidance(self) -> None:
-        brainstorm = (ROOT_DIR / "skills" / "brainstorming" / "SKILL.md").read_text(encoding="utf-8")
-        plan = (ROOT_DIR / "skills" / "writing-plans" / "SKILL.md").read_text(encoding="utf-8")
+        self._require_skill_source_tree()
+        brainstorm = (SKILLS_ROOT / "brainstorming" / "SKILL.md").read_text(encoding="utf-8")
+        plan = (SKILLS_ROOT / "writing-plans" / "SKILL.md").read_text(encoding="utf-8")
 
         self.assertIn("Process Flow", brainstorm)
         self.assertIn("Visual Companion", brainstorm)
@@ -314,7 +472,8 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("forge-executing-plans", plan)
 
     def test_session_management_skill_mentions_preferences_restore_contract(self) -> None:
-        session = (ROOT_DIR / "skills" / "session-management" / "SKILL.md").read_text(encoding="utf-8")
+        self._require_skill_source_tree()
+        session = (SKILLS_ROOT / "session-management" / "SKILL.md").read_text(encoding="utf-8")
 
         self.assertIn("adapter-global", session)
         self.assertIn("state/preferences.json", session)
@@ -326,8 +485,9 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("workflow-state", session)
 
     def test_writing_skills_is_copied_with_forge_brand_references(self) -> None:
-        writing_skills = (ROOT_DIR / "skills" / "writing-skills" / "SKILL.md").read_text(encoding="utf-8")
-        writing_skill_dir = ROOT_DIR / "skills" / "writing-skills"
+        self._require_skill_source_tree()
+        writing_skills = (SKILLS_ROOT / "writing-skills" / "SKILL.md").read_text(encoding="utf-8")
+        writing_skill_dir = SKILLS_ROOT / "writing-skills"
 
         self.assertIn("Writing skills IS Test-Driven Development applied to process documentation.", writing_skills)
         self.assertIn("Claude Search Optimization", writing_skills)
@@ -398,13 +558,11 @@ class BundleContractTests(unittest.TestCase):
         self.assertFalse((ROOT_DIR / "scripts" / "workspace_signals.py").exists())
 
     def test_retired_companion_and_canary_references_leave_active_tree_but_stay_archived(self) -> None:
-        reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
         repo_root = ROOT_DIR.parents[1]
 
         for active_path, archive_path in RETIRED_ACTIVE_REFERENCES.items():
             active_name = Path(active_path).name
             with self.subTest(reference=active_name):
-                self.assertNotIn(f"`{active_name}`", reference_map)
                 self.assertFalse((ROOT_DIR / active_path.removeprefix("references/")).exists())
                 if self._is_source_repo_context():
                     self.assertTrue((repo_root / archive_path).exists())
@@ -438,26 +596,22 @@ class BundleContractTests(unittest.TestCase):
         self.assertNotIn("ROUTE_CASES", smoke_matrix_cases)
         self.assertNotIn("validate_route_case", smoke_matrix_validators)
 
-    def test_tooling_reference_is_a_thin_pointer_not_a_second_monolith(self) -> None:
-        tooling = ROOT_DIR / "references" / "tooling.md"
-        text = tooling.read_text(encoding="utf-8")
+    def test_kernel_tooling_lives_in_current_docs_without_tooling_pointer(self) -> None:
+        kernel_tooling = REPO_ROOT / "docs" / "current" / "kernel-tooling.md"
+        if not kernel_tooling.exists():
+            self.skipTest("kernel-tooling doc is maintainer-only and not bundled into copied dist verification")
+        text = kernel_tooling.read_text(encoding="utf-8")
 
-        self.assertLessEqual(self._raw_line_count(tooling), 40)
-        self.assertIn("kernel-tooling.md", text)
-        self.assertIn("reference-map.md", text)
-        self.assertIn("backend-briefs.md", text)
-        self.assertIn("ui-briefs.md", text)
-        self.assertIn("ui-progress.md", text)
-        self.assertNotIn("python scripts/resolve_help_next.py", text)
-        self.assertNotIn("python scripts/run_with_guidance.py", text)
+        self.assertTrue(kernel_tooling.exists())
+        self.assertFalse((ROOT_DIR / "references" / "tooling.md").exists())
+        self.assertIn("python scripts/resolve_help_next.py", text)
+        self.assertIn("python scripts/run_with_guidance.py", text)
 
     def test_subagent_reference_contract_exists(self) -> None:
-        reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
-        subagent_reference = ROOT_DIR / "references" / "subagent-execution.md"
-        prompt_dir = ROOT_DIR / "references" / "subagent-prompts"
+        self._require_skill_source_tree()
+        subagent_reference = SKILLS_ROOT / "subagent-driven-development" / "references" / "subagent-execution.md"
+        prompt_dir = SKILLS_ROOT / "subagent-driven-development" / "references" / "subagent-prompts"
 
-        self.assertIn("`subagent-execution.md`", reference_map)
-        self.assertIn("`subagent-prompts/final-reviewer-prompt.md`", reference_map)
         self.assertTrue(subagent_reference.exists())
         for name in (
             "implementer-prompt.md",
@@ -474,10 +628,9 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("packet-first dispatch", subagent_text)
 
     def test_tdd_discipline_reference_exists_and_captures_delete_rule(self) -> None:
-        reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
-        tdd_reference = ROOT_DIR / "references" / "tdd-discipline.md"
+        self._require_skill_source_tree()
+        tdd_reference = SKILLS_ROOT / "test-driven-development" / "references" / "tdd-discipline.md"
 
-        self.assertIn("`tdd-discipline.md`", reference_map)
         self.assertTrue(tdd_reference.exists())
 
         discipline = tdd_reference.read_text(encoding="utf-8")
@@ -487,29 +640,30 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("## Red Flags", discipline)
 
     def test_debugging_companion_references_exist_and_are_mapped(self) -> None:
-        reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
-        debug_skill = (ROOT_DIR / "skills" / "systematic-debugging" / "SKILL.md").read_text(encoding="utf-8")
+        self._require_skill_source_tree()
+        debug_skill = (SKILLS_ROOT / "systematic-debugging" / "SKILL.md").read_text(encoding="utf-8")
         expected = {
             "debugging/root-cause-tracing.md": ("Root-Cause Tracing", "Backward Trace Packet"),
             "debugging/defense-in-depth.md": ("Defense-In-Depth Validation", "Forge-Specific Boundaries"),
             "debugging/condition-based-waiting.md": ("Condition-Based Waiting", "Replace Delay With Condition"),
+            "debugging/error-translation.md": ("Forge Error Translation", "Output Contract"),
+            "debugging/failure-recovery-playbooks.md": ("Forge Failure-Recovery Playbooks", "Recovery"),
         }
 
         for rel_path, phrases in expected.items():
-            path = ROOT_DIR / "references" / rel_path
+            path = SKILLS_ROOT / "systematic-debugging" / "references" / rel_path
             text = path.read_text(encoding="utf-8")
             with self.subTest(reference=rel_path):
                 self.assertTrue(path.exists())
-                self.assertIn(f"`{rel_path}`", reference_map)
-                self.assertIn(f"references/{rel_path}", debug_skill)
                 for phrase in phrases:
                     self.assertIn(phrase, text)
 
     def test_design_lens_references_exist_and_do_not_revive_separate_stage_identity(self) -> None:
-        architectural_lens = (ROOT_DIR / "references" / "design" / "architectural-lens.md").read_text(encoding="utf-8")
-        visual_guidance = (ROOT_DIR / "references" / "design" / "visual-companion-guidance.md").read_text(encoding="utf-8")
+        self._require_skill_source_tree()
+        architectural_lens = (SKILLS_ROOT / "brainstorming" / "references" / "design" / "architectural-lens.md").read_text(encoding="utf-8")
+        visual_guidance = (SKILLS_ROOT / "brainstorming" / "references" / "design" / "visual-companion-guidance.md").read_text(encoding="utf-8")
         bootstrap_support = (ROOT_DIR / "scripts" / "workflow_state_bootstrap_support.py").read_text(encoding="utf-8")
-        help_next = (ROOT_DIR / "references" / "help-next.md").read_text(encoding="utf-8")
+        help_next = (ROOT_DIR / "workflows" / "operator" / "references" / "help-next.md").read_text(encoding="utf-8")
 
         self.assertIn("design lens inside `forge-brainstorming`", architectural_lens)
         self.assertIn("visual lens inside `forge-brainstorming`", visual_guidance)
@@ -519,9 +673,10 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("architectural lens", help_next)
 
     def test_worktree_and_subagent_skills_cover_p1_safety_and_prompt_structure(self) -> None:
-        worktrees = (ROOT_DIR / "skills" / "using-git-worktrees" / "SKILL.md").read_text(encoding="utf-8")
-        parallel = (ROOT_DIR / "skills" / "dispatching-parallel-agents" / "SKILL.md").read_text(encoding="utf-8")
-        subagents = (ROOT_DIR / "skills" / "subagent-driven-development" / "SKILL.md").read_text(encoding="utf-8")
+        self._require_skill_source_tree()
+        worktrees = (SKILLS_ROOT / "using-git-worktrees" / "SKILL.md").read_text(encoding="utf-8")
+        parallel = (SKILLS_ROOT / "dispatching-parallel-agents" / "SKILL.md").read_text(encoding="utf-8")
+        subagents = (SKILLS_ROOT / "subagent-driven-development" / "SKILL.md").read_text(encoding="utf-8")
 
         self.assertIn("Gitignore Safety Check", worktrees)
         self.assertIn("git check-ignore", worktrees)
@@ -558,9 +713,31 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("Final Reviewer Handoff", subagents)
         self.assertIn("references/subagent-prompts/final-reviewer-prompt.md", subagents)
 
+    def test_sibling_skill_markdown_references_resolve_inside_their_own_directories(self) -> None:
+        self._require_skill_source_tree()
+        for skill_name, relative_paths in EXPECTED_SKILL_LOCAL_REFERENCES.items():
+            skill_dir = SKILLS_ROOT / skill_name
+            for relative_path in relative_paths:
+                with self.subTest(skill=skill_name, path=relative_path):
+                    self.assertTrue((skill_dir / relative_path).exists())
+
+    def test_skill_owned_references_do_not_remain_in_forge_core_references(self) -> None:
+        for skill_name, relative_paths in EXPECTED_SKILL_LOCAL_REFERENCES.items():
+            for relative_path in relative_paths:
+                with self.subTest(skill=skill_name, path=relative_path):
+                    self.assertFalse((ROOT_DIR / "references" / relative_path.removeprefix("references/")).exists())
+
+    def test_sibling_skills_do_not_claim_reference_fallback_to_orchestrator_bundle(self) -> None:
+        self._require_skill_source_tree()
+        for skill_name in FORGE_SPLIT_SKILLS:
+            text = (REPO_ROOT / FORGE_SPLIT_SKILLS[skill_name]["path"]).read_text(encoding="utf-8")
+            with self.subTest(skill=skill_name):
+                self.assertNotIn(FORBIDDEN_SHARED_REFERENCE_FALLBACK, text)
+
     def test_no_skill_mentions_route_preview(self) -> None:
+        self._require_skill_source_tree()
         for skill_name, expected in FORGE_SPLIT_SKILLS.items():
-            text = (ROOT_DIR / expected["path"]).read_text(encoding="utf-8").casefold()
+            text = (REPO_ROOT / expected["path"]).read_text(encoding="utf-8").casefold()
             with self.subTest(skill=skill_name):
                 self.assertNotIn("route_preview.py", text)
                 self.assertNotIn("route preview", text)

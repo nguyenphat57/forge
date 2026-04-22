@@ -241,4 +241,4 @@ Report:
 - Proof
 - Residual risk
 
-Shared scripts and references live in the installed Forge orchestrator bundle.
+Keep markdown companions inside this skill directory so the shipped bundle stays self-contained.

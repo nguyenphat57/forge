@@ -32,6 +32,25 @@ FORGE_SIBLING_SKILLS = [
     "forge-session-management",
 ]
 
+EXPECTED_SIBLING_SKILL_REFERENCES = {
+    "forge-brainstorming": [
+        "references/design/architectural-lens.md",
+        "references/design/visual-companion-guidance.md",
+    ],
+    "forge-subagent-driven-development": [
+        "references/subagent-execution.md",
+        "references/subagent-prompts/final-reviewer-prompt.md",
+        "references/subagent-prompts/implementer-prompt.md",
+        "references/subagent-prompts/quality-reviewer-prompt.md",
+        "references/subagent-prompts/spec-reviewer-prompt.md",
+    ],
+    "forge-systematic-debugging": [
+        "references/debugging/condition-based-waiting.md",
+        "references/debugging/defense-in-depth.md",
+        "references/debugging/root-cause-tracing.md",
+    ],
+}
+
 
 class RetiredBundleMatrixTests(unittest.TestCase):
     def test_build_release_only_keeps_kernel_bundles(self) -> None:
@@ -40,11 +59,19 @@ class RetiredBundleMatrixTests(unittest.TestCase):
         self.assertTrue((ROOT_DIR / "dist" / "forge-core").exists())
         self.assertTrue((ROOT_DIR / "dist" / "forge-codex").exists())
         self.assertTrue((ROOT_DIR / "dist" / "forge-antigravity").exists())
+        for bundle_name in ("forge-core", "forge-codex", "forge-antigravity"):
+            with self.subTest(bundle=bundle_name):
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "skills").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "references").exists())
         for skill_name in FORGE_SIBLING_SKILLS:
             with self.subTest(skill=skill_name):
                 self.assertTrue((ROOT_DIR / "dist" / skill_name / "SKILL.md").exists())
                 self.assertFalse((ROOT_DIR / "dist" / skill_name / "scripts").exists())
                 self.assertFalse((ROOT_DIR / "dist" / skill_name / "data").exists())
+        for skill_name, relative_paths in EXPECTED_SIBLING_SKILL_REFERENCES.items():
+            for relative_path in relative_paths:
+                with self.subTest(skill=skill_name, path=relative_path):
+                    self.assertTrue((ROOT_DIR / "dist" / skill_name / relative_path).exists())
         self.assertFalse((ROOT_DIR / "dist" / "forge-browse").exists())
         self.assertFalse((ROOT_DIR / "dist" / "forge-design").exists())
 
@@ -61,8 +88,16 @@ class RetiredBundleMatrixTests(unittest.TestCase):
     def test_package_matrix_declares_sibling_skill_pack(self) -> None:
         package_matrix = json.loads((ROOT_DIR / "docs" / "release" / "package-matrix.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(package_matrix["skill_pack"]["source"], "packages/forge-core/skills")
+        self.assertEqual(package_matrix["skill_pack"]["source"], "packages/forge-skills")
         self.assertEqual(package_matrix["skill_pack"]["skills"], FORGE_SIBLING_SKILLS)
+
+    def test_package_matrix_has_no_root_reference_required_paths(self) -> None:
+        package_matrix = json.loads((ROOT_DIR / "docs" / "release" / "package-matrix.json").read_text(encoding="utf-8"))
+
+        for bundle in package_matrix["bundles"]:
+            for path in bundle["required_bundle_paths"]:
+                with self.subTest(bundle=bundle["name"], path=path):
+                    self.assertFalse(path.startswith("references/"))
 
 
 if __name__ == "__main__":

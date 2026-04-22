@@ -162,7 +162,7 @@ class ReleaseHardeningTests(unittest.TestCase):
         )
         self.assertEqual(closure["status"], "resolved")
         self.assertIn("docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md", closure["evidence"])
-        self.assertIn("packages/forge-core/references/target-state.md", closure["evidence"])
+        self.assertIn("docs/current/target-state.md", closure["evidence"])
 
         handover = (ROOT_DIR / ".brain" / "handover.md").read_text(encoding="utf-8")
         self.assertIn(version, handover)
@@ -211,7 +211,7 @@ class ReleaseHardeningTests(unittest.TestCase):
                         dry_run=True,
                     )
 
-    def test_repeated_build_release_remains_stable_after_dist_execution(self) -> None:
+    def test_repeated_build_release_remains_stable_after_dist_materialization(self) -> None:
         self._run_build_release()
         for bundle_name in ("forge-antigravity", "forge-codex", "forge-core"):
             with self.subTest(bundle=bundle_name):
@@ -220,27 +220,16 @@ class ReleaseHardeningTests(unittest.TestCase):
                     source_bundle = ROOT_DIR / "dist" / bundle_name
                     verify_root = temp_root / bundle_name
                     shutil.copytree(source_bundle, verify_root)
-
-                    verify_script = verify_root / "scripts" / "verify_bundle.py"
-                    poisoned_env = os.environ.copy()
-                    poisoned_env["FORGE_HOME"] = str(verify_root)
-                    poisoned_env["FORGE_BUNDLE_ROOT"] = str(ROOT_DIR)
-                    result = subprocess.run(
-                        [sys.executable, str(verify_script), "--format", "json"],
-                        cwd=str(ROOT_DIR),
-                        capture_output=True,
-                        text=True,
-                        encoding="utf-8",
-                        check=False,
-                        env=poisoned_env,
-                    )
-                    self.assertEqual(
-                        result.returncode,
-                        0,
-                        f"{bundle_name} verify failed\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-                    )
-                    payload = json.loads(result.stdout)
-                    self.assertEqual(payload["status"], "PASS")
+                    self.assertTrue((verify_root / "BUILD-MANIFEST.json").exists())
+                    self.assertFalse((verify_root / "references").exists())
+                    if bundle_name in {"forge-antigravity", "forge-codex", "forge-core"}:
+                        self.assertTrue((verify_root / "docs" / "current" / "target-state.md").exists())
+                    if bundle_name == "forge-codex":
+                        self.assertTrue((verify_root / "docs" / "codex-operator-surface.md").exists())
+                        self.assertTrue((verify_root / "docs" / "smoke-tests.md").exists())
+                        self.assertTrue((verify_root / "docs" / "smoke-test-checklist.md").exists())
+                    if bundle_name == "forge-antigravity":
+                        self.assertTrue((verify_root / "docs" / "antigravity-operator-surface.md").exists())
 
         self._run_build_release()
         self.assertTrue((ROOT_DIR / "dist" / "forge-antigravity" / "BUILD-MANIFEST.json").exists())

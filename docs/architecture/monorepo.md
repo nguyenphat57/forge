@@ -5,11 +5,11 @@
 Keep one canonical implementation of Forge while supporting multiple host surfaces without leaving retired runtime-era packages on the active maintainer path.
 
 Boundary reference: see `docs/architecture/adapter-boundary.md`.
-Bundle-layer ownership reference: see `packages/forge-core/references/architecture-layers.md`.
+Bundle-layer ownership reference: see `docs/architecture/architecture-layers.md`.
 
 ## Source Of Truth vs Build Artifacts
 
-- `packages/forge-core`, `packages/forge-codex`, and `packages/forge-antigravity` are the active source-of-truth packages.
+- `packages/forge-core`, `packages/forge-skills`, `packages/forge-codex`, and `packages/forge-antigravity` are the active source-of-truth packages.
 - Generated host artifacts stay source-controlled, but their canonical inventory lives in `docs/architecture/host-artifacts-manifest.json`.
 - `dist/` is generated release output built from `forge-core`, one active adapter overlay, and the sibling Forge skill pack.
 - Do not treat `dist/` as an independent source tree; fixes belong in active source packages and are verified again after rebuild.
@@ -25,7 +25,7 @@ Forge changes should respect four layers:
 3. `workflow state`
 4. `runtime tools`
 
-The canonical layer contract lives in `packages/forge-core/references/architecture-layers.md`.
+The canonical layer contract lives in `docs/architecture/architecture-layers.md`.
 
 In the current kernel-only line, `runtime tools` is a historical concept preserved through git history and versioned release notes, not as an active package role in the shipped product line.
 
@@ -37,11 +37,22 @@ Canonical source-of-truth for:
 
 - orchestrator registry
 - host-neutral bootstrap wording
-- sibling skill markdown under `skills/`
+- deterministic scripts and compatibility wrappers
+- sibling skill activation contracts for skills sourced from `forge-skills`
 - operator state and workflow-state semantics
 - operator/session compatibility wrappers, references, and tests
 
 `forge-core` should not depend on a single host-specific entry file.
+
+### `forge-skills`
+
+Canonical source-of-truth for public Forge sibling skills:
+
+- one directory per shipped sibling skill
+- each skill's `SKILL.md`
+- skill-owned `references/**` companions colocated inside the owning skill directory
+
+`forge-skills` is not an adapter bundle. Release builds materialize each directory as a public `dist/forge-*` skill bundle while keeping adapter bundles free of internal `skills/` subtrees.
 
 ### `forge-antigravity`
 
@@ -52,7 +63,7 @@ Adapter overlay for Antigravity:
 - 7 primary operator wrapper workflows for `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`
 - natural-language session guidance for `resume`, `save context`, and `handover`
 - one adapter data compatibility file: `data/preferences-compat.json`
-- one adapter reference: `references/antigravity-operator-surface.md`
+- one adapter doc: `docs/antigravity-operator-surface.md`
 - Antigravity-oriented host boundary wording
 
 ### `forge-codex`
@@ -64,7 +75,7 @@ Adapter overlay for Codex:
 - `AGENTS.global.md` for global Codex host takeover
 - 2 adapter compatibility wrappers: `workflows/execution/dispatch-subagents.md` and `workflows/operator/session.md`
 - 7 thin operator wrappers for `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`
-- 3 adapter references: `codex-operator-surface.md`, `smoke-test-checklist.md`, `smoke-tests.md`
+- 3 adapter docs: `codex-operator-surface.md`, `smoke-test-checklist.md`, `smoke-tests.md`
 - one adapter data override: `data/orchestrator-registry.json`
 - one adapter script: `scripts/enable_windows_utf8.ps1`
 - Codex-oriented host boundary wording
@@ -88,7 +99,7 @@ Historical implementation evidence is preserved in git history and versioned rel
 3. Refresh generated host artifacts from canonical sources before adapter overlays are copied.
 4. Copy core into each adapter bundle under `dist/`.
 5. Overlay adapter files on top of the copied core to materialize the adapter bundle and its registries.
-6. Materialize each sibling skill directory from `packages/forge-core/skills/`.
+6. Materialize each sibling skill directory from `packages/forge-skills/`.
 7. Run verify on the built bundles.
 8. Install from `dist/` into runtime paths with `scripts/install_bundle.py`.
 
@@ -96,7 +107,7 @@ This keeps one active implementation tree for the current product line.
 
 ## Rules
 
-- Skill meaning changes belong in `packages/forge-core/skills/`.
+- Skill meaning changes belong in `packages/forge-skills/`.
 - Host entry files and adapter UX wrappers belong in adapters.
 - Historical runtime tools stay out of the current source tree unless a future roadmap explicitly restores them.
 - Shared tests belong in `forge-core` or root `tests/`.

@@ -79,7 +79,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "workflows" / "operator" / "run.md",
             overlay_root / "workflows" / "operator" / "bump.md",
             overlay_root / "workflows" / "operator" / "rollback.md",
-            overlay_root / "references" / "antigravity-operator-surface.md",
+            overlay_root / "docs" / "antigravity-operator-surface.md",
             overlay_root / "data" / "preferences-compat.json",
             overlay_root / "data" / "routing-locales.json",
             overlay_root / "data" / "routing-locales" / "vi.json",
@@ -139,7 +139,8 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertFalse((dist_root / "workflows" / "operator" / "save-brain.md").exists())
         self.assertFalse((dist_root / "workflows" / "operator" / "handover.md").exists())
         self.assertFalse((dist_root / "workflows" / "execution" / "session.md").exists())
-        self.assertTrue((dist_root / "references" / "antigravity-operator-surface.md").exists())
+        self.assertFalse((dist_root / "references").exists())
+        self.assertTrue((dist_root / "docs" / "antigravity-operator-surface.md").exists())
         self.assertTrue((dist_root / "data" / "preferences-compat.json").exists())
         self.assertTrue((dist_root / "data" / "routing-locales.json").exists())
         self.assertTrue((dist_root / "data" / "routing-locales" / "vi.json").exists())
@@ -205,8 +206,8 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "data" / "routing-locales.json",
             overlay_root / "data" / "routing-locales" / "vi.json",
             overlay_root / "data" / "output-contracts.json",
-            overlay_root / "references" / "smoke-tests.md",
-            overlay_root / "references" / "smoke-test-checklist.md",
+            overlay_root / "docs" / "smoke-tests.md",
+            overlay_root / "docs" / "smoke-test-checklist.md",
             overlay_root / "workflows" / "execution" / "dispatch-subagents.md",
             overlay_root / "workflows" / "operator" / "session.md",
             overlay_root / "workflows" / "operator" / "help.md",
@@ -216,7 +217,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "workflows" / "operator" / "rollback.md",
             overlay_root / "workflows" / "operator" / "customize.md",
             overlay_root / "workflows" / "operator" / "init.md",
-            overlay_root / "references" / "codex-operator-surface.md",
+            overlay_root / "docs" / "codex-operator-surface.md",
         ]
         for path in expected_files:
             with self.subTest(path=path):
@@ -248,7 +249,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertNotIn("Compatibility aliases:", agents_text)
         self.assertNotIn("Operator aliases:", agents_text)
         self.assertNotIn("/save-brain", (overlay_root / "workflows" / "operator" / "session.md").read_text(encoding="utf-8"))
-        codex_surface = (overlay_root / "references" / "codex-operator-surface.md").read_text(encoding="utf-8")
+        codex_surface = (overlay_root / "docs" / "codex-operator-surface.md").read_text(encoding="utf-8")
         self.assertNotIn("/delegate", codex_surface)
         self.assertNotIn("/save-brain", codex_surface)
         self.assert_session_restores_preferences(
@@ -265,15 +266,16 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertTrue((dist_root / "data" / "routing-locales.json").exists())
         self.assertTrue((dist_root / "data" / "routing-locales" / "vi.json").exists())
         self.assertTrue((dist_root / "data" / "output-contracts.json").exists())
-        self.assertTrue((dist_root / "references" / "smoke-tests.md").exists())
-        self.assertTrue((dist_root / "references" / "smoke-test-checklist.md").exists())
+        self.assertFalse((dist_root / "references").exists())
+        self.assertTrue((dist_root / "docs" / "smoke-tests.md").exists())
+        self.assertTrue((dist_root / "docs" / "smoke-test-checklist.md").exists())
         self.assertTrue((dist_root / "workflows" / "execution" / "dispatch-subagents.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "session.md").exists())
         self.assertFalse((dist_root / "workflows" / "execution" / "session.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "help.md").exists())
-        self.assertTrue((dist_root / "references" / "codex-operator-surface.md").exists())
+        self.assertTrue((dist_root / "docs" / "codex-operator-surface.md").exists())
         self.assertIn("GENERATED FILE", (dist_root / "AGENTS.global.md").read_text(encoding="utf-8"))
         build_manifest = json.loads((dist_root / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
         self.assertEqual(build_manifest["state"]["dev_root"]["env_var"], "CODEX_HOME")
@@ -281,8 +283,8 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertEqual(build_manifest["packaging"]["default_target_strategy"], "codex_home_skill")
         self.assertIn("AGENTS.global.md", build_manifest["packaging"]["required_bundle_paths"])
         self.assertIn("SKILL.md", build_manifest["packaging"]["required_bundle_paths"])
-        self.assertIn("references/smoke-tests.md", build_manifest["packaging"]["required_bundle_paths"])
-        self.assertIn("references/smoke-test-checklist.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("docs/smoke-tests.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("docs/smoke-test-checklist.md", build_manifest["packaging"]["required_bundle_paths"])
         self.assertEqual(build_manifest["generated_artifacts"]["manifest_path"], "docs/architecture/host-artifacts-manifest.json")
         self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["name"], "forge-codex-global-agents")
         self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["bundle_output"], "AGENTS.global.md")
@@ -329,7 +331,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertNotIn("adoption-check", dist_skill)
         self.assertNotIn("save-brain", dist_skill)
         self.assertNotIn("/save-brain", (dist_root / "workflows" / "operator" / "session.md").read_text(encoding="utf-8"))
-        dist_codex_surface = (dist_root / "references" / "codex-operator-surface.md").read_text(encoding="utf-8")
+        dist_codex_surface = (dist_root / "docs" / "codex-operator-surface.md").read_text(encoding="utf-8")
         self.assertNotIn("/delegate", dist_codex_surface)
         self.assertNotIn("/save-brain", dist_codex_surface)
         rendered_agents = (dist_root / "AGENTS.global.md").read_text(encoding="utf-8")

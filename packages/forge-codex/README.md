@@ -33,4 +33,4 @@ powershell -ExecutionPolicy Bypass -File scripts/enable_windows_utf8.ps1
 powershell -ExecutionPolicy Bypass -File scripts/enable_windows_utf8.ps1 -Persist
 ```
 
-Build output is produced by overlaying adapter files on top of `forge-core`, then materializing the sibling skill pack from `packages/forge-core/skills/`.
+Build output is produced by overlaying adapter files on top of `forge-core`, then materializing the sibling skill pack from `packages/forge-skills/`.

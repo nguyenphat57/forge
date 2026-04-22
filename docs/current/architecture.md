@@ -6,8 +6,8 @@ Describe the live Forge architecture after the split-skill cutover, without send
 
 ## Current Topology
 
-- `packages/forge-core/` owns the host-neutral contract: bootstrap wording, sibling skill sources, workflow-state semantics, verification invariants, and preference/state tooling.
-- `packages/forge-core/skills/` is the source of truth for host-discoverable Forge process skills such as `forge-brainstorming`, `forge-writing-plans`, `forge-systematic-debugging`, and `forge-verification-before-completion`.
+- `packages/forge-core/` owns the host-neutral contract: bootstrap wording, workflow-state semantics, verification invariants, operator/session compatibility wrappers, and preference/state tooling.
+- `packages/forge-skills/` is the source of truth for host-discoverable Forge process skills such as `forge-brainstorming`, `forge-writing-plans`, `forge-systematic-debugging`, and `forge-verification-before-completion`.
 - `packages/forge-core/workflows/` is operator/session compatibility only. These files keep continuity wrappers working, but they point back to sibling skills.
 - `packages/forge-codex/overlay/` and `packages/forge-antigravity/overlay/` adapt the shared contract to host-native bootstrap files, installed skill layout, and operator wrappers.
 - `docs/current/` is the live maintainer-facing explanation surface; `docs/archive/` is historical context only.
@@ -57,7 +57,7 @@ Python should not be the first thing maintainers teach or users learn for routin
 - Start here for the live architecture.
 - Read [operator-surface.md](/C:/Users/Admin/.gemini/forge/.forge-artifacts/worktrees/markdown-first-control/docs/current/operator-surface.md) for the thin operator contract and `help`/`next` sidecar semantics.
 - Read [install-and-activation.md](/C:/Users/Admin/.gemini/forge/.forge-artifacts/worktrees/markdown-first-control/docs/current/install-and-activation.md) for source-repo versus installed-runtime activation and sibling skill installation.
-- Read [target-state.md](/C:/Users/Admin/.gemini/forge/.forge-artifacts/worktrees/markdown-first-control/packages/forge-core/references/target-state.md) when a change could alter Forge identity, process weight, or invariant boundaries.
+- Read [target-state.md](/C:/Users/Admin/.gemini/forge/docs/current/target-state.md) when a change could alter Forge identity, process weight, or invariant boundaries.
 
 ## Current repo posture
 

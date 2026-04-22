@@ -36,6 +36,25 @@ FORGE_SIBLING_SKILLS = [
     "forge-session-management",
 ]
 
+EXPECTED_SIBLING_SKILL_REFERENCES = {
+    "forge-brainstorming": [
+        "references/design/architectural-lens.md",
+        "references/design/visual-companion-guidance.md",
+    ],
+    "forge-subagent-driven-development": [
+        "references/subagent-execution.md",
+        "references/subagent-prompts/final-reviewer-prompt.md",
+        "references/subagent-prompts/implementer-prompt.md",
+        "references/subagent-prompts/quality-reviewer-prompt.md",
+        "references/subagent-prompts/spec-reviewer-prompt.md",
+    ],
+    "forge-systematic-debugging": [
+        "references/debugging/condition-based-waiting.md",
+        "references/debugging/defense-in-depth.md",
+        "references/debugging/root-cause-tracing.md",
+    ],
+}
+
 
 NATIVE_ANTIGRAVITY_PREFERENCES = {
     "version": "1.0",
@@ -100,12 +119,17 @@ class AntigravityHostInstallTests(unittest.TestCase):
                 [item["name"] for item in report["sibling_skills"]["skills"]],
                 FORGE_SIBLING_SKILLS,
             )
+            self.assertFalse((target / "skills").exists())
             for skill_name in FORGE_SIBLING_SKILLS:
                 with self.subTest(skill=skill_name):
                     skill_root = gemini_home / "antigravity" / "skills" / skill_name
                     self.assertTrue((skill_root / "SKILL.md").exists())
                     self.assertFalse((skill_root / "scripts").exists())
                     self.assertFalse((skill_root / "data").exists())
+            for skill_name, relative_paths in EXPECTED_SIBLING_SKILL_REFERENCES.items():
+                for relative_path in relative_paths:
+                    with self.subTest(skill=skill_name, path=relative_path):
+                        self.assertTrue((gemini_home / "antigravity" / "skills" / skill_name / relative_path).exists())
 
             rendered = gemini_md_path.read_text(encoding="utf-8")
             expected_state_root = str((gemini_home / "antigravity" / "forge-antigravity").resolve())

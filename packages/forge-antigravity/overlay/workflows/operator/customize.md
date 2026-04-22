@@ -31,7 +31,7 @@ Fast path for language requests:
 - If the user only asks how to set language, diacritics, or writing conventions:
   - point directly to a durable adapter-global update via `scripts/write_preferences.py`
   - only point to workspace `.brain/preferences.json` when the rule should apply to the current repo only
-  - reuse the short template in `references/personalization.md`
+  - reuse the short template in `workflows/operator/references/personalization.md`
 
 1. Read current preferences:
 

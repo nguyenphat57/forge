@@ -201,4 +201,3 @@ If you cannot check these boxes, the slice is not done.
 
 Before handoff, report RED -> GREEN -> baseline evidence exactly. If any part cannot run, say `not verified`, name the blocker, and do not claim done.
 
-Shared scripts and references live in the installed Forge orchestrator bundle.

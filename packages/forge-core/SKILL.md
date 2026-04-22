@@ -36,7 +36,7 @@ If you were dispatched as a subagent to execute a specific task packet, skip thi
 - Host bundles expose Forge sibling skills through host-native skill discovery.
 - Compatibility files under `workflows/` are aliases, not the source of truth.
 - Natural language is the primary surface; aliases are optional convenience.
-- Use `references/reference-map.md` for the current reading path.
+- Use `docs/current/target-state.md` for Forge identity, process weight, and invariant boundary decisions.
 
 ## The Rule
 

@@ -23,7 +23,7 @@ Fast path for language requests:
 - If the user only asks how to set language, Vietnamese diacritics, or writing conventions:
   - point first to durable updates through `scripts/write_preferences.py`
   - only point to workspace `.brain/preferences.json` when they explicitly want repo-scoped overrides
-  - reuse the short templates in `references/personalization.md`
+  - reuse the short templates in `workflows/operator/references/personalization.md`
 
 1. Read current preferences:
 

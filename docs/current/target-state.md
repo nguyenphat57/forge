@@ -78,7 +78,7 @@ The live contract after the split-skill cutover is intentionally narrow:
 ## What Changed In This Cutover
 
 - the public story is now skill-first rather than route-preview-first
-- `packages/forge-core/skills/*/SKILL.md` is the canonical process source
+- `packages/forge-skills/*/SKILL.md` is the canonical process source
 - `packages/forge-core/workflows/` is operator/session compatibility wrapper surface only
 - installing host adapters installs the sibling Forge skill family
 - the 1% rule is explicit before any substantive response or action

@@ -216,4 +216,4 @@ End in exactly one state:
 - `design-approved`: design doc approved; next skill is `forge-writing-plans`.
 - `design-blocked`: one precise design question must be answered.
 
-Shared scripts and references live in the installed Forge orchestrator bundle, not in this sibling skill.
+Keep markdown companions inside this skill directory so the shipped bundle stays self-contained.

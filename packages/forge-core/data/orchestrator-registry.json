@@ -27,72 +27,72 @@
   "skill_catalog": {
     "brainstorming": {
       "package": "forge-brainstorming",
-      "canonical_path": "skills/brainstorming/SKILL.md",
+      "canonical_path": "packages/forge-skills/brainstorming/SKILL.md",
       "trigger_summary": "Feature direction, behavior change, visual/design work, approach comparison, or multi-subsystem decomposition."
     },
     "writing-plans": {
       "package": "forge-writing-plans",
-      "canonical_path": "skills/writing-plans/SKILL.md",
+      "canonical_path": "packages/forge-skills/writing-plans/SKILL.md",
       "trigger_summary": "Approved design, clear requirement, or multi-step implementation needs an executable written plan."
     },
     "executing-plans": {
       "package": "forge-executing-plans",
-      "canonical_path": "skills/executing-plans/SKILL.md",
+      "canonical_path": "packages/forge-skills/executing-plans/SKILL.md",
       "trigger_summary": "Written plan exists and the user wants inline implementation or task execution."
     },
     "test-driven-development": {
       "package": "forge-test-driven-development",
-      "canonical_path": "skills/test-driven-development/SKILL.md",
+      "canonical_path": "packages/forge-skills/test-driven-development/SKILL.md",
       "trigger_summary": "Feature, bugfix, regression, refactor, or behavior change has a viable harness before implementation."
     },
     "using-git-worktrees": {
       "package": "forge-using-git-worktrees",
-      "canonical_path": "skills/using-git-worktrees/SKILL.md",
+      "canonical_path": "packages/forge-skills/using-git-worktrees/SKILL.md",
       "trigger_summary": "Dirty repo, risky feature work, isolated plan execution, or parallel-safe branch/worktree need."
     },
     "dispatching-parallel-agents": {
       "package": "forge-dispatching-parallel-agents",
-      "canonical_path": "skills/dispatching-parallel-agents/SKILL.md",
+      "canonical_path": "packages/forge-skills/dispatching-parallel-agents/SKILL.md",
       "trigger_summary": "Two or more independent tasks can run in parallel with disjoint write scopes."
     },
     "subagent-driven-development": {
       "package": "forge-subagent-driven-development",
-      "canonical_path": "skills/subagent-driven-development/SKILL.md",
+      "canonical_path": "packages/forge-skills/subagent-driven-development/SKILL.md",
       "trigger_summary": "Written plan has independent task packets suitable for fresh worker and reviewer lanes."
     },
     "systematic-debugging": {
       "package": "forge-systematic-debugging",
-      "canonical_path": "skills/systematic-debugging/SKILL.md",
+      "canonical_path": "packages/forge-skills/systematic-debugging/SKILL.md",
       "trigger_summary": "Bug, regression, failing test, error, unexpected behavior, or prompt/agent behavior fix."
     },
     "requesting-code-review": {
       "package": "forge-requesting-code-review",
-      "canonical_path": "skills/requesting-code-review/SKILL.md",
+      "canonical_path": "packages/forge-skills/requesting-code-review/SKILL.md",
       "trigger_summary": "Work is complete enough to review before merge, PR, handoff, or a ready claim."
     },
     "receiving-code-review": {
       "package": "forge-receiving-code-review",
-      "canonical_path": "skills/receiving-code-review/SKILL.md",
+      "canonical_path": "packages/forge-skills/receiving-code-review/SKILL.md",
       "trigger_summary": "User, reviewer, CI, or another agent gives review feedback or requested changes."
     },
     "verification-before-completion": {
       "package": "forge-verification-before-completion",
-      "canonical_path": "skills/verification-before-completion/SKILL.md",
+      "canonical_path": "packages/forge-skills/verification-before-completion/SKILL.md",
       "trigger_summary": "About to say done, fixed, ready, tests pass, mergeable, deployable, or complete."
     },
     "finishing-a-development-branch": {
       "package": "forge-finishing-a-development-branch",
-      "canonical_path": "skills/finishing-a-development-branch/SKILL.md",
+      "canonical_path": "packages/forge-skills/finishing-a-development-branch/SKILL.md",
       "trigger_summary": "Implementation and verification are complete enough to decide merge, PR, keep, or discard."
     },
     "writing-skills": {
       "package": "forge-writing-skills",
-      "canonical_path": "skills/writing-skills/SKILL.md",
+      "canonical_path": "packages/forge-skills/writing-skills/SKILL.md",
       "trigger_summary": "Creating, editing, splitting, absorbing, testing, hardening, or deploying Forge or host skills."
     },
     "session-management": {
       "package": "forge-session-management",
-      "canonical_path": "skills/session-management/SKILL.md",
+      "canonical_path": "packages/forge-skills/session-management/SKILL.md",
       "trigger_summary": "Resume, continue, restore context, save context, handover, or response personalization."
     }
   },

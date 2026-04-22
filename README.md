@@ -1,9 +1,9 @@
 # Forge
 ### Evidence-first execution kernel.
 
-**1 core kernel, 2 host adapters, stable 2.14.4**
+**1 core kernel, 2 host adapters, stable 2.14.5**
 
-![Version](https://img.shields.io/badge/version-2.14.4-2563eb)
+![Version](https://img.shields.io/badge/version-2.14.5-2563eb)
 ![License](https://img.shields.io/badge/license-MIT-16a34a)
 ![Verification](https://img.shields.io/badge/verify-repo_passed-22c55e)
 ![Adapters](https://img.shields.io/badge/adapters-Codex%20%7C%20Antigravity-f59e0b)
@@ -12,7 +12,7 @@ Forge is an evidence-first execution kernel for coding agents.
 This repository is the source monorepo for Forge: `forge-core + host adapters`.
 
 Current maintainer docs live under `docs/current/`.
-Forge currently follows the operating contract in `packages/forge-core/references/target-state.md`.
+Forge currently follows the operating contract in `docs/current/target-state.md`.
 Historical plans and specs now live under `docs/archive/`.
 
 Forge is built around a simple split:
@@ -118,7 +118,7 @@ graph LR
 
 - License: `MIT`
 - Repo maturity: stable release available
-- Current stable release: `2.14.4`
+- Current stable release: `2.14.5`
 - Canonical verification gate: `python scripts/verify_repo.py`
 - `forge-antigravity` is currently the most mature adapter for real rollout
 - `forge-codex` ships in the current stable release after passing the canonical release gates

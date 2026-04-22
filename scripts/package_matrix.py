@@ -21,7 +21,7 @@ def load_skill_pack() -> dict[str, object]:
     skill_pack = payload.get("skill_pack", {})
     if not isinstance(skill_pack, dict):
         raise ValueError(f"Package matrix skill_pack must be an object: {PACKAGE_MATRIX_PATH}")
-    source = skill_pack.get("source", "packages/forge-core/skills")
+    source = skill_pack.get("source", "packages/forge-skills")
     skills = skill_pack.get("skills", [])
     if not isinstance(source, str) or not source.strip():
         raise ValueError("Package matrix skill_pack.source must be a non-empty string")

@@ -17,7 +17,7 @@ quality_gates:
 
 1. Resolve using:
 
-If the repo is Forge itself or multiple valid directions are available, use `references/target-state.md` as the policy tie-break before answering.
+If the repo is Forge itself or multiple valid directions are available, use `docs/current/target-state.md` as the policy tie-break before answering.
 
 ```powershell
 python scripts/resolve_help_next.py --workspace <workspace> --mode help
