@@ -1,12 +1,12 @@
 HANDOVER
-- Current task: Forge 2.14.3 skill-wording hardening release is published as the current stable line after the Forge workflow-skill emphasis pass.
+- Current task: Forge 2.14.4 superpowers-wording removal release is published as the current stable line after the Forge source and release-surface cleanup pass.
 - Status: pushed-to-main
 - Pending: (none)
 - Verification run:
   - python -m pytest packages/forge-core/tests -q -> PASS on 2026-04-22 after forge-core cleanup completion
   - python -m pytest tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> PASS on 2026-04-22 after release surface alignment
   - python scripts/build_release.py --force --format json -> PASS on 2026-04-22
-  - python scripts/verify_repo.py -> PASS on 2026-04-22 after 2.14.3 release sync
+  - python scripts/verify_repo.py -> PASS on 2026-04-22 after 2.14.4 release sync
 - Important decisions:
   - Forge core now keeps only the operator workflow compatibility surface, with `session.md` moved under `workflows/operator/`.
   - Stale alias, companion, and route-preview-era core surfaces are retired instead of preserved as active compatibility debt.
@@ -15,4 +15,4 @@ HANDOVER
   - Historical `route-preview` workflow-state artifacts remain readable by compatibility code, so future cleanup must avoid breaking legacy state import.
 - Source of truth: current maintainer posture remains under `docs/current/*`; `.brain` is continuity state.
 - Blockers: (none)
-- Next step: Start the next work slice from the 2.14.3 stable baseline.
+- Next step: Start the next work slice from the 2.14.4 stable baseline.

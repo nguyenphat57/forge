@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 from support import run_python_script
 
 
-class SuperpowersHelpNextTests(unittest.TestCase):
+class PlanTransitionHelpNextTests(unittest.TestCase):
     def test_design_approved_brainstorm_advances_next_to_plan(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)

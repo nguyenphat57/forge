@@ -7,12 +7,12 @@ Purpose: Benchmark three strong external repos on TDD and SDD, then extract what
 ## Inputs Reviewed
 Installed into:
 - `.tmp/spec-kit`
-- `.tmp/superpowers`
+- `.tmp/discipline-benchmark`
 - `.tmp/OpenSpec`
 
 Pinned snapshots:
 - `github/spec-kit` at `f8da535d715085d6bac06f0efe2fd4f07d221436`
-- `obra/superpowers` at `eafe962b18f6c5dc70fb7c8cc7e83e61f4cdde06`
+- `benchmark repo B` at `eafe962b18f6c5dc70fb7c8cc7e83e61f4cdde06`
 - `Fission-AI/OpenSpec` at `afdca0d5dab1aa109cfd8848b2512333ccad60c3`
 
 Method:
@@ -23,23 +23,23 @@ Method:
 ## Executive Summary
 Best overall fit for Forge:
 1. `OpenSpec`
-2. `Superpowers`
+2. `Discipline benchmark repo`
 3. `Spec Kit`
 
 Reason:
 - `OpenSpec` is the best source for a practical brownfield artifact model that Forge can absorb without losing its identity.
-- `Superpowers` is the best source for stronger execution discipline: strict TDD language, worktree hygiene, and per-task reviewer lanes.
+- `Discipline benchmark repo` is the best source for stronger execution discipline: strict TDD language, worktree hygiene, and per-task reviewer lanes.
 - `Spec Kit` is the best source for specification quality control: clarification markers, constitution-driven gates, and checklist thinking.
 
 Recommended strategy for Forge:
 - Keep Forge's existing evidence-first and risk-gated core.
 - Import OpenSpec's change-folder and verify-against-artifacts ideas.
-- Import Superpowers' execution rigor, especially worktree baseline verification and sharper TDD packets.
+- Import the discipline benchmark repo's execution rigor, especially worktree baseline verification and sharper TDD packets.
 - Import Spec Kit's clarification and checklist mechanisms selectively, without adopting its full ceremony.
 
 Short verdict:
 - Forge should not become a clone of any of the three.
-- Forge should become a hybrid: `Forge gates + OpenSpec artifacts + Superpowers execution discipline + Spec Kit clarification/checklist rigor`.
+- Forge should become a hybrid: `Forge gates + OpenSpec artifacts + discipline-benchmark execution discipline + Spec Kit clarification/checklist rigor`.
 
 ## Current Forge Baseline
 Forge already has meaningful strengths:
@@ -55,7 +55,7 @@ Current gaps relative to the benchmark set:
 - No constitution or project-principles artifact that systematically shapes planning.
 - No structured clarification pass equivalent to a requirement quality gate.
 - No strong worktree bootstrap with baseline test verification as a default behavior for risky work.
-- Plan artifacts are less operational than Superpowers plans and less spec-centric than OpenSpec changes.
+- Plan artifacts are less operational than the discipline benchmark repo's plans and less spec-centric than OpenSpec changes.
 - Brownfield artifact loop exists, but it is still weaker than OpenSpec's `specs + changes + archive` model.
 
 ## Repo 1: Spec Kit
@@ -87,7 +87,7 @@ Fit:
 - `SDD fit`: high
 - `TDD fit`: medium
 
-## Repo 2: Superpowers
+## Repo 2: Discipline Benchmark Repo
 Overall read:
 - Strongest on TDD enforcement and execution mechanics.
 - Less of a spec framework than Spec Kit, but better at turning a plan into disciplined implementation behavior.
@@ -157,11 +157,11 @@ Fit:
    - Dimensions: completeness, correctness, coherence, evidence strength
 
 3. Add worktree bootstrap plus baseline verification helper.
-   - Best source: Superpowers
+   - Best source: discipline benchmark repo
    - Forge already recommends isolation; it now needs a canonical helper to perform it reliably
 
 4. Upgrade TDD guidance from "principled" to "hard to rationalize away".
-   - Best source: Superpowers
+   - Best source: discipline benchmark repo
    - Add explicit anti-pattern examples and reset conditions
 
 5. Add clarification and checklist artifacts for medium/risky work.
@@ -174,7 +174,7 @@ Fit:
    - Keep it lightweight and opt-in, not mandatory for every tiny repo
 
 7. Improve plan artifacts so they are closer to execution packets.
-   - Best source: Superpowers
+   - Best source: discipline benchmark repo
    - Exact files, proof-before-progress, out-of-scope, reopen conditions, task granularity
 
 8. Add spec merge-back on archive.
@@ -195,7 +195,7 @@ Avoid from Spec Kit:
 - Optional-testing phrasing in task generation
 - Assuming every repo wants the same artifact footprint
 
-Avoid from Superpowers:
+Avoid from the discipline benchmark repo:
 - Absolutist TDD language as a universal default in every context
 - Requiring micro-task decomposition even when it hurts momentum
 - Overloading plans with full code blocks for every single step
@@ -208,7 +208,7 @@ Avoid from OpenSpec:
 ## Recommended Forge Direction
 Target operating model:
 - `OpenSpec-style artifact spine`
-- `Superpowers-style execution discipline`
+- `discipline-benchmark execution discipline`
 - `Spec Kit-style clarification and spec quality control`
 - `Forge-style verification and risk gating`
 
@@ -264,14 +264,14 @@ If Forge only borrows one thing now:
 - borrow OpenSpec's change-folder plus artifact verification model
 
 If Forge borrows two things now:
-- add Superpowers' worktree bootstrap and stronger execution packets
+- add the discipline benchmark repo's worktree bootstrap and stronger execution packets
 
 If Forge borrows three things now:
 - add Spec Kit's clarification/checklist layer before planning or spec-review
 
 Net conclusion:
 - `OpenSpec` gives Forge the best artifact model.
-- `Superpowers` gives Forge the best execution rigor.
+- `Discipline benchmark repo` gives Forge the best execution rigor.
 - `Spec Kit` gives Forge the best spec-quality discipline.
 
 The best version of Forge is not the heaviest one.

@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-04-22T20:25:00+07:00",
+  "updated_at": "2026-04-22T13:18:52+00:00",
   "working_on": {
     "feature": "forge-skill-wording-hardening-release",
-    "task": "Publish Forge 2.14.3 as the stable release after the six-skill wording and emphasis hardening pass",
+    "task": "Publish Forge 2.14.4 as the stable release after removing the remaining superpowers wording across source and release surfaces",
     "status": "pushed-to-main",
     "files": [
       "packages/forge-core/skills/brainstorming/SKILL.md",
@@ -18,33 +18,50 @@
       "docs/release/public-readiness.md",
       ".brain/session.json",
       ".brain/handover.md",
-      ".brain/decisions.json"
+      ".brain/decisions.json",
+      "docs/archive/history/2026-03-runtime-era/PROJECT_TDD_SDD_BENCHMARK_2026-03-29.md",
+      "docs/archive/plans/2026-03-29-forge-tdd-sdd-adoption-roadmap.md",
+      "docs/archive/plans/2026-04-02-forge-1.14.x-competitive-roadmap.md",
+      "docs/audits/2026-03-28-solo-dev-ecosystem-review.md",
+      "docs/legacy/specs/2026-04-19-forge-customize-trigger-alignment-design.md",
+      "docs/plans/2026-04-22-forge-core-cleanup-implementation-plan.md",
+      "packages/forge-core/references/design/visual-companion-guidance.md",
+      "packages/forge-core/references/planning/implementation-plan-template.md",
+      "packages/forge-core/references/planning/plan-self-review-checklist.md",
+      "packages/forge-core/tests/test_contracts.py",
+      "packages/forge-core/tests/test_plan_transition_help_next.py"
     ]
   },
-  "pending_tasks": [],
+  "pending_tasks": [
+    "Resume the recorded workflow stage 'plan' before opening new scope."
+  ],
   "recent_changes": [
-    "packages/forge-core/skills/brainstorming/SKILL.md",
-    "packages/forge-core/skills/executing-plans/SKILL.md",
-    "packages/forge-core/skills/dispatching-parallel-agents/SKILL.md",
-    "packages/forge-core/skills/requesting-code-review/SKILL.md",
-    "packages/forge-core/skills/systematic-debugging/SKILL.md",
-    "packages/forge-core/skills/using-git-worktrees/SKILL.md",
     "CHANGELOG.md",
-    "README.md",
-    "VERSION",
-    "docs/release/release-process.md",
-    "docs/release/public-readiness.md"
+    "docs/archive/history/2026-03-runtime-era/PROJECT_TDD_SDD_BENCHMARK_2026-03-29.md",
+    "docs/archive/plans/2026-03-29-forge-tdd-sdd-adoption-roadmap.md",
+    "docs/archive/plans/2026-04-02-forge-1.14.x-competitive-roadmap.md",
+    "docs/audits/2026-03-28-solo-dev-ecosystem-review.md",
+    "docs/legacy/specs/2026-04-19-forge-customize-trigger-alignment-design.md",
+    "docs/plans/2026-04-22-forge-core-cleanup-implementation-plan.md",
+    "packages/forge-core/references/design/visual-companion-guidance.md",
+    "packages/forge-core/references/planning/implementation-plan-template.md",
+    "packages/forge-core/references/planning/plan-self-review-checklist.md",
+    "packages/forge-core/tests/test_contracts.py",
+    "packages/forge-core/tests/test_plan_transition_help_next.py",
+    "packages/forge-core/tests/test_skill_design_contracts.py",
+    "packages/forge-core/tests/test_visual_companion.py",
+    "tests/test_public_customize_skill.py"
   ],
   "verification": [
     "pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-22 after the six-skill wording hardening pass",
     "python scripts/generate_host_artifacts.py --check --format json -> PASS on 2026-04-22",
     "python scripts/generate_overlay_skills.py --check --format json -> PASS on 2026-04-22",
-    "python scripts/verify_repo.py -> PASS on 2026-04-22 after 2.14.3 release sync"
+    "python scripts/verify_repo.py -> PASS on 2026-04-22 after 2.14.4 release sync"
   ],
   "decisions_made": [
     "Forge wording hardening should target six medium-leverage workflow skills instead of sweeping the entire skill set.",
     "The hardening pass should increase scanability and coercion with selective emphasis while preserving Forge's contract-first tone.",
-    "Release-facing docs and continuity artifacts must track 2.14.3 as the current stable line."
+    "Release-facing docs and continuity artifacts must track 2.14.4 as the current stable line."
   ],
   "risks": [
     "A later pass may still need to align the surface tone of subagent-driven-development and receiving-code-review with the hardened six-skill set."
@@ -52,8 +69,10 @@
   "blockers": [],
   "source_artifacts": [
     "readme: C:\\Users\\Admin\\.gemini\\forge\\README.md",
-    "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
+    "plan: C:\\Users\\Admin\\.gemini\\forge\\docs\\plans\\2026-04-22-forge-core-cleanup-implementation-plan.md",
     "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
-    "git: main working tree"
+    "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
+    "git: 15 working tree item(s)",
+    "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\workflow-state\\forge\\latest.json"
   ]
 }

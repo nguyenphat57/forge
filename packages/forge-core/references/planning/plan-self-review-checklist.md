@@ -4,7 +4,7 @@ Use before `plan` asks for execution choice.
 
 - The plan is written to `docs/plans/YYYY-MM-DD-<topic>-implementation-plan.md`.
 - The title follows `# [Feature Name] Implementation Plan`.
-- The plan includes the agentic-worker header with `REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans`.
+- The plan includes the agentic-worker header with `REQUIRED SUB-SKILL: Use forge-subagent-driven-development (recommended) or forge-executing-plans`.
 - The plan includes `Goal`, `Architecture`, and `Tech Stack`.
 - The source design or source requirement is named.
 - Every task has a clear file or surface boundary when known.

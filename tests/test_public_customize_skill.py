@@ -44,7 +44,7 @@ class PublicCustomizeSkillTests(unittest.TestCase):
         description = description_match.group("value")
         self.assertTrue(
             description.startswith("Use when "),
-            "Description should follow the Superpowers trigger-first pattern and start with 'Use when '.",
+            "Description should follow the trigger-first pattern and start with 'Use when '.",
         )
         self.assertIn("host-neutral", description)
         self.assertIn("Forge preferences", description)

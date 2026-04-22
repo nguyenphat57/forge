@@ -5,8 +5,8 @@ import unittest
 from support import ROOT_DIR
 
 
-class SuperpowersDesignContractTests(unittest.TestCase):
-    def test_brainstorm_contract_matches_superpowers_design_doc_generator(self) -> None:
+class SkillDesignContractTests(unittest.TestCase):
+    def test_brainstorm_contract_matches_current_design_doc_generator(self) -> None:
         brainstorm = (ROOT_DIR / "skills" / "brainstorming" / "SKILL.md").read_text(encoding="utf-8")
 
         for token in (
@@ -30,7 +30,7 @@ class SuperpowersDesignContractTests(unittest.TestCase):
         self.assertNotIn("direction-locked", brainstorm)
         self.assertNotIn("decision-blocked", brainstorm)
 
-    def test_plan_contract_matches_superpowers_writing_plans_flow(self) -> None:
+    def test_plan_contract_matches_current_writing_plans_flow(self) -> None:
         plan = (ROOT_DIR / "skills" / "writing-plans" / "SKILL.md").read_text(encoding="utf-8")
 
         for token in (

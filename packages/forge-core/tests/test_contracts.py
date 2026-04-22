@@ -73,7 +73,7 @@ FORGE_SPLIT_SKILLS = {
         "package": "forge-writing-skills",
         "path": "skills/writing-skills/SKILL.md",
         "budget": 720,
-        "copied_superpowers_style": True,
+        "copied_tdd_doc_style": True,
     },
     "session-management": {
         "package": "forge-session-management",
@@ -102,7 +102,7 @@ FORBIDDEN_ACTIVE_TESTS = {
     "tests/test_route_complexity_safety.py",
     "tests/test_route_matrix.py",
     "tests/test_route_preview.py",
-    "tests/test_superpowers_route_preview.py",
+    "tests/test_legacy_route_preview.py",
 }
 
 FORBIDDEN_RESIDUE_DIRS = {
@@ -141,7 +141,7 @@ class BundleContractTests(unittest.TestCase):
         )
         return {line.strip().replace("\\", "/") for line in result.stdout.splitlines() if line.strip()}
 
-    def test_core_skill_contains_superpowers_style_bootstrap_contract(self) -> None:
+    def test_core_skill_contains_bootstrap_contract(self) -> None:
         skill = (ROOT_DIR / "SKILL.md").read_text(encoding="utf-8")
         lowered = skill.casefold()
 
@@ -174,7 +174,7 @@ class BundleContractTests(unittest.TestCase):
                 self.assertIn(f"name: {expected['package']}", frontmatter)
                 self.assertIn("description:", frontmatter)
                 self.assertIn("description: Use when", frontmatter)
-                if expected.get("copied_superpowers_style"):
+                if expected.get("copied_tdd_doc_style"):
                     self.assertIn("Writing skills IS Test-Driven Development applied to process documentation.", text)
                 else:
                     self.assertIn("<EXTREMELY-IMPORTANT>", text)
@@ -312,7 +312,6 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("Every implementation task should be specific enough", plan)
         self.assertIn("forge-subagent-driven-development", plan)
         self.assertIn("forge-executing-plans", plan)
-        self.assertNotIn("superpowers:", plan)
 
     def test_session_management_skill_mentions_preferences_restore_contract(self) -> None:
         session = (ROOT_DIR / "skills" / "session-management" / "SKILL.md").read_text(encoding="utf-8")
@@ -337,7 +336,6 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("Skill Creation Checklist", writing_skills)
         self.assertIn("forge-test-driven-development", writing_skills)
         self.assertIn("forge-systematic-debugging", writing_skills)
-        self.assertNotIn("superpowers:", writing_skills)
         for relative_path in (
             "anthropic-best-practices.md",
             "graphviz-conventions.dot",
@@ -351,7 +349,6 @@ class BundleContractTests(unittest.TestCase):
                 self.assertTrue((writing_skill_dir / relative_path).exists())
         testing_reference = (writing_skill_dir / "testing-skills-with-subagents.md").read_text(encoding="utf-8")
         self.assertIn("forge-test-driven-development", testing_reference)
-        self.assertNotIn("superpowers:", testing_reference)
 
     def test_workflow_files_are_operator_only_thin_compatibility_wrappers(self) -> None:
         workflow_paths = sorted((ROOT_DIR / "workflows").glob("*/*.md"))
@@ -363,7 +360,6 @@ class BundleContractTests(unittest.TestCase):
         for path in workflow_paths:
             text = path.read_text(encoding="utf-8")
             with self.subTest(path=str(path.relative_to(ROOT_DIR))):
-                self.assertNotIn("superpowers:", text)
                 if "Compatibility Wrapper" in text:
                     self.assertLessEqual(self._raw_line_count(path), 40)
                     self.assertIn("forge-", text)

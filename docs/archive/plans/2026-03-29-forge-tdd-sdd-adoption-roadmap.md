@@ -21,7 +21,7 @@ Do not replace Forge with another framework.
 
 Adopt:
 - `OpenSpec` for artifact spine
-- `Superpowers` for execution rigor
+- `discipline benchmark repo` for execution rigor
 - `Spec Kit` for spec quality control
 
 Keep:

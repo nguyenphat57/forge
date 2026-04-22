@@ -14,7 +14,7 @@ Source basis:
 
 Repos reviewed:
 - [garrytan/gstack](https://github.com/garrytan/gstack)
-- [obra/superpowers](https://github.com/obra/superpowers)
+- discipline-first benchmark repo
 - [tody-agent/codymaster](https://github.com/tody-agent/codymaster)
 - [gsd-build/get-shit-done](https://github.com/gsd-build/get-shit-done)
 - [vudovn/antigravity-kit](https://github.com/vudovn/antigravity-kit)
@@ -48,7 +48,7 @@ The right direction is:
 | Repo | Core Identity | Strongest Value | Best Absorption For Forge |
 |---|---|---|---|
 | gstack | Solo software factory | idea-to-ship loop, browser QA, release ops | shipping rituals, browser QA, docs sync |
-| superpowers | Discipline-first skill system | hard process guardrails, TDD, evidence | verification rigor, worktree discipline |
+| discipline benchmark repo | Discipline-first skill system | hard process guardrails, TDD, evidence | verification rigor, worktree discipline |
 | codymaster | AI operating system | memory architecture, continuity, dashboard | continuity tiers, learnings, decisions |
 | get-shit-done | Pragmatic spec-driven system | project state, brownfield mapping, validation contract | map-codebase, health, requirement-to-verification |
 | antigravity-kit | Template-heavy starter kit | stack presets and starter utility | first-party templates and app-builder presets |
@@ -79,7 +79,7 @@ Forge should avoid:
 - too many overlapping commands
 - charisma-heavy product claims that exceed what the tool can prove
 
-## 2. superpowers
+## 2. discipline benchmark repo
 
 Identity:
 - the cleanest discipline-first workflow system in the set
@@ -263,7 +263,7 @@ What Forge is missing most:
 - operator ergonomics: doctor, dashboard, release-doc sync, release readiness
 
 Highest-fit absorptions:
-- from `superpowers`: evidence-before-claims, worktree discipline, staged review
+- from the discipline benchmark repo: evidence-before-claims, worktree discipline, staged review
 - from `get-shit-done`: `map-codebase`, health, requirement-to-verification contract
 - from `oh-my-agent`: doctor, presets, stack-set style generation
 - from `OpenSpec`: per-change artifact workflow and archive-back-to-spec loop

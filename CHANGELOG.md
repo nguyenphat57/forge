@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.14.4 (stable) - 2026-04-22
+
+- Remove the remaining `superpowers` wording from active skill, reference, test, and historical source surfaces, including legacy doc paths that still exposed the old label.
+- Rename the remaining legacy-named Forge contract tests, rebuild release artifacts, and refresh release-facing plus continuity state so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` align on `2.14.4` as the current stable line.
+
+
 ## 2.14.3 (stable) - 2026-04-22
 
 - Strengthen six core Forge workflow skills with clearer hard gates, more selective emphasis, and more forceful scan-friendly wording while keeping the existing routing and verification contracts intact.
@@ -23,7 +29,7 @@
 ## 2.14.0 (stable) - 2026-04-22
 
 - Rebuild Forge around markdown-first host-discoverable sibling skills: add `forge-writing-skills`, split and enrich process skills for brainstorming, planning, execution, TDD, debugging, review, verification, worktrees, subagents, parallel dispatch, branch finishing, and session management.
-- Move the Superpowers-style `1% chance` activation rule back to the core and host bootstrap layers only, keeping sibling skill descriptions as focused `Use when...` triggers while preserving `<EXTREMELY-IMPORTANT>` pressure in process bodies.
+- Move the inherited `1% chance` activation rule back to the core and host bootstrap layers only, keeping sibling skill descriptions as focused `Use when...` triggers while preserving `<EXTREMELY-IMPORTANT>` pressure in process bodies.
 - Refresh install/build/catalog surfaces so `forge-codex` and `forge-antigravity` install the expanded sibling skill family, compatibility workflows remain thin aliases, generated host artifacts stay aligned, and contract tests protect the split-skill architecture.
 
 
@@ -43,14 +49,14 @@
 
 ## 2.11.0 (stable) - 2026-04-21
 
-- Absorb Superpowers-style strict TDD into Forge by enforcing failing-test-first behavior changes, delete-before-RED reset rules, named baseline proof, expanded anti-rationalization coverage, and explicit no-harness fallback discipline.
+- Absorb the stricter TDD discipline into Forge by enforcing failing-test-first behavior changes, delete-before-RED reset rules, named baseline proof, expanded anti-rationalization coverage, and explicit no-harness fallback discipline.
 - Add packet-first subagent execution with implementer, spec-reviewer, quality-reviewer, and final-reviewer prompts, status handling for `DONE`, `DONE_WITH_CONCERNS`, `NEEDS_CONTEXT`, and `BLOCKED`, plus final holistic review before quality-gate claims.
 - Refresh release-facing and continuity surfaces so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` all agree on `2.11.0` as the current stable release.
 
 
 ## 2.10.0 (stable) - 2026-04-21
 
-- Align Forge design flow more closely with Superpowers by making `brainstorm` the design-doc generator, making `plan` the writing-plan style implementation gate, and flattening BUILD routing across risk levels.
+- Align Forge design flow around the current design-doc generator and writing-plan implementation gate, while flattening BUILD routing across risk levels.
 - Ship the Forge Visual Companion script layer with a local browser server, frame/helper assets, shell plus PowerShell wrappers, persistent `.forge-artifacts/visual-companion` sessions, and release bundle coverage for all shipped hosts.
 - Refresh release-facing and continuity surfaces so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` all agree on `2.10.0` as the current stable release.
 

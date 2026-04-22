@@ -18,7 +18,7 @@ Status: implemented
   - `packages/forge-core/tests/test_route_complexity_safety.py`
   - `packages/forge-core/tests/test_route_matrix.py`
   - `packages/forge-core/tests/test_route_preview.py`
-  - `packages/forge-core/tests/test_superpowers_route_preview.py`
+  - `packages/forge-core/tests/test_legacy_route_preview.py`
 - Several reference files are no longer part of the current maintainer reading path and appear to survive mainly as stale legacy surfaces:
   - `packages/forge-core/references/companion-skill-contract.md`
   - `packages/forge-core/references/companion-routing-smoke-tests.md`
@@ -79,7 +79,7 @@ Status: implemented
   - Notes: cover the five known `Archived:` files explicitly
 
 - [x] Step 2: Move or delete the five archived route-era tests
-  - Files: `packages/forge-core/tests/test_router_matrix.py`, `packages/forge-core/tests/test_route_complexity_safety.py`, `packages/forge-core/tests/test_route_matrix.py`, `packages/forge-core/tests/test_route_preview.py`, `packages/forge-core/tests/test_superpowers_route_preview.py`
+  - Files: `packages/forge-core/tests/test_router_matrix.py`, `packages/forge-core/tests/test_route_complexity_safety.py`, `packages/forge-core/tests/test_route_matrix.py`, `packages/forge-core/tests/test_route_preview.py`, `packages/forge-core/tests/test_legacy_route_preview.py`
   - Change: remove them from the active test package; archive only if historical retention is still desired
   - Proof: targeted contract test passes and `python -m pytest packages/forge-core/tests -q` still completes
   - Notes: do not move active route-delegation or workflow-state tests

@@ -64,7 +64,7 @@ class VisualCompanionTests(unittest.TestCase):
                 line_count = len(path.read_text(encoding="utf-8").splitlines())
                 self.assertLessEqual(line_count, 300, f"{asset} exceeds 300 lines")
 
-    def test_current_docs_reference_forge_tooling_not_superpowers_paths(self):
+    def test_current_docs_reference_current_forge_paths(self):
         docs = [
             ROOT_DIR / "SKILL.md",
             ROOT_DIR / "references" / "design" / "visual-companion-guidance.md",
@@ -72,7 +72,7 @@ class VisualCompanionTests(unittest.TestCase):
         text = "\n".join(path.read_text(encoding="utf-8") for path in docs)
         self.assertIn("tools/visual-companion/scripts/start-server", text)
         self.assertIn(".forge-artifacts/visual-companion", text)
-        self.assertNotIn(".superpowers/brainstorm", text)
+        self.assertNotRegex(text, r"\.[^/\s]+/brainstorm")
 
     def test_package_matrix_requires_visual_companion_assets(self):
         matrix_path = REPO_ROOT / "docs" / "release" / "package-matrix.json"

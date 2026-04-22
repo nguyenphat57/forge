@@ -594,7 +594,7 @@
         "id":  "20260422-000000",
         "kind":  "decision",
         "scope":  "forge-2-14-stable-status",
-        "summary":  "Treat 2.14.3 as the current stable Forge release because the six-skill wording hardening pass, release surface sync, and canonical verification checks are complete.",
+        "summary":  "Treat 2.14.4 as the current stable Forge release because the superpowers-wording removal pass, release surface sync, and canonical verification checks are complete.",
         "status":  "resolved",
         "evidence":  [
                          "VERSION",
@@ -624,8 +624,8 @@
                      "wording",
                      "verification"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 2.14.3 verification evidence.",
+        "revisit_if":  "A later release changes the stable line or invalidates the 2.14.4 verification evidence.",
         "trigger":  "patch-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.14.3 proof chain or invalidates the recorded verification."
+        "resume_hint":  "Resume only if a later audit needs the original 2.14.4 proof chain or invalidates the recorded verification."
     }
 ]
