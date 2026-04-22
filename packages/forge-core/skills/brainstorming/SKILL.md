@@ -6,11 +6,15 @@ description: Use when the task is a new feature, behavior change, workflow chang
 # Forge Brainstorming
 
 <EXTREMELY-IMPORTANT>
-Use this before answering, asking clarifying questions, exploring files, or implementing when the task matches the trigger.
+**REQUIRED GATE:** Use this before answering, asking clarifying questions, exploring files, or implementing when the task matches the trigger.
 
-Questions are tasks. Exploration is work. Do not skip this because the request seems "small" if behavior, UX, workflow, data flow, public contract, or visual direction may change.
+```text
+NO IMPLEMENTATION BEFORE APPROVED DESIGN
+```
 
-Do not invoke implementation skills until a design has been presented and approved.
+**Questions are tasks. Exploration is work.** Do not skip this because the request seems "small" if behavior, UX, workflow, data flow, public contract, or visual direction may change.
+
+**DO NOT INVOKE IMPLEMENTATION SKILLS** until a design has been presented and approved.
 </EXTREMELY-IMPORTANT>
 
 ## Use When
@@ -74,7 +78,7 @@ digraph forge_brainstorming {
 
 ### 2. Offer Visual Companion
 
-- If layout, spacing, interaction, screenshots, animation, information hierarchy, or rendered browser state will matter, offer Visual Companion in its own message before detailed visual questions.
+- **REQUIRED:** If layout, spacing, interaction, screenshots, animation, information hierarchy, or rendered browser state will matter, offer Visual Companion in its own message before detailed visual questions.
 - Use browser or screenshot evidence for rendered behavior.
 - Use terminal and file inspection for implementation details, contracts, and non-visual constraints.
 - If the user declines the visual path, continue normally without forcing it.
@@ -87,7 +91,7 @@ Offer shape:
 
 > Some of what we're working on might be easier to explain if I can show it in a browser. I can put together mockups, diagrams, comparisons, and other visuals as we go. Want to try it? This requires opening a local URL.
 
-This offer MUST be its own message. Do not combine it with clarifying questions, context summaries, tradeoff lists, or any other content.
+**REQUIRED:** This offer MUST be its own message. Do not combine it with clarifying questions, context summaries, tradeoff lists, or any other content.
 
 After the user accepts, still decide per question whether the browser helps. The test is: would the user understand this better by seeing it than reading it?
 
@@ -107,7 +111,7 @@ When the design risk is about boundaries rather than visuals, use the architectu
 
 ### 3. Ask Clarifying Questions
 
-- Ask one blocking question at a time.
+- **Ask one blocking question at a time.**
 - Keep the interaction one question at a time when clarification is needed.
 - Focus on purpose, constraints, success criteria, non-goals, and reversal cost.
 - If the user says to decide, state a controlled assumption instead of pretending nothing is ambiguous.
@@ -124,7 +128,7 @@ When the design risk is about boundaries rather than visuals, use the architectu
 - Present the design in sections scaled to the task.
 - Use section-by-section approval for medium or large work.
 - Cover architecture, components, data flow, error handling, boundary conditions, testing, and proof plan.
-- If a section is uncertain, stop there instead of smuggling ambiguity into implementation.
+- **STOP** if a section is uncertain instead of smuggling ambiguity into implementation.
 
 ### 6. Design For Isolation And Clarity
 

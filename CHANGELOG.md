@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.14.3 (stable) - 2026-04-22
+
+- Strengthen six core Forge workflow skills with clearer hard gates, more selective emphasis, and more forceful scan-friendly wording while keeping the existing routing and verification contracts intact.
+- Refresh release-facing and continuity artifacts so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` align on `2.14.3` as the current stable line.
+
+
 ## 2.14.2 (stable) - 2026-04-22
 
 - Collapse the live `forge-core` workflow compatibility surface to `workflows/operator/*`, move `session.md` under `operator/`, retire stale workflow aliases, and align generated Codex host artifacts plus release metadata with the operator-only contract.

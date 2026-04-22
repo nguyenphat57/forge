@@ -6,7 +6,11 @@ description: Use when feature work, plan execution, dirty repo state, or risky e
 # Forge Using Git Worktrees
 
 <EXTREMELY-IMPORTANT>
-Check isolation before editing when the repo is dirty, the task is medium or larger, or the change spans multiple slices.
+**REQUIRED GATE:** Check isolation before editing when the repo is dirty, the task is medium or larger, or the change spans multiple slices.
+
+```text
+NO ISOLATION DECISION AFTER EDITING STARTS
+```
 
 Systematic directory selection plus safety verification prevents overwriting user work and prevents accidentally committing worktree contents.
 </EXTREMELY-IMPORTANT>
@@ -21,7 +25,7 @@ worktree for medium/risky/dirty work
 subagent-split for independent isolated lanes
 ```
 
-Do not start editing first and decide isolation later.
+**DO NOT START EDITING FIRST** and decide isolation later.
 
 ## Use When
 
@@ -62,8 +66,8 @@ digraph using_git_worktrees {
 2. Identify whether dirty files are related to the requested task.
 3. Choose one stance: `same-tree`, `worktree`, or `subagent-split`.
 4. If using a worktree, create it under a safe project-local or configured workspace root.
-5. Run the gitignore safety check before editing.
-6. Run the baseline command in the worktree before editing when possible.
+5. **Run the gitignore safety check before editing.**
+6. **Run the baseline command in the worktree before editing** when possible.
 7. Keep the worktree path, branch, baseline result, and cleanup expectation in the handoff.
 
 ## Directory Selection
@@ -92,7 +96,7 @@ The worktree directory name should match the branch or slice closely enough that
 
 ## Gitignore Safety Check
 
-Before using a project-local worktree path, verify the repo will not accidentally track the worktree contents.
+**Before using a project-local worktree path, verify the repo will not accidentally track the worktree contents.**
 
 - Prefer a workspace root outside the repo when possible.
 - If the worktree lives under the repo parent or a project-local helper directory, confirm the path is ignored by `.gitignore`, `.git/info/exclude`, or the global ignore file.
@@ -100,11 +104,11 @@ Before using a project-local worktree path, verify the repo will not accidentall
 - If the path is not ignored, either add the ignore rule first or choose a different worktree root.
 - Never leave a worktree directory in a location where `git status` from the main repo can pick it up as untracked work.
 
-If adding an ignore rule is required, treat that as a real repo change: state it, verify it, and include it in the final diff. Do not silently modify ignore policy.
+If adding an ignore rule is required, treat that as a real repo change: state it, verify it, and include it in the final diff. **Do not silently modify ignore policy.**
 
 ## Create And Enter The Worktree
 
-Before creating:
+**Before creating:**
 
 - confirm the current branch and target base
 - confirm the target path does not already contain unrelated files
@@ -141,14 +145,14 @@ Run a baseline command when viable:
 - docs/content check for docs-only work
 - smoke check when no harness exists
 
-If baseline fails, stop and report:
+If baseline fails, **stop and report**:
 
 - command run
 - failure summary
 - whether the failure appears pre-existing
 - whether to debug baseline first or continue with explicit residual risk
 
-Do not bury baseline failure under later implementation output.
+**Do not bury baseline failure** under later implementation output.
 
 ## Forge Helper
 
@@ -176,7 +180,7 @@ This packet lets `forge-session-management` resume safely and lets `forge-finish
 
 ## Cleanup Safety
 
-Do not remove a worktree until:
+**Do not remove a worktree until:**
 
 - changes are merged, intentionally discarded, or handed off
 - no uncommitted work remains unless the user explicitly discards it

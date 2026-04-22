@@ -6,9 +6,13 @@ description: Use when a written implementation plan exists and the user wants in
 # Forge Executing Plans
 
 <EXTREMELY-IMPORTANT>
-Use this before executing a written plan in the current session.
+**REQUIRED GATE:** Use this before executing a written plan in the current session.
 
-If tasks are independent and subagents are useful, prefer `forge-subagent-driven-development` instead of improvising ad hoc delegation.
+```text
+NO PLAN EXECUTION WITHOUT SLICE-BY-SLICE PROOF
+```
+
+**REQUIRED SUB-SKILL:** If tasks are independent and subagents are useful, use `forge-subagent-driven-development` instead of improvising ad hoc delegation.
 </EXTREMELY-IMPORTANT>
 
 ## Use When
@@ -26,14 +30,14 @@ If tasks are independent and subagents are useful, prefer `forge-subagent-driven
 ## Process
 
 1. Load the plan and review it critically.
-2. Identify blockers, missing files, missing proof, or scope conflicts before editing.
+2. Identify blockers, missing files, missing proof, or scope conflicts **before editing**.
 3. Define verification before each slice.
-4. If behavior changes and a harness is viable, invoke `forge-test-driven-development`.
-5. If the repo is dirty or the plan needs isolation, invoke `forge-using-git-worktrees`.
+4. If behavior changes and a harness is viable, **invoke `forge-test-driven-development` before implementation code**.
+5. If the repo is dirty or the plan needs isolation, **invoke `forge-using-git-worktrees` before editing**.
 6. Execute one task or slice at a time.
 7. Run the exact proof for that slice before proceeding.
 8. Update workflow-state for medium, risky, or long-running work via the orchestrator bundle scripts.
-9. Before claiming ready or done, invoke `forge-verification-before-completion`.
+9. **Do not claim ready or done** until `forge-verification-before-completion` has been invoked.
 
 ## Execution Loop
 
@@ -45,7 +49,7 @@ For each task or slice:
 4. If the proof fails unexpectedly, stop and classify the problem instead of free-styling.
 5. Record the new state before moving to the next slice.
 
-Do not batch several slices together just because they share files.
+**DO NOT BATCH** several slices together just because they share files.
 
 ## Execution Discipline
 
@@ -57,18 +61,18 @@ Do not batch several slices together just because they share files.
 
 ## Stop And Ask For Help
 
-Stop executing immediately when:
+**STOP EXECUTING IMMEDIATELY** when:
 
 - a blocker prevents safe progress
 - the plan has a critical gap that prevents starting or continuing
 - the instruction is unclear enough that guessing would change scope
 - the same verification fails repeatedly without a clear root cause
 
-Ask for clarification or return to the earlier process skill instead of pushing through by instinct.
+**DO NOT PUSH THROUGH BY INSTINCT.** Ask for clarification or return to the earlier process skill.
 
 ## Reopen Earlier Steps
 
-Return to plan review before continuing when:
+**RETURN TO PLAN REVIEW BEFORE CONTINUING** when:
 
 - the partner updates the plan
 - the current slice reveals a missing boundary decision
@@ -80,9 +84,9 @@ Return to `forge-writing-plans` if the plan itself must change. Return to `forge
 
 After all slices are complete and verified:
 
-- invoke `forge-requesting-code-review` when review is still needed
-- invoke `forge-verification-before-completion` before any ready or done claim
-- invoke `forge-finishing-a-development-branch` when the work is truly ready for merge, PR, keep, or discard decisions
+- **REQUIRED:** invoke `forge-requesting-code-review` when review is still needed
+- **REQUIRED:** invoke `forge-verification-before-completion` before any ready or done claim
+- **REQUIRED:** invoke `forge-finishing-a-development-branch` when the work is truly ready for merge, PR, keep, or discard decisions
 
 ## Integration
 

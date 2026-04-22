@@ -6,13 +6,13 @@ description: Use when the task involves a bug, regression, failing test, error, 
 # Forge Systematic Debugging
 
 <EXTREMELY-IMPORTANT>
-Use this before proposing or implementing fixes for bugs or unexpected behavior.
+**REQUIRED GATE:** Use this before proposing or implementing fixes for bugs or unexpected behavior.
 
 ```text
 NO FIXES WITHOUT ROOT-CAUSE INVESTIGATION FIRST
 ```
 
-If you have not completed Phase 1, you do not know enough to patch safely.
+**If you have not completed Phase 1, you do not know enough to patch safely.**
 </EXTREMELY-IMPORTANT>
 
 ## Use When
@@ -37,7 +37,7 @@ Random fixes waste time, hide the real failure boundary, and teach the wrong les
 
 ## The Four Phases
 
-You must complete each phase before moving to the next.
+**You must complete each phase before moving to the next.**
 
 ### Phase 1: Root Cause
 
@@ -90,11 +90,11 @@ You must complete each phase before moving to the next.
 2. State the evidence needed to confirm or kill that hypothesis.
 3. Change one variable at a time.
 4. Instrument only enough to answer the current hypothesis.
-5. If the hypothesis fails, discard it and form a new one. Do not stack guesses.
+5. If the hypothesis fails, discard it and form a new one. **Do not stack guesses.**
 
 #### When You Do Not Know
 
-- Say what you do not understand yet.
+- **Say what you do not understand yet.**
 - Convert uncertainty into a concrete question, comparison, or diagnostic step.
 - Ask for targeted help only after summarizing the current evidence packet.
 - Never hide uncertainty behind a patch proposal.
@@ -109,9 +109,9 @@ You must complete each phase before moving to the next.
 
 #### If Three Fixes Fail, Reset The Lens
 
-- Three failed fixes in one lane usually means the investigation model is wrong, not that you need a fourth guess.
+- **Three failed fixes in one lane usually means the investigation model is wrong, not that you need a fourth guess.**
 - Re-open Phase 1 with the new evidence and question the architecture, state model, or ownership boundary.
-- If each attempted fix reveals a different shared-state problem, stop patching and name the deeper design issue.
+- If each attempted fix reveals a different shared-state problem, **stop patching** and name the deeper design issue.
 - Discuss the change in lens before continuing if the work may expand into redesign.
 - If the root cause is invalid data crossing layers, load `references/debugging/defense-in-depth.md` before deciding the final guard shape.
 
@@ -169,7 +169,7 @@ Stop and escalate when:
 - Reproduction is unstable and the gap remains unnamed.
 - You are tempted to make a "quick patch" just to see what happens.
 
-When stalled, summarize the evidence, name what is still unknown, and either change lens or ask for targeted help.
+When stalled, **summarize the evidence, name what is still unknown, and either change lens or ask for targeted help.**
 
 ## Human Signals You Are Guessing
 
@@ -181,7 +181,7 @@ If your partner says things like:
 - "Stop guessing."
 - "We already tried that."
 
-Treat those as signals that your debugging loop has drifted. Return to Phase 1 and tighten the evidence packet.
+Treat those as signals that your debugging loop has drifted. **Return to Phase 1 and tighten the evidence packet.**
 
 ## Common Rationalizations
 
@@ -223,7 +223,7 @@ That still requires process:
 - implement the right local response: retry, timeout, validation, fallback, guardrail, or better error reporting
 - capture what remains unverified and what monitoring would tighten confidence later
 
-Do not use "it is probably environmental" as a shortcut around investigation.
+**Do not use "it is probably environmental" as a shortcut around investigation.**
 
 ## Integration
 

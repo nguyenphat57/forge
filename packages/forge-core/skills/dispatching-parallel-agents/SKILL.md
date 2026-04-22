@@ -6,11 +6,15 @@ description: Use when two or more independent tasks can run in parallel without 
 # Forge Dispatching Parallel Agents
 
 <EXTREMELY-IMPORTANT>
-Parallel dispatch is only safe when write scopes are disjoint and the next local step is not blocked by the delegated result.
+**REQUIRED GATE:** Parallel dispatch is only safe when write scopes are disjoint and the next local step is not blocked by the delegated result.
 
-Do not spawn agents for vague ownership, overlapping edits, or work that should stay on the controller's critical path.
+```text
+NO PARALLEL DISPATCH WITHOUT DISJOINT OWNERSHIP AND INTEGRATION PROOF
+```
 
-One focused agent per independent problem domain. The controller keeps integration, sequencing, and final claims.
+**DO NOT SPAWN AGENTS** for vague ownership, overlapping edits, or work that should stay on the controller's critical path.
+
+**One focused agent per independent problem domain.** The controller keeps integration, sequencing, and final claims.
 </EXTREMELY-IMPORTANT>
 
 ## Why Parallel Agents
@@ -24,7 +28,7 @@ Use them to:
 - review independent artifacts without context pollution
 - preserve controller attention for integration decisions
 
-Do not use them to avoid thinking about dependency order. Bad decomposition creates conflicts faster than one careful lane.
+**DO NOT USE THEM** to avoid thinking about dependency order. Bad decomposition creates conflicts faster than one careful lane.
 
 ## Use When
 
@@ -81,7 +85,7 @@ Before dispatch, answer these explicitly:
 - Can verification run per lane before final integration?
 - What local controller work continues while agents run?
 
-If any answer is unclear, do not dispatch yet. Split the plan, run debugging, or keep execution sequential.
+If any answer is unclear, **do not dispatch yet**. Split the plan, run debugging, or keep execution sequential.
 
 ## Grouping Problem Domains
 
@@ -101,7 +105,7 @@ Bad domains are broad and conflict-prone:
 - `review everything`
 - `update docs and implementation wherever needed`
 
-Each domain should have one owner, one output contract, and one proof strategy.
+Each domain should have **one owner, one output contract, and one proof strategy**.
 
 ## Dispatch Packet
 
@@ -128,7 +132,7 @@ Collaboration: other workers may be editing elsewhere; do not revert unrelated c
 Return: status, changed files, root cause or implementation summary, proof, residual risk
 ```
 
-If the prompt says "figure out where to edit", ownership is not ready. If the prompt has no proof requirement, the lane is not ready.
+If the prompt says "figure out where to edit", **ownership is not ready**. If the prompt has no proof requirement, **the lane is not ready**.
 
 ## While Agents Run
 
@@ -142,7 +146,7 @@ Useful parallel controller work:
 - prepare final integration checklist
 - review artifacts that no worker owns
 
-Do not start local edits in files owned by running agents.
+**DO NOT START LOCAL EDITS** in files owned by running agents.
 
 ## Review And Integrate
 
@@ -155,7 +159,7 @@ When agents return:
 5. Run an integration-level verification after combining results.
 6. Send incomplete or risky lanes back with a precise packet.
 
-Parallel completion is not final completion. `forge-verification-before-completion` still owns the claim boundary.
+**Parallel completion is not final completion.** `forge-verification-before-completion` still owns the claim boundary.
 
 ## Red Flags
 

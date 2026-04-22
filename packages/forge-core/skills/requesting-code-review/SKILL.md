@@ -6,9 +6,13 @@ description: Use when work is complete enough to review before merge, PR, handof
 # Forge Requesting Code Review
 
 <EXTREMELY-IMPORTANT>
-Use this before claiming work is ready, mergeable, or review-complete.
+**REQUIRED GATE:** Use this before claiming work is ready, mergeable, or review-complete.
 
-Findings first. Summary second.
+```text
+NO READY OR MERGE CLAIM WITHOUT REVIEW DISPOSITION
+```
+
+**Findings first. Summary second.**
 
 Review early enough to catch defects before they compound, and late enough that the reviewer has a concrete diff, artifact, or evidence packet to inspect.
 </EXTREMELY-IMPORTANT>
@@ -37,7 +41,7 @@ The reviewer must receive focused context, not the full chat history. A strong r
 
 ## When Review Is Mandatory
 
-Request review before:
+**REQUEST REVIEW BEFORE:**
 
 - merge, PR readiness, release readiness, or "ready" claims
 - medium or large feature completion
@@ -45,7 +49,7 @@ Request review before:
 - security, auth, payment, install, release, rollback, or data migration changes
 - final integration after subagent-driven or parallel-agent execution
 
-Review after each medium+ subagent slice when that slice can accumulate defects into later work.
+**REVIEW AFTER EACH MEDIUM+ SUBAGENT SLICE** when that slice can accumulate defects into later work.
 
 ## Review Packet
 
@@ -87,7 +91,7 @@ Reviewer questions:
 - <specific concerns to inspect>
 ```
 
-Use SHAs when available. Use explicit artifact paths when the review is docs, generated output, release bundle, or non-git state.
+**Use SHAs when available.** Use explicit artifact paths when the review is docs, generated output, release bundle, or non-git state.
 
 ## Review Rules
 
@@ -106,7 +110,7 @@ Ask the reviewer to classify issues:
 - `Minor`: useful cleanup that should not block unless the user wants polish.
 - `Question`: unclear requirement, tradeoff, or scope issue requiring a decision.
 
-Critical and Important findings require disposition before proceeding.
+**Critical and Important findings require disposition before proceeding.**
 
 ## Requesting A Subagent Review
 
@@ -137,7 +141,7 @@ Return one of:
 - `changes-required`
 - `blocked-by-residual-risk`
 
-Then use `forge-verification-before-completion` before any ready, done, or merge claim.
+Then **use `forge-verification-before-completion` before any ready, done, or merge claim**.
 
 ## Red Flags
 

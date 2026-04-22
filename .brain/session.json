@@ -1,36 +1,34 @@
 {
-  "updated_at": "2026-04-22T13:35:00+07:00",
+  "updated_at": "2026-04-22T20:25:00+07:00",
   "working_on": {
-    "feature": "forge-core-cleanup-release",
-    "task": "Publish Forge 2.14.2 as the stable release after the forge-core cleanup, operator-only workflow cutover, and route-era retirement sweep",
+    "feature": "forge-skill-wording-hardening-release",
+    "task": "Publish Forge 2.14.3 as the stable release after the six-skill wording and emphasis hardening pass",
     "status": "pushed-to-main",
     "files": [
-      "packages/forge-core/data/orchestrator-registry.json",
-      "packages/forge-core/skills/writing-skills/SKILL.md",
-      "packages/forge-core/scripts/workflow_state_summary.py",
-      "packages/forge-core/tests/test_contracts.py",
-      "packages/forge-core/workflows/operator/session.md",
-      "packages/forge-codex/overlay/workflows/operator/session.md",
+      "packages/forge-core/skills/brainstorming/SKILL.md",
+      "packages/forge-core/skills/executing-plans/SKILL.md",
+      "packages/forge-core/skills/dispatching-parallel-agents/SKILL.md",
+      "packages/forge-core/skills/requesting-code-review/SKILL.md",
+      "packages/forge-core/skills/systematic-debugging/SKILL.md",
+      "packages/forge-core/skills/using-git-worktrees/SKILL.md",
       "CHANGELOG.md",
       "README.md",
       "VERSION",
       "docs/release/release-process.md",
       "docs/release/public-readiness.md",
-      "docs/release/package-matrix.json",
-      "docs/architecture/host-artifacts-manifest.json",
       ".brain/session.json",
       ".brain/handover.md",
-      ".brain/decisions.json",
-      "docs/plans/2026-04-22-forge-core-cleanup-implementation-plan.md"
+      ".brain/decisions.json"
     ]
   },
   "pending_tasks": [],
   "recent_changes": [
-    "packages/forge-core/data/orchestrator-registry.json",
-    "packages/forge-core/skills/writing-skills/SKILL.md",
-    "packages/forge-core/scripts/workflow_state_summary.py",
-    "packages/forge-core/tests/test_contracts.py",
-    "packages/forge-core/workflows/operator/session.md",
+    "packages/forge-core/skills/brainstorming/SKILL.md",
+    "packages/forge-core/skills/executing-plans/SKILL.md",
+    "packages/forge-core/skills/dispatching-parallel-agents/SKILL.md",
+    "packages/forge-core/skills/requesting-code-review/SKILL.md",
+    "packages/forge-core/skills/systematic-debugging/SKILL.md",
+    "packages/forge-core/skills/using-git-worktrees/SKILL.md",
     "CHANGELOG.md",
     "README.md",
     "VERSION",
@@ -38,18 +36,18 @@
     "docs/release/public-readiness.md"
   ],
   "verification": [
-    "python -m pytest packages/forge-core/tests -q -> PASS on 2026-04-22 after forge-core cleanup completion",
-    "python -m pytest tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> PASS on 2026-04-22 after release surface alignment",
-    "python scripts/build_release.py --force --format json -> PASS on 2026-04-22",
-    "python scripts/verify_repo.py -> PASS on 2026-04-22 after 2.14.2 release sync"
+    "pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-22 after the six-skill wording hardening pass",
+    "python scripts/generate_host_artifacts.py --check --format json -> PASS on 2026-04-22",
+    "python scripts/generate_overlay_skills.py --check --format json -> PASS on 2026-04-22",
+    "python scripts/verify_repo.py -> PASS on 2026-04-22 after 2.14.3 release sync"
   ],
   "decisions_made": [
-    "Forge core now keeps only the operator workflow compatibility surface, with session continuity moved under workflows/operator/session.md.",
-    "The shipped writing-skills bundle must include its referenced support files rather than relying on external cached copies.",
-    "Release-facing docs and continuity artifacts must track 2.14.2 as the current stable line."
+    "Forge wording hardening should target six medium-leverage workflow skills instead of sweeping the entire skill set.",
+    "The hardening pass should increase scanability and coercion with selective emphasis while preserving Forge's contract-first tone.",
+    "Release-facing docs and continuity artifacts must track 2.14.3 as the current stable line."
   ],
   "risks": [
-    "Historical route-preview workflow-state artifacts still need compatibility reads even though the route-preview generation path is retired."
+    "A later pass may still need to align the surface tone of subagent-driven-development and receiving-code-review with the hardened six-skill set."
   ],
   "blockers": [],
   "source_artifacts": [
