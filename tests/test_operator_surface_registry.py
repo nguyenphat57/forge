@@ -61,10 +61,8 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
     def test_codex_overlay_registry_keeps_session_surface_primary_only(self) -> None:
         registry = load_bundle_registry("forge-codex")
 
-        self.assertEqual(registry["intents"]["SESSION"]["shortcuts"], [])
-        self.assertEqual(registry["session_modes"]["restore"]["shortcuts"], [])
-        self.assertEqual(registry["session_modes"]["save"]["shortcuts"], [])
-        self.assertEqual(registry["session_modes"]["handover"]["shortcuts"], [])
+        self.assertNotIn("intents", registry)
+        self.assertNotIn("session_modes", registry)
         self.assertEqual(
             registry["host_operator_surface"]["actions"]["delegate"]["primary_aliases_by_host"]["codex"],
             ["/delegate"],
@@ -79,10 +77,8 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         registry = load_bundle_registry("forge-antigravity")
         surface = registry["host_operator_surface"]["session_modes"]
 
-        self.assertEqual(registry["intents"]["SESSION"]["shortcuts"], [])
-        self.assertEqual(registry["session_modes"]["restore"]["shortcuts"], [])
-        self.assertEqual(registry["session_modes"]["save"]["shortcuts"], [])
-        self.assertEqual(registry["session_modes"]["handover"]["shortcuts"], [])
+        self.assertNotIn("intents", registry)
+        self.assertNotIn("session_modes", registry)
         for mode_name in ("restore", "save", "handover"):
             with self.subTest(mode=mode_name):
                 self.assertEqual(surface[mode_name].get("compatibility_aliases_by_host"), {})

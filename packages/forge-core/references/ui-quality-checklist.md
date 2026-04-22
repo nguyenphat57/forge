@@ -1,6 +1,6 @@
 # UI Quality Checklist
 
-> This delivery checklist is shared by UI implementation and `visualize`.
+> This delivery checklist is shared by UI implementation and the visual lens inside `brainstorm`.
 
 ## Visual Direction
 

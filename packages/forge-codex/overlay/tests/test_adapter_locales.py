@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -21,72 +22,32 @@ if SUPPORT_SPEC is None or SUPPORT_SPEC.loader is None:
 SUPPORT_MODULE = importlib.util.module_from_spec(SUPPORT_SPEC)
 SUPPORT_SPEC.loader.exec_module(SUPPORT_MODULE)
 
-build_route_args = SUPPORT_MODULE.build_route_args
 expected_output_contract = SUPPORT_MODULE.expected_output_contract
+STAGED_BUNDLE_ROOT = SUPPORT_MODULE.STAGED_BUNDLE_ROOT
 
 import common  # noqa: E402
 import response_contract  # noqa: E402
-import route_preview  # noqa: E402
 import skill_routing  # noqa: E402
 
 
 class AdapterLocaleTests(unittest.TestCase):
-    def test_vietnamese_build_prompt_routes_with_bundle_locale_pack(self) -> None:
-        report = route_preview.build_report(build_route_args("Thêm endpoint thanh toán mới"))
+    def test_staged_skill_bootstrap_uses_markdown_first_contract(self) -> None:
+        skill = (STAGED_BUNDLE_ROOT / "SKILL.md").read_text(encoding="utf-8").casefold()
 
-        self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertIn("build", report["detected"]["forge_skills"])
-        self.assertIn("vi", report["detected"]["routing_locales"])
+        self.assertIn("<extremely-important>", skill)
+        self.assertIn("</extremely-important>", skill)
+        self.assertIn("1% chance", skill)
+        self.assertIn("before any response or action", skill)
+        self.assertIn("workflow-first", skill)
+        self.assertIn("route_preview is not the current public contract", skill)
 
-    def test_vietnamese_session_prompt_routes_with_bundle_locale_pack(self) -> None:
-        report = route_preview.build_report(build_route_args("Tiếp tục task đang dở"))
+    def test_raw_overlay_registry_keeps_only_host_contract_metadata(self) -> None:
+        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(report["detected"]["intent"], "SESSION")
-        self.assertIn("vi", report["detected"]["routing_locales"])
-
-    def test_vietnamese_direction_question_inserts_brainstorm(self) -> None:
-        report = route_preview.build_report(
-            build_route_args("Nên chọn hướng web hay native cho luồng thanh toán mới?")
-        )
-
-        self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertEqual(report["detected"]["forge_skills"][0], "brainstorm")
-        self.assertIn("vi", report["detected"]["routing_locales"])
-
-    def test_vietnamese_direction_question_without_explicit_locale_keyword_still_inserts_brainstorm(self) -> None:
-        report = route_preview.build_report(
-            build_route_args("Web hay native là phương án nào cho luồng thanh toán mới?")
-        )
-
-        self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertEqual(report["detected"]["forge_skills"][0], "brainstorm")
-        self.assertIn("vi", report["detected"]["routing_locales"])
-
-    def test_vietnamese_backward_compatibility_prompt_uses_flat_build_chain(self) -> None:
-        report = route_preview.build_report(
-            build_route_args(
-                "Thêm endpoint mới cho client hiện tại, cần giữ tương thích ngược",
-                repo_signals=["api/"],
-            )
-        )
-
-        self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertIn("build", report["detected"]["forge_skills"])
-        self.assertNotIn("spec-review", report["detected"]["forge_skills"])
-        self.assertIn("vi", report["detected"]["routing_locales"])
-
-    def test_vietnamese_keep_legacy_api_phrase_uses_flat_build_chain(self) -> None:
-        report = route_preview.build_report(
-            build_route_args(
-                "Thêm endpoint mới nhưng vẫn giữ API cũ cho client hiện tại",
-                repo_signals=["api/"],
-            )
-        )
-
-        self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertIn("build", report["detected"]["forge_skills"])
-        self.assertNotIn("spec-review", report["detected"]["forge_skills"])
-        self.assertIn("vi", report["detected"]["routing_locales"])
+        self.assertNotIn("intents", registry)
+        self.assertNotIn("session_modes", registry)
+        self.assertIn("host_operator_surface", registry)
+        self.assertIn("host_capabilities", registry)
 
     def test_bundle_language_profiles_expand_vietnamese_output_contract(self) -> None:
         contract = common.resolve_output_contract({"language": "vi"})
@@ -115,21 +76,15 @@ class AdapterLocaleTests(unittest.TestCase):
         self.assertEqual(host["active_tier"], "parallel-workers")
         self.assertTrue(host["supports_subagents"])
         self.assertTrue(host["supports_parallel_subagents"])
-        self.assertEqual(host["subagent_dispatch_skill"], "dispatch-subagents")
+        self.assertEqual(host["subagent_dispatch_skill"], "forge-dispatching-parallel-agents")
 
-    def test_parallel_safe_prompt_activates_wave_execution_on_codex(self) -> None:
-        report = route_preview.build_report(
-            build_route_args(
-                "Implement many screens and many endpoints in parallel",
-                changed_files=12,
-                delegation_preference="auto",
-            )
-        )
+    def test_host_operator_surface_keeps_delegate_alias(self) -> None:
+        registry = skill_routing.load_registry()
+        delegate = registry["host_operator_surface"]["actions"]["delegate"]
 
-        self.assertEqual(report["detected"]["execution_mode"], "parallel-safe")
-        self.assertEqual(report["detected"]["delegation_strategy"], "wave-execution")
-        self.assertEqual(report["detected"]["host_capability_tier"], "parallel-workers")
-        self.assertEqual(report["delegation_plan"]["wave_execution"]["entrypoint"], "run_wave_execution.py")
+        self.assertEqual(delegate["workflow"], "workflows/execution/dispatch-subagents.md")
+        self.assertEqual(delegate["primary_aliases_by_host"]["codex"], ["/delegate"])
+        self.assertEqual(delegate["hosts"], ["codex"])
 
 
 if __name__ == "__main__":

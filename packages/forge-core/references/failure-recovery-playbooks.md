@@ -13,11 +13,11 @@ Do this now:
 1. Stop patching.
 2. Record the eliminated hypotheses.
 3. Reclassify the problem as `code`, `data`, or `environment`.
-4. If the boundary or system shape is still ambiguous, route back to `plan` or `architect`.
+4. If the boundary or system shape is still ambiguous, route back to `brainstorm` with the architectural lens or to `plan`.
 
 Desired outcome:
 - a stronger new hypothesis, or
-- a clear escalation to `plan` or `architect`
+- a clear escalation to `brainstorm` with the architectural lens or to `plan`
 
 ## Quality Gate Blocked
 

@@ -16,6 +16,41 @@ def _load_entries() -> list[dict]:
     return bundles
 
 
+def load_skill_pack() -> dict[str, object]:
+    payload = json.loads(PACKAGE_MATRIX_PATH.read_text(encoding="utf-8"))
+    skill_pack = payload.get("skill_pack", {})
+    if not isinstance(skill_pack, dict):
+        raise ValueError(f"Package matrix skill_pack must be an object: {PACKAGE_MATRIX_PATH}")
+    source = skill_pack.get("source", "packages/forge-core/skills")
+    skills = skill_pack.get("skills", [])
+    if not isinstance(source, str) or not source.strip():
+        raise ValueError("Package matrix skill_pack.source must be a non-empty string")
+    if not isinstance(skills, list):
+        raise ValueError("Package matrix skill_pack.skills must be a list")
+    normalized: list[str] = []
+    for raw_name in skills:
+        if not isinstance(raw_name, str) or not raw_name.startswith("forge-"):
+            raise ValueError(f"Invalid Forge sibling skill package name: {raw_name!r}")
+        if raw_name in normalized:
+            raise ValueError(f"Duplicate Forge sibling skill package name: {raw_name}")
+        normalized.append(raw_name)
+    return {"source": Path(source).as_posix(), "skills": normalized}
+
+
+def sibling_skill_names() -> list[str]:
+    return list(load_skill_pack()["skills"])
+
+
+def sibling_skill_source_root() -> Path:
+    return ROOT_DIR / Path(str(load_skill_pack()["source"]))
+
+
+def sibling_skill_source_dir(package_name: str) -> Path:
+    if not package_name.startswith("forge-"):
+        raise ValueError(f"Sibling skill package names must use forge- prefix: {package_name}")
+    return sibling_skill_source_root() / package_name.removeprefix("forge-")
+
+
 def load_package_matrix() -> dict[str, dict]:
     matrix: dict[str, dict] = {}
     for index, item in enumerate(_load_entries()):

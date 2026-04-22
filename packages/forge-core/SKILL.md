@@ -1,74 +1,90 @@
 ---
 name: forge-core
-description: "Forge Core - host-neutral orchestrator source-of-truth for routing, verification, workflow-state, and delivery guardrails across planning, implementation, review, testing, and deployment."
+description: "Forge Core - markdown-first, host-neutral execution kernel where workflows control the LLM and invariants protect claims, state, and preferences."
 ---
 
-# Forge Core - Host-Neutral Execution Kernel
+<SUBAGENT-STOP>
+If you were dispatched as a subagent to execute a specific task packet, skip this bootstrap and follow the assigned packet plus any explicitly invoked Forge skills for that lane.
+</SUBAGENT-STOP>
 
-> Forge = delivery discipline + skill composition + evidence before claims.
-> Forge core stays useful even when the repo has no companion skills or workspace-local router.
-> This file is the bootstrap contract. Large inventories and machine-readable policy live elsewhere.
+# Forge Core - Markdown-First Execution Kernel
 
-## Bootstrap Rules
+> Forge core is the host-neutral bootstrap for real repo work.
+> Markdown workflows are the control plane.
+> Python exists to guard invariants, state, and preferences.
 
-- Forge is the global-first orchestrator for real repos.
-- Natural language is the primary surface; host aliases are optional wrappers.
-- Read only the files needed for the current task.
-- Workspace-local routers and companion skills are optional augmentation, not replacements.
-- Keep scope minimal. Ask before schema changes, folder-structure changes, or new dependencies.
-- Canonical machine-readable routing policy lives in `data/orchestrator-registry.json`.
-- Current deterministic tooling entrypoint lives in `references/kernel-tooling.md`.
+<EXTREMELY-IMPORTANT>
+- Before any response or action, check Forge sibling skills and compatibility workflows.
+- If there is even a 1% chance a Forge skill applies, load it first.
+- This is not negotiable.
+- Questions are tasks. Exploration is work. Workflow check happens first.
+- Process workflows first.
+- Restore preferences before the first substantive reply.
+- Keep workflow-state durable for medium, risky, or release-sensitive work.
+- Proof before claims is non-negotiable.
+</EXTREMELY-IMPORTANT>
 
-## Routing Contract
+## Instruction Priority
 
-- Detect intent and complexity first, then choose the smallest Forge chain that can finish the work safely.
-- `REVIEW`, `SESSION`, and truly non-behavioral upkeep tasks may stay prompt-led.
-- All behavioral `BUILD` work and all `VISUALIZE` work must go through `brainstorm` before `plan`.
-- `brainstorm` writes an approved design doc under `docs/specs/YYYY-MM-DD-<topic>-design.md`.
-- `plan` writes an implementation plan under `docs/plans/YYYY-MM-DD-<topic>-implementation-plan.md` and stops for execution choice before `build`.
-- Forge no longer inserts mandatory `architect` or `visualize` stages by risk; they are optional design lenses on the flat `brainstorm -> plan -> build` route.
-- Forge no longer inserts a separate pre-build review stage for boundary-sensitive `BUILD` work; behavioral build routing stays flat and relies on the shared design/plan/build/review contract instead.
-- Forge keeps packet semantics stable across `parallel-split`, `independent-reviewer`, and `controller-sequential`; host capability changes lane execution, not the packet contract.
-- Use `scripts/route_preview.py` when routing must be previewed deterministically.
-- Canonical thresholds, chains, and lane policy live in `data/orchestrator-registry.json`.
+1. User instructions take precedence.
+2. This bootstrap decides how Forge selects sibling skills and protects invariants.
+3. Skill markdown defines the actual process to follow.
+4. Host adapters may change access wording, but they must not fork Forge semantics.
 
-## Verification Contract
+## How To Access Forge Workflows
 
-- proof before claims is non-negotiable.
-- Define verification before editing when behavior changes.
-- With a viable harness, write and verify one failing test before implementation code.
-- Code written before RED must be deleted, not adapted as "reference".
-- Without a harness, use the strongest available smoke, build, lint, typecheck, diff, or manual reproduction and say why.
-- `quality-gate` is the canonical go / no-go surface for merge-ready and deploy claims.
-- `deploy` only happens after fresh verification and explicit release posture.
-- If verification cannot run, say `not verified`, name the blocker, and keep residual risk explicit.
+- Host bundles expose Forge sibling skills through host-native skill discovery.
+- Compatibility files under `workflows/` are aliases, not the source of truth.
+- Natural language is the primary surface; aliases are optional convenience.
+- Use `references/reference-map.md` for the current reading path.
 
-## Solo Profile And Workflow-State Contract
+## The Rule
 
-- `solo-internal` and `solo-public` are overlays for one operator, not separate orchestration systems.
-- For solo-profile release-sensitive work, keep the tail explicit as `self-review` -> `secure` -> `quality-gate` -> `deploy`.
-- Release-facing posture, rollout confidence, and follow-up risk notes live in `quality-gate`, `deploy`, and workflow-state instead of separate release-tail workflows.
-- workflow-state records use the canonical stage status vocabulary: `pending`, `required`, `active`, `completed`, `skipped`, `blocked`.
-- workflow-state entries carry activation reasons and skip reasons so the gate does not have to reconstruct intent from chat memory.
-- There is no `/gate` alias; `quality-gate` stays the stage name.
+- If there is even a 1% chance a Forge skill applies, invoke it before any response or action.
+- Apply this rule before clarifying questions, exploration, implementation, or closing claims.
+- Choose the smallest valid Forge chain, then follow its artifacts instead of improvising from chat memory.
 
-## Skill Laws
+## Red Flags
 
-- `brainstorm`: no behavioral build or visual design work without an approved design doc first.
-- `plan`: no build without a written implementation plan and execution choice first.
+| Rationalization | Reality |
+| --- | --- |
+| "This is small enough to skip the workflow check." | Small work still needs the 1% rule. |
+| "I'll ask a quick question first." | Questions are tasks. Workflow check happens first. |
+| "I need more context before checking skills." | Skill check comes before clarifying questions and exploration. |
+| "Let me explore the repo first." | Skills tell you how to explore; check them first. |
+| "I can do one quick thing before invoking a skill." | Check before doing anything that changes scope or evidence. |
+| "I already know what to build." | Process workflows first when they apply. |
+| "I remember the skill already." | Read the current skill; do not rely on memory. |
+| "This workflow feels like overkill." | The 1% rule exists to stop that rationalization. |
+| "The docs are enough; the skill can wait." | Markdown workflows are the control plane. |
+| "This does not count as a real task." | Questions, exploration, review, and action all count as tasks. |
+| "The subagent packet is enough for every situation." | Subagents follow their packet, but top-level work still needs bootstrap discipline. |
+| "I can claim it now and verify later." | Proof before claims is not negotiable. |
+
+## Workflow Priority
+
+- Process skills first: `forge-brainstorming`, `forge-systematic-debugging`, `forge-session-management`
+- Planning and control: `forge-writing-plans`, `forge-verification-before-completion`
+- Implementation: `forge-executing-plans`, `forge-test-driven-development`, review and branch-finishing skills
+- Meta skill work: `forge-writing-skills` when creating, editing, absorbing, or testing skills
+
+## Workflow Types
+
+- Process skills decide what to do next and what durable artifacts must exist.
+- Implementation skills execute once scope, proof shape, and state are clear.
+- `help` and `next` are artifact-backed audit sidecars, not the source of truth.
 - `build`: no behavioral change with a viable harness without a failing test first.
-- `review`: findings first, summary second.
-- `refactor`: no refactor without baseline and after verification.
-- `run`: execute the real command, then route from evidence.
-- VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION.
+- When behavior changes, write and verify one failing test before implementation code.
+- Code written before RED must be deleted.
 
-## Reference Map
+## User Instructions
 
-- Quick entry point for current docs and references: `references/reference-map.md`.
-- Use `references/kernel-tooling.md` when you need deterministic scripts instead of prose.
+- User instructions take precedence on scope, priorities, and tradeoffs.
+- User instructions do not waive proof-before-claims, workflow-state durability, or preference restore.
+- Workspace-local routers may augment repo conventions, but they do not replace Forge invariants.
 
 ## Activation Announcement
 
 ```text
-Forge Core: orchestrator | route the right intent, keep evidence before claims
+Forge Core: orchestrator | markdown-first control, invariants guard the contract
 ```

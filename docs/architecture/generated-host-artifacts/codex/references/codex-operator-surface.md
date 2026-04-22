@@ -20,4 +20,4 @@ Session requests:
 - Wrapper docs may clarify output shape, but they must not fork core semantics.
 - Do not add heavy session wrappers or onboarding ceremony here.
 - `AGENTS.md` should stay thin and point back to Forge instead of duplicating logic.
-- `dispatch-subagents` is a Codex runtime adapter: it maps Forge lane policy to native Codex subagents, not a replacement for core build/debug/review workflows.
+- `/delegate` is a compatibility alias for `forge-dispatching-parallel-agents`: it maps Forge lane policy to native Codex subagents without replacing sibling build/debug/review skills.

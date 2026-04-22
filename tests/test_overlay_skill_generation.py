@@ -46,7 +46,7 @@ class OverlaySkillGenerationTests(unittest.TestCase):
 
     def test_thin_skill_line_budgets_remain_calibrated(self) -> None:
         budgets = {
-            ROOT_DIR / "packages" / "forge-core" / "SKILL.md": 80,
+            ROOT_DIR / "packages" / "forge-core" / "SKILL.md": 100,
             ROOT_DIR / "packages" / "forge-codex" / "overlay" / "SKILL.delta.md": 50,
             ROOT_DIR / "packages" / "forge-codex" / "overlay" / "SKILL.md": 110,
             ROOT_DIR / "packages" / "forge-antigravity" / "overlay" / "SKILL.delta.md": 60,

@@ -106,7 +106,7 @@ def stage_bundle_root() -> Path:
 
 STAGED_BUNDLE_ROOT = stage_bundle_root()
 
-os.environ.setdefault("FORGE_BUNDLE_ROOT", str(STAGED_BUNDLE_ROOT))
+os.environ["FORGE_BUNDLE_ROOT"] = str(STAGED_BUNDLE_ROOT)
 
 if str(CORE_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(CORE_SCRIPTS_DIR))

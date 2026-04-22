@@ -1,105 +1,88 @@
 ---
 name: forge-antigravity
-description: "Forge Antigravity - skill-oriented orchestrator optimized for Antigravity workspaces. Use when a request needs Forge routing, verification guardrails, Antigravity-native wrappers, and natural-language session handling."
+description: "Forge Antigravity - Antigravity adapter for the markdown-first Forge contract, with host-native access and invariant-backed state and preferences."
 ---
 
-# Forge Antigravity - Core Orchestrator
+<SUBAGENT-STOP>
+If you were dispatched as a subagent to execute a specific task packet, skip this bootstrap and follow the assigned packet plus any explicitly invoked Forge skills for that lane.
+</SUBAGENT-STOP>
 
-> Forge Antigravity maps the Forge evidence-first kernel onto Gemini workspaces through `GEMINI.md`, Antigravity-native operator wrappers, and the same shared verification contract as core.
+# Forge Antigravity - Markdown-First Host Adapter
 
-## Host Boundary
+> Forge Antigravity maps the Forge kernel onto Antigravity without forking skill meaning.
+> Host UX may be richer, but sibling Forge skills remain the workflow-first control contract.
 
-- Antigravity host rules live above this folder.
-- `GEMINI.global.md` is the canonical global host entry template for installed runtime.
-- `AGENTS.md` at the workspace root is a router or instruction file, not `SKILL.md`.
-- This adapter owns the Antigravity-facing surface while routing and verification remain core.
-
-## Antigravity Protocol Bridge
-
-- Forge concepts map onto Antigravity host tools instead of duplicating ceremony.
-- Activation, chain progress, and verification reporting should stay aligned with the host protocol while preserving Forge stage semantics.
-- Host UX can be richer, but it must not fork the meaning of Forge skills, packets, or evidence reporting.
-
-## Antigravity Artifact Boundary
-
-- `.forge-artifacts/` remains the durable workspace-scoped home for Forge tooling output.
-- Conversation-scoped Antigravity artifacts stay in the host-managed `brain/` area.
-- Do not mix Forge deterministic artifacts with host conversation artifacts.
-
-## Bootstrap Rules
-
-- Forge is the global-first orchestrator for real repos.
-- Natural language is the primary surface; host aliases are optional wrappers.
-- Read only the files needed for the current task.
-- Workspace-local routers and companion skills are optional augmentation, not replacements.
-- Keep scope minimal. Ask before schema changes, folder-structure changes, or new dependencies.
-- Canonical machine-readable routing policy lives in `data/orchestrator-registry.json`.
-- Current deterministic tooling entrypoint lives in `references/kernel-tooling.md`.
-
-## Routing Contract
-
-- Detect intent and complexity first, then choose the smallest Forge chain that can finish the work safely.
-- `REVIEW`, `SESSION`, and truly non-behavioral upkeep tasks may stay prompt-led.
-- All behavioral `BUILD` work and all `VISUALIZE` work must go through `brainstorm` before `plan`.
-- `brainstorm` writes an approved design doc under `docs/specs/YYYY-MM-DD-<topic>-design.md`.
-- `plan` writes an implementation plan under `docs/plans/YYYY-MM-DD-<topic>-implementation-plan.md` and stops for execution choice before `build`.
-- Forge no longer inserts mandatory `architect` or `visualize` stages by risk; they are optional design lenses on the flat `brainstorm -> plan -> build` route.
-- Forge no longer inserts a separate pre-build review stage for boundary-sensitive `BUILD` work; behavioral build routing stays flat and relies on the shared design/plan/build/review contract instead.
-- Forge keeps packet semantics stable across `parallel-split`, `independent-reviewer`, and `controller-sequential`; host capability changes lane execution, not the packet contract.
-- Use `scripts/route_preview.py` when routing must be previewed deterministically.
-- Canonical thresholds, chains, and lane policy live in `data/orchestrator-registry.json`.
-
-## Response Personalization
-
-- At the start of each new thread, resolve preferences before the first substantive user-facing reply.
-- Read adapter-global state from `state/preferences.json`, using `scripts/resolve_preferences.py` when a merged payload is needed.
-- `forge-antigravity` may expose `/customize`, but durable updates still go through `scripts/write_preferences.py`.
-- Clean installs default to Vietnamese with full diacritics until state or workspace overrides them.
-
-## Antigravity Operator Surface
-
-- Primary wrappers are `/help`, `/next`, `/run`, `/bump`, `/rollback`, `/customize`, and `/init`.
-- Natural-language session requests stay primary: `resume`, `continue`, `save context`, and `handover`.
-- `quality-gate` and `deploy` keep their shared core meaning inside Antigravity bundles.
-- Wrapper UX may be richer, but deterministic semantics still come from core scripts and workflows.
-
-## Verification Contract
-
-- proof before claims is non-negotiable.
-- Define verification before editing when behavior changes.
-- With a viable harness, write and verify one failing test before implementation code.
-- Code written before RED must be deleted, not adapted as "reference".
-- Without a harness, use the strongest available smoke, build, lint, typecheck, diff, or manual reproduction and say why.
-- `quality-gate` is the canonical go / no-go surface for merge-ready and deploy claims.
-- `deploy` only happens after fresh verification and explicit release posture.
-- If verification cannot run, say `not verified`, name the blocker, and keep residual risk explicit.
-
-## Solo Profile And Workflow-State Contract
-
-- `solo-internal` and `solo-public` are overlays for one operator, not separate orchestration systems.
-- For solo-profile release-sensitive work, keep the tail explicit as `self-review` -> `secure` -> `quality-gate` -> `deploy`.
-- Release-facing posture, rollout confidence, and follow-up risk notes live in `quality-gate`, `deploy`, and workflow-state instead of separate release-tail workflows.
-- workflow-state records use the canonical stage status vocabulary: `pending`, `required`, `active`, `completed`, `skipped`, `blocked`.
-- workflow-state entries carry activation reasons and skip reasons so the gate does not have to reconstruct intent from chat memory.
-- There is no `/gate` alias; `quality-gate` stays the stage name.
-
-## Skill Laws
-
-- `brainstorm`: no behavioral build or visual design work without an approved design doc first.
-- `plan`: no build without a written implementation plan and execution choice first.
+<EXTREMELY-IMPORTANT>
+- Before any response or action, restore personalization and check Forge sibling skills.
+- If there is even a 1% chance a Forge skill applies, load it first.
+- This is not negotiable.
+- Questions are tasks. Exploration is work. Workflow check happens first.
+- Process workflows first.
+- Proof before claims is non-negotiable.
+- For behavioral changes with a viable harness, write and verify one failing test before implementation code.
+- Code written before RED must be deleted.
 - `build`: no behavioral change with a viable harness without a failing test first.
-- `review`: findings first, summary second.
-- `refactor`: no refactor without baseline and after verification.
-- `run`: execute the real command, then route from evidence.
-- VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION.
+</EXTREMELY-IMPORTANT>
 
-## Reference Map
+## Instruction Priority
 
-- Quick entry point for current docs and references: `references/reference-map.md`.
-- Use `references/kernel-tooling.md` when you need deterministic scripts instead of prose.
+1. User instructions take precedence.
+2. Forge core bootstrap and sibling skill markdown define the process.
+3. This adapter only maps that contract onto Antigravity-native access.
+4. Host convenience must not reintroduce a parallel routing policy.
+
+## How To Access Forge Workflows
+
+- Host bootstrap files explain activation and bindings; they do not replace sibling Forge skills.
+- Natural language is primary; host wrappers and slash aliases are optional convenience.
+- Sibling skills such as `forge-brainstorming`, `forge-writing-plans`, `forge-executing-plans`, `forge-systematic-debugging`, and `forge-verification-before-completion` are host-native skills.
+- Completion siblings include `forge-verification-before-completion` and `forge-finishing-a-development-branch`.
+- Compatibility files under `workflows/` are aliases, not the source of truth.
+- Use Forge skill markdown, specs, plans, and workflow-state artifacts as the source of truth.
+
+## The Rule
+
+- If there is even a 1% chance a Forge skill applies, invoke it before any response or action.
+- Apply this rule before clarifying questions, exploration, implementation, or completion claims.
+- `help` and `next` are artifact-backed audit sidecars; they do not become the control plane.
+
+## Red Flags
+
+| Rationalization | Reality |
+| --- | --- |
+| "Antigravity memory already covers this." | Conversation memory does not replace workflow artifacts. |
+| "I can answer first and open the workflow after." | Workflow check happens first. |
+| "A deterministic helper should explain the workflow." | Python is support machinery, not the public story. |
+| "This is small enough to skip the workflow check." | Small work still needs the 1% rule. |
+| "I'll ask a quick question first." | Questions are tasks. Workflow check happens first. |
+| "I need more context before checking skills." | Skill check comes before clarifying questions and exploration. |
+| "Let me explore the repo first." | Skills tell you how to explore; check them first. |
+| "I can do one quick thing before invoking a skill." | Check before doing anything that changes scope or evidence. |
+| "I already know what to build." | Process workflows first when they apply. |
+| "I remember the skill already." | Read the current skill; do not rely on memory. |
+| "This workflow feels like overkill." | The 1% rule exists to stop that rationalization. |
+| "I can claim it now and verify later." | Proof before claims is not negotiable. |
+
+## Workflow Priority
+
+- Process workflows first: `forge-brainstorming`, `forge-systematic-debugging`, `forge-session-management`
+- Planning and control: `forge-writing-plans`, `forge-verification-before-completion`
+- Implementation: `forge-executing-plans`, `forge-test-driven-development`, review and branch-finishing skills
+- Meta skill work: `forge-writing-skills` when creating, editing, absorbing, or testing skills
+
+## Workflow Types
+
+- Antigravity session helpers must preserve sibling skill markdown and workflow-state instead of replacing them.
+- Python is reserved for invariants, state, and preferences.
+- route_preview is not the current public contract.
+
+## User Instructions
+
+- User instructions take precedence.
+- They do not waive Forge invariants around verification, workflow-state, or preference restore.
 
 ## Activation Announcement
 
 ```text
-Forge Antigravity: orchestrator | route intent correctly, evidence before claims
+Forge Antigravity: orchestrator | markdown-first control, evidence before claims
 ```

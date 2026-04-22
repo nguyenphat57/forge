@@ -7,11 +7,11 @@ import shutil
 import sys
 import tempfile
 import unittest
-from argparse import Namespace
 from pathlib import Path
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
+SOURCE_REPO_SCRIPTS_DIR = ROOT_DIR.parents[2] / "scripts"
 
 
 def resolve_core_root() -> Path:
@@ -22,7 +22,6 @@ def resolve_core_root() -> Path:
 
 CORE_ROOT_DIR = resolve_core_root()
 CORE_SCRIPTS_DIR = CORE_ROOT_DIR / "scripts"
-DEFAULT_TEST_FORGE_HOME = (CORE_ROOT_DIR / "tests" / "fixtures" / "forge-homes" / "empty").resolve()
 
 
 def merge_overlay(base: object, overlay: object) -> object:
@@ -70,36 +69,25 @@ def stage_bundle_root() -> Path:
     locale_dir = ROOT_DIR / "data" / "routing-locales"
     if locale_dir.exists():
         shutil.copytree(locale_dir, stage_data_dir / "routing-locales", dirs_exist_ok=True)
+    skill_source = ROOT_DIR / "SKILL.md"
+    if skill_source.exists():
+        shutil.copy2(skill_source, stage_root / "SKILL.md")
     return stage_root
 
 
-if "FORGE_BUNDLE_ROOT" not in os.environ:
-    os.environ["FORGE_BUNDLE_ROOT"] = str(stage_bundle_root())
+os.environ["FORGE_BUNDLE_ROOT"] = str(stage_bundle_root())
 
 if str(CORE_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(CORE_SCRIPTS_DIR))
+if str(SOURCE_REPO_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SOURCE_REPO_SCRIPTS_DIR))
 
-for module_name in ("common", "preferences", "preferences_contract", "preferences_paths", "route_preview"):
+for module_name in ("common", "preferences", "preferences_contract", "preferences_paths", "response_contract", "skill_routing"):
     sys.modules.pop(module_name, None)
 
 import common  # noqa: E402
-import route_preview  # noqa: E402
-
-
-def build_route_args(prompt: str, *, repo_signals: list[str] | None = None, changed_files: int | None = None) -> Namespace:
-    return Namespace(
-        prompt=prompt,
-        repo_signal=repo_signals or [],
-        workspace_router=None,
-        workspace=None,
-        changed_files=changed_files,
-        has_harness="auto",
-        delegation_preference=None,
-        forge_home=DEFAULT_TEST_FORGE_HOME,
-        format="json",
-        persist=False,
-        output_dir=None,
-    )
+import response_contract  # noqa: E402
+import skill_routing  # noqa: E402
 
 
 def load_output_contract_profiles() -> dict | None:
@@ -136,18 +124,23 @@ def expected_output_contract(extra: object) -> dict[str, object]:
 
 
 class AdapterLocaleTests(unittest.TestCase):
-    def test_vietnamese_build_prompt_routes_with_bundle_locale_pack(self) -> None:
-        report = route_preview.build_report(build_route_args("Thêm endpoint thanh toán mới"))
+    def test_overlay_skill_bootstrap_uses_markdown_first_contract(self) -> None:
+        skill = (ROOT_DIR / "SKILL.md").read_text(encoding="utf-8").casefold()
 
-        self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertIn("build", report["detected"]["forge_skills"])
-        self.assertIn("vi", report["detected"]["routing_locales"])
+        self.assertIn("<extremely-important>", skill)
+        self.assertIn("</extremely-important>", skill)
+        self.assertIn("1% chance", skill)
+        self.assertIn("before any response or action", skill)
+        self.assertIn("workflow-first", skill)
+        self.assertIn("route_preview is not the current public contract", skill)
 
-    def test_vietnamese_session_prompt_routes_with_bundle_locale_pack(self) -> None:
-        report = route_preview.build_report(build_route_args("Tiếp tục task đang dở"))
+    def test_raw_overlay_registry_keeps_only_host_contract_metadata(self) -> None:
+        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(report["detected"]["intent"], "SESSION")
-        self.assertIn("vi", report["detected"]["routing_locales"])
+        self.assertNotIn("intents", registry)
+        self.assertNotIn("session_modes", registry)
+        self.assertIn("host_operator_surface", registry)
+        self.assertIn("host_capabilities", registry)
 
     def test_bundle_language_profiles_expand_vietnamese_output_contract(self) -> None:
         contract = common.resolve_output_contract({"language": "vi"})
@@ -158,95 +151,18 @@ class AdapterLocaleTests(unittest.TestCase):
         self.assertEqual(contract["accent_policy"], "required")
         self.assertEqual(contract["encoding"], "utf-8")
 
-    # --- Brainstorm gate ---
-
-    def test_brainstorm_gate_fires_on_vietnamese_ambiguity_keywords(self) -> None:
-        # "ý tưởng" (idea) + "nên chọn" (should choose) → ambiguity → brainstorm gate
-        report = route_preview.build_report(
-            build_route_args("Có mấy ý tưởng cho tính năng thanh toán, nên chọn hướng nào?")
+    def test_vietnamese_response_contract_rejects_accent_stripped_output(self) -> None:
+        contract = common.resolve_output_contract({"language": "vi"})
+        report = response_contract.validate_response_contract(
+            "Em da xac minh: pytest -q pass. Dung vi da co evidence. Da sua: bo sung validator.",
+            output_contract=contract,
+            require_evidence_response=True,
         )
 
-        self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertIn("brainstorm", report["detected"]["forge_skills"])
-        # brainstorm should appear before plan
-        skills = report["detected"]["forge_skills"]
-        self.assertLess(skills.index("brainstorm"), skills.index("plan"))
+        self.assertEqual(report["status"], "FAIL")
+        self.assertTrue(any("accent-stripped Vietnamese" in finding for finding in report["findings"]))
 
-    def test_brainstorm_gate_fires_on_non_diacritics_vietnamese(self) -> None:
-        # Non-diacritics variant: "y tuong", "nen chon"
-        report = route_preview.build_report(
-            build_route_args("Co may y tuong cho tinh nang moi, nen chon huong nao?")
-        )
-
-        self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertIn("brainstorm", report["detected"]["forge_skills"])
-
-    # --- Flat build routing ---
-
-    def test_vietnamese_high_risk_keywords_no_longer_activate_spec_review(self) -> None:
-        # Flat model: auth/security keywords keep BUILD routing but no longer add a separate spec-review stage
-        report = route_preview.build_report(
-            build_route_args("Xây dựng module xác thực và bảo mật cho hệ thống thanh toán")
-        )
-
-        self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertIn("build", report["detected"]["forge_skills"])
-        self.assertNotIn("spec-review", report["detected"]["forge_skills"])
-
-    def test_vietnamese_migration_keywords_no_longer_activate_spec_review(self) -> None:
-        # Flat model: migration keywords keep BUILD routing but no longer add a separate spec-review stage
-        report = route_preview.build_report(
-            build_route_args("Tạo di trú database để thêm bảng mới cho module mới")
-        )
-
-        self.assertEqual(report["detected"]["intent"], "BUILD")
-        self.assertIn("build", report["detected"]["forge_skills"])
-        self.assertNotIn("spec-review", report["detected"]["forge_skills"])
-
-    # --- Complexity detection ---
-
-    def test_vietnamese_large_complexity_keywords(self) -> None:
-        # "thanh toán" (payment) + "kiến trúc" (architecture) → large
-        report = route_preview.build_report(
-            build_route_args("Thiết kế lại kiến trúc thanh toán")
-        )
-
-        self.assertEqual(report["detected"]["complexity"], "large")
-
-    def test_vietnamese_small_complexity_keywords(self) -> None:
-        # "sửa css" (fix css) → small
-        report = route_preview.build_report(
-            build_route_args("Sửa css cho nút đăng nhập")
-        )
-
-        self.assertEqual(report["detected"]["complexity"], "small")
-
-    # --- Change type hints ---
-
-    def test_vietnamese_non_behavioral_change_type(self) -> None:
-        # "tài liệu" (docs) + "cấu hình" (config) → non_behavioral
-        report = route_preview.build_report(
-            build_route_args("Cập nhật tài liệu và cấu hình cho project")
-        )
-
-        self.assertEqual(report["detected"]["verification_profile"], "non_behavioral")
-
-    def test_vietnamese_behavioral_change_type(self) -> None:
-        # "lỗi" (bug) + "tính năng" (feature) → behavioral
-        report = route_preview.build_report(
-            build_route_args("Sửa lỗi tính năng đăng nhập bị crash")
-        )
-
-        self.assertIn(
-            report["detected"]["verification_profile"],
-            ("behavioral_with_harness", "behavioral_reproduction_first"),
-        )
-
-    # --- Host capabilities ---
-
-    def test_host_capabilities_reflects_antigravity_subagent_support(self) -> None:
-        import skill_routing  # noqa: E402
-
+    def test_host_capabilities_reflect_antigravity_sequential_support(self) -> None:
         registry = skill_routing.load_registry()
         host = registry["host_capabilities"]
 
@@ -255,15 +171,14 @@ class AdapterLocaleTests(unittest.TestCase):
         self.assertFalse(host["supports_parallel_subagents"])
         self.assertIsNone(host["subagent_dispatch_skill"])
 
-    def test_parallel_safe_prompt_stays_sequential_on_antigravity(self) -> None:
-        report = route_preview.build_report(
-            build_route_args("Implement many screens and many endpoints in parallel", changed_files=12)
-        )
+    def test_host_operator_surface_preserves_natural_language_session_modes(self) -> None:
+        registry = skill_routing.load_registry()
+        session_modes = registry["host_operator_surface"]["session_modes"]
 
-        self.assertEqual(report["detected"]["execution_mode"], "parallel-safe")
-        self.assertEqual(report["detected"]["host_capability_tier"], "controller-baseline")
-        self.assertEqual(report["detected"]["delegation_strategy"], "sequential-lanes")
-        self.assertEqual(report["detected"]["host_skills"], [])
+        self.assertEqual(session_modes["restore"]["hosts"], ["antigravity"])
+        self.assertIn("Continue the task", session_modes["restore"]["natural_language_examples_by_host"]["antigravity"][0])
+        self.assertEqual(session_modes["save"]["hosts"], ["antigravity"])
+        self.assertEqual(session_modes["handover"]["hosts"], ["antigravity"])
 
 
 if __name__ == "__main__":

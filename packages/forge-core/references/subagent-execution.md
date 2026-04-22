@@ -80,7 +80,7 @@ Every subagent response must begin with one of these statuses.
 - context problem -> add context and redispatch
 - reasoning/capability problem -> upgrade the lane tier or assign a stronger reviewer
 - slice too large -> decompose into smaller packets
-- plan/spec wrong -> return to plan or architect, or escalate to the human controller
+- plan/spec wrong -> return to `brainstorm` or `plan`, or escalate to the human controller
 - repo/tool failure -> record command output and choose the next strongest evidence path
 
 ## Spec-Review-Before-Quality-Review

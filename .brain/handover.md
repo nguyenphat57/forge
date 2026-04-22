@@ -1,16 +1,19 @@
 HANDOVER
-- Current task: Release the Forge wave execution engine tranche as Forge 2.13.0, sync release and continuity surfaces, then push to main.
+- Current task: Release the Forge markdown-first sibling skill split as Forge 2.14.0, sync release and continuity surfaces, then push to main.
 - Status: ready-for-merge
-- Pending: (none before commit/push; rerun verification after release surface sync)
+- Pending: commit the verified 2.14.0 release sync, merge to `main`, and push origin/main.
 - Verification run:
-  - python scripts\verify_repo.py -> PASS on 2026-04-21 before the 2.13.0 release sync
-  - python scripts\verify_repo.py -> PASS on 2026-04-21 after the 2.13.0 release sync
+  - python -m pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-22 after adapter bootstrap fix
+  - python -m pytest tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-22
+  - python scripts/generate_host_artifacts.py --check -> PASS on 2026-04-22
+  - python scripts/build_release.py --force -> PASS on 2026-04-22 for version 2.14.0
+  - python scripts/verify_repo.py -> PASS on 2026-04-22 after release surface sync
 - Important decisions:
-  - Codex parallel-worker delegation now uses wave execution instead of the older flat parallel split.
-  - Wave plans keep dependency order, prevent overlapping write scopes in the same wave, and require shared verification before later waves unlock.
-  - Workflow-state summaries now expose ready, running, blocked, and verification-gated wave status so `next` can guide the controller deterministically.
+  - Forge now uses host-discoverable sibling skills as the primary process surface.
+  - The Superpowers-style 1% activation rule lives in bootstrap only; sibling descriptions stay as focused `Use when...` triggers.
+  - `forge-writing-skills` copies the Superpowers writing-skills content with Forge brand references and is installed as a sibling skill.
 - Risks:
-  - Wave advancement depends on fresh persisted execution-progress and run-report artifacts for each packet.
+  - The installed skill family changed, so build/install/generated-host-artifact verification remains release-blocking.
 - Source of truth: current maintainer posture remains under `docs/current/*`; `.brain` is continuity state.
 - Blockers: (none)
-- Next step: Rerun `python scripts\verify_repo.py`, then commit the 2.13.0 release sync, merge to `main`, and push origin/main.
+- Next step: Commit the 2.14.0 release sync, merge to `main`, and push origin/main.

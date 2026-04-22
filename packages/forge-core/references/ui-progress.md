@@ -1,6 +1,6 @@
 # UI Progress Tracking
 
-> Use this for long frontend/visualize tasks, multiple screens, or repeated handoffs.
+> Use this for long frontend or visual-lens tasks, multiple screens, or repeated handoffs.
 
 ## Why
 
@@ -19,7 +19,7 @@ Progress artifacts reduce ambiguity without requiring a large dashboard.
 python scripts/track_ui_progress.py "Checkout tablet refresh" --mode frontend --stage implementation --status active
 ```
 
-### Visualize
+### Visual Lens Compatibility Mode
 
 ```powershell
 python scripts/track_ui_progress.py "Kitchen dashboard exploration" --mode visualize --stage interaction-model --status active
@@ -43,6 +43,8 @@ Default artifacts:
 - `handover`
 
 ### visualize
+
+`visualize` is the compatibility mode name for progress artifacts that support the visual lens inside `brainstorm`.
 
 - `brief`
 - `interaction-model`

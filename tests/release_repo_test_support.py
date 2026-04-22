@@ -17,6 +17,17 @@ import install_bundle  # noqa: E402
 
 
 class ReleaseRepoTestSupport(unittest.TestCase):
+    def assert_markdown_first_adapter_skill(self, path: Path, *, label: str) -> None:
+        text = path.read_text(encoding="utf-8")
+        lowered = text.casefold()
+        self.assertIn("<extremely-important>", lowered, label)
+        self.assertIn("</extremely-important>", lowered, label)
+        self.assertIn("1% chance", lowered, label)
+        self.assertIn("before any response or action", lowered, label)
+        self.assertIn("restore personalization", lowered, label)
+        self.assertIn("process workflows first", lowered, label)
+        self.assertIn("route_preview is not the current public contract", lowered, label)
+
     def assert_bump_wrapper_matches_release_contract(self, path: Path, *, label: str) -> None:
         text = path.read_text(encoding="utf-8")
         self.assertIn("Current version is stated and target version is either explicit or justified by inference", text, label)
@@ -39,10 +50,7 @@ class ReleaseRepoTestSupport(unittest.TestCase):
         self.assertIn("resolve_preferences.py", text, label)
 
     def assert_antigravity_skill_bootstraps_preferences(self, path: Path, *, label: str) -> None:
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("At the start of each new thread, resolve preferences", text, label)
-        self.assertIn("state/preferences.json", text, label)
-        self.assertIn("resolve_preferences.py", text, label)
+        self.assert_markdown_first_adapter_skill(path, label=label)
 
     def assert_antigravity_agent_prompt_bootstraps_preferences(self, path: Path, *, label: str) -> None:
         text = path.read_text(encoding="utf-8")

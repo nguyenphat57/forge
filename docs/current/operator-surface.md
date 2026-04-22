@@ -4,7 +4,7 @@
 
 ## Source Repo
 
-The source repo now has one canonical operator entrypoint:
+The source repo has one canonical operator entrypoint:
 
 ```powershell
 python scripts/repo_operator.py <action> ...
@@ -25,28 +25,30 @@ Supported public actions:
 
 Notes:
 
-- `help`, `next`, and `resume` may auto-seed canonical `workflow-state` from a legacy JSON artifact or the latest plan/spec when no canonical root exists yet.
+- `repo_operator.py` is a thin operator surface over state, install, and invariant helpers.
+- `help`, `next`, and `resume` read real artifacts and may auto-seed canonical `workflow-state` from a legacy JSON artifact or the latest plan/spec when no canonical root exists yet.
+- `help` and `next` are audit/resume sidecars. They do not compute the correct Forge skill by heuristic routing.
 - Continuity capture remains internal engine tooling and is not part of the public repo operator surface.
-
-The dispatcher is the public source-repo surface.
-Package-level scripts under `packages/forge-core/scripts/` are implementation detail unless the task is to edit or debug the engine itself.
-This current surface assumes the kernel-only product line and only routes the shipped kernel and host-adapter entrypoints.
+- Package-level scripts under `packages/forge-core/scripts/` are implementation detail unless the task is to edit or debug the engine itself.
 
 ## Installed Runtime
 
-Installed bundles keep their existing host-native workflow layout.
-This refactor does not change installed Codex or Antigravity workflow paths.
+Installed Codex and Antigravity adapters expose `forge-codex` or `forge-antigravity` as the bootstrap skill and install the sibling Forge skill family next to it.
+
+Workflow selection happens through bootstrap markdown and host-native skill discovery. Compatibility workflow files and slash aliases remain only as wrappers.
 
 ## Machine-Readable Contract
 
-`packages/forge-core/data/orchestrator-registry.json` now distinguishes:
+`packages/forge-core/data/orchestrator-registry.json` distinguishes:
 
-- `repo_operator_surface`: the source-repo dispatcher contract
+- `skill_catalog`: static sibling skill metadata and compatibility workflow paths
+- `repo_operator_surface`: the source-repo operator contract
 - `host_operator_surface`: the installed-host public surface contract
 
-Both surfaces keep the same metadata schema; fields that do not apply stay empty instead of introducing separate schemas.
+These sections are catalogs and metadata, not a deterministic routing engine.
 
 ## Current Guidance Rule
 
-When documenting source-repo flows in this repository, always show `repo_operator.py`.
-Do not reintroduce direct core-script guidance outside `repo_operator.py`.
+When documenting source-repo flows in this repository, show `repo_operator.py` for operator actions and Forge sibling skills for process activation.
+
+Do not reintroduce direct core-script guidance outside `repo_operator.py`, and do not describe workflow files as the primary activation surface.

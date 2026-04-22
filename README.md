@@ -1,9 +1,9 @@
 # Forge
 ### Evidence-first execution kernel.
 
-**1 core kernel, 2 host adapters, stable 2.13.0**
+**1 core kernel, 2 host adapters, stable 2.14.0**
 
-![Version](https://img.shields.io/badge/version-2.13.0-2563eb)
+![Version](https://img.shields.io/badge/version-2.14.0-2563eb)
 ![License](https://img.shields.io/badge/license-MIT-16a34a)
 ![Verification](https://img.shields.io/badge/verify-repo_passed-22c55e)
 ![Adapters](https://img.shields.io/badge/adapters-Codex%20%7C%20Antigravity-f59e0b)
@@ -96,7 +96,7 @@ graph LR
 ### Lighter On Small Tasks, Structured On Risky Work
 
 - Low-risk slices can use fast lane while still keeping proof-before-claims.
-- Size is advisory: route preview can escalate nominally small work when blast-radius or accumulated-small-task evidence appears.
+- Size is advisory: markdown-first workflow selection can still escalate nominally small work when durable artifacts or repo evidence show broader risk.
 - Medium and large slices keep explicit packet state, merge readiness, and residual risk.
 - Forge stays brownfield-safe instead of assuming a clean greenfield repo.
 
@@ -118,7 +118,7 @@ graph LR
 
 - License: `MIT`
 - Repo maturity: stable release available
-- Current stable release: `2.13.0`
+- Current stable release: `2.14.0`
 - Canonical verification gate: `python scripts/verify_repo.py`
 - `forge-antigravity` is currently the most mature adapter for real rollout
 - `forge-codex` ships in the current stable release after passing the canonical release gates

@@ -23,7 +23,7 @@ from install_bundle_paths import (
     validate_install_paths,
 )
 from install_bundle_report import build_install_transition, format_text, load_install_manifest, write_install_manifest
-from package_matrix import bundle_names, resolve_default_install_target
+from package_matrix import bundle_names, resolve_default_install_target, sibling_skill_names
 from release_fs import copy_tree, remove_path, sync_tree
 
 
@@ -41,6 +41,26 @@ def _resolve_requested_target(
         gemini_home=resolve_gemini_home(gemini_home),
     )
     return str(default_target) if default_target is not None else None
+
+
+def _plan_sibling_skills(bundle_name: str, source_path: Path, target_path: Path) -> dict:
+    if bundle_name not in {"forge-codex", "forge-antigravity"}:
+        return {"enabled": False, "skills": []}
+
+    skills: list[dict[str, object]] = []
+    for skill_name in sibling_skill_names():
+        source = source_path.parent / skill_name
+        target = target_path.parent / skill_name
+        skills.append(
+            {
+                "name": skill_name,
+                "source": str(source),
+                "target": str(target),
+                "source_exists": source.exists(),
+                "target_exists": target.exists(),
+            }
+        )
+    return {"enabled": True, "skills": skills}
 
 
 def plan_install(
@@ -110,6 +130,7 @@ def plan_install(
         activate_gemini=activate_gemini,
         gemini_home=gemini_home,
     )
+    sibling_skills = _plan_sibling_skills(bundle_name, source_path, target_path)
 
     return {
         "bundle": bundle_name,
@@ -134,6 +155,7 @@ def plan_install(
         },
         "codex_host_activation": codex_host_activation,
         "gemini_host_activation": gemini_host_activation,
+        "sibling_skills": sibling_skills,
         "state": build_state_metadata(
             bundle_name,
             target_path,
@@ -179,6 +201,14 @@ def install_from_plan(report: dict) -> dict:
 
     if report.get("bundle_sync_required", True):
         sync_tree(source_path, target_path)
+    sibling_skills = report.get("sibling_skills") or {}
+    if sibling_skills.get("enabled"):
+        for skill in sibling_skills.get("skills", []):
+            source = Path(str(skill["source"]))
+            target = Path(str(skill["target"]))
+            if not source.exists():
+                raise FileNotFoundError(f"Missing Forge sibling skill bundle source: {source}")
+            sync_tree(source, target)
     ensure_state_layout(report)
     apply_codex_host_activation(report)
     apply_gemini_host_activation(report)

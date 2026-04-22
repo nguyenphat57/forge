@@ -11,7 +11,7 @@ Bundle-layer ownership reference: see `packages/forge-core/references/architectu
 
 - `packages/forge-core`, `packages/forge-codex`, and `packages/forge-antigravity` are the active source-of-truth packages.
 - Generated host artifacts stay source-controlled, but their canonical inventory lives in `docs/architecture/host-artifacts-manifest.json`.
-- `dist/` is generated release output built from `forge-core` plus one active adapter overlay.
+- `dist/` is generated release output built from `forge-core`, one active adapter overlay, and the sibling Forge skill pack.
 - Do not treat `dist/` as an independent source tree; fixes belong in active source packages and are verified again after rebuild.
 - Materialized adapter registries under `dist/<adapter>/data/orchestrator-registry.json` are release-contract outputs, not source-edit targets.
 - Historical runtime-era package implementations are preserved in git history and versioned release notes, not on the active maintainer path.
@@ -36,9 +36,10 @@ In the current kernel-only line, `runtime tools` is a historical concept preserv
 Canonical source-of-truth for:
 
 - orchestrator registry
-- routing logic
+- host-neutral bootstrap wording
+- sibling skill markdown under `skills/`
 - operator state and workflow-state semantics
-- shared workflows, domains, references, and tests
+- compatibility workflow wrappers, references, and tests
 
 `forge-core` should not depend on a single host-specific entry file.
 
@@ -61,7 +62,7 @@ Adapter overlay for Codex:
 - Codex-specific `SKILL.md`
 - `AGENTS.example.md` for workspace integration
 - `AGENTS.global.md` for global Codex host takeover
-- 2 execution-layer additions: `workflows/execution/dispatch-subagents.md` and a Codex-specific `session.md`
+- 2 execution-layer compatibility wrappers: `workflows/execution/dispatch-subagents.md` and a Codex-specific `session.md`
 - 7 thin operator wrappers for `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`
 - 3 adapter references: `codex-operator-surface.md`, `smoke-test-checklist.md`, `smoke-tests.md`
 - one adapter data override: `data/orchestrator-registry.json`
@@ -87,14 +88,15 @@ Historical implementation evidence is preserved in git history and versioned rel
 3. Refresh generated host artifacts from canonical sources before adapter overlays are copied.
 4. Copy core into each adapter bundle under `dist/`.
 5. Overlay adapter files on top of the copied core to materialize the adapter bundle and its registries.
-6. Run verify on the built bundles.
-7. Install from `dist/` into runtime paths with `scripts/install_bundle.py`.
+6. Materialize each sibling skill directory from `packages/forge-core/skills/`.
+7. Run verify on the built bundles.
+8. Install from `dist/` into runtime paths with `scripts/install_bundle.py`.
 
 This keeps one active implementation tree for the current product line.
 
 ## Rules
 
-- Routing logic changes belong in `forge-core`.
+- Skill meaning changes belong in `packages/forge-core/skills/`.
 - Host entry files and adapter UX wrappers belong in adapters.
 - Historical runtime tools stay out of the current source tree unless a future roadmap explicitly restores them.
 - Shared tests belong in `forge-core` or root `tests/`.

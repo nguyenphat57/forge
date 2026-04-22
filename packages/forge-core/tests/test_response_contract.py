@@ -189,6 +189,32 @@ class ResponseContractTests(unittest.TestCase):
         self.assertEqual(report["status"], "FAIL")
         self.assertTrue(any("Skill usage footer mismatch" in finding for finding in report["findings"]))
 
+    def test_validator_accepts_new_short_forge_skill_names(self) -> None:
+        report = response_contract.validate_response_contract(
+            _with_skill_footer(
+                "I verified: pytest -q passed. Correct because the new split skill names are footer-compatible. Fixed: accepted the short names.",
+                "systematic-debugging",
+                "test-driven-development",
+                "verification-before-completion",
+            ),
+            require_evidence_response=True,
+            expected_skills=[
+                "systematic-debugging",
+                "test-driven-development",
+                "verification-before-completion",
+            ],
+        )
+
+        self.assertEqual(report["status"], "PASS")
+        self.assertEqual(
+            report["checks"]["skill_usage_footer"]["skills"],
+            [
+                "systematic-debugging",
+                "test-driven-development",
+                "verification-before-completion",
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

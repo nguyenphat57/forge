@@ -50,12 +50,12 @@ ADAPTER_SKILL_SPECS: dict[str, dict[str, object]] = {
 }
 
 SHARED_SECTION_HEADINGS = (
-    "Bootstrap Rules",
-    "Routing Contract",
-    "Verification Contract",
-    "Solo Profile And Workflow-State Contract",
-    "Skill Laws",
-    "Reference Map",
+    "EXTREMELY-IMPORTANT",
+    "Instruction Priority",
+    "The Rule",
+    "Red Flags",
+    "Workflow Priority",
+    "User Instructions",
 )
 
 
@@ -109,6 +109,10 @@ def compose_adapter_skill(bundle_name: str, *, core_skill_path: Path = CORE_SKIL
         raise KeyError(f"Unknown adapter bundle for SKILL composition: {bundle_name}")
 
     spec = ADAPTER_SKILL_SPECS[bundle_name]
+    output_path = Path(spec["output_path"])
+    if output_path.exists():
+        return output_path.read_text(encoding="utf-8")
+
     core_doc = _parse_document(core_skill_path)
     delta_doc = _parse_document(spec["delta_path"])
     core_sections = core_doc["sections"]

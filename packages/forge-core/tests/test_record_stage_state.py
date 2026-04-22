@@ -59,7 +59,7 @@ class RecordStageStateTests(unittest.TestCase):
                 "--summary",
                 "Build stage",
                 "--expected-previous-stage",
-                "architect",
+                "brainstorm",
                 "--persist",
                 "--output-dir",
                 str(workspace),

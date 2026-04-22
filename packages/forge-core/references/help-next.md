@@ -32,7 +32,7 @@
 | Stage | First operator move |
 |---|---|
 | `blocked` | inspect the blocker, reopen the right workflow, and only use recorded runtime recovery guidance when browser proof tooling is stale |
-| `planned` | use `plan`, `architect`, or a direct task prompt now that a bounded slice exists |
+| `planned` | use `plan`, or reopen `brainstorm` with the architectural lens if the design boundary is still unclear |
 | `unscoped` | run `python scripts/verify_repo.py --profile fast` if repo health is unclear, then state one bounded slice |
 | `change-active` | use `next` to resume the recorded slice instead of rediscovering context |
 

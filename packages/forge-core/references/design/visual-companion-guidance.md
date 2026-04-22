@@ -1,6 +1,6 @@
 # Visual Companion Guidance
 
-Use the `visualize` workflow as an optional lens, not as a default stage. The protocol should mirror Superpowers `brainstorming` as closely as Forge allows.
+Use the visual lens inside `forge-brainstorming`, not a separate design stage. The protocol should mirror Superpowers `brainstorming` as closely as Forge allows. The legacy `/visualize` alias may still route here, but the canonical process remains `forge-brainstorming`.
 
 ## Offer Protocol
 

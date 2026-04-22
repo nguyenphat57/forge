@@ -59,6 +59,8 @@ python scripts/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/front
 python scripts/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/visualize --mode visualize --screen dashboard
 ```
 
+`visualize` remains the compatibility brief mode name for the visual lens inside `brainstorm`.
+
 ## Historical Note
 
 - If a historical workspace still carries packet-render or capture loops, treat them as archive context, not as current Forge guidance.

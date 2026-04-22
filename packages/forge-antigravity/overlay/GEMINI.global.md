@@ -25,7 +25,7 @@ Use `forge-antigravity` as the global orchestrator for Gemini workspaces.
 ## Scope Of This File
 
 - This file is the global bootstrap layer; it is not the full process manual.
-- Keep detailed routing, workflow logic, and quality gates in the Forge bundle files.
+- Keep detailed skill logic, workflow-state, and quality gates in the Forge bundle files.
 - Update this file only when the host bindings, precedence rules, or top-level alias surface changes.
 
 ## Mandatory First Action
@@ -41,7 +41,10 @@ Before the first substantive reply in every new conversation:
 
 - Natural language is the primary surface; slash commands are optional aliases.
 - Unknown slash commands are plain user input unless they are mapped here or by a workspace-local router.
-- Invoke Forge skills before substantial work when there is a clear or reasonable match.
+- Check Forge skills before any response or action. If there is even a 1% chance a Forge skill applies, invoke it first.
+- Process skills come before implementation skills.
+- Sibling Forge skills are host-native skills, not internal workflow files.
+- Installed sibling skills: `forge-brainstorming`, `forge-writing-plans`, `forge-executing-plans`, `forge-test-driven-development`, `forge-using-git-worktrees`, `forge-dispatching-parallel-agents`, `forge-subagent-driven-development`, `forge-systematic-debugging`, `forge-requesting-code-review`, `forge-receiving-code-review`, `forge-verification-before-completion`, `forge-finishing-a-development-branch`, `forge-writing-skills`, `forge-session-management`.
 - For small, low-risk requests where a skill adds no value, answer directly.
 - Read only the files needed for the current task; do not bulk-load the whole bundle.
 - If a skill or referenced file is missing, say so briefly and continue with best effort.
@@ -71,16 +74,16 @@ Before closing a task:
 
 ## Global Skill Usage Footer
 
-When one or more Forge workflow skills were used for the response, end the response with one final non-empty line in this form:
+When one or more Forge skills were used for the response, end the response with one final non-empty line in this form:
 
 ```text
-Skills used: brainstorm, build, quality-gate
+Skills used: brainstorming, writing-plans, verification-before-completion
 ```
 
 Rules:
 
 - Use the exact prefix `Skills used:`
-- List only Forge workflow skill names that were actually used for the response
+- List only Forge skill names that were actually used for the response, without the `forge-` prefix
 - Keep the skill names unique
 - Omit the footer entirely when no Forge workflow skill was used
 - Keep the `Skills used:` line as the final non-empty line when it is present
@@ -88,27 +91,25 @@ Rules:
 
 ## Command Aliases
 
-Treat each slash command as a workflow alias, not a filesystem path. Read the mapped workflow from `{{FORGE_ANTIGRAVITY_WORKFLOWS}}`.
+Treat each slash command as a compatibility alias. Canonical activation happens through host-native Forge skill discovery.
 
-Workflow aliases:
+Compatibility aliases:
 
-| Command | Workflow |
+| Command | Skill |
 |---------|----------|
-| `/brainstorm` | `design/brainstorm.md` |
-| `/plan` | `design/plan.md` |
-| `/design` | `design/architect.md` |
-| `/visualize` | `design/visualize.md` |
-| `/code` | `execution/build.md` |
-| `/debug` | `execution/debug.md` |
-| `/test` | `execution/test.md` |
-| `/review` | `execution/review.md` |
-| `/refactor` | `execution/refactor.md` |
-| `/audit` | `execution/secure.md` |
-| `/deploy` | `execution/deploy.md` |
+| `/brainstorm` | `forge-brainstorming` |
+| `/plan` | `forge-writing-plans` |
+| `/code` | `forge-executing-plans` |
+| `/debug` | `forge-systematic-debugging` |
+| `/test` | `forge-test-driven-development` |
+| `/review` | review wrapper chooses requesting vs receiving |
+| `/refactor` | `forge-test-driven-development` + `forge-executing-plans` |
+| `/audit` | `forge-requesting-code-review` + `forge-verification-before-completion` |
+| `/deploy` | `forge-verification-before-completion` |
 
 Primary operator aliases:
 
-| Command | Workflow |
+| Command | Target |
 |---------|----------|
 | `/help` | `operator/help.md` |
 | `/next` | `operator/next.md` |
@@ -124,7 +125,7 @@ Session requests stay natural-language:
 - "Save context for this task before I close the window." -> `save context`
 - "Create a short handover with the next step and verification already run." -> `handover`
 
-There is no `/gate` alias; `quality-gate` stays the workflow stage name.
+There is no `/gate` alias; completion claims use `forge-verification-before-completion`.
 
 ## Activation Announcement
 

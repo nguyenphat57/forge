@@ -9,8 +9,8 @@ Use before `brainstorm` asks for user review.
 - The recommended design states why it wins now.
 - Rejected approaches state why they lose now.
 - Auth, payment, migration, public API, compatibility, security, and data ownership boundaries are explicit when relevant.
-- Visual or interaction risk names whether the `visualize` lens is useful.
-- System-shape risk names whether the `architect` lens is useful.
+- Visual or interaction risk names whether the visual lens inside `brainstorm` is useful.
+- System-shape risk names whether the architectural lens inside `brainstorm` is useful.
 - First proof catches the main failure mode.
 - Reversal signal says when to reopen the design.
 - User review is requested before `plan`.

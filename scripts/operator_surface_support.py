@@ -102,8 +102,8 @@ def render_operator_alias_rows(bundle_name: str) -> str:
     lines: list[str] = []
     for _, metadata in _primary_action_rows(bundle_name):
         alias = _host_values(metadata, "primary_aliases_by_host", bundle_name=bundle_name)[0]
-        workflow = metadata.get("workflow", "")
-        lines.append(f"| `{alias}` | `{_workflow_label(workflow)}` |")
+        target = metadata.get("skill") or _workflow_label(metadata.get("workflow", ""))
+        lines.append(f"| `{alias}` | `{target}` |")
     return "\n".join(lines)
 
 

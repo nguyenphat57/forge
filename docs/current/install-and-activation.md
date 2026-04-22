@@ -1,49 +1,66 @@
 # Forge Current Install And Activation
 
-## Source repo versus installed runtime
+## Goal
 
-Treat these as different surfaces:
+Describe the current install and activation contract after the split-skill markdown cutover.
 
-- source repo: edit, test, and verify in this monorepo
-- installed runtime: build from `dist/`, then install or activate the real bundle
+## Product Line
 
-The source repo uses `scripts/repo_operator.py`.
-Installed runtimes keep the bundle-native script and workflow layout.
+- Forge still builds the three kernel bundles: `forge-core`, `forge-codex`, and `forge-antigravity`.
+- Installing `forge-codex` or `forge-antigravity` also installs the sibling Forge skill family from `packages/forge-core/skills/`.
+- `forge-core` owns the host-neutral bootstrap, sibling skill sources, compatibility wrappers, and invariant tooling.
+- Host bundles add bootstrap files, wrapper language, host-specific access mapping, and shared-script access without forking skill meaning.
 
-## Canonical inner loop
+## Activation Model
 
-```powershell
-python scripts/repo_operator.py help --workspace <repo> --format json
-python scripts/repo_operator.py next --workspace <repo> --format json
-python scripts/verify_repo.py --profile fast
-```
+- Installation should produce a host bootstrap that points operators to host-native Forge sibling skills.
+- Activation is successful when the host can:
+  - restore durable preferences when available
+  - apply the 1% rule before substantive responses or actions
+  - invoke the matching sibling skill before exploration, clarification, implementation, or completion claims
+  - keep process skills before implementation skills
+  - preserve evidence-before-claims behavior
+- Generated host artifacts remain bootstrap-only. Canonical skill wording belongs in tracked markdown sources, not hand-edited generated files.
 
-## Canonical release/install loop
+## Source Repo Versus Installed Runtime
 
-```powershell
-python scripts/verify_repo.py
-python scripts/build_release.py
-python scripts/install_bundle.py forge-codex --activate-codex
-python scripts/install_bundle.py forge-antigravity --activate-gemini
-```
+- Source repo docs under `docs/current/` and `packages/forge-core/references/` are the canonical maintainer explanation layer.
+- Installed runtime artifacts are distribution outputs and should stay aligned with those sources.
+- Installed sibling skills are lightweight markdown entrypoints. Shared scripts, data, and state machinery stay in the installed orchestrator bundle.
+- If installed wrappers drift from source markdown, fix the source markdown and generation path rather than teaching the generated wrapper as canonical.
 
-## When re-activation is required
+## Preferences And State
 
-Re-activate the installed host only when global template content or installed bundle docs change.
+- Durable preferences stay on the canonical preferences path for the active host or workspace scope.
+- Preference resolution and writes remain Python-backed because they are stateful invariant work.
+- workflow-state persistence and projection also remain deterministic script territory.
+- Those scripts support activation and audit, but they do not replace sibling skills as the public control plane.
 
-Typical cases:
+## Operator-Facing Outcomes After Install
 
-- `packages/forge-codex/overlay/AGENTS.global.md`
-- `packages/forge-antigravity/overlay/GEMINI.global.md`
-- installed workflow or reference files that the host reads directly after install
+The first operator-visible story should be:
 
-## When re-activation is not required
+- Forge is natural-language first.
+- Forge is markdown-first and skill-first.
+- If a Forge skill may apply, load it first.
+- `help` and `next` audit durable artifacts; they do not invent process state.
 
-Do not re-activate a host just because the source repo's local `AGENTS.md` changed.
-Repo-local routing changes take effect immediately for source-repo work in this checkout.
+The first operator-visible story should not be:
 
-## Deferred scope
+- start with `route_preview`
+- learn internal deterministic scripts before understanding the skill contract
+- treat generated host wrappers as the canonical source of truth
+- treat `workflows/` files as the primary activation surface
 
-This tranche does not refactor `install_bundle_host.py` into a new activation architecture.
-Behavior stays stable unless a text or template expectation has to change.
-The install surface is now limited to the three shipped bundles and their host activations.
+## Current Non-Changes
+
+- Install safety, backup behavior, and release verification remain intact.
+- Bundle fingerprints and release packaging stay canonical.
+- Python remains in place for invariants, state, and preferences.
+- Slash aliases remain compatibility entrypoints.
+
+## Maintainer Guardrails
+
+- Keep install docs aligned with the split-skill public contract.
+- Reject changes that make activation more tool-first or host-specific unless they are required for invariant enforcement or state correctness.
+- When in doubt, teach the sibling skill and artifact model first, then mention deterministic scripts as support machinery.

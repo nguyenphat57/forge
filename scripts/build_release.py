@@ -11,8 +11,15 @@ from pathlib import Path
 from bundle_fingerprint import bundle_fingerprint_matches_manifest, compute_bundle_fingerprint, compute_path_fingerprint, fingerprint_matches
 from host_artifact_manifest import MANIFEST_PATH, generated_host_artifact_records_for_bundle
 from host_artifacts_support import ensure_generated_host_artifacts
-from overlay_route_fixtures import materialize_overlay_route_fixtures
-from package_matrix import PACKAGE_MATRIX_PATH, bundle_names, bundle_package_spec, bundle_required_path_texts, bundle_required_paths
+from package_matrix import (
+    PACKAGE_MATRIX_PATH,
+    bundle_names,
+    bundle_package_spec,
+    bundle_required_path_texts,
+    bundle_required_paths,
+    sibling_skill_names,
+    sibling_skill_source_dir,
+)
 from release_package_specs import discover_package_specs
 from release_fs import IGNORE_PATTERNS, copy_file, copy_tree as copy_tree_with_retries, remove_path, remove_tree, should_ignore_relative_path
 from release_registry import materialize_overlay_registry
@@ -38,7 +45,6 @@ COMMON_BUILD_INPUTS = (
     ROOT_DIR / "scripts" / "host_artifact_specs.py",
     ROOT_DIR / "scripts" / "host_artifacts_support.py",
     ROOT_DIR / "scripts" / "operator_surface_support.py",
-    ROOT_DIR / "scripts" / "overlay_route_fixtures.py",
     ROOT_DIR / "scripts" / "package_matrix.py",
     ROOT_DIR / "scripts" / "generate_overlay_skills.py",
     ROOT_DIR / "scripts" / "release_package_specs.py",
@@ -184,6 +190,9 @@ def build_state_metadata(package_name: str, host: str, runtime_state: dict | Non
 
 def build_input_paths(package_name: str, *, package_dir: Path | None = None, overlay_dir: Path | None = None) -> list[Path]:
     paths = list(COMMON_BUILD_INPUTS)
+    if package_name in sibling_skill_names():
+        paths.append(sibling_skill_source_dir(package_name))
+        return paths
     if package_name == "forge-core":
         paths.append(CORE_DIR)
         return paths
@@ -246,8 +255,43 @@ def write_build_manifest(
     )
 
 
+def write_sibling_skill_manifest(
+    destination: Path,
+    package_name: str,
+    metadata: dict[str, object],
+    *,
+    source_input_fingerprint: dict | None = None,
+) -> None:
+    manifest = {
+        "package": package_name,
+        "host": "skill",
+        "source": str(sibling_skill_source_dir(package_name).relative_to(ROOT_DIR)),
+        "version": metadata["version"],
+        "git_revision": metadata["git_revision"],
+        "git_tree": metadata["git_tree"],
+        "built_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "packaging": {
+            "matrix_path": str(PACKAGE_MATRIX_PATH.relative_to(ROOT_DIR).as_posix()),
+            "default_target_strategy": "sibling-skill",
+            "required_bundle_paths": ["BUILD-MANIFEST.json", "SKILL.md"],
+        },
+        "bundle_fingerprint": compute_bundle_fingerprint(destination),
+        "source_input_fingerprint": copy.deepcopy(source_input_fingerprint),
+        "generated_artifacts": {
+            "manifest_path": str(MANIFEST_PATH.relative_to(ROOT_DIR).as_posix()),
+            "artifacts": [],
+        },
+    }
+    (destination / "BUILD-MANIFEST.json").write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+
 def required_bundle_paths(destination: Path, package_name: str, host: str) -> list[Path]:
     del host
+    if package_name in sibling_skill_names():
+        return [destination / "SKILL.md", destination / "BUILD-MANIFEST.json"]
     paths = bundle_required_paths(package_name, destination)
     build_manifest_path = destination / "BUILD-MANIFEST.json"
     if build_manifest_path not in paths:
@@ -388,7 +432,6 @@ def build_adapter_bundle(spec: dict, metadata: dict[str, object], *, force: bool
             ignored_relative_paths={"SKILL.md", "SKILL.delta.md"},
         )
         materialize_overlay_registry(CORE_DIR, overlay_dir, destination)
-        materialize_overlay_route_fixtures(spec["name"], destination)
         write_composed_adapter_skill(spec["name"], destination / "SKILL.md")
         write_build_manifest(
             destination,
@@ -417,6 +460,44 @@ def build_adapter_bundle(spec: dict, metadata: dict[str, object], *, force: bool
     }
 
 
+def build_sibling_skill_bundle(package_name: str, metadata: dict[str, object], *, force: bool = False) -> dict:
+    destination = DIST_DIR / package_name
+    source_dir = sibling_skill_source_dir(package_name)
+    source_input_fingerprint = compute_source_input_fingerprint(package_name)
+    if not force and can_skip_build(
+        destination,
+        package_name,
+        "skill",
+        metadata,
+        source_input_fingerprint=source_input_fingerprint,
+    ):
+        return {
+            "name": package_name,
+            "path": str(destination),
+            "host": "skill",
+            "version": metadata["version"],
+            "skipped": True,
+        }
+    for attempt in range(BUNDLE_BUILD_ATTEMPTS):
+        clean_dir(destination)
+        copy_tree(source_dir, destination)
+        write_sibling_skill_manifest(
+            destination,
+            package_name,
+            metadata,
+            source_input_fingerprint=source_input_fingerprint,
+        )
+        prune_cached_python_artifacts(destination)
+        try:
+            wait_for_bundle_ready(destination, package_name, "skill")
+            break
+        except FileNotFoundError:
+            if attempt == BUNDLE_BUILD_ATTEMPTS - 1:
+                raise
+            time.sleep(BUNDLE_BUILD_DELAY_SECONDS * (attempt + 1))
+    return {"name": package_name, "path": str(destination), "host": "skill", "version": metadata["version"], "skipped": False}
+
+
 def build_all(*, force: bool = False) -> list[dict]:
     git_tree = resolve_git_tree_provenance(ROOT_DIR)
     DIST_DIR.mkdir(parents=True, exist_ok=True)
@@ -437,6 +518,7 @@ def build_all(*, force: bool = False) -> list[dict]:
     metadata = {"version": read_version(), "git_revision": resolve_git_revision(), "git_tree": git_tree}
     all_specs = discover_package_specs(PACKAGES_DIR, include_examples=True)
     release_bundle_names = set(bundle_names())
+    release_output_names = release_bundle_names | set(sibling_skill_names())
     release_specs = [spec for spec in all_specs if spec["name"] in release_bundle_names]
     for spec in all_specs:
         if spec["name"] not in release_bundle_names:
@@ -445,9 +527,11 @@ def build_all(*, force: bool = False) -> list[dict]:
     for spec in release_specs:
         if spec["kind"] == "adapter":
             outputs.append(build_adapter_bundle(spec, metadata, force=force))
+    for package_name in sibling_skill_names():
+        outputs.append(build_sibling_skill_bundle(package_name, metadata, force=force))
     prune_cached_python_artifacts(DIST_DIR)
     for child in DIST_DIR.iterdir():
-        if child.is_dir() and child.name not in release_bundle_names:
+        if child.is_dir() and child.name not in release_output_names:
             clean_dir(child)
     for item in outputs:
         wait_for_bundle_ready(Path(item["path"]), item["name"], item["host"])

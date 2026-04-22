@@ -1,193 +1,128 @@
 # Forge Reference Map
 
-> Goal: help maintainers and agents read the right current document or reference instead of searching the entire repo.
+> Goal: send maintainers and agents to the current split-skill, markdown-first contract quickly, without teaching obsolete public surfaces.
 
-## Source Repo Current Docs
-
-| File | When to read |
-| --- | --- |
-| docs/current/architecture.md | Current maintainer view of package boundaries, archive policy, and the current repo posture |
-| docs/current/operator-surface.md | Current source-repo operator contract, `repo_operator.py`, and dispatcher behavior |
-| docs/current/install-and-activation.md | Current source-repo versus installed-runtime guidance, activation rules, and rollout sync |
-| docs/archive/INDEX.md | Find historical plans and specs after they leave the active reading path |
-
-## Reference Registry
+## Current Docs First
 
 | File | When to read |
 | --- | --- |
-| `smoke-tests.md` | Smoke-test host routing and Forge's general behavior |
-| `smoke-test-checklist.md` | Record smoke-test results for each case |
-| `constitution-lite.md` | Record or reuse repo-local principles without adding a heavier governance artifact |
-| `target-state.md` | Re-anchor Forge strategy and operator choices to the north-star target state, including the shipped `1.15.x` closure target, the `1.16.x` surface-slim closure, and the current operating contract |
-| `execution-delivery.md` | Select execution mode, checkpoint, and completion state for large builds |
-| `tdd-discipline.md` | Apply strict RED -> GREEN -> REFACTOR, delete-rule, anti-rationalization, and no-harness fallback discipline |
-| `subagent-execution.md` | Dispatch packet-first implementer/reviewer subagents, status protocol, final review handoff, and lane fallback rules |
-| `subagent-prompts/implementer-prompt.md` | Prompt an implementer subagent from a Forge execution packet |
-| `subagent-prompts/spec-reviewer-prompt.md` | Prompt the spec compliance review lane before quality review |
-| `subagent-prompts/quality-reviewer-prompt.md` | Prompt the code/content quality review lane after spec compliance |
-| `subagent-prompts/final-reviewer-prompt.md` | Prompt the holistic final reviewer before quality gate |
-| `backend-briefs.md` | Validate or interpret persisted backend brief artifacts that already exist in the repo |
-| `failure-recovery-playbooks.md` | Use when the chain is stalled, a gate is blocked, review is deadlocked, or deployment fails and you need a clear recovery path |
-| `frontend-stack-profiles.md` | Choose stack lens for UI implementation or visualization |
-| `ui-quality-checklist.md` | Quick review of UI anti-patterns and delivery criteria |
-| `ui-escalation.md` | Decide when to pull more `$ui-ux-pro-max` |
-| `ui-good-bad-examples.md` | Concrete good/bad patterns so the agent does not have to infer anti-patterns alone |
-| `ui-heuristics.md` | Global heuristics for touch-heavy, dashboard, dense-data UI |
-| `ui-progress.md` | Track progress for long UI tasks |
-| `ui-briefs.md` | Validate or interpret persisted UI brief artifacts that already exist in the repo |
-| `architecture-layers.md` | When deciding whether a capability belongs in core, generated artifacts, or workflow state |
-| `extension-presets.md` | When defining bounded packet templates, workflow overlays, or planning presets without weakening core contracts |
-| `kernel-tooling.md` | When you need the current kernel-only tooling surface, artifact paths, and verification entrypoints |
-| `personalization.md` | When editing response-style preferences, adaptive language, or adapter wrappers for customization |
-| `workspace-init.md` | When editing the skeleton workspace, init flow, or onboarding wrapper while preserving the repo-neutral contract |
-| `help-next.md` | When editing navigator logic for help or next, repo-state priority, or operator guidance wrappers |
-| `run-guidance.md` | When editing workflow `run`, ready-signal detection, command classification, or adapter wrappers for execute-then-route |
-| `error-translation.md` | When fixing database error patterns, sanitation rules, or how `run` or `debug` converts technical errors into readable guidance |
-| `tdd-discipline.md` | Apply strict RED -> GREEN -> REFACTOR and the delete-before-implementation rule for behavioral work with a viable harness |
-| `bump-release.md` | When editing version-bump checklist, semver math, or release artifact update flow |
-| `rollback-guidance.md` | When editing rollback planning, risk framing, or recovery strategy selection |
-| `companion-skill-contract.md` | Design or update companion skills when the repo really has an extended runtime or framework layer |
-| `companion-routing-smoke-tests.md` | Check routing between Forge and companion skills when the workspace uses a companion or local layer |
-| `design/design-doc-template.md` | Write Forge brainstorm design docs under `docs/specs/YYYY-MM-DD-<topic>-design.md` |
-| `design/design-review-checklist.md` | Self-review a brainstorm design doc before user review |
-| `design/visual-companion-guidance.md` | Decide when the optional `visualize` lens should inform a design without becoming a default stage |
-| `planning/implementation-plan-template.md` | Write Forge implementation plans under `docs/plans/YYYY-MM-DD-<topic>-implementation-plan.md` |
+| `docs/current/architecture.md` | Understand live package boundaries, sibling skill activation, and public-versus-internal surface split |
+| `docs/current/operator-surface.md` | Understand the thin operator contract, the 1% rule, and `help`/`next` audit sidecars |
+| `docs/current/install-and-activation.md` | Understand sibling skill installation, generated-host-artifact boundaries, and source-versus-installed ownership |
+| `docs/archive/INDEX.md` | Find historical plans and specs only when historical context is actually needed |
+
+## Skill Sources
+
+| Path | When to read |
+| --- | --- |
+| `packages/forge-core/SKILL.md` | Change the host-neutral bootstrap, 1% rule, or invariant boundary wording |
+| `packages/forge-core/skills/` | Change canonical process behavior for Forge sibling skills |
+| `packages/forge-core/workflows/` | Repair slash-alias compatibility wrappers only; these files are not the source of truth |
+| `packages/forge-codex/overlay/SKILL.md` | Change Codex bootstrap access wording without forking skill meaning |
+| `packages/forge-antigravity/overlay/SKILL.md` | Change Antigravity bootstrap access wording without forking skill meaning |
+
+## Core References
+
+| File | When to read |
+| --- | --- |
+| `target-state.md` | Re-anchor strategy, public contract limits, invariant boundaries, and what changes qualify as drift correction versus product expansion |
+| `kernel-tooling.md` | Use deterministic scripts for invariants, workflow-state, and preferences without turning them into the public contract |
+| `personalization.md` | Edit or reason about response preferences, language handling, or preference persistence |
+| `help-next.md` | Change `help` or `next` while keeping them artifact-backed audit sidecars instead of primary control surfaces |
+| `run-guidance.md` | Change `run` while preserving execute-then-route from evidence |
+| `workspace-init.md` | Change init or onboarding while keeping the bootstrap thin and skill-first |
+| `architecture-layers.md` | Decide whether a capability belongs in sibling skill markdown, deterministic state tooling, or generated artifacts |
+| `extension-presets.md` | Add bounded overlays or presets without weakening core workflow or verification invariants |
+| `tdd-discipline.md` | Apply RED -> GREEN -> REFACTOR and the delete-before-implementation rule for behavioral work |
+| `execution-delivery.md` | Shape medium or large execution flow without losing artifact-backed checkpoints |
+| `subagent-execution.md` | Shape subagent-driven execution without reintroducing a parallel orchestration model |
+| `subagent-prompts/final-reviewer-prompt.md` | Review final implementation quality when a split execution lane needs a final pass |
+| `failure-recovery-playbooks.md` | Recover when a workflow, gate, or release path is blocked |
+| `debugging/root-cause-tracing.md` | Trace a visible symptom backward to the original trigger before fixing |
+| `debugging/defense-in-depth.md` | Add layered validation after root cause shows bad state crossed boundaries |
+| `debugging/condition-based-waiting.md` | Replace flaky sleeps and guessed delays with bounded readiness conditions |
+| `smoke-tests.md` | Smoke-test the live host and sibling skill contract |
+| `smoke-test-checklist.md` | Record smoke-test outcomes and gaps |
+
+## Design And Planning References
+
+| File | When to read |
+| --- | --- |
+| `design/design-doc-template.md` | Write a brainstorm design doc |
+| `design/design-review-checklist.md` | Self-review a design doc before asking for approval |
+| `design/architectural-lens.md` | Reopen system-shape, ownership, and compatibility questions inside `brainstorm` without reviving a separate architecture workflow |
+| `design/visual-companion-guidance.md` | Decide whether the optional visual lens helps without turning it into a default stage |
+| `planning/implementation-plan-template.md` | Write an implementation plan after design approval |
 | `planning/plan-self-review-checklist.md` | Review plan readiness before asking for execution choice |
-| `planning/execution-handoff.md` | Record the execution-choice gate before `build` |
+| `planning/execution-handoff.md` | Record the execution-choice gate before `forge-executing-plans` |
 
-## Historical Planning Context
+## Companion And Adapter References
 
 | File | When to read |
 | --- | --- |
-| docs/plans/forge_refactor_V3.md | Read only when the completed kernel-only contraction tranche itself matters as historical context |
+| `companion-skill-contract.md` | Design or update a companion skill without weakening the core contract |
+| `packages/forge-core/skills/writing-skills/SKILL.md` | Create, edit, absorb, harden, test, or deploy Forge sibling skills |
+| `companion-routing-smoke-tests.md` | Verify local or companion activation without treating route-era tooling as canonical |
+| `bump-release.md` | Edit release bump flow or semver guidance |
+| `rollback-guidance.md` | Edit rollback planning and recovery framing |
 
 ## Reading Order
 
-### When maintaining Forge core
+### When changing Forge core docs or public contract
 
 ```text
 1. docs/current/architecture.md
-2. docs/current/operator-surface.md if the change touches the source-repo entry contract
-3. target-state.md if the change affects Forge strategy, process weight, verification strictness, or core identity
-4. architecture-layers.md before moving ownership between core, generated artifacts, and workflow state
-5. extension-presets.md when adding bounded packet template, workflow overlay, or planning preset contracts
-6. docs/current/install-and-activation.md if the change touches build/install/activation guidance
-7. kernel-tooling.md if you need deterministic preview or check scripts instead of plain prose
-8. personalization.md if you are editing response style or preference engine
-9. workspace-init.md if editing init or onboarding skeleton logic
-10. help-next.md if editing navigator help or next
-11. run-guidance.md if editing run or execute-then-route
-12. error-translation.md if you are editing error translator or helper layers
-13. bump-release.md or rollback-guidance.md if editing release operators
-14. execution-delivery.md depending on the layer being edited
-15. smoke-tests.md or smoke-test-checklist.md if needed to verify host behavior
-16. docs/archive/INDEX.md only when historical context is truly needed
+2. docs/current/operator-surface.md
+3. docs/current/install-and-activation.md
+4. packages/forge-core/SKILL.md
+5. packages/forge-core/skills/*/SKILL.md for affected processes
+6. target-state.md
+7. architecture-layers.md
+8. kernel-tooling.md
+9. docs/archive/INDEX.md only when historical context is necessary
 ```
 
-### When the repo does not have local skills
+### When changing skill activation or compatibility wrappers
 
 ```text
-1. SKILL.md
-2. plan.md / architect.md / build.md / debug.md / review.md depending on intent
-3. execution-delivery.md or quality-gate.md if the task is long or risky
+1. packages/forge-core/SKILL.md
+2. packages/forge-core/skills/*/SKILL.md
+3. docs/current/operator-surface.md
+4. help-next.md or run-guidance.md if the change touches sidecars
+5. target-state.md if the user-visible contract might shift
 ```
 
-### When you just want to smoke test Forge core
-
-```text
-1. smoke-tests.md
-2. smoke-test-checklist.md
-```
-
-### When debugging companion routing
-
-```text
-1. companion-skill-contract.md
-2. companion-routing-smoke-tests.md
-3. kernel-tooling.md if you need to run checker
-```
-
-### When designing a workspace according to the global plus local model
-
-```text
-1. companion-skill-contract.md
-2. kernel-tooling.md
-3. companion-routing-smoke-tests.md
-4. smoke-tests.md if you need to verify host behavior more broadly
-```
-
-### When doing implementation after plan or design
-
-```text
-1. planning/implementation-plan-template.md when writing the implementation plan
-2. planning/plan-self-review-checklist.md before asking for execution choice
-3. planning/execution-handoff.md before moving from plan to build
-4. docs/current/operator-surface.md if the change touches source-repo routing or wrappers
-5. target-state.md if the change affects Forge process direction or strictness
-6. execution-delivery.md
-7. tdd-discipline.md when the task changes behavior or the proof chain is being tightened
-8. subagent-execution.md when the host can dispatch implementer or reviewer lanes
-9. build.md when defining or updating the canonical build packet
-10. test.md when the proof chain or browser QA evidence changes
-11. debug.md when reproduction or root-cause packet changes
-12. failure-recovery-playbooks.md if the chain has risk stall or block
-13. kernel-tooling.md if checkpoint artifact is needed
-14. review.md if you need to clear disposition last
-15. quality-gate.md if you need to go or no-go clearly before claiming or deploying
-```
-
-### When doing release-critical flow
+### When changing install, activation, or generated host artifacts
 
 ```text
 1. docs/current/install-and-activation.md
-2. secure.md
-3. quality-gate.md
-4. deploy.md
-5. failure-recovery-playbooks.md if the gate is blocked or rollout fails
-6. execution-delivery.md if the chain is long or high-risk
+2. docs/current/architecture.md
+3. docs/architecture/generated-host-artifacts/*
+4. packages/forge-codex/overlay/SKILL.md or packages/forge-antigravity/overlay/SKILL.md
+5. kernel-tooling.md
+6. personalization.md if preferences or bootstrap state are involved
 ```
 
-### When validating the current operating contract
+### When verifying current contract alignment
 
 ```text
-1. target-state.md to confirm the `1.15.x` closure target, the `1.16.x` surface-slim closure, the current operating contract, and escalation criteria
-2. docs/current/architecture.md to confirm the live maintainer surface stays in current docs instead of roadmap files
-3. bump-release.md if the stable version line or release-note surface changes
-4. kernel-tooling.md if you need deterministic checks to keep release-facing docs and generated artifacts aligned
-5. docs/archive/INDEX.md if you need to map the resulting historical plan inventory
+1. target-state.md
+2. docs/current/architecture.md
+3. docs/current/operator-surface.md
+4. docs/current/install-and-activation.md
+5. packages/forge-core/skills/*/SKILL.md
+6. kernel-tooling.md
+7. smoke-tests.md
+8. smoke-test-checklist.md
 ```
 
-### When working on backend tasks
+### What Not To Teach First
 
 ```text
-1. build.md
-2. plan.md when scope, compatibility, or verification is not locked
-3. architect.md when system shape or boundaries need design
-4. execution-delivery.md if the backend task spans multiple checkpoints
-5. failure-recovery-playbooks.md if the task is migration, recovery, or release-sensitive
-6. kernel-tooling.md if you need deterministic packet or verification helpers
-7. companion-skill-contract.md if the runtime or framework is clear and you want to add more layers
+- Do not teach `route_preview` as the public interface.
+- Do not teach generated host artifacts as the canonical wording source.
+- Do not teach Python helpers first when the question is really about skill choice or control semantics.
+- Do not teach `workflows/` files as the primary activation surface.
 ```
 
-### When doing frontend or visualization
-
-```text
-1. design/design-doc-template.md when the work changes behavior or visual design
-2. design/visual-companion-guidance.md when deciding whether to use the visual lens
-3. frontend-stack-profiles.md
-4. ui-quality-checklist.md
-5. ui-good-bad-examples.md
-6. ui-heuristics.md
-7. ui-escalation.md if the visual guide is too open
-8. ui-progress.md if the task takes a long time
-9. kernel-tooling.md if you want deterministic artifact or verification helpers
-```
-
-### When stalled or blocked
-
-```text
-1. failure-recovery-playbooks.md
-2. execution-delivery.md if you need to look back at the chain or checkpoint
-3. kernel-tooling.md if you need to capture new artifacts
-4. debug.md / quality-gate.md / review.md / deploy.md depending on where you are stuck
-```
+The current repo posture is split-skill markdown control with Python constrained to invariant boundaries.

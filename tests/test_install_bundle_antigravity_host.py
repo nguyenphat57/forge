@@ -19,6 +19,24 @@ import build_release  # noqa: E402
 import install_bundle  # noqa: E402
 
 
+FORGE_SIBLING_SKILLS = [
+    "forge-brainstorming",
+    "forge-writing-plans",
+    "forge-executing-plans",
+    "forge-test-driven-development",
+    "forge-using-git-worktrees",
+    "forge-dispatching-parallel-agents",
+    "forge-subagent-driven-development",
+    "forge-systematic-debugging",
+    "forge-requesting-code-review",
+    "forge-receiving-code-review",
+    "forge-verification-before-completion",
+    "forge-finishing-a-development-branch",
+    "forge-writing-skills",
+    "forge-session-management",
+]
+
+
 NATIVE_ANTIGRAVITY_PREFERENCES = {
     "version": "1.0",
     "created_at": "2026-03-09T11:25:43+07:00",
@@ -77,6 +95,17 @@ class AntigravityHostInstallTests(unittest.TestCase):
                 activate_gemini=True,
                 gemini_home=str(gemini_home),
             )
+
+            self.assertEqual(
+                [item["name"] for item in report["sibling_skills"]["skills"]],
+                FORGE_SIBLING_SKILLS,
+            )
+            for skill_name in FORGE_SIBLING_SKILLS:
+                with self.subTest(skill=skill_name):
+                    skill_root = gemini_home / "antigravity" / "skills" / skill_name
+                    self.assertTrue((skill_root / "SKILL.md").exists())
+                    self.assertFalse((skill_root / "scripts").exists())
+                    self.assertFalse((skill_root / "data").exists())
 
             rendered = gemini_md_path.read_text(encoding="utf-8")
             expected_state_root = str((gemini_home / "antigravity" / "forge-antigravity").resolve())

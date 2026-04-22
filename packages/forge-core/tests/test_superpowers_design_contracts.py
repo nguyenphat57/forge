@@ -7,7 +7,7 @@ from support import ROOT_DIR
 
 class SuperpowersDesignContractTests(unittest.TestCase):
     def test_brainstorm_contract_matches_superpowers_design_doc_generator(self) -> None:
-        brainstorm = (ROOT_DIR / "workflows" / "design" / "brainstorm.md").read_text(encoding="utf-8")
+        brainstorm = (ROOT_DIR / "skills" / "brainstorming" / "SKILL.md").read_text(encoding="utf-8")
 
         for token in (
             "one question at a time",
@@ -20,7 +20,6 @@ class SuperpowersDesignContractTests(unittest.TestCase):
             "Use the terminal",
             "Write design doc",
             "docs/specs/YYYY-MM-DD-<topic>-design.md",
-            "commit the design document to git",
             "user review",
             "design-approved",
             "design-blocked",
@@ -32,26 +31,27 @@ class SuperpowersDesignContractTests(unittest.TestCase):
         self.assertNotIn("decision-blocked", brainstorm)
 
     def test_plan_contract_matches_superpowers_writing_plans_flow(self) -> None:
-        plan = (ROOT_DIR / "workflows" / "design" / "plan.md").read_text(encoding="utf-8")
+        plan = (ROOT_DIR / "skills" / "writing-plans" / "SKILL.md").read_text(encoding="utf-8")
 
         for token in (
             "# [Feature Name] Implementation Plan",
             "For agentic workers",
-            "REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans",
+            "REQUIRED SUB-SKILL: Use forge-subagent-driven-development (recommended) or forge-executing-plans",
             "docs/plans/YYYY-MM-DD-<topic>-implementation-plan.md",
             "**Goal:**",
             "**Architecture:**",
             "**Tech Stack:**",
+            "File Structure",
             "Bite-Sized Task Granularity",
-            "Each step is one action (2-5 minutes)",
-            "- [ ] **Step 1: Write the failing test**",
-            "- [ ] **Step 5: Commit**",
-            "No Placeholders",
-            "Complete code in every step",
+            "Task Template",
+            "### Task N: Component or slice name",
+            "## No Placeholders",
+            "Every implementation task should be specific enough",
+            "Plan Self-Review",
             "Plan complete and saved to",
             "Subagent-Driven",
             "Inline Execution",
-            "execution choice",
+            "execution mode",
         ):
             with self.subTest(token=token):
                 self.assertIn(token, plan)

@@ -211,7 +211,7 @@ Companion skills should:
 
 - A companion routes intent instead of Forge
 - A companion decides to skip verification because the stack is hard to test
-- Forge bakes too many language-specific idioms into `build.md`, `plan.md`, or `architect.md`
+- Forge bakes too many language-specific idioms into `build.md`, `plan.md`, or the brainstorming design lenses
 - Multiple companions load at once when repo signals are still ambiguous
 - Workspace-local skills remain active long after the repo removed that runtime or feature
 - A companion lacks a clear `when not to use` boundary and gets loaded too often

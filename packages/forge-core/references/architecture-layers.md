@@ -16,8 +16,8 @@ If a change crosses layers, the change must say so explicitly and preserve the b
 
 Core is the reusable engine:
 
-- intent routing
-- execution/review/gate workflows
+- host-neutral bootstrap and sibling skill contract
+- execution/review/gate compatibility wrappers
 - verification contracts
 - shared references and schemas
 - deterministic host-neutral scripts
@@ -25,6 +25,7 @@ Core is the reusable engine:
 Canonical locations:
 
 - `packages/forge-core/SKILL.md`
+- `packages/forge-core/skills/`
 - `packages/forge-core/workflows/`
 - `packages/forge-core/references/`
 - `packages/forge-core/data/`
@@ -112,7 +113,7 @@ generated artifacts -> host-only logic inside core
 Extension and preset boundaries begin at overlays and end before core semantics:
 
 - packet templates may prefill canonical fields but cannot redefine packet graph or proof gates
-- workflow overlays may change wording/entrypoints but cannot change stage status semantics
+- skill or workflow overlays may change wording/entrypoints but cannot change stage status semantics
 - planning presets may speed plan authoring but cannot bypass verification or workflow-state requirements
 
 If an extension requires semantic drift, move the proposal into core and update contract tests first.

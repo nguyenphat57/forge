@@ -15,9 +15,9 @@ Goal: record a fast pass/fail verdict for the Codex host surface after `forge-co
 
 ## Score
 
-- `PASS`: route is correct, guardrails hold, output is usable
-- `WARN`: route is correct but the evidence or wording still needs tightening
-- `FAIL`: route is wrong, guardrails are skipped, or claims lack evidence
+- `PASS`: skill or wrapper activation is correct, guardrails hold, output is usable
+- `WARN`: activation is correct but the evidence or wording still needs tightening
+- `FAIL`: activation is wrong, guardrails are skipped, or claims lack evidence
 
 ## Global Checklist
 
@@ -40,7 +40,7 @@ Goal: record a fast pass/fail verdict for the Codex host surface after `forge-co
 |Item | Result|
 |------|--------|
 |Prompt used | `Continue the task we were working on and tell me the best next step.`|
-|Routed to session? |  |
+|Invoked `forge-session-management`? |  |
 |Repo-first? |  |
 |Next step actionable? |  |
 |Score |  |
@@ -50,7 +50,7 @@ Goal: record a fast pass/fail verdict for the Codex host surface after `forge-co
 |Item | Result|
 |------|--------|
 |Prompt used | `/help` or `Help me figure out the next step from the repo state.`|
-|Routed to help? |  |
+|Used `help` sidecar? |  |
 |Repo-first? |  |
 |Score |  |
 
@@ -61,7 +61,7 @@ Goal: record a fast pass/fail verdict for the Codex host surface after `forge-co
 |Prompt used | `/run` plus a real repo command|
 |Command executed for real? |  |
 |Output summarized correctly? |  |
-|Suggested next workflow correct? |  |
+|Suggested next skill or wrapper correct? |  |
 |Score |  |
 
 ### CT-04: Build alias
@@ -69,7 +69,7 @@ Goal: record a fast pass/fail verdict for the Codex host surface after `forge-co
 |Item | Result|
 |------|--------|
 |Prompt used | `/code` plus a behavioral change|
-|Routed to build? |  |
+|Invoked `forge-executing-plans`? |  |
 |Verification strategy stated before editing? |  |
 |Score |  |
 
@@ -87,7 +87,7 @@ Goal: record a fast pass/fail verdict for the Codex host surface after `forge-co
 |Item | Result|
 |------|--------|
 |Prompt used | `/delegate` plus a clear splittable task|
-|Routed to dispatch-subagents? |  |
+|Invoked `forge-dispatching-parallel-agents`? |  |
 |Ownership explicit before spawn? |  |
 |Reviewer independence preserved? |  |
 |Score |  |

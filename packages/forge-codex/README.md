@@ -8,7 +8,8 @@ Contents:
 - generated `SKILL.md` as the checked-in merged source artifact
 - `AGENTS.example.md` for workspace integration
 - `AGENTS.global.md` for taking over the global Codex host entrypoint
-- `workflows/execution/dispatch-subagents.md` for Codex-native multi-agent delegation
+- `workflows/execution/dispatch-subagents.md` as a thin compatibility wrapper for `forge-dispatching-parallel-agents`
+- sibling Forge skills installed next to `forge-codex` for process activation
 - thin operator wrappers for natural-language-first `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`
 - `codex-operator-surface.md` for the adapter boundary and alias policy
 
@@ -31,4 +32,4 @@ powershell -ExecutionPolicy Bypass -File scripts/enable_windows_utf8.ps1
 powershell -ExecutionPolicy Bypass -File scripts/enable_windows_utf8.ps1 -Persist
 ```
 
-Build output is produced by overlaying adapter files on top of `forge-core`, then composing the shipped `SKILL.md` directly from core shared sections plus `SKILL.delta.md`.
+Build output is produced by overlaying adapter files on top of `forge-core`, then materializing the sibling skill pack from `packages/forge-core/skills/`.

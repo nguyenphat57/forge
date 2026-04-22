@@ -64,7 +64,7 @@ def _validate_required_stage_state(workspace: Path, decision: str) -> None:
         stage_names = stage_names[: stage_names.index("quality-gate")]
     elif not stage_names:
         stage_names = [name for name, payload in stages.items() if isinstance(payload, dict)]
-    valid_skip_reasons = set(load_registry().get("solo_profiles", {}).get("skip_reasons", []))
+    valid_skip_reasons = set(load_registry().get("workflow_state_contract", {}).get("skip_reasons", []))
     pending: list[str] = []
     for stage_name in stage_names:
         payload = stages.get(stage_name)

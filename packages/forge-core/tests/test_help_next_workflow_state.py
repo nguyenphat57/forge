@@ -6,9 +6,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from support import build_route_args, run_python_script
-
-import route_preview  # noqa: E402
+from support import run_python_script
 
 
 class HelpNextWorkflowStateTests(unittest.TestCase):
@@ -26,13 +24,28 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
     def test_next_uses_route_preview_seeded_workflow_state(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
+            state_dir = workspace / ".forge-artifacts" / "workflow-state" / "workflow-workspace"
+            state_dir.mkdir(parents=True, exist_ok=True)
             (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
             (workspace / "package.json").write_text('{"name":"workflow-workspace"}\n', encoding="utf-8")
-
-            report = route_preview.build_report(
-                build_route_args("Deploy the app to external users with a public launch")
+            (state_dir / "latest.json").write_text(
+                json.dumps(
+                    {
+                        "project": "workflow-workspace",
+                        "current_stage": "self-review",
+                        "required_stage_chain": ["brainstorm", "plan", "build", "self-review", "quality-gate"],
+                        "last_recorded_kind": "route-preview",
+                        "latest_route_preview": {
+                            "kind": "route-preview",
+                            "current_stage": "self-review",
+                            "required_stage_chain": ["brainstorm", "plan", "build", "self-review", "quality-gate"]
+                        }
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
             )
-            route_preview.persist_report(report, str(workspace))
 
             result = run_python_script(
                 "resolve_help_next.py",
@@ -727,8 +740,8 @@ class HelpNextWorkflowStateTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         report = json.loads(result.stdout)
         self.assertEqual(report["signals"]["workflow_state_source"], "workflow-state")
-        self.assertEqual(report["current_focus"], "Recorded workflow stage: architect")
-        self.assertEqual(report["suggested_workflow"], "architect")
+        self.assertEqual(report["current_focus"], "Recorded workflow stage: plan")
+        self.assertEqual(report["suggested_workflow"], "plan")
 
     def test_next_bootstrap_can_seed_from_legacy_direction_artifact(self) -> None:
         with TemporaryDirectory() as temp_dir:

@@ -1,6 +1,6 @@
 # Forge Execution Delivery
 
-> Use this when implementation needs checkpoints, clear ownership, and less drift after `plan` or `architect`.
+> Use this when implementation needs checkpoints, clear ownership, and less drift after `brainstorm` or `plan`.
 
 ## Target
 
@@ -9,7 +9,7 @@
 - require a quick plan/design approval path for small creative work
 - define the execution pipeline and reviewer lane for medium/large work
 - choose lane tiers instead of pushing every lane to the same capability level
-- return to `brainstorm`, `plan`, or `architect` when the packet is unclear before build
+- return to `brainstorm` or `plan` when the packet is unclear before build
 - make the execution packet explicit enough to run each slice without guessing
 - track progress with short artifacts instead of relying on session memory
 - end with a clear completion state instead of vague status language
@@ -150,7 +150,7 @@ Execution packet:
 - Reopen if: [...]
 ```
 
-This packet is the bridge between `brainstorm`/`plan`/`architect` and `build`.
+This packet is the bridge between `brainstorm`/`plan` and `build`.
 
 ## Stage Exit Criteria
 
@@ -191,7 +191,7 @@ Persist this with `scripts/track_chain_status.py` when:
 Review lanes cannot loop forever.
 
 Default rules:
-- repeated reviewer requests must become `blocked` and return to `plan` or `architect`
+- repeated reviewer requests must become `blocked` and return to `brainstorm` or `plan`
 - every revision round must name the exact fix, not repeat vague feedback
 - `implementer-quality` runs as `implementer -> quality-pass`
 

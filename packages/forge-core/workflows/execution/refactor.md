@@ -1,115 +1,15 @@
 ---
 name: refactor
-type: rigid
-triggers:
-  - intent: OPTIMIZE
-  - shortcut: /refactor
-quality_gates:
-  - Baseline and after checks pass
-  - Logic unchanged
+type: compatibility-wrapper
+canonical_skill: forge-test-driven-development
 ---
 
-# Refactor - Safe Refactoring
+# Refactor Compatibility Wrapper
 
-## The Iron Law
+Use host-native skill discovery to invoke `forge-test-driven-development` when behavior safety depends on a harness.
 
-```
-NO REFACTOR WITHOUT BASELINE AND AFTER VERIFICATION
-```
+For planned refactors, execute through `forge-executing-plans`.
 
-<HARD-GATE>
-- Business logic must remain the same.
-- Do not mix refactor with feature work if the scope has not been finalized.
-- If there is no baseline verification, you need to create a baseline before continuing.
-</HARD-GATE>
+Baseline proof and after proof are mandatory. If behavior changes, treat it as implementation work and use RED before code.
 
----
-
-## Process
-
-```mermaid
-flowchart TD
-    A[Determine scope] --> B[Baseline verification]
-    B --> C[Detect code smells]
-    C --> D[Plan micro-steps]
-    D --> E[Refactor step by step]
-    E --> F[Run checks after each step]
-    F --> G{And the green?}
-    G -->|No| H[Revert the edited step]
-    G -->|Yes| I[Before/after review]
-    I --> J[Handover]
-```
-
-## Code Smells
-
-|Smell | Signs | Action|
-|-------|----------|-----------|
-|Long Function | >50 lines | Function separation|
-|Deep Nesting | >3 levels | Early return / flatten|
-|Large File | >500 lines | Split modules|
-|Duplication | Copy-paste | Extract helper|
-|Vague Names | `data`, `x`, `obj` | Rename clearly|
-|Dead Code | No one called | Secure Erase|
-|Magic Numbers | Confusing numbers | Extract constant|
-
-## Anti-Rationalization
-
-|Defense | Truth|
-|----------|---------|
-|"Conveniently edit more logic" | That's no longer a refactor|
-|"No need for a baseline, I probably won't change behavior" | A gut feeling does not replace evidence|
-|"Too many micro-steps, combine them quickly" | Combined refactors are the most likely to cause regression|
-
-Code examples:
-
-Bad:
-
-```text
-"I'll refactor this and then fix that behavior."
-```
-
-Good:
-
-```text
-"Scope refactor: separate the module and change the name more clearly, the baseline remains the same. The other behavior change is a separate task if still needed."
-```
-
-## Verification Checklist
-
-- [ ] Baseline checks passed
-- [ ] Each micro-step is verified
-- [ ] Checks after refactor have passed
-- [ ] Logic / public behavior remains unchanged
-- [ ] Removed debug temp / dead scaffolding
-
-## Complexity Scaling
-
-|Level | Approach|
-|-------|----------|
-|**small** | 1-2 micro-steps + targeted checks|
-|**medium** | Split into many micro-steps + final review|
-|**large** | Need separate plan, worktree/branch if necessary, verify after each phase|
-
-## Handover
-
-```
-Refactor report:
-- Scope: [...]
-- Smells addressed: [...]
-- Verified: [checks]
-- Behavior changed?: no / note if yes
-```
-
-## Activation Announcement
-
-```
-Forge: refactor | baseline first, verify after every micro-step
-```
-
-## Response Footer
-
-When this skill is used to complete a task, record its exact skill name in the global final line:
-
-`Skills used: refactor`
-
-When multiple Forge skills are used, list each used skill exactly once in the shared `Skills used:` line. When no Forge skill is used for the response, use `Skills used: none`. Keep that `Skills used:` line as the final non-empty line of the response and do not add anything after it.
+Before completion, invoke `forge-verification-before-completion`.

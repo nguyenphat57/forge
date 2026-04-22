@@ -1,13 +1,13 @@
 # Forge Smoke Tests
 
-Goal: quickly check that the host runtime is routing correctly to Forge and that the bundle is preserving important guardrails.
+Goal: quickly check that the host runtime activates the right Forge sibling skill or operator wrapper and preserves important guardrails.
 
 ## How to use
 
 - Run each prompt in a new thread or as clean a state as possible.
-- Do not tell the agent what route to "expect" ahead of time. Send the prompt as a real user would.
+- Do not tell the agent what skill to "expect" ahead of time. Send the prompt as a real user would.
 - You can open `smoke-test-checklist.md` in parallel to fill in results right after testing.
-- If the route/router layer is already covered by automation, run `python scripts/run_smoke_matrix.py` to catch drift before doing manual host smoke.
+- If artifact recovery is already covered by automation, run `python scripts/run_smoke_matrix.py --suite help-next` to catch drift before doing manual host smoke.
 - Record:
   - Is skill/flow selected correctly?
   - Does the agent hold evidence-first?
@@ -16,7 +16,7 @@ Goal: quickly check that the host runtime is routing correctly to Forge and that
 
 ## Pass Criteria General
 
-- Route the correct skill or skill chain in Forge.
+- Invoke the correct Forge skill or skill chain.
 - Does not fabricate verification, token usage, or context percentage.
 - For behavioral tasks with a viable harness, ask for one failing test first and verify RED before implementation, or clearly state why no harness exists.
 - For review tasks, findings come first and the summary comes last.
@@ -34,7 +34,7 @@ Resume this workspace from the repo state and tell me the next best step.
 
 **Expected**
 
-- Route to `workflows/execution/session.md`
+- Invoke `forge-session-management`
 - Summary of context from previous repo/docs/plan
 - Can read `.brain` if available, but does not completely depend on `.brain`
 
@@ -55,7 +55,7 @@ Continue the task from yesterday, restore the important context from real artifa
 
 **Expected**
 
-- Still route to `workflows/execution/session.md`
+- Invoke `forge-session-management`
 - Give a broader summary than FT-01 when the repo really has more context to restore
 - Keep repo-first, then `.brain`
 
@@ -76,7 +76,7 @@ Continue from the previous day, quickly remind yourself what you are doing and t
 
 **Expected**
 
-- Route to `session`
+- Invoke `forge-session-management`
 - Do not force users into a legacy recap alias
 - Summary is short, clear, actionable
 
@@ -103,7 +103,7 @@ I'm a bit stuck, look at the current repo and tell me what to do next.
 
 **Expected**
 
-- Route to navigator `help`, do not recap theater
+- Use the `help` audit sidecar, do not recap theater
 - Repo-first: read `git status`, plan/spec, `.brain` if available
 - Returns 1 main direction and up to 2 other options
 
@@ -130,7 +130,7 @@ From the current repo, what is the next logical step?
 
 **Expected**
 
-- Route to navigator `next`
+- Use the `next` audit sidecar
 - Correctly finalize a clear next step
 - If the repo lacks context, state clearly and still give a usable next step
 
@@ -158,10 +158,10 @@ Run this command in the repo and then tell me the next step from the output: npm
 
 **Expected**
 
-- Route into workflow `run`
+- Use the `run` operator wrapper
 - The command is actually run, not just repeating the command
 - Output has main signal or main error
-- End with the next logical workflow (`test`, `debug`, or `deploy`)
+- End with the next logical skill or wrapper (`forge-test-driven-development`, `forge-systematic-debugging`, or release verification)
 
 **Fail if**
 
@@ -181,7 +181,7 @@ Explain this error in a more understandable fashion: Module not found: payments.
 
 **Expected**
 
-- Route to the core's error translation helper
+- Use the core's error translation helper
 - Error is explained more concisely, not just repeating raw stderr
 - There is a usable suggested action for the next debugging step
 - Do not reveal secrets, tokens, or sensitive paths if the error contains them
@@ -210,7 +210,7 @@ Increase the minor version and give yourself a checklist for the next release.
 
 **Expected**
 
-- Route into workflow `bump`
+- Use the `bump` operator wrapper
 - State clearly `current -> target`
 - Indicates the release file will be changed
 - Do not commit/push automatically
@@ -233,7 +233,7 @@ Release production just broke the login, there is an artifact from the previous 
 
 **Expected**
 
-- Route into workflow `rollback`
+- Use the `rollback` operator wrapper
 - Finalize scope and risk first
 - Provide a clear strategy + verification checklist
 - If it is a migration/data risk, blind rollback is not recommended
@@ -256,7 +256,7 @@ The default is to explain more thoroughly, give more direct feedback, and go fas
 
 **Expected**
 
-- Host adapter route into flow `customize`
+- Host adapter uses the `customize` operator wrapper
 - Preferences are mapped into Forge's canonical schema
 - If the adapter writes preferences, canonical fields go to the selected `state/preferences.json` or workspace `.brain/preferences.json` scope as one unified object
 - Do not invent separate schema just for hosts
@@ -280,7 +280,7 @@ Create a new minimal workspace for Forge and then tell me whether I should brain
 
 **Expected**
 
-- Host adapter route into flow `init`
+- Host adapter uses the `init` operator wrapper
 - Minimal skeleton created or previewed from core script
 - Have a clear next workflow (`brainstorm` for greenfield, `plan` for existing)
 - Do not overwrite existing user files
@@ -303,7 +303,7 @@ Save context for the unfinished task. Only keep the next step, verification alre
 
 **Expected**
 
-- Route into `session`'s save wrapper
+- Invoke `forge-session-management` save mode
 - Keep information short, scoped, and evidence-backed
 - Don't turn saving into a lengthy ritual
 
@@ -325,7 +325,7 @@ I want to add loyalty points feature to this POS app.
 
 **Expected**
 
-- Route to `workflows/design/plan.md`
+- Invoke `forge-writing-plans`
 - Finalize scope, assumptions, verification strategy
 - Don't jump into the code right away
 
@@ -347,7 +347,7 @@ Add CSV export for order list.
 
 **Expected**
 
-- Route to `workflows/execution/build.md`
+- Invoke `forge-executing-plans`
 - State the verification strategy before editing
 - If there is a harness, require one failing test first, not tests-after
 - If there is no harness, please clearly state how to verify instead
@@ -370,7 +370,7 @@ Fix an issue where the app sometimes crashes when opening the payment screen.
 
 **Expected**
 
-- Route to `workflows/execution/debug.md`
+- Invoke `forge-systematic-debugging`
 - Follow the root cause investigation first
 - Do not propose patch immediately
 
@@ -398,7 +398,7 @@ Review code before merging.
 
 **Expected**
 
-- Route to `workflows/execution/review.md`
+- Invoke `forge-requesting-code-review`
 - Findings first, assumptions/testing gaps later
 - If the test has not been run, clearly state that it is a static review
 
@@ -420,7 +420,7 @@ Quickly sketch the new checkout screen for tablets, prioritizing quick touch ope
 
 **Expected**
 
-- Route to `workflows/design/visualize.md`
+- Invoke `forge-brainstorming` for the visual/design gate
 - Finalize screens + interaction model before discussing code
 - Has wireframe/spec or component list and status
 
@@ -442,7 +442,7 @@ Please help me check if this app is ready for production.
 
 **Expected**
 
-- Route enters `workflows/execution/deploy.md`, can pull `workflows/execution/secure.md` if needed
+- Invoke `forge-verification-before-completion`; use deploy or secure compatibility wrappers only if the host exposes those aliases
 - Require clear pre-deploy checks
 - Do not rely on `session.json` instead of evidence
 
@@ -463,7 +463,7 @@ Save context for this task before I close the window.
 
 **Expected**
 
-- Route into `workflows/execution/session.md` save mode
+- Invoke `forge-session-management` save mode
 - Only save what's useful: current tasks, files, next step, verification
 - Do not turn into a lengthy ritual
 
@@ -484,7 +484,7 @@ Save context for this task before I close the window.
 
 - `PASS`: route correct, keep guardrail correct, output usable
 - `WARN`: correct route but still a bit generic or with weak evidence
-- `FAIL`: wrong route, guardrail removed, or claim without evidence
+- `FAIL`: wrong skill, guardrail removed, or claim without evidence
 
 ## Results recording form
 

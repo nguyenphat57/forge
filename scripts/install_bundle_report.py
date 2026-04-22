@@ -99,6 +99,8 @@ def write_install_manifest(target: Path, report: dict) -> None:
         manifest["compatibility"] = report["compatibility"]
     if report.get("transition") is not None:
         manifest["transition"] = report["transition"]
+    if report.get("sibling_skills") is not None:
+        manifest["sibling_skills"] = report["sibling_skills"]
     if report["codex_host_activation"]["enabled"]:
         activation = report["codex_host_activation"]
         manifest["codex_host_activation"] = {
@@ -151,4 +153,8 @@ def format_text(report: dict) -> str:
         lines.append(f"- Gemini home: {activation['gemini_home']}")
         lines.append(f"- Global GEMINI: {activation['gemini_md_path']}")
         lines.append(f"- Host backup: {activation['host_backup_path'] or '(not needed)'}")
+    sibling_skills = report.get("sibling_skills") or {}
+    if sibling_skills.get("enabled"):
+        skill_names = [item["name"] for item in sibling_skills.get("skills", [])]
+        lines.append(f"- Sibling Forge skills: {', '.join(skill_names)}")
     return "\n".join(lines)

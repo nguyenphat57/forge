@@ -25,10 +25,10 @@ PREFERRED_DIST_TEST_PATTERNS = [
     "preferences_test_scripts.py",
     "test_adapter_locales.py",
     "test_contracts.py",
-    "test_route_preview.py",
-    "test_route_matrix.py",
+    "test_help_next.py",
+    "test_help_next_workflow_state.py",
+    "test_fast_lane_lifecycle.py",
     "test_response_contract.py",
-    "test_router_matrix.py",
 ]
 
 
@@ -115,7 +115,7 @@ def main() -> int:
     parser.add_argument(
         "--include-smoke-matrix",
         action="store_true",
-        help="Also run the broader smoke matrix suites that exercise repo-level fixture packs.",
+        help="Also run broader archival smoke suites that still exercise retired route-era fixture packs.",
     )
     args = parser.parse_args()
 

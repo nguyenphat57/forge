@@ -4,7 +4,7 @@
 
 ## Canonical Source
 
-- Machine-readable routing and workflow policy: `data/orchestrator-registry.json`
+- Machine-readable workflow-state and host/operator contract catalog: `data/orchestrator-registry.json`
 - Current maintainer entrypoints: `reference-map.md` and `kernel-tooling.md`
 - Canonical host artifact inventory: `docs/architecture/host-artifacts-manifest.json`
 
@@ -139,12 +139,14 @@ python scripts/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/front
 
 Use `backend-briefs.md` and `ui-briefs.md` when a repo already carries those artifacts. Forge no longer ships the older brief generators as part of the current kernel-only surface.
 
-## Routing And Continuity
+## Workflow State And Continuity
 
-Preview route decisions:
+Inspect durable workflow recovery guidance:
 
 ```powershell
-python scripts/route_preview.py "Fix outbox bi ket sau khi app online lai" --repo-signal package.json
+python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode help --format json
+python scripts/resolve_help_next.py --workspace C:\path\to\workspace --mode next --format json
+python scripts/session_context.py resume --workspace C:\path\to\workspace --format json
 ```
 
 Capture durable decisions or learnings:

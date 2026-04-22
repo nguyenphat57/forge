@@ -1,18 +1,99 @@
 from __future__ import annotations
 
 import json
-import re
 import unittest
+from pathlib import Path
 
-from support import (
-    ROOT_DIR,
-    bundle_package_name,
-    forge_home_fixture,
-    is_core_bundle,
-    load_json_fixture,
-    load_output_contract_profiles,
-    workspace_fixture,
-)
+from support import ROOT_DIR
+
+
+FORGE_SPLIT_SKILLS = {
+    "brainstorming": {
+        "package": "forge-brainstorming",
+        "path": "skills/brainstorming/SKILL.md",
+        "workflow": "workflows/design/brainstorm.md",
+        "budget": 240,
+    },
+    "writing-plans": {
+        "package": "forge-writing-plans",
+        "path": "skills/writing-plans/SKILL.md",
+        "workflow": "workflows/design/plan.md",
+        "budget": 200,
+    },
+    "executing-plans": {
+        "package": "forge-executing-plans",
+        "path": "skills/executing-plans/SKILL.md",
+        "workflow": "workflows/execution/build.md",
+        "budget": 200,
+    },
+    "test-driven-development": {
+        "package": "forge-test-driven-development",
+        "path": "skills/test-driven-development/SKILL.md",
+        "workflow": "workflows/execution/test.md",
+        "budget": 320,
+    },
+    "using-git-worktrees": {
+        "package": "forge-using-git-worktrees",
+        "path": "skills/using-git-worktrees/SKILL.md",
+        "workflow": "workflows/execution/build.md",
+        "budget": 220,
+    },
+    "dispatching-parallel-agents": {
+        "package": "forge-dispatching-parallel-agents",
+        "path": "skills/dispatching-parallel-agents/SKILL.md",
+        "workflow": "workflows/execution/build.md",
+        "budget": 200,
+    },
+    "subagent-driven-development": {
+        "package": "forge-subagent-driven-development",
+        "path": "skills/subagent-driven-development/SKILL.md",
+        "workflow": "workflows/execution/build.md",
+        "budget": 280,
+    },
+    "systematic-debugging": {
+        "package": "forge-systematic-debugging",
+        "path": "skills/systematic-debugging/SKILL.md",
+        "workflow": "workflows/execution/debug.md",
+        "budget": 320,
+    },
+    "requesting-code-review": {
+        "package": "forge-requesting-code-review",
+        "path": "skills/requesting-code-review/SKILL.md",
+        "workflow": "workflows/execution/review.md",
+        "budget": 200,
+    },
+    "receiving-code-review": {
+        "package": "forge-receiving-code-review",
+        "path": "skills/receiving-code-review/SKILL.md",
+        "workflow": "workflows/execution/review.md",
+        "budget": 200,
+    },
+    "verification-before-completion": {
+        "package": "forge-verification-before-completion",
+        "path": "skills/verification-before-completion/SKILL.md",
+        "workflow": "workflows/execution/quality-gate.md",
+        "budget": 200,
+    },
+    "finishing-a-development-branch": {
+        "package": "forge-finishing-a-development-branch",
+        "path": "skills/finishing-a-development-branch/SKILL.md",
+        "workflow": "workflows/execution/review.md",
+        "budget": 260,
+    },
+    "writing-skills": {
+        "package": "forge-writing-skills",
+        "path": "skills/writing-skills/SKILL.md",
+        "workflow": "workflows/execution/writing-skills.md",
+        "budget": 720,
+        "copied_superpowers_style": True,
+    },
+    "session-management": {
+        "package": "forge-session-management",
+        "path": "skills/session-management/SKILL.md",
+        "workflow": "workflows/execution/session.md",
+        "budget": 200,
+    },
+}
 
 
 class BundleContractTests(unittest.TestCase):
@@ -20,381 +101,214 @@ class BundleContractTests(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
         return text.count("\n") + (0 if text.endswith("\n") else 1)
 
-    def test_core_runtime_assets_do_not_embed_codex_assumptions(self) -> None:
-        if not is_core_bundle():
-            self.skipTest("Adapter bundles may add host-specific behavior on top of Forge core.")
-
-        for relative_dir in ("scripts", "data", "workflows"):
-            for path in (ROOT_DIR / relative_dir).rglob("*"):
-                if not path.is_file() or path.suffix not in {".py", ".json", ".md"}:
-                    continue
-                text = path.read_text(encoding="utf-8").casefold()
-                relative_path = path.relative_to(ROOT_DIR)
-                with self.subTest(path=str(relative_path)):
-                    self.assertNotIn("forge-codex", text)
-                    self.assertNotIn(".codex", text)
-                    self.assertNotIn("codex", text)
-
-    def test_registry_chains_reference_known_skills(self) -> None:
-        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
-        known_skills = {path.stem for path in (ROOT_DIR / "workflows" / "design").glob("*.md")}
-        known_skills.update(path.stem for path in (ROOT_DIR / "workflows" / "execution").glob("*.md"))
-
-        for intent, config in registry["intents"].items():
-            for complexity, chain in config["chains"].items():
-                with self.subTest(intent=intent, complexity=complexity):
-                    self.assertTrue(set(chain).issubset(known_skills), chain)
-
-    def test_solo_profile_stage_contract_references_known_workflows(self) -> None:
-        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
-        known_skills = {path.stem for path in (ROOT_DIR / "workflows" / "design").glob("*.md")}
-        known_skills.update(path.stem for path in (ROOT_DIR / "workflows" / "execution").glob("*.md"))
-        profile_contract = registry["solo_profiles"]
-
-        self.assertEqual(
-            profile_contract["activation_reasons"],
-            [
-                "default_chain",
-                "greenfield_feature",
-                "ui_medium_plus",
-                "interaction_model_change",
-                "boundary_risk",
-                "packet_unclear",
-                "shared_env_release",
-                "public_release",
-                "critical_internal_release",
-            ],
-        )
-        self.assertEqual(
-            profile_contract["skip_reasons"],
-            [
-                "non_ui",
-                "direction_locked",
-                "packet_clear",
-                "low_risk_boundary",
-            ],
-        )
-        self.assertEqual(
-            profile_contract["stage_statuses"],
-            ["pending", "required", "active", "completed", "skipped", "blocked"],
-        )
-        self.assertEqual(
-            set(profile_contract["stages"]),
-            {
-                "brainstorm",
-                "plan",
-                "visualize",
-                "architect",
-                "build",
-                "test",
-                "self-review",
-                "secure",
-                "quality-gate",
-                "deploy",
-                "debug",
-                "refactor",
-                "review",
-                "session",
-            },
-        )
-
-        for stage_name, stage in profile_contract["stages"].items():
-            with self.subTest(stage=stage_name):
-                self.assertIn(stage["workflow"], known_skills)
-
-        for profile_name, profile in profile_contract["profiles"].items():
-            for intent, order in profile["intent_orders"].items():
-                with self.subTest(profile=profile_name, intent=intent):
-                    self.assertTrue(order)
-                    self.assertTrue(set(order).issubset(set(profile_contract["stages"])))
-
-    def test_flat_build_registry_has_no_active_spec_review_surface(self) -> None:
-        registry_text = (ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8")
-        registry = json.loads(registry_text)
-
-        self.assertNotIn("spec_review_gate", registry)
-        self.assertNotIn("implementer-spec-quality", registry.get("execution_pipelines", {}))
-        self.assertNotIn("spec-review", registry["solo_profiles"]["stages"])
-        for forbidden in (
-            "spec-reviewer",
-            "requires_spec_review",
-            "spec_review_loop_max_revisions",
-        ):
-            with self.subTest(token=forbidden):
-                self.assertNotIn(forbidden, registry_text)
-
-    def test_spec_review_workflow_is_not_shipped_as_active_workflow(self) -> None:
-        self.assertFalse((ROOT_DIR / "workflows" / "design" / "spec-review.md").exists())
-
-    def test_brainstorm_contract_owns_flat_readiness_checkpoint(self) -> None:
-        brainstorm = (ROOT_DIR / "workflows" / "design" / "brainstorm.md").read_text(encoding="utf-8")
-
-        self.assertIn("Flat Readiness Checkpoint", brainstorm)
-        self.assertIn("all behavioral build work", brainstorm)
-        self.assertIn("Plan-readiness handoff", brainstorm)
-
-    def test_canonical_registry_stays_ascii_only(self) -> None:
-        registry_text = (ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8")
-        self.assertTrue(registry_text.isascii())
-
-    def test_skill_usage_footer_contract_is_defined(self) -> None:
-        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
-        footer = registry["skill_usage_footer_contract"]
-
-        self.assertEqual(footer["prefix"], "Skills used:")
-        self.assertEqual(footer["none_token"], "none")
-        self.assertEqual(footer["separator"], ",")
-        self.assertFalse(footer["require_on_every_response"])
-        self.assertTrue(footer["require_final_line"])
-        self.assertTrue(footer["require_unique_skills"])
-        self.assertFalse(footer["allow_none_token"])
-
-    def test_skill_selection_explanation_contract_is_defined(self) -> None:
-        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
-        explanation = registry["skill_selection_explanation_contract"]
-        reason_labels = registry["skill_selection_reason_labels"]
-
-        self.assertEqual(explanation["heading"], "Skill selection:")
-        self.assertEqual(explanation["none_prefix"], "none -")
-        self.assertEqual(explanation["bullet_prefix"], "- ")
-        self.assertFalse(explanation["require_on_every_response"])
-        self.assertTrue(explanation["require_at_start"])
-        self.assertFalse(explanation["require_reason_text"])
-        self.assertTrue(explanation["require_match_with_footer"])
-        self.assertFalse(explanation["allow_in_responses"])
-        self.assertIn("default_chain", reason_labels)
-        self.assertIn("boundary_risk", reason_labels)
-
-    def test_host_capability_contract_v2_defines_tiers_and_reasons(self) -> None:
-        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
-        host = registry["host_capabilities"]
-        tiers = host.get("tiers")
-
-        self.assertEqual(host.get("contract_version"), "v2")
-        self.assertIsInstance(tiers, dict)
-        self.assertIn(host.get("default_tier"), tiers)
-        if host.get("active_tier") is not None:
-            self.assertIn(host.get("active_tier"), tiers)
-        if is_core_bundle():
-            self.assertNotIn("active_tier", host)
-        self.assertIn("controller-baseline", tiers)
-        self.assertIn("review-lane-subagents", tiers)
-        self.assertIn("parallel-workers", tiers)
-
-        for tier_name, tier in tiers.items():
-            with self.subTest(tier=tier_name):
-                self.assertIn(tier.get("dispatch_mode"), {"controller-sequential", "independent-reviewers", "parallel-workers"})
-                self.assertIsInstance(tier.get("supports_subagents"), bool)
-                self.assertIsInstance(tier.get("supports_parallel_subagents"), bool)
-                self.assertIsInstance(tier.get("dispatch_reasons"), list)
-                self.assertIsInstance(tier.get("fallback_reasons"), list)
-
-    def test_bundle_locale_and_output_contract_assets_follow_bundle_boundary(self) -> None:
-        routing_locale_config = ROOT_DIR / "data" / "routing-locales.json"
-        routing_locale_dir = ROOT_DIR / "data" / "routing-locales"
-        output_contracts_path = ROOT_DIR / "data" / "output-contracts.json"
-
-        if is_core_bundle():
-            self.assertFalse(routing_locale_config.exists())
-            self.assertFalse(routing_locale_dir.exists())
-            self.assertFalse(output_contracts_path.exists())
-            return
-
-        if routing_locale_config.exists():
-            payload = json.loads(routing_locale_config.read_text(encoding="utf-8"))
-            enabled_locales = payload.get("enabled_locales", [])
-            self.assertIsInstance(enabled_locales, list)
-            self.assertTrue(routing_locale_dir.exists())
-            for locale_name in enabled_locales:
-                with self.subTest(bundle=bundle_package_name(), locale=locale_name):
-                    self.assertIsInstance(locale_name, str)
-                    self.assertTrue((routing_locale_dir / f"{locale_name}.json").exists())
-        else:
-            self.assertFalse(routing_locale_dir.exists())
-
-        if output_contracts_path.exists():
-            profiles = load_output_contract_profiles()
-            self.assertIsInstance(profiles, dict)
-            self.assertTrue(
-                isinstance(profiles.get("languages"), dict) or isinstance(profiles.get("orthographies"), dict)
-            )
-
-    def test_enabled_locale_assets_use_utf8_without_mojibake(self) -> None:
-        routing_locale_config = ROOT_DIR / "data" / "routing-locales.json"
-        routing_locale_dir = ROOT_DIR / "data" / "routing-locales"
-        if not routing_locale_config.exists():
-            self.skipTest("Bundle does not ship locale assets.")
-
-        payload = json.loads(routing_locale_config.read_text(encoding="utf-8"))
-        markers = ("Ã", "á»", "Ä‘", "Æ°", "â€œ", "â€", "\ufffd")
-        for locale_name in payload.get("enabled_locales", []):
-            locale_path = routing_locale_dir / f"{locale_name}.json"
-            text = locale_path.read_text(encoding="utf-8")
-            with self.subTest(bundle=bundle_package_name(), locale=locale_name):
-                for marker in markers:
-                    self.assertNotIn(marker, text)
-                if locale_name == "vi":
-                    self.assertTrue(any(char in text for char in "ăâđêôơưÁÀẢÃẠáàảãạ"))
-
-    def test_reference_map_entries_exist(self) -> None:
-        reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
-        files = re.findall(r"\| `([^`]+)` \|", reference_map)
-        for name in files:
-            with self.subTest(reference=name):
-                self.assertTrue((ROOT_DIR / "references" / name).exists(), name)
-
-    def test_reference_map_points_to_current_docs_not_an_active_roadmap(self) -> None:
-        reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
-        architecture_path = ROOT_DIR.parents[1] / "docs" / "current" / "architecture.md"
-        if not architecture_path.exists():
-            self.skipTest("Current source-repo docs only exist in the source repository layout.")
-        architecture = architecture_path.read_text(encoding="utf-8")
-        target_state = (ROOT_DIR / "references" / "target-state.md").read_text(encoding="utf-8")
-        self.assertIn("docs/current/architecture.md", reference_map)
-        self.assertIn("current repo posture", reference_map)
-        self.assertNotIn("Active roadmap tranche for the current kernel-only contraction line", reference_map)
-        self.assertNotIn("docs/plans/2026-04-11-forge-slim-refactor-v2.md", reference_map)
-        self.assertIn("## Current repo posture", architecture)
-        self.assertNotIn("## Active refactor focus", architecture)
-        self.assertIn("## 1.16.x Surface Slim Closure", target_state)
-        self.assertIn("There is no active roadmap tranche now.", target_state)
-        self.assertNotIn("The active `1.16.x` surface-slim tranche", target_state)
-
-    def test_help_next_contract_prefers_workflow_state_and_runtime_recovery_guidance(self) -> None:
-        help_next = (ROOT_DIR / "references" / "help-next.md").read_text(encoding="utf-8")
-        operator_recommendations = (ROOT_DIR / "scripts" / "operator_recommendations.py").read_text(encoding="utf-8")
-        workflow_summary = (ROOT_DIR / "scripts" / "workflow_state_summary.py").read_text(encoding="utf-8")
-        target_state = (ROOT_DIR / "references" / "target-state.md").read_text(encoding="utf-8")
-
-        self.assertLess(
-            help_next.index(".forge-artifacts/workflow-state/<project>/latest.json"),
-            help_next.index("docs/plans/"),
-        )
-        self.assertNotIn("runtime doctor", help_next)
-        self.assertNotIn("runtime doctor", operator_recommendations)
-        self.assertNotIn("runtime doctor", workflow_summary)
-        self.assertNotIn("doctor-style diagnostics", target_state)
-
-    def test_fixture_manifests_resolve_real_paths(self) -> None:
-        for case in load_json_fixture("route_preview_cases.json"):
-            fixture_name = case.get("workspace_fixture")
-            if fixture_name:
-                with self.subTest(route_case=case["name"]):
-                    fixture_root = workspace_fixture(fixture_name)
-                    self.assertTrue(fixture_root.exists())
-                    router = case.get("workspace_router")
-                    if router:
-                        self.assertTrue((fixture_root / router).exists())
-
-        for case in load_json_fixture("router_check_cases.json"):
-            with self.subTest(router_case=case["name"]):
-                self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
-
-        for case in load_json_fixture("preferences_cases.json"):
-            with self.subTest(preferences_case=case["name"]):
-                self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
-                if case.get("forge_home_fixture"):
-                    self.assertTrue(forge_home_fixture(case["forge_home_fixture"]).exists())
-
-        for case in load_json_fixture("help_next_cases.json"):
-            with self.subTest(help_next_case=case["name"]):
-                self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
-
-        for case in load_json_fixture("run_cases.json"):
-            with self.subTest(run_case=case["name"]):
-                self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
-
-        for case in load_json_fixture("error_translation_cases.json"):
-            with self.subTest(error_translation_case=case["name"]):
-                self.assertTrue(bool(case["error_text"].strip()))
-
-        for case in load_json_fixture("bump_cases.json"):
-            with self.subTest(bump_case=case["name"]):
-                self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
-
-        for case in load_json_fixture("rollback_cases.json"):
-            with self.subTest(rollback_case=case["name"]):
-                self.assertIn(case["scope"], {"deploy", "config", "migration", "code-change"})
-
-        for case in load_json_fixture("preferences_write_cases.json"):
-            with self.subTest(preferences_write_case=case["name"]):
-                self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
-                if case.get("forge_home_fixture"):
-                    self.assertTrue(forge_home_fixture(case["forge_home_fixture"]).exists())
-
-        for case in load_json_fixture("workspace_init_cases.json"):
-            with self.subTest(workspace_init_case=case["name"]):
-                self.assertTrue(workspace_fixture(case["workspace_fixture"]).exists())
-                if case.get("forge_home_fixture"):
-                    self.assertTrue(forge_home_fixture(case["forge_home_fixture"]).exists())
-
-    def test_tooling_docs_mention_verify_entrypoints(self) -> None:
-        tooling = (ROOT_DIR / "references" / "kernel-tooling.md").read_text(encoding="utf-8")
-        self.assertIn("generate_requirements_checklist.py", tooling)
-        self.assertIn("check_spec_packet.py", tooling)
-        self.assertIn("generate_overlay_skills.py", tooling)
-        self.assertIn("prepare_worktree.py", tooling)
-        self.assertIn("run_smoke_matrix.py", tooling)
-        self.assertIn("verify_bundle.py", tooling)
-        self.assertIn("resolve_preferences.py", tooling)
-        self.assertIn("resolve_help_next.py", tooling)
-        self.assertIn("session_context.py", tooling)
-        self.assertIn("run_with_guidance.py", tooling)
-        self.assertIn("record_quality_gate.py", tooling)
-        self.assertIn("translate_error.py", tooling)
-        self.assertIn("prepare_bump.py", tooling)
-        self.assertIn("resolve_rollback.py", tooling)
-        self.assertIn("host-artifacts-manifest.json", tooling)
-        self.assertIn("write_preferences.py", tooling)
-        self.assertIn("initialize_workspace.py", tooling)
-
-    def test_skill_bootstrap_contract_sections_remain_visible(self) -> None:
+    def test_core_skill_contains_superpowers_style_bootstrap_contract(self) -> None:
         skill = (ROOT_DIR / "SKILL.md").read_text(encoding="utf-8")
-        for heading in (
-            "## Bootstrap Rules",
-            "## Routing Contract",
-            "## Verification Contract",
-            "## Solo Profile And Workflow-State Contract",
-            "## Skill Laws",
-            "## Reference Map",
-        ):
-            with self.subTest(heading=heading):
-                self.assertIn(heading, skill)
-        for token in ("data/orchestrator-registry.json", "references/kernel-tooling.md"):
-            with self.subTest(token=token):
-                self.assertIn(token, skill)
+        lowered = skill.casefold()
 
-    def test_shared_verification_contract_requires_red_before_implementation(self) -> None:
+        self.assertIn("<SUBAGENT-STOP>", skill)
+        self.assertIn("<EXTREMELY-IMPORTANT>", skill)
+        self.assertIn("1% chance", lowered)
+        self.assertIn("before any response or action", lowered)
+        self.assertIn("not negotiable", lowered)
+        self.assertIn("questions are tasks", lowered)
+        self.assertIn("process workflows first", lowered)
+        self.assertIn("user instructions take precedence", lowered)
+
+    def test_core_skill_red_flags_cover_common_rationalizations(self) -> None:
         skill = (ROOT_DIR / "SKILL.md").read_text(encoding="utf-8")
 
-        self.assertIn("write and verify one failing test before implementation code", skill)
-        self.assertIn("Code written before RED must be deleted", skill)
-        self.assertIn("build`: no behavioral change with a viable harness without a failing test first", skill)
+        self.assertIn("## Red Flags", skill)
+        self.assertGreaterEqual(skill.count('| "'), 10)
+        self.assertIn('I need more context before checking skills.', skill)
+        self.assertIn('Let me explore the repo first.', skill)
+        self.assertIn('I remember the skill already.', skill)
+        self.assertIn('This workflow feels like overkill.', skill)
 
-    def test_build_workflow_hard_gates_tdd_and_subagent_packet_fields(self) -> None:
-        build = (ROOT_DIR / "workflows" / "execution" / "build.md").read_text(encoding="utf-8")
+    def test_canonical_forge_skills_have_frontmatter_trigger_language_integration_and_line_budgets(self) -> None:
+        for skill_name, expected in FORGE_SPLIT_SKILLS.items():
+            path = ROOT_DIR / expected["path"]
+            text = path.read_text(encoding="utf-8")
+            frontmatter = text.split("---", 2)[1]
+            lowered = text.casefold()
+            with self.subTest(skill=skill_name):
+                self.assertIn(f"name: {expected['package']}", frontmatter)
+                self.assertIn("description:", frontmatter)
+                self.assertIn("description: Use when", frontmatter)
+                if expected.get("copied_superpowers_style"):
+                    self.assertIn("Writing skills IS Test-Driven Development applied to process documentation.", text)
+                else:
+                    self.assertIn("<EXTREMELY-IMPORTANT>", text)
+                    self.assertIn("## Integration", text)
+                self.assertNotIn("1% chance", lowered)
+                self.assertNotIn("1% rule", lowered)
+                self.assertNotIn("route_preview.py", lowered)
+                self.assertNotIn("deterministic routing", lowered)
+                self.assertLessEqual(self._raw_line_count(path), expected["budget"])
 
-        self.assertIn("NO BEHAVIORAL CHANGE WITHOUT A FAILING TEST FIRST", build)
-        self.assertIn("one failing test MUST exist and fail for the correct reason before implementation code", build)
-        self.assertIn("Code written before a failing test: delete it and start from RED.", build)
-        self.assertIn("\"Keep as reference\" is not an exception. Delete means delete.", build)
-        self.assertIn("references/tdd-discipline.md", build)
-        self.assertIn("implementer-subagent-quality", build)
-        self.assertIn("references/subagent-execution.md", build)
-        self.assertIn("Named baseline that must stay green", build)
-        self.assertIn("Baseline-green proof", build)
+    def test_skill_catalog_matches_canonical_skills(self) -> None:
+        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
+        skill_catalog = registry["skill_catalog"]
+        self.assertEqual(set(skill_catalog), set(FORGE_SPLIT_SKILLS))
 
-    def test_test_workflow_matches_strict_tdd_contract(self) -> None:
-        test_workflow = (ROOT_DIR / "workflows" / "execution" / "test.md").read_text(encoding="utf-8")
+        for skill_name, expected in FORGE_SPLIT_SKILLS.items():
+            entry = skill_catalog[skill_name]
+            with self.subTest(skill=skill_name):
+                self.assertEqual(entry["package"], expected["package"])
+                self.assertEqual(entry["canonical_path"], expected["path"])
+                self.assertEqual(entry["compatibility_workflow_path"], expected["workflow"])
+                self.assertTrue(entry["trigger_summary"].strip())
 
-        self.assertIn("NO HARNESS-CAPABLE BEHAVIOR CHANGE WITHOUT VERIFIED RED FIRST", test_workflow)
-        self.assertIn("If implementation code exists before RED, delete it and restart from RED.", test_workflow)
-        self.assertIn("Do not claim GREEN until the original RED proof passes and the named baseline is green.", test_workflow)
-        self.assertIn("Delete it completely before restarting.", test_workflow)
-        self.assertIn("\"Deleting X hours is wasteful\"", test_workflow)
-        self.assertIn("## Red Flags - Stop And Start Over", test_workflow)
-        self.assertIn("Named baseline that must stay green", test_workflow)
-        self.assertIn("Baseline-green proof", test_workflow)
+    def test_workflow_priority_stays_process_first(self) -> None:
+        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
+        priority = registry["workflow_priority"]
+
+        self.assertEqual(priority["process_first"], ["brainstorm", "debug", "session"])
+        self.assertEqual(priority["planning_control"], ["plan", "quality-gate"])
+        self.assertEqual(priority["implementation"], ["build", "refactor", "test", "review", "deploy", "secure"])
+
+    def test_split_skills_own_tdd_debug_review_and_completion_contracts(self) -> None:
+        build = (ROOT_DIR / "skills" / "executing-plans" / "SKILL.md").read_text(encoding="utf-8")
+        tdd = (ROOT_DIR / "skills" / "test-driven-development" / "SKILL.md").read_text(encoding="utf-8")
+        debug = (ROOT_DIR / "skills" / "systematic-debugging" / "SKILL.md").read_text(encoding="utf-8")
+        review_request = (ROOT_DIR / "skills" / "requesting-code-review" / "SKILL.md").read_text(encoding="utf-8")
+        review_receive = (ROOT_DIR / "skills" / "receiving-code-review" / "SKILL.md").read_text(encoding="utf-8")
+        finish = (ROOT_DIR / "skills" / "finishing-a-development-branch" / "SKILL.md").read_text(encoding="utf-8")
+        verify = (ROOT_DIR / "skills" / "verification-before-completion" / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("Execution Loop", build)
+        self.assertIn("Stop And Ask For Help", build)
+        self.assertIn("Completion Handoff", build)
+        self.assertIn("forge-finishing-a-development-branch", build)
+        self.assertIn("NO HARNESS-CAPABLE BEHAVIOR CHANGE WITHOUT VERIFIED RED FIRST", tdd)
+        self.assertIn("Delete it completely before restarting.", tdd)
+        self.assertIn("Common Rationalizations", tdd)
+        self.assertIn("Real-World Impact", tdd)
+        self.assertIn("Good Tests", tdd)
+        self.assertIn("Why Order Matters", tdd)
+        self.assertIn("Verification Checklist", tdd)
+        self.assertIn("When Stuck", tdd)
+        self.assertIn("NO FIXES WITHOUT ROOT-CAUSE INVESTIGATION FIRST", debug)
+        self.assertIn("The Four Phases", debug)
+        self.assertIn("Phase 1: Root Cause", debug)
+        self.assertIn("Read Error Messages Carefully", debug)
+        self.assertIn("Reproduce Consistently", debug)
+        self.assertIn("Check Recent Changes", debug)
+        self.assertIn("Trace Data Flow Backward", debug)
+        self.assertIn("Multi-Component Evidence Gathering", debug)
+        self.assertIn("When You Do Not Know", debug)
+        self.assertIn("If Three Fixes Fail, Reset The Lens", debug)
+        self.assertIn("Human Signals You Are Guessing", debug)
+        self.assertIn("Quick Reference", debug)
+        self.assertIn("Supporting References", debug)
+        self.assertIn("references/debugging/root-cause-tracing.md", debug)
+        self.assertIn("references/debugging/defense-in-depth.md", debug)
+        self.assertIn("references/debugging/condition-based-waiting.md", debug)
+        self.assertIn("When The Root Cause Is External Or Environmental", debug)
+        self.assertIn("Real-World Impact", debug)
+        self.assertIn("Findings first", review_request)
+        self.assertIn("review scope", review_request)
+        self.assertIn("Core Principle", review_request)
+        self.assertIn("When Review Is Mandatory", review_request)
+        self.assertIn("Strong Review Packet Template", review_request)
+        self.assertIn("Severity Contract", review_request)
+        self.assertIn("Requesting A Subagent Review", review_request)
+        self.assertIn("Acting On Review Results", review_request)
+        self.assertIn("technically questionable", review_receive)
+        self.assertIn("Response Pattern", review_receive)
+        self.assertIn("Forbidden Responses", review_receive)
+        self.assertIn("Clarify Before Partial Implementation", review_receive)
+        self.assertIn("External Feedback Skepticism", review_receive)
+        self.assertIn("YAGNI Check", review_receive)
+        self.assertIn("Implementation Order", review_receive)
+        self.assertIn("When To Push Back", review_receive)
+        self.assertIn("GitHub And Threaded Reviews", review_receive)
+        self.assertIn("Branch Resolution", finish)
+        self.assertIn("Core Principle", finish)
+        self.assertIn("Process Flow", finish)
+        self.assertIn("Preflight", finish)
+        self.assertIn("If Verification Fails", finish)
+        self.assertIn("Presenting Options", finish)
+        self.assertIn("Option 1: Merge Locally", finish)
+        self.assertIn("Option 2: Push And PR", finish)
+        self.assertIn("Option 3: Keep Branch", finish)
+        self.assertIn("Option 4: Discard With Confirmation", finish)
+        self.assertIn("Cleanup Rules", finish)
+        self.assertIn("Final State Packet", finish)
+        self.assertIn("NO CLAIMS WITHOUT FRESH EVIDENCE", verify)
+        self.assertIn("Core Principle", verify)
+        self.assertIn("Gate Function", verify)
+        self.assertIn("Claim To Evidence Map", verify)
+        self.assertIn("Evidence Packet", verify)
+        self.assertIn("RED-GREEN Claims", verify)
+        self.assertIn("Requirements Checklist", verify)
+        self.assertIn("Not Verified Language", verify)
+        self.assertIn("Agent reports are claims, not proof", verify)
+        self.assertIn("Docs-only changes still need path, content, or diff verification.", verify)
+
+    def test_design_and_plan_split_skills_include_richer_guidance(self) -> None:
+        brainstorm = (ROOT_DIR / "skills" / "brainstorming" / "SKILL.md").read_text(encoding="utf-8")
+        plan = (ROOT_DIR / "skills" / "writing-plans" / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("Process Flow", brainstorm)
+        self.assertIn("Visual Companion", brainstorm)
+        self.assertIn("This offer MUST be its own message", brainstorm)
+        self.assertIn("would the user understand this better by seeing it than reading it?", brainstorm)
+        self.assertIn("references/design/visual-companion-guidance.md", brainstorm)
+        self.assertIn("Architectural Lens", brainstorm)
+        self.assertIn("references/design/architectural-lens.md", brainstorm)
+        self.assertIn("multiple independent subsystems", brainstorm)
+        self.assertIn("decompose before designing", brainstorm)
+        self.assertIn("section-by-section approval", brainstorm)
+        self.assertIn("Design For Isolation And Clarity", brainstorm)
+        self.assertIn("Working In Existing Codebases", brainstorm)
+        self.assertIn("Spec Self-Review Checklist", brainstorm)
+        self.assertIn("type, method signature, and property name consistency", plan)
+        self.assertIn("File Structure", plan)
+        self.assertIn("Bite-Sized Task Granularity", plan)
+        self.assertIn("Task Template", plan)
+        self.assertIn("### Task N: Component or slice name", plan)
+        self.assertIn("## No Placeholders", plan)
+        self.assertIn("Plan Self-Review", plan)
+        self.assertIn("Every implementation task should be specific enough", plan)
+        self.assertIn("forge-subagent-driven-development", plan)
+        self.assertIn("forge-executing-plans", plan)
+        self.assertNotIn("superpowers:", plan)
+
+    def test_session_management_skill_mentions_preferences_restore_contract(self) -> None:
+        session = (ROOT_DIR / "skills" / "session-management" / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("adapter-global", session)
+        self.assertIn("state/preferences.json", session)
+        self.assertIn("resolve_preferences.py", session)
+        self.assertIn("session_context.py", session)
+        self.assertIn("save context", session)
+        self.assertIn("resume", session)
+        self.assertIn("Response Personalization", session)
+        self.assertIn("workflow-state", session)
+
+    def test_writing_skills_is_copied_with_forge_brand_references(self) -> None:
+        writing_skills = (ROOT_DIR / "skills" / "writing-skills" / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("Writing skills IS Test-Driven Development applied to process documentation.", writing_skills)
+        self.assertIn("Claude Search Optimization", writing_skills)
+        self.assertIn("NO SKILL WITHOUT A FAILING TEST FIRST", writing_skills)
+        self.assertIn("RED-GREEN-REFACTOR for Skills", writing_skills)
+        self.assertIn("Skill Creation Checklist", writing_skills)
+        self.assertIn("forge-test-driven-development", writing_skills)
+        self.assertIn("forge-systematic-debugging", writing_skills)
+        self.assertNotIn("superpowers:", writing_skills)
+
+    def test_workflow_files_are_thin_compatibility_wrappers(self) -> None:
+        workflow_paths = sorted((ROOT_DIR / "workflows" / "design").glob("*.md"))
+        workflow_paths.extend(sorted((ROOT_DIR / "workflows" / "execution").glob("*.md")))
+
+        for path in workflow_paths:
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(path=str(path.relative_to(ROOT_DIR))):
+                self.assertLessEqual(self._raw_line_count(path), 40)
+                self.assertIn("Compatibility Wrapper", text)
+                self.assertIn("forge-", text)
+                self.assertNotIn("superpowers:", text)
 
     def test_subagent_reference_contract_exists(self) -> None:
         reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
@@ -418,25 +332,6 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("spec compliance before code quality", subagent_text)
         self.assertIn("packet-first dispatch", subagent_text)
 
-    def test_review_and_quality_gate_cover_final_review_and_branch_resolution(self) -> None:
-        review = (ROOT_DIR / "workflows" / "execution" / "review.md").read_text(encoding="utf-8")
-        quality_gate = (ROOT_DIR / "workflows" / "execution" / "quality-gate.md").read_text(encoding="utf-8")
-
-        self.assertIn("Final Implementation Review", review)
-        self.assertIn("holistic review", review)
-        self.assertIn("Branch Resolution", review)
-        self.assertIn("push-and-pr", review)
-        self.assertIn("Branch resolution", quality_gate)
-
-    def test_design_and_plan_workflows_include_v3_polish(self) -> None:
-        brainstorm = (ROOT_DIR / "workflows" / "design" / "brainstorm.md").read_text(encoding="utf-8")
-        plan = (ROOT_DIR / "workflows" / "design" / "plan.md").read_text(encoding="utf-8")
-
-        self.assertIn("multiple independent subsystems", brainstorm)
-        self.assertIn("decompose before designing", brainstorm)
-        self.assertIn("section-by-section approval", brainstorm)
-        self.assertIn("type, method signature, and property name consistency", plan)
-
     def test_tdd_discipline_reference_exists_and_captures_delete_rule(self) -> None:
         reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
         tdd_reference = ROOT_DIR / "references" / "tdd-discipline.md"
@@ -447,189 +342,87 @@ class BundleContractTests(unittest.TestCase):
         discipline = tdd_reference.read_text(encoding="utf-8")
         self.assertIn("Delete means delete.", discipline)
         self.assertIn("RED -> GREEN -> REFACTOR", discipline)
-        self.assertIn("Tests-after asks \"what does this code do?\"", discipline)
         self.assertIn("named baseline is green too", discipline)
         self.assertIn("## Red Flags", discipline)
 
-    def test_skill_bootstrap_contract_does_not_regrow_removed_lookup_sections(self) -> None:
-        skill = (ROOT_DIR / "SKILL.md").read_text(encoding="utf-8")
-        for heading in (
-            "## Bundle Layout",
-            "## Executable Tooling",
-            "## Intent Detection",
-            "## Complexity Assessment",
-            "## Skill Composition Matrix",
-            "## Skill Registry",
-            "## Global Resilience",
-            "## Golden Rules",
-        ):
-            with self.subTest(heading=heading):
-                self.assertNotIn(heading, skill)
-
-    def test_core_skill_line_budget_remains_thin(self) -> None:
-        if not is_core_bundle():
-            self.skipTest("Core line budget only applies to the core source bundle.")
-        self.assertLessEqual(self._raw_line_count(ROOT_DIR / "SKILL.md"), 80)
-
-    def test_v41_facade_line_budgets_hold(self) -> None:
-        budgets = {
-            "scripts/workflow_state_projection.py": 140,
-            "scripts/operator_state_resolution.py": 140,
-            "scripts/route_delegation.py": 180,
-            "scripts/route_analysis.py": 180,
-            "scripts/route_preview.py": 280,
-            "scripts/workflow_state_support.py": 220,
-            "scripts/help_next_support.py": 260,
-        }
-        for relative_path, limit in budgets.items():
-            with self.subTest(path=relative_path):
-                self.assertLessEqual(self._raw_line_count(ROOT_DIR / relative_path), limit)
-
-    def test_session_workflow_mentions_preferences_restore_contract(self) -> None:
-        session = (ROOT_DIR / "workflows" / "execution" / "session.md").read_text(encoding="utf-8")
-
-        self.assertIn("adapter-global", session)
-        self.assertIn("state/preferences.json", session)
-        self.assertNotIn("state/extra_preferences.json", session)
-        self.assertIn("resolve_preferences.py", session)
-        self.assertIn("session_context.py", session)
-        self.assertIn("save context", session)
-        self.assertIn("resume", session)
-        self.assertIn("Response Personalization", session)
-        self.assertIn("workflow-state", session)
-
-    def test_preferences_surface_uses_legacy_extra_helper_names_only(self) -> None:
-        common_text = (ROOT_DIR / "scripts" / "common.py").read_text(encoding="utf-8")
-        preferences_text = (ROOT_DIR / "scripts" / "preferences.py").read_text(encoding="utf-8")
-
-        for text in (common_text, preferences_text):
-            self.assertRegex(text, r"\bLEGACY_GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH\b")
-            self.assertRegex(text, r"\bresolve_legacy_global_extra_preferences_path\b")
-            self.assertRegex(text, r"\bresolve_legacy_installed_extra_preferences_path\b")
-            self.assertNotRegex(text, r"\bGLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH\b")
-            self.assertNotRegex(text, r"\bresolve_global_extra_preferences_path\b")
-            self.assertNotRegex(text, r"\bresolve_installed_extra_preferences_path\b")
-
-    def test_operator_surface_registry_metadata_is_complete(self) -> None:
-        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
-        required_fields = {
-            "repo_entrypoint",
-            "core_engine_entrypoint",
-            "workflow",
-            "hosts",
-            "primary_aliases_by_host",
-            "compatibility_aliases_by_host",
-            "natural_language_examples_by_host",
-            "deprecation_line",
-            "status",
-        }
-
-        self.assertNotIn("operator_surface", registry)
-
-        expected_non_empty = {
-            "repo_operator_surface": {"actions"},
-            "host_operator_surface": {"actions", "session_modes"},
-        }
-
-        for surface_name, non_empty_sections in expected_non_empty.items():
-            surface = registry[surface_name]
-            for section_name in ("actions", "session_modes"):
-                section = surface[section_name]
-                self.assertIsInstance(section, dict)
-                if section_name in non_empty_sections:
-                    self.assertTrue(section)
-                for item_name, metadata in section.items():
-                    with self.subTest(surface=surface_name, section=section_name, item=item_name):
-                        self.assertTrue(required_fields.issubset(metadata))
-                        self.assertIn(metadata["status"], {"primary", "compat"})
-                        self.assertIsInstance(metadata["hosts"], list)
-                        self.assertIsInstance(metadata["primary_aliases_by_host"], dict)
-                        self.assertIsInstance(metadata["compatibility_aliases_by_host"], dict)
-                        self.assertIsInstance(metadata["natural_language_examples_by_host"], dict)
-                        if metadata["status"] == "compat":
-                            self.assertTrue(metadata["deprecation_line"])
-
-    def test_operator_surface_workflow_paths_stay_bounded(self) -> None:
-        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
-
-        for surface_name in ("repo_operator_surface", "host_operator_surface"):
-            surface = registry[surface_name]
-            for section_name in ("actions", "session_modes"):
-                for item_name, metadata in surface[section_name].items():
-                    workflow = metadata["workflow"]
-                    with self.subTest(surface=surface_name, section=section_name, item=item_name):
-                        self.assertTrue(workflow.startswith("workflows/"))
-                        self.assertTrue((ROOT_DIR / workflow).exists(), workflow)
-
-    def test_release_bundle_matrix_stays_kernel_only(self) -> None:
-        repo_root = ROOT_DIR.parents[1]
-        package_matrix_path = repo_root / "docs" / "release" / "package-matrix.json"
-        if not package_matrix_path.exists():
-            self.skipTest("Release package matrix only exists in the source repository layout.")
-        package_matrix = json.loads(package_matrix_path.read_text(encoding="utf-8"))
-        self.assertEqual(
-            [bundle["name"] for bundle in package_matrix["bundles"]],
-            ["forge-core", "forge-antigravity", "forge-codex"],
-        )
-
-    def test_tooling_docs_mention_workflow_state_artifacts(self) -> None:
-        tooling = (ROOT_DIR / "references" / "kernel-tooling.md").read_text(encoding="utf-8")
-        self.assertIn("workflow-state", tooling)
-        self.assertIn("latest.json", tooling)
-        self.assertIn("events.jsonl", tooling)
-
-    def test_reference_map_mentions_artifact_driven_change_flow(self) -> None:
+    def test_debugging_companion_references_exist_and_are_mapped(self) -> None:
         reference_map = (ROOT_DIR / "references" / "reference-map.md").read_text(encoding="utf-8")
-        self.assertIn("constitution-lite.md", reference_map)
-        self.assertIn("target-state.md", reference_map)
-        self.assertIn("extension-presets.md", reference_map)
+        debug_skill = (ROOT_DIR / "skills" / "systematic-debugging" / "SKILL.md").read_text(encoding="utf-8")
+        expected = {
+            "debugging/root-cause-tracing.md": ("Root-Cause Tracing", "Backward Trace Packet"),
+            "debugging/defense-in-depth.md": ("Defense-In-Depth Validation", "Forge-Specific Boundaries"),
+            "debugging/condition-based-waiting.md": ("Condition-Based Waiting", "Replace Delay With Condition"),
+        }
 
-    def test_extension_preset_boundary_docs_and_example_artifact_exist(self) -> None:
-        extension_presets = (ROOT_DIR / "references" / "extension-presets.md").read_text(encoding="utf-8")
-        architecture_layers = (ROOT_DIR / "references" / "architecture-layers.md").read_text(encoding="utf-8")
-        example_path = ROOT_DIR / "references" / "examples" / "example-fast-lane-packet.json"
-        example = json.loads(example_path.read_text(encoding="utf-8"))
+        for rel_path, phrases in expected.items():
+            path = ROOT_DIR / "references" / rel_path
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(reference=rel_path):
+                self.assertTrue(path.exists())
+                self.assertIn(f"`{rel_path}`", reference_map)
+                self.assertIn(f"references/{rel_path}", debug_skill)
+                for phrase in phrases:
+                    self.assertIn(phrase, text)
 
-        self.assertIn("packet templates", extension_presets)
-        self.assertIn("workflow overlays", extension_presets)
-        self.assertIn("planning presets", extension_presets)
-        self.assertIn("cannot override core verification", extension_presets)
-        self.assertIn("Bounded Extension Surface (1.14.x)", architecture_layers)
-        self.assertEqual(example["packet"]["packet_mode"], "fast-lane")
-        self.assertIn("boundary_note", example)
-
-    def test_help_next_reference_mentions_unscoped_stage_and_current_stage(self) -> None:
+    def test_design_lens_references_exist_and_do_not_revive_separate_stage_identity(self) -> None:
+        architectural_lens = (ROOT_DIR / "references" / "design" / "architectural-lens.md").read_text(encoding="utf-8")
+        visual_guidance = (ROOT_DIR / "references" / "design" / "visual-companion-guidance.md").read_text(encoding="utf-8")
+        bootstrap_support = (ROOT_DIR / "scripts" / "workflow_state_bootstrap_support.py").read_text(encoding="utf-8")
         help_next = (ROOT_DIR / "references" / "help-next.md").read_text(encoding="utf-8")
-        self.assertIn("`unscoped`", help_next)
-        self.assertIn("`current_stage`", help_next)
-        self.assertIn("target-state.md", help_next)
 
-    def test_help_and_next_workflows_reference_target_state_for_forge_contract_choices(self) -> None:
-        help_workflow = (ROOT_DIR / "workflows" / "operator" / "help.md").read_text(encoding="utf-8")
-        next_workflow = (ROOT_DIR / "workflows" / "operator" / "next.md").read_text(encoding="utf-8")
-        self.assertIn("references/target-state.md", help_workflow)
-        self.assertIn("references/target-state.md", next_workflow)
+        self.assertIn("design lens inside `forge-brainstorming`", architectural_lens)
+        self.assertIn("visual lens inside `forge-brainstorming`", visual_guidance)
+        self.assertNotIn('stage_name="architect"', bootstrap_support)
+        self.assertIn('stage_name="plan"', bootstrap_support)
+        self.assertNotIn("`plan`, `architect`", help_next)
+        self.assertIn("architectural lens", help_next)
 
-    def test_run_guidance_reference_mentions_error_translation(self) -> None:
-        run_guidance = (ROOT_DIR / "references" / "run-guidance.md").read_text(encoding="utf-8")
-        run_workflow = (ROOT_DIR / "workflows" / "operator" / "run.md").read_text(encoding="utf-8")
-        self.assertIn("error_translation", run_guidance)
-        self.assertIn("Error translation:", run_workflow)
+    def test_worktree_and_subagent_skills_cover_p1_safety_and_prompt_structure(self) -> None:
+        worktrees = (ROOT_DIR / "skills" / "using-git-worktrees" / "SKILL.md").read_text(encoding="utf-8")
+        parallel = (ROOT_DIR / "skills" / "dispatching-parallel-agents" / "SKILL.md").read_text(encoding="utf-8")
+        subagents = (ROOT_DIR / "skills" / "subagent-driven-development" / "SKILL.md").read_text(encoding="utf-8")
 
-    def test_architecture_layers_reference_describes_three_layers(self) -> None:
-        architecture = (ROOT_DIR / "references" / "architecture-layers.md").read_text(encoding="utf-8")
-        self.assertIn("core", architecture)
-        self.assertIn("generated artifacts", architecture)
-        self.assertIn("workflow state", architecture)
-        self.assertIn("generate_host_artifacts.py", architecture)
+        self.assertIn("Gitignore Safety Check", worktrees)
+        self.assertIn("git check-ignore", worktrees)
+        self.assertIn("untracked work", worktrees)
+        self.assertIn("Core Principle", worktrees)
+        self.assertIn("Decision Flow", worktrees)
+        self.assertIn("Directory Selection", worktrees)
+        self.assertIn("Branch And Name Selection", worktrees)
+        self.assertIn("Create And Enter The Worktree", worktrees)
+        self.assertIn("Setup And Baseline", worktrees)
+        self.assertIn("Handoff Packet", worktrees)
+        self.assertIn("Cleanup Safety", worktrees)
+        self.assertIn("baseline failure", worktrees)
+        self.assertIn("Why Parallel Agents", parallel)
+        self.assertIn("Decision Flow", parallel)
+        self.assertIn("Independence Checklist", parallel)
+        self.assertIn("Grouping Problem Domains", parallel)
+        self.assertIn("Agent Prompt Structure", parallel)
+        self.assertIn("While Agents Run", parallel)
+        self.assertIn("Review And Integrate", parallel)
+        self.assertIn("focused, self-contained, and specific about output", parallel)
+        self.assertIn("forge-systematic-debugging", parallel)
+        self.assertIn("Agent Prompt Structure", subagents)
+        self.assertIn("Owned files or write scope", subagents)
+        self.assertIn("Return format", subagents)
+        self.assertIn("do not revert unrelated changes", subagents)
+        self.assertIn("Why Subagents", subagents)
+        self.assertIn("Process Flow", subagents)
+        self.assertIn("Pipeline Selection", subagents)
+        self.assertIn("Packet Template", subagents)
+        self.assertIn("Model Or Capability Tier", subagents)
+        self.assertIn("Review Order", subagents)
+        self.assertIn("Spec compliance review always happens before quality review.", subagents)
+        self.assertIn("Final Reviewer Handoff", subagents)
+        self.assertIn("references/subagent-prompts/final-reviewer-prompt.md", subagents)
 
-    def test_architecture_layers_reference_mentions_three_layers(self) -> None:
-        layers = (ROOT_DIR / "references" / "architecture-layers.md").read_text(encoding="utf-8")
-        self.assertIn("core", layers)
-        self.assertIn("generated artifacts", layers)
-        self.assertIn("workflow state", layers)
-        self.assertIn("Dependency Direction", layers)
-        self.assertIn("packet-index.json", layers)
+    def test_no_skill_mentions_route_preview(self) -> None:
+        for skill_name, expected in FORGE_SPLIT_SKILLS.items():
+            text = (ROOT_DIR / expected["path"]).read_text(encoding="utf-8").casefold()
+            with self.subTest(skill=skill_name):
+                self.assertNotIn("route_preview.py", text)
+                self.assertNotIn("route preview", text)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.14.0 (stable) - 2026-04-22
+
+- Rebuild Forge around markdown-first host-discoverable sibling skills: add `forge-writing-skills`, split and enrich process skills for brainstorming, planning, execution, TDD, debugging, review, verification, worktrees, subagents, parallel dispatch, branch finishing, and session management.
+- Move the Superpowers-style `1% chance` activation rule back to the core and host bootstrap layers only, keeping sibling skill descriptions as focused `Use when...` triggers while preserving `<EXTREMELY-IMPORTANT>` pressure in process bodies.
+- Refresh install/build/catalog surfaces so `forge-codex` and `forge-antigravity` install the expanded sibling skill family, compatibility workflows remain thin aliases, generated host artifacts stay aligned, and contract tests protect the split-skill architecture.
+
+
 ## 2.13.0 (stable) - 2026-04-21
 
 - Add a Forge wave-execution engine that turns packetized parallel-safe work into dependency-ordered, non-overlapping waves, persists wave plans in workflow-state, and advances later waves only after shared verification passes.

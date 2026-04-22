@@ -1,20 +1,4 @@
 {
-  "intents": {
-    "SESSION": {
-      "shortcuts": []
-    }
-  },
-  "session_modes": {
-    "restore": {
-      "shortcuts": []
-    },
-    "save": {
-      "shortcuts": []
-    },
-    "handover": {
-      "shortcuts": []
-    }
-  },
   "host_operator_surface": {
     "actions": {
       "help": {
@@ -63,10 +47,11 @@
         }
       },
       "delegate": {
-        "repo_entrypoint": "",
-        "core_engine_entrypoint": "workflows/execution/dispatch-subagents.md",
-        "workflow": "workflows/execution/dispatch-subagents.md",
-        "hosts": [
+      "repo_entrypoint": "",
+      "core_engine_entrypoint": "workflows/execution/dispatch-subagents.md",
+      "workflow": "workflows/execution/dispatch-subagents.md",
+      "skill": "forge-dispatching-parallel-agents",
+      "hosts": [
           "codex"
         ],
         "primary_aliases_by_host": {
@@ -181,6 +166,6 @@
     "active_tier": "parallel-workers",
     "supports_subagents": true,
     "supports_parallel_subagents": true,
-    "subagent_dispatch_skill": "dispatch-subagents"
+    "subagent_dispatch_skill": "forge-dispatching-parallel-agents"
   }
 }

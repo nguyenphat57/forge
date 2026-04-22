@@ -249,54 +249,57 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
                     )
                     self.assertFalse((home / ".forge").exists())
 
-    def test_114_target_and_competitive_closure_tokens_are_visible(self) -> None:
+    def test_split_skill_target_tokens_are_visible(self) -> None:
         target_state = (ROOT_DIR / "packages" / "forge-core" / "references" / "target-state.md").read_text(encoding="utf-8")
         reference_map = (ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md").read_text(encoding="utf-8")
         skill = (ROOT_DIR / "packages" / "forge-core" / "SKILL.md").read_text(encoding="utf-8")
 
-        for token in ("## 1.14.x Target", "fast lane", "packet graph", "runtime health"):
+        for token in (
+            "split-skill",
+            "skill-first",
+            "Host-discoverable Forge sibling skills",
+            "line-budget reductions",
+        ):
             with self.subTest(token=token):
                 self.assertIn(token, target_state)
 
-        for token in ("architecture-layers.md", "help-next.md", "build.md"):
+        for token in ("packages/forge-core/skills/", "architecture-layers.md", "help-next.md"):
             with self.subTest(reference_token=token):
                 self.assertIn(token, reference_map)
 
-        for token in ("proof before claims", "parallel-split", "controller-sequential"):
+        for token in ("Forge sibling skills", "1% chance", "Proof before claims"):
             with self.subTest(skill_token=token):
                 self.assertIn(token, skill)
 
-    def test_115_closure_target_and_operating_contract_tokens_are_visible(self) -> None:
+    def test_current_split_skill_operating_contract_tokens_are_visible(self) -> None:
         target_state = (ROOT_DIR / "packages" / "forge-core" / "references" / "target-state.md").read_text(encoding="utf-8")
         reference_map = (ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md").read_text(encoding="utf-8")
 
         for token in (
-            "## 1.15.x Closure Target",
-            "narrow operating contract",
-            "## Current Operating Contract",
+            "## Current Contract Closure",
+            "bootstrap-driven sibling skill activation",
+            "process skills before implementation skills",
             "Escalate into an explicit roadmap or product decision only if",
-            "beyond the `1.15.x` closure line",
         ):
             with self.subTest(target_token=token):
                 self.assertIn(token, target_state)
 
         for token in (
-            "1.15.x` closure target",
-            "current operating contract",
-            "When validating the current operating contract",
+            "current split-skill",
+            "When verifying current contract alignment",
+            "Do not teach `workflows/` files as the primary activation surface.",
         ):
             with self.subTest(reference_token=token):
                 self.assertIn(token, reference_map)
 
-    def test_116_surface_slim_closure_tokens_are_visible(self) -> None:
+    def test_surface_slim_split_skill_tokens_are_visible(self) -> None:
         target_state = (ROOT_DIR / "packages" / "forge-core" / "references" / "target-state.md").read_text(encoding="utf-8")
         reference_map = (ROOT_DIR / "packages" / "forge-core" / "references" / "reference-map.md").read_text(encoding="utf-8")
 
         for token in (
-            "## 1.16.x Surface Slim Closure",
             "docs/current/",
-            "scripts/repo_operator.py",
-            "shared generator path",
+            "packages/forge-core/skills/*/SKILL.md",
+            "generated host artifacts bootstrap-only",
             "There is no active roadmap tranche now.",
         ):
             with self.subTest(target_token=token):
@@ -331,15 +334,15 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
             core_bump.read_text(encoding="utf-8"),
         )
         self.assertIn(
-            "VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION",
+            "Proof before claims is non-negotiable",
             core_skill.read_text(encoding="utf-8"),
         )
         self.assertIn(
-            "VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION",
+            "Proof before claims is non-negotiable",
             antigravity_skill.read_text(encoding="utf-8"),
         )
         self.assertIn(
-            "VERSION BUMPS MUST BE USER-REQUESTED, JUSTIFIED, AND MUST SURFACE RELEASE VERIFICATION",
+            "Proof before claims is non-negotiable",
             codex_skill.read_text(encoding="utf-8"),
         )
         self.assert_bump_wrapper_matches_release_contract(antigravity_bump, label="forge-antigravity")

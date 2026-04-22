@@ -126,8 +126,8 @@ def seed_workflow_state_from_sidecars(
             workspace,
             inferred_project,
             latest_spec,
-            stage_name="architect",
-            activation_reason="Bootstrapped from latest spec document.",
+            stage_name="plan",
+            activation_reason="Bootstrapped from latest spec document; planning is the next canonical step.",
             record_event=record_event,
         )
         return {"bootstrap_source": "spec", "latest_path": str(latest_path)}

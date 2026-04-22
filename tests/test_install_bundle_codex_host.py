@@ -20,6 +20,24 @@ import build_release  # noqa: E402
 import install_bundle  # noqa: E402
 
 
+FORGE_SIBLING_SKILLS = [
+    "forge-brainstorming",
+    "forge-writing-plans",
+    "forge-executing-plans",
+    "forge-test-driven-development",
+    "forge-using-git-worktrees",
+    "forge-dispatching-parallel-agents",
+    "forge-subagent-driven-development",
+    "forge-systematic-debugging",
+    "forge-requesting-code-review",
+    "forge-receiving-code-review",
+    "forge-verification-before-completion",
+    "forge-finishing-a-development-branch",
+    "forge-writing-skills",
+    "forge-session-management",
+]
+
+
 class CodexHostInstallTests(unittest.TestCase):
     def seed_codex_home(self, codex_home: Path, target: Path) -> tuple[Path, Path, Path]:
         target.mkdir(parents=True, exist_ok=True)
@@ -56,6 +74,10 @@ class CodexHostInstallTests(unittest.TestCase):
             )
 
             self.assertTrue(report["codex_host_activation"]["enabled"])
+            self.assertEqual(
+                [item["name"] for item in report["sibling_skills"]["skills"]],
+                FORGE_SIBLING_SKILLS,
+            )
             self.assertEqual(agents_path.read_text(encoding="utf-8"), "legacy global orchestrator")
             self.assertTrue((target / "old.txt").exists())
             self.assertTrue(legacy_runtime.exists())
@@ -78,6 +100,11 @@ class CodexHostInstallTests(unittest.TestCase):
             )
 
             self.assertTrue((target / "SKILL.md").exists())
+            for skill_name in FORGE_SIBLING_SKILLS:
+                with self.subTest(skill=skill_name):
+                    self.assertTrue((codex_home / "skills" / skill_name / "SKILL.md").exists())
+                    self.assertFalse((codex_home / "skills" / skill_name / "scripts").exists())
+                    self.assertFalse((codex_home / "skills" / skill_name / "data").exists())
             self.assertFalse((target / "old.txt").exists())
             self.assertFalse(legacy_runtime.exists())
             self.assertFalse(legacy_skill.exists())

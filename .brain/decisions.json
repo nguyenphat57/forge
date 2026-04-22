@@ -559,8 +559,8 @@
         "id":  "20260421-214538",
         "kind":  "decision",
         "scope":  "forge-2-13-stable-status",
-        "summary":  "Treat 2.13.0 as the current stable Forge release because wave execution now gives Codex packetized parallel-safe work a dependency-ordered controller with explicit shared verification and workflow-state guidance.",
-        "status":  "resolved",
+        "summary":  "Treat 2.13.0 as a superseded Forge stable slice because the later 2.14.0 markdown-first sibling skill split replaced its stable line after a fresh release sync and verification pass.",
+        "status":  "superseded",
         "evidence":  [
                          "VERSION",
                          "CHANGELOG.md",
@@ -586,8 +586,43 @@
                      "workflow-state",
                      "delegation"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 2.13.0 verification evidence.",
+        "revisit_if":  "Release archaeology needs the original 2.13.0 proof chain or later evidence invalidates the recorded verification.",
         "trigger":  "minor-release",
         "resume_hint":  "Resume only if a later audit needs the original 2.13.0 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260422-000000",
+        "kind":  "decision",
+        "scope":  "forge-2-14-stable-status",
+        "summary":  "Treat 2.14.0 as the current stable Forge release because the markdown-first sibling skill split, Superpowers-style skill absorption, bootstrap-only 1% activation rule, and expanded install surface are release-synced and verified.",
+        "status":  "resolved",
+        "evidence":  [
+                         "VERSION",
+                         "CHANGELOG.md",
+                         "README.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "packages/forge-core/SKILL.md",
+                         "packages/forge-core/skills/",
+                         "packages/forge-core/data/orchestrator-registry.json",
+                         "docs/release/package-matrix.json",
+                         "python -m pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-22",
+                         "python -m pytest tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-22",
+                         "python scripts/build_release.py --force -> PASS on 2026-04-22",
+                         "python scripts/verify_repo.py -> PASS on 2026-04-22"
+                     ],
+        "next":  [
+
+                 ],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "markdown-first",
+                     "sibling-skills",
+                     "superpowers-alignment"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 2.14.0 verification evidence.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 2.14.0 proof chain or invalidates the recorded verification."
     }
 ]

@@ -2,33 +2,65 @@
 
 ## Goal
 
-Describe the current maintainer-facing structure of Forge without forcing readers through archived roadmap or spec history.
+Describe the live Forge architecture after the split-skill cutover, without sending maintainers through archived roadmap material to understand current behavior.
 
-## Current topology
+## Current Topology
 
-- `packages/forge-core/` owns routing, workflow-state, verification discipline, and the host-neutral execution contract.
-- `packages/forge-codex/overlay/` and `packages/forge-antigravity/overlay/` adapt that core contract to host-native entry surfaces.
-- The shipped product line is kernel-only: `forge-core`, `forge-codex`, and `forge-antigravity`.
-- `docs/current/` is the active maintainer docs spine.
-- `docs/archive/` holds historical plans and specs that should not be read as current operating policy.
+- `packages/forge-core/` owns the host-neutral contract: bootstrap wording, sibling skill sources, workflow-state semantics, verification invariants, and preference/state tooling.
+- `packages/forge-core/skills/` is the source of truth for host-discoverable Forge process skills such as `forge-brainstorming`, `forge-writing-plans`, `forge-systematic-debugging`, and `forge-verification-before-completion`.
+- `packages/forge-core/workflows/` is compatibility only. These files keep slash aliases and older references working, but they point back to sibling skills.
+- `packages/forge-codex/overlay/` and `packages/forge-antigravity/overlay/` adapt the shared contract to host-native bootstrap files, installed skill layout, and operator wrappers.
+- `docs/current/` is the live maintainer-facing explanation surface; `docs/archive/` is historical context only.
 
-## Current source-of-truth boundaries
+## Control Architecture
 
-- Current repo-level architecture guidance lives here and in `packages/forge-core/references/target-state.md`.
-- Current source-repo operator guidance lives in `docs/current/operator-surface.md`.
-- Current install and activation guidance lives in `docs/current/install-and-activation.md`.
-- Historical roadmap shaping and exploratory specs live under `docs/archive/` and should be cited only as historical context.
+- Forge is markdown-first. Control lives in small host-discoverable skills, design docs, implementation plans, checklists, and workflow-state artifacts.
+- Forge is workflow-first in behavior, but workflow selection now happens through bootstrap markdown and sibling skill activation rather than a deterministic routing engine.
+- The 1% rule applies before any substantive response or action: if a relevant Forge skill might apply, load it first.
+- Process skills run before implementation skills: brainstorm, debug, and session management gate behavioral build, bugfix, and resume work.
+- `help` and `next` are audit/resume sidecars over durable artifacts. They explain current state and the next bounded action, but they do not choose process by heuristic routing.
+- Deterministic scripts remain part of the architecture for invariants, state, preferences, install, and verification. They are not the public workflow control plane.
 
-## Explicit non-changes in this tranche
+## Public Versus Internal Surfaces
 
-- bundle fingerprints remain canonical
-- `verify_repo.py` remains the release gate
-- install safety and backup behavior remain intact
-- installed runtime workflow paths remain stable
+Public contract:
+
+- natural language first
+- host-native Forge sibling skills as the activation surface
+- compatibility slash aliases that invoke skills, not workflow internals
+- artifact-backed `help` and `next`
+- explicit evidence before claims
+
+Internal support surface:
+
+- workflow-state projection and refresh
+- preference resolution and writes
+- invariant verification and bundle checks
+- workflow wrappers for legacy aliases
+- route-era helpers kept only for archived tests, deterministic inspection, or compatibility support
+
+`route_preview is not the current public contract`. If route-era files still exist, they are internal or historical support, not the operating model.
+
+## Python Boundary
+
+Python remains appropriate for:
+
+- invariant checks
+- workflow-state persistence and projections
+- preference resolution and durable writes
+- release/build/install verification
+
+Python should not be the first thing maintainers teach or users learn for routine skill selection, navigation, or control semantics that are now expressed in markdown.
+
+## Maintainer Reading Path
+
+- Start here for the live architecture.
+- Read [operator-surface.md](/C:/Users/Admin/.gemini/forge/.forge-artifacts/worktrees/markdown-first-control/docs/current/operator-surface.md) for the thin operator contract and `help`/`next` sidecar semantics.
+- Read [install-and-activation.md](/C:/Users/Admin/.gemini/forge/.forge-artifacts/worktrees/markdown-first-control/docs/current/install-and-activation.md) for source-repo versus installed-runtime activation and sibling skill installation.
+- Read [target-state.md](/C:/Users/Admin/.gemini/forge/.forge-artifacts/worktrees/markdown-first-control/packages/forge-core/references/target-state.md) when a change could alter Forge identity, process weight, or invariant boundaries.
 
 ## Current repo posture
 
-- no active roadmap tranche is open; `docs/current/*` plus `packages/forge-core/references/target-state.md` are the live maintainer source of truth
-- changes should default to drift correction, compatibility repair, and verification hardening
-- source-repo operator guidance stays centered on `scripts/repo_operator.py`
-- release and install contracts stay aligned with the three-bundle product line
+- The current repo posture is a skill-split contract cutover, not product expansion.
+- Changes should default to drift correction, compatibility repair, docs and bootstrap alignment, and verification hardening.
+- New helper scripts or host affordances are acceptable only when they reinforce the sibling-skill contract instead of competing with it.

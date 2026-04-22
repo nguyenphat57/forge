@@ -94,10 +94,10 @@ def format_markdown(payload: dict) -> str:
 def main() -> int:
     configure_stdio()
 
-    parser = argparse.ArgumentParser(description="Persist lightweight UI progress for frontend/visualize work.")
+    parser = argparse.ArgumentParser(description="Persist lightweight UI progress for frontend or visual-lens work.")
     parser.add_argument("task", help="Task or screen summary")
     parser.add_argument("--project-name", default="workspace", help="Project or workspace name for workflow-state grouping")
-    parser.add_argument("--mode", choices=sorted(STAGES.keys()), required=True, help="frontend or visualize")
+    parser.add_argument("--mode", choices=sorted(STAGES.keys()), required=True, help="frontend or visualize (compatibility mode for the visual lens)")
     parser.add_argument("--stage", required=True, help="Current workflow stage")
     parser.add_argument("--status", choices=["active", "blocked", "done"], default="active", help="Stage status")
     parser.add_argument("--note", action="append", default=[], help="Extra note. Repeatable.")

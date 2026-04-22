@@ -1,6 +1,6 @@
 # UI Heuristics
 
-> Global heuristics for frontend/visualize, not specific repo.
+> Global heuristics for frontend work and the visual lens inside `brainstorm`, not specific repo.
 
 ## Touch-Heavy UI
 

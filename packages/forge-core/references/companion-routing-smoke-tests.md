@@ -12,7 +12,7 @@
 - Forge does not load extra companion skills when one is enough.
 - Verification and evidence gates still follow Forge.
 
-You can run `python scripts/run_smoke_matrix.py --suite router-check` to catch route-entry drift before doing manual companion smoke on the real host.
+There is no required deterministic router suite in the current contract. Use `python scripts/run_smoke_matrix.py --suite help-next` for current artifact-recovery smoke, and treat `--suite router-check` as archival compatibility only when auditing older route-era repos.
 
 ## Scenario 1 - Pure Web Repo
 

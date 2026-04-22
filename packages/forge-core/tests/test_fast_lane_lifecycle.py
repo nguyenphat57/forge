@@ -6,26 +6,12 @@ from argparse import Namespace
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from support import build_route_args, run_python_script
+from support import run_python_script
 
-import route_preview  # noqa: E402
 import track_execution_progress  # noqa: E402
 
 
 class FastLaneLifecycleTests(unittest.TestCase):
-    def test_route_preview_marks_low_risk_small_slice_as_fast_lane(self) -> None:
-        report = route_preview.build_report(
-            build_route_args(
-                "Update settings button copy",
-                changed_files=1,
-            )
-        )
-
-        self.assertEqual(report["detected"]["complexity"], "small")
-        self.assertEqual(report["detected"]["packet_mode"], "fast-lane")
-        self.assertTrue(report["detected"]["fast_lane_eligible"])
-        self.assertTrue(report["detected"]["assumptions_first_mode"])
-
     def test_fast_lane_contract_rejects_missing_required_fields(self) -> None:
         with self.assertRaises(ValueError):
             track_execution_progress.build_report(

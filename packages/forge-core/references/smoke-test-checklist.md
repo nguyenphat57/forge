@@ -162,24 +162,24 @@ Goal: quickly record results for each smoke test run on a real host rolling out 
 |Score |  |
 |Notes |  |
 
-### FT-09B: Route preview lane policy
+### FT-09B: Markdown-first workflow activation
 
 |Section | Results|
 |-----|---------|
-|Prompt used | high-risk build/deploy prompt via `route_preview.py`|
-|Is there an execution pipeline present? |  |
-|Does lane model tiers appear? |  |
-|Does the reviewer loop cap or blocked-state guidance appear when applicable? |  |
+|Prompt used | high-risk build/deploy prompt in natural language|
+|Does the bootstrap force workflow check before response or action? |  |
+|Do `brainstorm` and `plan` appear before build execution when direction is not locked? |  |
+|Do `quality-gate` and blocked-state guidance appear before release-facing claims? |  |
 |Score |  |
 |Notes |  |
 
-### FT-09C: Route preview UI heuristic sanity
+### FT-09C: Help/next artifact recovery sanity
 
 |Section | Results|
 |-----|---------|
-|Prompt used | debug/regression prompt + generic `src/` repo signal|
-|Does it avoid over-classifying generic `src/` as UI work? |  |
-|Does stronger UI evidence still trigger the expected UI/browser QA path? |  |
+|Prompt used | debug/regression prompt after prior workflow-state or plan artifacts exist|
+|Does `help`/`next` recover the active workflow from durable artifacts instead of inventing a route? |  |
+|When artifacts are missing, does guidance clearly name the missing evidence instead of fabricating one? |  |
 |Score |  |
 |Notes |  |
 

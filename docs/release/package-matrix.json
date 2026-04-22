@@ -1,4 +1,23 @@
 {
+  "skill_pack": {
+    "source": "packages/forge-core/skills",
+    "skills": [
+      "forge-brainstorming",
+      "forge-writing-plans",
+      "forge-executing-plans",
+      "forge-test-driven-development",
+      "forge-using-git-worktrees",
+      "forge-dispatching-parallel-agents",
+      "forge-subagent-driven-development",
+      "forge-systematic-debugging",
+      "forge-requesting-code-review",
+      "forge-receiving-code-review",
+      "forge-verification-before-completion",
+      "forge-finishing-a-development-branch",
+      "forge-writing-skills",
+      "forge-session-management"
+    ]
+  },
   "bundles": [
     {
       "name": "forge-core",
@@ -56,7 +75,6 @@
         "data/routing-locales/vi.json",
         "data/output-contracts.json",
         "references/antigravity-operator-surface.md",
-        "tests/fixtures/route_preview_cases.json",
         "workflows/operator/help.md",
         "workflows/operator/next.md",
         "workflows/operator/run.md",
