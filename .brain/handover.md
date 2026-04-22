@@ -1,19 +1,19 @@
 HANDOVER
-- Current task: Release the Forge markdown-first sibling skill split as Forge 2.14.0, sync release and continuity surfaces, then push to main.
+- Current task: Release the Forge wave-execution removal as Forge 2.14.1, sync release and continuity surfaces, then push to main.
 - Status: ready-for-merge
-- Pending: commit the verified 2.14.0 release sync, merge to `main`, and push origin/main.
+- Pending: commit the verified 2.14.1 release sync, merge to `main`, and push origin/main.
 - Verification run:
   - python -m pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-22 after adapter bootstrap fix
   - python -m pytest tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-22
   - python scripts/generate_host_artifacts.py --check -> PASS on 2026-04-22
-  - python scripts/build_release.py --force -> PASS on 2026-04-22 for version 2.14.0
+  - python -m pytest packages/forge-core/tests -q -> PASS on 2026-04-22 after wave-execution removal
   - python scripts/verify_repo.py -> PASS on 2026-04-22 after release surface sync
 - Important decisions:
   - Forge now uses host-discoverable sibling skills as the primary process surface.
   - The Superpowers-style 1% activation rule lives in bootstrap only; sibling descriptions stay as focused `Use when...` triggers.
-  - `forge-writing-skills` copies the Superpowers writing-skills content with Forge brand references and is installed as a sibling skill.
+  - `parallel-split` is now the only active parallel-safe delegation path; the dedicated wave-execution path is removed.
 - Risks:
-  - The installed skill family changed, so build/install/generated-host-artifact verification remains release-blocking.
+  - The release still changes active core routing and workflow-state surfaces, so canonical repo verification remains release-blocking.
 - Source of truth: current maintainer posture remains under `docs/current/*`; `.brain` is continuity state.
 - Blockers: (none)
-- Next step: Commit the 2.14.0 release sync, merge to `main`, and push origin/main.
+- Next step: Commit the 2.14.1 release sync, merge to `main`, and push origin/main.

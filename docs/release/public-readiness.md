@@ -1,7 +1,7 @@
 # Forge Public Readiness
 
-Date: 2026-04-21
-Status: `2.14.0` is the current stable release after the markdown-first sibling skill split, Superpowers-style skill absorption, and latest verification gate.
+Date: 2026-04-22
+Status: `2.14.1` is the current stable release after the wave-execution removal and latest verification gate.
 
 ## What This Checklist Covers
 
@@ -22,16 +22,14 @@ This checklist is for publishing the Forge monorepo to a public audience without
 
 ## Latest Evidence
 
-- `python -m unittest discover -s packages/forge-core/tests -v` passed on 2026-04-21
-- `python packages/forge-codex/overlay/tests/test_adapter_locales.py` passed on 2026-04-21
-- `python packages/forge-antigravity/overlay/tests/test_adapter_locales.py` passed on 2026-04-21
-- `python scripts/verify_repo.py --profile fast` passed on 2026-04-21
+- `python -m pytest packages/forge-core/tests -q` passed on 2026-04-22
+- `python scripts/verify_repo.py` passed on 2026-04-22
 - release and install flows are documented under `docs/release/`
 - final GitHub visibility steps are documented in `docs/release/github-public-switch-checklist.md`
 - real-repo canary and authenticated QA evidence is recorded in the 2026-03-29 project reports
-- release-facing docs now align on `2.14.0` as the stable source version
+- release-facing docs now align on `2.14.1` as the stable source version
 
 ## Verdict
 
-Forge `2.14.0` is in a reasonable state for public stable release under the current policy.
+Forge `2.14.1` is in a reasonable state for public stable release under the current policy.
 The hardening item above is optional evidence, not a release precondition.

@@ -73,16 +73,6 @@ def _gate_workflow(target_claim: str) -> str:
     return "deploy" if target_claim == "deploy" else "review"
 
 
-def _wave_label(entry: dict) -> str:
-    wave_index = entry.get("wave_index")
-    wave_count = entry.get("wave_count")
-    if not isinstance(wave_index, int):
-        return "current wave"
-    if isinstance(wave_count, int) and wave_count > 0:
-        return f"wave {wave_index + 1}/{wave_count}"
-    return f"wave {wave_index + 1}"
-
-
 @lru_cache(maxsize=1)
 def _known_workflow_names() -> set[str]:
     workflow_root = Path(__file__).resolve().parents[1] / "workflows"
@@ -189,8 +179,6 @@ def summarize_workflow_state(
         "chain-status": latest_chain,
     }
     preferred_order = [preferred_kind] if preferred_kind in {"run-report", "quality-gate", "review-state"} else []
-    if isinstance(latest_chain, dict) and latest_chain.get("wave_plan_id"):
-        preferred_order = ["chain-status", *preferred_order]
     ordered_kinds = [kind for kind in (*preferred_order, *EVENT_ORDER) if kind and kind in entries]
     seen: set[str] = set()
     for kind in ordered_kinds:
@@ -318,11 +306,7 @@ def summarize_workflow_state(
                 }
 
             if entry.get("status") == "blocked" or completion_state == "blocked-by-residual-risk" or blockers:
-                chain_wave_blocked_packets = as_string_list((latest_chain or {}).get("current_wave_blocked_packets"))
                 blocked_action = f"Resolve the execution blocker first: {blockers[0] if blockers else packet_label}."
-                packet_id = entry.get("packet_id")
-                if isinstance(packet_id, str) and packet_id in chain_wave_blocked_packets:
-                    blocked_action = f"Resolve blocked packet before continuing the wave plan: {packet_id}."
                 return {
                     "status": "blocked",
                     "primary_kind": kind,
@@ -479,36 +463,12 @@ def summarize_workflow_state(
         merge_ready_packets = as_string_list(entry.get("merge_ready_packets"))
         browser_qa_pending = as_string_list(entry.get("browser_qa_pending"))
         write_scope_overlaps = as_string_list(entry.get("write_scope_overlaps"))
-        ready_packets = as_string_list(entry.get("ready_packets"))
-        running_packets = as_string_list(entry.get("running_packets"))
-        completed_packets = as_string_list(entry.get("completed_packets"))
-        current_wave_blocked_packets = as_string_list(entry.get("current_wave_blocked_packets"))
-        next_ready_wave = as_string_list(entry.get("next_ready_wave"))
-        shared_verification = as_string_list(entry.get("shared_verification"))
-        shared_verification_pending = as_string_list(entry.get("shared_verification_pending"))
-        shared_verification_status = entry.get("shared_verification_status")
         overlap_risk_status = entry.get("overlap_risk_status")
         review_readiness = entry.get("review_readiness")
         merge_readiness = entry.get("merge_readiness")
         completion_gate = entry.get("completion_gate")
         next_merge_point = entry.get("next_merge_point")
         merge_target = entry.get("merge_target")
-        if current_wave_blocked_packets:
-            blocked_packet = current_wave_blocked_packets[0]
-            return {
-                "status": "blocked",
-                "primary_kind": kind,
-                "current_focus": f"Blocked wave plan: {entry['label']}",
-                "current_stage": entry["current_stage"],
-                "suggested_workflow": "debug",
-                "recommended_action": f"Resolve blocked packet before continuing {_wave_label(entry)}: {blocked_packet}.",
-                "alternatives": shared_verification[:2] or next_steps[:2] or risks[:1],
-                "active_packets": active_packets,
-                "blocked_packets": blocked_packets,
-                "ready_packets": ready_packets,
-                "running_packets": running_packets,
-                "completed_packets": completed_packets,
-            }
         if entry.get("status") == "blocked" or gate_decision == "blocked" or blockers:
             return {
                 "status": "blocked",
@@ -540,59 +500,8 @@ def summarize_workflow_state(
                 "recommended_action": f"Resolve chain overlap risk before merge: {overlap_message}.",
                 "alternatives": next_steps[:2] or risks[:1],
                 "active_packets": active_packets,
-                    "blocked_packets": blocked_packets or active_packets,
-                    "write_scope_overlaps": write_scope_overlaps,
-                }
-        if shared_verification_status == "pending" and shared_verification_pending:
-            return {
-                "status": "active",
-                "primary_kind": kind,
-                "current_focus": f"Wave verification: {entry['label']}",
-                "current_stage": entry["current_stage"],
-                "suggested_workflow": "test",
-                "recommended_action": f"Run shared verification before advancing past {_wave_label(entry)}: {shared_verification_pending[0]}.",
-                "alternatives": shared_verification_pending[1:3] or next_steps[:2] or risks[:1],
-                "active_packets": active_packets,
-                "ready_packets": ready_packets,
-                "running_packets": running_packets,
-                "completed_packets": completed_packets,
-                "blocked_packets": blocked_packets,
-            }
-        if ready_packets:
-            verification_note = (
-                f" Then run shared verification: {shared_verification[0]}."
-                if shared_verification
-                else ""
-            )
-            return {
-                "status": "active",
-                "primary_kind": kind,
-                "current_focus": f"Ready wave: {entry['label']}",
-                "current_stage": entry["current_stage"],
-                "suggested_workflow": "build",
-                "recommended_action": f"Spawn current wave {_wave_label(entry)}: {', '.join(ready_packets)}.{verification_note}",
-                "alternatives": next_steps[:2] or shared_verification[:2] or risks[:1],
-                "active_packets": active_packets,
-                "ready_packets": ready_packets,
-                "running_packets": running_packets,
-                "completed_packets": completed_packets,
-                "blocked_packets": blocked_packets,
-                "next_ready_wave": next_ready_wave,
-            }
-        if running_packets:
-            return {
-                "status": "active",
-                "primary_kind": kind,
-                "current_focus": f"Running wave: {entry['label']}",
-                "current_stage": entry["current_stage"],
-                "suggested_workflow": "build",
-                "recommended_action": f"Wait for {_wave_label(entry)} to finish before advancing: {', '.join(running_packets)}.",
-                "alternatives": shared_verification[:2] or next_steps[:2] or risks[:1],
-                "active_packets": active_packets,
-                "ready_packets": ready_packets,
-                "running_packets": running_packets,
-                "completed_packets": completed_packets,
-                "blocked_packets": blocked_packets,
+                "blocked_packets": blocked_packets or active_packets,
+                "write_scope_overlaps": write_scope_overlaps,
             }
         action = (
             f"Advance chain '{entry['label']}' to merge point '{next_merge_point}'."
@@ -616,9 +525,6 @@ def summarize_workflow_state(
             "recommended_action": action,
             "alternatives": next_steps[1:3] or risks[:1],
             "active_packets": active_packets,
-            "ready_packets": ready_packets,
-            "running_packets": running_packets,
-            "completed_packets": completed_packets,
             "blocked_packets": blocked_packets,
             "review_ready_packets": review_ready_packets,
             "merge_ready_packets": merge_ready_packets,

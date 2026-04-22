@@ -259,7 +259,7 @@
     "expected_durable_process_artifacts_required": true
   },
   {
-    "name": "delegation_preference_auto_enables_wave_execution_only_on_capable_hosts",
+    "name": "delegation_preference_auto_enables_parallel_split_only_on_capable_hosts",
     "prompt": "Implement many screens and many endpoints in parallel",
     "changed_files": 12,
     "delegation_preference": "auto",
@@ -269,7 +269,7 @@
     "expected_execution_pipeline": "implementer-quality",
     "expected_resolved_delegation_preference": "auto",
     "expected_delegation_strategy": "sequential-lanes",
-    "expected_delegation_strategy_when_subagents": "wave-execution",
+    "expected_delegation_strategy_when_subagents": "parallel-split",
     "expected_host_skills_when_subagents": ["dispatch-subagents"],
     "expected_verification_profile": "behavioral_reproduction_first",
     "expected_review_artifact_required": true,

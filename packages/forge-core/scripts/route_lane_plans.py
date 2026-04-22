@@ -75,13 +75,6 @@ def lane_review_kind(lane: str) -> str | None:
 
 
 def build_delegation_controller_steps(strategy_key: str, execution_pipeline_key: str | None) -> list[str]:
-    if strategy_key == "wave-execution":
-        return [
-            "Build or refresh the wave plan before spawning workers.",
-            "Spawn one worker packet per ready slice in the current wave.",
-            "After each worker result, advance the persisted wave state before spawning the next wave.",
-            "Run shared verification when a wave completes before unlocking downstream packets.",
-        ]
     if strategy_key == "parallel-split":
         return [
             "Lock independent slice boundaries before spawning.",

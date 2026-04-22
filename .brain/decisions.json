@@ -594,7 +594,7 @@
         "id":  "20260422-000000",
         "kind":  "decision",
         "scope":  "forge-2-14-stable-status",
-        "summary":  "Treat 2.14.0 as the current stable Forge release because the markdown-first sibling skill split, Superpowers-style skill absorption, bootstrap-only 1% activation rule, and expanded install surface are release-synced and verified.",
+        "summary":  "Treat 2.14.1 as the current stable Forge release because the wave-execution removal, restored parallel-split delegation path, and release surface sync are verified.",
         "status":  "resolved",
         "evidence":  [
                          "VERSION",
@@ -621,8 +621,8 @@
                      "sibling-skills",
                      "superpowers-alignment"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 2.14.0 verification evidence.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.14.0 proof chain or invalidates the recorded verification."
+        "revisit_if":  "A later release changes the stable line or invalidates the 2.14.1 verification evidence.",
+        "trigger":  "patch-release",
+        "resume_hint":  "Resume only if a later audit needs the original 2.14.1 proof chain or invalidates the recorded verification."
     }
 ]

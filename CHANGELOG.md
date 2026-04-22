@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.14.1 (stable) - 2026-04-22
+
+- Remove the dedicated wave-execution path from Forge by deleting the wave planner and state scripts, retiring the wave-specific tests, and returning capable hosts to the simpler `parallel-split` delegation strategy.
+- Simplify workflow-state summaries and packet indexes by dropping wave-only fields such as wave plan ids, ready or running wave packets, and shared verification wave gates.
+- Refresh release and continuity surfaces so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` align on `2.14.1` as the current stable release after the wave-execution removal.
+
+
 ## 2.14.0 (stable) - 2026-04-22
 
 - Rebuild Forge around markdown-first host-discoverable sibling skills: add `forge-writing-skills`, split and enrich process skills for brainstorming, planning, execution, TDD, debugging, review, verification, worktrees, subagents, parallel dispatch, branch finishing, and session management.
@@ -9,8 +16,8 @@
 
 ## 2.13.0 (stable) - 2026-04-21
 
-- Add a Forge wave-execution engine that turns packetized parallel-safe work into dependency-ordered, non-overlapping waves, persists wave plans in workflow-state, and advances later waves only after shared verification passes.
-- Route Codex parallel-worker delegation to `wave-execution` instead of the older parallel split, expose planning or advance or status commands in the dispatch guidance, and keep Antigravity on the sequential controller path.
+- Add a Forge packetized parallel-safe execution engine that grouped independent work into dependency-aware, non-overlapping slices with persisted workflow-state.
+- Route Codex parallel-worker delegation through the packetized parallel execution path, expose controller guidance in dispatch planning, and keep Antigravity on the sequential controller path.
 - Expand workflow-state summaries, packet indexes, run-report persistence, and release coverage so `next` can distinguish ready, running, blocked, and verification-gated waves with explicit packet-level follow-up.
 
 

@@ -1,20 +1,21 @@
 {
   "updated_at": "2026-04-22T12:02:01+07:00",
   "working_on": {
-    "feature": "markdown-first-sibling-skills",
-    "task": "Release Forge markdown-first sibling skill split as Forge 2.14.0, sync release and continuity surfaces, then push to main",
+    "feature": "wave-execution-removal",
+    "task": "Release Forge wave-execution removal as Forge 2.14.1, sync release and continuity surfaces, then push to main",
     "status": "ready-for-merge",
     "files": [
-      "packages/forge-core/SKILL.md",
-      "packages/forge-core/skills/",
-      "packages/forge-core/references/debugging/",
-      "packages/forge-core/references/design/architectural-lens.md",
-      "packages/forge-core/data/orchestrator-registry.json",
-      "packages/forge-core/workflows/",
-      "packages/forge-core/tests/test_contracts.py",
-      "docs/release/package-matrix.json",
-      "packages/forge-codex/overlay/AGENTS.global.md",
-      "packages/forge-antigravity/overlay/GEMINI.global.md",
+      "packages/forge-core/scripts/route_delegation_packets.py",
+      "packages/forge-core/scripts/route_lane_plans.py",
+      "packages/forge-core/scripts/workflow_state_entries.py",
+      "packages/forge-core/scripts/workflow_state_summary.py",
+      "packages/forge-core/scripts/workflow_state_summary_refresh.py",
+      "packages/forge-core/scripts/run_wave_execution.py",
+      "packages/forge-core/scripts/wave_execution.py",
+      "packages/forge-core/scripts/wave_execution_state.py",
+      "packages/forge-core/tests/test_wave_execution.py",
+      "packages/forge-core/tests/test_route_delegation_packets.py",
+      "packages/forge-core/tests/fixtures/route_preview_cases.json",
       "CHANGELOG.md",
       "README.md",
       "VERSION",
@@ -26,16 +27,14 @@
     ]
   },
   "pending_tasks": [
-    "Commit the verified 2.14.0 release sync, merge to main, and push origin/main."
+    "Commit the verified 2.14.1 release sync, merge to main, and push origin/main."
   ],
   "recent_changes": [
-    "packages/forge-core/skills/",
-    "packages/forge-core/workflows/",
-    "packages/forge-core/references/debugging/",
-    "packages/forge-core/data/orchestrator-registry.json",
-    "docs/release/package-matrix.json",
-    "packages/forge-codex/overlay/AGENTS.global.md",
-    "packages/forge-antigravity/overlay/GEMINI.global.md",
+    "packages/forge-core/scripts/route_delegation_packets.py",
+    "packages/forge-core/scripts/route_lane_plans.py",
+    "packages/forge-core/scripts/workflow_state_entries.py",
+    "packages/forge-core/scripts/workflow_state_summary.py",
+    "packages/forge-core/scripts/workflow_state_summary_refresh.py",
     "CHANGELOG.md",
     "README.md",
     "VERSION",
@@ -46,24 +45,22 @@
     "python -m pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-22 after adapter bootstrap fix",
     "python -m pytest tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-22",
     "python scripts/generate_host_artifacts.py --check -> PASS on 2026-04-22",
-    "python scripts/build_release.py --force -> PASS on 2026-04-22 for version 2.14.0",
+    "python -m pytest packages/forge-core/tests -q -> PASS on 2026-04-22 after wave-execution removal",
     "python scripts/verify_repo.py -> PASS on 2026-04-22 after release surface sync"
   ],
   "decisions_made": [
-    "Forge now uses host-discoverable sibling skills as the primary process surface instead of canonical workflow files.",
-    "The Superpowers-style 1% activation rule lives in bootstrap only; sibling skill descriptions stay as focused Use when triggers.",
-    "The Superpowers writing-skills skill is copied into Forge as forge-writing-skills with only Forge brand references changed."
+    "Forge no longer ships a dedicated wave-execution path.",
+    "parallel-split is the active parallel-safe delegation strategy on capable hosts.",
+    "Release-facing docs and continuity artifacts must track 2.14.1 as the current stable line."
   ],
   "risks": [
-    "The split-skill release changes installed host skill surface, so install/build and generated host artifact verification remain release-blocking."
+    "Core routing and workflow-state surfaces changed, so canonical repo verification remains release-blocking."
   ],
   "blockers": [],
   "source_artifacts": [
     "readme: C:\\Users\\Admin\\.gemini\\forge\\README.md",
-    "plan: C:\\Users\\Admin\\.gemini\\forge\\docs\\plans\\forge_gap_analysis.md",
-    "session: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\worktrees\\markdown-first-control\\.brain\\session.json",
-    "handover: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\worktrees\\markdown-first-control\\.brain\\handover.md",
-    "git: markdown-first-control working tree",
-    "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\worktrees\\markdown-first-control\\.forge-artifacts\\workflow-state\\forge\\latest.json"
+    "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
+    "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
+    "git: main working tree"
   ]
 }
