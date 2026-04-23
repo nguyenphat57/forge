@@ -10,6 +10,14 @@ from tempfile import TemporaryDirectory
 from release_repo_test_support import ROOT_DIR, ReleaseRepoTestSupport, build_release, install_bundle
 
 
+def assert_is_relative_to(test_case: ReleaseRepoTestSupport, path: str | Path, parent: Path) -> None:
+    test_case.assertTrue(Path(path).resolve().is_relative_to(parent.resolve()))
+
+
+def assert_is_not_relative_to(test_case: ReleaseRepoTestSupport, path: str | Path, parent: Path) -> None:
+    test_case.assertFalse(Path(path).resolve().is_relative_to(parent.resolve()))
+
+
 class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
     def test_install_bundle_dry_run_keeps_target_untouched(self) -> None:
         build_release.build_all()
@@ -29,10 +37,12 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
             self.assertEqual(report["bundle"], "forge-codex")
             self.assertIsNotNone(report["backup_path"])
             self.assertFalse(Path(report["backup_path"]).exists())
-            self.assertTrue(
-                Path(report["backup_path"]).is_relative_to(temp_root / "runtime" / "forge-codex-state" / "rollbacks" / "install")
+            assert_is_relative_to(
+                self,
+                report["backup_path"],
+                temp_root / "runtime" / "forge-codex-state" / "rollbacks" / "install",
             )
-            self.assertFalse(Path(report["backup_path"]).is_relative_to(ROOT_DIR))
+            assert_is_not_relative_to(self, report["backup_path"], ROOT_DIR)
 
     def test_install_bundle_rejects_retired_bundle_names(self) -> None:
         for bundle_name in ("forge-browse", "forge-design", "forge-nextjs-typescript-postgres"):
@@ -57,10 +67,12 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
             self.assertFalse((target / "old.txt").exists())
             self.assertIsNotNone(report["backup_path"])
             self.assertTrue(Path(report["backup_path"]).exists())
-            self.assertTrue(
-                Path(report["backup_path"]).is_relative_to(temp_root / "runtime" / "forge-antigravity-state" / "rollbacks" / "install")
+            assert_is_relative_to(
+                self,
+                report["backup_path"],
+                temp_root / "runtime" / "forge-antigravity-state" / "rollbacks" / "install",
             )
-            self.assertFalse(Path(report["backup_path"]).is_relative_to(ROOT_DIR))
+            assert_is_not_relative_to(self, report["backup_path"], ROOT_DIR)
 
             manifest = json.loads((target / "INSTALL-MANIFEST.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["bundle"], "forge-antigravity")

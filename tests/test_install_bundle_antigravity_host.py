@@ -19,6 +19,14 @@ import build_release  # noqa: E402
 import install_bundle  # noqa: E402
 
 
+def assert_is_relative_to(test_case: unittest.TestCase, path: str | Path, parent: Path) -> None:
+    test_case.assertTrue(Path(path).resolve().is_relative_to(parent.resolve()))
+
+
+def assert_is_not_relative_to(test_case: unittest.TestCase, path: str | Path, parent: Path) -> None:
+    test_case.assertFalse(Path(path).resolve().is_relative_to(parent.resolve()))
+
+
 FORGE_SIBLING_SKILLS = [
     "forge-brainstorming",
     "forge-writing-plans",
@@ -143,8 +151,12 @@ class AntigravityHostInstallTests(unittest.TestCase):
             host_backup_path = Path(report["gemini_host_activation"]["host_backup_path"])
             self.assertTrue(host_backup_path.exists())
             self.assertTrue((host_backup_path / "GEMINI.md").exists())
-            self.assertTrue(host_backup_path.is_relative_to(gemini_home / "antigravity" / "forge-antigravity" / "rollbacks" / "install"))
-            self.assertFalse(host_backup_path.is_relative_to(ROOT_DIR))
+            assert_is_relative_to(
+                self,
+                host_backup_path,
+                gemini_home / "antigravity" / "forge-antigravity" / "rollbacks" / "install",
+            )
+            assert_is_not_relative_to(self, host_backup_path, ROOT_DIR)
 
             manifest = json.loads((target / "INSTALL-MANIFEST.json").read_text(encoding="utf-8"))
             self.assertTrue(manifest["gemini_host_activation"]["enabled"])

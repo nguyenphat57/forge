@@ -20,6 +20,14 @@ import build_release  # noqa: E402
 import install_bundle  # noqa: E402
 
 
+def assert_is_relative_to(test_case: unittest.TestCase, path: str | Path, parent: Path) -> None:
+    test_case.assertTrue(Path(path).resolve().is_relative_to(parent.resolve()))
+
+
+def assert_is_not_relative_to(test_case: unittest.TestCase, path: str | Path, parent: Path) -> None:
+    test_case.assertFalse(Path(path).resolve().is_relative_to(parent.resolve()))
+
+
 FORGE_SIBLING_SKILLS = [
     "forge-brainstorming",
     "forge-writing-plans",
@@ -148,8 +156,8 @@ class CodexHostInstallTests(unittest.TestCase):
             self.assertTrue((host_backup_path / "AGENTS.md").exists())
             self.assertTrue((host_backup_path / "awf-codex" / "workflows" / "plan.md").exists())
             self.assertTrue((host_backup_path / "skills" / "awf-session-restore" / "SKILL.md").exists())
-            self.assertTrue(host_backup_path.is_relative_to(codex_home / "forge-codex" / "rollbacks" / "install"))
-            self.assertFalse(host_backup_path.is_relative_to(ROOT_DIR))
+            assert_is_relative_to(self, host_backup_path, codex_home / "forge-codex" / "rollbacks" / "install")
+            assert_is_not_relative_to(self, host_backup_path, ROOT_DIR)
 
             manifest = json.loads((target / "INSTALL-MANIFEST.json").read_text(encoding="utf-8"))
             self.assertTrue(manifest["codex_host_activation"]["enabled"])
