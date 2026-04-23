@@ -9,32 +9,7 @@ import json
 from pathlib import Path
 
 from common import configure_stdio
-from prepare_bump_git import (
-    BREAKING_TEXT_HINTS,
-    CAPABILITY_PATH_HINTS,
-    DOC_PATH_HINTS,
-    PUBLIC_SURFACE_PATH_HINTS,
-    RELEASE_ARTIFACTS,
-    TEST_PATH_HINTS,
-    collect_release_diff,
-    dedupe_entries,
-    infer_bump_token,
-    infer_confidence,
-    is_doc_or_test_path,
-    is_git_workspace,
-    is_release_artifact,
-    normalize_repo_path,
-    parse_name_status,
-    parse_status_porcelain,
-    path_matches_hints,
-    resolve_release_base_commit,
-    run_git_command,
-)
 from prepare_bump_report import build_report, format_text
-from prepare_bump_semver import SEMVER_PATTERN, bump_version, detect_verify_command, format_version, parse_version, update_changelog_content
-
-
-EXPLICIT_BUMP_TOKENS = {"patch", "minor", "major"}
 
 
 def main() -> int:

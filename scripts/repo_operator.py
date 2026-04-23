@@ -1,21 +1,24 @@
 from __future__ import annotations
 
+import json
 import sys
+from pathlib import Path
 
 from _forge_core_script_proxy import run_forge_core_script
 
 
-VALID_ACTIONS = (
-    "resume",
-    "save",
-    "handover",
-    "help",
-    "next",
-    "run",
-    "bump",
-    "customize",
-    "init",
-)
+ROOT_DIR = Path(__file__).resolve().parents[1]
+REGISTRY_PATH = ROOT_DIR / "packages" / "forge-core" / "data" / "orchestrator-registry.json"
+ACTION_DISPATCH = {
+    "resume": ("session_context.py", ("resume",)),
+    "save": ("session_context.py", ("save",)),
+    "handover": ("session_context.py", ("save", "--write-handover")),
+    "help": ("resolve_help_next.py", ("--mode", "help")),
+    "next": ("resolve_help_next.py", ("--mode", "next")),
+    "run": ("run_with_guidance.py", ()),
+    "bump": ("prepare_bump.py", ()),
+    "init": ("initialize_workspace.py", ()),
+}
 
 WRITE_PREFERENCE_FLAGS = {
     "--scope",
@@ -41,7 +44,7 @@ WRITE_PREFERENCE_FLAGS = {
 
 
 def _usage() -> str:
-    actions = ", ".join(VALID_ACTIONS)
+    actions = ", ".join(_valid_actions())
     return "\n".join(
         [
             "Forge Repo Operator",
@@ -61,6 +64,15 @@ def _usage() -> str:
     )
 
 
+def _valid_actions() -> tuple[str, ...]:
+    payload = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+    surface = payload.get("repo_operator_surface", {})
+    actions = surface.get("actions", {}) if isinstance(surface, dict) else {}
+    if not isinstance(actions, dict) or not actions:
+        raise SystemExit(f"Missing repo_operator_surface.actions in {REGISTRY_PATH}")
+    return tuple(actions)
+
+
 def _normalize_bump_args(args: list[str]) -> list[str]:
     if not args:
         return args
@@ -70,21 +82,6 @@ def _normalize_bump_args(args: list[str]) -> list[str]:
     return ["--bump", first, *args[1:]]
 
 
-def _strip_workspace_arg(args: list[str]) -> list[str]:
-    normalized: list[str] = []
-    skip_next = False
-    for index, item in enumerate(args):
-        if skip_next:
-            skip_next = False
-            continue
-        if item == "--workspace":
-            if index + 1 < len(args):
-                skip_next = True
-            continue
-        normalized.append(item)
-    return normalized
-
-
 def _customize_script_and_args(args: list[str]) -> tuple[str, list[str]]:
     if any(flag in WRITE_PREFERENCE_FLAGS for flag in args):
         return "write_preferences.py", args
@@ -92,24 +89,13 @@ def _customize_script_and_args(args: list[str]) -> tuple[str, list[str]]:
 
 
 def _dispatch(action: str, args: list[str]) -> tuple[str, list[str]]:
-    if action == "resume":
-        return "session_context.py", ["resume", *args]
-    if action == "save":
-        return "session_context.py", ["save", *args]
-    if action == "handover":
-        return "session_context.py", ["save", "--write-handover", *args]
-    if action == "help":
-        return "resolve_help_next.py", ["--mode", "help", *args]
-    if action == "next":
-        return "resolve_help_next.py", ["--mode", "next", *args]
-    if action == "run":
-        return "run_with_guidance.py", args
     if action == "bump":
         return "prepare_bump.py", _normalize_bump_args(args)
     if action == "customize":
         return _customize_script_and_args(args)
-    if action == "init":
-        return "initialize_workspace.py", args
+    if action in ACTION_DISPATCH:
+        script_name, prefix = ACTION_DISPATCH[action]
+        return script_name, [*prefix, *args]
     raise ValueError(f"Unsupported repo operator action: {action}")
 
 
@@ -119,7 +105,8 @@ def main() -> int:
         return 0
 
     action = sys.argv[1].strip()
-    if action not in VALID_ACTIONS:
+    valid_actions = _valid_actions()
+    if action not in valid_actions:
         print(_usage(), file=sys.stderr)
         print(f"\nUnsupported action: {action}", file=sys.stderr)
         return 2

@@ -12,7 +12,6 @@ from pathlib import Path
 from common import configure_stdio
 from help_next_support import (
     filter_stale_session_items,
-    git_worktree_clean,
     read_git_status,
     read_handover_excerpt,
     read_json_object,

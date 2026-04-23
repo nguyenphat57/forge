@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.1.0 (stable) - 2026-04-23
+
+- Polish Forge source-repo scripts by removing dead helpers, unused imports, and the redundant `host_artifact_specs.py` alias while keeping generated artifact contracts fresh.
+- Make `scripts/repo_operator.py` derive its public action set from `orchestrator-registry.json`, reducing duplicated operator-surface metadata without changing the CLI.
+- Add script-polish contract coverage and refresh continuity state around the `3.1.0` release verification gate.
+
+
 ## 3.0.0 (stable) - 2026-04-23
 
 - Refactor Forge runtime ownership so shipped behavior lives in owner `commands/` trees and shared support moves into `packages/forge-core/shared/`, removing the `engine/forge_core_runtime` indirection entirely.

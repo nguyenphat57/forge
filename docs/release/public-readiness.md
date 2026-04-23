@@ -1,7 +1,7 @@
 # Forge Public Readiness
 
 Date: 2026-04-23
-Status: `3.0.0` is the current stable release after the runtime-ownership refactor and latest verification gate.
+Status: `3.1.0` is the current stable release after the script-polish cleanup and latest verification gate.
 
 ## What This Checklist Covers
 
@@ -25,9 +25,9 @@ This checklist is for publishing the Forge monorepo to a public audience without
 - `python -m pytest packages/forge-core/tests -q` passed on 2026-04-22
 - `python scripts/verify_repo.py` passed on 2026-04-23
 - release and install flows are documented under `docs/release/`
-- release-facing docs now align on `3.0.0` as the stable source version
+- release-facing docs now align on `3.1.0` as the stable source version
 
 ## Verdict
 
-Forge `3.0.0` is in a reasonable state for public stable release under the current policy.
+Forge `3.1.0` is in a reasonable state for public stable release under the current policy.
 The hardening item above is optional evidence, not a release precondition.

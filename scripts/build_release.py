@@ -44,7 +44,6 @@ COMMON_BUILD_INPUTS = (
     ROOT_DIR / "scripts" / "build_release.py",
     ROOT_DIR / "scripts" / "bundle_fingerprint.py",
     ROOT_DIR / "scripts" / "host_artifact_manifest.py",
-    ROOT_DIR / "scripts" / "host_artifact_specs.py",
     ROOT_DIR / "scripts" / "host_artifacts_support.py",
     ROOT_DIR / "scripts" / "operator_surface_support.py",
     ROOT_DIR / "scripts" / "package_matrix.py",

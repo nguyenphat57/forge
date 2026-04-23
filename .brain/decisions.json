@@ -699,8 +699,8 @@
         "id":  "20260423-235900",
         "kind":  "decision",
         "scope":  "forge-3-0-stable-status",
-        "summary":  "Treat 3.0.0 as the current stable Forge release because the runtime-ownership refactor, release sync, and canonical verification checks are complete.",
-        "status":  "resolved",
+        "summary":  "Treat 3.0.0 as a superseded Forge stable slice because the later 3.1.0 script-polish release replaced its stable line after a fresh release sync and canonical verification checks.",
+        "status":  "superseded",
         "evidence":  [
                          "VERSION",
                          "CHANGELOG.md",
@@ -728,8 +728,38 @@
                      "shared",
                      "verification"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 3.0.0 verification evidence.",
+        "revisit_if":  "Release archaeology needs the original 3.0.0 proof chain or later evidence invalidates the recorded verification.",
         "trigger":  "major-release",
         "resume_hint":  "Resume only if a later audit needs the original 3.0.0 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260423-235959",
+        "kind":  "decision",
+        "scope":  "forge-3-1-stable-status",
+        "summary":  "Treat 3.1.0 as the current stable Forge release because the script-polish cleanup, release sync, and canonical verification checks are complete.",
+        "status":  "resolved",
+        "evidence":  [
+                         "VERSION",
+                         "CHANGELOG.md",
+                         "README.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "scripts/repo_operator.py",
+                         "scripts/host_artifacts_support.py",
+                         "packages/forge-core/commands/prepare_bump.py",
+                         "tests/test_script_polish.py",
+                         "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23"
+                     ],
+        "next":  [],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "script-polish",
+                     "repo-operator",
+                     "verification"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 3.1.0 verification evidence.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 3.1.0 proof chain or invalidates the recorded verification."
     }
 ]

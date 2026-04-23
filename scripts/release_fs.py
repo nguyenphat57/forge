@@ -9,7 +9,7 @@ from typing import Callable
 
 IGNORE_NAMES = frozenset({".forge-artifacts", "__pycache__", ".pytest_cache"})
 IGNORE_SUFFIXES = frozenset({".pyc"})
-IGNORE_PATTERNS = shutil.ignore_patterns(".forge-artifacts", "__pycache__", ".pytest_cache", "*.pyc")
+IGNORE_PATTERNS = shutil.ignore_patterns(".forge-artifacts", ".worktrees", "__pycache__", ".pytest_cache", "*.pyc")
 RETRYABLE_ERRNOS = {13, 16, 39}
 RETRYABLE_WINERRORS = {5, 32, 145}
 DEFAULT_ATTEMPTS = 8

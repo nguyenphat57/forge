@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 
-from skill_bundle_composer import adapter_skill_specs, ensure_generated_overlay_skills
+from skill_bundle_composer import ensure_generated_overlay_skills
 
 
 def main() -> int:

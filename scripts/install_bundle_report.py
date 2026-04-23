@@ -5,31 +5,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-def _version_parts(value: str, *, upper: bool = False) -> tuple[int, int, int]:
-    parts: list[int] = []
-    for raw in value.split(".")[:3]:
-        token = raw.strip().lower()
-        if token in {"x", "*"}:
-            parts.append(999999 if upper else 0)
-            continue
-        try:
-            parts.append(int(token))
-        except ValueError:
-            parts.append(999999 if upper else 0)
-    while len(parts) < 3:
-        parts.append(999999 if upper else 0)
-    return tuple(parts[:3])
-
-
-def _version_in_range(version: str, minimum: str | None, maximum: str | None) -> bool:
-    current = _version_parts(version)
-    if minimum and current < _version_parts(minimum):
-        return False
-    if maximum and current > _version_parts(maximum, upper=True):
-        return False
-    return True
-
-
 def load_install_manifest(target: Path) -> dict[str, object] | None:
     manifest_path = target / "INSTALL-MANIFEST.json"
     if not manifest_path.exists():

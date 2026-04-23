@@ -64,10 +64,6 @@ def host_operator_surface(bundle_name: str) -> dict:
     return _surface_section(load_bundle_registry(bundle_name), "host_operator_surface")
 
 
-def operator_surface(bundle_name: str) -> dict:
-    return host_operator_surface(bundle_name)
-
-
 def host_name(bundle_name: str) -> str:
     return HOST_BY_BUNDLE[bundle_name]
 
@@ -144,11 +140,6 @@ def _metadata_by_name(bundle_name: str, section_name: str, item_name: str) -> di
     section = host_operator_surface(bundle_name).get(section_name, {})
     metadata = section.get(item_name, {})
     return metadata if isinstance(metadata, dict) else {}
-
-
-def _first_host_value(metadata: dict, field: str, *, bundle_name: str) -> str:
-    values = _host_values(metadata, field, bundle_name=bundle_name)
-    return values[0] if values else ""
 
 
 def _yaml_list(items: list[str]) -> str:

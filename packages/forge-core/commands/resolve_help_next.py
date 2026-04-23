@@ -18,7 +18,6 @@ from help_next_support import (
     effective_workflow_summary,
     extract_markdown_title,
     find_latest_markdown,
-    find_latest_json,
     find_latest_named_file,
     first_existing_file,
     read_git_status,

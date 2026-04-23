@@ -62,7 +62,7 @@ Current canonical tooling:
 
 - `docs/architecture/host-artifacts-manifest.json`
 - `scripts/generate_host_artifacts.py`
-- `scripts/host_artifact_specs.py`
+- `scripts/host_artifact_manifest.py`
 - `scripts/host_artifacts_support.py`
 
 Current generated outputs:

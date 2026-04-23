@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from host_artifact_manifest import generated_host_artifact_records
-from host_artifact_specs import generated_host_artifact_specs
+from host_artifact_manifest import generated_host_artifact_specs
 from operator_surface_support import render_registry_placeholders
 
 

@@ -314,17 +314,6 @@ def _backup_file(path: Path) -> Path:
     return backup_path
 
 
-def _write_scope_file(path: Path, payload: dict[str, object]) -> bool:
-    if not payload:
-        if path.exists():
-            path.unlink()
-            return True
-        return False
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    return not path.exists()
-
-
 def _persist_scope_payload(path: Path, payload: dict[str, object]) -> tuple[bool, bool]:
     existed_before = path.exists()
     if not payload:
