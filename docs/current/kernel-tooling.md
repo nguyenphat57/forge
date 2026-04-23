@@ -49,14 +49,14 @@ Adapter SKILL composition:
 
 ## Workspace Bootstrap
 
-When you need a reusable Forge skeleton for a new workspace:
+When `forge-init` needs the deterministic bootstrap engine for a workspace:
 
 ```powershell
-python commands/initialize_workspace.py --workspace C:\path\to\workspace
-python commands/initialize_workspace.py --workspace C:\path\to\workspace --seed-preferences --apply
+python commands/initialize_workspace.py --workspace C:\path\to\workspace --format json
+python commands/initialize_workspace.py --workspace C:\path\to\workspace --seed-preferences --apply --format json
 ```
 
-The current init contract is host-neutral. It creates the baseline Forge skeleton and does not attach companion presets or runtime packages.
+`initialize_workspace.py` is now an internal engine behind the sibling skill `forge-init`. It creates Forge bootstrap docs plus the minimal readiness skeleton without becoming a public repo operator action.
 
 ## Persistence
 

@@ -11,7 +11,8 @@ Contents:
 - `workflows/execution/dispatch-subagents.md` as a thin compatibility wrapper for `forge-dispatching-parallel-agents`
 - `workflows/operator/session.md` as the thin compatibility wrapper for `forge-session-management`
 - sibling Forge skills installed next to `forge-codex` for process activation
-- thin operator wrappers for natural-language-first `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`
+- thin operator wrappers for natural-language-first `help`, `next`, `run`, `bump`, `rollback`, and `customize`
+- sibling skill `forge-init` for workspace bootstrap and docs normalization
 - `codex-operator-surface.md` for the adapter boundary and alias policy
 
 ## Windows UTF-8 for Vietnamese

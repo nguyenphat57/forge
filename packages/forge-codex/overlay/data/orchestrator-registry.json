@@ -73,17 +73,6 @@
             "Give shorter answers and move faster"
           ]
         }
-      },
-      "init": {
-        "hosts": [
-          "codex"
-        ],
-        "primary_aliases_by_host": {},
-        "natural_language_examples_by_host": {
-          "codex": [
-            "Bootstrap this workspace for Forge"
-          ]
-        }
       }
     },
     "session_modes": {

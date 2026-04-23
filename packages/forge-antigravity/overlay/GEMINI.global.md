@@ -44,7 +44,7 @@ Before the first substantive reply in every new conversation:
 - Check Forge skills before any response or action. If there is even a 1% chance a Forge skill applies, invoke it first.
 - Process skills come before implementation skills.
 - Sibling Forge skills are host-native skills, not internal workflow files.
-- Installed sibling skills: `forge-brainstorming`, `forge-writing-plans`, `forge-executing-plans`, `forge-test-driven-development`, `forge-using-git-worktrees`, `forge-dispatching-parallel-agents`, `forge-subagent-driven-development`, `forge-systematic-debugging`, `forge-requesting-code-review`, `forge-receiving-code-review`, `forge-verification-before-completion`, `forge-finishing-a-development-branch`, `forge-writing-skills`, `forge-session-management`.
+- Installed sibling skills: `forge-init`, `forge-brainstorming`, `forge-writing-plans`, `forge-executing-plans`, `forge-test-driven-development`, `forge-using-git-worktrees`, `forge-dispatching-parallel-agents`, `forge-subagent-driven-development`, `forge-systematic-debugging`, `forge-requesting-code-review`, `forge-receiving-code-review`, `forge-verification-before-completion`, `forge-finishing-a-development-branch`, `forge-writing-skills`, `forge-session-management`.
 - For small, low-risk requests where a skill adds no value, answer directly.
 - Read only the files needed for the current task; do not bulk-load the whole bundle.
 - If a skill or referenced file is missing, say so briefly and continue with best effort.
@@ -92,7 +92,7 @@ Rules:
 ## Operator Surface
 
 - Natural-language requests remain the preferred entrypoint.
-- Explicit operator action names stay available when a concise form helps: `help`, `next`, `run`, `bump`, `customize`, and `init`.
+- Explicit operator action names stay available when a concise form helps: `help`, `next`, `run`, `bump`, and `customize`.
 
 Session requests stay natural-language:
 

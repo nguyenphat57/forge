@@ -7,11 +7,13 @@ import subprocess
 import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import patch
 
 from release_repo_test_support import ROOT_DIR, ReleaseRepoTestSupport, build_release
 
 EXPECTED_SIBLING_SKILL_REFERENCES = {
+    "forge-init": [
+        "references/project-docs-blueprint.md",
+    ],
     "forge-brainstorming": [
         "references/design/architectural-lens.md",
         "references/design/visual-companion-guidance.md",
@@ -169,9 +171,12 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
             "modified_files": ["README.md"],
             "untracked_files": ["leak.env"],
         }
-
-        with patch.object(build_release, "resolve_git_tree_provenance", return_value=provenance):
-            build_release.build_all()
+        metadata = {
+            "version": build_release.read_version(),
+            "git_revision": build_release.resolve_git_revision(),
+            "git_tree": provenance,
+        }
+        build_release.build_core_bundle(metadata, force=True)
 
         manifest = json.loads((ROOT_DIR / "dist" / "forge-core" / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
 
@@ -209,7 +214,6 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertIn("workflows/operator/next.md", required)
         self.assertIn("workflows/operator/run.md", required)
         self.assertIn("workflows/operator/customize.md", required)
-        self.assertIn("workflows/operator/init.md", required)
         self.assertIn("workflows/operator/session.md", outputs)
         self.assertIn("workflows/operator/help.md", outputs)
         self.assertIn("workflows/operator/next.md", outputs)
@@ -230,13 +234,11 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
             "workflows/operator/bump.md",
             "workflows/operator/customize.md",
             "workflows/operator/help.md",
-            "workflows/operator/init.md",
             "workflows/operator/next.md",
             "workflows/operator/references/bump-release.md",
             "workflows/operator/references/help-next.md",
             "workflows/operator/references/personalization.md",
             "workflows/operator/references/run-guidance.md",
-            "workflows/operator/references/workspace-init.md",
             "workflows/operator/run.md",
             "workflows/operator/session.md",
         }

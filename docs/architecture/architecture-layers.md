@@ -74,7 +74,6 @@ Current generated outputs:
 - `packages/forge-codex/overlay/workflows/operator/run.md`
 - `packages/forge-codex/overlay/workflows/operator/bump.md`
 - `packages/forge-codex/overlay/workflows/operator/customize.md`
-- `packages/forge-codex/overlay/workflows/operator/init.md`
 - `packages/forge-antigravity/overlay/GEMINI.global.md`
 
 ## Layer 3: Workflow State

@@ -109,15 +109,15 @@ Expected:
 - Uses the `customize` operator wrapper
 - Keeps canonical preference keys
 
-### CT-09: Init
+### CT-09: Bootstrap
 
 ```text
-Bootstrap this workspace for Forge, then tell me whether brainstorm or plan should come next.
+Bootstrap this workspace for Forge with canonical docs, then tell me whether brainstorm or plan should come next.
 ```
 
 Expected:
 
-- Uses the `init` operator wrapper
+- Invokes `forge-init`
 - Keeps workspace bootstrap thin
 - Does not overwrite existing repo files
 

@@ -73,7 +73,6 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "agents" / "openai.yaml",
             overlay_root / "data" / "orchestrator-registry.json",
             overlay_root / "workflows" / "operator" / "customize.md",
-            overlay_root / "workflows" / "operator" / "init.md",
             overlay_root / "workflows" / "operator" / "help.md",
             overlay_root / "workflows" / "operator" / "next.md",
             overlay_root / "workflows" / "operator" / "run.md",
@@ -131,7 +130,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertTrue((dist_root / "workflows" / "operator" / "next.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "run.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
-        self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
+        self.assertFalse((dist_root / "workflows" / "operator" / "init.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "session.md").exists())
         self.assertFalse((dist_root / "workflows" / "operator" / "recap.md").exists())
         self.assertFalse((dist_root / "workflows" / "operator" / "save-brain.md").exists())
@@ -212,7 +211,6 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "workflows" / "operator" / "run.md",
             overlay_root / "workflows" / "operator" / "bump.md",
             overlay_root / "workflows" / "operator" / "customize.md",
-            overlay_root / "workflows" / "operator" / "init.md",
             overlay_root / "docs" / "codex-operator-surface.md",
         ]
         for path in expected_files:
@@ -269,7 +267,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertTrue((dist_root / "workflows" / "operator" / "session.md").exists())
         self.assertFalse((dist_root / "workflows" / "execution" / "session.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
-        self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
+        self.assertFalse((dist_root / "workflows" / "operator" / "init.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "help.md").exists())
         self.assertTrue((dist_root / "docs" / "codex-operator-surface.md").exists())
         self.assertIn("GENERATED FILE", (dist_root / "AGENTS.global.md").read_text(encoding="utf-8"))

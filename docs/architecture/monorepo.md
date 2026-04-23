@@ -60,11 +60,12 @@ Adapter overlay for Antigravity:
 
 - host-specific `SKILL.md`
 - `agents/openai.yaml`
-- 7 primary operator wrapper workflows for `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`
+- 6 primary operator wrapper workflows for `help`, `next`, `run`, `bump`, `rollback`, and `customize`
 - natural-language session guidance for `resume`, `save context`, and `handover`
 - one adapter data compatibility file: `data/preferences-compat.json`
 - one adapter doc: `docs/antigravity-operator-surface.md`
 - Antigravity-oriented host boundary wording
+- sibling skill `forge-init` for workspace bootstrap and docs normalization
 
 ### `forge-codex`
 
@@ -74,11 +75,12 @@ Adapter overlay for Codex:
 - `AGENTS.example.md` for workspace integration
 - `AGENTS.global.md` for global Codex host takeover
 - 2 adapter compatibility wrappers: `workflows/execution/dispatch-subagents.md` and `workflows/operator/session.md`
-- 7 thin operator wrappers for `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`
+- 6 thin operator wrappers for `help`, `next`, `run`, `bump`, `rollback`, and `customize`
 - 3 adapter docs: `codex-operator-surface.md`, `smoke-test-checklist.md`, `smoke-tests.md`
 - one adapter data override: `data/orchestrator-registry.json`
 - one adapter tool: `tools/enable_windows_utf8.ps1`
 - Codex-oriented host boundary wording
+- sibling skill `forge-init` for workspace bootstrap and docs normalization
 
 ## Historical Runtime Tools
 

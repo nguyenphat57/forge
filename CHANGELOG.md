@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.3 (stable) - 2026-04-23
+
+- Add the canonical `forge-init` sibling skill with a Forge-owned bootstrap-docs blueprint under `references/`, making bootstrap docs generation and normalization a first-class skill path instead of a public operator action.
+- Expand `initialize_workspace.py` into the deterministic internal engine behind `forge-init`, including blueprint-driven workspace classification, bootstrap-doc generation, normalization, and readiness seeding.
+- Remove public `init` operator-surface entrypoints across core and adapter bundles, refresh generated/install contract artifacts around `forge-init`, add broader workspace fixture coverage, and sync release-facing plus continuity surfaces to `3.2.3`.
+
+
 ## 3.2.2 (stable) - 2026-04-23
 
 - Fix the Windows Forge Codex UTF-8 activation path so `enable_windows_utf8.ps1` sets PowerShell file-cmdlet encoding defaults in addition to console and Python UTF-8 settings, preventing mojibake when Windows PowerShell 5.1 reads UTF-8 Forge files.

@@ -4,7 +4,13 @@
     "workspace_fixture": "no_preferences",
     "args": [],
     "expected_mode": "greenfield",
-    "expected_next_workflow": "brainstorm"
+    "expected_next_workflow": "brainstorm",
+    "expected_created_files": [
+      "AGENTS.md",
+      "docs\\PRODUCT.md",
+      "docs\\STACK.md",
+      ".brain\\session.json"
+    ]
   },
   {
     "name": "existing_preview_prefers_plan",
@@ -13,7 +19,118 @@
     "args": [
       "--seed-preferences"
     ],
-    "expected_mode": "existing",
-    "expected_next_workflow": "plan"
+    "expected_mode": "normalize-existing-docs",
+    "expected_next_workflow": "plan",
+    "expected_created_files": [
+      "AGENTS.md",
+      "docs\\templates\\FEATURE_TASK.md",
+      ".brain\\session.json"
+    ],
+    "expected_normalized_files": [
+      "docs\\PRODUCT.md",
+      "docs\\STACK.md"
+    ],
+    "expected_reused_paths": [
+      "README.md",
+      "package.json"
+    ]
+  },
+  {
+    "name": "canonical_docs_preview_reuses_existing_docs",
+    "workspace_fixture": "canonical_docs_workspace",
+    "args": [],
+    "expected_mode": "existing-with-docs",
+    "expected_next_workflow": "plan",
+    "expected_created_files": [
+      "docs\\templates\\FEATURE_TASK.md",
+      ".brain\\session.json"
+    ],
+    "expected_reused_paths": [
+      "AGENTS.md",
+      "docs\\PRODUCT.md",
+      "docs\\STACK.md"
+    ]
+  },
+  {
+    "name": "python_service_preview_normalizes_readme_and_pyproject",
+    "workspace_fixture": "python_service_workspace",
+    "args": [],
+    "expected_mode": "normalize-existing-docs",
+    "expected_next_workflow": "plan",
+    "expected_created_files": [
+      "AGENTS.md",
+      "docs\\ARCHITECTURE.md",
+      "docs\\QUALITY.md",
+      "docs\\templates\\FEATURE_TASK.md",
+      ".brain\\session.json"
+    ],
+    "expected_normalized_files": [
+      "docs\\PRODUCT.md",
+      "docs\\STACK.md"
+    ],
+    "expected_reused_paths": [
+      "README.md",
+      "pyproject.toml"
+    ]
+  },
+  {
+    "name": "monorepo_preview_stays_existing_no_docs",
+    "workspace_fixture": "monorepo_workspace",
+    "args": [],
+    "expected_mode": "existing-no-docs",
+    "expected_next_workflow": "plan",
+    "expected_created_files": [
+      "AGENTS.md",
+      "docs\\PRODUCT.md",
+      "docs\\STACK.md",
+      "docs\\ARCHITECTURE.md",
+      "docs\\templates\\FEATURE_TASK.md",
+      ".brain\\session.json"
+    ]
+  },
+  {
+    "name": "schema_only_preview_adds_schema_doc",
+    "workspace_fixture": "schema_only_workspace",
+    "args": [],
+    "expected_mode": "normalize-existing-docs",
+    "expected_next_workflow": "plan",
+    "expected_created_files": [
+      "AGENTS.md",
+      "docs\\STACK.md",
+      "docs\\templates\\FEATURE_TASK.md",
+      ".brain\\session.json"
+    ],
+    "expected_normalized_files": [
+      "docs\\PRODUCT.md",
+      "docs\\SCHEMA.md"
+    ],
+    "expected_reused_paths": [
+      "README.md",
+      "prisma\\schema.prisma"
+    ]
+  },
+  {
+    "name": "release_ops_preview_adds_operations_and_changelog",
+    "workspace_fixture": "release_ops_workspace",
+    "args": [],
+    "expected_mode": "normalize-existing-docs",
+    "expected_next_workflow": "plan",
+    "expected_created_files": [
+      "AGENTS.md",
+      "docs\\templates\\FEATURE_TASK.md",
+      ".brain\\session.json"
+    ],
+    "expected_normalized_files": [
+      "docs\\PRODUCT.md",
+      "docs\\STACK.md",
+      "docs\\OPERATIONS.md",
+      "docs\\CHANGELOG.md"
+    ],
+    "expected_reused_paths": [
+      "README.md",
+      "package.json",
+      "Dockerfile",
+      "CHANGELOG.md"
+    ]
   }
 ]

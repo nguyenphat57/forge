@@ -25,9 +25,10 @@ description: "Forge Codex - Codex adapter for Forge core. Use when a request nee
 ## Codex Operator Surface
 
 - `forge-codex` is natural-language first.
-- Primary operator entrypoints are `help`, `next`, `run`, `bump`, `customize`, and `init`.
+- Primary operator entrypoints are `help`, `next`, `run`, `bump`, and `customize`.
 - `delegate` maps to `forge-dispatching-parallel-agents` when a concise operator action name helps.
-- `workflows/operator/customize.md` and `workflows/operator/init.md` are thin wrappers over core scripts.
+- `workflows/operator/customize.md` stays a thin wrapper over core scripts.
+- Workspace bootstrap routes through the sibling skill `forge-init`, which calls `commands/initialize_workspace.py`.
 - Completion claims use `forge-verification-before-completion`; branch closure uses `forge-finishing-a-development-branch`.
 
 ## Codex Multi-Agent Delegation

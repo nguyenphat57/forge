@@ -2,6 +2,7 @@
   "skill_pack": {
     "source": "packages/forge-skills",
     "skills": [
+      "forge-init",
       "forge-brainstorming",
       "forge-writing-plans",
       "forge-executing-plans",
@@ -67,8 +68,7 @@
         "workflows/operator/next.md",
         "workflows/operator/run.md",
         "workflows/operator/bump.md",
-        "workflows/operator/customize.md",
-        "workflows/operator/init.md"
+        "workflows/operator/customize.md"
       ]
     },
     {
@@ -103,8 +103,7 @@
         "workflows/operator/next.md",
         "workflows/operator/run.md",
         "workflows/operator/bump.md",
-        "workflows/operator/customize.md",
-        "workflows/operator/init.md"
+        "workflows/operator/customize.md"
       ]
     }
   ]

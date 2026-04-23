@@ -1,20 +1,21 @@
 HANDOVER
-- Current task: Publish Forge 3.2.2 as the stable release after the Windows Forge Codex UTF-8 activation fix, the installed-bundle Vietnamese preference repro, and the stable-line metadata refresh.
-- Status: verified-ready-to-push
-- Pending:
-  - Commit the 3.2.2 release slice and push `main` to `origin`
+- Current task: Forge 3.2.3 stable release published after the forge-init bootstrap-skill rollout, the blueprint-driven workspace bootstrap engine expansion, the wider workspace fixture coverage, and the stable-line metadata refresh.
+- Status: released
+- Pending: (none)
 - Verification run:
-  - python -m pytest tests/test_install_bundle_codex_host.py -q -> PASS on 2026-04-23
-  - python -m pytest tests/release_repo_test_install.py tests/release_repo_test_overlays.py -q -> PASS on 2026-04-23
-  - python -m pytest packages/forge-codex/overlay/tests/test_adapter_locales.py packages/forge-core/tests/preferences_test_loading.py packages/forge-core/tests/test_response_contract.py -q -> PASS on 2026-04-23
-  - python -m unittest discover -s tests -v -> PASS on 2026-04-23
+  - python -m pytest packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_initialize_workspace.py tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> PASS on 2026-04-23
+  - python -m pytest packages/forge-core/tests/test_initialize_workspace.py -q -> PASS on 2026-04-23
+  - python scripts/generate_host_artifacts.py --check --format json -> PASS on 2026-04-23
+  - python scripts/generate_overlay_skills.py --check --format json -> PASS on 2026-04-23
+  - python scripts/build_release.py --format json -> PASS on 2026-04-23
   - python scripts/verify_repo.py -> PASS on 2026-04-23
 - Important decisions:
-  - Bump 3.2.1 to 3.2.2 as patch because this slice fixes the Windows PowerShell UTF-8 activation path and adds regression coverage without changing Forge routing semantics.
+  - Bump 3.2.2 to 3.2.3 as patch because this slice adds the canonical forge-init bootstrap skill, removes public init operator entrypoints, and broadens bootstrap fixture coverage without changing the stable product line.
   - Keep `docs/current/*` as the canonical maintainer-doc spine while release-facing docs track the current stable line.
-  - `enable_windows_utf8.ps1` must set PowerShell file-cmdlet encoding defaults as well as console and Python UTF-8 settings, or Windows PowerShell 5.1 can still mojibake UTF-8 Forge files.
-  - The installed-bundle repro must cover persisted preferences, `resolve_preferences.py`, rendered `AGENTS.md`, and `Get-Content -Raw` after the helper is applied.
+  - Forge-owned bootstrap-docs guidance now lives in the `forge-init` skill bundle reference, while workspace docs remain rendered artifacts and `.brain` plus `workflow-state` stay execution memory.
+  - `initialize_workspace.py` remains the deterministic internal engine behind `forge-init` and must classify, create, normalize, and report workspace bootstrap state without becoming a public repo operator action.
 - Risks:
-  - Real installed host smoke after the version bump was not rerun beyond repo, dist, install, and targeted Windows PowerShell verification.
+  - Real installed host smoke after the version bump was not rerun beyond repo, bundle-generation, release-build, and canonical verification gates.
+  - A non-canonical `pytest` subset still reports one `forge-antigravity` uninstalled dist state-root subtest divergence even though `python scripts/verify_repo.py` passed.
 - Blockers: (none)
-- Next step: Commit the 3.2.2 release slice and push `main` to `origin`.
+- Next step: Start the next scoped change from the published `3.2.3` stable baseline.

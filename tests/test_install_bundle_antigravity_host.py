@@ -28,6 +28,7 @@ def assert_is_not_relative_to(test_case: unittest.TestCase, path: str | Path, pa
 
 
 FORGE_SIBLING_SKILLS = [
+    "forge-init",
     "forge-brainstorming",
     "forge-writing-plans",
     "forge-executing-plans",
@@ -45,6 +46,9 @@ FORGE_SIBLING_SKILLS = [
 ]
 
 EXPECTED_SIBLING_SKILL_REFERENCES = {
+    "forge-init": [
+        "references/project-docs-blueprint.md",
+    ],
     "forge-brainstorming": [
         "references/design/architectural-lens.md",
         "references/design/visual-companion-guidance.md",

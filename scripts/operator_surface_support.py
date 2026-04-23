@@ -323,34 +323,6 @@ def _codex_action_config(action_name: str) -> dict:
             ),
             "announcement": "Forge Codex: customize | update canonical preferences with minimal ceremony",
         },
-        "init": {
-            "heading": "Init - Codex Workspace Bootstrap",
-            "goal": "give Codex a minimal initial flow for starting a workspace without turning it into a long onboarding flow.",
-            "trigger": "natural-language request to bootstrap a workspace for Forge",
-            "quality_gates": [
-                "Workspace is classified before suggesting a next step",
-                "No existing file is overwritten",
-                "Wrapper stays thin and avoids onboarding ceremony",
-            ],
-            "process": lambda command: "\n".join(
-                [
-                    "1. Preview skeleton:",
-                    "",
-                    _code_block(["commands/initialize_workspace.py --workspace <workspace> --format json"]),
-                    "",
-                    "2. If you need to create a real skeleton:",
-                    "",
-                    _code_block(["commands/initialize_workspace.py --workspace <workspace> --seed-preferences --apply"]),
-                    "",
-                    "`--seed-preferences` seeds Codex-global preferences and does not write to workspace-local `.brain/preferences.json`.",
-                    "",
-                    "3. Finish with a single next workflow:",
-                    "   - `brainstorm` for greenfield workspace",
-                    "   - `plan` for existing workspace",
-                ]
-            ),
-            "announcement": "Forge Codex: init | bootstrap workspace with one next step",
-        },
     }
     return configs[action_name]
 

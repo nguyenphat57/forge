@@ -246,26 +246,25 @@ The default is to explain more thoroughly, give more direct feedback, and go fas
 
 ---
 
-### FT-03i: Init workspace
+### FT-03i: Bootstrap workspace docs
 
 **Prompt**
 
 ```text
-/init
-Create a new minimal workspace for Forge and then tell me whether I should brainstorm or plan next.
+Bootstrap this workspace for Forge with canonical docs, then tell me whether I should brainstorm or plan next.
 ```
 
 **Expected**
 
-- Host adapter uses the `init` operator wrapper
-- Minimal skeleton created or previewed from core script
+- Host adapter invokes `forge-init`
+- Bootstrap docs are created or previewed through the deterministic engine
 - Have a clear next workflow (`brainstorm` for greenfield, `plan` for existing)
 - Do not overwrite existing user files
 
 **Fail if**
 
 - Onboarding was mixed into a repo that already had a context without needing it
-- Init flow creates many host-specific ceremonies in the core
+- Bootstrap flow creates many host-specific ceremonies in the core
 - Does not indicate the next usable step
 
 ---

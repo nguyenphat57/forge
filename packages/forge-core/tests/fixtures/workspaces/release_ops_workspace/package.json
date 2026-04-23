@@ -1,0 +1,6 @@
+{
+  "name": "release-ops-workspace",
+  "scripts": {
+    "build": "node build.js"
+  }
+}

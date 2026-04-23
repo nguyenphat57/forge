@@ -801,8 +801,8 @@
         "id":  "20260423-144000",
         "kind":  "decision",
         "scope":  "forge-3-2-stable-status",
-        "summary":  "Treat 3.2.2 as the current stable Forge release because the Windows Forge Codex UTF-8 activation fix, installed-bundle Vietnamese preference repro coverage, release sync, and canonical verification checks are complete.",
-        "status":  "resolved",
+        "summary":  "Treat 3.2.2 as a superseded Forge stable slice because the later 3.2.3 forge-init bootstrap release replaced its stable line after fresh verification and release sync.",
+        "status":  "superseded",
         "evidence":  [
                          "VERSION",
                          "CHANGELOG.md",
@@ -827,8 +827,44 @@
                      "codex",
                      "verification"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 3.2.2 verification evidence.",
+        "revisit_if":  "Release archaeology needs the original 3.2.2 proof chain or later evidence invalidates the recorded verification.",
         "trigger":  "patch-release",
         "resume_hint":  "Resume only if a later audit needs the original 3.2.2 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260423-144923",
+        "kind":  "decision",
+        "scope":  "forge-3-2-stable-status",
+        "summary":  "Treat 3.2.3 as the current stable Forge release because the canonical forge-init bootstrap skill, blueprint-driven workspace bootstrap engine, expanded fixture coverage, release sync, and canonical verification checks are complete.",
+        "status":  "resolved",
+        "evidence":  [
+                         "VERSION",
+                         "CHANGELOG.md",
+                         "README.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "packages/forge-core/commands/initialize_workspace.py",
+                         "packages/forge-core/tests/fixtures/workspace_init_cases.json",
+                         "packages/forge-core/tests/test_initialize_workspace.py",
+                         "packages/forge-skills/init/SKILL.md",
+                         "packages/forge-skills/init/references/project-docs-blueprint.md",
+                         "python -m pytest packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_initialize_workspace.py tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> PASS on 2026-04-23",
+                         "python -m pytest packages/forge-core/tests/test_initialize_workspace.py -q -> PASS on 2026-04-23",
+                         "python scripts/generate_host_artifacts.py --check --format json -> PASS on 2026-04-23",
+                         "python scripts/generate_overlay_skills.py --check --format json -> PASS on 2026-04-23",
+                         "python scripts/build_release.py --format json -> PASS on 2026-04-23",
+                         "python scripts/verify_repo.py -> PASS on 2026-04-23"
+                     ],
+        "next":  [],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "forge-init",
+                     "bootstrap-docs",
+                     "verification"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 3.2.3 verification evidence.",
+        "trigger":  "patch-release",
+        "resume_hint":  "Resume only if a later audit needs the original 3.2.3 proof chain or invalidates the recorded verification."
     }
 ]

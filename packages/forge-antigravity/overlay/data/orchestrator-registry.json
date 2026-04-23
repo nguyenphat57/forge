@@ -55,17 +55,6 @@
             "Give shorter answers and move faster"
           ]
         }
-      },
-      "init": {
-        "hosts": [
-          "antigravity"
-        ],
-        "primary_aliases_by_host": {},
-        "natural_language_examples_by_host": {
-          "antigravity": [
-            "Bootstrap this workspace for Forge"
-          ]
-        }
       }
     },
     "session_modes": {

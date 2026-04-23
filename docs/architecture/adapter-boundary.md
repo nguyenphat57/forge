@@ -53,9 +53,13 @@ Adapters own:
 
 Examples of adapter-only wrappers:
 
-- `customize` and `init` when they are host-facing UX around shared core scripts such as `write_preferences.py` and `initialize_workspace.py`
+- `customize` when it is host-facing UX around shared core scripts such as `write_preferences.py`
 - Antigravity-only session phrasing and natural-language guidance
 - Codex-native delegation surfaces such as `dispatch-subagents.md`
+
+Examples of adapter-adjacent sibling skills:
+
+- `forge-init` when workspace bootstrap should stay natural-language first while still using `initialize_workspace.py` as a deterministic engine
 
 ## Decision test for new features
 

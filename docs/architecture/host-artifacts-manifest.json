@@ -65,15 +65,6 @@
       "output": "packages/forge-codex/overlay/workflows/operator/customize.md"
     },
     {
-      "name": "forge-codex-init-wrapper",
-      "bundle": "forge-codex",
-      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/_shared_wrapper.md",
-      "context": {
-        "action": "init"
-      },
-      "output": "packages/forge-codex/overlay/workflows/operator/init.md"
-    },
-    {
       "name": "forge-codex-operator-surface-reference",
       "bundle": "forge-codex",
       "source": "docs/architecture/generated-host-artifacts/codex/docs/codex-operator-surface.md",

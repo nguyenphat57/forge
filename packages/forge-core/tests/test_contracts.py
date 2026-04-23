@@ -11,6 +11,11 @@ REPO_ROOT = ROOT_DIR.parents[1]
 SKILLS_ROOT = ROOT_DIR.parent / "forge-skills"
 
 FORGE_SPLIT_SKILLS = {
+    "init": {
+        "package": "forge-init",
+        "path": "packages/forge-skills/init/SKILL.md",
+        "budget": 240,
+    },
     "brainstorming": {
         "package": "forge-brainstorming",
         "path": "packages/forge-skills/brainstorming/SKILL.md",
@@ -85,6 +90,9 @@ FORGE_SPLIT_SKILLS = {
 }
 
 EXPECTED_SKILL_LOCAL_REFERENCES = {
+    "init": [
+        "references/project-docs-blueprint.md",
+    ],
     "brainstorming": [
         "references/design/architectural-lens.md",
         "references/design/visual-companion-guidance.md",
@@ -109,7 +117,6 @@ OPERATOR_WORKFLOW_ALLOWLIST = {
     "workflows/operator/bump.md",
     "workflows/operator/customize.md",
     "workflows/operator/help.md",
-    "workflows/operator/init.md",
     "workflows/operator/next.md",
     "workflows/operator/run.md",
     "workflows/operator/session.md",
@@ -338,7 +345,6 @@ class BundleContractTests(unittest.TestCase):
             "run-guidance.md",
             "rollback-guidance.md",
             "bump-release.md",
-            "workspace-init.md",
             "codex-operator-surface.md",
             "antigravity-operator-surface.md",
             "smoke-tests.md",

@@ -25,6 +25,11 @@
     "contract_note": "Workflow-state keeps stage/status vocabulary only. Skill lookup lives in skill_catalog."
   },
   "skill_catalog": {
+    "init": {
+      "package": "forge-init",
+      "canonical_path": "packages/forge-skills/init/SKILL.md",
+      "trigger_summary": "Bootstrap a workspace, create Forge bootstrap docs, or normalize existing project docs to the Forge bootstrap standard."
+    },
     "brainstorming": {
       "package": "forge-brainstorming",
       "canonical_path": "packages/forge-skills/brainstorming/SKILL.md",
@@ -220,19 +225,6 @@
         "natural_language_examples_by_host": {},
         "deprecation_line": null,
         "status": "primary"
-      },
-      "init": {
-        "repo_entrypoint": "scripts/repo_operator.py init --workspace <workspace> --format json",
-        "core_engine_entrypoint": "commands/initialize_workspace.py --workspace <workspace>",
-        "workflow": "workflows/operator/init.md",
-        "hosts": [
-          "source-repo"
-        ],
-        "primary_aliases_by_host": {},
-        "compatibility_aliases_by_host": {},
-        "natural_language_examples_by_host": {},
-        "deprecation_line": null,
-        "status": "primary"
       }
     },
     "session_modes": {}
@@ -287,17 +279,6 @@
         "repo_entrypoint": "",
         "core_engine_entrypoint": "commands/resolve_preferences.py --workspace <workspace> --format json && commands/write_preferences.py",
         "workflow": "workflows/operator/customize.md",
-        "hosts": [],
-        "primary_aliases_by_host": {},
-        "compatibility_aliases_by_host": {},
-        "natural_language_examples_by_host": {},
-        "deprecation_line": null,
-        "status": "primary"
-      },
-      "init": {
-        "repo_entrypoint": "",
-        "core_engine_entrypoint": "commands/initialize_workspace.py --workspace <workspace>",
-        "workflow": "workflows/operator/init.md",
         "hosts": [],
         "primary_aliases_by_host": {},
         "compatibility_aliases_by_host": {},

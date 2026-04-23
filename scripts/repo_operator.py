@@ -17,7 +17,6 @@ ACTION_DISPATCH = {
     "next": ("resolve_help_next.py", ("--mode", "next")),
     "run": ("run_with_guidance.py", ()),
     "bump": ("prepare_bump.py", ()),
-    "init": ("initialize_workspace.py", ()),
 }
 
 WRITE_PREFERENCE_FLAGS = {

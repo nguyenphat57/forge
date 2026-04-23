@@ -35,22 +35,22 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
 
         self.assertEqual(
             set(core_registry["repo_operator_surface"]["actions"]),
-            {"resume", "save", "handover", "help", "next", "run", "bump", "customize", "init"},
+            {"resume", "save", "handover", "help", "next", "run", "bump", "customize"},
         )
         self.assertEqual(set(core_registry["repo_operator_surface"]["session_modes"]), set())
         self.assertEqual(
             set(core_registry["host_operator_surface"]["actions"]),
-            {"help", "next", "run", "bump", "customize", "init"},
+            {"help", "next", "run", "bump", "customize"},
         )
         self.assertEqual(set(core_registry["host_operator_surface"]["session_modes"]), {"restore", "save", "handover"})
         self.assertEqual(
             set(codex_registry["host_operator_surface"]["actions"]),
-            {"help", "next", "run", "delegate", "bump", "customize", "init"},
+            {"help", "next", "run", "delegate", "bump", "customize"},
         )
         self.assertEqual(set(codex_registry["host_operator_surface"]["session_modes"]), {"restore", "save", "handover"})
         self.assertEqual(
             set(antigravity_registry["host_operator_surface"]["actions"]),
-            {"help", "next", "run", "bump", "customize", "init"},
+            {"help", "next", "run", "bump", "customize"},
         )
         self.assertEqual(set(antigravity_registry["host_operator_surface"]["session_modes"]), {"restore", "save", "handover"})
 
