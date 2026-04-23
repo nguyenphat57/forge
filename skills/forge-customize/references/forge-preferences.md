@@ -19,7 +19,6 @@ Forge stores preferences as one flat JSON object.
 | `tone_detail` | free-form string | unset | Honorific or tone hint |
 | `output_quality` | free-form string | unset | Quality target |
 | `custom_rules` | array of strings | unset | Extra writing or execution rules |
-| `delegation_preference` | `off`, `auto`, `review-lanes`, `parallel-workers` | `auto` | Delegation mode on compatible hosts |
 
 ## Persistence Files
 

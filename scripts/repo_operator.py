@@ -33,11 +33,9 @@ WRITE_PREFERENCE_FLAGS = {
     "--tone-detail",
     "--output-quality",
     "--custom-rule",
-    "--delegation-preference",
     "--clear-field",
     "--clear-language",
     "--clear-orthography",
-    "--clear-delegation-preference",
     "--replace",
     "--apply",
 }

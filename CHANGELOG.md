@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.0 (stable) - 2026-04-23
+
+- Strengthen Codex subagent auto-activation so packetized parallel dispatch only happens when independent packet candidates have proof, verification, no blockers, no dependencies, and no conflicting write scopes.
+- Remove the obsolete durable `delegation_preference` setting now that Forge delegation is host-capability and packet-safety driven instead of preference driven.
+- Move Visual Companion source ownership into `forge-brainstorming` as skill-local tooling, keep core and adapter bundles free of core-owned companion assets, and refresh release-facing plus continuity surfaces around `3.2.0`.
+
+
 ## 3.1.0 (stable) - 2026-04-23
 
 - Polish Forge source-repo scripts by removing dead helpers, unused imports, and the redundant `host_artifact_specs.py` alias while keeping generated artifact contracts fresh.

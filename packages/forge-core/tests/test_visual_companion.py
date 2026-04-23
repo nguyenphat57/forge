@@ -14,7 +14,8 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = ROOT_DIR.parents[1]
 SKILLS_ROOT = ROOT_DIR.parent / "forge-skills"
-TOOL_DIR = ROOT_DIR / "tools" / "visual-companion" / "scripts"
+CORE_TOOL_DIR = ROOT_DIR / "tools" / "visual-companion" / "scripts"
+TOOL_DIR = SKILLS_ROOT / "brainstorming" / "tools" / "visual-companion" / "scripts"
 ASSETS = (
     "server.cjs",
     "frame-template.html",
@@ -58,6 +59,7 @@ def get_text(url):
 
 class VisualCompanionTests(unittest.TestCase):
     def test_visual_companion_assets_exist_and_stay_small(self):
+        self.assertFalse(CORE_TOOL_DIR.exists(), "visual companion must be owned by brainstorming, not forge-core")
         for asset in ASSETS:
             path = TOOL_DIR / asset
             self.assertTrue(path.exists(), f"missing visual companion asset: {asset}")
@@ -72,10 +74,11 @@ class VisualCompanionTests(unittest.TestCase):
         ]
         text = "\n".join(path.read_text(encoding="utf-8") for path in docs)
         self.assertIn("tools/visual-companion/scripts/start-server", text)
+        self.assertIn("skill-local", text)
         self.assertIn(".forge-artifacts/visual-companion", text)
         self.assertNotRegex(text, r"\.[^/\s]+/brainstorm")
 
-    def test_package_matrix_requires_visual_companion_assets(self):
+    def test_package_matrix_does_not_make_visual_companion_core_owned(self):
         matrix_path = REPO_ROOT / "docs" / "release" / "package-matrix.json"
         matrix = json.loads(matrix_path.read_text(encoding="utf-8"))
         required_assets = {
@@ -83,8 +86,8 @@ class VisualCompanionTests(unittest.TestCase):
         }
         for bundle in matrix["bundles"]:
             required = set(bundle["required_bundle_paths"])
-            missing = sorted(required_assets - required)
-            self.assertEqual([], missing, f"{bundle['name']} missing visual assets")
+            leaked = sorted(required_assets & required)
+            self.assertEqual([], leaked, f"{bundle['name']} still declares core-owned visual assets")
 
     @unittest.skipIf(shutil.which("node") is None, "Node.js is required for server smoke test")
     def test_server_serves_wrapped_fragment_and_files_safely(self):

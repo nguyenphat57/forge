@@ -10,8 +10,7 @@
       "autonomy_level": "balanced",
       "pace": "balanced",
       "feedback_style": "balanced",
-      "personality": "default",
-      "delegation_preference": "auto"
+      "personality": "default"
     },
     "expected_response_style": {
       "terminology_mode": "mixed",
@@ -34,8 +33,7 @@
       "autonomy_level": "autonomous",
       "pace": "fast",
       "feedback_style": "direct",
-      "personality": "strict-coach",
-      "delegation_preference": "auto"
+      "personality": "strict-coach"
     },
     "expected_response_style": {
       "terminology_mode": "standard",
@@ -59,7 +57,6 @@
       "pace": "fast",
       "feedback_style": "direct",
       "personality": "mentor",
-      "delegation_preference": "auto",
       "tone_detail": "Address the user as lead engineer.",
       "language": "en",
       "orthography": "plain_english",
@@ -94,7 +91,6 @@
       "pace": "fast",
       "feedback_style": "direct",
       "personality": "mentor",
-      "delegation_preference": "auto",
       "tone_detail": "Address the user as lead engineer.",
       "language": "en",
       "orthography": "plain_english",
@@ -128,8 +124,7 @@
       "autonomy_level": "guided",
       "pace": "steady",
       "feedback_style": "gentle",
-      "personality": "strict-coach",
-      "delegation_preference": "auto"
+      "personality": "strict-coach"
     },
     "expected_response_style": {
       "terminology_mode": "mixed",

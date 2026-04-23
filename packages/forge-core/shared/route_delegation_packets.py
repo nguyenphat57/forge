@@ -1,10 +1,6 @@
 from __future__ import annotations
 
-from route_host_capabilities import (
-    resolve_delegation_preference,
-    resolve_effective_delegation_mode,
-    resolve_host_capability_tier,
-)
+from route_host_capabilities import resolve_host_capability_tier
 from route_lane_plans import REVIEW_PIPELINES, build_delegation_controller_steps, lane_review_kind, lane_runtime_role
 
 
@@ -57,6 +53,89 @@ def build_delegation_packet_template() -> dict:
         "status_values": list(DELEGATION_STATUS_VALUES),
         "reviewer_return_fields": list(REVIEWER_RETURN_FIELDS),
         "fork_context_default": False,
+    }
+
+
+def _string_items(value: object) -> list[str]:
+    if isinstance(value, str):
+        return [value.strip()] if value.strip() else []
+    if isinstance(value, list):
+        return [item.strip() for item in value if isinstance(item, str) and item.strip()]
+    return []
+
+
+def _normalized_scopes(packet: dict) -> list[str]:
+    scopes = _string_items(packet.get("owned_files_or_write_scope") or packet.get("owned_scope"))
+    return [scope.replace("\\", "/").strip().lower() for scope in scopes]
+
+
+def _append_unique(items: list[str], value: str) -> None:
+    if value not in items:
+        items.append(value)
+
+
+def _scopes_overlap(left: str, right: str) -> bool:
+    left_scope = left.rstrip("/")
+    right_scope = right.rstrip("/")
+    return (
+        left_scope == right_scope
+        or left_scope.startswith(f"{right_scope}/")
+        or right_scope.startswith(f"{left_scope}/")
+    )
+
+
+def analyze_parallel_packet_candidates(packet_candidates: object) -> dict:
+    if packet_candidates is None:
+        return {"present": False, "parallel_ready": False, "dispatch_reasons": [], "fallback_reasons": []}
+    if not isinstance(packet_candidates, list):
+        return {
+            "present": True,
+            "parallel_ready": False,
+            "dispatch_reasons": [],
+            "fallback_reasons": ["packet-candidates-not-a-list"],
+        }
+
+    fallback_reasons: list[str] = []
+    seen_scopes: list[str] = []
+    ready_packet_count = 0
+    if len(packet_candidates) < 2:
+        fallback_reasons.append("packet-candidates-below-parallel-threshold")
+
+    for packet in packet_candidates:
+        if not isinstance(packet, dict):
+            _append_unique(fallback_reasons, "packet-candidate-not-an-object")
+            continue
+        scopes = _normalized_scopes(packet)
+        if not scopes:
+            _append_unique(fallback_reasons, "packet-missing-owned-scope")
+        if not _string_items(packet.get("proof_before_progress")):
+            _append_unique(fallback_reasons, "packet-missing-proof")
+        if not _string_items(packet.get("verification_to_rerun")):
+            _append_unique(fallback_reasons, "packet-missing-verification")
+        if _string_items(packet.get("depends_on_packets")):
+            _append_unique(fallback_reasons, "packet-dependencies-block-parallel-dispatch")
+        if _string_items(packet.get("blockers")):
+            _append_unique(fallback_reasons, "packet-has-blockers")
+        if _string_items(packet.get("write_scope_conflicts")):
+            _append_unique(fallback_reasons, "packet-write-scope-conflict")
+        if packet.get("overlap_risk_status") not in (None, "", "none"):
+            _append_unique(fallback_reasons, "packet-overlap-risk-not-clear")
+        for scope in scopes:
+            if any(_scopes_overlap(scope, seen_scope) for seen_scope in seen_scopes):
+                _append_unique(fallback_reasons, "packet-write-scope-overlap")
+            seen_scopes.append(scope)
+        if scopes:
+            ready_packet_count += 1
+
+    if fallback_reasons or ready_packet_count < 2:
+        if ready_packet_count < 2:
+            _append_unique(fallback_reasons, "packet-candidates-below-parallel-threshold")
+        return {"present": True, "parallel_ready": False, "dispatch_reasons": [], "fallback_reasons": fallback_reasons}
+    return {
+        "present": True,
+        "parallel_ready": True,
+        "dispatch_reasons": ["packet-candidates-parallel-ready"],
+        "fallback_reasons": [],
     }
 
 
@@ -116,15 +195,14 @@ def choose_delegation_plan(
     execution_mode: str | None,
     execution_pipeline_key: str | None,
     registry: dict,
-    delegation_preference: object = None,
+    packet_candidates: object = None,
 ) -> tuple[str | None, dict | None, list[str]]:
     if intent not in {"BUILD", "DEBUG", "OPTIMIZE", "DEPLOY"}:
         return None, None, []
 
     host_capabilities = registry.get("host_capabilities", {})
     tier_key, tier = resolve_host_capability_tier(host_capabilities)
-    resolved_preference = resolve_delegation_preference(delegation_preference)
-    effective_tier_key = resolve_effective_delegation_mode(tier_key, resolved_preference)
+    effective_tier_key = tier_key
     tiers = host_capabilities.get("tiers")
     if not isinstance(tiers, dict):
         tiers = {}
@@ -156,13 +234,19 @@ def choose_delegation_plan(
         if isinstance(item, str) and item.strip()
     ]
 
-    uses_parallel_mode = execution_mode == "parallel-safe"
-    uses_review_lane = execution_pipeline_key in REVIEW_PIPELINES
+    packet_analysis = analyze_parallel_packet_candidates(packet_candidates)
+    uses_parallel_mode = execution_mode == "parallel-safe" or bool(packet_analysis["parallel_ready"])
+    uses_review_lane = execution_pipeline_key in REVIEW_PIPELINES and not packet_analysis["present"]
+    packet_fallback_required = bool(packet_analysis["present"] and not packet_analysis["parallel_ready"])
 
-    if not uses_parallel_mode and not uses_review_lane:
+    if not uses_parallel_mode and not uses_review_lane and not packet_fallback_required:
         return None, None, []
 
-    if uses_parallel_mode and supports_parallel_subagents:
+    if packet_fallback_required:
+        key = "sequential-lanes"
+        label = "Sequential lanes"
+        summary = "Packet candidates are not safe for automatic subagent dispatch."
+    elif uses_parallel_mode and supports_parallel_subagents:
         key = "parallel-split"
         label = "Parallel split"
         summary = "Independent slices can run in parallel under isolated ownership."
@@ -199,13 +283,12 @@ def choose_delegation_plan(
             if key == "independent-reviewer"
             else "controller-sequential"
         ),
-        "resolved_delegation_preference": resolved_preference,
         "effective_delegation_mode": effective_tier_key,
         "host_capability_tier": tier_key,
         "activation_skill": activation_skill if host_skills else None,
         "controller_contract": controller_contract,
-        "dispatch_reasons": tier_dispatch_reasons,
-        "fallback_reasons": tier_fallback_reasons,
+        "dispatch_reasons": [*tier_dispatch_reasons, *packet_analysis["dispatch_reasons"]],
+        "fallback_reasons": [*tier_fallback_reasons, *packet_analysis["fallback_reasons"]],
         "controller_steps": build_delegation_controller_steps(key, execution_pipeline_key),
         "packet_template": build_delegation_packet_template(),
         "packet_blueprints": build_delegation_packet_blueprints(key, execution_pipeline_key, registry),

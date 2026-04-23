@@ -30,7 +30,8 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
                 }
             ),
         )
-        self.assertEqual(report["sources"]["delegation_preference"], "default")
+        self.assertNotIn("delegation_preference", report["preferences"])
+        self.assertNotIn("delegation_preference", report["sources"])
         self.assertEqual(report["warnings"], [])
 
     def test_global_preferences_override_defaults(self) -> None:
@@ -264,7 +265,6 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
                 "pace": "fast",
                 "feedback_style": "direct",
                 "personality": "mentor",
-                "delegation_preference": "auto",
                 "tone_detail": "Address the user as lead engineer.",
                 "language": "en",
                 "orthography": "plain_english",
@@ -304,7 +304,7 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
         self.assertEqual(report["preferences"]["pace"], "steady")
         self.assertEqual(report["preferences"]["feedback_style"], "gentle")
         self.assertEqual(report["preferences"]["personality"], "strict-coach")
-        self.assertEqual(report["preferences"]["delegation_preference"], "auto")
+        self.assertNotIn("delegation_preference", report["preferences"])
         self.assertTrue(any("technical_level" in warning for warning in report["warnings"]))
         self.assertTrue(any("detail_level" in warning for warning in report["warnings"]))
         self.assertTrue(any("unknown_field" in warning for warning in report["warnings"]))
@@ -317,7 +317,7 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
                 forge_home=forge_home_fixture("empty"),
             )
 
-    def test_load_preferences_maps_legacy_delegation_marker_to_typed_field(self) -> None:
+    def test_load_preferences_keeps_legacy_delegation_marker_as_custom_rule(self) -> None:
         from pathlib import Path
         from tempfile import TemporaryDirectory
 
@@ -361,8 +361,12 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
                 forge_home=forge_home,
             )
 
-        self.assertEqual(report["preferences"]["delegation_preference"], "auto")
-        self.assertIn("legacy_delegation_rule_detected", report["warnings"])
+        self.assertNotIn("delegation_preference", report["preferences"])
+        self.assertIn(
+            "Delegated: Spawn subagents để tăng tiến độ khi cần",
+            report["preferences"]["custom_rules"],
+        )
+        self.assertNotIn("legacy_delegation_rule_detected", report["warnings"])
 
 
 if __name__ == "__main__":

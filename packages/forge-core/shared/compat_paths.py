@@ -31,7 +31,6 @@ CANONICAL_PREFERENCE_KEYS = (
     "tone_detail",
     "output_quality",
     "custom_rules",
-    "delegation_preference",
 )
 
 

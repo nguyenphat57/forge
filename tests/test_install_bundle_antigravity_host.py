@@ -48,6 +48,13 @@ EXPECTED_SIBLING_SKILL_REFERENCES = {
     "forge-brainstorming": [
         "references/design/architectural-lens.md",
         "references/design/visual-companion-guidance.md",
+        "tools/visual-companion/scripts/frame-template.html",
+        "tools/visual-companion/scripts/helper.js",
+        "tools/visual-companion/scripts/server.cjs",
+        "tools/visual-companion/scripts/start-server.ps1",
+        "tools/visual-companion/scripts/start-server.sh",
+        "tools/visual-companion/scripts/stop-server.ps1",
+        "tools/visual-companion/scripts/stop-server.sh",
     ],
     "forge-subagent-driven-development": [
         "references/subagent-execution.md",
@@ -205,7 +212,6 @@ class AntigravityHostInstallTests(unittest.TestCase):
                     "personality": "default",
                     "language": "vi",
                     "orthography": "vietnamese_diacritics",
-                    "delegation_preference": "auto",
                 },
             )
             self.assertEqual(payload["output_contract"]["language"], "vi")
@@ -243,7 +249,6 @@ class AntigravityHostInstallTests(unittest.TestCase):
                     "pace": "steady",
                     "feedback_style": "direct",
                     "personality": "default",
-                    "delegation_preference": "auto",
                     "language": "vi",
                     "orthography": "vietnamese_diacritics",
                     "tone_detail": "Goi Sep, xung Em",

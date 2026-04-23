@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import copy
 import json
@@ -6,7 +6,7 @@ from functools import lru_cache
 
 from compat import compat_default_extra, filter_canonical_preferences, load_preferences_compat
 from preferences_paths import OUTPUT_CONTRACTS_PATH, PREFERENCES_SCHEMA_PATH
-from text_utils import normalize_choice_token, normalize_text, repair_text_artifacts
+from text_utils import normalize_choice_token, repair_text_artifacts
 
 
 PREFERENCE_ALIASES = {
@@ -81,7 +81,6 @@ PREFERENCE_ALIASES = {
     },
 }
 
-DEFAULT_DELEGATION_PREFERENCE = "auto"
 CANONICAL_OPTIONAL_STRING_FIELDS = (
     "language",
     "orthography",
@@ -89,30 +88,6 @@ CANONICAL_OPTIONAL_STRING_FIELDS = (
     "output_quality",
 )
 CANONICAL_LIST_FIELDS = ("custom_rules",)
-DELEGATION_PREFERENCE_ALIASES = {
-    "off": "off",
-    "none": "off",
-    "disabled": "off",
-    "disable": "off",
-    "sequential": "off",
-    "auto": "auto",
-    "default": "auto",
-    "review": "review-lanes",
-    "reviewer": "review-lanes",
-    "reviewers": "review-lanes",
-    "review-lane": "review-lanes",
-    "review-lanes": "review-lanes",
-    "review-lane-subagents": "review-lanes",
-    "parallel": "parallel-workers",
-    "parallel-worker": "parallel-workers",
-    "parallel-workers": "parallel-workers",
-    "full": "parallel-workers",
-}
-LEGACY_DELEGATION_RULE_MARKERS = {
-    normalize_text("Delegated: Spawn subagents để tăng tiến độ khi cần"),
-    normalize_text("Delegated: Spawn subagents de tang tien do khi can"),
-    normalize_text("Delegated: Spawn subagents when needed"),
-}
 
 
 @lru_cache(maxsize=1)
@@ -138,55 +113,6 @@ def preference_defaults() -> dict[str, object]:
         if key not in defaults:
             defaults[key] = copy.deepcopy(value)
     return defaults
-
-
-def normalize_delegation_preference(value: object) -> str | None:
-    if not isinstance(value, str) or not value.strip():
-        return None
-    return DELEGATION_PREFERENCE_ALIASES.get(normalize_choice_token(value))
-
-
-def detect_legacy_delegation_preference(extra: object) -> str | None:
-    if not isinstance(extra, dict):
-        return None
-    custom_rules = extra.get("custom_rules")
-    if not isinstance(custom_rules, list):
-        return None
-    for item in custom_rules:
-        if not isinstance(item, str) or not item.strip():
-            continue
-        if normalize_text(item) in LEGACY_DELEGATION_RULE_MARKERS:
-            return DEFAULT_DELEGATION_PREFERENCE
-    return None
-
-
-def resolve_delegation_preference(
-    extra: object,
-    *,
-    strict: bool = False,
-) -> tuple[str, list[str], str]:
-    warnings: list[str] = []
-    source = "default"
-    explicit = None
-    if isinstance(extra, dict):
-        explicit = extra.get("delegation_preference")
-    normalized = normalize_delegation_preference(explicit)
-    if normalized is not None:
-        return normalized, warnings, "explicit"
-
-    if explicit is not None:
-        message = "Delegation preference must be one of: off, auto, review-lanes, parallel-workers."
-        if strict:
-            raise ValueError(message)
-        warnings.append(message)
-
-    legacy = detect_legacy_delegation_preference(extra)
-    if legacy is not None:
-        warnings.append("legacy_delegation_rule_detected")
-        source = "legacy-custom-rules"
-        return legacy, warnings, source
-
-    return DEFAULT_DELEGATION_PREFERENCE, warnings, source
 
 
 def resolve_output_contract(preferences: object) -> dict[str, object]:
@@ -297,17 +223,6 @@ def normalize_preferences(
             normalized[key] = canonical
             continue
 
-        if key == "delegation_preference":
-            normalized_delegation_preference = normalize_delegation_preference(raw_value)
-            if normalized_delegation_preference is None:
-                message = "Delegation preference must be one of: off, auto, review-lanes, parallel-workers."
-                if strict:
-                    raise ValueError(message)
-                warnings.append(message)
-                continue
-            normalized[key] = normalized_delegation_preference
-            continue
-
         if key in CANONICAL_OPTIONAL_STRING_FIELDS:
             if not isinstance(raw_value, str):
                 message = f"Preference '{key}' must be a string."
@@ -349,19 +264,5 @@ def normalize_preferences(
         if strict:
             raise ValueError(message)
         warnings.append(message)
-
-    delegation_payload = {
-        "delegation_preference": normalized.get("delegation_preference", payload.get("delegation_preference")),
-        "custom_rules": normalized.get("custom_rules", payload.get("custom_rules")),
-    }
-    delegation_preference, delegation_warnings, delegation_source = resolve_delegation_preference(
-        delegation_payload,
-        strict=strict,
-    )
-    for warning in delegation_warnings:
-        if warning not in warnings:
-            warnings.append(warning)
-    if include_defaults or delegation_source != "default" or "delegation_preference" in payload:
-        normalized["delegation_preference"] = delegation_preference
 
     return normalized, warnings

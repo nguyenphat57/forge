@@ -34,9 +34,7 @@ from error_translation import (
     translate_error_text,
 )
 from preferences import (
-    DEFAULT_DELEGATION_PREFERENCE,
     DEFAULT_FALLBACK_STATE_ROOT,
-    detect_legacy_delegation_preference,
     GLOBAL_PREFERENCES_RELATIVE_PATH,
     INSTALL_MANIFEST_PATH,
     LEGACY_GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH,
@@ -49,10 +47,8 @@ from preferences import (
     load_output_contract_profiles,
     load_preferences,
     load_preferences_schema,
-    normalize_delegation_preference,
     normalize_preferences,
     preference_defaults,
-    resolve_delegation_preference,
     resolve_forge_home,
     resolve_global_preferences_path,
     resolve_legacy_global_extra_preferences_path,

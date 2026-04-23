@@ -62,12 +62,6 @@
         "type": "string"
       },
       "description": "Optional custom writing or execution rules."
-    },
-    "delegation_preference": {
-      "type": "string",
-      "enum": ["off", "auto", "review-lanes", "parallel-workers"],
-      "default": "auto",
-      "description": "Preferred delegation mode for compatible hosts."
     }
   },
   "additionalProperties": false

@@ -55,7 +55,6 @@ python <forge-bundle>/scripts/resolve_preferences.py --workspace <workspace> --f
    - `tone_detail`
    - `output_quality`
    - `custom_rules`
-   - `delegation_preference`
 4. Choose scope deliberately:
    - `global` for host-wide defaults
    - `workspace` for repo-local overrides in `.brain/preferences.json`

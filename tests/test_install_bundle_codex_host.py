@@ -49,6 +49,13 @@ EXPECTED_SIBLING_SKILL_REFERENCES = {
     "forge-brainstorming": [
         "references/design/architectural-lens.md",
         "references/design/visual-companion-guidance.md",
+        "tools/visual-companion/scripts/frame-template.html",
+        "tools/visual-companion/scripts/helper.js",
+        "tools/visual-companion/scripts/server.cjs",
+        "tools/visual-companion/scripts/start-server.ps1",
+        "tools/visual-companion/scripts/start-server.sh",
+        "tools/visual-companion/scripts/stop-server.ps1",
+        "tools/visual-companion/scripts/stop-server.sh",
     ],
     "forge-subagent-driven-development": [
         "references/subagent-execution.md",

@@ -126,7 +126,7 @@ class WritePreferencesTests(unittest.TestCase):
             self.assertEqual(len(report["targets"]), 2)
             self.assertEqual(report["sources"]["pace"], "workspace")
 
-    def test_write_preferences_script_apply_persists_explicit_delegation_preference(self) -> None:
+    def test_write_preferences_script_rejects_removed_delegation_preference_flag(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
             forge_home = Path(temp_dir) / "forge-home"
@@ -141,13 +141,9 @@ class WritePreferencesTests(unittest.TestCase):
                 "json",
                 env={"FORGE_HOME": str(forge_home)},
             )
-            self.assertEqual(result.returncode, 0, result.stderr)
-            report = json.loads(result.stdout)
+            self.assertNotEqual(result.returncode, 0)
 
-            written = json.loads(common.resolve_global_preferences_path(forge_home).read_text(encoding="utf-8"))
-            self.assertEqual(report["preferences"]["delegation_preference"], "review-lanes")
-            self.assertIn("delegation_preference", report["changed_fields"])
-            self.assertEqual(written["delegation_preference"], "review-lanes")
+            self.assertFalse(common.resolve_global_preferences_path(forge_home).exists())
 
     def test_write_preferences_script_migrates_legacy_split_global_state(self) -> None:
         with TemporaryDirectory() as temp_dir:

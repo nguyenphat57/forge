@@ -1,20 +1,5 @@
 from __future__ import annotations
 
-from preferences_contract import DEFAULT_DELEGATION_PREFERENCE, normalize_delegation_preference
-
-
-DELEGATION_TIER_ORDER = {
-    "controller-baseline": 0,
-    "review-lane-subagents": 1,
-    "parallel-workers": 2,
-}
-DELEGATION_PREFERENCE_TO_TIER = {
-    "off": "controller-baseline",
-    "auto": "parallel-workers",
-    "review-lanes": "review-lane-subagents",
-    "parallel-workers": "parallel-workers",
-}
-
 
 def resolve_host_capability_tier(host_capabilities: dict | None) -> tuple[str, dict]:
     if not isinstance(host_capabilities, dict):
@@ -67,22 +52,3 @@ def resolve_host_capability_tier(host_capabilities: dict | None) -> tuple[str, d
             "fallback_reasons": ["review lanes stay packetized but execute sequentially"],
         },
     )
-
-
-def resolve_delegation_preference(value: object) -> str:
-    normalized = normalize_delegation_preference(value)
-    if normalized is None:
-        return DEFAULT_DELEGATION_PREFERENCE
-    return normalized
-
-
-def resolve_effective_delegation_mode(host_tier_key: str, delegation_preference: object) -> str:
-    resolved_preference = resolve_delegation_preference(delegation_preference)
-    preferred_tier_key = DELEGATION_PREFERENCE_TO_TIER[resolved_preference]
-    host_rank = DELEGATION_TIER_ORDER.get(host_tier_key, 0)
-    preference_rank = DELEGATION_TIER_ORDER.get(preferred_tier_key, 0)
-    effective_rank = min(host_rank, preference_rank)
-    for tier_key, rank in DELEGATION_TIER_ORDER.items():
-        if rank == effective_rank:
-            return tier_key
-    return "controller-baseline"

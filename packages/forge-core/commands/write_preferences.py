@@ -23,7 +23,6 @@ CANONICAL_FIELDS = (
     "tone_detail",
     "output_quality",
     "custom_rules",
-    "delegation_preference",
 )
 
 
@@ -40,8 +39,6 @@ def _collect_updates(args: argparse.Namespace) -> tuple[dict[str, object], set[s
         clear_fields.add("language")
     if args.clear_orthography:
         clear_fields.add("orthography")
-    if args.clear_delegation_preference:
-        clear_fields.add("delegation_preference")
     return updates, clear_fields
 
 
@@ -139,11 +136,6 @@ def main() -> int:
         help="Append a custom rule. Repeat for multiple rules.",
     )
     parser.add_argument(
-        "--delegation-preference",
-        dest="delegation_preference",
-        help="Optional typed delegation preference: off, auto, review-lanes, or parallel-workers",
-    )
-    parser.add_argument(
         "--clear-field",
         action="append",
         default=None,
@@ -151,11 +143,6 @@ def main() -> int:
     )
     parser.add_argument("--clear-language", action="store_true", help="Compatibility alias for --clear-field language")
     parser.add_argument("--clear-orthography", action="store_true", help="Compatibility alias for --clear-field orthography")
-    parser.add_argument(
-        "--clear-delegation-preference",
-        action="store_true",
-        help="Compatibility alias for --clear-field delegation_preference",
-    )
     parser.add_argument("--replace", action="store_true", help="Clear the target scope before applying explicit updates")
     parser.add_argument("--apply", action="store_true", help="Write the selected preferences instead of preview only")
     parser.add_argument("--strict", action="store_true", help="Fail on invalid values instead of warning and falling back")

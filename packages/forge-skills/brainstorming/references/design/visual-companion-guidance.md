@@ -18,16 +18,16 @@ If declined, continue text-only. If accepted, decide per question whether the br
 
 ## Tool Protocol
 
-Start the bundled Forge server from the workspace root:
+Start the skill-local bundled Forge server from the `forge-brainstorming` skill root:
 
 ```bash
-tools/visual-companion/scripts/start-server.sh --project-dir <workspace>
+<forge-brainstorming-skill>/tools/visual-companion/scripts/start-server.sh --project-dir <workspace>
 ```
 
 On Windows PowerShell:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools/visual-companion/scripts/start-server.ps1 -ProjectDir <workspace>
+powershell -ExecutionPolicy Bypass -File <forge-brainstorming-skill>/tools/visual-companion/scripts/start-server.ps1 -ProjectDir <workspace>
 ```
 
 The session persists under:

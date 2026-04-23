@@ -133,7 +133,6 @@ def build_route_args(
     workspace: Path | None = None,
     changed_files: int | None = None,
     has_harness: str = "auto",
-    delegation_preference: str | None = None,
     forge_home: Path | None = None,
 ) -> Namespace:
     if forge_home is None and DEFAULT_TEST_FORGE_HOME is not None:
@@ -145,7 +144,6 @@ def build_route_args(
         workspace=workspace,
         changed_files=changed_files,
         has_harness=has_harness,
-        delegation_preference=delegation_preference,
         forge_home=forge_home,
         format="json",
         persist=False,

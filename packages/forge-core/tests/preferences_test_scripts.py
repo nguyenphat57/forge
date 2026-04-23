@@ -25,7 +25,7 @@ class PreferencesScriptTests(unittest.TestCase):
         self.assertEqual(report["source"]["type"], "global")
         self.assertEqual(report["preferences"]["technical_level"], "technical")
         self.assertEqual(report["preferences"]["pace"], "fast")
-        self.assertEqual(report["preferences"]["delegation_preference"], "auto")
+        self.assertNotIn("delegation_preference", report["preferences"])
         self.assertEqual(report["sources"]["technical_level"], "global")
         self.assertEqual(report["response_style"]["teaching_mode"], "best-practice-first")
 
@@ -45,7 +45,7 @@ class PreferencesScriptTests(unittest.TestCase):
         self.assertGreaterEqual(len(report["warnings"]), 1)
         self.assertEqual(report["preferences"]["personality"], "strict-coach")
         self.assertEqual(report["preferences"]["feedback_style"], "gentle")
-        self.assertEqual(report["preferences"]["delegation_preference"], "auto")
+        self.assertNotIn("delegation_preference", report["preferences"])
 
     def test_resolve_preferences_prefers_workspace_over_global(self) -> None:
         result = run_python_script(
@@ -70,7 +70,7 @@ class PreferencesScriptTests(unittest.TestCase):
         self.assertEqual(report["output_contract"]["orthography"], "plain-english")
         self.assertNotIn("delegation_preference", report["output_contract"])
 
-    def test_resolve_preferences_maps_legacy_delegation_marker_to_typed_field(self) -> None:
+    def test_resolve_preferences_keeps_legacy_delegation_marker_as_custom_rule(self) -> None:
         from pathlib import Path
         from tempfile import TemporaryDirectory
 
@@ -120,8 +120,12 @@ class PreferencesScriptTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             report = json.loads(result.stdout)
 
-        self.assertEqual(report["preferences"]["delegation_preference"], "auto")
-        self.assertIn("legacy_delegation_rule_detected", report["warnings"])
+        self.assertNotIn("delegation_preference", report["preferences"])
+        self.assertIn(
+            "Delegated: Spawn subagents để tăng tiến độ khi cần",
+            report["preferences"]["custom_rules"],
+        )
+        self.assertNotIn("legacy_delegation_rule_detected", report["warnings"])
 
     def test_resolve_preferences_script_rejects_explicit_legacy_extra_preferences_file(self) -> None:
         from pathlib import Path

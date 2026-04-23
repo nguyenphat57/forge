@@ -1,24 +1,22 @@
 HANDOVER
-- Current task: Polish Forge scripts, remove redundant code, bump release version, and prepare push to main
+- Current task: Publish Forge 3.2.0 as the stable release after stronger Codex subagent auto-activation, delegation_preference removal, and Visual Companion ownership cleanup.
 - Status: ready-to-commit
 - Pending:
-  - Commit script polish release changes and push main to origin
+  - Commit the 3.2.0 release slice and push `main` to `origin`
 - Verification run:
-  - python scripts/verify_repo.py --profile fast -> PASS
-  - python scripts/verify_repo.py -> PASS
-  - python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23 after release metadata and `.worktrees` scanner hardening
-  - python scripts/verify_repo.py -> PASS on 2026-04-23 after release metadata and `.worktrees` scanner hardening
-  - python -m pytest tests/test_repo_operator_script_shims.py tests/test_operator_surface_registry.py tests/test_host_artifact_generation.py -q -> PASS on 2026-04-23
-  - python -m pytest tests/release_repo_test_overlays.py tests/release_repo_test_contracts.py packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-23
-  - python -m pytest tests/release_repo_test_install.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py tests/test_release_acceleration.py tests/test_runtime_tool_registration.py packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-23
-  - python scripts/verify_repo.py -> PASS on 2026-04-23 after 3.1.0 release sync
+  - python packages/forge-core/tests/test_route_delegation_packets.py -> PASS on 2026-04-23
+  - python -m unittest preferences_test_loading preferences_test_scripts test_write_preferences test_route_delegation_packets -> PASS on 2026-04-23 (workdir `packages/forge-core/tests`)
+  - python packages/forge-core/tests/test_visual_companion.py -> PASS on 2026-04-23
+  - python -m unittest tests.test_install_bundle_design tests.test_install_bundle_codex_host tests.test_install_bundle_antigravity_host -> PASS on 2026-04-23
+  - python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23 before 3.2.0 release sync
+  - python scripts/verify_repo.py -> PASS on 2026-04-23 after 3.2.0 release sync
 - Important decisions:
-  - Bump 3.0.0 to 3.1.0 as minor because script/workflow/public-surface cleanup is capability-bearing
+  - Bump 3.1.0 to 3.2.0 as minor because the repo bump tooling inferred new capability from new skill-local Visual Companion source files and this slice changes release-facing surfaces.
   - Keep `docs/current/*` as the canonical maintainer-doc spine while release-facing docs track the current stable line.
-  - Forge runtime ownership moves to owner commands plus forge-core shared support instead of a central engine runtime.
-  - The shipped bundle contract is commands plus shared, and engine is removed from the active runtime layout.
-  - The 3.0.0 runtime-ownership stable line is superseded by the 3.1.0 script-polish release.
+  - Codex subagent auto-activation is controlled by host capability plus packet safety, not by durable `delegation_preference`.
+  - Safe parallel auto-activation requires independent packet candidates with proof, verification, no dependencies, no blockers, and non-overlapping write scopes.
+  - Visual Companion source belongs to `forge-brainstorming` as skill-local tooling; core and adapter bundles should not declare it as core-owned required paths.
 - Risks:
-  - Real installed host smoke after the version bump was not rerun; confidence rests on repo and dist verification gates.
+  - Real installed host smoke after the version bump was not rerun; confidence rests on repo, dist, and install verification gates.
 - Blockers: (none)
-- Next step: Commit the 3.1.0 script polish release and push `main` to `origin`.
+- Next step: Commit the 3.2.0 release slice and push `main` to `origin`.

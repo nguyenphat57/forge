@@ -89,7 +89,6 @@ def build_route_args(
     recent_small_tasks: int | None = None,
     changed_files_since_review: int | None = None,
     has_harness: str = "auto",
-    delegation_preference: str | None = None,
     forge_home: Path | None = None,
 ) -> Namespace:
     if forge_home is None:
@@ -103,7 +102,6 @@ def build_route_args(
         recent_small_tasks=recent_small_tasks,
         changed_files_since_review=changed_files_since_review,
         has_harness=has_harness,
-        delegation_preference=delegation_preference,
         forge_home=forge_home,
         format="json",
         persist=False,

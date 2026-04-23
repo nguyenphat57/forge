@@ -7,10 +7,7 @@ class PreferencesTestSupport:
     @staticmethod
     def expected_extra(expected: dict[str, object]) -> dict[str, object]:
         compat = common.load_preferences_compat()
-        defaults = common.merge_extra_preferences(
-            common.compat_default_extra(compat),
-            {"delegation_preference": common.DEFAULT_DELEGATION_PREFERENCE},
-        )
+        defaults = common.compat_default_extra(compat)
         return common.merge_extra_preferences(defaults, expected)
 
     @staticmethod
