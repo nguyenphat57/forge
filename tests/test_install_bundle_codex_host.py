@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import unittest
@@ -265,6 +266,124 @@ class CodexHostInstallTests(unittest.TestCase):
             self.assertEqual(resolve_report["source"]["type"], "global")
             self.assertEqual(resolve_report["source"]["path"], str(expected_preferences))
             self.assertEqual(resolve_report["preferences"]["technical_level"], "technical")
+
+    @unittest.skipUnless(shutil.which("powershell"), "powershell is required for Windows UTF-8 helper tests.")
+    def test_installed_codex_bundle_utf8_helper_keeps_vietnamese_preferences_readable_in_powershell(self) -> None:
+        build_release.build_all()
+        with TemporaryDirectory() as temp_dir:
+            temp_root = Path(temp_dir)
+            codex_home = temp_root / "codex-home"
+            target = codex_home / "skills" / "forge-codex"
+            self.seed_codex_home(codex_home, target)
+
+            install_bundle.install_bundle(
+                "forge-codex",
+                target=str(target),
+                activate_codex=True,
+                codex_home=str(codex_home),
+            )
+
+            expected_state_root = (codex_home / "forge-codex").resolve()
+            expected_preferences = (expected_state_root / "state" / "preferences.json").resolve()
+            env = os.environ.copy()
+            env.pop("FORGE_HOME", None)
+
+            write_result = subprocess.run(
+                [
+                    sys.executable,
+                    str(target / "commands" / "write_preferences.py"),
+                    "--language",
+                    "vi",
+                    "--orthography",
+                    "vietnamese_diacritics",
+                    "--tone-detail",
+                    "Gọi Sếp, xưng Em",
+                    "--custom-rule",
+                    "Mỗi file chỉ đảm nhiệm một chức năng rõ ràng",
+                    "--custom-rule",
+                    "Ưu tiên TypeScript thay vì JavaScript",
+                    "--apply",
+                    "--format",
+                    "json",
+                ],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                check=False,
+                env=env,
+            )
+            self.assertEqual(write_result.returncode, 0, write_result.stderr)
+            write_report = json.loads(write_result.stdout)
+
+            self.assertEqual(write_report["state_root"], str(expected_state_root))
+            self.assertEqual(write_report["targets"], [str(expected_preferences)])
+            self.assertEqual(write_report["preferences"]["tone_detail"], "Gọi Sếp, xưng Em")
+
+            resolve_result = subprocess.run(
+                [
+                    sys.executable,
+                    str(target / "commands" / "resolve_preferences.py"),
+                    "--format",
+                    "json",
+                ],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                check=False,
+                env=env,
+            )
+            self.assertEqual(resolve_result.returncode, 0, resolve_result.stderr)
+            resolve_report = json.loads(resolve_result.stdout)
+
+            self.assertEqual(resolve_report["source"]["type"], "global")
+            self.assertEqual(resolve_report["source"]["path"], str(expected_preferences))
+            self.assertEqual(resolve_report["preferences"]["language"], "vi")
+            self.assertEqual(resolve_report["preferences"]["orthography"], "vietnamese_diacritics")
+            self.assertEqual(resolve_report["preferences"]["tone_detail"], "Gọi Sếp, xưng Em")
+            self.assertEqual(
+                resolve_report["preferences"]["custom_rules"],
+                [
+                    "Mỗi file chỉ đảm nhiệm một chức năng rõ ràng",
+                    "Ưu tiên TypeScript thay vì JavaScript",
+                ],
+            )
+            self.assertEqual(resolve_report["output_contract"]["encoding"], "utf-8")
+            self.assertEqual(resolve_report["output_contract"]["tone_detail"], "Gọi Sếp, xưng Em")
+            self.assertEqual(
+                resolve_report["output_contract"]["custom_rules"],
+                [
+                    "Mỗi file chỉ đảm nhiệm một chức năng rõ ràng",
+                    "Ưu tiên TypeScript thay vì JavaScript",
+                ],
+            )
+
+            agents_text = (codex_home / "AGENTS.md").read_text(encoding="utf-8")
+            self.assertNotIn("Má»", agents_text)
+            self.assertNotIn("Gá»", agents_text)
+
+            powershell_result = subprocess.run(
+                [
+                    "powershell",
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-Command",
+                    f"& '{target / 'tools' / 'enable_windows_utf8.ps1'}' > $null; "
+                    f"Get-Content -Raw '{expected_preferences}'",
+                ],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                check=False,
+                env=env,
+            )
+            self.assertEqual(powershell_result.returncode, 0, powershell_result.stderr)
+            self.assertIn("Mỗi file chỉ đảm nhiệm một chức năng rõ ràng", powershell_result.stdout)
+            self.assertIn("Ưu tiên TypeScript thay vì JavaScript", powershell_result.stdout)
+            self.assertIn("Gọi Sếp, xưng Em", powershell_result.stdout)
+            self.assertNotIn("Má»", powershell_result.stdout)
+            self.assertNotIn("Æ¯u", powershell_result.stdout)
+            self.assertNotIn("Gá»", powershell_result.stdout)
 
     def test_activate_codex_requires_canonical_target(self) -> None:
         build_release.build_all()

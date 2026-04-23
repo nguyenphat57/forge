@@ -26,12 +26,19 @@ python commands/write_preferences.py --language vi --orthography vietnamese_diac
 
 `forge-codex` defaults to English. Use workspace `.brain/preferences.json` only for repo-specific overrides that should not become the Codex-wide default.
 
-2. Run the bundled PowerShell helper so the shell itself stays on UTF-8:
+2. Apply the bundled PowerShell helper in the PowerShell session that will read or write Forge files:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools/enable_windows_utf8.ps1
-powershell -ExecutionPolicy Bypass -File tools/enable_windows_utf8.ps1 -Persist
+.\tools\enable_windows_utf8.ps1
+.\tools\enable_windows_utf8.ps1 -Persist
 ```
+
+Why this matters on Windows PowerShell 5.1:
+
+- `forge-codex` writes UTF-8 without BOM on purpose.
+- Console UTF-8 settings alone are not enough; `Get-Content` and other file cmdlets can still decode UTF-8 files with the active ANSI code page unless their default `-Encoding` is also set to UTF-8.
+- `enable_windows_utf8.ps1` now sets both console encodings and PowerShell file-cmdlet encoding defaults for the current session; `-Persist` appends the same block to the PowerShell profile.
+- If you are inspecting a Forge file before running the helper, use an explicit encoding: `Get-Content -Encoding utf8 -Raw <path>`.
 
 Build output is produced by overlaying adapter files on top of `forge-core`, then materializing the sibling skill pack from `packages/forge-skills/`.
 

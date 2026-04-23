@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.2.2 (stable) - 2026-04-23
+
+- Fix the Windows Forge Codex UTF-8 activation path so `enable_windows_utf8.ps1` sets PowerShell file-cmdlet encoding defaults in addition to console and Python UTF-8 settings, preventing mojibake when Windows PowerShell 5.1 reads UTF-8 Forge files.
+- Add an installed-bundle regression repro for Vietnamese preferences on Windows PowerShell, covering `write_preferences.py`, `resolve_preferences.py`, rendered `AGENTS.md`, and `Get-Content -Raw` after the helper is applied.
+- Refresh release-facing and continuity surfaces so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` align on `3.2.2` as the current stable release.
+
+
 ## 3.2.1 (stable) - 2026-04-23
 
 - Remove the last remaining obsolete delegation-setting mentions from active source surfaces so the retired setting no longer appears in tests, changelog copy, or continuity artifacts.

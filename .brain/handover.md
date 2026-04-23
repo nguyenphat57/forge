@@ -1,22 +1,20 @@
 HANDOVER
-- Current task: Publish Forge 3.2.1 as the stable release after stable-line metadata refresh, delegation-setting cleanup, stronger Codex subagent auto-activation, and Visual Companion ownership cleanup.
-- Status: ready-to-commit
+- Current task: Publish Forge 3.2.2 as the stable release after the Windows Forge Codex UTF-8 activation fix, the installed-bundle Vietnamese preference repro, and the stable-line metadata refresh.
+- Status: verified-ready-to-push
 - Pending:
-  - Commit the 3.2.1 release slice and push `main` to `origin`
+  - Commit the 3.2.2 release slice and push `main` to `origin`
 - Verification run:
-  - python packages/forge-core/tests/test_route_delegation_packets.py -> PASS on 2026-04-23
-  - python -m unittest preferences_test_loading preferences_test_scripts test_write_preferences test_route_delegation_packets -> PASS on 2026-04-23 (workdir `packages/forge-core/tests`)
-  - python packages/forge-core/tests/test_visual_companion.py -> PASS on 2026-04-23
-  - python -m unittest tests.test_install_bundle_design tests.test_install_bundle_codex_host tests.test_install_bundle_antigravity_host -> PASS on 2026-04-23
-  - python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23 before 3.2.1 release sync
-  - python scripts/verify_repo.py -> PASS on 2026-04-23 after 3.2.1 release sync
+  - python -m pytest tests/test_install_bundle_codex_host.py -q -> PASS on 2026-04-23
+  - python -m pytest tests/release_repo_test_install.py tests/release_repo_test_overlays.py -q -> PASS on 2026-04-23
+  - python -m pytest packages/forge-codex/overlay/tests/test_adapter_locales.py packages/forge-core/tests/preferences_test_loading.py packages/forge-core/tests/test_response_contract.py -q -> PASS on 2026-04-23
+  - python -m unittest discover -s tests -v -> PASS on 2026-04-23
+  - python scripts/verify_repo.py -> PASS on 2026-04-23
 - Important decisions:
-  - Bump 3.2.0 to 3.2.1 as patch because this slice cleans the remaining obsolete delegation-setting mentions and refreshes stable-line metadata without changing runtime behavior.
+  - Bump 3.2.1 to 3.2.2 as patch because this slice fixes the Windows PowerShell UTF-8 activation path and adds regression coverage without changing Forge routing semantics.
   - Keep `docs/current/*` as the canonical maintainer-doc spine while release-facing docs track the current stable line.
-  - Codex subagent auto-activation is controlled by host capability plus packet safety, not by any durable delegation preference setting.
-  - Safe parallel auto-activation requires independent packet candidates with proof, verification, no dependencies, no blockers, and non-overlapping write scopes.
-  - Visual Companion source belongs to `forge-brainstorming` as skill-local tooling; core and adapter bundles should not declare it as core-owned required paths.
+  - `enable_windows_utf8.ps1` must set PowerShell file-cmdlet encoding defaults as well as console and Python UTF-8 settings, or Windows PowerShell 5.1 can still mojibake UTF-8 Forge files.
+  - The installed-bundle repro must cover persisted preferences, `resolve_preferences.py`, rendered `AGENTS.md`, and `Get-Content -Raw` after the helper is applied.
 - Risks:
-  - Real installed host smoke after the version bump was not rerun; confidence rests on repo, dist, and install verification gates.
+  - Real installed host smoke after the version bump was not rerun beyond repo, dist, install, and targeted Windows PowerShell verification.
 - Blockers: (none)
-- Next step: Commit the 3.2.1 release slice and push `main` to `origin`.
+- Next step: Commit the 3.2.2 release slice and push `main` to `origin`.

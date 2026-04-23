@@ -6,6 +6,25 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+function Set-ForgeUtf8FileCmdletDefaults {
+    if ($null -eq $global:PSDefaultParameterValues) {
+        $global:PSDefaultParameterValues = @{}
+    }
+
+    $targets = @(
+        "Get-Content:Encoding",
+        "Set-Content:Encoding",
+        "Add-Content:Encoding",
+        "Out-File:Encoding",
+        "Import-Csv:Encoding",
+        "Export-Csv:Encoding"
+    )
+
+    foreach ($target in $targets) {
+        $global:PSDefaultParameterValues[$target] = "utf8"
+    }
+}
+
 function Set-ForgeUtf8Session {
     $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
 
@@ -21,6 +40,7 @@ function Set-ForgeUtf8Session {
     $global:OutputEncoding = $utf8NoBom
     $env:PYTHONUTF8 = "1"
     $env:PYTHONIOENCODING = "utf-8"
+    Set-ForgeUtf8FileCmdletDefaults
 }
 
 function Add-ForgeUtf8ProfileBlock {
@@ -44,6 +64,15 @@ try {
 $OutputEncoding = $ForgeCodexUtf8
 $env:PYTHONUTF8 = "1"
 $env:PYTHONIOENCODING = "utf-8"
+if ($null -eq $global:PSDefaultParameterValues) {
+    $global:PSDefaultParameterValues = @{}
+}
+$global:PSDefaultParameterValues['Get-Content:Encoding'] = 'utf8'
+$global:PSDefaultParameterValues['Set-Content:Encoding'] = 'utf8'
+$global:PSDefaultParameterValues['Add-Content:Encoding'] = 'utf8'
+$global:PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
+$global:PSDefaultParameterValues['Import-Csv:Encoding'] = 'utf8'
+$global:PSDefaultParameterValues['Export-Csv:Encoding'] = 'utf8'
 '@
 
     $existing = ""
@@ -66,6 +95,7 @@ $lines = @(
     "Forge Codex UTF-8 session defaults applied.",
     "- Code page: 65001 requested",
     "- Console input/output encoding: UTF-8",
+    "- PowerShell file cmdlet encoding defaults: UTF-8",
     "- PYTHONUTF8=1",
     "- PYTHONIOENCODING=utf-8"
 )
