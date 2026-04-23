@@ -54,11 +54,11 @@ class RepoOperatorScriptShimTests(unittest.TestCase):
         self.assertIn("python scripts/repo_operator.py next --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
         self.assertIn("python scripts/repo_operator.py run --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
         self.assertIn("python scripts/repo_operator.py bump --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
-        self.assertIn("python scripts/repo_operator.py rollback --scope <scope> --format json", agents)
         self.assertIn("python scripts/repo_operator.py customize --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
         self.assertIn("python scripts/repo_operator.py init --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
         self.assertIn("may auto-seed canonical `workflow-state`", agents)
         self.assertNotIn("python scripts/repo_operator.py bootstrap", agents)
+        self.assertNotIn("python scripts/repo_operator.py rollback", agents)
         self.assertNotIn("python scripts/session_context.py", agents)
         self.assertNotIn("python scripts/resolve_help_next.py", agents)
         self.assertNotIn("python scripts/run_with_guidance.py", agents)
@@ -129,6 +129,13 @@ class RepoOperatorScriptShimTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 2)
         self.assertIn("Unsupported action: bootstrap", result.stderr)
+        self.assertIn("Usage:", result.stderr)
+
+    def test_repo_operator_rejects_removed_rollback_action(self) -> None:
+        result = self._run_repo_operator("rollback")
+
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("Unsupported action: rollback", result.stderr)
         self.assertIn("Usage:", result.stderr)
 
 

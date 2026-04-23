@@ -81,7 +81,6 @@
         "workflows/operator/next.md",
         "workflows/operator/run.md",
         "workflows/operator/bump.md",
-        "workflows/operator/rollback.md",
         "workflows/operator/customize.md",
         "workflows/operator/init.md"
       ]
@@ -125,7 +124,6 @@
         "workflows/operator/next.md",
         "workflows/operator/run.md",
         "workflows/operator/bump.md",
-        "workflows/operator/rollback.md",
         "workflows/operator/customize.md",
         "workflows/operator/init.md"
       ]

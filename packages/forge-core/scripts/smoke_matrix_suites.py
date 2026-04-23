@@ -10,7 +10,6 @@ from smoke_matrix_cases import (
     PREFERENCES_CASES,
     PREFERENCES_WRITE_CASES,
     RESPONSE_CONTRACT_CASES,
-    ROLLBACK_CASES,
     ROOT_DIR,
     ROUTER_CASES,
     RUN_CASES,
@@ -30,7 +29,6 @@ from smoke_matrix_validators import (
 from smoke_matrix_validators_tail import (
     validate_preferences_write_case,
     validate_response_contract_case,
-    validate_rollback_case,
     validate_workspace_init_case,
 )
 
@@ -196,32 +194,6 @@ def run_bump_suite() -> list[dict]:
     )
 
 
-def run_rollback_suite() -> list[dict]:
-    rollback_script = ROOT_DIR / "scripts" / "repo_operator.py"
-    return _run_json_suite(
-        "rollback",
-        ROLLBACK_CASES,
-        command_builder=lambda case: (
-            [
-                sys.executable,
-                str(rollback_script),
-                "rollback",
-                "--scope",
-                case["scope"],
-                "--customer-impact",
-                case["customer_impact"],
-                "--data-risk",
-                case["data_risk"],
-                "--format",
-                "json",
-                *(["--has-rollback-artifact"] if case["has_rollback_artifact"] else []),
-            ],
-            None,
-        ),
-        validator=validate_rollback_case,
-    )
-
-
 def run_preferences_write_suite() -> list[dict]:
     write_script = ROOT_DIR / "scripts" / "repo_operator.py"
     return _run_json_suite(
@@ -288,7 +260,6 @@ SUITE_RUNNERS = {
     "run": run_run_suite,
     "error-translation": run_error_translation_suite,
     "bump": run_bump_suite,
-    "rollback": run_rollback_suite,
     "preferences-write": run_preferences_write_suite,
     "workspace-init": run_workspace_init_suite,
     "response-contract": run_response_contract_suite,

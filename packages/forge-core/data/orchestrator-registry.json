@@ -208,19 +208,6 @@
         "deprecation_line": null,
         "status": "primary"
       },
-      "rollback": {
-        "repo_entrypoint": "scripts/repo_operator.py rollback --scope <scope> --format json",
-        "core_engine_entrypoint": "scripts/resolve_rollback.py --scope <scope>",
-        "workflow": "workflows/operator/rollback.md",
-        "hosts": [
-          "source-repo"
-        ],
-        "primary_aliases_by_host": {},
-        "compatibility_aliases_by_host": {},
-        "natural_language_examples_by_host": {},
-        "deprecation_line": null,
-        "status": "primary"
-      },
       "customize": {
         "repo_entrypoint": "scripts/repo_operator.py customize --workspace <workspace> --format json",
         "core_engine_entrypoint": "scripts/resolve_preferences.py --workspace <workspace> --format json && scripts/write_preferences.py",
@@ -289,17 +276,6 @@
         "repo_entrypoint": "",
         "core_engine_entrypoint": "scripts/prepare_bump.py --workspace <workspace> --bump <version|major|minor|patch>",
         "workflow": "workflows/operator/bump.md",
-        "hosts": [],
-        "primary_aliases_by_host": {},
-        "compatibility_aliases_by_host": {},
-        "natural_language_examples_by_host": {},
-        "deprecation_line": null,
-        "status": "primary"
-      },
-      "rollback": {
-        "repo_entrypoint": "",
-        "core_engine_entrypoint": "scripts/resolve_rollback.py --scope <scope>",
-        "workflow": "workflows/operator/rollback.md",
         "hosts": [],
         "primary_aliases_by_host": {},
         "compatibility_aliases_by_host": {},

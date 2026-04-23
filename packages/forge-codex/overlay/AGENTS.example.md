@@ -30,6 +30,6 @@ Use `forge-codex` as the global orchestrator for this workspace.
 - Let `forge-codex` handle `help` and `next` directly from repo state. Do not add a second session-restore workflow in local instructions.
 - Let `forge-codex` handle `run` through the core run-guidance engine. Do not invent a second layer that only repeats terminal output.
 - If boundaries are clear and the host can delegate safely, let `forge-codex` invoke `forge-dispatching-parallel-agents` instead of improvising parallel edits.
-- Let `forge-codex` keep `bump` and `rollback` natural-language first, but still use the core explicit release/rollback planners.
+- Let `forge-codex` keep `bump` natural-language first without reintroducing extra operator ceremony.
 - Let `forge-codex` keep `customize` and `init` thin. Do not add heavy onboarding or memory rituals around them.
 - If the user asks to bootstrap a workspace, keep the UX thin but still route through `scripts/initialize_workspace.py`.

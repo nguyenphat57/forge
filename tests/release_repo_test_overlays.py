@@ -78,7 +78,6 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "workflows" / "operator" / "next.md",
             overlay_root / "workflows" / "operator" / "run.md",
             overlay_root / "workflows" / "operator" / "bump.md",
-            overlay_root / "workflows" / "operator" / "rollback.md",
             overlay_root / "docs" / "antigravity-operator-surface.md",
             overlay_root / "data" / "preferences-compat.json",
             overlay_root / "data" / "routing-locales.json",
@@ -131,7 +130,6 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertTrue((dist_root / "workflows" / "operator" / "help.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "next.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "run.md").exists())
-        self.assertTrue((dist_root / "workflows" / "operator" / "rollback.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "customize.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "init.md").exists())
         self.assertTrue((dist_root / "workflows" / "operator" / "session.md").exists())
@@ -158,7 +156,6 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertIn("workflows/operator/help.md", build_manifest["packaging"]["required_bundle_paths"])
         self.assertIn("workflows/operator/next.md", build_manifest["packaging"]["required_bundle_paths"])
         self.assertIn("workflows/operator/run.md", build_manifest["packaging"]["required_bundle_paths"])
-        self.assertIn("workflows/operator/rollback.md", build_manifest["packaging"]["required_bundle_paths"])
         self.assertEqual(build_manifest["generated_artifacts"]["manifest_path"], "docs/architecture/host-artifacts-manifest.json")
         self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["name"], "forge-antigravity-global-gemini")
         self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["bundle_output"], "GEMINI.global.md")
@@ -214,7 +211,6 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "workflows" / "operator" / "next.md",
             overlay_root / "workflows" / "operator" / "run.md",
             overlay_root / "workflows" / "operator" / "bump.md",
-            overlay_root / "workflows" / "operator" / "rollback.md",
             overlay_root / "workflows" / "operator" / "customize.md",
             overlay_root / "workflows" / "operator" / "init.md",
             overlay_root / "docs" / "codex-operator-surface.md",

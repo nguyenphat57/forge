@@ -10,13 +10,13 @@ from package_matrix import bundle_package_spec, bundle_required_paths, default_i
 ROOT_DIR = Path(__file__).resolve().parents[1]
 DIST_DIR = ROOT_DIR / "dist"
 PACKAGES_DIR = ROOT_DIR / "packages"
-DEFAULT_BACKUP_DIR = ROOT_DIR / ".install-backups"
 DEFAULT_CODEX_HOME = Path.home() / ".codex"
 DEFAULT_GEMINI_HOME = Path.home() / ".gemini"
 DEFAULT_INSTALL_TARGETS = default_install_targets(
     codex_home=DEFAULT_CODEX_HOME.resolve(),
     gemini_home=DEFAULT_GEMINI_HOME.resolve(),
 )
+DEFAULT_INSTALL_BACKUP_RELATIVE_DIR = Path("rollbacks") / "install"
 CODEX_GLOBAL_TEMPLATE = str(bundle_package_spec("forge-codex").get("host_global_template") or "AGENTS.global.md")
 GEMINI_GLOBAL_TEMPLATE = str(bundle_package_spec("forge-antigravity").get("host_global_template") or "GEMINI.global.md")
 CODEX_LEGACY_SKILL_GLOB = "awf-*"
@@ -122,6 +122,19 @@ def build_state_metadata(
     if relative_fields == 0:
         metadata["preferences_path"] = str((state_root / STATE_PREFERENCES_RELATIVE_PATH).resolve())
     return metadata
+
+
+def resolve_default_backup_root(
+    bundle_name: str,
+    target_path: Path,
+    build_manifest: dict | None = None,
+    *,
+    codex_home: str | None = None,
+    gemini_home: str | None = None,
+) -> Path:
+    state_spec = build_manifest.get("state") if isinstance(build_manifest, dict) else None
+    state_root = _resolve_state_root(bundle_name, target_path, state_spec, codex_home=codex_home, gemini_home=gemini_home)
+    return (state_root / DEFAULT_INSTALL_BACKUP_RELATIVE_DIR).resolve()
 
 
 def validate_install_paths(source: Path, target: Path) -> None:

@@ -16,7 +16,6 @@ HELP_NEXT_CASES = json.loads((FIXTURES_DIR / "help_next_cases.json").read_text(e
 RUN_CASES = json.loads((FIXTURES_DIR / "run_cases.json").read_text(encoding="utf-8"))
 ERROR_TRANSLATION_CASES = json.loads((FIXTURES_DIR / "error_translation_cases.json").read_text(encoding="utf-8"))
 BUMP_CASES = json.loads((FIXTURES_DIR / "bump_cases.json").read_text(encoding="utf-8"))
-ROLLBACK_CASES = json.loads((FIXTURES_DIR / "rollback_cases.json").read_text(encoding="utf-8"))
 PREFERENCES_WRITE_CASES = json.loads((FIXTURES_DIR / "preferences_write_cases.json").read_text(encoding="utf-8"))
 WORKSPACE_INIT_CASES = json.loads((FIXTURES_DIR / "workspace_init_cases.json").read_text(encoding="utf-8"))
 RESPONSE_CONTRACT_CASES = json.loads((FIXTURES_DIR / "response_contract_cases.json").read_text(encoding="utf-8"))

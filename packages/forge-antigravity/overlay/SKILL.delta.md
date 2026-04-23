@@ -35,7 +35,7 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 
 ## Antigravity Operator Surface
 
-- Primary operator entrypoints are `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`.
+- Primary operator entrypoints are `help`, `next`, `run`, `bump`, `customize`, and `init`.
 - Natural-language session requests stay primary: `resume`, `continue`, `save context`, and `handover`.
 - `quality-gate` and `deploy` keep their shared core meaning inside Antigravity bundles.
 - Wrapper UX may be richer, but deterministic semantics still come from core scripts and workflows.

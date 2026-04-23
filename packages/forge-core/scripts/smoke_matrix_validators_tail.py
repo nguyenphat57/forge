@@ -11,26 +11,6 @@ def _expect_contains_in_collection(failures: list[str], values: list[str], expec
         failures.append(f"{label} missing substring: {expected!r}")
 
 
-def validate_rollback_case(case: dict, report: dict) -> list[str]:
-    failures: list[str] = []
-    _expect_equal(failures, report["status"], case["expected_status"], "status")
-    _expect_equal(
-        failures,
-        report["recommended_strategy"],
-        case["expected_strategy"],
-        "recommended_strategy",
-    )
-    _expect_equal(
-        failures,
-        report["suggested_workflow"],
-        case["expected_workflow"],
-        "suggested_workflow",
-    )
-    for expected in case.get("expected_warning_contains", []):
-        _expect_contains_in_collection(failures, report.get("warnings", []), expected, "warning")
-    return failures
-
-
 def validate_preferences_write_case(case: dict, report: dict) -> list[str]:
     failures: list[str] = []
     _expect_equal(failures, report["status"], case["expected_status"], "status")

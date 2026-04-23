@@ -19,7 +19,6 @@ Supported public actions:
 - `next`
 - `run`
 - `bump`
-- `rollback`
 - `customize`
 - `init`
 

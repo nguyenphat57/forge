@@ -56,15 +56,6 @@
       "output": "packages/forge-codex/overlay/workflows/operator/bump.md"
     },
     {
-      "name": "forge-codex-rollback-wrapper",
-      "bundle": "forge-codex",
-      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/_shared_wrapper.md",
-      "context": {
-        "action": "rollback"
-      },
-      "output": "packages/forge-codex/overlay/workflows/operator/rollback.md"
-    },
-    {
       "name": "forge-codex-customize-wrapper",
       "bundle": "forge-codex",
       "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/_shared_wrapper.md",

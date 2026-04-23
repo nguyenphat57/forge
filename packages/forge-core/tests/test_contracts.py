@@ -111,7 +111,6 @@ OPERATOR_WORKFLOW_ALLOWLIST = {
     "workflows/operator/help.md",
     "workflows/operator/init.md",
     "workflows/operator/next.md",
-    "workflows/operator/rollback.md",
     "workflows/operator/run.md",
     "workflows/operator/session.md",
 }
@@ -256,7 +255,6 @@ class BundleContractTests(unittest.TestCase):
             ".brain",
             ".forge-artifacts",
             ".git",
-            ".install-backups",
             ".pytest_cache",
             "dist",
             "docs/audits",
@@ -282,7 +280,6 @@ class BundleContractTests(unittest.TestCase):
             ".brain",
             ".forge-artifacts",
             ".git",
-            ".install-backups",
             ".pytest_cache",
             "dist",
             "docs/audits",
@@ -331,7 +328,6 @@ class BundleContractTests(unittest.TestCase):
             ".brain",
             ".forge-artifacts",
             ".git",
-            ".install-backups",
             ".pytest_cache",
             "dist",
             "docs/audits",
@@ -556,6 +552,32 @@ class BundleContractTests(unittest.TestCase):
 
     def test_dead_workspace_signals_script_is_removed(self) -> None:
         self.assertFalse((ROOT_DIR / "scripts" / "workspace_signals.py").exists())
+
+    def test_current_docs_do_not_advertise_rollback_as_an_active_operator_surface(self) -> None:
+        current_paths = (
+            ROOT_DIR.parent.parent / "docs" / "current" / "operator-surface.md",
+            ROOT_DIR.parent.parent / "docs" / "current" / "smoke-tests.md",
+            ROOT_DIR.parent.parent / "docs" / "current" / "kernel-tooling.md",
+        )
+
+        for path in current_paths:
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(path=path.name):
+                self.assertNotIn("`rollback`", text)
+                self.assertNotIn("/rollback", text)
+
+    def test_current_install_docs_do_not_normalize_repo_local_install_backups(self) -> None:
+        current_paths = (
+            ROOT_DIR.parents[1] / "README.md",
+            ROOT_DIR.parents[1] / "docs" / "release" / "install.md",
+            ROOT_DIR.parents[1] / "docs" / "current" / "install-and-activation.md",
+            ROOT_DIR.parents[1] / "scripts" / "scan_repo_secrets.py",
+        )
+
+        for path in current_paths:
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(path=path.name):
+                self.assertNotIn(".install-backups", text)
 
     def test_retired_companion_and_canary_references_leave_active_tree_but_stay_archived(self) -> None:
         repo_root = ROOT_DIR.parents[1]

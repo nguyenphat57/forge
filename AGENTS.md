@@ -18,7 +18,6 @@ Forge remains the evidence-first execution kernel for this workspace. This file 
 - Use `python scripts/repo_operator.py next --workspace C:\Users\Admin\.gemini\forge --format json` for `next`.
 - Use `python scripts/repo_operator.py run --workspace C:\Users\Admin\.gemini\forge --timeout-ms 20000 -- <command>` for `run`.
 - Use `python scripts/repo_operator.py bump --workspace C:\Users\Admin\.gemini\forge <version|major|minor|patch>` for `bump`.
-- Use `python scripts/repo_operator.py rollback --scope <scope> --format json` for `rollback`.
 - Use `python scripts/repo_operator.py customize --workspace C:\Users\Admin\.gemini\forge --format json` for `customize` preview and the same command with write flags plus `--apply` for durable updates.
 - Use `python scripts/repo_operator.py init --workspace C:\Users\Admin\.gemini\forge --format json` for `init`.
 - Keep package-level script paths as implementation detail unless the task is to edit or debug the underlying engine.

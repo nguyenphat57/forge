@@ -1,7 +1,7 @@
 # Forge Public Readiness
 
 Date: 2026-04-23
-Status: `2.14.5` is the current stable release after the sibling-skill and reference ownership migration plus latest verification gate.
+Status: `2.15.0` is the current stable release after the rollback-surface removal plus runtime-managed install-backup migration and latest verification gate.
 
 ## What This Checklist Covers
 
@@ -23,13 +23,13 @@ This checklist is for publishing the Forge monorepo to a public audience without
 ## Latest Evidence
 
 - `python -m pytest packages/forge-core/tests -q` passed on 2026-04-22
-- `python scripts/verify_repo.py` passed on 2026-04-22
+- `python scripts/verify_repo.py` passed on 2026-04-23
 - release and install flows are documented under `docs/release/`
 - final GitHub visibility steps are documented in `docs/release/github-public-switch-checklist.md`
 - real-repo canary and authenticated QA evidence is recorded in the 2026-03-29 project reports
-- release-facing docs now align on `2.14.5` as the stable source version
+- release-facing docs now align on `2.15.0` as the stable source version
 
 ## Verdict
 
-Forge `2.14.5` is in a reasonable state for public stable release under the current policy.
+Forge `2.15.0` is in a reasonable state for public stable release under the current policy.
 The hardening item above is optional evidence, not a release precondition.

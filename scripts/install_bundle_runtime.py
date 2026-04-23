@@ -12,12 +12,12 @@ from install_bundle_host import (
     plan_gemini_host_activation,
 )
 from install_bundle_paths import (
-    DEFAULT_BACKUP_DIR,
     build_state_metadata,
     ensure_bundle_source_ready,
     load_build_manifest,
     resolve_bundle_source,
     resolve_codex_home,
+    resolve_default_backup_root,
     resolve_gemini_home,
     resolve_install_target,
     validate_install_paths,
@@ -96,7 +96,17 @@ def plan_install(
     installed_fingerprint = compute_bundle_fingerprint(target_path) if target_path.exists() and target_path.is_dir() else None
     bundle_sync_required = not fingerprint_matches(source_fingerprint, installed_fingerprint)
     install_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    backup_root = Path(backup_dir).expanduser().resolve() if backup_dir else DEFAULT_BACKUP_DIR.resolve()
+    backup_root = (
+        Path(backup_dir).expanduser().resolve()
+        if backup_dir
+        else resolve_default_backup_root(
+            bundle_name,
+            target_path,
+            build_manifest,
+            codex_home=codex_home,
+            gemini_home=gemini_home,
+        )
+    )
     backup_path = (
         backup_root / f"{bundle_name}-{install_id}"
         if backup and target_path.exists() and intent != "inspect" and bundle_sync_required

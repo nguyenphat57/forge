@@ -13,7 +13,6 @@ VALID_ACTIONS = (
     "next",
     "run",
     "bump",
-    "rollback",
     "customize",
     "init",
 )
@@ -107,8 +106,6 @@ def _dispatch(action: str, args: list[str]) -> tuple[str, list[str]]:
         return "run_with_guidance.py", args
     if action == "bump":
         return "prepare_bump.py", _normalize_bump_args(args)
-    if action == "rollback":
-        return "resolve_rollback.py", _strip_workspace_arg(args)
     if action == "customize":
         return _customize_script_and_args(args)
     if action == "init":

@@ -95,7 +95,6 @@ class AntigravityHostInstallTests(unittest.TestCase):
         report = install_bundle.install_bundle(
             "forge-antigravity",
             target=str(target),
-            backup_dir=str(temp_root / "backups"),
         )
         return report, target
 
@@ -110,7 +109,6 @@ class AntigravityHostInstallTests(unittest.TestCase):
             report = install_bundle.install_bundle(
                 "forge-antigravity",
                 target=str(target),
-                backup_dir=str(temp_root / "backups"),
                 activate_gemini=True,
                 gemini_home=str(gemini_home),
             )
@@ -145,6 +143,8 @@ class AntigravityHostInstallTests(unittest.TestCase):
             host_backup_path = Path(report["gemini_host_activation"]["host_backup_path"])
             self.assertTrue(host_backup_path.exists())
             self.assertTrue((host_backup_path / "GEMINI.md").exists())
+            self.assertTrue(host_backup_path.is_relative_to(gemini_home / "antigravity" / "forge-antigravity" / "rollbacks" / "install"))
+            self.assertFalse(host_backup_path.is_relative_to(ROOT_DIR))
 
             manifest = json.loads((target / "INSTALL-MANIFEST.json").read_text(encoding="utf-8"))
             self.assertTrue(manifest["gemini_host_activation"]["enabled"])

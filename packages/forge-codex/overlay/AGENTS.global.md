@@ -101,7 +101,7 @@ Rules:
 ## Operator Surface
 
 - Natural-language requests remain the preferred entrypoint.
-- Explicit operator action names stay available when a concise form helps: `help`, `next`, `run`, `bump`, `rollback`, `customize`, `init`, and `delegate`.
+- Explicit operator action names stay available when a concise form helps: `help`, `next`, `run`, `bump`, `customize`, `init`, and `delegate`.
 - Session continuity requests stay explicit and natural-language first: `resume`, `save context`, and `handover`.
 
 ## Activation Announcement

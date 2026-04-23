@@ -63,17 +63,6 @@
           ]
         }
       },
-      "rollback": {
-        "hosts": [
-          "codex"
-        ],
-        "primary_aliases_by_host": {},
-        "natural_language_examples_by_host": {
-          "codex": [
-            "We need to roll back the last deployment"
-          ]
-        }
-      },
       "customize": {
         "hosts": [
           "codex"

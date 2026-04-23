@@ -55,10 +55,18 @@ The first operator-visible story should not be:
 
 ## Current Non-Changes
 
-- Install safety, backup behavior, and release verification remain intact.
+- Install safety, runtime-managed backup behavior, and release verification remain intact.
 - Bundle fingerprints and release packaging stay canonical.
 - Python remains in place for invariants, state, and preferences.
 - Operator/session wrappers remain thin compatibility entrypoints where needed.
+
+## Backup Root Contract
+
+- Default install snapshots no longer belong under the source repo.
+- Canonical Codex installs resolve default backup roots under `CODEX_HOME/forge-codex/rollbacks/install/`.
+- Canonical Gemini installs resolve default backup roots under `GEMINI_HOME/antigravity/forge-antigravity/rollbacks/install/`.
+- Explicit custom targets resolve default backup roots under that target's derived Forge state root, then `rollbacks/install/`.
+- `--backup-dir` remains the explicit override when an operator wants snapshots somewhere else.
 
 ## Maintainer Guardrails
 

@@ -45,17 +45,6 @@
           ]
         }
       },
-      "rollback": {
-        "hosts": [
-          "antigravity"
-        ],
-        "primary_aliases_by_host": {},
-        "natural_language_examples_by_host": {
-          "antigravity": [
-            "We need to roll back the last deployment"
-          ]
-        }
-      },
       "customize": {
         "hosts": [
           "antigravity"

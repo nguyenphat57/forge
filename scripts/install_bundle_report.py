@@ -135,7 +135,7 @@ def format_text(report: dict) -> str:
     if transition is not None:
         lines.append(f"- Transition: {transition['status']} - {transition['message']}")
     if report["backup_enabled"]:
-        lines.append(f"- Backup: {report['backup_path'] or '(not needed)'}")
+        lines.append(f"- Backup snapshot: {report['backup_path'] or '(not needed)'}")
     if not report.get("bundle_sync_required", True):
         lines.append("- Bundle sync: skipped (target already matches source)")
     if report["codex_host_activation"]["enabled"]:
@@ -146,13 +146,13 @@ def format_text(report: dict) -> str:
         lines.append(f"- Retire legacy runtime: {activation['legacy_runtime_path']}")
         if activation["legacy_skill_paths"]:
             lines.append(f"- Retire legacy skills: {', '.join(activation['legacy_skill_paths'])}")
-        lines.append(f"- Host backup: {activation['host_backup_path'] or '(not needed)'}")
+        lines.append(f"- Host snapshot: {activation['host_backup_path'] or '(not needed)'}")
     if report["gemini_host_activation"]["enabled"]:
         activation = report["gemini_host_activation"]
         lines.append("- Gemini host activation: yes")
         lines.append(f"- Gemini home: {activation['gemini_home']}")
         lines.append(f"- Global GEMINI: {activation['gemini_md_path']}")
-        lines.append(f"- Host backup: {activation['host_backup_path'] or '(not needed)'}")
+        lines.append(f"- Host snapshot: {activation['host_backup_path'] or '(not needed)'}")
     sibling_skills = report.get("sibling_skills") or {}
     if sibling_skills.get("enabled"):
         skill_names = [item["name"] for item in sibling_skills.get("skills", [])]

@@ -18,9 +18,9 @@ from install_bundle_host import (
 from install_bundle_paths import (
     CODEX_GLOBAL_TEMPLATE,
     CODEX_LEGACY_SKILL_GLOB,
-    DEFAULT_BACKUP_DIR,
     DEFAULT_CODEX_HOME,
     DEFAULT_GEMINI_HOME,
+    DEFAULT_INSTALL_BACKUP_RELATIVE_DIR,
     DEFAULT_INSTALL_TARGETS,
     DIST_DIR,
     GEMINI_GLOBAL_TEMPLATE,
@@ -35,6 +35,7 @@ from install_bundle_paths import (
     resolve_adapter_state_root,
     resolve_bundle_source,
     resolve_codex_home,
+    resolve_default_backup_root,
     resolve_gemini_home,
     resolve_install_target,
     validate_install_paths,
@@ -52,9 +53,9 @@ from install_bundle_runtime import (
 __all__ = [
     "CODEX_GLOBAL_TEMPLATE",
     "CODEX_LEGACY_SKILL_GLOB",
-    "DEFAULT_BACKUP_DIR",
     "DEFAULT_CODEX_HOME",
     "DEFAULT_GEMINI_HOME",
+    "DEFAULT_INSTALL_BACKUP_RELATIVE_DIR",
     "DEFAULT_INSTALL_TARGETS",
     "DIST_DIR",
     "GEMINI_GLOBAL_TEMPLATE",
@@ -83,6 +84,7 @@ __all__ = [
     "resolve_adapter_state_root",
     "resolve_bundle_source",
     "resolve_codex_home",
+    "resolve_default_backup_root",
     "resolve_gemini_home",
     "resolve_install_target",
     "validate_install_paths",
@@ -97,8 +99,8 @@ def main() -> int:
     parser.add_argument("--target", help="Override install target path")
     parser.add_argument("--build", action="store_true", help="Build dist bundles before installing")
     parser.add_argument("--dry-run", action="store_true", help="Print the install plan without modifying files")
-    parser.add_argument("--no-backup", action="store_true", help="Do not back up the current target before replacing it")
-    parser.add_argument("--backup-dir", help="Override backup root directory")
+    parser.add_argument("--no-backup", action="store_true", help="Do not snapshot the current target before replacing it")
+    parser.add_argument("--backup-dir", help="Override the runtime-managed backup root directory")
     parser.add_argument(
         "--activate-codex",
         action="store_true",

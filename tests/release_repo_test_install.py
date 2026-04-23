@@ -22,7 +22,6 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
             report = install_bundle.install_bundle(
                 "forge-codex",
                 target=str(target),
-                backup_dir=str(temp_root / "backups"),
                 dry_run=True,
             )
 
@@ -30,6 +29,10 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
             self.assertEqual(report["bundle"], "forge-codex")
             self.assertIsNotNone(report["backup_path"])
             self.assertFalse(Path(report["backup_path"]).exists())
+            self.assertTrue(
+                Path(report["backup_path"]).is_relative_to(temp_root / "runtime" / "forge-codex-state" / "rollbacks" / "install")
+            )
+            self.assertFalse(Path(report["backup_path"]).is_relative_to(ROOT_DIR))
 
     def test_install_bundle_rejects_retired_bundle_names(self) -> None:
         for bundle_name in ("forge-browse", "forge-design", "forge-nextjs-typescript-postgres"):
@@ -48,13 +51,16 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
             report = install_bundle.install_bundle(
                 "forge-antigravity",
                 target=str(target),
-                backup_dir=str(temp_root / "backups"),
             )
 
             self.assertTrue((target / "SKILL.md").exists())
             self.assertFalse((target / "old.txt").exists())
             self.assertIsNotNone(report["backup_path"])
             self.assertTrue(Path(report["backup_path"]).exists())
+            self.assertTrue(
+                Path(report["backup_path"]).is_relative_to(temp_root / "runtime" / "forge-antigravity-state" / "rollbacks" / "install")
+            )
+            self.assertFalse(Path(report["backup_path"]).is_relative_to(ROOT_DIR))
 
             manifest = json.loads((target / "INSTALL-MANIFEST.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["bundle"], "forge-antigravity")
@@ -90,7 +96,6 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
             install_bundle.install_bundle(
                 "forge-codex",
                 target=str(target),
-                backup_dir=str(temp_root / "backups"),
                 activate_codex=True,
                 codex_home=str(codex_home),
             )

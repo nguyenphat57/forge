@@ -29,7 +29,6 @@ Other current kernel tools:
 - `capture_continuity.py`
 - `check_workspace_router.py`
 - `prepare_bump.py`
-- `resolve_rollback.py`
 - `translate_error.py`
 - `run_smoke_matrix.py`
 - `track_chain_status.py`

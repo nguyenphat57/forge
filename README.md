@@ -1,9 +1,9 @@
 # Forge
 ### Evidence-first execution kernel.
 
-**1 core kernel, 2 host adapters, stable 2.14.5**
+**1 core kernel, 2 host adapters, stable 2.15.0**
 
-![Version](https://img.shields.io/badge/version-2.14.5-2563eb)
+![Version](https://img.shields.io/badge/version-2.15.0-2563eb)
 ![License](https://img.shields.io/badge/license-MIT-16a34a)
 ![Verification](https://img.shields.io/badge/verify-repo_passed-22c55e)
 ![Adapters](https://img.shields.io/badge/adapters-Codex%20%7C%20Antigravity-f59e0b)
@@ -118,7 +118,7 @@ graph LR
 
 - License: `MIT`
 - Repo maturity: stable release available
-- Current stable release: `2.14.5`
+- Current stable release: `2.15.0`
 - Canonical verification gate: `python scripts/verify_repo.py`
 - `forge-antigravity` is currently the most mature adapter for real rollout
 - `forge-codex` ships in the current stable release after passing the canonical release gates
@@ -220,9 +220,10 @@ python scripts/install_bundle.py forge-core --target C:\path\to\custom\runtime
 
 ### Safety Notes
 
-- Install commands back up the existing target by default into `.install-backups/`.
+- Install commands snapshot the existing target by default under the target's runtime-managed Forge state root, typically `.../rollbacks/install/`.
 - `--activate-codex` also backs up the existing Codex global entrypoint and retired legacy artifacts.
 - `--activate-gemini` backs up the existing Gemini global entrypoint when present.
+- Use `--backup-dir` when you want an explicit override outside the default runtime-managed backup root.
 - Do not install inside the repo tree, including `packages/`, `dist/`, or the repo root.
 - Use `--dry-run` before a risky rollout.
 

@@ -86,7 +86,6 @@ class CodexHostInstallTests(unittest.TestCase):
             report = install_bundle.install_bundle(
                 "forge-codex",
                 target=str(target),
-                backup_dir=str(temp_root / "backups"),
                 dry_run=True,
                 activate_codex=True,
                 codex_home=str(codex_home),
@@ -113,7 +112,6 @@ class CodexHostInstallTests(unittest.TestCase):
             report = install_bundle.install_bundle(
                 "forge-codex",
                 target=str(target),
-                backup_dir=str(temp_root / "backups"),
                 activate_codex=True,
                 codex_home=str(codex_home),
             )
@@ -150,6 +148,8 @@ class CodexHostInstallTests(unittest.TestCase):
             self.assertTrue((host_backup_path / "AGENTS.md").exists())
             self.assertTrue((host_backup_path / "awf-codex" / "workflows" / "plan.md").exists())
             self.assertTrue((host_backup_path / "skills" / "awf-session-restore" / "SKILL.md").exists())
+            self.assertTrue(host_backup_path.is_relative_to(codex_home / "forge-codex" / "rollbacks" / "install"))
+            self.assertFalse(host_backup_path.is_relative_to(ROOT_DIR))
 
             manifest = json.loads((target / "INSTALL-MANIFEST.json").read_text(encoding="utf-8"))
             self.assertTrue(manifest["codex_host_activation"]["enabled"])
@@ -187,7 +187,6 @@ class CodexHostInstallTests(unittest.TestCase):
             install_bundle.install_bundle(
                 "forge-codex",
                 target=str(target),
-                backup_dir=str(temp_root / "backups"),
                 activate_codex=True,
                 codex_home=str(codex_home),
             )
@@ -257,7 +256,6 @@ class CodexHostInstallTests(unittest.TestCase):
                 install_bundle.install_bundle(
                     "forge-codex",
                     target=str(wrong_target),
-                    backup_dir=str(temp_root / "backups"),
                     dry_run=True,
                     activate_codex=True,
                     codex_home=str(codex_home),

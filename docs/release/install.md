@@ -79,7 +79,7 @@ python scripts/install_bundle.py forge-core --dry-run --target C:\tools\forge-co
 
 ## Safety
 
-- The script automatically backs up the existing runtime into `.install-backups/` before syncing.
+- By default, the script snapshots the existing runtime under that target's runtime-managed Forge state root, typically `.../rollbacks/install/`, before syncing.
 - With `--activate-codex`, the script also backs up `~/.codex/AGENTS.md`, the legacy runtime, and any retired legacy skills.
 - Use `--backup-dir` to override the backup location.
 - Use `--no-backup` only when the target runtime is disposable.

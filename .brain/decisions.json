@@ -595,7 +595,7 @@
         "kind":  "decision",
         "scope":  "forge-2-14-stable-status",
         "summary":  "Treat 2.14.4 as a superseded Forge stable slice because the later 2.14.5 sibling-skill and reference ownership migration release replaced its stable line after a fresh release sync and canonical verification checks.",
-        "status":  "resolved",
+        "status":  "superseded",
         "evidence":  [
                          "VERSION",
                          "CHANGELOG.md",
@@ -632,8 +632,8 @@
         "id":  "20260423-000000",
         "kind":  "decision",
         "scope":  "forge-2-14-5-stable-status",
-        "summary":  "Treat 2.14.5 as the current stable Forge release because the sibling-skill and reference ownership migration, release surface sync, and canonical verification checks are complete.",
-        "status":  "resolved",
+        "summary":  "Treat 2.14.5 as a superseded Forge stable slice because the later 2.15.0 rollback-surface removal and install-backup migration release replaced its stable line after a fresh release sync and canonical verification checks.",
+        "status":  "superseded",
         "evidence":  [
                          "VERSION",
                          "CHANGELOG.md",
@@ -657,8 +657,42 @@
                      "references",
                      "verification"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 2.14.5 verification evidence.",
+        "revisit_if":  "Release archaeology needs the original 2.14.5 proof chain or later evidence invalidates the recorded verification.",
         "trigger":  "patch-release",
         "resume_hint":  "Resume only if a later audit needs the original 2.14.5 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260423-084500",
+        "kind":  "decision",
+        "scope":  "forge-2-15-stable-status",
+        "summary":  "Treat 2.15.0 as the current stable Forge release because the rollback-surface removal, runtime-managed install-backup migration, release sync, and canonical verification checks are complete.",
+        "status":  "resolved",
+        "evidence":  [
+                         "VERSION",
+                         "CHANGELOG.md",
+                         "README.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "scripts/repo_operator.py",
+                         "packages/forge-core/data/orchestrator-registry.json",
+                         "packages/forge-core/scripts/resolve_rollback.py",
+                         "scripts/install_bundle_paths.py",
+                         "scripts/install_bundle_runtime.py",
+                         "python -m pytest tests/test_repo_operator_script_shims.py tests/test_operator_surface_registry.py tests/test_host_artifact_generation.py -q -> PASS on 2026-04-23",
+                         "python -m pytest tests/release_repo_test_overlays.py tests/release_repo_test_contracts.py packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-23",
+                         "python -m pytest tests/release_repo_test_install.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py tests/test_release_acceleration.py tests/test_runtime_tool_registration.py packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-23",
+                         "python scripts/verify_repo.py -> PASS on 2026-04-23"
+                     ],
+        "next":  [],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "rollback",
+                     "install",
+                     "verification"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 2.15.0 verification evidence.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 2.15.0 proof chain or invalidates the recorded verification."
     }
 ]

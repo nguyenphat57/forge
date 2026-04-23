@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.15.0 (stable) - 2026-04-23
+
+- Remove `rollback` from the current Forge product line by deleting the public repo action, installed host wrappers, rollback planner and guidance assets, generated operator-surface references, and rollback-specific smoke or test coverage.
+- Move install snapshots out of the source repo by replacing the repo-root `.install-backups/` default with runtime-managed backup roots derived from each target's Forge state layout while keeping `--backup-dir` as an explicit override.
+- Refresh release-facing and continuity surfaces so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` align on `2.15.0` as the current stable line after the latest verification gate.
+
+
 ## 2.14.5 (stable) - 2026-04-23
 
 - Move canonical sibling skill ownership to `packages/forge-skills`, colocate skill-owned and workflow-owned references with their real owners, and remove the remaining root `references/` tree from active `forge-core` source plus runtime bundles.

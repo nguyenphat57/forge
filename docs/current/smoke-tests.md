@@ -222,29 +222,6 @@ Increase the minor version and give yourself a checklist for the next release.
 
 ---
 
-### FT-03g: Rollback planning
-
-**Prompt**
-
-```text
-/rollback
-Release production just broke the login, there is an artifact from the previous version. Plan the safest rollback for me.
-```
-
-**Expected**
-
-- Use the `rollback` operator wrapper
-- Finalize scope and risk first
-- Provide a clear strategy + verification checklist
-- If it is a migration/data risk, blind rollback is not recommended
-
-**Fail if**
-
-- Propose rollback immediately without mentioning risks
-- There is no verification step after rollback
-
----
-
 ### FT-03h: Customize preferences
 
 **Prompt**
@@ -449,7 +426,7 @@ Please help me check if this app is ready for production.
 **Fail if**
 
 - Give deploy pass only verbally
-- No security decision or rollback prompts
+- No security or recovery prompts
 
 ---
 

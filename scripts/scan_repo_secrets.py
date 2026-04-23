@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-IGNORED_DIRS = {".git", ".install-backups", ".pytest_cache", "__pycache__", "dist"}
+IGNORED_DIRS = {".git", ".pytest_cache", "__pycache__", "dist"}
 IGNORED_EXTENSIONS = {
     ".png",
     ".jpg",

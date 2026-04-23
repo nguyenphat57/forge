@@ -49,7 +49,6 @@ class HostArtifactGenerationTests(unittest.TestCase):
                 "forge-codex-next-wrapper",
                 "forge-codex-run-wrapper",
                 "forge-codex-bump-wrapper",
-                "forge-codex-rollback-wrapper",
                 "forge-codex-customize-wrapper",
                 "forge-codex-init-wrapper",
             }
@@ -61,7 +60,7 @@ class HostArtifactGenerationTests(unittest.TestCase):
         )
         self.assertEqual(
             {item["context"]["action"] for item in specs},
-            {"help", "next", "run", "bump", "rollback", "customize", "init"},
+            {"help", "next", "run", "bump", "customize", "init"},
         )
 
 

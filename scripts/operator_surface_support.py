@@ -272,29 +272,6 @@ def _codex_action_config(action_name: str) -> dict:
             ),
             "announcement": "Forge Codex: bump | release change with explicit or inferred semver",
         },
-        "rollback": {
-            "heading": "Rollback - Codex Operator Wrapper",
-            "goal": "keep the rollback flow short and risk-first for the Codex, don't turn it into a command ritual.",
-            "trigger": "natural-language request to undo or roll back a release",
-            "quality_gates": [
-                "Scope and risk are classified first",
-                "Recovery strategy comes from the core planner",
-                "Post-rollback verification is stated",
-            ],
-            "process": lambda command: "\n".join(
-                [
-                    "1. Resolve using core planner:",
-                    "",
-                    _code_block([command + " --format json"]),
-                    "",
-                    "2. Short answer:",
-                    "   - scope and risk",
-                    "   - the safest strategy",
-                    "   - verify after rollback",
-                ]
-            ),
-            "announcement": "Forge Codex: rollback | classify scope, then recover safely",
-        },
         "customize": {
             "heading": "Customize - Codex Preference Wrapper",
             "goal": "give Codex a short customization flow without inventing host-local preference schema.",
