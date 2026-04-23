@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import os
 import subprocess
-from pathlib import Path
 
-from smoke_matrix_cases import FORGE_HOMES_DIR, ROOT_DIR, RUN_HELPERS_DIR
+from smoke_matrix_cases import FORGE_HOMES_DIR, ROOT_DIR
 
 
 def _smoke_matrix_env(env: dict[str, str] | None = None) -> dict[str, str]:
@@ -35,17 +34,6 @@ def run_command(command: list[str], *, env: dict[str, str] | None = None) -> sub
         check=False,
         env=_smoke_matrix_env(env),
     )
-
-
-def resolve_run_command(parts: list[str]) -> list[str]:
-    resolved: list[str] = []
-    for part in parts:
-        candidate = RUN_HELPERS_DIR / part
-        if part.endswith(".py") and candidate.exists():
-            resolved.append(str(candidate))
-        else:
-            resolved.append(part)
-    return resolved
 
 
 def case_failure(suite: str, name: str, message: str, output: str) -> dict:

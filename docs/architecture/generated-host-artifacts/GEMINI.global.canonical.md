@@ -90,7 +90,7 @@ Rules:
 ## Operator Surface
 
 - Natural-language requests remain the preferred entrypoint.
-- Explicit operator action names stay available when a concise form helps: `bump`.
+- Release bump preparation routes through the sibling skill `forge-bump-release`.
 - Guidance, next-step selection, and command execution stay natural-language first through Forge skills and host-native tools.
 
 Session requests stay natural-language:

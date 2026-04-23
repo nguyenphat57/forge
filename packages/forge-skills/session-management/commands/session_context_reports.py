@@ -3,15 +3,12 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from help_next_support import (
+from operator_state_resolution import (
     filter_stale_session_items,
-    read_git_status,
-    read_handover_excerpt,
     session_blocker,
     session_status_value,
     workflow_state_has_actionable_slice,
 )
-from resolve_help_next import build_report as build_help_next_report
 from workflow_state_support import resolve_workflow_state
 
 from session_context_io import (
@@ -26,6 +23,11 @@ from session_context_io import (
     workspace_path_strings,
     write_session,
 )
+from session_context_navigator import build_session_navigator
+from session_context_workspace import (
+    read_git_status,
+    read_handover_excerpt,
+)
 
 
 OWNER = "forge-session-management"
@@ -33,7 +35,7 @@ OWNER = "forge-session-management"
 
 def build_save_report(workspace: Path, args: argparse.Namespace) -> dict:
     warnings: list[str] = []
-    navigator = build_help_next_report(workspace, "next")
+    navigator = build_session_navigator(workspace, "next", warnings)
     workflow_report = resolve_workflow_state(workspace, warnings)
     workflow_state = workflow_report["state"] if isinstance(workflow_report, dict) else None
     git_state = read_git_status(workspace)
@@ -93,7 +95,7 @@ def build_save_report(workspace: Path, args: argparse.Namespace) -> dict:
 
 def build_resume_report(workspace: Path) -> dict:
     warnings: list[str] = []
-    navigator = build_help_next_report(workspace, "next")
+    navigator = build_session_navigator(workspace, "next", warnings)
     workflow_report = resolve_workflow_state(workspace, warnings)
     git_state = read_git_status(workspace)
     session_path = workspace / ".brain" / "session.json"

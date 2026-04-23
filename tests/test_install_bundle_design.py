@@ -30,6 +30,7 @@ FORGE_SIBLING_SKILLS = [
     "forge-verification-before-completion",
     "forge-finishing-a-development-branch",
     "forge-customize",
+    "forge-bump-release",
     "forge-writing-skills",
     "forge-session-management",
 ]
@@ -66,6 +67,13 @@ EXPECTED_SIBLING_SKILL_REFERENCES = {
         "references/forge-preferences.md",
         "references/forge-paths.md",
     ],
+    "forge-bump-release": [
+        "references/bump-release.md",
+        "references/scripts/prepare_bump.py",
+        "references/scripts/prepare_bump_git.py",
+        "references/scripts/prepare_bump_report.py",
+        "references/scripts/prepare_bump_semver.py",
+    ],
 }
 
 
@@ -85,6 +93,9 @@ class RetiredBundleMatrixTests(unittest.TestCase):
                 self.assertTrue((ROOT_DIR / "dist" / skill_name / "SKILL.md").exists())
                 self.assertFalse((ROOT_DIR / "dist" / skill_name / "scripts").exists())
                 self.assertEqual((ROOT_DIR / "dist" / skill_name / "data").exists(), skill_name in SIBLING_SKILLS_WITH_DATA)
+        for bundle_name in ("forge-codex", "forge-antigravity"):
+            with self.subTest(bundle=bundle_name):
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "workflows" / "operator" / "bump.md").exists())
         for skill_name, relative_paths in EXPECTED_SIBLING_SKILL_REFERENCES.items():
             for relative_path in relative_paths:
                 with self.subTest(skill=skill_name, path=relative_path):

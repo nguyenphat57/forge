@@ -22,7 +22,6 @@ SESSION_MODE_LABELS = {
     "save": "save context",
     "handover": "handover",
 }
-CODEX_OPERATOR_SHARED_TEMPLATE_PATH = "docs/architecture/generated-host-artifacts/codex/workflows/operator/_shared_wrapper.md"
 
 
 def _load_json(path: Path) -> object:
@@ -144,78 +143,8 @@ def _metadata_by_name(bundle_name: str, section_name: str, item_name: str) -> di
     return metadata if isinstance(metadata, dict) else {}
 
 
-def _yaml_list(items: list[str]) -> str:
-    return "\n".join(f"  - {item}" for item in items)
-
-
-def _code_block(commands: list[str]) -> str:
-    normalized = [item for item in commands if item.strip()]
-    rendered = [f"python {item}" if not item.startswith("python ") else item for item in normalized]
-    return "```powershell\n" + "\n".join(rendered) + "\n```"
-
-
-def _codex_action_config(action_name: str) -> dict:
-    configs = {
-        "bump": {
-            "heading": "Bump - Codex Operator Wrapper",
-            "goal": "keep the bump flow short and clear for Codex, but still follow the core's user-requested + justified semver contract.",
-            "trigger": "explicit request to bump version or prepare a release",
-            "quality_gates": [
-                "User-requested only: do not treat generic wrap-up as a bump request",
-                "Current version is stated and target version is either explicit or justified by inference",
-                "Release verification steps are surfaced",
-                "Wrapper does not hide core semver/change checklist",
-            ],
-            "process": lambda command: "\n".join(
-                [
-                    "1. If the user has not stated the bump level, infer from the repo diff and briefly state the reason.",
-                    "2. Preview/apply using core planner:",
-                    "",
-                    _code_block(
-                        [
-                            "commands/prepare_bump.py --workspace <workspace>",
-                            "commands/prepare_bump.py --workspace <workspace> --bump minor",
-                            "commands/prepare_bump.py --workspace <workspace> --bump minor --apply --release-ready",
-                        ]
-                    ),
-                    "",
-                    "3. Short answer:",
-                    "   - version from -> to",
-                    "   - bump source: explicit or inferred",
-                    "   - file changed",
-                    "   - Which verification must be run?",
-                ]
-            ),
-            "announcement": "Forge Codex: bump | release change with explicit or inferred semver",
-        },
-    }
-    return configs[action_name]
-
-
-def render_codex_operator_wrapper(action_name: str) -> str:
-    config = _codex_action_config(action_name)
-    metadata = _metadata_by_name("forge-codex", "actions", action_name)
-    command = metadata.get("core_engine_entrypoint", "")
-    triggers = [config["trigger"]]
-    source_text = (
-        Path(ROOT_DIR / CODEX_OPERATOR_SHARED_TEMPLATE_PATH)
-        .read_text(encoding="utf-8")
-        .replace("{{FORGE_CODEX_OPERATOR_NAME}}", action_name)
-        .replace("{{FORGE_CODEX_OPERATOR_TRIGGERS}}", _yaml_list(triggers))
-        .replace("{{FORGE_CODEX_OPERATOR_QUALITY_GATES}}", _yaml_list(config["quality_gates"]))
-        .replace("{{FORGE_CODEX_OPERATOR_HEADING}}", config["heading"])
-        .replace("{{FORGE_CODEX_OPERATOR_GOAL}}", config["goal"])
-        .replace("{{FORGE_CODEX_OPERATOR_PROCESS}}", config["process"](command))
-        .replace("{{FORGE_CODEX_OPERATOR_ANNOUNCEMENT}}", config["announcement"])
-    )
-    return source_text
-
-
 def render_contextual_placeholders(source_text: str, bundle_name: str, context: dict | None = None) -> str:
-    context = context or {}
-    action_name = context.get("action")
-    if bundle_name == "forge-codex" and action_name in host_operator_surface(bundle_name)["actions"]:
-        return render_codex_operator_wrapper(action_name)
+    del bundle_name, context
     return source_text
 
 

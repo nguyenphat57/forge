@@ -10,14 +10,14 @@ If you were dispatched as a subagent to execute a specific task packet, skip thi
 # Forge Antigravity - Markdown-First Host Adapter
 
 > Forge Antigravity maps the Forge kernel onto Antigravity without forking skill meaning.
-> Host UX may be richer, but sibling Forge skills remain the workflow-first control contract.
+> Host UX may be richer, but sibling Forge skills remain the process control contract.
 
 <EXTREMELY-IMPORTANT>
 - Before any response or action, restore personalization and check Forge sibling skills.
 - If there is even a 1% chance a Forge skill applies, load it first.
 - This is not negotiable.
-- Questions are tasks. Exploration is work. Workflow check happens first.
-- Process workflows first.
+- Questions are tasks. Exploration is work. Skill check happens first.
+- Process skills first.
 - Proof before claims is non-negotiable.
 - For behavioral changes with a viable harness, write and verify one failing test before implementation code.
 - Code written before RED must be deleted.
@@ -31,13 +31,12 @@ If you were dispatched as a subagent to execute a specific task packet, skip thi
 3. This adapter only maps that contract onto Antigravity-native access.
 4. Host convenience must not reintroduce a parallel routing policy.
 
-## How To Access Forge Workflows
+## How To Access Forge Skills
 
 - Host bootstrap files explain activation and bindings; they do not replace sibling Forge skills.
 - Natural language is primary; host wrappers stay secondary to explicit skill invocation and plain action names.
 - Sibling skills such as `forge-brainstorming`, `forge-writing-plans`, `forge-executing-plans`, `forge-systematic-debugging`, and `forge-verification-before-completion` are host-native skills.
 - Completion siblings include `forge-verification-before-completion` and `forge-finishing-a-development-branch`.
-- Compatibility files under `workflows/` are aliases, not the source of truth.
 - Use Forge skill markdown, specs, plans, and workflow-state artifacts as the source of truth.
 
 ## The Rule
@@ -51,21 +50,21 @@ If you were dispatched as a subagent to execute a specific task packet, skip thi
 | Rationalization | Reality |
 | --- | --- |
 | "Antigravity memory already covers this." | Conversation memory does not replace workflow artifacts. |
-| "I can answer first and open the workflow after." | Workflow check happens first. |
+| "I can answer first and open the skill after." | Skill check happens first. |
 | "A deterministic helper should explain the workflow." | Python is support machinery, not the public story. |
-| "This is small enough to skip the workflow check." | Small work still needs the 1% rule. |
-| "I'll ask a quick question first." | Questions are tasks. Workflow check happens first. |
+| "This is small enough to skip the skill check." | Small work still needs the 1% rule. |
+| "I'll ask a quick question first." | Questions are tasks. Skill check happens first. |
 | "I need more context before checking skills." | Skill check comes before clarifying questions and exploration. |
 | "Let me explore the repo first." | Skills tell you how to explore; check them first. |
 | "I can do one quick thing before invoking a skill." | Check before doing anything that changes scope or evidence. |
-| "I already know what to build." | Process workflows first when they apply. |
+| "I already know what to build." | Process skills first when they apply. |
 | "I remember the skill already." | Read the current skill; do not rely on memory. |
 | "This workflow feels like overkill." | The 1% rule exists to stop that rationalization. |
 | "I can claim it now and verify later." | Proof before claims is not negotiable. |
 
 ## Workflow Priority
 
-- Process workflows first: `forge-brainstorming`, `forge-systematic-debugging`, `forge-session-management`
+- Process skills first: `forge-brainstorming`, `forge-systematic-debugging`, `forge-session-management`
 - Planning and control: `forge-writing-plans`, `forge-verification-before-completion`
 - Implementation: `forge-executing-plans`, `forge-test-driven-development`, review and branch-finishing skills
 - Meta skill work: `forge-writing-skills` when creating, editing, absorbing, or testing skills

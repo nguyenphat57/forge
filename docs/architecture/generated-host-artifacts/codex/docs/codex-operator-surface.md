@@ -13,8 +13,8 @@ Session requests:
 ## Codex Rules
 
 - Natural language is the primary surface.
-- Explicit operator action names such as `bump` or `delegate` are acceptable when a concise form helps.
+- `delegate` is the only Codex-specific concise action name; release bump preparation routes through `forge-bump-release`.
 - Guidance, next-step selection, and command execution stay natural-language first through Forge skills and host-native tools.
-- Wrapper docs may clarify output shape, but they must not fork core semantics.
+- Skill docs may clarify output shape, but they must not fork core semantics.
 - Do not add heavy session wrappers or onboarding ceremony here.
 - `AGENTS.md` should stay thin and point back to Forge instead of duplicating logic.

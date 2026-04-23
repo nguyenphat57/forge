@@ -34,6 +34,13 @@ EXPECTED_SIBLING_SKILL_REFERENCES = {
         "references/forge-preferences.md",
         "references/forge-paths.md",
     ],
+    "forge-bump-release": [
+        "references/bump-release.md",
+        "references/scripts/prepare_bump.py",
+        "references/scripts/prepare_bump_git.py",
+        "references/scripts/prepare_bump_report.py",
+        "references/scripts/prepare_bump_semver.py",
+    ],
 }
 
 
@@ -204,7 +211,7 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
 
         self.assertFalse(stale_dist.exists())
 
-    def test_build_release_includes_codex_generated_wrapper_artifacts(self) -> None:
+    def test_build_release_includes_codex_generated_artifacts_without_workflows(self) -> None:
         build_release.build_all()
         manifest = json.loads((ROOT_DIR / "dist" / "forge-codex" / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
         agents_text = (ROOT_DIR / "dist" / "forge-codex" / "AGENTS.global.md").read_text(encoding="utf-8")
@@ -217,12 +224,14 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertNotIn("workflows/operator/help.md", required)
         self.assertNotIn("workflows/operator/next.md", required)
         self.assertNotIn("workflows/operator/run.md", required)
-        self.assertIn("workflows/operator/bump.md", required)
+        self.assertNotIn("workflows/operator/bump.md", required)
+        self.assertFalse(any(path.startswith("workflows/") for path in required))
         self.assertNotIn("workflows/operator/session.md", outputs)
         self.assertNotIn("workflows/operator/help.md", outputs)
         self.assertNotIn("workflows/operator/next.md", outputs)
         self.assertNotIn("workflows/operator/run.md", outputs)
-        self.assertIn("workflows/operator/bump.md", outputs)
+        self.assertNotIn("workflows/operator/bump.md", outputs)
+        self.assertFalse(any(path.startswith("workflows/") for path in outputs))
         self.assertNotIn("Compatibility aliases:", agents_text)
         self.assertNotIn("Operator aliases:", agents_text)
         self.assertNotIn("/delegate", agents_text)
@@ -233,26 +242,15 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertNotIn("/customize", gemini_text)
         self.assertNotIn("/init", gemini_text)
 
-    def test_core_workflow_tree_is_operator_only_in_source_and_dist(self) -> None:
+    def test_core_workflow_tree_is_retired(self) -> None:
         build_release.build_all()
-        expected = {
-            "workflows/operator/bump.md",
-            "workflows/operator/references/bump-release.md",
-            "workflows/operator/references/help-next.md",
-            "workflows/operator/references/personalization.md",
-            "workflows/operator/references/run-guidance.md",
-        }
 
         for base in (
             ROOT_DIR / "packages" / "forge-core",
             ROOT_DIR / "dist" / "forge-core",
         ):
             with self.subTest(base=base):
-                actual = {
-                    path.relative_to(base).as_posix()
-                    for path in (base / "workflows").rglob("*.md")
-                }
-                self.assertEqual(actual, expected)
+                self.assertFalse((base / "workflows").exists())
 
     def test_build_release_keeps_core_bundle_english_only(self) -> None:
         build_release.build_all()
@@ -323,7 +321,6 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
     def test_split_skill_target_tokens_are_visible(self) -> None:
         target_state = (ROOT_DIR / "docs" / "current" / "target-state.md").read_text(encoding="utf-8")
         architecture_layers = (ROOT_DIR / "docs" / "architecture" / "architecture-layers.md").read_text(encoding="utf-8")
-        help_next = (ROOT_DIR / "packages" / "forge-core" / "workflows" / "operator" / "references" / "help-next.md").read_text(encoding="utf-8")
         skill = (ROOT_DIR / "packages" / "forge-core" / "SKILL.md").read_text(encoding="utf-8")
 
         for token in (
@@ -338,7 +335,6 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         for token, text in (
             ("packages/forge-skills/", architecture_layers),
             ("Sibling Skill Pack", architecture_layers),
-            ("docs/current/target-state.md", help_next),
         ):
             with self.subTest(reference_token=token):
                 self.assertIn(token, text)
@@ -363,7 +359,7 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         for token in (
             "Forge sibling skills",
             "Source Repo",
-            "repo_operator.py",
+            "forge-bump-release",
         ):
             with self.subTest(reference_token=token):
                 self.assertIn(token, operator_surface)
@@ -397,17 +393,24 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertIn("verify_repo.py --profile fast", readme)
         self.assertIn("bounded slice", readme)
 
-    def test_adapter_bump_contracts_stay_aligned_with_core(self) -> None:
-        core_bump = ROOT_DIR / "packages" / "forge-core" / "workflows" / "operator" / "bump.md"
+    def test_bump_release_contract_is_owned_by_sibling_skill(self) -> None:
+        bump_skill = ROOT_DIR / "packages" / "forge-skills" / "bump-release" / "SKILL.md"
+        bump_reference = ROOT_DIR / "packages" / "forge-skills" / "bump-release" / "references" / "bump-release.md"
+        bump_script = ROOT_DIR / "packages" / "forge-skills" / "bump-release" / "references" / "scripts" / "prepare_bump.py"
         core_skill = ROOT_DIR / "packages" / "forge-core" / "SKILL.md"
-        antigravity_bump = ROOT_DIR / "packages" / "forge-antigravity" / "overlay" / "workflows" / "operator" / "bump.md"
         antigravity_skill = ROOT_DIR / "packages" / "forge-antigravity" / "overlay" / "SKILL.md"
-        codex_bump = ROOT_DIR / "packages" / "forge-codex" / "overlay" / "workflows" / "operator" / "bump.md"
         codex_skill = ROOT_DIR / "packages" / "forge-codex" / "overlay" / "SKILL.md"
 
+        self.assertTrue(bump_skill.exists())
+        self.assertTrue(bump_reference.exists())
+        self.assertTrue(bump_script.exists())
         self.assertIn(
             "Current version is stated and target version is either explicit or justified by inference",
-            core_bump.read_text(encoding="utf-8"),
+            bump_skill.read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            "python references/scripts/prepare_bump.py --workspace <workspace>",
+            bump_reference.read_text(encoding="utf-8"),
         )
         self.assertIn(
             "Proof before claims is non-negotiable",
@@ -421,8 +424,9 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
             "Proof before claims is non-negotiable",
             codex_skill.read_text(encoding="utf-8"),
         )
-        self.assert_bump_wrapper_matches_release_contract(antigravity_bump, label="forge-antigravity")
-        self.assert_bump_wrapper_matches_release_contract(codex_bump, label="forge-codex")
+        self.assertFalse((ROOT_DIR / "packages" / "forge-core" / "workflows" / "operator" / "bump.md").exists())
+        self.assertFalse((ROOT_DIR / "packages" / "forge-antigravity" / "overlay" / "workflows" / "operator" / "bump.md").exists())
+        self.assertFalse((ROOT_DIR / "packages" / "forge-codex" / "overlay" / "workflows" / "operator" / "bump.md").exists())
 
     def test_sibling_skill_build_manifests_declare_self_contained_reference_files(self) -> None:
         build_release.build_all()

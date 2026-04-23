@@ -8,8 +8,8 @@ from tempfile import TemporaryDirectory
 from support import run_python_script
 
 
-class PlanTransitionHelpNextTests(unittest.TestCase):
-    def test_design_approved_brainstorm_advances_next_to_plan(self) -> None:
+class PlanTransitionSessionTests(unittest.TestCase):
+    def test_design_approved_brainstorm_advances_resume_to_plan(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
             (workspace / "README.md").write_text("# Workflow Workspace\n", encoding="utf-8")
@@ -53,11 +53,10 @@ class PlanTransitionHelpNextTests(unittest.TestCase):
             self.assertEqual(direction.returncode, 0, direction.stderr)
 
             result = run_python_script(
-                "resolve_help_next.py",
+                "session_context.py",
+                "resume",
                 "--workspace",
                 str(workspace),
-                "--mode",
-                "next",
                 "--format",
                 "json",
             )
@@ -65,7 +64,7 @@ class PlanTransitionHelpNextTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         report = json.loads(result.stdout)
         self.assertEqual(report["current_focus"], "Recorded workflow stage: plan")
-        self.assertEqual(report["suggested_workflow"], "plan")
+        self.assertIn("Write the implementation plan", report["best_next_step"])
 
     def test_plan_stage_stays_active_until_execution_choice_is_recorded(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -105,11 +104,10 @@ class PlanTransitionHelpNextTests(unittest.TestCase):
             self.assertEqual(stage.returncode, 0, stage.stderr)
 
             result = run_python_script(
-                "resolve_help_next.py",
+                "session_context.py",
+                "resume",
                 "--workspace",
                 str(workspace),
-                "--mode",
-                "next",
                 "--format",
                 "json",
             )
@@ -117,8 +115,7 @@ class PlanTransitionHelpNextTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         report = json.loads(result.stdout)
         self.assertEqual(report["current_focus"], "Recorded workflow stage: plan")
-        self.assertEqual(report["suggested_workflow"], "plan")
-        self.assertIn("Choose inline-execution or subagent-driven", report["recommended_action"])
+        self.assertIn("Choose inline-execution or subagent-driven", report["best_next_step"])
 
 
 if __name__ == "__main__":

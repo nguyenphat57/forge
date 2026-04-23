@@ -6,11 +6,11 @@ Describe the live Forge architecture after the split-skill cutover, without send
 
 ## Current Topology
 
-- `packages/forge-core/` owns the host-neutral bootstrap contract: bootstrap wording, workflow-state semantics, verification invariants, and operator/session compatibility wrappers.
+- `packages/forge-core/` owns the host-neutral bootstrap contract: bootstrap wording, workflow-state semantics, verification invariants, and shared runtime contracts.
 - `packages/forge-skills/customize/` owns durable preference runtime source; release builds materialize its commands, shared modules, and schema into installed adapter bundles.
 - `packages/forge-skills/` is the source of truth for host-discoverable Forge process skills such as `forge-brainstorming`, `forge-writing-plans`, `forge-systematic-debugging`, and `forge-verification-before-completion`.
-- `packages/forge-core/workflows/` is operator/session compatibility only. These files keep continuity wrappers working, but they point back to sibling skills.
-- `packages/forge-codex/overlay/` and `packages/forge-antigravity/overlay/` adapt the shared contract to host-native bootstrap files, installed skill layout, and operator wrappers.
+- The retired `workflows/` folder is no longer part of the active source tree; sibling skills own process guidance directly.
+- `packages/forge-codex/overlay/` and `packages/forge-antigravity/overlay/` adapt the shared contract to host-native bootstrap files, installed skill layout, and adapter docs.
 - `docs/current/` is the live maintainer-facing explanation surface; pre-`2.15.0` roadmap/spec history is available through git history instead of live archive docs.
 
 ## Control Architecture

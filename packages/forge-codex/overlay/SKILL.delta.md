@@ -1,11 +1,11 @@
 ---
   name: forge-codex
-  description: "Forge Codex - Codex adapter for Forge core. Use when a request needs Forge sibling skills, verification guardrails, the Codex-native bump wrapper, and optional native delegation."
+  description: "Forge Codex - Codex adapter for Forge core. Use when a request needs Forge sibling skills, verification guardrails, release bump skill routing, and optional native delegation."
 ---
 
 # Forge Codex - Host Adapter Delta
 
-> Forge Codex maps the Forge evidence-first kernel onto Codex through `AGENTS.md`, host-native sibling skills, the release bump wrapper, and native delegation when the slice is safe to split.
+> Forge Codex maps the Forge evidence-first kernel onto Codex through `AGENTS.md`, host-native sibling skills, release bump skill routing, and native delegation when the slice is safe to split.
 
 ## Host Boundary
 
@@ -25,7 +25,7 @@
 ## Codex Operator Surface
 
 - `forge-codex` is natural-language first.
-- The remaining primary operator entrypoint is `bump`.
+- Release bump preparation routes through the sibling skill `forge-bump-release`.
 - `delegate` maps to `forge-dispatching-parallel-agents` when a concise operator action name helps.
 - Guidance, next-step selection, and command execution stay natural-language first through Forge skills and host-native tools.
 - Durable response-style changes route through `forge-customize` instead of a dedicated operator wrapper.

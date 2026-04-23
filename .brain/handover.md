@@ -1,9 +1,11 @@
 HANDOVER
-- Current task: Forge 4.0.0 stable release prepared after removing help, next, and run from the public operator surface.
+- Current task: Forge 5.0.0 stable release prepared after moving release bump, bootstrap, session, and delegation behavior to sibling skills and retiring workflows.
 - Status: released
-- Pending:
-  - Resume the recorded workflow stage 'plan' before opening new scope.
+- Pending: (none)
 - Verification run:
+  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --format json -> PASS, inferred major 4.0.0 to 5.0.0 with high confidence on 2026-04-23
+  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.0.0 on 2026-04-23
+  - python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-23 after 5.0.0 continuity update
   - python -m pytest tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py tests/test_host_artifact_generation.py packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_help_next.py packages/forge-core/tests/test_run_workflow.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> 95 passed, 86461 subtests passed on 2026-04-23
   - python scripts/build_release.py --force --format json -> PASS with all bundles at 4.0.0 on 2026-04-23
   - python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23
@@ -13,6 +15,9 @@ HANDOVER
   - python -m pytest tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_session_context.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> 83 passed, 86779 subtests passed on 2026-04-23
   - python scripts/build_release.py --force --format json -> PASS on 2026-04-23
 - Important decisions:
+  - Bump 4.0.0 to 5.0.0 as major because this slice removes the remaining public operator/workflow compatibility surface and moves release bump, bootstrap, session, and delegation behavior to sibling skills.
+  - Treat forge-bump-release as the canonical release bump surface; do not revive repo_operator.py bump or workflows/operator/bump.md.
+  - Retire active workflows/ folders from core, Codex overlay, Antigravity overlay, generated host artifacts, and dist bundles.
   - Bump 3.3.0 to 4.0.0 as major because this slice removes public help, next, and run operator actions from repo and host surfaces.
   - Keep resolve_help_next.py and run_with_guidance.py as internal forge-core owner commands with owner report metadata.
   - Keep guidance, next-step selection, and command execution natural-language first through Forge skills and host-native tools.
@@ -22,7 +27,8 @@ HANDOVER
   - Keep durable preference changes natural-language first through forge-customize rather than a public repo or host customize operator action.
   - forge-session-management owns resume, save context, handover, and deterministic session command reports.
 - Risks:
+  - Full non-fast release suite was not rerun after the final 5.0.0 continuity update.
   - Full non-fast release suite was not rerun after the final 4.0.0 continuity update.
   - Full non-fast release suite was not rerun after the final 3.3.0 continuity update.
 - Blockers: (none)
-- Next step: Resume the recorded workflow stage 'plan' before opening new scope.
+- Next step: No pending release task.

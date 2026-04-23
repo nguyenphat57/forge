@@ -8,10 +8,10 @@ Contents:
 - generated `SKILL.md` as the checked-in merged source artifact
 - `AGENTS.example.md` for workspace integration
 - `AGENTS.global.md` for taking over the global Codex host entrypoint
-- `workflows/execution/dispatch-subagents.md` as a thin compatibility wrapper for `forge-dispatching-parallel-agents`
+- `delegate` routes directly to `forge-dispatching-parallel-agents`
 - `forge-session-management` as the sole owner for resume, save context, and handover
 - sibling Forge skills installed next to `forge-codex` for process activation
-- a thin operator wrapper for release `bump`
+- sibling skill `forge-bump-release` for release bump preparation
 - sibling skill `forge-init` for workspace bootstrap and docs normalization
 - `codex-operator-surface.md` for the adapter boundary and alias policy
 

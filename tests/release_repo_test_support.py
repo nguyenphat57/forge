@@ -25,15 +25,10 @@ class ReleaseRepoTestSupport(unittest.TestCase):
         self.assertIn("1% chance", lowered, label)
         self.assertIn("before any response or action", lowered, label)
         self.assertIn("restore personalization", lowered, label)
-        self.assertIn("process workflows first", lowered, label)
+        self.assertIn("process skills first", lowered, label)
         self.assertIn("route_preview is not the current public contract", lowered, label)
 
-    def assert_bump_wrapper_matches_release_contract(self, path: Path, *, label: str) -> None:
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("Current version is stated and target version is either explicit or justified by inference", text, label)
-        self.assertIn("python commands/prepare_bump.py --workspace <workspace>", text, label)
-        self.assertIn("bump source: explicit or inferred", text, label)
-        self.assertIn("explicit or inferred semver", text, label)
+        self.assertIn("sibling Forge skills", text, label)
 
     def assert_session_restores_preferences(self, path: Path, *, label: str) -> None:
         text = path.read_text(encoding="utf-8")

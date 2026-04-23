@@ -4,20 +4,12 @@
 
 ## Source Repo
 
-The source repo has one canonical operator entrypoint:
-
-```powershell
-python scripts/repo_operator.py <action> ...
-```
-
-Supported public actions:
-
-- `bump`
+The source repo no longer has a repo-root operator entrypoint.
 
 Notes:
 
-- `repo_operator.py` is a thin operator surface for remaining release bump support.
 - Workspace bootstrap and docs normalization now route through the sibling skill `forge-init`, not a repo operator action.
+- Release bump preparation now routes through the sibling skill `forge-bump-release`, not a repo operator action.
 - `forge-session-management` resume reads real artifacts and may auto-seed canonical `workflow-state` from a legacy JSON artifact or the latest plan/spec when no canonical root exists yet.
 - Guidance, next-step selection, and command execution stay natural-language first through Forge skills and host-native tools.
 - Continuity capture remains internal runtime tooling and is not part of the public repo operator surface.
@@ -41,6 +33,6 @@ These sections are catalogs and metadata, not a deterministic routing engine.
 
 ## Current Guidance Rule
 
-When documenting source-repo flows in this repository, show `repo_operator.py` for release bump only and Forge sibling skills for process activation.
+When documenting source-repo flows in this repository, show Forge sibling skills for process activation and release bump preparation.
 
-Do not reintroduce direct core-script guidance outside `repo_operator.py`, and do not describe workflow files as the primary activation surface.
+Do not reintroduce repo-root operator scripts or describe workflow files as the primary activation surface.

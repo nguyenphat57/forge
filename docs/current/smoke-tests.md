@@ -1,13 +1,13 @@
 # Forge Smoke Tests
 
-Goal: quickly check that the host runtime activates the right Forge sibling skill or operator wrapper and preserves important guardrails.
+Goal: quickly check that the host runtime activates the right Forge sibling skill or host-native command path and preserves important guardrails.
 
 ## How to use
 
 - Run each prompt in a new thread or as clean a state as possible.
 - Do not tell the agent what skill to "expect" ahead of time. Send the prompt as a real user would.
 - You can open `smoke-test-checklist.md` in parallel to fill in results right after testing.
-- If artifact recovery is already covered by automation, run `python tools/run_smoke_matrix.py --suite help-next` to catch drift before doing manual host smoke.
+- If artifact recovery is already covered by automation, run `python tools/run_smoke_matrix.py --suite workspace-init` or the relevant active suite before doing manual host smoke.
 - Record:
   - Is skill/flow selected correctly?
   - Does the agent hold evidence-first?
@@ -129,16 +129,9 @@ From the current repo, what is the next logical step?
 
 ---
 
-### FT-03d: Run and route from output
+### FT-03d: Run and inspect output
 
 **Prompt**
-
-```text
-/run
-Run the current dev command for me and tell me whether I should test, debug, or deploy afterward.
-```
-
-Or natural-language:
 
 ```text
 Run this command in the repo and then tell me the next step from the output: npm run dev
@@ -146,10 +139,10 @@ Run this command in the repo and then tell me the next step from the output: npm
 
 **Expected**
 
-- Use the `run` operator wrapper
+- Use host-native command execution
 - The command is actually run, not just repeating the command
 - Output has main signal or main error
-- End with the next logical skill or wrapper (`forge-test-driven-development`, `forge-systematic-debugging`, or release verification)
+- End with the next logical skill (`forge-test-driven-development`, `forge-systematic-debugging`, or release verification)
 
 **Fail if**
 
@@ -187,18 +180,18 @@ Explain this error in a more understandable fashion: Module not found: payments.
 **Prompt**
 
 ```text
-/bump minor
+Increase the minor version and give yourself a checklist for the next release.
 ```
 
-Or natural-language:
+Script form:
 
 ```text
-Increase the minor version and give yourself a checklist for the next release.
+python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace <repo> --bump minor
 ```
 
 **Expected**
 
-- Use the `bump` operator wrapper
+- Use `forge-bump-release`
 - State clearly `current -> target`
 - Indicates the release file will be changed
 - Do not commit/push automatically

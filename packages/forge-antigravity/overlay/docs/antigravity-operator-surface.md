@@ -6,7 +6,7 @@
 
 Preferred user phrasing:
 
-- "Bump this to 0.5.0" -> `bump`
+
 
 ## Natural-Language Session Requests
 
@@ -17,8 +17,8 @@ Preferred user phrasing:
 ## Session Rules
 
 - Natural language is the primary surface.
-- Explicit operator action names such as `bump` are acceptable when a concise form helps.
+- Release bump preparation routes through `forge-bump-release`.
 - Guidance, next-step selection, and command execution stay natural-language first through Forge skills and host-native tools.
-- Wrapper docs may use a more operator-friendly presentation.
+- Skill docs may use a concise release-prep presentation.
 - Core semantics, schema, and deterministic scripts must not be forked.
 - Session requests should stay natural-language first: ask to `resume`, `save context`, or leave a `handover`.

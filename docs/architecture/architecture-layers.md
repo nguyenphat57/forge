@@ -17,7 +17,6 @@ If a change crosses layers, the change must say so explicitly and preserve the b
 Core is the reusable runtime contract:
 
 - host-neutral bootstrap and sibling skill activation contract
-- the remaining operator bump compatibility wrapper
 - verification contracts
 - shared references and schemas
 - host-neutral shared runtime helpers and owner commands
@@ -25,7 +24,6 @@ Core is the reusable runtime contract:
 Canonical locations:
 
 - `packages/forge-core/SKILL.md`
-- `packages/forge-core/workflows/`
 - `docs/current/`
 - `docs/architecture/`
 - `packages/forge-core/data/`
@@ -42,7 +40,7 @@ The sibling skill pack is adjacent to core, not inside it:
 
 It owns public Forge process skill meaning and any skill-owned `references/**` companions. Core may name and activate sibling skills, but it must not carry a canonical `skills/` subtree or duplicate skill-owned references.
 
-Skill-owned runtime entrypoints live under `packages/forge-skills/*/commands/`.
+Skill-owned runtime entrypoints live under `packages/forge-skills/*/commands/`. If a release bundle materializes one of those commands into top-level `commands/` for host compatibility, the source owner remains the sibling skill and `forge-core/commands/` must not keep a duplicate source copy.
 
 Release builds materialize the skill pack as public `dist/forge-*` skill directories. Adapter bundles such as `dist/forge-codex` and `dist/forge-antigravity` must not contain an internal `skills/` subtree.
 
@@ -51,7 +49,7 @@ Release builds materialize the skill pack as public `dist/forge-*` skill directo
 Generated artifacts are host-facing or release-facing outputs derived from a canonical source:
 
 - global host templates
-- host wrapper surfaces
+- host surface references
 - merged release outputs that must stay reproducible
 
 Canonical rule:
@@ -69,7 +67,6 @@ Current generated outputs:
 
 - `packages/forge-codex/overlay/AGENTS.global.md`
 - `packages/forge-skills/session-management/commands/session_context.py`
-- `packages/forge-codex/overlay/workflows/operator/bump.md`
 - `packages/forge-antigravity/overlay/GEMINI.global.md`
 
 ## Layer 3: Workflow State

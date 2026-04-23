@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-04-23T12:41:16+00:00",
+  "updated_at": "2026-04-23T14:55:00+00:00",
   "working_on": {
-    "feature": "forge-4-0-0-stable-release",
-    "task": "Forge 4.0.0 stable release prepared after removing help, next, and run from the public operator surface.",
+    "feature": "forge-5-0-0-stable-release",
+    "task": "Forge 5.0.0 stable release prepared after moving release bump, bootstrap, session, and delegation behavior to sibling skills and retiring workflows.",
     "status": "released",
     "files": [
       "VERSION",
@@ -13,6 +13,8 @@
       ".brain/handover.md",
       "docs/release/public-readiness.md",
       "docs/release/release-process.md",
+      "packages/forge-skills/bump-release/",
+      "packages/forge-skills/init/commands/",
       "packages/forge-skills/customize/",
       "packages/forge-skills/session-management/commands/",
       "packages/forge-core/tests/support.py",
@@ -31,7 +33,6 @@
     ]
   },
   "pending_tasks": [
-    "Resume the recorded workflow stage 'plan' before opening new scope."
   ],
   "recent_changes": [
     "AGENTS.md",
@@ -53,9 +54,15 @@
     "docs/release/package-matrix.json",
     "docs/release/public-readiness.md",
     "docs/release/release-process.md",
-    "packages/forge-antigravity/README.md"
+    "packages/forge-antigravity/README.md",
+    "packages/forge-codex/README.md",
+    "packages/forge-core/SKILL.md",
+    "packages/forge-skills/bump-release/SKILL.md"
   ],
   "verification": [
+    "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --format json -> PASS, inferred major 4.0.0 to 5.0.0 with high confidence on 2026-04-23",
+    "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.0.0 on 2026-04-23",
+    "python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-23 after 5.0.0 continuity update",
     "python -m pytest tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py tests/test_host_artifact_generation.py packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_help_next.py packages/forge-core/tests/test_run_workflow.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> 95 passed, 86461 subtests passed on 2026-04-23",
     "python scripts/build_release.py --force --format json -> PASS with all bundles at 4.0.0 on 2026-04-23",
     "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23",
@@ -66,6 +73,9 @@
     "python scripts/build_release.py --force --format json -> PASS on 2026-04-23"
   ],
   "decisions_made": [
+    "Bump 4.0.0 to 5.0.0 as major because this slice removes the remaining public operator/workflow compatibility surface and moves release bump, bootstrap, session, and delegation behavior to sibling skills.",
+    "Treat forge-bump-release as the canonical release bump surface; do not revive repo_operator.py bump or workflows/operator/bump.md.",
+    "Retire active workflows/ folders from core, Codex overlay, Antigravity overlay, generated host artifacts, and dist bundles.",
     "Bump 3.3.0 to 4.0.0 as major because this slice removes public help, next, and run operator actions from repo and host surfaces.",
     "Keep resolve_help_next.py and run_with_guidance.py as internal forge-core owner commands with owner report metadata.",
     "Keep guidance, next-step selection, and command execution natural-language first through Forge skills and host-native tools.",
@@ -76,6 +86,7 @@
     "forge-session-management owns resume, save context, handover, and deterministic session command reports."
   ],
   "risks": [
+    "Full non-fast release suite was not rerun after the final 5.0.0 continuity update.",
     "Full non-fast release suite was not rerun after the final 4.0.0 continuity update.",
     "Full non-fast release suite was not rerun after the final 3.3.0 continuity update."
   ],
@@ -85,7 +96,7 @@
     "plan: C:\\Users\\Admin\\.gemini\\forge\\docs\\plans\\2026-04-23-runtime-ownership-refactor-implementation-plan.md",
     "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
     "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
-    "git: 57 working tree item(s)",
+    "git: 5.0.0 release commit prepared for origin/main",
     "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\workflow-state\\forge\\latest.json"
   ]
 }

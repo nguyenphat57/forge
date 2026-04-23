@@ -14,15 +14,6 @@
       "output": "packages/forge-codex/overlay/AGENTS.global.md"
     },
     {
-      "name": "forge-codex-bump-wrapper",
-      "bundle": "forge-codex",
-      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/_shared_wrapper.md",
-      "context": {
-        "action": "bump"
-      },
-      "output": "packages/forge-codex/overlay/workflows/operator/bump.md"
-    },
-    {
       "name": "forge-codex-operator-surface-reference",
       "bundle": "forge-codex",
       "source": "docs/architecture/generated-host-artifacts/codex/docs/codex-operator-surface.md",

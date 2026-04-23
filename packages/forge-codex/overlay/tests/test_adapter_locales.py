@@ -38,7 +38,7 @@ class AdapterLocaleTests(unittest.TestCase):
         self.assertIn("</extremely-important>", skill)
         self.assertIn("1% chance", skill)
         self.assertIn("before any response or action", skill)
-        self.assertIn("workflow-first", skill)
+        self.assertIn("process control contract", skill)
         self.assertIn("route_preview is not the current public contract", skill)
 
     def test_raw_overlay_registry_keeps_only_host_contract_metadata(self) -> None:
@@ -82,7 +82,8 @@ class AdapterLocaleTests(unittest.TestCase):
         registry = skill_routing.load_registry()
         delegate = registry["host_operator_surface"]["actions"]["delegate"]
 
-        self.assertEqual(delegate["workflow"], "workflows/execution/dispatch-subagents.md")
+        self.assertEqual(delegate["skill"], "forge-dispatching-parallel-agents")
+        self.assertNotIn("workflow", delegate)
         self.assertEqual(delegate["primary_aliases_by_host"], {})
         self.assertEqual(delegate["hosts"], ["codex"])
 

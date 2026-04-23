@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from _forge_core_command import bootstrap_shared_paths
+from _forge_skill_command import bootstrap_command_paths
 
-bootstrap_shared_paths()
+bootstrap_command_paths()
 
 import argparse
 import json
@@ -285,6 +285,7 @@ def _resolve_blueprint_path() -> Path:
     script_path = Path(__file__).resolve()
     bundle_root = script_path.parents[1]
     candidates = (
+        bundle_root / BLUEPRINT_RELATIVE_PATH,
         bundle_root.parent / "forge-init" / BLUEPRINT_RELATIVE_PATH,
         bundle_root.parent / "forge-skills" / "init" / BLUEPRINT_RELATIVE_PATH,
         script_path.parents[2] / "forge-skills" / "init" / BLUEPRINT_RELATIVE_PATH,

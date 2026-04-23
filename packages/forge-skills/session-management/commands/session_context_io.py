@@ -4,11 +4,20 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from help_next_support import read_json_object
-
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def read_json_object(path: Path, label: str, warnings: list[str]) -> dict | None:
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        warnings.append(f"Invalid JSON in {label}: {path}.")
+        return None
+    return payload if isinstance(payload, dict) else None
 
 
 def string_list(value: object) -> list[str]:

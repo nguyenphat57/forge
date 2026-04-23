@@ -3,8 +3,7 @@
     "actions": {
       "delegate": {
       "repo_entrypoint": "",
-      "core_engine_entrypoint": "workflows/execution/dispatch-subagents.md",
-      "workflow": "workflows/execution/dispatch-subagents.md",
+      "core_engine_entrypoint": "",
       "skill": "forge-dispatching-parallel-agents",
       "hosts": [
           "codex"
@@ -18,17 +17,6 @@
         },
         "deprecation_line": null,
         "status": "primary"
-      },
-      "bump": {
-        "hosts": [
-          "codex"
-        ],
-        "primary_aliases_by_host": {},
-        "natural_language_examples_by_host": {
-          "codex": [
-            "Bump this to 0.5.0"
-          ]
-        }
       }
     }
   },

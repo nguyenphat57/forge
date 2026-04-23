@@ -95,6 +95,11 @@
       "canonical_path": "packages/forge-skills/customize/SKILL.md",
       "trigger_summary": "Durable response preferences, language, orthography, tone, pace, or repo-scoped Forge preference overrides need inspection or updates."
     },
+    "bump-release": {
+      "package": "forge-bump-release",
+      "canonical_path": "packages/forge-skills/bump-release/SKILL.md",
+      "trigger_summary": "Explicit version bump, release artifact preparation, semantic version inference, VERSION or CHANGELOG.md updates, or release verification surfacing."
+    },
     "writing-skills": {
       "package": "forge-writing-skills",
       "canonical_path": "packages/forge-skills/writing-skills/SKILL.md",
@@ -164,37 +169,11 @@
     ]
   },
   "repo_operator_surface": {
-    "actions": {
-      "bump": {
-        "repo_entrypoint": "scripts/repo_operator.py bump --workspace <workspace> <version|major|minor|patch>",
-        "core_engine_entrypoint": "commands/prepare_bump.py --workspace <workspace> --bump <version|major|minor|patch>",
-        "workflow": "workflows/operator/bump.md",
-        "hosts": [
-          "source-repo"
-        ],
-        "primary_aliases_by_host": {},
-        "compatibility_aliases_by_host": {},
-        "natural_language_examples_by_host": {},
-        "deprecation_line": null,
-        "status": "primary"
-      }
-    },
+    "actions": {},
     "session_modes": {}
   },
   "host_operator_surface": {
-    "actions": {
-      "bump": {
-        "repo_entrypoint": "",
-        "core_engine_entrypoint": "commands/prepare_bump.py --workspace <workspace> --bump <version|major|minor|patch>",
-        "workflow": "workflows/operator/bump.md",
-        "hosts": [],
-        "primary_aliases_by_host": {},
-        "compatibility_aliases_by_host": {},
-        "natural_language_examples_by_host": {},
-        "deprecation_line": null,
-        "status": "primary"
-      }
-    },
+    "actions": {},
     "session_modes": {}
   },
   "evidence_response_contract": {

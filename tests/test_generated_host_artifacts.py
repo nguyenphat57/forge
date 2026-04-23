@@ -10,7 +10,7 @@ class GeneratedHostArtifactTests(ReleaseRepoTestSupport):
         report = host_artifacts_support.ensure_generated_host_artifacts(check=True)
         self.assertEqual(report["status"], "PASS")
         self.assertEqual(report["stale_outputs"], [])
-        self.assertGreaterEqual(len(report["artifacts"]), 6)
+        self.assertGreaterEqual(len(report["artifacts"]), 5)
         names = {artifact["name"] for artifact in report["artifacts"]}
         self.assertIn("source-repo-operator-surface", names)
         for artifact in report["artifacts"]:
@@ -22,7 +22,7 @@ class GeneratedHostArtifactTests(ReleaseRepoTestSupport):
 
     def test_manifest_entries_resolve_to_valid_outputs(self) -> None:
         specs = host_artifact_manifest.generated_host_artifact_specs()
-        self.assertGreaterEqual(len(specs), 6)
+        self.assertGreaterEqual(len(specs), 5)
         for spec in specs:
             with self.subTest(name=spec["name"]):
                 self.assertTrue(spec["source_path"].exists())

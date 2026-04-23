@@ -2,29 +2,26 @@ from __future__ import annotations
 
 import json
 import sys
+from pathlib import Path
 
 from smoke_matrix_cases import (
     BUMP_CASES,
     ERROR_TRANSLATION_CASES,
-    HELP_NEXT_CASES,
     PREFERENCES_CASES,
     PREFERENCES_WRITE_CASES,
     RESPONSE_CONTRACT_CASES,
     ROOT_DIR,
     ROUTER_CASES,
-    RUN_CASES,
     WORKSPACE_INIT_CASES,
     forge_home_path,
     workspace_path,
 )
-from smoke_matrix_runtime import case_failure, case_result, resolve_run_command, run_command
+from smoke_matrix_runtime import case_failure, case_result, run_command
 from smoke_matrix_validators import (
     validate_bump_case,
     validate_error_translation_case,
-    validate_help_next_case,
     validate_preferences_case,
     validate_router_case,
-    validate_run_case,
 )
 from smoke_matrix_validators_tail import (
     validate_preferences_write_case,
@@ -41,11 +38,23 @@ def _resolve_skill_command_path(skill_source_name: str, package_name: str, comma
     candidates = (
         ROOT_DIR.parent / "forge-skills" / skill_source_name / "commands" / command_name,
         ROOT_DIR.parent / package_name / "commands" / command_name,
+        ROOT_DIR / "commands" / command_name,
     )
     for path in candidates:
         if path.exists():
             return path
     raise FileNotFoundError(f"Missing skill-owned command `{command_name}` for {package_name}")
+
+
+def _resolve_skill_reference_script_path(skill_source_name: str, package_name: str, script_name: str) -> Path:
+    candidates = (
+        ROOT_DIR.parent / "forge-skills" / skill_source_name / "references" / "scripts" / script_name,
+        ROOT_DIR.parent / package_name / "references" / "scripts" / script_name,
+    )
+    for path in candidates:
+        if path.exists():
+            return path
+    raise FileNotFoundError(f"Missing skill-owned reference script `{script_name}` for {package_name}")
 
 
 def _run_json_suite(
@@ -114,54 +123,6 @@ def run_preferences_suite() -> list[dict]:
     )
 
 
-def run_help_next_suite() -> list[dict]:
-    navigator_script = ROOT_DIR / "commands" / "resolve_help_next.py"
-    return _run_json_suite(
-        "help-next",
-        HELP_NEXT_CASES,
-        command_builder=lambda case: (
-            [
-                sys.executable,
-                str(navigator_script),
-                "--mode",
-                case["mode"],
-                "--workspace",
-                str(workspace_path(case["workspace_fixture"])),
-                "--format",
-                "json",
-            ],
-            None,
-        ),
-        validator=validate_help_next_case,
-    )
-
-
-def run_run_suite() -> list[dict]:
-    run_script = ROOT_DIR / "commands" / "run_with_guidance.py"
-    return _run_json_suite(
-        "run",
-        RUN_CASES,
-        command_builder=lambda case: (
-            [
-                sys.executable,
-                str(run_script),
-                "--workspace",
-                str(workspace_path(case["workspace_fixture"])),
-                "--timeout-ms",
-                str(case["timeout_ms"]),
-                "--format",
-                "json",
-                "--",
-                *resolve_run_command(case["command"]),
-            ],
-            None,
-        ),
-        validator=validate_run_case,
-        allowed_returncodes={0, 1},
-        failure_label="unexpected exit code",
-    )
-
-
 def run_error_translation_suite() -> list[dict]:
     translate_script = _resolve_skill_command_path(
         "systematic-debugging",
@@ -187,7 +148,7 @@ def run_error_translation_suite() -> list[dict]:
 
 
 def run_bump_suite() -> list[dict]:
-    bump_script = ROOT_DIR / "commands" / "prepare_bump.py"
+    bump_script = _resolve_skill_reference_script_path("bump-release", "forge-bump-release", "prepare_bump.py")
     return _run_json_suite(
         "bump",
         BUMP_CASES,
@@ -230,7 +191,7 @@ def run_preferences_write_suite() -> list[dict]:
 
 
 def run_workspace_init_suite() -> list[dict]:
-    init_script = ROOT_DIR / "commands" / "initialize_workspace.py"
+    init_script = _resolve_skill_command_path("init", "forge-init", "initialize_workspace.py")
     return _run_json_suite(
         "workspace-init",
         WORKSPACE_INIT_CASES,
@@ -268,8 +229,6 @@ def run_response_contract_suite() -> list[dict]:
 SUITE_RUNNERS = {
     "router-check": run_router_suite,
     "preferences": run_preferences_suite,
-    "help-next": run_help_next_suite,
-    "run": run_run_suite,
     "error-translation": run_error_translation_suite,
     "bump": run_bump_suite,
     "preferences-write": run_preferences_write_suite,

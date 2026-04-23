@@ -72,7 +72,6 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "SKILL.md",
             overlay_root / "agents" / "openai.yaml",
             overlay_root / "data" / "orchestrator-registry.json",
-            overlay_root / "workflows" / "operator" / "bump.md",
             overlay_root / "docs" / "antigravity-operator-surface.md",
             overlay_root / "data" / "preferences-compat.json",
             overlay_root / "data" / "routing-locales.json",
@@ -82,9 +81,10 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         for path in expected_files:
             with self.subTest(path=path):
                 self.assertTrue(path.exists())
-        for name in ("help.md", "next.md", "run.md"):
+        for name in ("bump.md", "help.md", "next.md", "run.md"):
             with self.subTest(retired_operator=name):
                 self.assertFalse((overlay_root / "workflows" / "operator" / name).exists())
+        self.assertFalse((overlay_root / "workflows").exists())
 
         skill = (overlay_root / "SKILL.md").read_text(encoding="utf-8")
         self.assert_markdown_first_adapter_skill(
@@ -125,16 +125,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertFalse((dist_root / "SKILL.delta.md").exists())
         self.assertTrue((dist_root / "agents" / "openai.yaml").exists())
         self.assertTrue((dist_root / "data" / "orchestrator-registry.json").exists())
-        self.assertFalse((dist_root / "workflows" / "operator" / "help.md").exists())
-        self.assertFalse((dist_root / "workflows" / "operator" / "next.md").exists())
-        self.assertFalse((dist_root / "workflows" / "operator" / "run.md").exists())
-        self.assertFalse((dist_root / "workflows" / "operator" / "customize.md").exists())
-        self.assertFalse((dist_root / "workflows" / "operator" / "init.md").exists())
-        self.assertFalse((dist_root / "workflows" / "operator" / "session.md").exists())
-        self.assertFalse((dist_root / "workflows" / "operator" / "recap.md").exists())
-        self.assertFalse((dist_root / "workflows" / "operator" / "save-brain.md").exists())
-        self.assertFalse((dist_root / "workflows" / "operator" / "handover.md").exists())
-        self.assertFalse((dist_root / "workflows" / "execution" / "session.md").exists())
+        self.assertFalse((dist_root / "workflows").exists())
         self.assertFalse((dist_root / "references").exists())
         self.assertTrue((dist_root / "docs" / "antigravity-operator-surface.md").exists())
         self.assertTrue((dist_root / "data" / "preferences-compat.json").exists())
@@ -199,16 +190,15 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "data" / "output-contracts.json",
             overlay_root / "docs" / "smoke-tests.md",
             overlay_root / "docs" / "smoke-test-checklist.md",
-            overlay_root / "workflows" / "execution" / "dispatch-subagents.md",
-            overlay_root / "workflows" / "operator" / "bump.md",
             overlay_root / "docs" / "codex-operator-surface.md",
         ]
         for path in expected_files:
             with self.subTest(path=path):
                 self.assertTrue(path.exists())
-        for name in ("help.md", "next.md", "run.md"):
+        for name in ("bump.md", "help.md", "next.md", "run.md"):
             with self.subTest(retired_operator=name):
                 self.assertFalse((overlay_root / "workflows" / "operator" / name).exists())
+        self.assertFalse((overlay_root / "workflows").exists())
 
         skill = (overlay_root / "SKILL.md").read_text(encoding="utf-8")
         self.assert_markdown_first_adapter_skill(
@@ -235,7 +225,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertNotIn("/delegate", agents_text)
         self.assertNotIn("Compatibility aliases:", agents_text)
         self.assertNotIn("Operator aliases:", agents_text)
-        self.assertFalse((overlay_root / "workflows" / "operator" / "session.md").exists())
+        self.assertFalse((overlay_root / "workflows").exists())
         codex_surface = (overlay_root / "docs" / "codex-operator-surface.md").read_text(encoding="utf-8")
         self.assertNotIn("/delegate", codex_surface)
         self.assertNotIn("/save-brain", codex_surface)
@@ -252,15 +242,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertFalse((dist_root / "references").exists())
         self.assertTrue((dist_root / "docs" / "smoke-tests.md").exists())
         self.assertTrue((dist_root / "docs" / "smoke-test-checklist.md").exists())
-        self.assertTrue((dist_root / "workflows" / "execution" / "dispatch-subagents.md").exists())
-        self.assertFalse((dist_root / "workflows" / "operator" / "session.md").exists())
-        self.assertFalse((dist_root / "workflows" / "execution" / "session.md").exists())
-        self.assertFalse((dist_root / "workflows" / "operator" / "customize.md").exists())
-        self.assertFalse((dist_root / "workflows" / "operator" / "init.md").exists())
-        self.assertFalse((dist_root / "workflows" / "operator" / "help.md").exists())
-        self.assertFalse((dist_root / "workflows" / "operator" / "next.md").exists())
-        self.assertFalse((dist_root / "workflows" / "operator" / "run.md").exists())
-        self.assertTrue((dist_root / "workflows" / "operator" / "bump.md").exists())
+        self.assertFalse((dist_root / "workflows").exists())
         self.assertTrue((dist_root / "docs" / "codex-operator-surface.md").exists())
         self.assertIn("GENERATED FILE", (dist_root / "AGENTS.global.md").read_text(encoding="utf-8"))
         build_manifest = json.loads((dist_root / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
@@ -274,6 +256,8 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertNotIn("workflows/operator/help.md", build_manifest["packaging"]["required_bundle_paths"])
         self.assertNotIn("workflows/operator/next.md", build_manifest["packaging"]["required_bundle_paths"])
         self.assertNotIn("workflows/operator/run.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertNotIn("workflows/operator/bump.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertFalse(any(path.startswith("workflows/") for path in build_manifest["packaging"]["required_bundle_paths"]))
         self.assertEqual(build_manifest["generated_artifacts"]["manifest_path"], "docs/architecture/host-artifacts-manifest.json")
         self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["name"], "forge-codex-global-agents")
         self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["bundle_output"], "AGENTS.global.md")
@@ -315,7 +299,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertNotIn("release-readiness", dist_skill)
         self.assertNotIn("adoption-check", dist_skill)
         self.assertNotIn("save-brain", dist_skill)
-        self.assertFalse((dist_root / "workflows" / "operator" / "session.md").exists())
+        self.assertFalse((dist_root / "workflows").exists())
         dist_codex_surface = (dist_root / "docs" / "codex-operator-surface.md").read_text(encoding="utf-8")
         self.assertNotIn("/delegate", dist_codex_surface)
         self.assertNotIn("/save-brain", dist_codex_surface)
@@ -326,14 +310,7 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertNotIn("Operator aliases:", rendered_agents)
 
         antigravity_dist_root = ROOT_DIR / "dist" / "forge-antigravity"
-        self.assert_bump_wrapper_matches_release_contract(
-            antigravity_dist_root / "workflows" / "operator" / "bump.md",
-            label="dist forge-antigravity",
-        )
-        self.assert_bump_wrapper_matches_release_contract(
-            dist_root / "workflows" / "operator" / "bump.md",
-            label="dist forge-codex",
-        )
+        self.assertFalse((antigravity_dist_root / "workflows").exists())
 
         antigravity_registry = json.loads((antigravity_dist_root / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
         self.assertEqual(antigravity_registry["host_capabilities"]["active_tier"], "controller-baseline")

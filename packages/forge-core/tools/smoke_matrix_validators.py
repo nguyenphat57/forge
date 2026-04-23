@@ -43,44 +43,6 @@ def validate_preferences_case(case: dict, report: dict) -> list[str]:
     return failures
 
 
-def validate_help_next_case(case: dict, report: dict) -> list[str]:
-    failures: list[str] = []
-
-    _expect_equal(failures, report["status"], case["expected_status"], "status")
-    _expect_equal(failures, report["current_stage"], case["expected_stage"], "current_stage")
-    _expect_equal(failures, report["suggested_workflow"], case["expected_workflow"], "suggested_workflow")
-    _expect_equal(failures, report["current_focus"], case["expected_focus"], "current_focus")
-    _expect_equal(failures, report["recommended_action"], case["expected_recommended_action"], "recommended_action")
-    for expected in case.get("expected_warning_contains", []):
-        _expect_contains_in_collection(failures, report.get("warnings", []), expected, "warning")
-    return failures
-
-
-def validate_run_case(case: dict, report: dict) -> list[str]:
-    failures: list[str] = []
-
-    _expect_equal(failures, report["status"], case["expected_status"], "status")
-    _expect_equal(failures, report["state"], case["expected_state"], "state")
-    _expect_equal(failures, report["command_kind"], case["expected_command_kind"], "command_kind")
-    _expect_equal(failures, report["suggested_workflow"], case["expected_workflow"], "suggested_workflow")
-    if "expected_readiness_detected" in case:
-        _expect_equal(
-            failures,
-            report["readiness_detected"],
-            case["expected_readiness_detected"],
-            "readiness_detected",
-        )
-    if "expected_translation_category" in case:
-        translation = report.get("error_translation") or {}
-        _expect_equal(
-            failures,
-            translation.get("category"),
-            case["expected_translation_category"],
-            "error_translation.category",
-        )
-    return failures
-
-
 def validate_error_translation_case(case: dict, report: dict) -> list[str]:
     failures: list[str] = []
     translation = report["translation"]

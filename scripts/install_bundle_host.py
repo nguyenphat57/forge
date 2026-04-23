@@ -22,7 +22,6 @@ def _render_paths(target_path: Path) -> dict[str, str]:
     return {
         "bundle_root": str(target_path),
         "skill_path": str(target_path / "SKILL.md"),
-        "workflows_path": str(target_path / "workflows"),
         "state_root": str(state_root),
         "preferences_path": str(state_root / "state" / "preferences.json"),
         "resolver": f"python {target_path / 'commands' / 'resolve_preferences.py'}",
@@ -51,7 +50,6 @@ def render_codex_global_agents(template_text: str, codex_home: Path, target_path
             "{{CODEX_HOME}}": str(codex_home),
             "{{FORGE_CODEX_BUNDLE_ROOT}}": paths["bundle_root"],
             "{{FORGE_CODEX_SKILL}}": paths["skill_path"],
-            "{{FORGE_CODEX_WORKFLOWS}}": paths["workflows_path"],
             "{{FORGE_CODEX_STATE_ROOT}}": paths["state_root"],
             "{{FORGE_CODEX_PREFERENCES_PATH}}": paths["preferences_path"],
             "{{FORGE_CODEX_RESOLVER}}": paths["resolver"],
@@ -69,7 +67,6 @@ def render_antigravity_global_gemini(template_text: str, gemini_home: Path, targ
             "{{GEMINI_HOME}}": str(gemini_home),
             "{{FORGE_ANTIGRAVITY_SKILL}}": paths["skill_path"],
             "{{FORGE_ANTIGRAVITY_BUNDLE_ROOT}}": paths["bundle_root"],
-            "{{FORGE_ANTIGRAVITY_WORKFLOWS}}": paths["workflows_path"],
             "{{FORGE_ANTIGRAVITY_STATE_ROOT}}": paths["state_root"],
             "{{FORGE_ANTIGRAVITY_PREFERENCES_PATH}}": paths["preferences_path"],
             "{{FORGE_ANTIGRAVITY_RESOLVER}}": paths["resolver"],

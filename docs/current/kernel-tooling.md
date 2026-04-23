@@ -13,10 +13,7 @@
 Use these deterministic owner commands for the active Forge surface:
 
 ```powershell
-python commands/resolve_help_next.py --workspace C:\path\to\workspace --mode help --format json
-python commands/resolve_help_next.py --workspace C:\path\to\workspace --mode next --format json
 python packages/forge-skills/session-management/commands/session_context.py resume --workspace C:\path\to\workspace --format json
-python commands/run_with_guidance.py --workspace C:\path\to\workspace --timeout-ms 20000 -- npm test
 python commands/verify_bundle.py --format json
 ```
 
@@ -24,11 +21,11 @@ Other current kernel tools:
 
 - `resolve_preferences.py`
 - `write_preferences.py`
-- `initialize_workspace.py`
+- `packages/forge-skills/init/commands/initialize_workspace.py`
 - `generate_overlay_skills.py`
 - `capture_continuity.py`
 - `check_workspace_router.py`
-- `prepare_bump.py`
+- `packages/forge-skills/bump-release/references/scripts/prepare_bump.py`
 - `translate_error.py`
 - `run_smoke_matrix.py`
 - `track_chain_status.py`
@@ -52,11 +49,11 @@ Adapter SKILL composition:
 When `forge-init` needs the deterministic bootstrap engine for a workspace:
 
 ```powershell
-python commands/initialize_workspace.py --workspace C:\path\to\workspace --format json
-python commands/initialize_workspace.py --workspace C:\path\to\workspace --seed-preferences --apply --format json
+python packages/forge-skills/init/commands/initialize_workspace.py --workspace C:\path\to\workspace --format json
+python packages/forge-skills/init/commands/initialize_workspace.py --workspace C:\path\to\workspace --seed-preferences --apply --format json
 ```
 
-`initialize_workspace.py` is now an internal engine behind the sibling skill `forge-init`. It creates Forge bootstrap docs plus the minimal readiness skeleton without becoming a public repo operator action.
+`initialize_workspace.py` is now owned by the sibling skill `forge-init`. Release bundles may materialize it into top-level `commands/` for installed host compatibility, but the source command stays with the skill owner.
 
 ## Persistence
 

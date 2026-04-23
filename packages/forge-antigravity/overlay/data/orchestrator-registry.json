@@ -1,18 +1,6 @@
 {
   "host_operator_surface": {
-    "actions": {
-      "bump": {
-        "hosts": [
-          "antigravity"
-        ],
-        "primary_aliases_by_host": {},
-        "natural_language_examples_by_host": {
-          "antigravity": [
-            "Bump this to 0.5.0"
-          ]
-        }
-      }
-    }
+    "actions": {}
   },
   "host_capabilities": {
     "active_tier": "controller-baseline",

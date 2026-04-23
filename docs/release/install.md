@@ -12,7 +12,7 @@ Source repo operator flow:
 ```powershell
 Use `forge-session-management` to resume, save context, or hand over session continuity.
 Use natural language plus Forge skills for guidance, next-step selection, and command execution.
-python scripts/repo_operator.py bump --workspace <repo> <version|major|minor|patch>
+Use `forge-bump-release` for release bump preparation.
 python scripts/verify_repo.py --profile fast
 ```
 

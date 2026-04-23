@@ -51,7 +51,7 @@ The first operator-visible story should not be:
 - start with `route_preview`
 - learn internal deterministic scripts before understanding the skill contract
 - treat generated host wrappers as the canonical source of truth
-- treat `workflows/` files as the primary activation surface
+- treat retired `workflows/` files as the primary activation surface
 
 ## Current Non-Changes
 

@@ -79,7 +79,7 @@ The live contract after the split-skill cutover is intentionally narrow:
 
 - the public story is now skill-first rather than route-preview-first
 - `packages/forge-skills/*/SKILL.md` is the canonical process source
-- `packages/forge-core/workflows/` is operator/session compatibility wrapper surface only
+- `packages/forge-core/workflows/` has been retired; sibling skills are the canonical process source
 - installing host adapters installs the sibling Forge skill family
 - the 1% rule is explicit before any substantive response or action
 - `help` and `next` are framed as artifact-backed audit sidecars

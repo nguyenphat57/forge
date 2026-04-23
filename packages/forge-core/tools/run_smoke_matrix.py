@@ -12,9 +12,12 @@ for key in tuple(os.environ):
     if key.startswith("PYTEST_"):
         os.environ.pop(key, None)
 
-SHARED_DIR = Path(__file__).resolve().parents[1] / "shared"
-if str(SHARED_DIR) not in sys.path:
-    sys.path.insert(0, str(SHARED_DIR))
+ROOT_DIR = Path(__file__).resolve().parents[1]
+SHARED_DIR = ROOT_DIR / "shared"
+CUSTOMIZE_SHARED_DIR = ROOT_DIR.parent / "forge-skills" / "customize" / "shared"
+for import_dir in (CUSTOMIZE_SHARED_DIR, SHARED_DIR):
+    if import_dir.is_dir() and str(import_dir) not in sys.path:
+        sys.path.insert(0, str(import_dir))
 
 from common import configure_stdio
 from smoke_matrix_runtime import format_text, summarize

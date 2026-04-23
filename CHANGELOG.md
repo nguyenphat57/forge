@@ -1,5 +1,12 @@
 # Changelog
 
+## 5.0.0 - 2026-04-23
+
+- Promote release bump preparation into the new sibling `forge-bump-release` skill, with the bump engine and semver helpers owned under `packages/forge-skills/bump-release/references/scripts/`.
+- Remove `bump`, `help`, `next`, `run`, and the remaining compatibility workflow files from the public repo and host operator surfaces so release, session, bootstrap, and delegation behavior route through Forge skills directly.
+- Refresh generated host artifacts, package matrices, smoke/build contracts, adapter docs, and release bundles so `dist/` no longer materializes `workflows/` and the stable line advances to `5.0.0`.
+
+
 ## 4.0.0 (stable) - 2026-04-23
 
 - Remove `help`, `next`, and `run` from the public source-repo and installed host operator surfaces, leaving `bump` as the only repo operator action and keeping Codex `delegate` as the host-specific dispatch action.

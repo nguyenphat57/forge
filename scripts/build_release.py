@@ -31,6 +31,7 @@ PACKAGES_DIR = ROOT_DIR / "packages"
 DIST_DIR = ROOT_DIR / "dist"
 CORE_DIR = PACKAGES_DIR / "forge-core"
 CUSTOMIZE_DIR = PACKAGES_DIR / "forge-skills" / "customize"
+INIT_DIR = PACKAGES_DIR / "forge-skills" / "init"
 VERSION_FILE = ROOT_DIR / "VERSION"
 BUNDLE_BUILD_ATTEMPTS = 3
 BUNDLE_BUILD_DELAY_SECONDS = 0.2
@@ -164,6 +165,12 @@ def materialize_customize_runtime(destination: Path) -> None:
             copy_tree(source, destination / dirname)
 
 
+def materialize_init_runtime(destination: Path) -> None:
+    source = INIT_DIR / "commands"
+    if source.exists():
+        copy_tree(source, destination / "commands")
+
+
 def apply_overlay(overlay_dir: Path, destination: Path, *, ignored_relative_paths: set[str] | None = None) -> None:
     ignored_relative_paths = ignored_relative_paths or set()
     if not overlay_dir.exists():
@@ -224,12 +231,12 @@ def build_input_paths(package_name: str, *, package_dir: Path | None = None, ove
         paths.append(sibling_skill_source_dir(package_name))
         return paths
     if package_name == "forge-core":
-        paths.extend([CORE_DIR, CUSTOMIZE_DIR])
+        paths.extend([CORE_DIR, CUSTOMIZE_DIR, INIT_DIR])
         return paths
     if package_dir is None:
         raise ValueError(f"package_dir is required for bundle inputs: {package_name}")
     if overlay_dir is not None:
-        paths.extend([CORE_DIR, CUSTOMIZE_DIR, overlay_dir])
+        paths.extend([CORE_DIR, CUSTOMIZE_DIR, INIT_DIR, overlay_dir])
         return paths
     paths.append(package_dir)
     return paths
@@ -433,6 +440,7 @@ def build_core_bundle(metadata: dict[str, object], *, force: bool = False) -> di
         remove_forbidden_runtime_dirs(destination)
         copy_runtime_docs(destination)
         materialize_customize_runtime(destination)
+        materialize_init_runtime(destination)
         write_build_manifest(
             destination,
             "forge-core",
@@ -478,6 +486,7 @@ def build_adapter_bundle(spec: dict, metadata: dict[str, object], *, force: bool
         remove_forbidden_runtime_dirs(destination)
         copy_runtime_docs(destination)
         materialize_customize_runtime(destination)
+        materialize_init_runtime(destination)
         apply_overlay(
             overlay_dir,
             destination,

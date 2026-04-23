@@ -40,22 +40,22 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
 
         self.assertEqual(
             set(core_registry["repo_operator_surface"]["actions"]),
-            {"bump"},
+            set(),
         )
         self.assertEqual(set(core_registry["repo_operator_surface"]["session_modes"]), set())
         self.assertEqual(
             set(core_registry["host_operator_surface"]["actions"]),
-            {"bump"},
+            set(),
         )
         self.assertEqual(set(core_registry["host_operator_surface"]["session_modes"]), set())
         self.assertEqual(
             set(codex_registry["host_operator_surface"]["actions"]),
-            {"delegate", "bump"},
+            {"delegate"},
         )
         self.assertEqual(set(codex_registry["host_operator_surface"]["session_modes"]), set())
         self.assertEqual(
             set(antigravity_registry["host_operator_surface"]["actions"]),
-            {"bump"},
+            set(),
         )
         self.assertEqual(set(antigravity_registry["host_operator_surface"]["session_modes"]), set())
 
@@ -109,6 +109,8 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         self.assertNotIn("repo_operator.py help", repo_surface)
         self.assertNotIn("repo_operator.py next", repo_surface)
         self.assertNotIn("repo_operator.py run", repo_surface)
+        self.assertNotIn("repo_operator.py bump", repo_surface)
+        self.assertIn("forge-bump-release", repo_surface)
         self.assertNotIn("scripts/session_context.py", repo_surface)
         self.assertNotIn("scripts/bootstrap_workflow_state.py", repo_surface)
         self.assertNotIn("/delegate", codex_surface)
@@ -135,7 +137,9 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
             plan_docs,
             {
                 "2026-04-23-docs-specs-pre-2-15-cleanup-implementation-plan.md",
+                "2026-04-23-retired-help-next-run-command-cleanup-implementation-plan.md",
                 "2026-04-23-runtime-ownership-refactor-implementation-plan.md",
+                "2026-04-23-skill-local-command-ownership-implementation-plan.md",
             },
         )
         self.assertFalse((ROOT_DIR / "docs" / "archive").exists())
@@ -147,7 +151,7 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
 
         self.assertIn("Current Contract Closure", target_state)
         self.assertIn("## Source Repo", operator_surface)
-        self.assertIn("repo_operator.py", operator_surface)
+        self.assertIn("forge-bump-release", operator_surface)
         self.assertNotIn("Active roadmap tranche for the current kernel-only contraction line", target_state)
         self.assertNotIn("docs/plans/2026-04-11-forge-slim-refactor-v2.md", target_state)
         self.assertNotIn("docs/archive", target_state)

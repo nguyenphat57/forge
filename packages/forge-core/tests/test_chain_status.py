@@ -132,11 +132,10 @@ class ChainStatusTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
 
             next_report = run_python_script(
-                "resolve_help_next.py",
+                "session_context.py",
+                "resume",
                 "--workspace",
                 str(workspace),
-                "--mode",
-                "next",
                 "--format",
                 "json",
             )
@@ -144,8 +143,8 @@ class ChainStatusTests(unittest.TestCase):
         self.assertEqual(next_report.returncode, 0, next_report.stderr)
         payload = json.loads(next_report.stdout)
         self.assertEqual(payload["current_stage"], "session-active")
-        self.assertIn("merge-ready", json.dumps(payload["signals"]["workflow_summary"]))
-        self.assertIn("merge target", payload["recommended_action"].lower())
+        self.assertTrue(payload["important_files_or_artifacts"])
+        self.assertIn("merge target", payload["best_next_step"].lower())
 
 
 if __name__ == "__main__":

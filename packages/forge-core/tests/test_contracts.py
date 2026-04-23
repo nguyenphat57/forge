@@ -81,6 +81,11 @@ FORGE_SPLIT_SKILLS = {
         "path": "packages/forge-skills/customize/SKILL.md",
         "budget": 220,
     },
+    "bump-release": {
+        "package": "forge-bump-release",
+        "path": "packages/forge-skills/bump-release/SKILL.md",
+        "budget": 220,
+    },
     "writing-skills": {
         "package": "forge-writing-skills",
         "path": "packages/forge-skills/writing-skills/SKILL.md",
@@ -118,17 +123,20 @@ EXPECTED_SKILL_LOCAL_REFERENCES = {
         "references/forge-preferences.md",
         "references/forge-paths.md",
     ],
+    "bump-release": [
+        "references/bump-release.md",
+        "references/scripts/prepare_bump.py",
+        "references/scripts/prepare_bump_git.py",
+        "references/scripts/prepare_bump_report.py",
+        "references/scripts/prepare_bump_semver.py",
+    ],
 }
 
 FORBIDDEN_SHARED_REFERENCE_FALLBACK = "Shared scripts and references live in the installed Forge orchestrator bundle"
 
-OPERATOR_WORKFLOW_ALLOWLIST = {
-    "workflows/operator/bump.md",
-}
+OPERATOR_WORKFLOW_ALLOWLIST: set[str] = set()
 
-OPTIONAL_ADAPTER_WORKFLOW_ALLOWLIST = {
-    "workflows/execution/dispatch-subagents.md",
-}
+OPTIONAL_ADAPTER_WORKFLOW_ALLOWLIST: set[str] = set()
 
 FORBIDDEN_ACTIVE_TESTS = {
     "tests/test_router_matrix.py",
@@ -154,7 +162,6 @@ RETIRED_ACTIVE_REFERENCES = (
 
 ALLOWED_OWNER_LOCAL_REFERENCE_ROOTS = (
     "packages/forge-skills/",
-    "packages/forge-core/workflows/operator/references/",
 )
 
 
@@ -196,7 +203,7 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("before any response or action", lowered)
         self.assertIn("not negotiable", lowered)
         self.assertIn("questions are tasks", lowered)
-        self.assertIn("process workflows first", lowered)
+        self.assertIn("process skills first", lowered)
         self.assertIn("user instructions take precedence", lowered)
 
     def test_core_runtime_engine_folder_is_removed(self) -> None:
@@ -211,8 +218,8 @@ class BundleContractTests(unittest.TestCase):
         self._require_skill_source_tree()
 
         owner_commands = {
-            ROOT_DIR / "commands" / "resolve_help_next.py",
-            ROOT_DIR / "commands" / "run_with_guidance.py",
+            SKILLS_ROOT / "init" / "commands" / "initialize_workspace.py",
+            SKILLS_ROOT / "bump-release" / "references" / "scripts" / "prepare_bump.py",
             SKILLS_ROOT / "session-management" / "commands" / "session_context.py",
             SKILLS_ROOT / "customize" / "commands" / "resolve_preferences.py",
             SKILLS_ROOT / "customize" / "commands" / "write_preferences.py",
@@ -227,6 +234,14 @@ class BundleContractTests(unittest.TestCase):
                 text = path.read_text(encoding="utf-8")
                 self.assertNotIn("run_engine_command(", text)
                 self.assertNotIn("engine/forge_core_runtime", text)
+
+        skill_owned_core_commands = {
+            ROOT_DIR / "commands" / "initialize_workspace.py": "forge-init",
+            ROOT_DIR / "commands" / "prepare_bump.py": "forge-bump-release",
+        }
+        for path, owner in sorted(skill_owned_core_commands.items()):
+            with self.subTest(path=path.relative_to(REPO_ROOT), owner=owner):
+                self.assertFalse(path.exists(), f"{owner} command must be sourced inside its owner skill: {path}")
 
     def test_core_skill_red_flags_cover_common_rationalizations(self) -> None:
         skill = (ROOT_DIR / "SKILL.md").read_text(encoding="utf-8")
@@ -548,30 +563,8 @@ class BundleContractTests(unittest.TestCase):
         testing_reference = (writing_skill_dir / "testing-skills-with-subagents.md").read_text(encoding="utf-8")
         self.assertIn("forge-test-driven-development", testing_reference)
 
-    def test_workflow_files_are_operator_only_thin_compatibility_wrappers(self) -> None:
-        workflow_paths = sorted((ROOT_DIR / "workflows").glob("*/*.md"))
-        relative_paths = {path.relative_to(ROOT_DIR).as_posix() for path in workflow_paths}
-
-        self.assertFalse(relative_paths - OPERATOR_WORKFLOW_ALLOWLIST - OPTIONAL_ADAPTER_WORKFLOW_ALLOWLIST)
-        self.assertFalse(OPERATOR_WORKFLOW_ALLOWLIST - relative_paths)
-
-        for path in workflow_paths:
-            text = path.read_text(encoding="utf-8")
-            with self.subTest(path=str(path.relative_to(ROOT_DIR))):
-                if "Compatibility Wrapper" in text:
-                    self.assertLessEqual(self._raw_line_count(path), 40)
-                    self.assertIn("forge-", text)
-                else:
-                    self.assertLessEqual(self._raw_line_count(path), 100)
-                    self.assertTrue(
-                        "Operator Wrapper" in text
-                        or "Preference Wrapper" in text
-                        or "Workspace Bootstrap" in text
-                    )
-                    self.assertTrue(
-                        "Forge Codex:" in text
-                        or "Forge Antigravity:" in text
-                    )
+    def test_workflow_folder_is_retired(self) -> None:
+        self.assertFalse((ROOT_DIR / "workflows").exists())
 
     def test_generated_cache_and_bytecode_dirs_are_git_ignored_not_tracked(self) -> None:
         if not self._is_source_repo_context():
@@ -670,8 +663,9 @@ class BundleContractTests(unittest.TestCase):
 
         self.assertTrue(kernel_tooling.exists())
         self.assertFalse((ROOT_DIR / "references" / "tooling.md").exists())
-        self.assertIn("python commands/resolve_help_next.py", text)
-        self.assertIn("python commands/run_with_guidance.py", text)
+        self.assertNotIn("python commands/resolve_help_next.py", text)
+        self.assertNotIn("python commands/run_with_guidance.py", text)
+        self.assertIn("python packages/forge-skills/session-management/commands/session_context.py", text)
 
     def test_subagent_reference_contract_exists(self) -> None:
         self._require_skill_source_tree()
@@ -729,14 +723,11 @@ class BundleContractTests(unittest.TestCase):
         architectural_lens = (SKILLS_ROOT / "brainstorming" / "references" / "design" / "architectural-lens.md").read_text(encoding="utf-8")
         visual_guidance = (SKILLS_ROOT / "brainstorming" / "references" / "design" / "visual-companion-guidance.md").read_text(encoding="utf-8")
         bootstrap_support = (ROOT_DIR / "shared" / "workflow_state_bootstrap_support.py").read_text(encoding="utf-8")
-        help_next = (ROOT_DIR / "workflows" / "operator" / "references" / "help-next.md").read_text(encoding="utf-8")
 
         self.assertIn("design lens inside `forge-brainstorming`", architectural_lens)
         self.assertIn("visual lens inside `forge-brainstorming`", visual_guidance)
         self.assertNotIn('stage_name="architect"', bootstrap_support)
         self.assertIn('stage_name="plan"', bootstrap_support)
-        self.assertNotIn("`plan`, `architect`", help_next)
-        self.assertIn("architectural lens", help_next)
 
     def test_worktree_and_subagent_skills_cover_p1_safety_and_prompt_structure(self) -> None:
         self._require_skill_source_tree()

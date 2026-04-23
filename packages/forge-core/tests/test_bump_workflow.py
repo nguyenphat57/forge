@@ -77,10 +77,10 @@ class BumpWorkflowTests(unittest.TestCase):
                 )
                 self.assertEqual(completed.returncode, 0, completed.stderr)
 
-            workflow_dir = workspace / "packages" / "forge-codex" / "overlay" / "workflows" / "execution"
-            workflow_dir.mkdir(parents=True, exist_ok=True)
-            (workflow_dir / "dispatch-subagents.md").write_text(
-                "# Dispatch Subagents\n\n- New capability.\n",
+            skill_path = workspace / "packages" / "forge-skills" / "dispatching-parallel-agents" / "SKILL.md"
+            skill_path.parent.mkdir(parents=True, exist_ok=True)
+            skill_path.write_text(
+                "# Dispatching Parallel Agents\n\n- New capability.\n",
                 encoding="utf-8",
             )
 
@@ -101,7 +101,7 @@ class BumpWorkflowTests(unittest.TestCase):
             self.assertEqual(report["target_version"], "1.5.0")
             self.assertEqual(report["inferred_from"], "since-last-version-change")
             self.assertIn(
-                "packages/forge-codex/overlay/workflows/execution/dispatch-subagents.md",
+                "packages/forge-skills/dispatching-parallel-agents/SKILL.md",
                 report["analysis_changed_files"],
             )
 

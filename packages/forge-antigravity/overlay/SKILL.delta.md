@@ -5,7 +5,7 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 
 # Forge Antigravity - Core Orchestrator
 
-> Forge Antigravity maps the Forge evidence-first kernel onto Gemini workspaces through `GEMINI.md`, the release bump wrapper, and the same shared verification contract as core.
+> Forge Antigravity maps the Forge evidence-first kernel onto Gemini workspaces through `GEMINI.md`, sibling skill routing, and the same shared verification contract as core.
 
 ## Host Boundary
 
@@ -35,12 +35,12 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 
 ## Antigravity Operator Surface
 
-- The remaining primary operator entrypoint is `bump`.
+- Release bump preparation routes through the sibling skill `forge-bump-release`.
 - Natural-language session requests stay primary: `resume`, `continue`, `save context`, and `handover`.
 - Guidance, next-step selection, and command execution stay natural-language first through Forge skills and host-native tools.
 - Workspace bootstrap routes through the sibling skill `forge-init`, not a dedicated operator wrapper.
 - `quality-gate` and `deploy` keep their shared core meaning inside Antigravity bundles.
-- Wrapper UX may be richer, but deterministic semantics still come from core scripts and workflows.
+- Wrapper UX may be richer, but deterministic semantics still come from Forge skills and deterministic scripts.
 
 ## Activation Announcement
 

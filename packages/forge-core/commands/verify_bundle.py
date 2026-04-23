@@ -31,8 +31,6 @@ PREFERRED_DIST_TEST_PATTERNS = [
     "preferences_test_scripts.py",
     "test_adapter_locales.py",
     "test_contracts.py",
-    "test_help_next.py",
-    "test_help_next_workflow_state.py",
     "test_fast_lane_lifecycle.py",
     "test_response_contract.py",
 ]

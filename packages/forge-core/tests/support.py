@@ -44,6 +44,8 @@ def _customize_command_path(command_name: str) -> Path:
 
 
 OWNER_COMMAND_PATHS = {
+    "initialize_workspace.py": _owner_command_path("init", "forge-init", "initialize_workspace.py"),
+    "prepare_bump.py": SKILLS_ROOT / "bump-release" / "references" / "scripts" / "prepare_bump.py",
     "session_context.py": _owner_command_path("session-management", "forge-session-management", "session_context.py"),
     "resolve_preferences.py": _customize_command_path("resolve_preferences.py"),
     "write_preferences.py": _customize_command_path("write_preferences.py"),

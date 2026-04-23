@@ -47,7 +47,7 @@ class FastLaneLifecycleTests(unittest.TestCase):
                 )
             )
 
-    def test_fast_lane_persists_and_help_next_surfaces_fast_lane_focus(self) -> None:
+    def test_fast_lane_persists_and_session_resume_surfaces_fast_lane_focus(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
             (workspace / "README.md").write_text("# Fast Lane\n", encoding="utf-8")
@@ -93,11 +93,10 @@ class FastLaneLifecycleTests(unittest.TestCase):
             self.assertEqual(progress.returncode, 0, progress.stderr)
 
             result = run_python_script(
-                "resolve_help_next.py",
+                "session_context.py",
+                "resume",
                 "--workspace",
                 str(workspace),
-                "--mode",
-                "next",
                 "--format",
                 "json",
             )
@@ -105,10 +104,8 @@ class FastLaneLifecycleTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         report = json.loads(result.stdout)
         self.assertEqual(report["current_stage"], "session-active")
-        self.assertEqual(report["signals"]["workflow_summary"]["packet_mode"], "fast-lane")
         self.assertEqual(report["current_focus"], "Fast-lane packet: Copy tweak [packet-copy]")
-        self.assertIn("Continue fast-lane packet", report["recommended_action"])
-        self.assertIn("Escalate to standard packet mode", " ".join(report["alternatives"]))
+        self.assertIn("Continue fast-lane packet", report["best_next_step"])
 
     def test_fast_lane_rejects_packet_graph_dependencies(self) -> None:
         with self.assertRaises(ValueError):

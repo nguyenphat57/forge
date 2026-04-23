@@ -40,7 +40,7 @@ Canonical source-of-truth for:
 - deterministic scripts and remaining compatibility wrappers
 - sibling skill activation contracts for skills sourced from `forge-skills`
 - operator state and workflow-state semantics
-- operator bump compatibility wrapper, internal references, and tests
+- internal references and tests
 
 `forge-core` should not depend on a single host-specific entry file.
 
@@ -51,6 +51,7 @@ Canonical source-of-truth for public Forge sibling skills:
 - one directory per shipped sibling skill
 - each skill's `SKILL.md`
 - skill-owned `references/**` companions colocated inside the owning skill directory
+- skill-owned `commands/**` entrypoints colocated inside the owning skill directory
 
 `forge-skills` is not an adapter bundle. Release builds materialize each directory as a public `dist/forge-*` skill bundle while keeping adapter bundles free of internal `skills/` subtrees.
 
@@ -60,7 +61,6 @@ Adapter overlay for Antigravity:
 
 - host-specific `SKILL.md`
 - `agents/openai.yaml`
-- 1 primary operator wrapper workflow for `bump`
 - natural-language session guidance for `resume`, `save context`, and `handover`
 - one adapter data compatibility file: `data/preferences-compat.json`
 - one adapter doc: `docs/antigravity-operator-surface.md`
@@ -74,8 +74,7 @@ Adapter overlay for Codex:
 - Codex-specific `SKILL.md`
 - `AGENTS.example.md` for workspace integration
 - `AGENTS.global.md` for global Codex host takeover
-- 1 adapter compatibility wrapper: `workflows/execution/dispatch-subagents.md`; session continuity is owned by `forge-session-management`.
-- 1 thin operator wrapper for `bump`
+- `delegate` routes directly to `forge-dispatching-parallel-agents`; session continuity is owned by `forge-session-management`.
 - 3 adapter docs: `codex-operator-surface.md`, `smoke-test-checklist.md`, `smoke-tests.md`
 - one adapter data override: `data/orchestrator-registry.json`
 - one adapter tool: `tools/enable_windows_utf8.ps1`

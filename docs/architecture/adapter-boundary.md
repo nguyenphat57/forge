@@ -25,7 +25,7 @@ then it does not belong in `forge-core` by default.
 ## `forge-core` may contain
 
 - host-neutral routing, verification, and orchestration logic
-- shared workflows that make sense across hosts
+- shared skill-routing contracts that make sense across hosts
 - shared references, schemas, and deterministic tooling
 - response-style engines and preferences schemas, if the behavior is host-neutral
 - adapter-agnostic naming and examples
@@ -58,7 +58,7 @@ Examples of adapter-only wrappers:
 
 Examples of adapter-adjacent sibling skills:
 
-- `forge-init` when workspace bootstrap should stay natural-language first while still using `initialize_workspace.py` as a deterministic engine
+- `forge-init` when workspace bootstrap should stay natural-language first while keeping `commands/initialize_workspace.py` inside the init skill as its deterministic engine
 
 ## Decision test for new features
 

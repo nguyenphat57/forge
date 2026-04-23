@@ -1,15 +1,20 @@
 from __future__ import annotations
 
-from _forge_core_command import bootstrap_shared_paths
-
-bootstrap_shared_paths()
-
 import argparse
+import io
 import json
+import sys
 from pathlib import Path
 
-from common import configure_stdio
 from prepare_bump_report import build_report, format_text
+
+
+def configure_stdio() -> None:
+    for name in ("stdout", "stderr"):
+        stream = getattr(sys, name)
+        encoding = getattr(stream, "encoding", None)
+        if encoding and encoding.lower() != "utf-8":
+            setattr(sys, name, io.TextIOWrapper(stream.buffer, encoding="utf-8"))
 
 
 def main() -> int:

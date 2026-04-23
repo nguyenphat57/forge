@@ -935,8 +935,8 @@
         "id":  "20260423-194100",
         "kind":  "decision",
         "scope":  "forge-4-0-stable-status",
-        "summary":  "Treat 4.0.0 as the current stable Forge release because help, next, and run are removed from the public repo and host operator surfaces, release metadata is synced, and fresh verification checks passed.",
-        "status":  "resolved",
+        "summary":  "Treat 4.0.0 as a superseded Forge stable slice because the later 5.0.0 release moved release bump, bootstrap, session, and delegation behavior to sibling skills and retired the remaining workflows compatibility surface.",
+        "status":  "superseded",
         "evidence":  [
                          "VERSION",
                          "CHANGELOG.md",
@@ -959,8 +959,42 @@
                      "breaking-change",
                      "verification"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 4.0.0 verification evidence.",
+        "revisit_if":  "Release archaeology needs the original 4.0.0 proof chain or later evidence invalidates the recorded verification.",
         "trigger":  "major-release",
         "resume_hint":  "Resume only if a later audit needs the original 4.0.0 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260423-215500",
+        "kind":  "decision",
+        "scope":  "forge-5-0-stable-status",
+        "summary":  "Treat 5.0.0 as the current stable Forge release because release bump, bootstrap, session, and delegation behavior now route through sibling skills, bump is no longer an operator, and active workflows folders are retired from source and release bundles.",
+        "status":  "resolved",
+        "evidence":  [
+                         "VERSION",
+                         "CHANGELOG.md",
+                         "README.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "packages/forge-skills/bump-release/SKILL.md",
+                         "packages/forge-skills/bump-release/references/scripts/prepare_bump.py",
+                         "packages/forge-core/data/orchestrator-registry.json",
+                         "docs/release/package-matrix.json",
+                         "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --format json -> PASS, inferred major 4.0.0 to 5.0.0 with high confidence on 2026-04-23",
+                         "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.0.0 on 2026-04-23",
+                         "python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-23 after 5.0.0 continuity update"
+                     ],
+        "next":  [],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "operator-surface",
+                     "workflow-retirement",
+                     "bump-release",
+                     "breaking-change",
+                     "verification"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 5.0.0 verification evidence.",
+        "trigger":  "major-release",
+        "resume_hint":  "Resume only if a later audit needs the original 5.0.0 proof chain or invalidates the recorded verification."
     }
 ]
