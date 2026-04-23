@@ -18,6 +18,7 @@ SHARED_DIR = ROOT_DIR / "shared"
 COMMANDS_DIR = ROOT_DIR / "commands"
 TOOLS_DIR = ROOT_DIR / "tools"
 SKILLS_ROOT = ROOT_DIR.parent / "forge-skills"
+CUSTOMIZE_SHARED_DIR = SKILLS_ROOT / "customize" / "shared"
 SCRIPTS_DIR = COMMANDS_DIR
 FIXTURES_DIR = ROOT_DIR / "tests" / "fixtures"
 WORKSPACES_DIR = FIXTURES_DIR / "workspaces"
@@ -35,7 +36,17 @@ def _owner_command_path(skill_source_name: str, package_name: str, command_name:
     return ROOT_DIR.parent / package_name / "commands" / command_name
 
 
+def _customize_command_path(command_name: str) -> Path:
+    source_path = SKILLS_ROOT / "customize" / "commands" / command_name
+    if source_path.exists():
+        return source_path
+    return COMMANDS_DIR / command_name
+
+
 OWNER_COMMAND_PATHS = {
+    "session_context.py": _owner_command_path("session-management", "forge-session-management", "session_context.py"),
+    "resolve_preferences.py": _customize_command_path("resolve_preferences.py"),
+    "write_preferences.py": _customize_command_path("write_preferences.py"),
     "generate_requirements_checklist.py": _owner_command_path(
         "brainstorming", "forge-brainstorming", "generate_requirements_checklist.py"
     ),
@@ -62,7 +73,7 @@ for owner_path in OWNER_COMMAND_PATHS.values():
     if owner_dir not in OWNER_COMMAND_DIRS:
         OWNER_COMMAND_DIRS.append(owner_dir)
 
-for import_dir in (TOOLS_DIR, SHARED_DIR, COMMANDS_DIR, *OWNER_COMMAND_DIRS):
+for import_dir in (TOOLS_DIR, CUSTOMIZE_SHARED_DIR, SHARED_DIR, COMMANDS_DIR, *OWNER_COMMAND_DIRS):
     if str(import_dir) not in sys.path:
         sys.path.insert(0, str(import_dir))
 

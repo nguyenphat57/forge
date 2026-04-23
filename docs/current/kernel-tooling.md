@@ -15,7 +15,7 @@ Use these deterministic owner commands for the active Forge surface:
 ```powershell
 python commands/resolve_help_next.py --workspace C:\path\to\workspace --mode help --format json
 python commands/resolve_help_next.py --workspace C:\path\to\workspace --mode next --format json
-python commands/session_context.py resume --workspace C:\path\to\workspace --format json
+python packages/forge-skills/session-management/commands/session_context.py resume --workspace C:\path\to\workspace --format json
 python commands/run_with_guidance.py --workspace C:\path\to\workspace --timeout-ms 20000 -- npm test
 python commands/verify_bundle.py --format json
 ```
@@ -38,7 +38,7 @@ Other current kernel tools:
 - `generate_requirements_checklist.py`
 - `check_spec_packet.py`
 - `prepare_worktree.py`
-- `session_context.py`
+- `packages/forge-skills/session-management/commands/session_context.py`
 
 Workflow selection now lives in bootstrap and workflow markdown. Deterministic owner commands support audit, resume, workflow-state, and verification; they do not replace markdown as the control plane.
 

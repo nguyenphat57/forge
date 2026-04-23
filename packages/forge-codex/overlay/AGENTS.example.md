@@ -22,7 +22,7 @@ Use `forge-codex` as the global orchestrator for this workspace.
   - "Split the independent failures across subagents where safe"
   - "Bump this to 0.5.0"
   - "We need to roll back the last deployment"
-  - "Give shorter answers and move faster"
+  - "Use shorter answers and move faster by default"
   - "Bootstrap this workspace for Forge with canonical docs"
 - Let `forge-codex` resolve response-style preferences through the adapter-global Forge preferences engine instead of redefining response-style rules here.
 - If the user wants durable preference changes, let `forge-codex` persist them through `commands/write_preferences.py`, not a host-local schema.
@@ -31,6 +31,6 @@ Use `forge-codex` as the global orchestrator for this workspace.
 - Let `forge-codex` handle `run` through the core run-guidance engine. Do not invent a second layer that only repeats terminal output.
 - If boundaries are clear and the host can delegate safely, let `forge-codex` invoke `forge-dispatching-parallel-agents` instead of improvising parallel edits.
 - Let `forge-codex` keep `bump` natural-language first without reintroducing extra operator ceremony.
-- Let `forge-codex` keep `customize` thin and route bootstrap requests to `forge-init`.
+- Let `forge-codex` route durable preference changes through `forge-customize` and `commands/write_preferences.py`, and route bootstrap requests to `forge-init`.
 - If the user asks to bootstrap a workspace, keep the UX thin but still let `forge-init` call `commands/initialize_workspace.py`.
 

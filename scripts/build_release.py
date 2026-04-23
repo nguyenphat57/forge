@@ -30,6 +30,7 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 PACKAGES_DIR = ROOT_DIR / "packages"
 DIST_DIR = ROOT_DIR / "dist"
 CORE_DIR = PACKAGES_DIR / "forge-core"
+CUSTOMIZE_DIR = PACKAGES_DIR / "forge-skills" / "customize"
 VERSION_FILE = ROOT_DIR / "VERSION"
 BUNDLE_BUILD_ATTEMPTS = 3
 BUNDLE_BUILD_DELAY_SECONDS = 0.2
@@ -156,6 +157,13 @@ def copy_runtime_docs(destination: Path) -> None:
     copy_file(ROOT_DIR / "docs" / "current" / "target-state.md", destination / "docs" / "current" / "target-state.md")
 
 
+def materialize_customize_runtime(destination: Path) -> None:
+    for dirname in ("commands", "shared", "data"):
+        source = CUSTOMIZE_DIR / dirname
+        if source.exists():
+            copy_tree(source, destination / dirname)
+
+
 def apply_overlay(overlay_dir: Path, destination: Path, *, ignored_relative_paths: set[str] | None = None) -> None:
     ignored_relative_paths = ignored_relative_paths or set()
     if not overlay_dir.exists():
@@ -216,12 +224,12 @@ def build_input_paths(package_name: str, *, package_dir: Path | None = None, ove
         paths.append(sibling_skill_source_dir(package_name))
         return paths
     if package_name == "forge-core":
-        paths.append(CORE_DIR)
+        paths.extend([CORE_DIR, CUSTOMIZE_DIR])
         return paths
     if package_dir is None:
         raise ValueError(f"package_dir is required for bundle inputs: {package_name}")
     if overlay_dir is not None:
-        paths.extend([CORE_DIR, overlay_dir])
+        paths.extend([CORE_DIR, CUSTOMIZE_DIR, overlay_dir])
         return paths
     paths.append(package_dir)
     return paths
@@ -424,6 +432,7 @@ def build_core_bundle(metadata: dict[str, object], *, force: bool = False) -> di
         remove_bundled_skill_tree(destination)
         remove_forbidden_runtime_dirs(destination)
         copy_runtime_docs(destination)
+        materialize_customize_runtime(destination)
         write_build_manifest(
             destination,
             "forge-core",
@@ -468,6 +477,7 @@ def build_adapter_bundle(spec: dict, metadata: dict[str, object], *, force: bool
         remove_bundled_skill_tree(destination)
         remove_forbidden_runtime_dirs(destination)
         copy_runtime_docs(destination)
+        materialize_customize_runtime(destination)
         apply_overlay(
             overlay_dir,
             destination,

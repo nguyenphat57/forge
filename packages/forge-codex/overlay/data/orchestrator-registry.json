@@ -62,49 +62,6 @@
             "Bump this to 0.5.0"
           ]
         }
-      },
-      "customize": {
-        "hosts": [
-          "codex"
-        ],
-        "primary_aliases_by_host": {},
-        "natural_language_examples_by_host": {
-          "codex": [
-            "Give shorter answers and move faster"
-          ]
-        }
-      }
-    },
-    "session_modes": {
-      "restore": {
-        "hosts": [
-          "codex"
-        ],
-        "natural_language_examples_by_host": {
-          "codex": [
-            "Continue the task we were working on yesterday and tell me the best next step."
-          ]
-        }
-      },
-      "save": {
-        "hosts": [
-          "codex"
-        ],
-        "natural_language_examples_by_host": {
-          "codex": [
-            "Save context for this task before I close the window."
-          ]
-        }
-      },
-      "handover": {
-        "hosts": [
-          "codex"
-        ],
-        "natural_language_examples_by_host": {
-          "codex": [
-            "Create a short handover with the next step and verification already run."
-          ]
-        }
       }
     }
   },

@@ -835,8 +835,8 @@
         "id":  "20260423-144923",
         "kind":  "decision",
         "scope":  "forge-3-2-stable-status",
-        "summary":  "Treat 3.2.3 as the current stable Forge release because the canonical forge-init bootstrap skill, blueprint-driven workspace bootstrap engine, expanded fixture coverage, release sync, and canonical verification checks are complete.",
-        "status":  "resolved",
+        "summary":  "Treat 3.2.3 as a superseded Forge stable slice because the later 3.2.4 forge-customize ownership release replaced its stable line after fresh verification and release sync.",
+        "status":  "superseded",
         "evidence":  [
                          "VERSION",
                          "CHANGELOG.md",
@@ -863,8 +863,72 @@
                      "bootstrap-docs",
                      "verification"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 3.2.3 verification evidence.",
+        "revisit_if":  "Release archaeology needs the original 3.2.3 proof chain or later evidence invalidates the recorded verification.",
         "trigger":  "patch-release",
         "resume_hint":  "Resume only if a later audit needs the original 3.2.3 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260423-160500",
+        "kind":  "decision",
+        "scope":  "forge-3-2-stable-status",
+        "summary":  "Treat 3.2.4 as a superseded Forge stable slice because the later 3.3.0 session-management ownership release replaced its stable line after fresh verification and release sync.",
+        "status":  "superseded",
+        "evidence":  [
+                         "VERSION",
+                         "CHANGELOG.md",
+                         "README.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "packages/forge-skills/customize/commands/resolve_preferences.py",
+                         "packages/forge-skills/customize/commands/write_preferences.py",
+                         "packages/forge-skills/customize/shared/preferences_store.py",
+                         "packages/forge-skills/customize/data/preferences-schema.json",
+                         "python scripts/generate_host_artifacts.py --check -> PASS on 2026-04-23",
+                         "python scripts/generate_overlay_skills.py --check -> PASS on 2026-04-23",
+                         "pytest tests/test_public_customize_skill.py packages/forge-core/tests/test_preferences.py packages/forge-core/tests/test_write_preferences.py packages/forge-core/tests/test_contracts.py tests/test_script_polish.py tests/test_operator_surface_registry.py tests/test_host_artifact_generation.py tests/test_repo_operator_script_shims.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-23",
+                         "python scripts/verify_repo.py -> pending rerun after .brain stable-line update"
+                     ],
+        "next":  [],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "forge-customize",
+                     "preferences",
+                     "verification"
+                 ],
+        "revisit_if":  "Release archaeology needs the original 3.2.4 proof chain or later evidence invalidates the recorded verification.",
+        "trigger":  "patch-release",
+        "resume_hint":  "Resume only if a later audit needs the original 3.2.4 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260423-173300",
+        "kind":  "decision",
+        "scope":  "forge-3-3-stable-status",
+        "summary":  "Treat 3.3.0 as the current stable Forge release because forge-session-management now solely owns session continuity, public session operator actions are removed, release metadata is synced, and fresh verification checks passed.",
+        "status":  "resolved",
+        "evidence":  [
+                         "VERSION",
+                         "CHANGELOG.md",
+                         "README.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "packages/forge-skills/session-management/commands/session_context.py",
+                         "packages/forge-core/data/orchestrator-registry.json",
+                         "scripts/repo_operator.py",
+                         "python -m pytest tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_session_context.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> 83 passed, 86779 subtests passed on 2026-04-23",
+                         "python scripts/build_release.py --force --format json -> PASS on 2026-04-23",
+                         "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23"
+                     ],
+        "next":  [],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "session-management",
+                     "operator-surface",
+                     "verification"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 3.3.0 verification evidence.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 3.3.0 proof chain or invalidates the recorded verification."
     }
 ]

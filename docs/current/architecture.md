@@ -6,7 +6,8 @@ Describe the live Forge architecture after the split-skill cutover, without send
 
 ## Current Topology
 
-- `packages/forge-core/` owns the host-neutral contract: bootstrap wording, workflow-state semantics, verification invariants, operator/session compatibility wrappers, and preference/state tooling.
+- `packages/forge-core/` owns the host-neutral bootstrap contract: bootstrap wording, workflow-state semantics, verification invariants, and operator/session compatibility wrappers.
+- `packages/forge-skills/customize/` owns durable preference runtime source; release builds materialize its commands, shared modules, and schema into installed adapter bundles.
 - `packages/forge-skills/` is the source of truth for host-discoverable Forge process skills such as `forge-brainstorming`, `forge-writing-plans`, `forge-systematic-debugging`, and `forge-verification-before-completion`.
 - `packages/forge-core/workflows/` is operator/session compatibility only. These files keep continuity wrappers working, but they point back to sibling skills.
 - `packages/forge-codex/overlay/` and `packages/forge-antigravity/overlay/` adapt the shared contract to host-native bootstrap files, installed skill layout, and operator wrappers.
@@ -19,7 +20,7 @@ Describe the live Forge architecture after the split-skill cutover, without send
 - The 1% rule applies before any substantive response or action: if a relevant Forge skill might apply, load it first.
 - Process skills run before implementation skills: brainstorm, debug, and session management gate behavioral build, bugfix, and resume work.
 - `help` and `next` are audit/resume sidecars over durable artifacts. They explain current state and the next bounded action, but they do not choose process by heuristic routing.
-- Deterministic scripts remain part of the architecture for invariants, state, preferences, install, and verification. They are not the public workflow control plane.
+- Deterministic scripts remain part of the architecture for invariants, state, preferences, install, and verification, with preference source owned by `forge-customize`. They are not the public workflow control plane.
 
 ## Public Versus Internal Surfaces
 

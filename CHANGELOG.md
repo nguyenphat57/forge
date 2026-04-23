@@ -1,6 +1,20 @@
 # Changelog
 
-## 3.2.3 (stable) - 2026-04-23
+## 3.3.0 (stable) - 2026-04-23
+
+- Move session continuity ownership fully into `forge-session-management`, including the deterministic `session_context.py` command and `owner: "forge-session-management"` report metadata.
+- Remove `resume`, `save`, and `handover` from the public repo operator surface, and remove the `workflows/operator/session.md` compatibility wrapper from source, generated host artifacts, package matrices, and dist expectations.
+- Keep session request examples in the session-management skill catalog while refreshing release-facing docs, generated operator surfaces, bundle contracts, and continuity state around `3.3.0`.
+
+
+## 3.2.4 (stable) - 2026-04-23
+
+- Move `forge-customize` into the canonical sibling skill pack with its preference commands, shared runtime, and canonical schema owned under `packages/forge-skills/customize/`.
+- Remove the public `customize` operator action and generated host wrappers, keeping durable preference changes natural-language first through `forge-customize`.
+- Refresh bundle/build/install contracts so adapter bundles materialize customize-owned runtime from the skill owner while `forge-core` no longer keeps duplicate preference source files.
+
+
+## 3.2.3 - 2026-04-23
 
 - Add the canonical `forge-init` sibling skill with a Forge-owned bootstrap-docs blueprint under `references/`, making bootstrap docs generation and normalization a first-class skill path instead of a public operator action.
 - Expand `initialize_workspace.py` into the deterministic internal engine behind `forge-init`, including blueprint-driven workspace classification, bootstrap-doc generation, normalization, and readiness seeding.

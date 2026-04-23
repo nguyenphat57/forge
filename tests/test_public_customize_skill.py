@@ -6,8 +6,10 @@ from pathlib import Path
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-SKILL_DIR = ROOT_DIR / "skills" / "forge-customize"
+SKILL_DIR = ROOT_DIR / "packages" / "forge-skills" / "customize"
 SKILL_PATH = SKILL_DIR / "SKILL.md"
+LEGACY_STANDALONE_DIR = ROOT_DIR / "skills" / "forge-customize"
+CORE_DIR = ROOT_DIR / "packages" / "forge-core"
 
 
 def _extract_frontmatter(text: str) -> tuple[str, str]:
@@ -22,8 +24,12 @@ def _extract_frontmatter(text: str) -> tuple[str, str]:
 
 class PublicCustomizeSkillTests(unittest.TestCase):
     def test_public_customize_skill_exists_with_minimal_structure(self) -> None:
-        self.assertTrue(SKILL_DIR.exists(), "Expected a standalone public skill directory at skills/forge-customize.")
-        self.assertTrue(SKILL_PATH.exists(), "Expected skills/forge-customize/SKILL.md to exist.")
+        self.assertTrue(SKILL_DIR.exists(), "Expected a canonical sibling skill directory at packages/forge-skills/customize.")
+        self.assertTrue(SKILL_PATH.exists(), "Expected packages/forge-skills/customize/SKILL.md to exist.")
+        self.assertFalse(
+            LEGACY_STANDALONE_DIR.exists(),
+            "Legacy standalone skills/forge-customize should be removed after moving the canonical skill into packages/forge-skills.",
+        )
         self.assertTrue(
             (SKILL_DIR / "references" / "forge-preferences.md").exists(),
             "Expected a reference file documenting the canonical Forge preference contract.",
@@ -32,7 +38,32 @@ class PublicCustomizeSkillTests(unittest.TestCase):
             (SKILL_DIR / "references" / "forge-paths.md").exists(),
             "Expected a reference file documenting host-neutral Forge state locations.",
         )
-        self.assertFalse((SKILL_DIR / "README.md").exists(), "Standalone skill should not ship a README.")
+        self.assertFalse((SKILL_DIR / "README.md").exists(), "Sibling skill should not ship a README.")
+
+    def test_customize_runtime_is_owned_by_customize_skill_not_core(self) -> None:
+        owner_paths = [
+            "commands/resolve_preferences.py",
+            "commands/write_preferences.py",
+            "data/preferences-schema.json",
+            "shared/compat.py",
+            "shared/compat_paths.py",
+            "shared/compat_serialize.py",
+            "shared/compat_translation.py",
+            "shared/preferences.py",
+            "shared/preferences_contract.py",
+            "shared/preferences_paths.py",
+            "shared/preferences_store.py",
+        ]
+        for relative_path in owner_paths:
+            with self.subTest(owner_path=relative_path):
+                self.assertTrue(
+                    (SKILL_DIR / relative_path).exists(),
+                    f"Expected forge-customize to own runtime file {relative_path}.",
+                )
+                self.assertFalse(
+                    (CORE_DIR / relative_path).exists(),
+                    f"forge-core must not keep customize-owned runtime file {relative_path}.",
+                )
 
     def test_public_customize_skill_frontmatter_and_body_are_skills_sh_ready(self) -> None:
         text = SKILL_PATH.read_text(encoding="utf-8")

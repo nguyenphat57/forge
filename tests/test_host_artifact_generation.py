@@ -19,7 +19,7 @@ class HostArtifactGenerationTests(unittest.TestCase):
         report = ensure_generated_host_artifacts(check=True)
         self.assertEqual(report["status"], "PASS")
         self.assertEqual(report["stale_outputs"], [])
-        self.assertGreaterEqual(len(report["artifacts"]), 10)
+        self.assertGreaterEqual(len(report["artifacts"]), 9)
         for artifact in report["artifacts"]:
             with self.subTest(artifact=artifact["name"]):
                 self.assertTrue(artifact["output_exists"])
@@ -49,7 +49,6 @@ class HostArtifactGenerationTests(unittest.TestCase):
                 "forge-codex-next-wrapper",
                 "forge-codex-run-wrapper",
                 "forge-codex-bump-wrapper",
-                "forge-codex-customize-wrapper",
             }
         ]
 
@@ -59,7 +58,7 @@ class HostArtifactGenerationTests(unittest.TestCase):
         )
         self.assertEqual(
             {item["context"]["action"] for item in specs},
-            {"help", "next", "run", "bump", "customize"},
+            {"help", "next", "run", "bump"},
         )
 
 

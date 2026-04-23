@@ -20,14 +20,14 @@ description: "Forge Codex - Codex adapter for Forge core. Use when a request nee
 - At the start of each new thread, resolve preferences before the first substantive user-facing reply.
 - Read adapter-global state from `state/preferences.json`, using `commands/resolve_preferences.py` when a merged payload is needed.
 - `forge-codex` responds in Vietnamese with full diacritics when resolved `language=vi`; broken Vietnamese encoding is a defect.
-- `workflows/operator/customize.md` stays thin and must continue to write through `commands/write_preferences.py`.
+- Durable preference changes stay natural-language first and write through `commands/write_preferences.py` or the sibling skill `forge-customize`.
 
 ## Codex Operator Surface
 
 - `forge-codex` is natural-language first.
-- Primary operator entrypoints are `help`, `next`, `run`, `bump`, and `customize`.
+- Primary operator entrypoints are `help`, `next`, `run`, and `bump`.
 - `delegate` maps to `forge-dispatching-parallel-agents` when a concise operator action name helps.
-- `workflows/operator/customize.md` stays a thin wrapper over core scripts.
+- Durable response-style changes route through `forge-customize` instead of a dedicated operator wrapper.
 - Workspace bootstrap routes through the sibling skill `forge-init`, which calls `commands/initialize_workspace.py`.
 - Completion claims use `forge-verification-before-completion`; branch closure uses `forge-finishing-a-development-branch`.
 

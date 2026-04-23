@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-04-23T14:55:20+07:00",
+  "updated_at": "2026-04-23T12:10:52+00:00",
   "working_on": {
-    "feature": "forge-3-2-3-stable-release",
-    "task": "Forge 3.2.3 stable release published after the forge-init bootstrap-skill rollout, the blueprint-driven workspace bootstrap engine expansion, the wider workspace fixture coverage, and the stable-line metadata refresh",
+    "feature": "forge-3-3-0-stable-release",
+    "task": "Forge 3.3.0 stable release prepared after moving session continuity ownership fully into forge-session-management, removing public session operator actions, and refreshing release plus bundle contracts.",
     "status": "released",
     "files": [
       "VERSION",
@@ -13,53 +13,71 @@
       ".brain/handover.md",
       "docs/release/public-readiness.md",
       "docs/release/release-process.md",
-      "packages/forge-core/commands/initialize_workspace.py",
-      "packages/forge-core/tests/fixtures/workspace_init_cases.json",
-      "packages/forge-core/tests/test_initialize_workspace.py",
-      "packages/forge-skills/init/SKILL.md",
-      "packages/forge-skills/init/references/project-docs-blueprint.md",
-      "scripts/repo_operator.py"
+      "packages/forge-skills/customize/",
+      "packages/forge-skills/session-management/commands/",
+      "packages/forge-core/tests/support.py",
+      "scripts/build_release.py",
+      "AGENTS.md",
+      "docs/architecture/adapter-boundary.md",
+      "docs/architecture/architecture-layers.md",
+      "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
+      "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
+      "docs/architecture/generated-host-artifacts/antigravity/docs/antigravity-operator-surface.md",
+      "docs/architecture/host-artifacts-manifest.json",
+      "docs/architecture/monorepo.md",
+      "docs/current/architecture.md"
     ]
   },
-  "pending_tasks": [],
+  "pending_tasks": [
+    "Resume the recorded workflow stage 'plan' before opening new scope."
+  ],
   "recent_changes": [
-    "VERSION",
+    "AGENTS.md",
     "CHANGELOG.md",
     "README.md",
-    ".brain/decisions.json",
-    ".brain/session.json",
-    ".brain/handover.md",
+    "VERSION",
+    "docs/architecture/adapter-boundary.md",
+    "docs/architecture/architecture-layers.md",
+    "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
+    "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
+    "docs/architecture/generated-host-artifacts/antigravity/docs/antigravity-operator-surface.md",
+    "docs/architecture/host-artifacts-manifest.json",
+    "docs/architecture/monorepo.md",
+    "docs/current/architecture.md",
+    "docs/current/operator-surface.md",
+    "docs/current/smoke-tests.md",
+    "docs/release/package-matrix.json",
     "docs/release/public-readiness.md",
     "docs/release/release-process.md",
-    "packages/forge-core/commands/initialize_workspace.py",
-    "packages/forge-core/tests/fixtures/workspace_init_cases.json",
-    "packages/forge-core/tests/test_initialize_workspace.py",
-    "packages/forge-skills/init/SKILL.md",
-    "packages/forge-skills/init/references/project-docs-blueprint.md",
-    "scripts/repo_operator.py"
+    "packages/forge-antigravity/README.md",
+    "packages/forge-antigravity/overlay/GEMINI.global.md",
+    "packages/forge-antigravity/overlay/SKILL.delta.md"
   ],
   "verification": [
-    "python -m pytest packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_initialize_workspace.py tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> PASS on 2026-04-23",
-    "python -m pytest packages/forge-core/tests/test_initialize_workspace.py -q -> PASS on 2026-04-23",
-    "python scripts/generate_host_artifacts.py --check --format json -> PASS on 2026-04-23",
-    "python scripts/generate_overlay_skills.py --check --format json -> PASS on 2026-04-23",
-    "python scripts/build_release.py --format json -> PASS on 2026-04-23",
-    "python scripts/verify_repo.py -> PASS on 2026-04-23"
+    "python scripts/generate_host_artifacts.py --check -> PASS on 2026-04-23",
+    "python scripts/generate_overlay_skills.py --check -> PASS on 2026-04-23",
+    "pytest tests/test_public_customize_skill.py packages/forge-core/tests/test_preferences.py packages/forge-core/tests/test_write_preferences.py packages/forge-core/tests/test_contracts.py tests/test_script_polish.py tests/test_operator_surface_registry.py tests/test_host_artifact_generation.py tests/test_repo_operator_script_shims.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-23",
+    "python -m pytest tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_session_context.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> 83 passed, 86779 subtests passed on 2026-04-23",
+    "python scripts/build_release.py --force --format json -> PASS on 2026-04-23",
+    "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23"
   ],
   "decisions_made": [
-    "Bump 3.2.2 to 3.2.3 as patch because this slice adds the canonical forge-init bootstrap skill, removes public init operator entrypoints, and broadens bootstrap fixture coverage without changing the stable product line.",
-    "Forge-owned bootstrap-docs guidance now lives in the forge-init skill bundle reference, while workspace docs remain rendered artifacts and .brain plus workflow-state stay execution memory.",
-    "initialize_workspace.py remains the deterministic internal engine behind forge-init and must classify, create, normalize, and report workspace bootstrap state without becoming a public repo operator action."
+    "Bump 3.2.3 to 3.2.4 as patch because this slice moves customize preference runtime ownership and removes the public customize operator action without changing the stable product line.",
+    "Bump 3.2.4 to 3.3.0 as minor because this slice removes public session operator actions and makes forge-session-management the sole session owner.",
+    "forge-customize owns durable preference commands, shared modules, and canonical schema in source; release builds materialize that runtime into adapter bundles.",
+    "Keep durable preference changes natural-language first through forge-customize rather than a public repo or host customize operator action.",
+    "forge-session-management owns resume, save context, handover, and deterministic session command reports."
   ],
   "risks": [
-    "Real installed host smoke after the version bump was not rerun beyond repo, bundle-generation, release-build, and canonical verification gates.",
-    "A non-canonical pytest subset still reports one forge-antigravity uninstalled dist state-root subtest divergence even though python scripts/verify_repo.py passed."
+    "Full non-fast release suite was not rerun after the final 3.3.0 continuity update."
   ],
   "blockers": [],
   "source_artifacts": [
     "readme: C:\\Users\\Admin\\.gemini\\forge\\README.md",
+    "plan: C:\\Users\\Admin\\.gemini\\forge\\docs\\plans\\2026-04-23-runtime-ownership-refactor-implementation-plan.md",
     "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
     "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
+    "git: 88 working tree item(s)",
     "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\workflow-state\\forge\\latest.json"
   ]
 }

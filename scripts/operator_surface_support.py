@@ -125,7 +125,9 @@ def render_repo_public_action_bullets() -> str:
 
 def render_session_request_examples(bundle_name: str) -> str:
     lines: list[str] = []
-    for mode_name, metadata in host_operator_surface(bundle_name)["session_modes"].items():
+    metadata_root = load_bundle_registry(bundle_name).get("skill_catalog", {}).get("session-management", {})
+    modes = metadata_root.get("session_modes", {}) if isinstance(metadata_root, dict) else {}
+    for mode_name, metadata in modes.items():
         if not isinstance(metadata, dict):
             continue
         examples = _host_values(metadata, "natural_language_examples_by_host", bundle_name=bundle_name)
@@ -262,66 +264,6 @@ def _codex_action_config(action_name: str) -> dict:
                 ]
             ),
             "announcement": "Forge Codex: bump | release change with explicit or inferred semver",
-        },
-        "customize": {
-            "heading": "Customize - Codex Preference Wrapper",
-            "goal": "give Codex a short customization flow without inventing host-local preference schema.",
-            "trigger": "natural-language request to change tone, detail, autonomy, pace, feedback style, or durable language rules",
-            "quality_gates": [
-                "Current preferences are inspected first",
-                "Durable changes use the core canonical schema and writer",
-                "Durable language rules live in the unified canonical preferences object; workspace `.brain/preferences.json` is a first-class repo-local scope",
-                "The response states what changed and how interaction will feel different",
-            ],
-            "process": lambda command: "\n".join(
-                [
-                    "Fast path for language requests:",
-                    "",
-                    "- If the user only asks how to set language, Vietnamese diacritics, or writing conventions:",
-                    "  - point first to durable updates through `commands/write_preferences.py`",
-                    "  - only point to workspace `.brain/preferences.json` when they explicitly want repo-scoped overrides",
-                    "  - reuse the short templates in `workflows/operator/references/personalization.md`",
-                    "",
-                    "1. Read current preferences:",
-                    "",
-                    _code_block(["commands/resolve_preferences.py --format json"]),
-                    "",
-                    "2. Map the request into canonical fields when it is about tone or delivery style:",
-                    "   - `technical_level`",
-                    "   - `detail_level`",
-                    "   - `autonomy_level`",
-                    "   - `pace`",
-                    "   - `feedback_style`",
-                    "   - `personality`",
-                    "",
-                    "3. If the user wants durable language, orthography, or host-native writing rules:",
-                    "   - persist them through the unified canonical preferences file with `commands/write_preferences.py`",
-                    "   - offer `--scope global|workspace|both` and keep workspace files sparse",
-                    "   - use workspace `.brain/preferences.json` only for workspace-only overrides",
-                    "",
-                    "4. Preview or persist using the core writer:",
-                    "",
-                    _code_block(
-                        [
-                            "commands/write_preferences.py --detail-level concise --pace fast --feedback-style direct",
-                            "commands/write_preferences.py --detail-level concise --pace fast --feedback-style direct --scope global --apply",
-                            "commands/write_preferences.py --language vi --orthography vietnamese_diacritics --scope workspace --apply",
-                        ]
-                    ),
-                    "",
-                    "5. Persistence notes:",
-                    "   - adapter-global preferences persist in `state/preferences.json`",
-                    "   - workspace-local overrides persist in `.brain/preferences.json`",
-                    "   - explicit `resolve_preferences.py --preferences-file ...` stays read-only",
-                    "   - legacy split or native state may be migrated on `--apply`",
-                    "",
-                    "6. Short answer:",
-                    "   - which fields changed",
-                    "   - how the new response style will feel different",
-                    "   - whether any workspace-only overrides remain separate from adapter-global state",
-                ]
-            ),
-            "announcement": "Forge Codex: customize | update canonical preferences with minimal ceremony",
         },
     }
     return configs[action_name]

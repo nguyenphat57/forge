@@ -76,6 +76,11 @@ FORGE_SPLIT_SKILLS = {
         "path": "packages/forge-skills/finishing-a-development-branch/SKILL.md",
         "budget": 260,
     },
+    "customize": {
+        "package": "forge-customize",
+        "path": "packages/forge-skills/customize/SKILL.md",
+        "budget": 220,
+    },
     "writing-skills": {
         "package": "forge-writing-skills",
         "path": "packages/forge-skills/writing-skills/SKILL.md",
@@ -109,17 +114,19 @@ EXPECTED_SKILL_LOCAL_REFERENCES = {
         "references/debugging/defense-in-depth.md",
         "references/debugging/root-cause-tracing.md",
     ],
+    "customize": [
+        "references/forge-preferences.md",
+        "references/forge-paths.md",
+    ],
 }
 
 FORBIDDEN_SHARED_REFERENCE_FALLBACK = "Shared scripts and references live in the installed Forge orchestrator bundle"
 
 OPERATOR_WORKFLOW_ALLOWLIST = {
     "workflows/operator/bump.md",
-    "workflows/operator/customize.md",
     "workflows/operator/help.md",
     "workflows/operator/next.md",
     "workflows/operator/run.md",
-    "workflows/operator/session.md",
 }
 
 OPTIONAL_ADAPTER_WORKFLOW_ALLOWLIST = {
@@ -208,9 +215,10 @@ class BundleContractTests(unittest.TestCase):
 
         owner_commands = {
             ROOT_DIR / "commands" / "resolve_help_next.py",
-            ROOT_DIR / "commands" / "session_context.py",
             ROOT_DIR / "commands" / "run_with_guidance.py",
-            ROOT_DIR / "commands" / "write_preferences.py",
+            SKILLS_ROOT / "session-management" / "commands" / "session_context.py",
+            SKILLS_ROOT / "customize" / "commands" / "resolve_preferences.py",
+            SKILLS_ROOT / "customize" / "commands" / "write_preferences.py",
             SKILLS_ROOT / "brainstorming" / "commands" / "check_ui_brief.py",
             SKILLS_ROOT / "executing-plans" / "commands" / "track_execution_progress.py",
             SKILLS_ROOT / "systematic-debugging" / "commands" / "translate_error.py",

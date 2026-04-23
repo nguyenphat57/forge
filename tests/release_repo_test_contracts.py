@@ -30,6 +30,10 @@ EXPECTED_SIBLING_SKILL_REFERENCES = {
         "references/debugging/defense-in-depth.md",
         "references/debugging/root-cause-tracing.md",
     ],
+    "forge-customize": [
+        "references/forge-preferences.md",
+        "references/forge-paths.md",
+    ],
 }
 
 
@@ -209,12 +213,11 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         outputs = {item["bundle_output"] for item in manifest["generated_artifacts"]["artifacts"]}
         required = set(manifest["packaging"]["required_bundle_paths"])
 
-        self.assertIn("workflows/operator/session.md", required)
+        self.assertNotIn("workflows/operator/session.md", required)
         self.assertIn("workflows/operator/help.md", required)
         self.assertIn("workflows/operator/next.md", required)
         self.assertIn("workflows/operator/run.md", required)
-        self.assertIn("workflows/operator/customize.md", required)
-        self.assertIn("workflows/operator/session.md", outputs)
+        self.assertNotIn("workflows/operator/session.md", outputs)
         self.assertIn("workflows/operator/help.md", outputs)
         self.assertIn("workflows/operator/next.md", outputs)
         self.assertIn("workflows/operator/run.md", outputs)
@@ -232,7 +235,6 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         build_release.build_all()
         expected = {
             "workflows/operator/bump.md",
-            "workflows/operator/customize.md",
             "workflows/operator/help.md",
             "workflows/operator/next.md",
             "workflows/operator/references/bump-release.md",
@@ -240,7 +242,6 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
             "workflows/operator/references/personalization.md",
             "workflows/operator/references/run-guidance.md",
             "workflows/operator/run.md",
-            "workflows/operator/session.md",
         }
 
         for base in (

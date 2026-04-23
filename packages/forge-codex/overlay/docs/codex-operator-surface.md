@@ -10,7 +10,6 @@ Preferred user phrasing:
 - "What should I do next?" -> `next`
 - "Run `npm test` and tell me what to do after" -> `run`
 - "Bump this to 0.5.0" -> `bump`
-- "Give shorter answers and move faster" -> `customize`
 - "Split these independent slices across subagents" -> `delegate`
 
 Session requests:

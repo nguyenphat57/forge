@@ -27,6 +27,8 @@ def resolve_core_root_dir() -> Path:
 
 CORE_ROOT_DIR = resolve_core_root_dir()
 CORE_SHARED_DIR = CORE_ROOT_DIR / "shared"
+CUSTOMIZE_ROOT_DIR = CORE_ROOT_DIR.parent / "forge-skills" / "customize"
+CUSTOMIZE_SHARED_DIR = CUSTOMIZE_ROOT_DIR / "shared"
 
 
 def merge_overlay(base: object, overlay: object) -> object:
@@ -74,9 +76,16 @@ def stage_bundle_root() -> Path:
     stage_root = Path(tempfile.mkdtemp(prefix="forge-antigravity-bundle-"))
     stage_data_dir = stage_root / "data"
     core_data_dir = CORE_ROOT_DIR / "data"
+    customize_data_dir = CUSTOMIZE_ROOT_DIR / "data"
     overlay_data_dir = ROOT_DIR / "data"
 
     shutil.copytree(core_data_dir, stage_data_dir, dirs_exist_ok=True)
+    if customize_data_dir.exists():
+        shutil.copytree(customize_data_dir, stage_data_dir, dirs_exist_ok=True)
+    for runtime_dir in ("commands", "shared"):
+        customize_runtime_dir = CUSTOMIZE_ROOT_DIR / runtime_dir
+        if customize_runtime_dir.exists():
+            shutil.copytree(customize_runtime_dir, stage_root / runtime_dir, dirs_exist_ok=True)
     write_composed_adapter_skill("forge-antigravity", stage_root / "SKILL.md")
 
     core_registry = load_json(core_data_dir / "orchestrator-registry.json")
@@ -106,14 +115,20 @@ STAGED_BUNDLE_ROOT = stage_bundle_root()
 
 os.environ["FORGE_BUNDLE_ROOT"] = str(STAGED_BUNDLE_ROOT)
 
-if str(CORE_SHARED_DIR) not in sys.path:
-    sys.path.insert(0, str(CORE_SHARED_DIR))
+for import_dir in (CUSTOMIZE_SHARED_DIR, CORE_SHARED_DIR):
+    if import_dir.is_dir() and str(import_dir) not in sys.path:
+        sys.path.insert(0, str(import_dir))
 
 for module_name in (
+    "compat",
+    "compat_paths",
+    "compat_serialize",
+    "compat_translation",
     "common",
     "preferences",
     "preferences_contract",
     "preferences_paths",
+    "preferences_store",
     "response_contract",
     "skill_routing",
 ):

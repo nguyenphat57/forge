@@ -10,7 +10,7 @@ The install flow uses in-place sync so rollout is safer when the host is holding
 Source repo operator flow:
 
 ```powershell
-python scripts/repo_operator.py resume --workspace <repo> --format json
+Use `forge-session-management` to resume, save context, or hand over session continuity.
 python scripts/repo_operator.py help --workspace <repo> --format json
 python scripts/repo_operator.py next --workspace <repo> --format json
 python scripts/repo_operator.py run --workspace <repo> --timeout-ms 20000 -- <command>

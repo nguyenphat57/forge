@@ -29,9 +29,11 @@ FORGE_SIBLING_SKILLS = [
     "forge-receiving-code-review",
     "forge-verification-before-completion",
     "forge-finishing-a-development-branch",
+    "forge-customize",
     "forge-writing-skills",
     "forge-session-management",
 ]
+SIBLING_SKILLS_WITH_DATA = {"forge-customize"}
 
 EXPECTED_SIBLING_SKILL_REFERENCES = {
     "forge-init": [
@@ -60,6 +62,10 @@ EXPECTED_SIBLING_SKILL_REFERENCES = {
         "references/debugging/defense-in-depth.md",
         "references/debugging/root-cause-tracing.md",
     ],
+    "forge-customize": [
+        "references/forge-preferences.md",
+        "references/forge-paths.md",
+    ],
 }
 
 
@@ -78,7 +84,7 @@ class RetiredBundleMatrixTests(unittest.TestCase):
             with self.subTest(skill=skill_name):
                 self.assertTrue((ROOT_DIR / "dist" / skill_name / "SKILL.md").exists())
                 self.assertFalse((ROOT_DIR / "dist" / skill_name / "scripts").exists())
-                self.assertFalse((ROOT_DIR / "dist" / skill_name / "data").exists())
+                self.assertEqual((ROOT_DIR / "dist" / skill_name / "data").exists(), skill_name in SIBLING_SKILLS_WITH_DATA)
         for skill_name, relative_paths in EXPECTED_SIBLING_SKILL_REFERENCES.items():
             for relative_path in relative_paths:
                 with self.subTest(skill=skill_name, path=relative_path):

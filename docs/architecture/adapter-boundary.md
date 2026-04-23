@@ -53,7 +53,6 @@ Adapters own:
 
 Examples of adapter-only wrappers:
 
-- `customize` when it is host-facing UX around shared core scripts such as `write_preferences.py`
 - Antigravity-only session phrasing and natural-language guidance
 - Codex-native delegation surfaces such as `dispatch-subagents.md`
 

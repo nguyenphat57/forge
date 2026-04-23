@@ -14,12 +14,6 @@
       "output": "packages/forge-codex/overlay/AGENTS.global.md"
     },
     {
-      "name": "forge-codex-session-wrapper",
-      "bundle": "forge-codex",
-      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/session.md",
-      "output": "packages/forge-codex/overlay/workflows/operator/session.md"
-    },
-    {
       "name": "forge-codex-help-wrapper",
       "bundle": "forge-codex",
       "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/_shared_wrapper.md",
@@ -54,15 +48,6 @@
         "action": "bump"
       },
       "output": "packages/forge-codex/overlay/workflows/operator/bump.md"
-    },
-    {
-      "name": "forge-codex-customize-wrapper",
-      "bundle": "forge-codex",
-      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/_shared_wrapper.md",
-      "context": {
-        "action": "customize"
-      },
-      "output": "packages/forge-codex/overlay/workflows/operator/customize.md"
     },
     {
       "name": "forge-codex-operator-surface-reference",

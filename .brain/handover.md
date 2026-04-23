@@ -1,21 +1,22 @@
 HANDOVER
-- Current task: Forge 3.2.3 stable release published after the forge-init bootstrap-skill rollout, the blueprint-driven workspace bootstrap engine expansion, the wider workspace fixture coverage, and the stable-line metadata refresh.
+- Current task: Forge 3.3.0 stable release prepared after moving session continuity ownership fully into forge-session-management, removing public session operator actions, and refreshing release plus bundle contracts.
 - Status: released
-- Pending: (none)
+- Pending:
+  - Resume the recorded workflow stage 'plan' before opening new scope.
 - Verification run:
-  - python -m pytest packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_initialize_workspace.py tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> PASS on 2026-04-23
-  - python -m pytest packages/forge-core/tests/test_initialize_workspace.py -q -> PASS on 2026-04-23
-  - python scripts/generate_host_artifacts.py --check --format json -> PASS on 2026-04-23
-  - python scripts/generate_overlay_skills.py --check --format json -> PASS on 2026-04-23
-  - python scripts/build_release.py --format json -> PASS on 2026-04-23
-  - python scripts/verify_repo.py -> PASS on 2026-04-23
+  - python scripts/generate_host_artifacts.py --check -> PASS on 2026-04-23
+  - python scripts/generate_overlay_skills.py --check -> PASS on 2026-04-23
+  - pytest tests/test_public_customize_skill.py packages/forge-core/tests/test_preferences.py packages/forge-core/tests/test_write_preferences.py packages/forge-core/tests/test_contracts.py tests/test_script_polish.py tests/test_operator_surface_registry.py tests/test_host_artifact_generation.py tests/test_repo_operator_script_shims.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-23
+  - python -m pytest tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_session_context.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> 83 passed, 86779 subtests passed on 2026-04-23
+  - python scripts/build_release.py --force --format json -> PASS on 2026-04-23
+  - python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23
 - Important decisions:
-  - Bump 3.2.2 to 3.2.3 as patch because this slice adds the canonical forge-init bootstrap skill, removes public init operator entrypoints, and broadens bootstrap fixture coverage without changing the stable product line.
-  - Keep `docs/current/*` as the canonical maintainer-doc spine while release-facing docs track the current stable line.
-  - Forge-owned bootstrap-docs guidance now lives in the `forge-init` skill bundle reference, while workspace docs remain rendered artifacts and `.brain` plus `workflow-state` stay execution memory.
-  - `initialize_workspace.py` remains the deterministic internal engine behind `forge-init` and must classify, create, normalize, and report workspace bootstrap state without becoming a public repo operator action.
+  - Bump 3.2.3 to 3.2.4 as patch because this slice moves customize preference runtime ownership and removes the public customize operator action without changing the stable product line.
+  - Bump 3.2.4 to 3.3.0 as minor because this slice removes public session operator actions and makes forge-session-management the sole session owner.
+  - Keep docs/current/* as the canonical maintainer-doc spine while release-facing docs track the stable line.
+  - forge-customize owns durable preference commands, shared modules, and canonical schema in source; release builds materialize that runtime into adapter bundles.
+  - Keep durable preference changes natural-language first through forge-customize rather than a public repo or host customize operator action.
 - Risks:
-  - Real installed host smoke after the version bump was not rerun beyond repo, bundle-generation, release-build, and canonical verification gates.
-  - A non-canonical `pytest` subset still reports one `forge-antigravity` uninstalled dist state-root subtest divergence even though `python scripts/verify_repo.py` passed.
+  - Full non-fast release suite was not rerun after the final 3.3.0 continuity update.
 - Blockers: (none)
-- Next step: Start the next scoped change from the published `3.2.3` stable baseline.
+- Next step: Resume the recorded workflow stage 'plan' before opening new scope.

@@ -68,12 +68,11 @@ Current canonical tooling:
 Current generated outputs:
 
 - `packages/forge-codex/overlay/AGENTS.global.md`
-- `packages/forge-codex/overlay/workflows/operator/session.md`
+- `packages/forge-skills/session-management/commands/session_context.py`
 - `packages/forge-codex/overlay/workflows/operator/help.md`
 - `packages/forge-codex/overlay/workflows/operator/next.md`
 - `packages/forge-codex/overlay/workflows/operator/run.md`
 - `packages/forge-codex/overlay/workflows/operator/bump.md`
-- `packages/forge-codex/overlay/workflows/operator/customize.md`
 - `packages/forge-antigravity/overlay/GEMINI.global.md`
 
 ## Layer 3: Workflow State

@@ -208,7 +208,7 @@ Use `references/subagent-prompts/final-reviewer-prompt.md` when the host can run
 
 ```text
 Task 3: Add workspace resume fallback
-Owned files: packages/forge-core/commands/session_context.py, tests/test_session_context.py
+Owned files: packages/forge-skills/session-management/commands/session_context.py, tests/test_session_context.py
 Allowed reads: docs/current/operator-surface.md
 Out of scope: adding routing heuristics or new operator actions
 Verification: targeted pytest for session context, then contract test if public wording changes

@@ -60,7 +60,7 @@ Adapter overlay for Antigravity:
 
 - host-specific `SKILL.md`
 - `agents/openai.yaml`
-- 6 primary operator wrapper workflows for `help`, `next`, `run`, `bump`, `rollback`, and `customize`
+- 4 primary operator wrapper workflows for `help`, `next`, `run`, and `bump`
 - natural-language session guidance for `resume`, `save context`, and `handover`
 - one adapter data compatibility file: `data/preferences-compat.json`
 - one adapter doc: `docs/antigravity-operator-surface.md`
@@ -74,8 +74,8 @@ Adapter overlay for Codex:
 - Codex-specific `SKILL.md`
 - `AGENTS.example.md` for workspace integration
 - `AGENTS.global.md` for global Codex host takeover
-- 2 adapter compatibility wrappers: `workflows/execution/dispatch-subagents.md` and `workflows/operator/session.md`
-- 6 thin operator wrappers for `help`, `next`, `run`, `bump`, `rollback`, and `customize`
+- 1 adapter compatibility wrapper: `workflows/execution/dispatch-subagents.md`; session continuity is owned by `forge-session-management`.
+- 4 thin operator wrappers for `help`, `next`, `run`, and `bump`
 - 3 adapter docs: `codex-operator-surface.md`, `smoke-test-checklist.md`, `smoke-tests.md`
 - one adapter data override: `data/orchestrator-registry.json`
 - one adapter tool: `tools/enable_windows_utf8.ps1`

@@ -1,8 +1,8 @@
 # Forge Personalization
 
-> Goal: keep response-style preferences host-neutral in `forge-core` so adapters add UX wrappers and locale policy without forking preference logic.
+> Goal: keep response-style preferences host-neutral in `forge-customize` so adapters add UX wrappers and locale policy without forking preference logic.
 
-## Core Contract
+## Preference Contract
 
 - Canonical schema: `data/preferences-schema.json`
 - Canonical resolver: `commands/resolve_preferences.py`
@@ -69,14 +69,14 @@ The resolver does not create host-specific command surfaces. It returns a respon
 - feedback style
 - tone, teaching mode, and challenge level
 
-When canonical preferences contain host-native rules, core also emits `output_contract` for:
+When canonical preferences contain host-native rules, the resolver also emits `output_contract` for:
 
 - language policy
 - orthography policy
 - tone detail or honorific hints
 - custom writing rules the adapter should preserve
 
-`forge-core` treats these fields generically. If an adapter needs bundle-specific language behavior, it should encode that in bundle-local `data/output-contracts.json`, not in core logic.
+`forge-customize` treats these fields generically. If an adapter needs bundle-specific language behavior, it should encode that in bundle-local `data/output-contracts.json`, not in adapter-specific preference logic.
 
 ## Persistence Flow
 
@@ -159,7 +159,7 @@ Operator rule:
 
 ## Adapter Boundary
 
-- Host adapters may add `/customize` or onboarding wrappers, may ship compat defaults, and may ship bundle-local output-contract profiles
-- The active host adapter should keep a natural-language customize flow and let adapter-global state drive durable language rules
+- Host adapters may ship compat defaults, onboarding wrappers, and bundle-local output-contract profiles without inventing a dedicated `customize` operator
+- The active host adapter should keep durable preference changes natural-language first and let adapter-global state drive durable language rules
 - Future adapters should be able to reuse this schema with compat mapping and bundle-local output-contract profiles instead of a fork
 

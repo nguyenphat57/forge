@@ -16,7 +16,7 @@ Notes:
 
 - `repo_operator.py` is a thin operator surface over state, install, and invariant helpers.
 - Workspace bootstrap and docs normalization now route through the sibling skill `forge-init`, not a repo operator action.
-- `help`, `next`, and `resume` read real artifacts and may auto-seed canonical `workflow-state` from a legacy JSON artifact or the latest plan/spec when no canonical root exists yet.
+- `help`, `next`, and `forge-session-management` resume read real artifacts and may auto-seed canonical `workflow-state` from a legacy JSON artifact or the latest plan/spec when no canonical root exists yet.
 - `help` and `next` are audit/resume sidecars. They do not compute the correct Forge skill by heuristic routing.
 - Continuity capture remains internal runtime tooling and is not part of the public repo operator surface.
 - Package-level runtime code lives in owner `commands/` directories, with reusable helpers under `packages/forge-core/shared/`. Treat both as implementation detail unless the task is to change runtime internals.

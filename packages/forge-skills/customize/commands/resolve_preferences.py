@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from _forge_core_command import bootstrap_shared_paths
+from _forge_customize_command import bootstrap_shared_paths
 
 bootstrap_shared_paths()
 

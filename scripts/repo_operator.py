@@ -10,34 +10,12 @@ from _forge_core_script_proxy import run_forge_core_script
 ROOT_DIR = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = ROOT_DIR / "packages" / "forge-core" / "data" / "orchestrator-registry.json"
 ACTION_DISPATCH = {
-    "resume": ("session_context.py", ("resume",)),
-    "save": ("session_context.py", ("save",)),
-    "handover": ("session_context.py", ("save", "--write-handover")),
     "help": ("resolve_help_next.py", ("--mode", "help")),
     "next": ("resolve_help_next.py", ("--mode", "next")),
     "run": ("run_with_guidance.py", ()),
     "bump": ("prepare_bump.py", ()),
 }
-
-WRITE_PREFERENCE_FLAGS = {
-    "--scope",
-    "--technical-level",
-    "--detail-level",
-    "--autonomy-level",
-    "--pace",
-    "--feedback-style",
-    "--personality",
-    "--language",
-    "--orthography",
-    "--tone-detail",
-    "--output-quality",
-    "--custom-rule",
-    "--clear-field",
-    "--clear-language",
-    "--clear-orthography",
-    "--replace",
-    "--apply",
-}
+SESSION_OWNER_ACTIONS = {"resume", "save", "handover"}
 
 
 def _usage() -> str:
@@ -55,8 +33,8 @@ def _usage() -> str:
             "  python scripts/repo_operator.py help --workspace <workspace> --format json",
             "  python scripts/repo_operator.py next --workspace <workspace> --format json",
             "  python scripts/repo_operator.py run --workspace <workspace> --timeout-ms 20000 -- <command>",
-            "  python scripts/repo_operator.py customize --workspace <workspace> --format json",
-            "  python scripts/repo_operator.py customize --workspace <workspace> --detail-level concise --apply",
+            "  python commands/resolve_preferences.py --workspace <workspace> --format json",
+            "  python commands/write_preferences.py --workspace <workspace> --detail-level concise --apply",
         ]
     )
 
@@ -79,17 +57,9 @@ def _normalize_bump_args(args: list[str]) -> list[str]:
     return ["--bump", first, *args[1:]]
 
 
-def _customize_script_and_args(args: list[str]) -> tuple[str, list[str]]:
-    if any(flag in WRITE_PREFERENCE_FLAGS for flag in args):
-        return "write_preferences.py", args
-    return "resolve_preferences.py", args
-
-
 def _dispatch(action: str, args: list[str]) -> tuple[str, list[str]]:
     if action == "bump":
         return "prepare_bump.py", _normalize_bump_args(args)
-    if action == "customize":
-        return _customize_script_and_args(args)
     if action in ACTION_DISPATCH:
         script_name, prefix = ACTION_DISPATCH[action]
         return script_name, [*prefix, *args]
@@ -106,6 +76,8 @@ def main() -> int:
     if action not in valid_actions:
         print(_usage(), file=sys.stderr)
         print(f"\nUnsupported action: {action}", file=sys.stderr)
+        if action in SESSION_OWNER_ACTIONS:
+            print("Session continuity is owned by forge-session-management.", file=sys.stderr)
         return 2
 
     script_name, forwarded_args = _dispatch(action, sys.argv[2:])

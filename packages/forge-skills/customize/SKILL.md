@@ -1,9 +1,15 @@
 ---
 name: forge-customize
-description: "Use when the user wants to change host-neutral Forge preferences such as explanation depth, tone, autonomy, pace, feedback style, language, orthography, delegation, or custom writing rules across Forge hosts."
+description: Use when the user wants to change host-neutral Forge preferences such as explanation depth, tone, autonomy, pace, feedback style, language, orthography, delegation, or custom writing rules across Forge hosts.
 ---
 
 # Forge Customize
+
+<EXTREMELY-IMPORTANT>
+Inspect current preferences before proposing durable changes.
+
+Do not invent host-local keys, and do not mutate state during read-only inspection.
+</EXTREMELY-IMPORTANT>
 
 ## Overview
 
@@ -39,8 +45,8 @@ When NOT to use:
 2. Inspect before changing:
 
 ```powershell
-python <forge-bundle>/scripts/resolve_preferences.py --format json
-python <forge-bundle>/scripts/resolve_preferences.py --workspace <workspace> --format json
+python <forge-bundle>/commands/resolve_preferences.py --format json
+python <forge-bundle>/commands/resolve_preferences.py --workspace <workspace> --format json
 ```
 
 3. Map the request onto canonical Forge fields only:
@@ -62,9 +68,9 @@ python <forge-bundle>/scripts/resolve_preferences.py --workspace <workspace> --f
 5. Prefer the writer when scripts exist:
 
 ```powershell
-python <forge-bundle>/scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct --scope global --apply
-python <forge-bundle>/scripts/write_preferences.py --workspace <workspace> --language vi --orthography vietnamese_diacritics --scope workspace --apply
-python <forge-bundle>/scripts/write_preferences.py --workspace <workspace> --clear-field language --scope workspace --apply
+python <forge-bundle>/commands/write_preferences.py --detail-level concise --pace fast --feedback-style direct --scope global --apply
+python <forge-bundle>/commands/write_preferences.py --workspace <workspace> --language vi --orthography vietnamese_diacritics --scope workspace --apply
+python <forge-bundle>/commands/write_preferences.py --workspace <workspace> --clear-field language --scope workspace --apply
 ```
 
 6. If the scripts are unavailable, manually edit the canonical JSON described in [references/forge-preferences.md](references/forge-preferences.md):
@@ -100,7 +106,7 @@ Apply the skill like this:
 1. Inspect first so the workspace override is visible:
 
 ```powershell
-python <forge-bundle>/scripts/resolve_preferences.py --workspace <workspace> --format json
+python <forge-bundle>/commands/resolve_preferences.py --workspace <workspace> --format json
 ```
 
 2. Map the request to canonical fields:
@@ -110,7 +116,7 @@ python <forge-bundle>/scripts/resolve_preferences.py --workspace <workspace> --f
 3. Persist only the repo-local override:
 
 ```powershell
-python <forge-bundle>/scripts/write_preferences.py --workspace <workspace> --language vi --orthography vietnamese_diacritics --scope workspace --apply
+python <forge-bundle>/commands/write_preferences.py --workspace <workspace> --language vi --orthography vietnamese_diacritics --scope workspace --apply
 ```
 
 4. Close out briefly:
@@ -144,3 +150,9 @@ Impact:
 
 - Read [references/forge-preferences.md](references/forge-preferences.md) for the canonical schema, scope rules, and field meanings.
 - Read [references/forge-paths.md](references/forge-paths.md) to locate Forge bundles, scripts, and state roots across hosts.
+
+## Integration
+
+- Called by: natural-language requests to change durable Forge response preferences, language, orthography, tone, or pace.
+- Calls next: `forge-session-management` when a repo or host should resume with the new durable style already applied.
+- Pairs with: `forge-writing-skills` when the preference contract itself is being edited or hardened.

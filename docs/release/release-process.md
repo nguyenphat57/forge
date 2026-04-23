@@ -48,7 +48,7 @@ The canonical boundary policy lives in `docs/architecture/adapter-boundary.md`.
 
 - Public preview is acceptable after `verify_repo.py` passes, public-facing root docs exist, and public docs have been scrubbed of maintainer-local paths.
 - General public release uses the canonical verification gate above; extra runtime evidence is optional hardening, not a release precondition.
-- Forge `3.2.3` is the current stable release after the `forge-init` bootstrap-skill rollout, the blueprint-driven workspace bootstrap engine expansion, the broader workspace fixture coverage, and the latest verification gate passed.
+- Forge `3.3.0` is the current stable release after session continuity moved fully to `forge-session-management`, public session operator actions were removed, and the latest verification gate passed.
 - `forge-antigravity` is currently the most mature adapter for real rollout.
 - `forge-codex` has passed internal verification and is eligible for release under the current policy.
 - `forge-codex` host wrappers and global entry files should stay generated from canonical host-artifact sources instead of being maintained by hand.

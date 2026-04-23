@@ -37,10 +37,10 @@ class ScriptPolishTests(unittest.TestCase):
             "packages/forge-core/commands/resolve_help_next.py": [
                 "find_latest_json,",
             ],
-            "packages/forge-core/commands/session_context.py": [
+            "packages/forge-skills/session-management/commands/session_context_reports.py": [
                 "git_worktree_clean,",
             ],
-            "packages/forge-core/shared/preferences_store.py": [
+            "packages/forge-skills/customize/shared/preferences_store.py": [
                 "def _write_scope_file(",
             ],
         }

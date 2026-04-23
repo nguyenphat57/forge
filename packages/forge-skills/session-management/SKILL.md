@@ -58,6 +58,8 @@ python commands/session_context.py save --workspace <workspace> --format json
 python commands/session_context.py save --workspace <workspace> --write-handover --format json
 ```
 
+The session command is owned by `forge-session-management` and reports `owner: "forge-session-management"` in machine-readable output.
+
 Save only useful continuity: current task, pending next step, changed files, verification, durable decisions, blockers.
 
 ## Red Flags

@@ -98,7 +98,7 @@ Expected:
 - Invokes `forge-requesting-code-review`
 - Findings come first
 
-### CT-08: Customize
+### CT-08: Durable preference change
 
 ```text
 Give shorter answers, move faster, and keep feedback directly.
@@ -106,7 +106,7 @@ Give shorter answers, move faster, and keep feedback directly.
 
 Expected:
 
-- Uses the `customize` operator wrapper
+- Invokes `forge-customize` or the equivalent natural-language preference flow
 - Keeps canonical preference keys
 
 ### CT-09: Bootstrap

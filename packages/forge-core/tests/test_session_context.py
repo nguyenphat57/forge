@@ -53,6 +53,7 @@ class SessionContextTests(unittest.TestCase):
             session = json.loads((workspace / ".brain" / "session.json").read_text(encoding="utf-8"))
 
         self.assertEqual(report["mode"], "save")
+        self.assertEqual(report["owner"], "forge-session-management")
         self.assertEqual(session["working_on"]["task"], "Finish checkout retry slice")
         self.assertEqual(session["working_on"]["files"], ["src/checkout.ts"])
         self.assertEqual(session["pending_tasks"], ["Re-run retry smoke"])
@@ -86,6 +87,7 @@ class SessionContextTests(unittest.TestCase):
             handover = (workspace / ".brain" / "handover.md").read_text(encoding="utf-8")
 
         self.assertEqual(report["mode"], "save")
+        self.assertEqual(report["owner"], "forge-session-management")
         self.assertTrue(report["handover_file"].endswith(".brain\\handover.md") or report["handover_file"].endswith(".brain/handover.md"))
         self.assertIn("HANDOVER", handover)
         self.assertIn("Stabilize checkout rollout", handover)
@@ -129,6 +131,7 @@ class SessionContextTests(unittest.TestCase):
             report = json.loads(resumed.stdout)
 
         self.assertEqual(report["status"], "PASS")
+        self.assertEqual(report["owner"], "forge-session-management")
         self.assertEqual(report["mode"], "resume")
         self.assertEqual(report["current_stage"], "unscoped")
         self.assertEqual(report["current_focus"], "No active work slice detected from repo state.")
@@ -163,6 +166,7 @@ class SessionContextTests(unittest.TestCase):
             report = json.loads(resumed.stdout)
 
         self.assertEqual(report["status"], "PASS")
+        self.assertEqual(report["owner"], "forge-session-management")
         self.assertEqual(report["mode"], "resume")
         self.assertEqual(report["current_stage"], "session-active")
         self.assertEqual(report["current_focus"], "Recorded workflow stage: plan")

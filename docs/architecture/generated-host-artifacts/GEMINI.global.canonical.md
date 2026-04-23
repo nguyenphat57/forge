@@ -90,7 +90,7 @@ Rules:
 ## Operator Surface
 
 - Natural-language requests remain the preferred entrypoint.
-- Explicit operator action names stay available when a concise form helps: `help`, `next`, `run`, `bump`, and `customize`.
+- Explicit operator action names stay available when a concise form helps: `help`, `next`, `run`, and `bump`.
 
 Session requests stay natural-language:
 

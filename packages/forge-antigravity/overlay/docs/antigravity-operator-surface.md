@@ -10,7 +10,6 @@ Preferred user phrasing:
 - "What should I do next?" -> `next`
 - "Run `npm test` and tell me what to do after" -> `run`
 - "Bump this to 0.5.0" -> `bump`
-- "Give shorter answers and move faster" -> `customize`
 
 ## Natural-Language Session Requests
 
@@ -21,7 +20,7 @@ Preferred user phrasing:
 ## Session Rules
 
 - Natural language is the primary surface.
-- Explicit operator action names such as `help` or `customize` are acceptable when a concise form helps.
+- Explicit operator action names such as `help` are acceptable when a concise form helps.
 - Wrapper docs may use a more operator-friendly presentation.
 - Core semantics, schema, and deterministic scripts must not be forked.
 - Session requests should stay natural-language first: ask to `resume`, `save context`, or leave a `handover`.

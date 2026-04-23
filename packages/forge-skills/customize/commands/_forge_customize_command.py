@@ -14,12 +14,12 @@ def bootstrap_shared_paths(command_path: Path | None = None) -> Path:
     bundle_root = resolve_bundle_root(target)
     shared_dir = bundle_root / "shared"
     if not shared_dir.is_dir():
-        raise SystemExit(f"Missing Forge shared runtime directory: {shared_dir}")
+        raise SystemExit(f"Missing Forge customize shared runtime directory: {shared_dir}")
 
     paths = [shared_dir, target.parent]
-    source_customize_shared = bundle_root.parent / "forge-skills" / "customize" / "shared"
-    if source_customize_shared.is_dir():
-        paths.insert(0, source_customize_shared)
+    source_core_shared = bundle_root.parents[1] / "forge-core" / "shared"
+    if source_core_shared.is_dir():
+        paths.insert(0, source_core_shared)
 
     for path in paths:
         text = str(path)

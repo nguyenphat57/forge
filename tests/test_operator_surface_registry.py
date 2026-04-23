@@ -20,7 +20,7 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         repo_actions = registry["repo_operator_surface"]["actions"]
         host_actions = registry["host_operator_surface"]["actions"]
 
-        self.assertIn("resume", repo_actions)
+        self.assertNotIn("resume", repo_actions)
         self.assertNotIn("bootstrap", repo_actions)
         self.assertNotIn("delegate", repo_actions)
         self.assertNotIn("capture-continuity", repo_actions)
@@ -35,24 +35,24 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
 
         self.assertEqual(
             set(core_registry["repo_operator_surface"]["actions"]),
-            {"resume", "save", "handover", "help", "next", "run", "bump", "customize"},
+            {"help", "next", "run", "bump"},
         )
         self.assertEqual(set(core_registry["repo_operator_surface"]["session_modes"]), set())
         self.assertEqual(
             set(core_registry["host_operator_surface"]["actions"]),
-            {"help", "next", "run", "bump", "customize"},
+            {"help", "next", "run", "bump"},
         )
-        self.assertEqual(set(core_registry["host_operator_surface"]["session_modes"]), {"restore", "save", "handover"})
+        self.assertEqual(set(core_registry["host_operator_surface"]["session_modes"]), set())
         self.assertEqual(
             set(codex_registry["host_operator_surface"]["actions"]),
-            {"help", "next", "run", "delegate", "bump", "customize"},
+            {"help", "next", "run", "delegate", "bump"},
         )
-        self.assertEqual(set(codex_registry["host_operator_surface"]["session_modes"]), {"restore", "save", "handover"})
+        self.assertEqual(set(codex_registry["host_operator_surface"]["session_modes"]), set())
         self.assertEqual(
             set(antigravity_registry["host_operator_surface"]["actions"]),
-            {"help", "next", "run", "bump", "customize"},
+            {"help", "next", "run", "bump"},
         )
-        self.assertEqual(set(antigravity_registry["host_operator_surface"]["session_modes"]), {"restore", "save", "handover"})
+        self.assertEqual(set(antigravity_registry["host_operator_surface"]["session_modes"]), set())
 
     def test_current_docs_spine_stays_closed(self) -> None:
         current_docs = {path.name for path in (ROOT_DIR / "docs" / "current").glob("*.md")}
@@ -79,23 +79,17 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
             registry["host_operator_surface"]["actions"]["delegate"]["primary_aliases_by_host"],
             {},
         )
-        self.assertEqual(
-            registry["host_operator_surface"]["session_modes"]["restore"]["compatibility_aliases_by_host"],
-            {},
-        )
+        self.assertEqual(registry["skill_catalog"]["session-management"]["owner"], "forge-session-management")
         self.assertNotIn("bootstrap", registry["host_operator_surface"]["actions"])
 
     def test_antigravity_overlay_registry_keeps_natural_language_session_surface(self) -> None:
         registry = load_bundle_registry("forge-antigravity")
-        surface = registry["host_operator_surface"]["session_modes"]
+        session = registry["skill_catalog"]["session-management"]
 
         self.assertNotIn("intents", registry)
         self.assertNotIn("session_modes", registry)
-        for mode_name in ("restore", "save", "handover"):
-            with self.subTest(mode=mode_name):
-                self.assertEqual(surface[mode_name].get("compatibility_aliases_by_host"), {})
-                self.assertIsNone(surface[mode_name].get("deprecation_line"))
-                self.assertTrue(surface[mode_name]["natural_language_examples_by_host"]["antigravity"])
+        self.assertEqual(session["owner"], "forge-session-management")
+        self.assertTrue(session["session_modes"]["restore"]["natural_language_examples_by_host"]["antigravity"])
 
     def test_generated_operator_surface_docs_reflect_registry_posture(self) -> None:
         repo_surface = (ROOT_DIR / "docs" / "current" / "operator-surface.md").read_text(encoding="utf-8")

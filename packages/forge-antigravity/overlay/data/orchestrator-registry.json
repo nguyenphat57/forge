@@ -44,49 +44,6 @@
             "Bump this to 0.5.0"
           ]
         }
-      },
-      "customize": {
-        "hosts": [
-          "antigravity"
-        ],
-        "primary_aliases_by_host": {},
-        "natural_language_examples_by_host": {
-          "antigravity": [
-            "Give shorter answers and move faster"
-          ]
-        }
-      }
-    },
-    "session_modes": {
-      "restore": {
-        "hosts": [
-          "antigravity"
-        ],
-        "natural_language_examples_by_host": {
-          "antigravity": [
-            "Continue the task we were working on yesterday and tell me the best next step."
-          ]
-        }
-      },
-      "save": {
-        "hosts": [
-          "antigravity"
-        ],
-        "natural_language_examples_by_host": {
-          "antigravity": [
-            "Save context for this task before I close the window."
-          ]
-        }
-      },
-      "handover": {
-        "hosts": [
-          "antigravity"
-        ],
-        "natural_language_examples_by_host": {
-          "antigravity": [
-            "Create a short handover with the next step and verification already run."
-          ]
-        }
       }
     }
   },

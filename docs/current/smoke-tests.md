@@ -222,18 +222,17 @@ Increase the minor version and give yourself a checklist for the next release.
 
 ---
 
-### FT-03h: Customize preferences
+### FT-03h: Durable preference change
 
 **Prompt**
 
 ```text
-/customize
 The default is to explain more thoroughly, give more direct feedback, and go faster when it is safe.
 ```
 
 **Expected**
 
-- Host adapter uses the `customize` operator wrapper
+- Host adapter invokes `forge-customize` or the equivalent natural-language preference flow
 - Preferences are mapped into Forge's canonical schema
 - If the adapter writes preferences, canonical fields go to the selected `state/preferences.json` or workspace `.brain/preferences.json` scope as one unified object
 - Do not invent separate schema just for hosts
