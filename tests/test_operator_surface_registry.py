@@ -137,9 +137,7 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
             plan_docs,
             {
                 "2026-04-23-docs-specs-pre-2-15-cleanup-implementation-plan.md",
-                "2026-04-23-retired-help-next-run-command-cleanup-implementation-plan.md",
                 "2026-04-23-runtime-ownership-refactor-implementation-plan.md",
-                "2026-04-23-skill-local-command-ownership-implementation-plan.md",
             },
         )
         self.assertFalse((ROOT_DIR / "docs" / "archive").exists())

@@ -1,6 +1,6 @@
 # Changelog
 
-## 5.0.0 - 2026-04-23
+## 5.0.0 (stable) - 2026-04-23
 
 - Promote release bump preparation into the new sibling `forge-bump-release` skill, with the bump engine and semver helpers owned under `packages/forge-skills/bump-release/references/scripts/`.
 - Remove `bump`, `help`, `next`, `run`, and the remaining compatibility workflow files from the public repo and host operator surfaces so release, session, bootstrap, and delegation behavior route through Forge skills directly.

@@ -38,7 +38,7 @@ class AdapterLocaleTests(unittest.TestCase):
         self.assertIn("</extremely-important>", skill)
         self.assertIn("1% chance", skill)
         self.assertIn("before any response or action", skill)
-        self.assertIn("workflow-first", skill)
+        self.assertIn("process control contract", skill)
         self.assertIn("route_preview is not the current public contract", skill)
 
     def test_raw_overlay_registry_keeps_only_host_contract_metadata(self) -> None:
@@ -78,14 +78,13 @@ class AdapterLocaleTests(unittest.TestCase):
         self.assertFalse(host["supports_parallel_subagents"])
         self.assertIsNone(host["subagent_dispatch_skill"])
 
-    def test_host_operator_surface_preserves_natural_language_session_modes(self) -> None:
+    def test_session_management_skill_preserves_natural_language_session_modes(self) -> None:
         registry = skill_routing.load_registry()
-        session_modes = registry["host_operator_surface"]["session_modes"]
+        session_modes = registry["skill_catalog"]["session-management"]["session_modes"]
 
-        self.assertEqual(session_modes["restore"]["hosts"], ["antigravity"])
         self.assertIn("Continue the task", session_modes["restore"]["natural_language_examples_by_host"]["antigravity"][0])
-        self.assertEqual(session_modes["save"]["hosts"], ["antigravity"])
-        self.assertEqual(session_modes["handover"]["hosts"], ["antigravity"])
+        self.assertIn("Save context", session_modes["save"]["natural_language_examples_by_host"]["antigravity"][0])
+        self.assertIn("Create a short handover", session_modes["handover"]["natural_language_examples_by_host"]["antigravity"][0])
 
 
 if __name__ == "__main__":

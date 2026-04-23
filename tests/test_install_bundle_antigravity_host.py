@@ -42,6 +42,7 @@ FORGE_SIBLING_SKILLS = [
     "forge-verification-before-completion",
     "forge-finishing-a-development-branch",
     "forge-customize",
+    "forge-bump-release",
     "forge-writing-skills",
     "forge-session-management",
 ]
