@@ -2,7 +2,7 @@
 
 ## Goal
 
-Describe the live Forge architecture after the split-skill cutover, without sending maintainers through archived roadmap material to understand current behavior.
+Describe the live Forge architecture after the split-skill cutover, without sending maintainers through historical roadmap material to understand current behavior.
 
 ## Current Topology
 
@@ -10,7 +10,7 @@ Describe the live Forge architecture after the split-skill cutover, without send
 - `packages/forge-skills/` is the source of truth for host-discoverable Forge process skills such as `forge-brainstorming`, `forge-writing-plans`, `forge-systematic-debugging`, and `forge-verification-before-completion`.
 - `packages/forge-core/workflows/` is operator/session compatibility only. These files keep continuity wrappers working, but they point back to sibling skills.
 - `packages/forge-codex/overlay/` and `packages/forge-antigravity/overlay/` adapt the shared contract to host-native bootstrap files, installed skill layout, and operator wrappers.
-- `docs/current/` is the live maintainer-facing explanation surface; `docs/archive/` is historical context only.
+- `docs/current/` is the live maintainer-facing explanation surface; pre-`2.15.0` roadmap/spec history is available through git history instead of live archive docs.
 
 ## Control Architecture
 
@@ -37,7 +37,7 @@ Internal support surface:
 - preference resolution and writes
 - invariant verification and bundle checks
 - operator/session wrappers for continuity requests
-- route-era helpers kept only for archived tests, deterministic inspection, or compatibility support
+- route-era helpers kept only for deterministic inspection or compatibility support
 
 `route_preview is not the current public contract`. If route-era files still exist, they are internal or historical support, not the operating model.
 
@@ -55,9 +55,9 @@ Python should not be the first thing maintainers teach or users learn for routin
 ## Maintainer Reading Path
 
 - Start here for the live architecture.
-- Read [operator-surface.md](/C:/Users/Admin/.gemini/forge/.forge-artifacts/worktrees/markdown-first-control/docs/current/operator-surface.md) for the thin operator contract and `help`/`next` sidecar semantics.
-- Read [install-and-activation.md](/C:/Users/Admin/.gemini/forge/.forge-artifacts/worktrees/markdown-first-control/docs/current/install-and-activation.md) for source-repo versus installed-runtime activation and sibling skill installation.
-- Read [target-state.md](/C:/Users/Admin/.gemini/forge/docs/current/target-state.md) when a change could alter Forge identity, process weight, or invariant boundaries.
+- Read [operator-surface.md](operator-surface.md) for the thin operator contract and `help`/`next` sidecar semantics.
+- Read [install-and-activation.md](install-and-activation.md) for source-repo versus installed-runtime activation and sibling skill installation.
+- Read [target-state.md](target-state.md) when a change could alter Forge identity, process weight, or invariant boundaries.
 
 ## Current repo posture
 

@@ -6,7 +6,7 @@
 - `dist/` is the release artifact.
 - Installed runtimes are not development surfaces.
 - Current maintainer docs live under `docs/current/`.
-- Historical plans and specs now live under `docs/archive/`.
+- Pre-`2.15.0` plans, specs, audits, and archived references are no longer live docs; use git history for release archaeology.
 
 ## Release Gate
 

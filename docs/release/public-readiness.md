@@ -14,7 +14,7 @@ This checklist is for publishing the Forge monorepo to a public audience without
 - canonical repo verification passes with fresh evidence
 - public docs do not depend on maintainer-local absolute filesystem paths
 - release/install docs point to supported source and bundle flows
-- current maintainer docs and historical archive boundaries are explicit
+- current maintainer docs do not depend on pre-`2.15.0` plans, specs, audits, or archived references
 
 ## Optional Hardening Items
 
@@ -25,8 +25,6 @@ This checklist is for publishing the Forge monorepo to a public audience without
 - `python -m pytest packages/forge-core/tests -q` passed on 2026-04-22
 - `python scripts/verify_repo.py` passed on 2026-04-23
 - release and install flows are documented under `docs/release/`
-- final GitHub visibility steps are documented in `docs/release/github-public-switch-checklist.md`
-- real-repo canary and authenticated QA evidence is recorded in the 2026-03-29 project reports
 - release-facing docs now align on `2.15.0` as the stable source version
 
 ## Verdict

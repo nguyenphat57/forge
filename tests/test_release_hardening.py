@@ -40,7 +40,6 @@ class ReleaseHardeningTests(unittest.TestCase):
             ROOT_DIR / "SECURITY.md",
             ROOT_DIR / "CODE_OF_CONDUCT.md",
             ROOT_DIR / "docs" / "release" / "public-readiness.md",
-            ROOT_DIR / "docs" / "release" / "github-public-switch-checklist.md",
         ]
         for path in required_paths:
             with self.subTest(path=path):
@@ -99,43 +98,30 @@ class ReleaseHardeningTests(unittest.TestCase):
             f"Top changelog release does not match VERSION: {first_release_heading}",
         )
 
-    def test_plan_inventory_reflects_historical_closure_and_archive_boundary(self) -> None:
-        closure_path = ROOT_DIR / "docs" / "plans" / "2026-04-02-forge-1.15.x-maintenance-closure.md"
-        roadmap_path = ROOT_DIR / "docs" / "plans" / "forge_refactor_V3.md"
-        archive_index = ROOT_DIR / "docs" / "archive" / "INDEX.md"
-        closure_text = closure_path.read_text(encoding="utf-8")
-        roadmap_text = roadmap_path.read_text(encoding="utf-8")
-        archive_text = archive_index.read_text(encoding="utf-8")
+    def test_pre_2_15_docs_specs_are_pruned_from_live_docs_tree(self) -> None:
+        removed_roots = (
+            ROOT_DIR / "docs" / "archive",
+            ROOT_DIR / "docs" / "audits",
+            ROOT_DIR / "docs" / "legacy",
+            ROOT_DIR / "docs" / "specs",
+        )
+        for path in removed_roots:
+            with self.subTest(path=path):
+                self.assertFalse(path.exists(), f"Pre-2.15 historical docs should live only in git history: {path}")
 
-        self.assertIn("Status: historical maintenance closure", closure_text)
-        self.assertIn("Status: historical implemented contraction tranche", roadmap_text)
-        self.assertNotIn("Status: current roadmap", roadmap_text)
-        self.assertIn("Historical roadmap and spec material moved here", archive_text)
-        self.assertIn("All roadmap files under `docs/plans/` should now be one of:", closure_text)
-        self.assertNotIn("current roadmap", closure_text)
+        release_docs = {path.name for path in (ROOT_DIR / "docs" / "release").iterdir() if path.is_file()}
+        self.assertEqual(
+            release_docs,
+            {"install.md", "package-matrix.json", "public-readiness.md", "release-process.md"},
+        )
+        plan_docs = {path.name for path in (ROOT_DIR / "docs" / "plans").glob("*.md")}
+        self.assertEqual(
+            plan_docs,
+            {"2026-04-23-docs-specs-pre-2-15-cleanup-implementation-plan.md"},
+        )
         self.assertTrue((ROOT_DIR / "docs" / "current" / "architecture.md").exists())
         self.assertTrue((ROOT_DIR / "docs" / "current" / "operator-surface.md").exists())
         self.assertTrue((ROOT_DIR / "docs" / "current" / "install-and-activation.md").exists())
-
-        allowed_status_patterns = (
-            re.compile(r"^\*\*Status:\*\* historical"),
-            re.compile(r"^Status: historical"),
-            re.compile(r"^Status: implemented"),
-            re.compile(r"^Status: historical maintenance closure"),
-        )
-
-        for path in sorted((ROOT_DIR / "docs" / "plans").glob("*.md")):
-            text = path.read_text(encoding="utf-8")
-            status_line = next(
-                (line.strip() for line in text.splitlines() if line.startswith("Status:") or line.startswith("**Status:**")),
-                None,
-            )
-            self.assertIsNotNone(status_line, f"Missing status line in plan doc: {path}")
-            with self.subTest(path=path, status=status_line):
-                self.assertTrue(
-                    any(pattern.match(status_line) for pattern in allowed_status_patterns),
-                    f"Plan doc status is not archive-safe: {path} -> {status_line}",
-                )
 
     def test_brain_decisions_keep_only_one_current_stable_line(self) -> None:
         decisions = json.loads((ROOT_DIR / ".brain" / "decisions.json").read_text(encoding="utf-8"))
@@ -156,13 +142,6 @@ class ReleaseHardeningTests(unittest.TestCase):
                 with self.subTest(scope=item["scope"]):
                     self.assertEqual(item["status"], "superseded")
                     self.assertNotIn("current stable Forge release", item["summary"])
-
-        closure = next(
-            item for item in decisions if item.get("scope") == "forge-1-15-maintenance-closure"
-        )
-        self.assertEqual(closure["status"], "resolved")
-        self.assertIn("docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md", closure["evidence"])
-        self.assertIn("docs/current/target-state.md", closure["evidence"])
 
         handover = (ROOT_DIR / ".brain" / "handover.md").read_text(encoding="utf-8")
         self.assertIn(version, handover)

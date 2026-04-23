@@ -133,13 +133,13 @@ FORBIDDEN_RESIDUE_DIRS = {
     "tests/__pycache__",
 }
 
-RETIRED_ACTIVE_REFERENCES = {
-    "references/companion-skill-contract.md": "docs/archive/history/2026-04-forge-core-cleanup/companion-skill-contract.md",
-    "references/companion-routing-smoke-tests.md": "docs/archive/history/2026-04-forge-core-cleanup/companion-routing-smoke-tests.md",
-    "references/canary-rollout.md": "docs/archive/history/2026-04-forge-core-cleanup/canary-rollout.md",
-    "references/extension-presets.md": "docs/archive/history/2026-04-forge-core-cleanup/extension-presets.md",
-    "references/frontend-stack-profiles.md": "docs/archive/history/2026-04-forge-core-cleanup/frontend-stack-profiles.md",
-}
+RETIRED_ACTIVE_REFERENCES = (
+    "references/companion-skill-contract.md",
+    "references/companion-routing-smoke-tests.md",
+    "references/canary-rollout.md",
+    "references/extension-presets.md",
+    "references/frontend-stack-profiles.md",
+)
 
 ALLOWED_OWNER_LOCAL_REFERENCE_ROOTS = (
     "packages/forge-skills/",
@@ -579,15 +579,17 @@ class BundleContractTests(unittest.TestCase):
             with self.subTest(path=path.name):
                 self.assertNotIn(".install-backups", text)
 
-    def test_retired_companion_and_canary_references_leave_active_tree_but_stay_archived(self) -> None:
+    def test_retired_companion_and_canary_references_leave_active_tree_without_live_archive(self) -> None:
         repo_root = ROOT_DIR.parents[1]
 
-        for active_path, archive_path in RETIRED_ACTIVE_REFERENCES.items():
+        for active_path in RETIRED_ACTIVE_REFERENCES:
             active_name = Path(active_path).name
             with self.subTest(reference=active_name):
                 self.assertFalse((ROOT_DIR / active_path.removeprefix("references/")).exists())
-                if self._is_source_repo_context():
-                    self.assertTrue((repo_root / archive_path).exists())
+        if self._is_source_repo_context():
+            self.assertFalse((repo_root / "docs" / "archive").exists())
+            self.assertFalse((repo_root / "docs" / "specs").exists())
+            self.assertFalse((repo_root / "docs" / "audits").exists())
 
     def test_route_preview_generator_stack_is_retired(self) -> None:
         smoke_matrix_suites = (ROOT_DIR / "scripts" / "smoke_matrix_suites.py").read_text(encoding="utf-8")

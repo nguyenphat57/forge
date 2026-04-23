@@ -7,7 +7,7 @@ Use this when a repo needs a few durable engineering rules without introducing a
 Forge treats constitution-lite as a continuity decision:
 
 ```powershell
-python scripts/capture_continuity.py "Testing rules stay strict for checkout flows" --kind decision --scope checkout --tag constitution-lite --evidence docs/specs/checkout-spec.md
+python scripts/capture_continuity.py "Testing rules stay strict for checkout flows" --kind decision --scope checkout --tag constitution-lite --evidence docs/current/target-state.md
 ```
 
 This keeps the rule in:

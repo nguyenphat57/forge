@@ -13,7 +13,7 @@ This repository is the source monorepo for Forge: `forge-core + host adapters`.
 
 Current maintainer docs live under `docs/current/`.
 Forge currently follows the operating contract in `docs/current/target-state.md`.
-Historical plans and specs now live under `docs/archive/`.
+Pre-`2.15.0` plans, specs, audits, and archived references are available from git history instead of live docs.
 
 Forge is built around a simple split:
 
