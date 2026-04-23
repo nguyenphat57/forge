@@ -27,8 +27,7 @@ Use `forge-codex` as the global orchestrator for this workspace.
 - Let `forge-codex` resolve response-style preferences through the adapter-global Forge preferences engine instead of redefining response-style rules here.
 - If the user wants durable preference changes, let `forge-codex` persist them through `commands/write_preferences.py`, not a host-local schema.
 - If the workspace needs durable language rules such as "always reply in Vietnamese with full diacritics", persist them through `commands/write_preferences.py` in adapter-global Forge state. Use `.brain/preferences.json` only for workspace-specific overrides; otherwise let `forge-codex` default to English.
-- Let `forge-codex` handle `help` and `next` directly from repo state. Do not add a second session-restore workflow in local instructions.
-- Let `forge-codex` handle `run` through the core run-guidance engine. Do not invent a second layer that only repeats terminal output.
+- Let `forge-codex` handle guidance, next-step selection, and command execution through natural language, Forge skills, and host-native tools.
 - If boundaries are clear and the host can delegate safely, let `forge-codex` invoke `forge-dispatching-parallel-agents` instead of improvising parallel edits.
 - Let `forge-codex` keep `bump` natural-language first without reintroducing extra operator ceremony.
 - Let `forge-codex` route durable preference changes through `forge-customize` and `commands/write_preferences.py`, and route bootstrap requests to `forge-init`.

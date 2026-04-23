@@ -1,11 +1,11 @@
 # Forge Help/Next
 
-> Goal: keep `help` and `next` repo-first, host-neutral, and reusable across adapters.
+> Goal: keep the internal guidance engine repo-first, host-neutral, and reusable by session continuity and smoke tooling.
 
 ## Core Contract
 
-- Canonical engine: `commands/resolve_help_next.py`
-- Workflow wrappers: `workflows/operator/help.md` and `workflows/operator/next.md`
+- Canonical internal engine: `commands/resolve_help_next.py`
+- Public operator wrappers for `help` and `next` are retired.
 - Strategic policy filter for Forge contract-sensitive choices: `docs/current/target-state.md`
 - Preferred sources, in order:
   1. `git status`
@@ -27,14 +27,14 @@
 | `planned` | No code exists yet, but there is a current plan or spec |
 | `unscoped` | The repo does not show an active work slice |
 
-## Stage-To-Entrypoint Hints
+## Stage-To-Workflow Hints
 
-| Stage | First operator move |
+| Stage | First workflow move |
 |---|---|
 | `blocked` | inspect the blocker, reopen the right workflow, and only use recorded runtime recovery guidance when browser proof tooling is stale |
 | `planned` | use `plan`, or reopen `brainstorm` with the architectural lens if the design boundary is still unclear |
 | `unscoped` | run `python scripts/verify_repo.py --profile fast` if repo health is unclear, then state one bounded slice |
-| `change-active` | use `next` to resume the recorded slice instead of rediscovering context |
+| `change-active` | use the recorded workflow-state slice instead of rediscovering context |
 
 ## Output Contract
 
@@ -48,7 +48,7 @@
 
 ## Guardrails
 
-- Do not turn `help` or `next` into a long recap.
+- Do not turn guidance or next-step selection into a long recap.
 - Do not suggest legacy recap or save rituals.
 - Do not give a vague next step when the slice can be named more precisely.
 - For medium+ work, prefer answers that point at the durable artifact to create or refresh next.
@@ -58,7 +58,6 @@
 
 ## Adapter Boundary
 
-- Host adapters may expose `/help` and `/next` as thin wrappers.
-- The active host adapter should stay natural-language first and keep slash commands optional.
+- Host adapters should keep guidance and next-step requests natural-language first.
 - The adapter must not fork the stage model or source priority.
 

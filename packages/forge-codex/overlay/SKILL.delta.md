@@ -1,11 +1,11 @@
 ---
-name: forge-codex
-description: "Forge Codex - Codex adapter for Forge core. Use when a request needs Forge sibling skills, verification guardrails, Codex-native operator wrappers, and optional native delegation."
+  name: forge-codex
+  description: "Forge Codex - Codex adapter for Forge core. Use when a request needs Forge sibling skills, verification guardrails, the Codex-native bump wrapper, and optional native delegation."
 ---
 
 # Forge Codex - Host Adapter Delta
 
-> Forge Codex maps the Forge evidence-first kernel onto Codex through `AGENTS.md`, host-native sibling skills, natural-language operator wrappers, and native delegation when the slice is safe to split.
+> Forge Codex maps the Forge evidence-first kernel onto Codex through `AGENTS.md`, host-native sibling skills, the release bump wrapper, and native delegation when the slice is safe to split.
 
 ## Host Boundary
 
@@ -25,8 +25,9 @@ description: "Forge Codex - Codex adapter for Forge core. Use when a request nee
 ## Codex Operator Surface
 
 - `forge-codex` is natural-language first.
-- Primary operator entrypoints are `help`, `next`, `run`, and `bump`.
+- The remaining primary operator entrypoint is `bump`.
 - `delegate` maps to `forge-dispatching-parallel-agents` when a concise operator action name helps.
+- Guidance, next-step selection, and command execution stay natural-language first through Forge skills and host-native tools.
 - Durable response-style changes route through `forge-customize` instead of a dedicated operator wrapper.
 - Workspace bootstrap routes through the sibling skill `forge-init`, which calls `commands/initialize_workspace.py`.
 - Completion claims use `forge-verification-before-completion`; branch closure uses `forge-finishing-a-development-branch`.

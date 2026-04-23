@@ -10,12 +10,10 @@ from _forge_core_script_proxy import run_forge_core_script
 ROOT_DIR = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = ROOT_DIR / "packages" / "forge-core" / "data" / "orchestrator-registry.json"
 ACTION_DISPATCH = {
-    "help": ("resolve_help_next.py", ("--mode", "help")),
-    "next": ("resolve_help_next.py", ("--mode", "next")),
-    "run": ("run_with_guidance.py", ()),
     "bump": ("prepare_bump.py", ()),
 }
 SESSION_OWNER_ACTIONS = {"resume", "save", "handover"}
+RETIRED_OPERATOR_ACTIONS = {"help", "next", "run"}
 
 
 def _usage() -> str:
@@ -30,9 +28,7 @@ def _usage() -> str:
             f"Actions: {actions}",
             "",
             "Examples:",
-            "  python scripts/repo_operator.py help --workspace <workspace> --format json",
-            "  python scripts/repo_operator.py next --workspace <workspace> --format json",
-            "  python scripts/repo_operator.py run --workspace <workspace> --timeout-ms 20000 -- <command>",
+            "  python scripts/repo_operator.py bump --workspace <workspace> <version|major|minor|patch>",
             "  python commands/resolve_preferences.py --workspace <workspace> --format json",
             "  python commands/write_preferences.py --workspace <workspace> --detail-level concise --apply",
         ]
@@ -78,6 +74,12 @@ def main() -> int:
         print(f"\nUnsupported action: {action}", file=sys.stderr)
         if action in SESSION_OWNER_ACTIONS:
             print("Session continuity is owned by forge-session-management.", file=sys.stderr)
+        if action in RETIRED_OPERATOR_ACTIONS:
+            print(
+                "Use natural language plus Forge skills for guidance and next-step selection; "
+                "use host-native command execution with verification-before-completion for commands.",
+                file=sys.stderr,
+            )
         return 2
 
     script_name, forwarded_args = _dispatch(action, sys.argv[2:])

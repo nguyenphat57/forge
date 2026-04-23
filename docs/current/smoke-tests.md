@@ -92,18 +92,12 @@ Continue from the previous day, quickly remind yourself what you are doing and t
 **Prompt**
 
 ```text
-/help
-```
-
-Or natural-language:
-
-```text
 I'm a bit stuck, look at the current repo and tell me what to do next.
 ```
 
 **Expected**
 
-- Use the `help` audit sidecar, do not recap theater
+- Stay natural-language first; use repo evidence, not a public operator wrapper
 - Repo-first: read `git status`, plan/spec, `.brain` if available
 - Returns 1 main direction and up to 2 other options
 
@@ -119,18 +113,12 @@ I'm a bit stuck, look at the current repo and tell me what to do next.
 **Prompt**
 
 ```text
-/next
-```
-
-Or natural-language:
-
-```text
 From the current repo, what is the next logical step?
 ```
 
 **Expected**
 
-- Use the `next` audit sidecar
+- Stay natural-language first; use repo evidence, not a public operator wrapper
 - Correctly finalize a clear next step
 - If the repo lacks context, state clearly and still give a usable next step
 

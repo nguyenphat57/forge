@@ -11,9 +11,8 @@ Source repo operator flow:
 
 ```powershell
 Use `forge-session-management` to resume, save context, or hand over session continuity.
-python scripts/repo_operator.py help --workspace <repo> --format json
-python scripts/repo_operator.py next --workspace <repo> --format json
-python scripts/repo_operator.py run --workspace <repo> --timeout-ms 20000 -- <command>
+Use natural language plus Forge skills for guidance, next-step selection, and command execution.
+python scripts/repo_operator.py bump --workspace <repo> <version|major|minor|patch>
 python scripts/verify_repo.py --profile fast
 ```
 

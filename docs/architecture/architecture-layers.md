@@ -17,7 +17,7 @@ If a change crosses layers, the change must say so explicitly and preserve the b
 Core is the reusable runtime contract:
 
 - host-neutral bootstrap and sibling skill activation contract
-- operator/session compatibility wrappers
+- the remaining operator bump compatibility wrapper
 - verification contracts
 - shared references and schemas
 - host-neutral shared runtime helpers and owner commands
@@ -69,9 +69,6 @@ Current generated outputs:
 
 - `packages/forge-codex/overlay/AGENTS.global.md`
 - `packages/forge-skills/session-management/commands/session_context.py`
-- `packages/forge-codex/overlay/workflows/operator/help.md`
-- `packages/forge-codex/overlay/workflows/operator/next.md`
-- `packages/forge-codex/overlay/workflows/operator/run.md`
 - `packages/forge-codex/overlay/workflows/operator/bump.md`
 - `packages/forge-antigravity/overlay/GEMINI.global.md`
 

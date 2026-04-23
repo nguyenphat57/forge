@@ -156,86 +156,9 @@ def _code_block(commands: list[str]) -> str:
 
 def _codex_action_config(action_name: str) -> dict:
     configs = {
-        "help": {
-            "heading": "Help - Codex Operator Wrapper",
-            "goal": "keep `help` native to Codex, but still use Forge's core navigator.",
-            "trigger": "natural-language request for guidance or what to do next",
-            "quality_gates": [
-                "Repo state inspected before advice",
-                "One primary recommendation plus at most two alternatives",
-                "Codex wrapper stays thin on top of the core navigator",
-            ],
-            "process": lambda command: "\n".join(
-                [
-                    "1. Resolve with:",
-                    "",
-                    "The resolver will prefer `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, UI, run, or quality-gate tools have already persisted a current slice.",
-                    "If the repo is Forge itself or multiple valid directions are available, use `docs/current/target-state.md` as the policy tie-break before answering.",
-                    "",
-                    _code_block([command]),
-                    "",
-                    "2. Short answer in Codex style:",
-                    "   - Where are you?",
-                    "   - next step to take",
-                    "   - up to 2 other options if needed",
-                ]
-            ),
-            "announcement": "Forge Codex: help | repo-first guidance, natural-language first",
-        },
-        "next": {
-            "heading": "Next - Codex Operator Wrapper",
-            "goal": "provide a clear next step for the Codex without creating an additional ceremony.",
-            "trigger": "natural-language request for the next action",
-            "quality_gates": [
-                "Repo state inspected before advice",
-                "One concrete next step only",
-                "Codex wrapper stays thin on top of the core navigator",
-            ],
-            "process": lambda command: "\n".join(
-                [
-                    "1. Resolve with:",
-                    "",
-                    "The resolver will prefer `.forge-artifacts/workflow-state/<project>/latest.json` when execution, chain, UI, run, or quality-gate tools have already persisted a current slice.",
-                    "If the repo is Forge itself and multiple next moves are plausible, use `docs/current/target-state.md` as the policy tie-break before choosing the main step.",
-                    "",
-                    _code_block([command]),
-                    "",
-                    "2. Short answer:",
-                    "   - main next step",
-                    "   - why this is the right step",
-                    "   - up to 2 alternatives if needed",
-                ]
-            ),
-            "announcement": "Forge Codex: next | one concrete next step from repo state",
-        },
-        "run": {
-            "heading": "Run - Codex Operator Wrapper",
-            "goal": "keep `run` natural in Codex, but still route according to evidence from core.",
-            "trigger": "natural-language request to run a command, app, or check",
-            "quality_gates": [
-                "The command actually runs",
-                "Key output or failure signal is reported",
-                "The response ends with the next workflow when useful",
-            ],
-            "process": lambda command: "\n".join(
-                [
-                    "1. Close the command that needs to be run and have a reasonable timeout.",
-                    "2. Run using core guidance:",
-                    "",
-                    _code_block([command]),
-                    "",
-                    "3. Short summary:",
-                    "   - command was run",
-                    "   - main signal",
-                    "   - Error translation: include it when the command failed or timed out",
-                    "   - next workflow (`test`, `debug`, or `deploy`) if needed",
-                ]
-            ),
-            "announcement": "Forge Codex: run | execute, summarize, route from evidence",
-        },
         "bump": {
             "heading": "Bump - Codex Operator Wrapper",
-            "goal": "keep the bump flow short and clear for the Codex, but still follow the core's user-requested + justified semver contract.",
+            "goal": "keep the bump flow short and clear for Codex, but still follow the core's user-requested + justified semver contract.",
             "trigger": "explicit request to bump version or prepare a release",
             "quality_gates": [
                 "User-requested only: do not treat generic wrap-up as a bump request",
@@ -245,7 +168,7 @@ def _codex_action_config(action_name: str) -> dict:
             ],
             "process": lambda command: "\n".join(
                 [
-                    "1. If the user has not stated the bump level, infer from the diff repo and briefly state the reason.",
+                    "1. If the user has not stated the bump level, infer from the repo diff and briefly state the reason.",
                     "2. Preview/apply using core planner:",
                     "",
                     _code_block(

@@ -55,14 +55,15 @@ class RepoOperatorScriptShimTests(unittest.TestCase):
         self.assertIn("Use `forge-session-management` for `resume`, `continue`, and recap-style context restore", agents)
         self.assertIn("Use `forge-session-management` for `save context`", agents)
         self.assertIn("Use `forge-session-management` for `handover`", agents)
-        self.assertIn("python scripts/repo_operator.py help --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
-        self.assertIn("python scripts/repo_operator.py next --workspace C:\\Users\\Admin\\.gemini\\forge --format json", agents)
-        self.assertIn("python scripts/repo_operator.py run --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
         self.assertIn("python scripts/repo_operator.py bump --workspace C:\\Users\\Admin\\.gemini\\forge", agents)
+        self.assertIn("Use natural language plus Forge skills for guidance, next-step selection, and command execution", agents)
         self.assertNotIn("python scripts/repo_operator.py customize", agents)
+        self.assertNotIn("python scripts/repo_operator.py help", agents)
+        self.assertNotIn("python scripts/repo_operator.py next", agents)
+        self.assertNotIn("python scripts/repo_operator.py run", agents)
         self.assertIn("forge-init", agents)
         self.assertIn("forge-customize", agents)
-        self.assertIn("may auto-seed canonical `workflow-state`", agents)
+        self.assertIn("forge-verification-before-completion", agents)
         self.assertNotIn("python scripts/repo_operator.py bootstrap", agents)
         self.assertNotIn("python scripts/repo_operator.py rollback", agents)
         self.assertNotIn("python scripts/repo_operator.py init", agents)
@@ -77,6 +78,16 @@ class RepoOperatorScriptShimTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 2)
                 self.assertIn(f"Unsupported action: {action}", result.stderr)
                 self.assertIn("forge-session-management", result.stderr)
+
+    def test_repo_operator_rejects_retired_help_next_run_actions_with_guidance(self) -> None:
+        for action in ("help", "next", "run"):
+            with self.subTest(action=action):
+                result = self._run_repo_operator(action)
+                self.assertEqual(result.returncode, 2)
+                self.assertIn(f"Unsupported action: {action}", result.stderr)
+                self.assertIn("natural language", result.stderr)
+                self.assertIn("Forge skills", result.stderr)
+                self.assertIn("host-native command execution", result.stderr)
 
     def test_repo_operator_rejects_unknown_action(self) -> None:
         result = self._run_repo_operator("unknown-action")

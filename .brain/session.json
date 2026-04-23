@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-04-23T12:10:52+00:00",
+  "updated_at": "2026-04-23T12:41:16+00:00",
   "working_on": {
-    "feature": "forge-3-3-0-stable-release",
-    "task": "Forge 3.3.0 stable release prepared after moving session continuity ownership fully into forge-session-management, removing public session operator actions, and refreshing release plus bundle contracts.",
+    "feature": "forge-4-0-0-stable-release",
+    "task": "Forge 4.0.0 stable release prepared after removing help, next, and run from the public operator surface.",
     "status": "released",
     "files": [
       "VERSION",
@@ -25,7 +25,9 @@
       "docs/architecture/generated-host-artifacts/antigravity/docs/antigravity-operator-surface.md",
       "docs/architecture/host-artifacts-manifest.json",
       "docs/architecture/monorepo.md",
-      "docs/current/architecture.md"
+      "docs/current/architecture.md",
+      "docs/architecture/generated-host-artifacts/codex/docs/codex-operator-surface.md",
+      "docs/architecture/generated-host-artifacts/source-repo/operator-surface.md"
     ]
   },
   "pending_tasks": [
@@ -36,32 +38,37 @@
     "CHANGELOG.md",
     "README.md",
     "VERSION",
-    "docs/architecture/adapter-boundary.md",
     "docs/architecture/architecture-layers.md",
     "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
     "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
     "docs/architecture/generated-host-artifacts/antigravity/docs/antigravity-operator-surface.md",
+    "docs/architecture/generated-host-artifacts/codex/docs/codex-operator-surface.md",
+    "docs/architecture/generated-host-artifacts/source-repo/operator-surface.md",
     "docs/architecture/host-artifacts-manifest.json",
     "docs/architecture/monorepo.md",
-    "docs/current/architecture.md",
     "docs/current/operator-surface.md",
+    "docs/current/smoke-test-checklist.md",
     "docs/current/smoke-tests.md",
+    "docs/release/install.md",
     "docs/release/package-matrix.json",
     "docs/release/public-readiness.md",
     "docs/release/release-process.md",
-    "packages/forge-antigravity/README.md",
-    "packages/forge-antigravity/overlay/GEMINI.global.md",
-    "packages/forge-antigravity/overlay/SKILL.delta.md"
+    "packages/forge-antigravity/README.md"
   ],
   "verification": [
+    "python -m pytest tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py tests/test_host_artifact_generation.py packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_help_next.py packages/forge-core/tests/test_run_workflow.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> 95 passed, 86461 subtests passed on 2026-04-23",
+    "python scripts/build_release.py --force --format json -> PASS with all bundles at 4.0.0 on 2026-04-23",
+    "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23",
     "python scripts/generate_host_artifacts.py --check -> PASS on 2026-04-23",
     "python scripts/generate_overlay_skills.py --check -> PASS on 2026-04-23",
     "pytest tests/test_public_customize_skill.py packages/forge-core/tests/test_preferences.py packages/forge-core/tests/test_write_preferences.py packages/forge-core/tests/test_contracts.py tests/test_script_polish.py tests/test_operator_surface_registry.py tests/test_host_artifact_generation.py tests/test_repo_operator_script_shims.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-23",
     "python -m pytest tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_session_context.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> 83 passed, 86779 subtests passed on 2026-04-23",
-    "python scripts/build_release.py --force --format json -> PASS on 2026-04-23",
-    "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23"
+    "python scripts/build_release.py --force --format json -> PASS on 2026-04-23"
   ],
   "decisions_made": [
+    "Bump 3.3.0 to 4.0.0 as major because this slice removes public help, next, and run operator actions from repo and host surfaces.",
+    "Keep resolve_help_next.py and run_with_guidance.py as internal forge-core owner commands with owner report metadata.",
+    "Keep guidance, next-step selection, and command execution natural-language first through Forge skills and host-native tools.",
     "Bump 3.2.3 to 3.2.4 as patch because this slice moves customize preference runtime ownership and removes the public customize operator action without changing the stable product line.",
     "Bump 3.2.4 to 3.3.0 as minor because this slice removes public session operator actions and makes forge-session-management the sole session owner.",
     "forge-customize owns durable preference commands, shared modules, and canonical schema in source; release builds materialize that runtime into adapter bundles.",
@@ -69,6 +76,7 @@
     "forge-session-management owns resume, save context, handover, and deterministic session command reports."
   ],
   "risks": [
+    "Full non-fast release suite was not rerun after the final 4.0.0 continuity update.",
     "Full non-fast release suite was not rerun after the final 3.3.0 continuity update."
   ],
   "blockers": [],
@@ -77,7 +85,7 @@
     "plan: C:\\Users\\Admin\\.gemini\\forge\\docs\\plans\\2026-04-23-runtime-ownership-refactor-implementation-plan.md",
     "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
     "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
-    "git: 88 working tree item(s)",
+    "git: 57 working tree item(s)",
     "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\workflow-state\\forge\\latest.json"
   ]
 }

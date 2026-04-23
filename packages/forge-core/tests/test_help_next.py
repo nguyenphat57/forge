@@ -31,6 +31,7 @@ class HelpNextTests(unittest.TestCase):
         report = json.loads(result.stdout)
 
         self.assertEqual(report["status"], "PASS")
+        self.assertEqual(report["owner"], "forge-core")
         self.assertEqual(report["current_stage"], "session-active")
         self.assertEqual(report["suggested_workflow"], "plan")
         self.assertEqual(report["current_focus"], "Recorded workflow stage: plan")

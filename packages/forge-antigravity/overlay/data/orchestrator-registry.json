@@ -1,39 +1,6 @@
 {
   "host_operator_surface": {
     "actions": {
-      "help": {
-        "hosts": [
-          "antigravity"
-        ],
-        "primary_aliases_by_host": {},
-        "natural_language_examples_by_host": {
-          "antigravity": [
-            "Help me figure out the next step"
-          ]
-        }
-      },
-      "next": {
-        "hosts": [
-          "antigravity"
-        ],
-        "primary_aliases_by_host": {},
-        "natural_language_examples_by_host": {
-          "antigravity": [
-            "What should I do next?"
-          ]
-        }
-      },
-      "run": {
-        "hosts": [
-          "antigravity"
-        ],
-        "primary_aliases_by_host": {},
-        "natural_language_examples_by_host": {
-          "antigravity": [
-            "Run `npm test` and tell me what to do after"
-          ]
-        }
-      },
       "bump": {
         "hosts": [
           "antigravity"

@@ -72,7 +72,7 @@ If you were dispatched as a subagent to execute a specific task packet, skip thi
 
 - Process skills decide what to do next and what durable artifacts must exist.
 - Implementation skills execute once scope, proof shape, and state are clear.
-- `help` and `next` are artifact-backed audit sidecars, not the source of truth.
+- Guidance and next-step selection are artifact-backed natural-language work, not a public operator control plane.
 - `build`: no behavioral change with a viable harness without a failing test first.
 - When behavior changes, write and verify one failing test before implementation code.
 - Code written before RED must be deleted.

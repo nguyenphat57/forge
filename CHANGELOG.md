@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.0.0 (stable) - 2026-04-23
+
+- Remove `help`, `next`, and `run` from the public source-repo and installed host operator surfaces, leaving `bump` as the only repo operator action and keeping Codex `delegate` as the host-specific dispatch action.
+- Delete the retired operator wrappers from core, Codex, Antigravity, generated host artifacts, package matrices, and dist expectations while keeping guidance, next-step selection, and command execution natural-language first.
+- Keep `resolve_help_next.py` and `run_with_guidance.py` as internal `forge-core` owner commands with `owner: "forge-core"` report metadata, then refresh release-facing docs, generated artifacts, and bundle contracts around `4.0.0`.
+
+
 ## 3.3.0 (stable) - 2026-04-23
 
 - Move session continuity ownership fully into `forge-session-management`, including the deterministic `session_context.py` command and `owner: "forge-session-management"` report metadata.

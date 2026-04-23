@@ -14,11 +14,11 @@ quality_gates:
 
 # Bump - Codex Operator Wrapper
 
-> Goal: keep the bump flow short and clear for the Codex, but still follow the core's user-requested + justified semver contract.
+> Goal: keep the bump flow short and clear for Codex, but still follow the core's user-requested + justified semver contract.
 
 ## Process
 
-1. If the user has not stated the bump level, infer from the diff repo and briefly state the reason.
+1. If the user has not stated the bump level, infer from the repo diff and briefly state the reason.
 2. Preview/apply using core planner:
 
 ```powershell

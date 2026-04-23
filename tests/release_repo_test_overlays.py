@@ -72,9 +72,6 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "SKILL.md",
             overlay_root / "agents" / "openai.yaml",
             overlay_root / "data" / "orchestrator-registry.json",
-            overlay_root / "workflows" / "operator" / "help.md",
-            overlay_root / "workflows" / "operator" / "next.md",
-            overlay_root / "workflows" / "operator" / "run.md",
             overlay_root / "workflows" / "operator" / "bump.md",
             overlay_root / "docs" / "antigravity-operator-surface.md",
             overlay_root / "data" / "preferences-compat.json",
@@ -85,6 +82,9 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         for path in expected_files:
             with self.subTest(path=path):
                 self.assertTrue(path.exists())
+        for name in ("help.md", "next.md", "run.md"):
+            with self.subTest(retired_operator=name):
+                self.assertFalse((overlay_root / "workflows" / "operator" / name).exists())
 
         skill = (overlay_root / "SKILL.md").read_text(encoding="utf-8")
         self.assert_markdown_first_adapter_skill(
@@ -125,9 +125,9 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertFalse((dist_root / "SKILL.delta.md").exists())
         self.assertTrue((dist_root / "agents" / "openai.yaml").exists())
         self.assertTrue((dist_root / "data" / "orchestrator-registry.json").exists())
-        self.assertTrue((dist_root / "workflows" / "operator" / "help.md").exists())
-        self.assertTrue((dist_root / "workflows" / "operator" / "next.md").exists())
-        self.assertTrue((dist_root / "workflows" / "operator" / "run.md").exists())
+        self.assertFalse((dist_root / "workflows" / "operator" / "help.md").exists())
+        self.assertFalse((dist_root / "workflows" / "operator" / "next.md").exists())
+        self.assertFalse((dist_root / "workflows" / "operator" / "run.md").exists())
         self.assertFalse((dist_root / "workflows" / "operator" / "customize.md").exists())
         self.assertFalse((dist_root / "workflows" / "operator" / "init.md").exists())
         self.assertFalse((dist_root / "workflows" / "operator" / "session.md").exists())
@@ -151,9 +151,9 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertIn("SKILL.md", build_manifest["packaging"]["required_bundle_paths"])
         self.assertIn("agents/openai.yaml", build_manifest["packaging"]["required_bundle_paths"])
         self.assertNotIn("tests/fixtures/route_preview_cases.json", build_manifest["packaging"]["required_bundle_paths"])
-        self.assertIn("workflows/operator/help.md", build_manifest["packaging"]["required_bundle_paths"])
-        self.assertIn("workflows/operator/next.md", build_manifest["packaging"]["required_bundle_paths"])
-        self.assertIn("workflows/operator/run.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertNotIn("workflows/operator/help.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertNotIn("workflows/operator/next.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertNotIn("workflows/operator/run.md", build_manifest["packaging"]["required_bundle_paths"])
         self.assertEqual(build_manifest["generated_artifacts"]["manifest_path"], "docs/architecture/host-artifacts-manifest.json")
         self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["name"], "forge-antigravity-global-gemini")
         self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["bundle_output"], "GEMINI.global.md")
@@ -200,15 +200,15 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
             overlay_root / "docs" / "smoke-tests.md",
             overlay_root / "docs" / "smoke-test-checklist.md",
             overlay_root / "workflows" / "execution" / "dispatch-subagents.md",
-            overlay_root / "workflows" / "operator" / "help.md",
-            overlay_root / "workflows" / "operator" / "next.md",
-            overlay_root / "workflows" / "operator" / "run.md",
             overlay_root / "workflows" / "operator" / "bump.md",
             overlay_root / "docs" / "codex-operator-surface.md",
         ]
         for path in expected_files:
             with self.subTest(path=path):
                 self.assertTrue(path.exists())
+        for name in ("help.md", "next.md", "run.md"):
+            with self.subTest(retired_operator=name):
+                self.assertFalse((overlay_root / "workflows" / "operator" / name).exists())
 
         skill = (overlay_root / "SKILL.md").read_text(encoding="utf-8")
         self.assert_markdown_first_adapter_skill(
@@ -257,7 +257,10 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertFalse((dist_root / "workflows" / "execution" / "session.md").exists())
         self.assertFalse((dist_root / "workflows" / "operator" / "customize.md").exists())
         self.assertFalse((dist_root / "workflows" / "operator" / "init.md").exists())
-        self.assertTrue((dist_root / "workflows" / "operator" / "help.md").exists())
+        self.assertFalse((dist_root / "workflows" / "operator" / "help.md").exists())
+        self.assertFalse((dist_root / "workflows" / "operator" / "next.md").exists())
+        self.assertFalse((dist_root / "workflows" / "operator" / "run.md").exists())
+        self.assertTrue((dist_root / "workflows" / "operator" / "bump.md").exists())
         self.assertTrue((dist_root / "docs" / "codex-operator-surface.md").exists())
         self.assertIn("GENERATED FILE", (dist_root / "AGENTS.global.md").read_text(encoding="utf-8"))
         build_manifest = json.loads((dist_root / "BUILD-MANIFEST.json").read_text(encoding="utf-8"))
@@ -268,6 +271,9 @@ class ReleaseRepoOverlayTests(ReleaseRepoTestSupport):
         self.assertIn("SKILL.md", build_manifest["packaging"]["required_bundle_paths"])
         self.assertIn("docs/smoke-tests.md", build_manifest["packaging"]["required_bundle_paths"])
         self.assertIn("docs/smoke-test-checklist.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertNotIn("workflows/operator/help.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertNotIn("workflows/operator/next.md", build_manifest["packaging"]["required_bundle_paths"])
+        self.assertNotIn("workflows/operator/run.md", build_manifest["packaging"]["required_bundle_paths"])
         self.assertEqual(build_manifest["generated_artifacts"]["manifest_path"], "docs/architecture/host-artifacts-manifest.json")
         self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["name"], "forge-codex-global-agents")
         self.assertEqual(build_manifest["generated_artifacts"]["artifacts"][0]["bundle_output"], "AGENTS.global.md")

@@ -214,13 +214,15 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         required = set(manifest["packaging"]["required_bundle_paths"])
 
         self.assertNotIn("workflows/operator/session.md", required)
-        self.assertIn("workflows/operator/help.md", required)
-        self.assertIn("workflows/operator/next.md", required)
-        self.assertIn("workflows/operator/run.md", required)
+        self.assertNotIn("workflows/operator/help.md", required)
+        self.assertNotIn("workflows/operator/next.md", required)
+        self.assertNotIn("workflows/operator/run.md", required)
+        self.assertIn("workflows/operator/bump.md", required)
         self.assertNotIn("workflows/operator/session.md", outputs)
-        self.assertIn("workflows/operator/help.md", outputs)
-        self.assertIn("workflows/operator/next.md", outputs)
-        self.assertIn("workflows/operator/run.md", outputs)
+        self.assertNotIn("workflows/operator/help.md", outputs)
+        self.assertNotIn("workflows/operator/next.md", outputs)
+        self.assertNotIn("workflows/operator/run.md", outputs)
+        self.assertIn("workflows/operator/bump.md", outputs)
         self.assertNotIn("Compatibility aliases:", agents_text)
         self.assertNotIn("Operator aliases:", agents_text)
         self.assertNotIn("/delegate", agents_text)
@@ -235,13 +237,10 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         build_release.build_all()
         expected = {
             "workflows/operator/bump.md",
-            "workflows/operator/help.md",
-            "workflows/operator/next.md",
             "workflows/operator/references/bump-release.md",
             "workflows/operator/references/help-next.md",
             "workflows/operator/references/personalization.md",
             "workflows/operator/references/run-guidance.md",
-            "workflows/operator/run.md",
         }
 
         for base in (

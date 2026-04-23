@@ -29,6 +29,7 @@ class RunWorkflowTests(unittest.TestCase):
         report = json.loads(result.stdout)
 
         self.assertEqual(report["status"], "PASS")
+        self.assertEqual(report["owner"], "forge-core")
         self.assertEqual(report["state"], "completed")
         self.assertEqual(report["command_kind"], "build")
         self.assertEqual(report["suggested_workflow"], "test")

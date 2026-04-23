@@ -85,9 +85,6 @@
         "data/routing-locales/vi.json",
         "data/output-contracts.json",
         "docs/antigravity-operator-surface.md",
-        "workflows/operator/help.md",
-        "workflows/operator/next.md",
-        "workflows/operator/run.md",
         "workflows/operator/bump.md"
       ]
     },
@@ -128,9 +125,6 @@
         "docs/smoke-tests.md",
         "docs/smoke-test-checklist.md",
         "workflows/execution/dispatch-subagents.md",
-        "workflows/operator/help.md",
-        "workflows/operator/next.md",
-        "workflows/operator/run.md",
         "workflows/operator/bump.md"
       ]
     }

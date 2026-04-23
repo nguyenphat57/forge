@@ -1,6 +1,6 @@
 # Forge Run Guidance
 
-> Use this when a host-neutral `run` workflow is needed: execute the real command, summarize the main signal, and route to the next workflow instead of dumping raw terminal output.
+> Use this when host-neutral internal run guidance is needed: execute the real command, summarize the main signal, and route to the next workflow instead of dumping raw terminal output.
 
 ## Target
 
@@ -57,6 +57,6 @@ If you use `--persist`, the default artifact path is:
 ## Adapter Boundary
 
 - Core owns command execution plus deterministic guidance.
-- The adapter may add a slash wrapper, a natural-language wrapper, or host-specific UX.
+- The adapter should use host-native command execution and natural-language UX instead of a public operator wrapper.
 - The adapter cannot change the meaning of `state`, `command_kind`, or `suggested_workflow`.
 

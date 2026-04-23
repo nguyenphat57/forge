@@ -29,6 +29,9 @@ from run_guidance_support import (
 from workflow_state_support import record_workflow_event, resolve_workflow_state
 
 
+OWNER = "forge-core"
+
+
 def normalize_command(command: list[str]) -> list[str]:
     normalized = command[:]
     if normalized and normalized[0] == "--":
@@ -87,6 +90,7 @@ def build_report(args: argparse.Namespace) -> dict:
     command_display = quote_command(command)
     return {
         "status": status,
+        "owner": OWNER,
         "recorded_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "project": args.project_name,
         "workspace": str(workspace),
@@ -117,6 +121,7 @@ def format_text(report: dict) -> str:
     lines = [
         "Forge Run Guidance",
         f"- Status: {report['status']}",
+        f"- Owner: {report['owner']}",
         f"- Workspace: {report['workspace']}",
         f"- Command: {report['command_display']}",
         f"- State: {report['state']}",
@@ -187,11 +192,11 @@ def main() -> int:
     try:
         report = build_report(args)
     except (FileNotFoundError, ValueError, OSError) as exc:
-        payload = {"status": "FAIL", "error": str(exc)}
+        payload = {"status": "FAIL", "owner": OWNER, "error": str(exc)}
         if args.format == "json":
             print(json.dumps(payload, indent=2, ensure_ascii=False))
         else:
-            print("\n".join(["Forge Run Guidance", "- Status: FAIL", f"- Error: {exc}"]))
+            print("\n".join(["Forge Run Guidance", "- Status: FAIL", f"- Owner: {OWNER}", f"- Error: {exc}"]))
         return 1
 
     if args.persist:

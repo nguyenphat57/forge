@@ -24,7 +24,12 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         self.assertNotIn("bootstrap", repo_actions)
         self.assertNotIn("delegate", repo_actions)
         self.assertNotIn("capture-continuity", repo_actions)
-        self.assertIn("help", host_actions)
+        self.assertNotIn("help", repo_actions)
+        self.assertNotIn("next", repo_actions)
+        self.assertNotIn("run", repo_actions)
+        self.assertNotIn("help", host_actions)
+        self.assertNotIn("next", host_actions)
+        self.assertNotIn("run", host_actions)
         self.assertNotIn("bootstrap", host_actions)
         self.assertNotIn("capture-continuity", host_actions)
 
@@ -35,22 +40,22 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
 
         self.assertEqual(
             set(core_registry["repo_operator_surface"]["actions"]),
-            {"help", "next", "run", "bump"},
+            {"bump"},
         )
         self.assertEqual(set(core_registry["repo_operator_surface"]["session_modes"]), set())
         self.assertEqual(
             set(core_registry["host_operator_surface"]["actions"]),
-            {"help", "next", "run", "bump"},
+            {"bump"},
         )
         self.assertEqual(set(core_registry["host_operator_surface"]["session_modes"]), set())
         self.assertEqual(
             set(codex_registry["host_operator_surface"]["actions"]),
-            {"help", "next", "run", "delegate", "bump"},
+            {"delegate", "bump"},
         )
         self.assertEqual(set(codex_registry["host_operator_surface"]["session_modes"]), set())
         self.assertEqual(
             set(antigravity_registry["host_operator_surface"]["actions"]),
-            {"help", "next", "run", "bump"},
+            {"bump"},
         )
         self.assertEqual(set(antigravity_registry["host_operator_surface"]["session_modes"]), set())
 
@@ -101,6 +106,9 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
         self.assertNotIn("`delegate`", repo_surface)
         self.assertNotIn("`capture-continuity`", repo_surface)
         self.assertNotIn("scripts/resolve_help_next.py", repo_surface)
+        self.assertNotIn("repo_operator.py help", repo_surface)
+        self.assertNotIn("repo_operator.py next", repo_surface)
+        self.assertNotIn("repo_operator.py run", repo_surface)
         self.assertNotIn("scripts/session_context.py", repo_surface)
         self.assertNotIn("scripts/bootstrap_workflow_state.py", repo_surface)
         self.assertNotIn("/delegate", codex_surface)

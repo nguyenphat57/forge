@@ -124,9 +124,6 @@ FORBIDDEN_SHARED_REFERENCE_FALLBACK = "Shared scripts and references live in the
 
 OPERATOR_WORKFLOW_ALLOWLIST = {
     "workflows/operator/bump.md",
-    "workflows/operator/help.md",
-    "workflows/operator/next.md",
-    "workflows/operator/run.md",
 }
 
 OPTIONAL_ADAPTER_WORKFLOW_ALLOWLIST = {

@@ -11,7 +11,7 @@ Contents:
 - `workflows/execution/dispatch-subagents.md` as a thin compatibility wrapper for `forge-dispatching-parallel-agents`
 - `forge-session-management` as the sole owner for resume, save context, and handover
 - sibling Forge skills installed next to `forge-codex` for process activation
-- thin operator wrappers for natural-language-first `help`, `next`, `run`, and `bump`
+- a thin operator wrapper for release `bump`
 - sibling skill `forge-init` for workspace bootstrap and docs normalization
 - `codex-operator-surface.md` for the adapter boundary and alias policy
 

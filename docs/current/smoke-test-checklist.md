@@ -173,12 +173,12 @@ Goal: quickly record results for each smoke test run on a real host rolling out 
 |Score |  |
 |Notes |  |
 
-### FT-09C: Help/next artifact recovery sanity
+### FT-09C: Guidance artifact recovery sanity
 
 |Section | Results|
 |-----|---------|
 |Prompt used | debug/regression prompt after prior workflow-state or plan artifacts exist|
-|Does `help`/`next` recover the active workflow from durable artifacts instead of inventing a route? |  |
+|Does natural-language guidance recover the active workflow from durable artifacts instead of inventing a route? |  |
 |When artifacts are missing, does guidance clearly name the missing evidence instead of fabricating one? |  |
 |Score |  |
 |Notes |  |

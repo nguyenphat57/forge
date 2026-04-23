@@ -28,6 +28,9 @@ from help_next_support import (
 from workflow_state_support import resolve_workflow_state
 
 
+OWNER = "forge-core"
+
+
 def build_report(workspace: Path, mode: str) -> dict:
     warnings: list[str] = []
     preferences_report = load_preferences(workspace=workspace)
@@ -97,6 +100,7 @@ def build_report(workspace: Path, mode: str) -> dict:
 
     return {
         "status": "WARN" if warnings else "PASS",
+        "owner": OWNER,
         "mode": mode,
         "workspace": str(workspace),
         "current_stage": stage,
@@ -139,6 +143,7 @@ def format_text(report: dict) -> str:
     lines = [
         "Forge Help/Next",
         f"- Status: {report['status']}",
+        f"- Owner: {report['owner']}",
         f"- Mode: {report['mode']}",
         f"- Workspace: {report['workspace']}",
         f"- Stage: {report['current_stage']}",

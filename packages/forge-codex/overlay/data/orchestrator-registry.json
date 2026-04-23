@@ -1,39 +1,6 @@
 {
   "host_operator_surface": {
     "actions": {
-      "help": {
-        "hosts": [
-          "codex"
-        ],
-        "primary_aliases_by_host": {},
-        "natural_language_examples_by_host": {
-          "codex": [
-            "Help me figure out the next step"
-          ]
-        }
-      },
-      "next": {
-        "hosts": [
-          "codex"
-        ],
-        "primary_aliases_by_host": {},
-        "natural_language_examples_by_host": {
-          "codex": [
-            "What should I do next?"
-          ]
-        }
-      },
-      "run": {
-        "hosts": [
-          "codex"
-        ],
-        "primary_aliases_by_host": {},
-        "natural_language_examples_by_host": {
-          "codex": [
-            "Run `npm test` and tell me what to do after"
-          ]
-        }
-      },
       "delegate": {
       "repo_entrypoint": "",
       "core_engine_entrypoint": "workflows/execution/dispatch-subagents.md",

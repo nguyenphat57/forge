@@ -6,9 +6,6 @@
 
 Preferred user phrasing:
 
-- "Help me figure out the next step" -> `help`
-- "What should I do next?" -> `next`
-- "Run `npm test` and tell me what to do after" -> `run`
 - "Bump this to 0.5.0" -> `bump`
 - "Split these independent slices across subagents" -> `delegate`
 
@@ -21,7 +18,8 @@ Session requests:
 ## Codex Rules
 
 - Natural language is the primary surface.
-- Explicit operator action names such as `help` or `delegate` are acceptable when a concise form helps.
+- Explicit operator action names such as `bump` or `delegate` are acceptable when a concise form helps.
+- Guidance, next-step selection, and command execution stay natural-language first through Forge skills and host-native tools.
 - Wrapper docs may clarify output shape, but they must not fork core semantics.
 - Do not add heavy session wrappers or onboarding ceremony here.
 - `AGENTS.md` should stay thin and point back to Forge instead of duplicating logic.

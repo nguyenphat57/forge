@@ -14,33 +14,6 @@
       "output": "packages/forge-codex/overlay/AGENTS.global.md"
     },
     {
-      "name": "forge-codex-help-wrapper",
-      "bundle": "forge-codex",
-      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/_shared_wrapper.md",
-      "context": {
-        "action": "help"
-      },
-      "output": "packages/forge-codex/overlay/workflows/operator/help.md"
-    },
-    {
-      "name": "forge-codex-next-wrapper",
-      "bundle": "forge-codex",
-      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/_shared_wrapper.md",
-      "context": {
-        "action": "next"
-      },
-      "output": "packages/forge-codex/overlay/workflows/operator/next.md"
-    },
-    {
-      "name": "forge-codex-run-wrapper",
-      "bundle": "forge-codex",
-      "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/_shared_wrapper.md",
-      "context": {
-        "action": "run"
-      },
-      "output": "packages/forge-codex/overlay/workflows/operator/run.md"
-    },
-    {
       "name": "forge-codex-bump-wrapper",
       "bundle": "forge-codex",
       "source": "docs/architecture/generated-host-artifacts/codex/workflows/operator/_shared_wrapper.md",
