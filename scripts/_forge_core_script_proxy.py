@@ -6,13 +6,13 @@ from pathlib import Path
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-FORGE_CORE_SCRIPTS_DIR = ROOT_DIR / "packages" / "forge-core" / "scripts"
+FORGE_CORE_COMMANDS_DIR = ROOT_DIR / "packages" / "forge-core" / "commands"
 
 
 def run_forge_core_script(script_name: str, argv: list[str] | None = None) -> None:
-    target = (FORGE_CORE_SCRIPTS_DIR / script_name).resolve()
+    target = (FORGE_CORE_COMMANDS_DIR / script_name).resolve()
     if not target.exists():
-        raise SystemExit(f"Missing forge-core script target: {target}")
+        raise SystemExit(f"Missing forge-core command target: {target}")
 
     target_parent = str(target.parent)
     if target_parent not in sys.path:

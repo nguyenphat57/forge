@@ -24,13 +24,13 @@ quality_gates:
 1. Preview skeleton:
 
 ```powershell
-python scripts/initialize_workspace.py --workspace <workspace> --format json
+python commands/initialize_workspace.py --workspace <workspace> --format json
 ```
 
 2. If the user wants to create the actual skeleton:
 
 ```powershell
-python scripts/initialize_workspace.py --workspace <workspace> --seed-preferences --apply
+python commands/initialize_workspace.py --workspace <workspace> --seed-preferences --apply
 ```
 
 `--seed-preferences` seeds Antigravity-global preferences; it no longer writes to workspace-local `.brain/preferences.json`.

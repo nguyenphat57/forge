@@ -129,7 +129,7 @@ FORBIDDEN_ACTIVE_TESTS = {
 
 FORBIDDEN_RESIDUE_DIRS = {
     ".pytest_cache",
-    "scripts/__pycache__",
+    "commands/__pycache__",
     "tests/__pycache__",
 }
 
@@ -187,6 +187,34 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("questions are tasks", lowered)
         self.assertIn("process workflows first", lowered)
         self.assertIn("user instructions take precedence", lowered)
+
+    def test_core_runtime_engine_folder_is_removed(self) -> None:
+        self._require_skill_source_tree()
+
+        self.assertFalse((ROOT_DIR / "scripts").exists())
+        self.assertFalse((ROOT_DIR / "engine").exists())
+        self.assertTrue((ROOT_DIR / "shared").is_dir())
+        self.assertTrue((ROOT_DIR / "commands").is_dir())
+
+    def test_runtime_commands_are_owned_in_place(self) -> None:
+        self._require_skill_source_tree()
+
+        owner_commands = {
+            ROOT_DIR / "commands" / "resolve_help_next.py",
+            ROOT_DIR / "commands" / "session_context.py",
+            ROOT_DIR / "commands" / "run_with_guidance.py",
+            ROOT_DIR / "commands" / "write_preferences.py",
+            SKILLS_ROOT / "brainstorming" / "commands" / "check_ui_brief.py",
+            SKILLS_ROOT / "executing-plans" / "commands" / "track_execution_progress.py",
+            SKILLS_ROOT / "systematic-debugging" / "commands" / "translate_error.py",
+            SKILLS_ROOT / "using-git-worktrees" / "commands" / "prepare_worktree.py",
+        }
+        for path in sorted(owner_commands):
+            with self.subTest(path=path.relative_to(REPO_ROOT)):
+                self.assertTrue(path.exists(), f"Missing owner command: {path}")
+                text = path.read_text(encoding="utf-8")
+                self.assertNotIn("run_engine_command(", text)
+                self.assertNotIn("engine/forge_core_runtime", text)
 
     def test_core_skill_red_flags_cover_common_rationalizations(self) -> None:
         skill = (ROOT_DIR / "SKILL.md").read_text(encoding="utf-8")
@@ -592,25 +620,25 @@ class BundleContractTests(unittest.TestCase):
             self.assertFalse((repo_root / "docs" / "audits").exists())
 
     def test_route_preview_generator_stack_is_retired(self) -> None:
-        smoke_matrix_suites = (ROOT_DIR / "scripts" / "smoke_matrix_suites.py").read_text(encoding="utf-8")
-        smoke_matrix_cases = (ROOT_DIR / "scripts" / "smoke_matrix_cases.py").read_text(encoding="utf-8")
-        smoke_matrix_validators = (ROOT_DIR / "scripts" / "smoke_matrix_validators.py").read_text(encoding="utf-8")
+        smoke_matrix_suites = (ROOT_DIR / "tools" / "smoke_matrix_suites.py").read_text(encoding="utf-8")
+        smoke_matrix_cases = (ROOT_DIR / "tools" / "smoke_matrix_cases.py").read_text(encoding="utf-8")
+        smoke_matrix_validators = (ROOT_DIR / "tools" / "smoke_matrix_validators.py").read_text(encoding="utf-8")
 
         for relative_path in (
-            "scripts/route_local_companions.py",
-            "scripts/route_preview.py",
-            "scripts/route_preview_builder.py",
-            "scripts/route_preview_output.py",
-            "scripts/route_policy.py",
-            "scripts/route_analysis.py",
-            "scripts/route_execution_advice.py",
-            "scripts/route_process_requirements.py",
-            "scripts/route_stage_contract.py",
-            "scripts/route_intent_detection.py",
-            "scripts/route_quality_policy.py",
-            "scripts/route_risk.py",
-            "scripts/route_complexity_safety.py",
-            "scripts/route_delegation.py",
+            "shared/route_local_companions.py",
+            "shared/route_preview.py",
+            "shared/route_preview_builder.py",
+            "shared/route_preview_output.py",
+            "shared/route_policy.py",
+            "shared/route_analysis.py",
+            "shared/route_execution_advice.py",
+            "shared/route_process_requirements.py",
+            "shared/route_stage_contract.py",
+            "shared/route_intent_detection.py",
+            "shared/route_quality_policy.py",
+            "shared/route_risk.py",
+            "shared/route_complexity_safety.py",
+            "shared/route_delegation.py",
             "tests/fixtures/route_preview_cases.json",
         ):
             with self.subTest(path=relative_path):
@@ -628,8 +656,8 @@ class BundleContractTests(unittest.TestCase):
 
         self.assertTrue(kernel_tooling.exists())
         self.assertFalse((ROOT_DIR / "references" / "tooling.md").exists())
-        self.assertIn("python scripts/resolve_help_next.py", text)
-        self.assertIn("python scripts/run_with_guidance.py", text)
+        self.assertIn("python commands/resolve_help_next.py", text)
+        self.assertIn("python commands/run_with_guidance.py", text)
 
     def test_subagent_reference_contract_exists(self) -> None:
         self._require_skill_source_tree()
@@ -686,7 +714,7 @@ class BundleContractTests(unittest.TestCase):
         self._require_skill_source_tree()
         architectural_lens = (SKILLS_ROOT / "brainstorming" / "references" / "design" / "architectural-lens.md").read_text(encoding="utf-8")
         visual_guidance = (SKILLS_ROOT / "brainstorming" / "references" / "design" / "visual-companion-guidance.md").read_text(encoding="utf-8")
-        bootstrap_support = (ROOT_DIR / "scripts" / "workflow_state_bootstrap_support.py").read_text(encoding="utf-8")
+        bootstrap_support = (ROOT_DIR / "shared" / "workflow_state_bootstrap_support.py").read_text(encoding="utf-8")
         help_next = (ROOT_DIR / "workflows" / "operator" / "references" / "help-next.md").read_text(encoding="utf-8")
 
         self.assertIn("design lens inside `forge-brainstorming`", architectural_lens)

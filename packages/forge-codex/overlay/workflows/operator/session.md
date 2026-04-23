@@ -18,4 +18,4 @@ Invoke `forge-session-management` for personalization restore, resume, continue,
 
 Response Personalization still restores adapter-global `state/preferences.json` through `resolve_preferences.py`.
 
-The canonical scripts remain in the installed orchestrator bundle: `resolve_preferences.py` and `session_context.py`.
+The canonical commands remain in the installed orchestrator bundle: `resolve_preferences.py` and `session_context.py`.

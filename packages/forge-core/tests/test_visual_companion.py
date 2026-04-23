@@ -13,6 +13,7 @@ from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = ROOT_DIR.parents[1]
+SKILLS_ROOT = ROOT_DIR.parent / "forge-skills"
 TOOL_DIR = ROOT_DIR / "tools" / "visual-companion" / "scripts"
 ASSETS = (
     "server.cjs",
@@ -67,7 +68,7 @@ class VisualCompanionTests(unittest.TestCase):
     def test_current_docs_reference_current_forge_paths(self):
         docs = [
             ROOT_DIR / "SKILL.md",
-            ROOT_DIR / "references" / "design" / "visual-companion-guidance.md",
+            SKILLS_ROOT / "brainstorming" / "references" / "design" / "visual-companion-guidance.md",
         ]
         text = "\n".join(path.read_text(encoding="utf-8") for path in docs)
         self.assertIn("tools/visual-companion/scripts/start-server", text)

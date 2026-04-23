@@ -18,9 +18,9 @@ description: "Forge Codex - Codex adapter for Forge core. Use when a request nee
 ## Response Personalization
 
 - At the start of each new thread, resolve preferences before the first substantive user-facing reply.
-- Read adapter-global state from `state/preferences.json`, using `scripts/resolve_preferences.py` when a merged payload is needed.
+- Read adapter-global state from `state/preferences.json`, using `commands/resolve_preferences.py` when a merged payload is needed.
 - `forge-codex` responds in Vietnamese with full diacritics when resolved `language=vi`; broken Vietnamese encoding is a defect.
-- `workflows/operator/customize.md` stays thin and must continue to write through `scripts/write_preferences.py`.
+- `workflows/operator/customize.md` stays thin and must continue to write through `commands/write_preferences.py`.
 
 ## Codex Operator Surface
 
@@ -42,3 +42,4 @@ description: "Forge Codex - Codex adapter for Forge core. Use when a request nee
 ```text
 Forge Codex: orchestrator | invoke the right skill, keep evidence before claims
 ```
+

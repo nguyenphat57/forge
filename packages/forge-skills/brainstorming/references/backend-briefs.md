@@ -40,10 +40,11 @@ Reading order:
 ## Validate A Persisted Brief
 
 ```powershell
-python scripts/check_backend_brief.py .forge-artifacts/backend-briefs/<project-slug> --surface cancel-orders
+python commands/check_backend_brief.py .forge-artifacts/backend-briefs/<project-slug> --surface cancel-orders
 ```
 
 ## Historical Note
 
 - Older Forge versions shipped backend brief generators. The current kernel-only line keeps only the checker for already-persisted artifacts.
 - If a repo needs a brand-new backend brief, create it as a repo-local artifact or from a future roadmap tranche; it is not part of the current shipped tooling surface.
+

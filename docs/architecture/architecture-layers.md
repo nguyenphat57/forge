@@ -14,13 +14,13 @@ If a change crosses layers, the change must say so explicitly and preserve the b
 
 ## Layer 1: Core
 
-Core is the reusable engine:
+Core is the reusable runtime contract:
 
 - host-neutral bootstrap and sibling skill activation contract
 - operator/session compatibility wrappers
 - verification contracts
 - shared references and schemas
-- deterministic host-neutral scripts
+- host-neutral shared runtime helpers and owner commands
 
 Canonical locations:
 
@@ -29,7 +29,8 @@ Canonical locations:
 - `docs/current/`
 - `docs/architecture/`
 - `packages/forge-core/data/`
-- `packages/forge-core/scripts/`
+- `packages/forge-core/shared/`
+- `packages/forge-core/commands/`
 
 Core must not depend on a single host entry file such as `AGENTS.md` or `GEMINI.md`.
 
@@ -40,6 +41,8 @@ The sibling skill pack is adjacent to core, not inside it:
 - `packages/forge-skills/`
 
 It owns public Forge process skill meaning and any skill-owned `references/**` companions. Core may name and activate sibling skills, but it must not carry a canonical `skills/` subtree or duplicate skill-owned references.
+
+Skill-owned runtime entrypoints live under `packages/forge-skills/*/commands/`.
 
 Release builds materialize the skill pack as public `dist/forge-*` skill directories. Adapter bundles such as `dist/forge-codex` and `dist/forge-antigravity` must not contain an internal `skills/` subtree.
 
@@ -70,7 +73,6 @@ Current generated outputs:
 - `packages/forge-codex/overlay/workflows/operator/next.md`
 - `packages/forge-codex/overlay/workflows/operator/run.md`
 - `packages/forge-codex/overlay/workflows/operator/bump.md`
-- `packages/forge-codex/overlay/workflows/operator/rollback.md`
 - `packages/forge-codex/overlay/workflows/operator/customize.md`
 - `packages/forge-codex/overlay/workflows/operator/init.md`
 - `packages/forge-antigravity/overlay/GEMINI.global.md`
@@ -90,8 +92,8 @@ Canonical locations:
 - `.forge-artifacts/workflow-state/<project>/latest.json`
 - `.forge-artifacts/workflow-state/<project>/events.jsonl`
 - `.forge-artifacts/workflow-state/<project>/packet-index.json`
-- `packages/forge-core/scripts/workflow_state_support.py`
-- `packages/forge-core/scripts/workflow_state_summary.py`
+- `packages/forge-core/shared/workflow_state_support.py`
+- `packages/forge-core/shared/workflow_state_summary.py`
 
 Rules:
 
@@ -132,7 +134,7 @@ If an extension requires semantic drift, move the proposal into core and update 
 
 Before adding or moving a capability, ask:
 
-1. Is this reusable policy/engine logic? Put it in `core`.
+1. Is this reusable policy or shared runtime logic? Put it in `core`.
 2. Is this a reproducible host-facing output? Put it in `generated artifacts`.
 3. Is this durable machine-readable execution evidence? Put it in `workflow state`.
 
@@ -147,3 +149,4 @@ If the answer is unclear, default to the lower-power layer:
 - build/verify scripts know how generated artifacts stay fresh
 - workflow state remains machine-readable and bounded
 - docs and tests point to the same canonical source
+

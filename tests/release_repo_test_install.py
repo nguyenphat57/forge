@@ -64,6 +64,9 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
             )
 
             self.assertTrue((target / "SKILL.md").exists())
+            self.assertTrue((target / "commands").is_dir())
+            self.assertTrue((target / "shared").is_dir())
+            self.assertFalse((target / "engine").exists())
             self.assertFalse((target / "old.txt").exists())
             self.assertIsNotNone(report["backup_path"])
             self.assertTrue(Path(report["backup_path"]).exists())
@@ -122,7 +125,7 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
             write_result = subprocess.run(
                 [
                     sys.executable,
-                    str(target / "scripts" / "write_preferences.py"),
+                    str(target / "commands" / "write_preferences.py"),
                     "--workspace",
                     str(workspace),
                     "--technical-level",

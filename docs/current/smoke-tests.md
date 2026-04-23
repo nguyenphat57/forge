@@ -7,7 +7,7 @@ Goal: quickly check that the host runtime activates the right Forge sibling skil
 - Run each prompt in a new thread or as clean a state as possible.
 - Do not tell the agent what skill to "expect" ahead of time. Send the prompt as a real user would.
 - You can open `smoke-test-checklist.md` in parallel to fill in results right after testing.
-- If artifact recovery is already covered by automation, run `python scripts/run_smoke_matrix.py --suite help-next` to catch drift before doing manual host smoke.
+- If artifact recovery is already covered by automation, run `python tools/run_smoke_matrix.py --suite help-next` to catch drift before doing manual host smoke.
 - Record:
   - Is skill/flow selected correctly?
   - Does the agent hold evidence-first?
@@ -466,3 +466,4 @@ Save context for this task before I close the window.
 ## Results recording form
 
 See `smoke-test-checklist.md`.
+

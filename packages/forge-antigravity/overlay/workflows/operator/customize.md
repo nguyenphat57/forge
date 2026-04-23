@@ -29,14 +29,14 @@ quality_gates:
 Fast path for language requests:
 
 - If the user only asks how to set language, diacritics, or writing conventions:
-  - point directly to a durable adapter-global update via `scripts/write_preferences.py`
+  - point directly to a durable adapter-global update via `commands/write_preferences.py`
   - only point to workspace `.brain/preferences.json` when the rule should apply to the current repo only
   - reuse the short template in `workflows/operator/references/personalization.md`
 
 1. Read current preferences:
 
 ```powershell
-python scripts/resolve_preferences.py --format json
+python commands/resolve_preferences.py --format json
 ```
 
 2. Map user intent to canonical fields when the request is about style:
@@ -48,16 +48,16 @@ python scripts/resolve_preferences.py --format json
    - `personality`
 
 3. If the user wants to lock `language`, `orthography`, or host-native writing rules:
-   - persist them via adapter-global extras using `scripts/write_preferences.py`
+   - persist them via adapter-global extras using `commands/write_preferences.py`
    - do not put them in the 6 canonical fields
    - only use `.brain/preferences.json` for per-workspace overrides
 
 4. Preview or persist using the core writer:
 
 ```powershell
-python scripts/write_preferences.py --detail-level detailed --pace fast --feedback-style direct
-python scripts/write_preferences.py --detail-level detailed --pace fast --feedback-style direct --apply
-python scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --apply
+python commands/write_preferences.py --detail-level detailed --pace fast --feedback-style direct
+python commands/write_preferences.py --detail-level detailed --pace fast --feedback-style direct --apply
+python commands/write_preferences.py --language vi --orthography vietnamese_diacritics --apply
 ```
 
 5. Reply concisely:

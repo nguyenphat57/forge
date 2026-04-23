@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.0 (stable) - 2026-04-23
+
+- Refactor Forge runtime ownership so shipped behavior lives in owner `commands/` trees and shared support moves into `packages/forge-core/shared/`, removing the `engine/forge_core_runtime` indirection entirely.
+- Move skill-owned command implementations back under their real skill packages, keep repo-root `scripts/` as development and release tooling only, and align bundle/install contracts around `commands/` plus `shared/`.
+- Refresh release-facing and continuity surfaces so `VERSION`, `CHANGELOG.md`, `README.md`, `docs/release/*`, and `.brain/*` align on `3.0.0` as the current stable line after the runtime-ownership verification gate.
+
 ## 2.15.0 (stable) - 2026-04-23
 
 - Remove `rollback` from the current Forge product line by deleting the public repo action, installed host wrappers, rollback planner and guidance assets, generated operator-surface references, and rollback-specific smoke or test coverage.

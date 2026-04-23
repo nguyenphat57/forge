@@ -4,7 +4,7 @@
 
 ## Core Contract
 
-- The canonical script lives at `scripts/initialize_workspace.py`
+- The canonical command lives at `commands/initialize_workspace.py`
 - The script creates only a minimal Forge skeleton that can be reused across hosts
 - Adapters may add first-run UX, but they must not change the shape of `.brain/` or the docs skeleton fixed by core
 

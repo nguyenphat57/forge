@@ -5,8 +5,8 @@
 ## Core Contract
 
 - Canonical schema: `data/preferences-schema.json`
-- Canonical resolver: `scripts/resolve_preferences.py`
-- Canonical writer: `scripts/write_preferences.py`
+- Canonical resolver: `commands/resolve_preferences.py`
+- Canonical writer: `commands/write_preferences.py`
 - Installed adapters default to adapter-global state under `<host-home>/<adapter-name>/state/`
 - Canonical preferences persist in `state/preferences.json`
 - `$FORGE_HOME` remains the explicit dev/test override root
@@ -83,16 +83,16 @@ When canonical preferences contain host-native rules, core also emits `output_co
 When an adapter wants to record durable preferences:
 
 ```powershell
-python scripts/write_preferences.py --technical-level newbie --pace fast --feedback-style direct --scope global --apply
-python scripts/write_preferences.py --language en --orthography plain_english --scope workspace --apply
-python scripts/write_preferences.py --clear-field language --clear-field orthography --scope workspace --apply
+python commands/write_preferences.py --technical-level newbie --pace fast --feedback-style direct --scope global --apply
+python commands/write_preferences.py --language en --orthography plain_english --scope workspace --apply
+python commands/write_preferences.py --clear-field language --clear-field orthography --scope workspace --apply
 ```
 
 Rules:
 
 - The writer merges with existing preferences by default
 - `--replace` clears the target scope first, then writes only explicit keys
-- Durable adapter-wide language or orthography rules should go through `scripts/write_preferences.py`
+- Durable adapter-wide language or orthography rules should go through `commands/write_preferences.py`
 - Workspace-local overrides may still live in `.brain/preferences.json` when the user explicitly wants repo-specific behavior
 - Adapters cannot invent host-local canonical schema or change the meaning of the six canonical fields
 - Applying a write may migrate legacy adapter-global split or native state into the unified canonical file
@@ -110,8 +110,8 @@ Existing repos that already rely on canonical fields in `.brain/preferences.json
 Use the writer for adapter-wide durable rules:
 
 ```powershell
-python scripts/write_preferences.py --language en --orthography plain_english --scope global --apply
-python scripts/write_preferences.py --language en --clear-field orthography --scope workspace --apply
+python commands/write_preferences.py --language en --orthography plain_english --scope global --apply
+python commands/write_preferences.py --language en --clear-field orthography --scope workspace --apply
 ```
 
 Use workspace `.brain/preferences.json` only when the repo needs local overrides that should not become adapter-wide defaults.
@@ -153,7 +153,7 @@ Sample 3: Repo-specific tone detail
 
 Operator rule:
 
-- If the user asks how to set language durably, point to `scripts/write_preferences.py` first
+- If the user asks how to set language durably, point to `commands/write_preferences.py` first
 - Only point to workspace `.brain/preferences.json` when the user explicitly wants workspace-scoped behavior or a repo-specific override
 - Only surface grouped display sections for readability; storage stays one flat canonical object
 
@@ -162,3 +162,4 @@ Operator rule:
 - Host adapters may add `/customize` or onboarding wrappers, may ship compat defaults, and may ship bundle-local output-contract profiles
 - The active host adapter should keep a natural-language customize flow and let adapter-global state drive durable language rules
 - Future adapters should be able to reuse this schema with compat mapping and bundle-local output-contract profiles instead of a fork
+

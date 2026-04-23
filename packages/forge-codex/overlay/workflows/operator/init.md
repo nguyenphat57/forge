@@ -20,13 +20,13 @@ quality_gates:
 1. Preview skeleton:
 
 ```powershell
-python scripts/initialize_workspace.py --workspace <workspace> --format json
+python commands/initialize_workspace.py --workspace <workspace> --format json
 ```
 
 2. If you need to create a real skeleton:
 
 ```powershell
-python scripts/initialize_workspace.py --workspace <workspace> --seed-preferences --apply
+python commands/initialize_workspace.py --workspace <workspace> --seed-preferences --apply
 ```
 
 `--seed-preferences` seeds Codex-global preferences and does not write to workspace-local `.brain/preferences.json`.

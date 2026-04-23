@@ -22,9 +22,9 @@ quality_gates:
 2. Preview/apply using core planner:
 
 ```powershell
-python scripts/prepare_bump.py --workspace <workspace>
-python scripts/prepare_bump.py --workspace <workspace> --bump minor
-python scripts/prepare_bump.py --workspace <workspace> --bump minor --apply --release-ready
+python commands/prepare_bump.py --workspace <workspace>
+python commands/prepare_bump.py --workspace <workspace> --bump minor
+python commands/prepare_bump.py --workspace <workspace> --bump minor --apply --release-ready
 ```
 
 3. Short answer:

@@ -23,7 +23,7 @@ The resolver will prefer `.forge-artifacts/workflow-state/<project>/latest.json`
 If the repo is Forge itself or multiple valid directions are available, use `docs/current/target-state.md` as the policy tie-break before answering.
 
 ```powershell
-python scripts/resolve_help_next.py --workspace <workspace> --mode help
+python commands/resolve_help_next.py --workspace <workspace> --mode help
 ```
 
 2. Short answer in Codex style:

@@ -33,7 +33,7 @@ state/preferences.json
 Use the installed orchestrator resolver when available:
 
 ```powershell
-python scripts/resolve_preferences.py --workspace <workspace> --format json
+python commands/resolve_preferences.py --workspace <workspace> --format json
 ```
 
 Apply language, orthography, tone detail, and custom rules before substantive output. Do not expose raw preference schema unless asked.
@@ -54,8 +54,8 @@ Repo state wins when artifacts conflict.
 Use installed orchestrator scripts when available:
 
 ```powershell
-python scripts/session_context.py save --workspace <workspace> --format json
-python scripts/session_context.py save --workspace <workspace> --write-handover --format json
+python commands/session_context.py save --workspace <workspace> --format json
+python commands/session_context.py save --workspace <workspace> --write-handover --format json
 ```
 
 Save only useful continuity: current task, pending next step, changed files, verification, durable decisions, blockers.
@@ -73,3 +73,4 @@ Save only useful continuity: current task, pending next step, changed files, ver
 - Called by: the Forge bootstrap at thread start and any resume, continue, save, or handover prompt.
 - Calls next: the relevant process skill for the restored task, based on actual repo state and artifacts.
 - Pairs with: every workflow-state-aware skill, especially `forge-writing-plans`, `forge-executing-plans`, and `forge-verification-before-completion`.
+

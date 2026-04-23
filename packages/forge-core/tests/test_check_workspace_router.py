@@ -8,10 +8,10 @@ from tempfile import TemporaryDirectory
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-SCRIPTS_DIR = ROOT_DIR / "scripts"
+TOOLS_DIR = ROOT_DIR / "tools"
 
-if str(SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_DIR))
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOLS_DIR))
 
 import check_workspace_router  # noqa: E402
 

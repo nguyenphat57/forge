@@ -21,14 +21,14 @@ quality_gates:
 Fast path for language requests:
 
 - If the user only asks how to set language, Vietnamese diacritics, or writing conventions:
-  - point first to durable updates through `scripts/write_preferences.py`
+  - point first to durable updates through `commands/write_preferences.py`
   - only point to workspace `.brain/preferences.json` when they explicitly want repo-scoped overrides
   - reuse the short templates in `workflows/operator/references/personalization.md`
 
 1. Read current preferences:
 
 ```powershell
-python scripts/resolve_preferences.py --format json
+python commands/resolve_preferences.py --format json
 ```
 
 2. Map the request into canonical fields when it is about tone or delivery style:
@@ -40,16 +40,16 @@ python scripts/resolve_preferences.py --format json
    - `personality`
 
 3. If the user wants durable language, orthography, or host-native writing rules:
-   - persist them through the unified canonical preferences file with `scripts/write_preferences.py`
+   - persist them through the unified canonical preferences file with `commands/write_preferences.py`
    - offer `--scope global|workspace|both` and keep workspace files sparse
    - use workspace `.brain/preferences.json` only for workspace-only overrides
 
 4. Preview or persist using the core writer:
 
 ```powershell
-python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct
-python scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct --scope global --apply
-python scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --scope workspace --apply
+python commands/write_preferences.py --detail-level concise --pace fast --feedback-style direct
+python commands/write_preferences.py --detail-level concise --pace fast --feedback-style direct --scope global --apply
+python commands/write_preferences.py --language vi --orthography vietnamese_diacritics --scope workspace --apply
 ```
 
 5. Persistence notes:

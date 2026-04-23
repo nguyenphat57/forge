@@ -77,7 +77,7 @@ Adapter overlay for Codex:
 - 7 thin operator wrappers for `help`, `next`, `run`, `bump`, `rollback`, `customize`, and `init`
 - 3 adapter docs: `codex-operator-surface.md`, `smoke-test-checklist.md`, `smoke-tests.md`
 - one adapter data override: `data/orchestrator-registry.json`
-- one adapter script: `scripts/enable_windows_utf8.ps1`
+- one adapter tool: `tools/enable_windows_utf8.ps1`
 - Codex-oriented host boundary wording
 
 ## Historical Runtime Tools

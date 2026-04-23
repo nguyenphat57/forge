@@ -25,11 +25,12 @@ Use `forge-codex` as the global orchestrator for this workspace.
   - "Give shorter answers and move faster"
   - "Bootstrap this workspace for Forge"
 - Let `forge-codex` resolve response-style preferences through the adapter-global Forge preferences engine instead of redefining response-style rules here.
-- If the user wants durable preference changes, let `forge-codex` persist them through `scripts/write_preferences.py`, not a host-local schema.
-- If the workspace needs durable language rules such as "always reply in Vietnamese with full diacritics", persist them through `scripts/write_preferences.py` in adapter-global Forge state. Use `.brain/preferences.json` only for workspace-specific overrides; otherwise let `forge-codex` default to English.
+- If the user wants durable preference changes, let `forge-codex` persist them through `commands/write_preferences.py`, not a host-local schema.
+- If the workspace needs durable language rules such as "always reply in Vietnamese with full diacritics", persist them through `commands/write_preferences.py` in adapter-global Forge state. Use `.brain/preferences.json` only for workspace-specific overrides; otherwise let `forge-codex` default to English.
 - Let `forge-codex` handle `help` and `next` directly from repo state. Do not add a second session-restore workflow in local instructions.
 - Let `forge-codex` handle `run` through the core run-guidance engine. Do not invent a second layer that only repeats terminal output.
 - If boundaries are clear and the host can delegate safely, let `forge-codex` invoke `forge-dispatching-parallel-agents` instead of improvising parallel edits.
 - Let `forge-codex` keep `bump` natural-language first without reintroducing extra operator ceremony.
 - Let `forge-codex` keep `customize` and `init` thin. Do not add heavy onboarding or memory rituals around them.
-- If the user asks to bootstrap a workspace, keep the UX thin but still route through `scripts/initialize_workspace.py`.
+- If the user asks to bootstrap a workspace, keep the UX thin but still route through `commands/initialize_workspace.py`.
+

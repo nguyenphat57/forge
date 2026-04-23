@@ -31,7 +31,7 @@ class ReleaseRepoTestSupport(unittest.TestCase):
     def assert_bump_wrapper_matches_release_contract(self, path: Path, *, label: str) -> None:
         text = path.read_text(encoding="utf-8")
         self.assertIn("Current version is stated and target version is either explicit or justified by inference", text, label)
-        self.assertIn("python scripts/prepare_bump.py --workspace <workspace>", text, label)
+        self.assertIn("python commands/prepare_bump.py --workspace <workspace>", text, label)
         self.assertIn("bump source: explicit or inferred", text, label)
         self.assertIn("explicit or inferred semver", text, label)
 

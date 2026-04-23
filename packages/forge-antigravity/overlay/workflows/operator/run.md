@@ -19,7 +19,7 @@ quality_gates:
 2. Execute using:
 
 ```powershell
-python scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>
+python commands/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>
 ```
 
 3. Report:

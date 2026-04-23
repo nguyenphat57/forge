@@ -43,6 +43,13 @@ class RepoOperatorScriptShimTests(unittest.TestCase):
             with self.subTest(script=name):
                 self.assertFalse((ROOT_DIR / "scripts" / name).exists())
 
+    def test_repo_operator_proxy_dispatches_to_owner_commands(self) -> None:
+        proxy = (ROOT_DIR / "scripts" / "_forge_core_script_proxy.py").read_text(encoding="utf-8")
+
+        self.assertIn('"commands"', proxy)
+        self.assertNotIn("forge_core_runtime", proxy)
+        self.assertNotIn("packages\" / \"forge-core\" / \"scripts", proxy)
+
     def test_workspace_agents_points_codex_to_repo_operator(self) -> None:
         agents = (ROOT_DIR / "AGENTS.md").read_text(encoding="utf-8")
 

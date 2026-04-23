@@ -12,8 +12,8 @@
 ## Canonical Script
 
 ```powershell
-python scripts/run_with_guidance.py --workspace C:\path\to\workspace --timeout-ms 20000 -- npm run dev
-python scripts/run_with_guidance.py --workspace C:\path\to\workspace --format json -- python -m pytest tests/unit
+python commands/run_with_guidance.py --workspace C:\path\to\workspace --timeout-ms 20000 -- npm run dev
+python commands/run_with_guidance.py --workspace C:\path\to\workspace --format json -- python -m pytest tests/unit
 ```
 
 ## Input Contract
@@ -59,3 +59,4 @@ If you use `--persist`, the default artifact path is:
 - Core owns command execution plus deterministic guidance.
 - The adapter may add a slash wrapper, a natural-language wrapper, or host-specific UX.
 - The adapter cannot change the meaning of `state`, `command_kind`, or `suggested_workflow`.
+

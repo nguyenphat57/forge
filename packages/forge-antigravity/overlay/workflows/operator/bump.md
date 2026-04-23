@@ -19,9 +19,9 @@ quality_gates:
 2. Preview or apply using:
 
 ```powershell
-python scripts/prepare_bump.py --workspace <workspace>
-python scripts/prepare_bump.py --workspace <workspace> --bump minor
-python scripts/prepare_bump.py --workspace <workspace> --bump 1.3.0 --apply --release-ready
+python commands/prepare_bump.py --workspace <workspace>
+python commands/prepare_bump.py --workspace <workspace> --bump minor
+python commands/prepare_bump.py --workspace <workspace> --bump 1.3.0 --apply --release-ready
 ```
 
 3. Summarize:

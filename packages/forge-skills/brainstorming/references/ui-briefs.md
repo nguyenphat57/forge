@@ -55,8 +55,8 @@ Rewrite or replace the brief outside Forge when:
 ## Validate A Persisted Brief
 
 ```powershell
-python scripts/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/frontend --mode frontend --screen checkout
-python scripts/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/visualize --mode visualize --screen dashboard
+python commands/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/frontend --mode frontend --screen checkout
+python commands/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/visualize --mode visualize --screen dashboard
 ```
 
 `visualize` remains the compatibility brief mode name for the visual lens inside `brainstorm`.
@@ -64,3 +64,4 @@ python scripts/check_ui_brief.py .forge-artifacts/ui-briefs/<project-slug>/visua
 ## Historical Note
 
 - If a historical workspace still carries packet-render or capture loops, treat them as archive context, not as current Forge guidance.
+

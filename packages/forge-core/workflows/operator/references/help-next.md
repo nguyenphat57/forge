@@ -4,7 +4,7 @@
 
 ## Core Contract
 
-- Canonical engine: `scripts/resolve_help_next.py`
+- Canonical engine: `commands/resolve_help_next.py`
 - Workflow wrappers: `workflows/operator/help.md` and `workflows/operator/next.md`
 - Strategic policy filter for Forge contract-sensitive choices: `docs/current/target-state.md`
 - Preferred sources, in order:
@@ -61,3 +61,4 @@
 - Host adapters may expose `/help` and `/next` as thin wrappers.
 - The active host adapter should stay natural-language first and keep slash commands optional.
 - The adapter must not fork the stage model or source priority.
+

@@ -89,7 +89,7 @@ Rules:
 Worktree bootstrap helper:
 
 ```powershell
-python scripts/prepare_worktree.py --workspace <workspace> --name <slice> --baseline-command "<baseline>"
+python commands/prepare_worktree.py --workspace <workspace> --name <slice> --baseline-command "<baseline>"
 ```
 
 ## Delegation Packet
@@ -213,3 +213,4 @@ This keeps execution from degrading into endless review churn.
 - skipping checkpoints on large work and reconstructing status from memory at the end
 - using `ready-for-merge` while unverified risk still exists
 - handing off with language such as "almost done" instead of a concrete state
+

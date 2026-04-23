@@ -1,17 +1,17 @@
 HANDOVER
-- Current task: Forge 2.15.0 rollback-surface removal plus runtime-managed install-backup migration release is published as the current stable line.
+- Current task: Forge 3.0.0 runtime-ownership refactor release is published as the current stable line.
 - Status: pushed-to-main
 - Pending: (none)
 - Verification run:
   - python -m pytest tests/test_repo_operator_script_shims.py tests/test_operator_surface_registry.py tests/test_host_artifact_generation.py tests/release_repo_test_overlays.py tests/release_repo_test_contracts.py packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-23 during rollback-surface removal
   - python -m pytest tests/release_repo_test_install.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py tests/test_release_acceleration.py tests/test_runtime_tool_registration.py packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-23 during install-backup migration
-  - python scripts/verify_repo.py -> PASS on 2026-04-23 after 2.15.0 release sync
+  - python scripts/verify_repo.py -> PASS on 2026-04-23 after 3.0.0 release sync
 - Important decisions:
-  - Rollback is removed from the current repo and host public surface with no replacement operator action.
-  - Default install snapshots now live under runtime-managed Forge state roots instead of repo-local `.install-backups/`.
-  - The repo bump tooling classifies this release as `minor`, so the stable line moves from `2.14.5` to `2.15.0`.
+  - Forge runtime ownership now lives in owner `commands/` trees plus shared support under `packages/forge-core/shared/`.
+  - The shipped bundle contract is now `commands/` plus `shared/`, with `engine/` removed from active runtime layout.
+  - The repo bump tooling classifies this release as `major`, so the stable line moves from `2.15.0` to `3.0.0`.
 - Risks:
   - Real installed host smoke after the version bump was not rerun; confidence rests on repo and dist verification gates.
 - Source of truth: current maintainer posture remains under `docs/current/*`; `.brain` is continuity state.
 - Blockers: (none)
-- Next step: Start the next work slice from the 2.15.0 stable baseline.
+- Next step: Start the next work slice from the 3.0.0 stable baseline.

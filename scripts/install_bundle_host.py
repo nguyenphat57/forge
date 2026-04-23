@@ -25,7 +25,7 @@ def _render_paths(target_path: Path) -> dict[str, str]:
         "workflows_path": str(target_path / "workflows"),
         "state_root": str(state_root),
         "preferences_path": str(state_root / "state" / "preferences.json"),
-        "resolver": f"python {target_path / 'scripts' / 'resolve_preferences.py'}",
+        "resolver": f"python {target_path / 'commands' / 'resolve_preferences.py'}",
     }
 
 

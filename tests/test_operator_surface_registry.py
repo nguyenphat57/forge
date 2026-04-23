@@ -131,7 +131,10 @@ class OperatorSurfaceRegistryTests(unittest.TestCase):
 
         self.assertEqual(
             plan_docs,
-            {"2026-04-23-docs-specs-pre-2-15-cleanup-implementation-plan.md"},
+            {
+                "2026-04-23-docs-specs-pre-2-15-cleanup-implementation-plan.md",
+                "2026-04-23-runtime-ownership-refactor-implementation-plan.md",
+            },
         )
         self.assertFalse((ROOT_DIR / "docs" / "archive").exists())
         self.assertFalse((ROOT_DIR / "docs" / "specs").exists())

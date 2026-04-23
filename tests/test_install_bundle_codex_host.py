@@ -125,6 +125,9 @@ class CodexHostInstallTests(unittest.TestCase):
             )
 
             self.assertTrue((target / "SKILL.md").exists())
+            self.assertTrue((target / "commands").is_dir())
+            self.assertTrue((target / "shared").is_dir())
+            self.assertFalse((target / "engine").exists())
             self.assertFalse((target / "skills").exists())
             for skill_name in FORGE_SIBLING_SKILLS:
                 with self.subTest(skill=skill_name):
@@ -147,7 +150,7 @@ class CodexHostInstallTests(unittest.TestCase):
             self.assertIn(expected_skill, agents_text)
             self.assertIn(expected_state_root, agents_text)
             self.assertIn(expected_preferences, agents_text)
-            self.assertIn(f"python {target.resolve() / 'scripts' / 'resolve_preferences.py'}", agents_text)
+            self.assertIn(f"python {target.resolve() / 'commands' / 'resolve_preferences.py'}", agents_text)
             self.assertNotIn("{{FORGE_CODEX_SKILL}}", agents_text)
             self.assertNotRegex(agents_text, re.compile(r"\{\{[A-Z0-9_]+\}\}"))
 
@@ -199,6 +202,9 @@ class CodexHostInstallTests(unittest.TestCase):
                 codex_home=str(codex_home),
             )
 
+            self.assertTrue((target / "shared").is_dir())
+            self.assertFalse((target / "engine").exists())
+
             workspace = temp_root / "workspace"
             workspace.mkdir(parents=True, exist_ok=True)
             expected_state_root = (codex_home / "forge-codex").resolve()
@@ -209,7 +215,7 @@ class CodexHostInstallTests(unittest.TestCase):
             write_result = subprocess.run(
                 [
                     sys.executable,
-                    str(target / "scripts" / "write_preferences.py"),
+                    str(target / "commands" / "write_preferences.py"),
                     "--workspace",
                     str(workspace),
                     "--technical-level",
@@ -234,7 +240,7 @@ class CodexHostInstallTests(unittest.TestCase):
             resolve_result = subprocess.run(
                 [
                     sys.executable,
-                    str(target / "scripts" / "resolve_preferences.py"),
+                    str(target / "commands" / "resolve_preferences.py"),
                     "--workspace",
                     str(workspace),
                     "--format",

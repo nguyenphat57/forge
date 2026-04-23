@@ -24,7 +24,8 @@ Installed runtime flow:
 
 - Build from the source repo.
 - Install from `dist/` into the real host/runtime target.
-- Use the installed bundle surface after install; do not point host docs back at `packages/forge-core/scripts/`.
+- Built bundles ship owner `commands/` plus shared helpers under `shared/`; `engine/` is not part of the release contract.
+- Use the installed bundle surface after install; do not point host docs at source-only implementation paths.
 
 ## Default targets
 
@@ -55,8 +56,8 @@ Re-activate a host only when global template content or installed bundle docs ch
 If Windows Codex is expected to reply in Vietnamese with full diacritics, run the bundled UTF-8 helper after `--activate-codex`:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File "$HOME/.codex/skills/forge-codex/scripts/enable_windows_utf8.ps1"
-powershell -ExecutionPolicy Bypass -File "$HOME/.codex/skills/forge-codex/scripts/enable_windows_utf8.ps1" -Persist
+powershell -ExecutionPolicy Bypass -File "$HOME/.codex/skills/forge-codex/tools/enable_windows_utf8.ps1"
+powershell -ExecutionPolicy Bypass -File "$HOME/.codex/skills/forge-codex/tools/enable_windows_utf8.ps1" -Persist
 ```
 
 The UTF-8 helper is only needed when preferences explicitly set `language=vi`.

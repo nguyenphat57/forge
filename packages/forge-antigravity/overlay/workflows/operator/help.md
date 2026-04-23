@@ -20,7 +20,7 @@ quality_gates:
 If the repo is Forge itself or multiple valid directions are available, use `docs/current/target-state.md` as the policy tie-break before answering.
 
 ```powershell
-python scripts/resolve_help_next.py --workspace <workspace> --mode help
+python commands/resolve_help_next.py --workspace <workspace> --mode help
 ```
 
 2. Present the result in an operator-friendly format:

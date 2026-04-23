@@ -119,7 +119,7 @@
     "actions": {
       "resume": {
         "repo_entrypoint": "scripts/repo_operator.py resume --workspace <workspace> --format json",
-        "core_engine_entrypoint": "scripts/session_context.py resume --workspace <workspace> --format json",
+        "core_engine_entrypoint": "commands/session_context.py resume --workspace <workspace> --format json",
         "workflow": "workflows/operator/session.md",
         "hosts": [
           "source-repo"
@@ -132,7 +132,7 @@
       },
       "save": {
         "repo_entrypoint": "scripts/repo_operator.py save --workspace <workspace> --format json",
-        "core_engine_entrypoint": "scripts/session_context.py save --workspace <workspace> --format json",
+        "core_engine_entrypoint": "commands/session_context.py save --workspace <workspace> --format json",
         "workflow": "workflows/operator/session.md",
         "hosts": [
           "source-repo"
@@ -145,7 +145,7 @@
       },
       "handover": {
         "repo_entrypoint": "scripts/repo_operator.py handover --workspace <workspace> --format json",
-        "core_engine_entrypoint": "scripts/session_context.py save --workspace <workspace> --write-handover --format json",
+        "core_engine_entrypoint": "commands/session_context.py save --workspace <workspace> --write-handover --format json",
         "workflow": "workflows/operator/session.md",
         "hosts": [
           "source-repo"
@@ -158,7 +158,7 @@
       },
       "help": {
         "repo_entrypoint": "scripts/repo_operator.py help --workspace <workspace> --format json",
-        "core_engine_entrypoint": "scripts/resolve_help_next.py --workspace <workspace> --mode help",
+        "core_engine_entrypoint": "commands/resolve_help_next.py --workspace <workspace> --mode help",
         "workflow": "workflows/operator/help.md",
         "hosts": [
           "source-repo"
@@ -171,7 +171,7 @@
       },
       "next": {
         "repo_entrypoint": "scripts/repo_operator.py next --workspace <workspace> --format json",
-        "core_engine_entrypoint": "scripts/resolve_help_next.py --workspace <workspace> --mode next",
+        "core_engine_entrypoint": "commands/resolve_help_next.py --workspace <workspace> --mode next",
         "workflow": "workflows/operator/next.md",
         "hosts": [
           "source-repo"
@@ -184,7 +184,7 @@
       },
       "run": {
         "repo_entrypoint": "scripts/repo_operator.py run --workspace <workspace> --timeout-ms 20000 -- <command>",
-        "core_engine_entrypoint": "scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>",
+        "core_engine_entrypoint": "commands/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>",
         "workflow": "workflows/operator/run.md",
         "hosts": [
           "source-repo"
@@ -197,7 +197,7 @@
       },
       "bump": {
         "repo_entrypoint": "scripts/repo_operator.py bump --workspace <workspace> <version|major|minor|patch>",
-        "core_engine_entrypoint": "scripts/prepare_bump.py --workspace <workspace> --bump <version|major|minor|patch>",
+        "core_engine_entrypoint": "commands/prepare_bump.py --workspace <workspace> --bump <version|major|minor|patch>",
         "workflow": "workflows/operator/bump.md",
         "hosts": [
           "source-repo"
@@ -210,7 +210,7 @@
       },
       "customize": {
         "repo_entrypoint": "scripts/repo_operator.py customize --workspace <workspace> --format json",
-        "core_engine_entrypoint": "scripts/resolve_preferences.py --workspace <workspace> --format json && scripts/write_preferences.py",
+        "core_engine_entrypoint": "commands/resolve_preferences.py --workspace <workspace> --format json && commands/write_preferences.py",
         "workflow": "workflows/operator/customize.md",
         "hosts": [
           "source-repo"
@@ -223,7 +223,7 @@
       },
       "init": {
         "repo_entrypoint": "scripts/repo_operator.py init --workspace <workspace> --format json",
-        "core_engine_entrypoint": "scripts/initialize_workspace.py --workspace <workspace>",
+        "core_engine_entrypoint": "commands/initialize_workspace.py --workspace <workspace>",
         "workflow": "workflows/operator/init.md",
         "hosts": [
           "source-repo"
@@ -241,7 +241,7 @@
     "actions": {
       "help": {
         "repo_entrypoint": "",
-        "core_engine_entrypoint": "scripts/resolve_help_next.py --workspace <workspace> --mode help",
+        "core_engine_entrypoint": "commands/resolve_help_next.py --workspace <workspace> --mode help",
         "workflow": "workflows/operator/help.md",
         "hosts": [],
         "primary_aliases_by_host": {},
@@ -252,7 +252,7 @@
       },
       "next": {
         "repo_entrypoint": "",
-        "core_engine_entrypoint": "scripts/resolve_help_next.py --workspace <workspace> --mode next",
+        "core_engine_entrypoint": "commands/resolve_help_next.py --workspace <workspace> --mode next",
         "workflow": "workflows/operator/next.md",
         "hosts": [],
         "primary_aliases_by_host": {},
@@ -263,7 +263,7 @@
       },
       "run": {
         "repo_entrypoint": "",
-        "core_engine_entrypoint": "scripts/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>",
+        "core_engine_entrypoint": "commands/run_with_guidance.py --workspace <workspace> --timeout-ms 20000 -- <command>",
         "workflow": "workflows/operator/run.md",
         "hosts": [],
         "primary_aliases_by_host": {},
@@ -274,7 +274,7 @@
       },
       "bump": {
         "repo_entrypoint": "",
-        "core_engine_entrypoint": "scripts/prepare_bump.py --workspace <workspace> --bump <version|major|minor|patch>",
+        "core_engine_entrypoint": "commands/prepare_bump.py --workspace <workspace> --bump <version|major|minor|patch>",
         "workflow": "workflows/operator/bump.md",
         "hosts": [],
         "primary_aliases_by_host": {},
@@ -285,7 +285,7 @@
       },
       "customize": {
         "repo_entrypoint": "",
-        "core_engine_entrypoint": "scripts/resolve_preferences.py --workspace <workspace> --format json && scripts/write_preferences.py",
+        "core_engine_entrypoint": "commands/resolve_preferences.py --workspace <workspace> --format json && commands/write_preferences.py",
         "workflow": "workflows/operator/customize.md",
         "hosts": [],
         "primary_aliases_by_host": {},
@@ -296,7 +296,7 @@
       },
       "init": {
         "repo_entrypoint": "",
-        "core_engine_entrypoint": "scripts/initialize_workspace.py --workspace <workspace>",
+        "core_engine_entrypoint": "commands/initialize_workspace.py --workspace <workspace>",
         "workflow": "workflows/operator/init.md",
         "hosts": [],
         "primary_aliases_by_host": {},
@@ -309,7 +309,7 @@
     "session_modes": {
       "restore": {
         "repo_entrypoint": "",
-        "core_engine_entrypoint": "scripts/session_context.py resume --workspace <workspace> --format json",
+        "core_engine_entrypoint": "commands/session_context.py resume --workspace <workspace> --format json",
         "workflow": "workflows/operator/session.md",
         "hosts": [],
         "primary_aliases_by_host": {},
@@ -320,7 +320,7 @@
       },
       "save": {
         "repo_entrypoint": "",
-        "core_engine_entrypoint": "scripts/session_context.py save --workspace <workspace> --format json",
+        "core_engine_entrypoint": "commands/session_context.py save --workspace <workspace> --format json",
         "workflow": "workflows/operator/session.md",
         "hosts": [],
         "primary_aliases_by_host": {},
@@ -331,7 +331,7 @@
       },
       "handover": {
         "repo_entrypoint": "",
-        "core_engine_entrypoint": "scripts/session_context.py save --workspace <workspace> --write-handover --format json",
+        "core_engine_entrypoint": "commands/session_context.py save --workspace <workspace> --write-handover --format json",
         "workflow": "workflows/operator/session.md",
         "hosts": [],
         "primary_aliases_by_host": {},
@@ -433,3 +433,4 @@
     "subagent_dispatch_skill": null
   }
 }
+

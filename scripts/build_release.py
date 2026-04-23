@@ -35,6 +35,7 @@ BUNDLE_BUILD_ATTEMPTS = 3
 BUNDLE_BUILD_DELAY_SECONDS = 0.2
 BUNDLE_READY_ATTEMPTS = 10
 BUNDLE_READY_DELAY_SECONDS = 0.1
+FORBIDDEN_RUNTIME_DIRS = ("scripts", "engine")
 COMMON_BUILD_INPUTS = (
     ROOT_DIR / "VERSION",
     ROOT_DIR / "docs" / "release" / "package-matrix.json",
@@ -139,6 +140,17 @@ def remove_bundled_skill_tree(destination: Path) -> None:
     skill_dir = destination / "skills"
     if skill_dir.exists():
         remove_tree(skill_dir)
+
+
+def remove_forbidden_runtime_dirs(destination: Path) -> None:
+    for dirname in FORBIDDEN_RUNTIME_DIRS:
+        path = destination / dirname
+        if path.exists():
+            remove_tree(path)
+
+
+def has_forbidden_runtime_dirs(destination: Path) -> bool:
+    return any((destination / dirname).exists() for dirname in FORBIDDEN_RUNTIME_DIRS)
 
 
 def copy_runtime_docs(destination: Path) -> None:
@@ -277,7 +289,7 @@ def write_sibling_skill_manifest(
     required_bundle_paths = ["BUILD-MANIFEST.json"] + [
         str(path.relative_to(source_dir).as_posix())
         for path in sorted(source_dir.rglob("*"))
-        if path.is_file()
+        if path.is_file() and not should_ignore_relative_path(path.relative_to(source_dir))
     ]
     manifest = {
         "package": package_name,
@@ -312,7 +324,7 @@ def required_bundle_paths(destination: Path, package_name: str, host: str) -> li
         relative_files = [
             path.relative_to(source_dir)
             for path in sorted(source_dir.rglob("*"))
-            if path.is_file()
+            if path.is_file() and not should_ignore_relative_path(path.relative_to(source_dir))
         ]
         return [destination / "BUILD-MANIFEST.json", *[destination / path for path in relative_files]]
     paths = bundle_required_paths(package_name, destination)
@@ -348,6 +360,8 @@ def can_skip_build(
     if manifest.get("git_tree") != metadata["git_tree"]:
         return False
     if not fingerprint_matches(manifest.get("source_input_fingerprint"), source_input_fingerprint):
+        return False
+    if has_forbidden_runtime_dirs(destination):
         return False
     missing = [path for path in required_bundle_paths(destination, package_name, host) if not path.exists()]
     if missing:
@@ -409,6 +423,7 @@ def build_core_bundle(metadata: dict[str, object], *, force: bool = False) -> di
         clean_dir(destination)
         copy_tree(CORE_DIR, destination)
         remove_bundled_skill_tree(destination)
+        remove_forbidden_runtime_dirs(destination)
         copy_runtime_docs(destination)
         write_build_manifest(
             destination,
@@ -452,6 +467,7 @@ def build_adapter_bundle(spec: dict, metadata: dict[str, object], *, force: bool
         clean_dir(destination)
         copy_tree(CORE_DIR, destination)
         remove_bundled_skill_tree(destination)
+        remove_forbidden_runtime_dirs(destination)
         copy_runtime_docs(destination)
         apply_overlay(
             overlay_dir,

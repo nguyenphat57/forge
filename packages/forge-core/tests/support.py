@@ -14,19 +14,59 @@ from tempfile import TemporaryDirectory
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-SCRIPTS_DIR = ROOT_DIR / "scripts"
+SHARED_DIR = ROOT_DIR / "shared"
+COMMANDS_DIR = ROOT_DIR / "commands"
+TOOLS_DIR = ROOT_DIR / "tools"
+SKILLS_ROOT = ROOT_DIR.parent / "forge-skills"
+SCRIPTS_DIR = COMMANDS_DIR
 FIXTURES_DIR = ROOT_DIR / "tests" / "fixtures"
 WORKSPACES_DIR = FIXTURES_DIR / "workspaces"
 FORGE_HOMES_DIR = FIXTURES_DIR / "forge-homes"
 
-if str(SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_DIR))
-
-import common  # noqa: E402
-
 
 REFERENCE_COMPANION_PACKAGE = "forge-nextjs-typescript-postgres"
 REFERENCE_COMPANION_ID = "nextjs-typescript-postgres"
+
+
+def _owner_command_path(skill_source_name: str, package_name: str, command_name: str) -> Path:
+    source_path = SKILLS_ROOT / skill_source_name / "commands" / command_name
+    if source_path.exists():
+        return source_path
+    return ROOT_DIR.parent / package_name / "commands" / command_name
+
+
+OWNER_COMMAND_PATHS = {
+    "generate_requirements_checklist.py": _owner_command_path(
+        "brainstorming", "forge-brainstorming", "generate_requirements_checklist.py"
+    ),
+    "check_spec_packet.py": _owner_command_path("writing-plans", "forge-writing-plans", "check_spec_packet.py"),
+    "track_execution_progress.py": _owner_command_path(
+        "executing-plans", "forge-executing-plans", "track_execution_progress.py"
+    ),
+    "track_chain_status.py": _owner_command_path("executing-plans", "forge-executing-plans", "track_chain_status.py"),
+    "record_direction_state.py": _owner_command_path(
+        "executing-plans", "forge-executing-plans", "record_direction_state.py"
+    ),
+    "record_quality_gate.py": _owner_command_path(
+        "executing-plans", "forge-executing-plans", "record_quality_gate.py"
+    ),
+    "record_review_state.py": _owner_command_path("executing-plans", "forge-executing-plans", "record_review_state.py"),
+    "record_stage_state.py": _owner_command_path("executing-plans", "forge-executing-plans", "record_stage_state.py"),
+    "translate_error.py": _owner_command_path("systematic-debugging", "forge-systematic-debugging", "translate_error.py"),
+    "prepare_worktree.py": _owner_command_path("using-git-worktrees", "forge-using-git-worktrees", "prepare_worktree.py"),
+}
+
+OWNER_COMMAND_DIRS: list[Path] = []
+for owner_path in OWNER_COMMAND_PATHS.values():
+    owner_dir = owner_path.parent
+    if owner_dir not in OWNER_COMMAND_DIRS:
+        OWNER_COMMAND_DIRS.append(owner_dir)
+
+for import_dir in (TOOLS_DIR, SHARED_DIR, COMMANDS_DIR, *OWNER_COMMAND_DIRS):
+    if str(import_dir) not in sys.path:
+        sys.path.insert(0, str(import_dir))
+
+import common  # noqa: E402
 
 
 def _write_json(path: Path, payload: object) -> None:
@@ -544,7 +584,8 @@ def run_python_script(
     env: dict[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
     target_cwd = (cwd or ROOT_DIR).resolve()
-    script_path = Path("scripts") / script_name if target_cwd == ROOT_DIR.resolve() else SCRIPTS_DIR / script_name
+    owner_path = OWNER_COMMAND_PATHS.get(script_name, COMMANDS_DIR / script_name)
+    script_path = owner_path.relative_to(target_cwd) if owner_path.is_relative_to(target_cwd) else owner_path
     command = [sys.executable, str(script_path), *args]
     merged_env = os.environ.copy()
     merged_env.pop("FORGE_HOME", None)

@@ -21,7 +21,7 @@ If Codex is expected to speak Vietnamese with full diacritics on Windows, do bot
 1. Persist the language setting in adapter-global Forge state:
 
 ```powershell
-python scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --apply
+python commands/write_preferences.py --language vi --orthography vietnamese_diacritics --apply
 ```
 
 `forge-codex` defaults to English. Use workspace `.brain/preferences.json` only for repo-specific overrides that should not become the Codex-wide default.
@@ -29,8 +29,9 @@ python scripts/write_preferences.py --language vi --orthography vietnamese_diacr
 2. Run the bundled PowerShell helper so the shell itself stays on UTF-8:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts/enable_windows_utf8.ps1
-powershell -ExecutionPolicy Bypass -File scripts/enable_windows_utf8.ps1 -Persist
+powershell -ExecutionPolicy Bypass -File tools/enable_windows_utf8.ps1
+powershell -ExecutionPolicy Bypass -File tools/enable_windows_utf8.ps1 -Persist
 ```
 
 Build output is produced by overlaying adapter files on top of `forge-core`, then materializing the sibling skill pack from `packages/forge-skills/`.
+

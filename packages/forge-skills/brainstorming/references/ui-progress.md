@@ -16,13 +16,13 @@ Progress artifacts reduce ambiguity without requiring a large dashboard.
 ### Frontend
 
 ```powershell
-python scripts/track_ui_progress.py "Checkout tablet refresh" --mode frontend --stage implementation --status active
+python commands/track_ui_progress.py "Checkout tablet refresh" --mode frontend --stage implementation --status active
 ```
 
 ### Visual Lens Compatibility Mode
 
 ```powershell
-python scripts/track_ui_progress.py "Kitchen dashboard exploration" --mode visualize --stage interaction-model --status active
+python commands/track_ui_progress.py "Kitchen dashboard exploration" --mode visualize --stage interaction-model --status active
 ```
 
 Default artifacts:
@@ -56,3 +56,4 @@ Default artifacts:
 
 - Not required for small tasks.
 - Use it when the UI task spans multiple messages, multiple screens, or is likely to hand off between design and implementation.
+

@@ -135,7 +135,7 @@ def build_step_specs(profile: str) -> list[tuple[str, list[str], Path]]:
             ),
             (
                 "forge-core.verify_bundle",
-                [sys.executable, str(PACKAGES_DIR / "forge-core" / "scripts" / "verify_bundle.py")],
+                [sys.executable, str(PACKAGES_DIR / "forge-core" / "commands" / "verify_bundle.py")],
                 ROOT_DIR,
             ),
             (
@@ -182,7 +182,7 @@ def build_step_specs(profile: str) -> list[tuple[str, list[str], Path]]:
         step_specs.append(
             (
                 f"dist.{bundle_name}.verify_bundle",
-                [sys.executable, str(DIST_DIR / bundle_name / "scripts" / "verify_bundle.py")],
+                [sys.executable, str(DIST_DIR / bundle_name / "commands" / "verify_bundle.py")],
                 ROOT_DIR,
             )
         )

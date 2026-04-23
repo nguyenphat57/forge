@@ -257,9 +257,9 @@ def _codex_action_config(action_name: str) -> dict:
                     "",
                     _code_block(
                         [
-                            "scripts/prepare_bump.py --workspace <workspace>",
-                            "scripts/prepare_bump.py --workspace <workspace> --bump minor",
-                            "scripts/prepare_bump.py --workspace <workspace> --bump minor --apply --release-ready",
+                            "commands/prepare_bump.py --workspace <workspace>",
+                            "commands/prepare_bump.py --workspace <workspace> --bump minor",
+                            "commands/prepare_bump.py --workspace <workspace> --bump minor --apply --release-ready",
                         ]
                     ),
                     "",
@@ -287,13 +287,13 @@ def _codex_action_config(action_name: str) -> dict:
                     "Fast path for language requests:",
                     "",
                     "- If the user only asks how to set language, Vietnamese diacritics, or writing conventions:",
-                    "  - point first to durable updates through `scripts/write_preferences.py`",
+                    "  - point first to durable updates through `commands/write_preferences.py`",
                     "  - only point to workspace `.brain/preferences.json` when they explicitly want repo-scoped overrides",
                     "  - reuse the short templates in `workflows/operator/references/personalization.md`",
                     "",
                     "1. Read current preferences:",
                     "",
-                    _code_block(["scripts/resolve_preferences.py --format json"]),
+                    _code_block(["commands/resolve_preferences.py --format json"]),
                     "",
                     "2. Map the request into canonical fields when it is about tone or delivery style:",
                     "   - `technical_level`",
@@ -304,7 +304,7 @@ def _codex_action_config(action_name: str) -> dict:
                     "   - `personality`",
                     "",
                     "3. If the user wants durable language, orthography, or host-native writing rules:",
-                    "   - persist them through the unified canonical preferences file with `scripts/write_preferences.py`",
+                    "   - persist them through the unified canonical preferences file with `commands/write_preferences.py`",
                     "   - offer `--scope global|workspace|both` and keep workspace files sparse",
                     "   - use workspace `.brain/preferences.json` only for workspace-only overrides",
                     "",
@@ -312,9 +312,9 @@ def _codex_action_config(action_name: str) -> dict:
                     "",
                     _code_block(
                         [
-                            "scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct",
-                            "scripts/write_preferences.py --detail-level concise --pace fast --feedback-style direct --scope global --apply",
-                            "scripts/write_preferences.py --language vi --orthography vietnamese_diacritics --scope workspace --apply",
+                            "commands/write_preferences.py --detail-level concise --pace fast --feedback-style direct",
+                            "commands/write_preferences.py --detail-level concise --pace fast --feedback-style direct --scope global --apply",
+                            "commands/write_preferences.py --language vi --orthography vietnamese_diacritics --scope workspace --apply",
                         ]
                     ),
                     "",
@@ -345,11 +345,11 @@ def _codex_action_config(action_name: str) -> dict:
                 [
                     "1. Preview skeleton:",
                     "",
-                    _code_block(["scripts/initialize_workspace.py --workspace <workspace> --format json"]),
+                    _code_block(["commands/initialize_workspace.py --workspace <workspace> --format json"]),
                     "",
                     "2. If you need to create a real skeleton:",
                     "",
-                    _code_block(["scripts/initialize_workspace.py --workspace <workspace> --seed-preferences --apply"]),
+                    _code_block(["commands/initialize_workspace.py --workspace <workspace> --seed-preferences --apply"]),
                     "",
                     "`--seed-preferences` seeds Codex-global preferences and does not write to workspace-local `.brain/preferences.json`.",
                     "",
@@ -405,3 +405,4 @@ def render_registry_placeholders(source_text: str, bundle_name: str, context: di
     for placeholder, replacement in replacements.items():
         rendered = rendered.replace(placeholder, replacement)
     return rendered
+

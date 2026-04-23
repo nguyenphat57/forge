@@ -159,7 +159,7 @@ If baseline fails, **stop and report**:
 When available from the installed orchestrator bundle:
 
 ```powershell
-python scripts/prepare_worktree.py --workspace <workspace> --name <slice> --baseline-command "<baseline>"
+python commands/prepare_worktree.py --workspace <workspace> --name <slice> --baseline-command "<baseline>"
 ```
 
 The helper is optional. The contract is the same without it: explicit stance, safe directory, ignored project-local path, clean branch, baseline proof, and cleanup handoff.
@@ -206,3 +206,4 @@ Use `forge-finishing-a-development-branch` for final keep/merge/PR/discard decis
 - Called by: `forge-executing-plans`, `forge-subagent-driven-development`, and `forge-dispatching-parallel-agents` when isolation risk is non-trivial.
 - Calls next: return to the original implementation skill in the isolated worktree or branch.
 - Pairs with: `forge-session-management` for recording the chosen stance and `forge-finishing-a-development-branch` for cleanup decisions.
+

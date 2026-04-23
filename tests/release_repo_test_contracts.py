@@ -55,11 +55,15 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
 
     def test_architecture_docs_enforce_core_purity(self) -> None:
         boundary = (ROOT_DIR / "docs" / "architecture" / "adapter-boundary.md").read_text(encoding="utf-8")
+        architecture_layers = (ROOT_DIR / "docs" / "architecture" / "architecture-layers.md").read_text(encoding="utf-8")
         monorepo = (ROOT_DIR / "docs" / "architecture" / "monorepo.md").read_text(encoding="utf-8")
         release_process = (ROOT_DIR / "docs" / "release" / "release-process.md").read_text(encoding="utf-8")
 
         self.assertIn("forge-claude", boundary)
         self.assertIn("forge-core", boundary)
+        self.assertIn("packages/forge-core/shared/", architecture_layers)
+        self.assertIn("packages/forge-core/commands/", architecture_layers)
+        self.assertNotIn("packages/forge-core/engine/", architecture_layers)
         self.assertIn("adapter-boundary.md", monorepo)
         self.assertIn("architecture-layers.md", monorepo)
         self.assertIn("generated artifacts", monorepo)
@@ -100,6 +104,8 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
             "forge-browse",
             "forge-design",
             "archive/packages/",
+            "engine/forge_core_runtime",
+            "packages/forge-core/engine/",
         ):
             for path in current_paths:
                 with self.subTest(path=path.name, needle=needle):
@@ -114,7 +120,11 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertIn("git_revision", manifest)
         self.assertEqual(manifest["packaging"]["matrix_path"], "docs/release/package-matrix.json")
         self.assertEqual(manifest["packaging"]["default_target_strategy"], "explicit")
-        self.assertIn("scripts/write_preferences.py", manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("shared/common.py", manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("commands/write_preferences.py", manifest["packaging"]["required_bundle_paths"])
+        self.assertFalse(
+            any(path.startswith("engine/") for path in manifest["packaging"]["required_bundle_paths"])
+        )
         self.assertEqual(manifest["bundle_fingerprint"]["mode"], "path-content-sha256-v1")
         self.assertGreater(manifest["bundle_fingerprint"]["file_count"], 0)
         self.assertEqual(len(manifest["bundle_fingerprint"]["sha256"]), 64)
@@ -259,17 +269,17 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
             cases = [
                 (
                     "forge-core",
-                    ROOT_DIR / "dist" / "forge-core" / "scripts" / "write_preferences.py",
+                    ROOT_DIR / "dist" / "forge-core" / "commands" / "write_preferences.py",
                     (ROOT_DIR / "dist" / "forge-core-state").resolve(),
                 ),
                 (
                     "forge-codex",
-                    ROOT_DIR / "dist" / "forge-codex" / "scripts" / "write_preferences.py",
+                    ROOT_DIR / "dist" / "forge-codex" / "commands" / "write_preferences.py",
                     (home / ".codex" / "forge-codex").resolve(),
                 ),
                 (
                     "forge-antigravity",
-                    ROOT_DIR / "dist" / "forge-antigravity" / "scripts" / "write_preferences.py",
+                    ROOT_DIR / "dist" / "forge-antigravity" / "commands" / "write_preferences.py",
                     (home / ".gemini" / "antigravity" / "forge-antigravity").resolve(),
                 ),
             ]

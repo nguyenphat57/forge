@@ -117,7 +117,10 @@ class ReleaseHardeningTests(unittest.TestCase):
         plan_docs = {path.name for path in (ROOT_DIR / "docs" / "plans").glob("*.md")}
         self.assertEqual(
             plan_docs,
-            {"2026-04-23-docs-specs-pre-2-15-cleanup-implementation-plan.md"},
+            {
+                "2026-04-23-docs-specs-pre-2-15-cleanup-implementation-plan.md",
+                "2026-04-23-runtime-ownership-refactor-implementation-plan.md",
+            },
         )
         self.assertTrue((ROOT_DIR / "docs" / "current" / "architecture.md").exists())
         self.assertTrue((ROOT_DIR / "docs" / "current" / "operator-surface.md").exists())
@@ -216,6 +219,15 @@ class ReleaseHardeningTests(unittest.TestCase):
         self.assertTrue((ROOT_DIR / "dist" / "forge-core" / "BUILD-MANIFEST.json").exists())
         self.assertFalse((ROOT_DIR / "dist" / "forge-browse" / "BUILD-MANIFEST.json").exists())
         self.assertFalse((ROOT_DIR / "dist" / "forge-design" / "BUILD-MANIFEST.json").exists())
+
+    def test_release_bundles_do_not_ship_runtime_scripts_directories(self) -> None:
+        self._run_build_release()
+        for bundle_name in ("forge-antigravity", "forge-codex", "forge-core"):
+            with self.subTest(bundle=bundle_name):
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "scripts").exists())
+                self.assertTrue((ROOT_DIR / "dist" / bundle_name / "commands").exists())
+                self.assertTrue((ROOT_DIR / "dist" / bundle_name / "shared").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "engine").exists())
 
     def test_verify_repo_pipeline_includes_secret_scan(self) -> None:
         verify_repo = (ROOT_DIR / "scripts" / "verify_repo.py").read_text(encoding="utf-8")

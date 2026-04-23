@@ -16,7 +16,7 @@ Use `forge-codex` as the only global orchestrator for Codex.
 
 - Bundle root: `{{FORGE_CODEX_BUNDLE_ROOT}}`
 - Preferences resolver: `{{FORGE_CODEX_RESOLVER}} --workspace <workspace> --format json`
-- Canonical resolver script: `scripts/resolve_preferences.py`
+- Canonical resolver script: `commands/resolve_preferences.py`
 - State root: `{{FORGE_CODEX_STATE_ROOT}}`
 - Canonical state layout: `state/preferences.json` under the state root above.
 - Preferences file: `{{FORGE_CODEX_PREFERENCES_PATH}}`
@@ -109,3 +109,4 @@ Forge Codex: orchestrator | natural-language first, verification before claims
 ```
 
 <!-- FORGE CODEX GLOBAL END -->
+

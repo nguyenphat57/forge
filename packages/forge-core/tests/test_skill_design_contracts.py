@@ -4,10 +4,12 @@ import unittest
 
 from support import ROOT_DIR
 
+SKILLS_ROOT = ROOT_DIR.parent / "forge-skills"
+
 
 class SkillDesignContractTests(unittest.TestCase):
     def test_brainstorm_contract_matches_current_design_doc_generator(self) -> None:
-        brainstorm = (ROOT_DIR / "skills" / "brainstorming" / "SKILL.md").read_text(encoding="utf-8")
+        brainstorm = (SKILLS_ROOT / "brainstorming" / "SKILL.md").read_text(encoding="utf-8")
 
         for token in (
             "one question at a time",
@@ -31,7 +33,7 @@ class SkillDesignContractTests(unittest.TestCase):
         self.assertNotIn("decision-blocked", brainstorm)
 
     def test_plan_contract_matches_current_writing_plans_flow(self) -> None:
-        plan = (ROOT_DIR / "skills" / "writing-plans" / "SKILL.md").read_text(encoding="utf-8")
+        plan = (SKILLS_ROOT / "writing-plans" / "SKILL.md").read_text(encoding="utf-8")
 
         for token in (
             "# [Feature Name] Implementation Plan",

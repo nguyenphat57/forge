@@ -125,6 +125,9 @@ class AntigravityHostInstallTests(unittest.TestCase):
                 [item["name"] for item in report["sibling_skills"]["skills"]],
                 FORGE_SIBLING_SKILLS,
             )
+            self.assertTrue((target / "commands").is_dir())
+            self.assertTrue((target / "shared").is_dir())
+            self.assertFalse((target / "engine").exists())
             self.assertFalse((target / "skills").exists())
             for skill_name in FORGE_SIBLING_SKILLS:
                 with self.subTest(skill=skill_name):
@@ -146,7 +149,7 @@ class AntigravityHostInstallTests(unittest.TestCase):
             self.assertIn(expected_skill, rendered)
             self.assertIn(expected_state_root, rendered)
             self.assertIn(expected_preferences, rendered)
-            self.assertIn(f"python {target.resolve() / 'scripts' / 'resolve_preferences.py'}", rendered)
+            self.assertIn(f"python {target.resolve() / 'commands' / 'resolve_preferences.py'}", rendered)
 
             host_backup_path = Path(report["gemini_host_activation"]["host_backup_path"])
             self.assertTrue(host_backup_path.exists())
@@ -185,7 +188,7 @@ class AntigravityHostInstallTests(unittest.TestCase):
             temp_root = Path(temp_dir)
             _, target = self.install_antigravity_bundle(temp_root)
 
-            result = self.run_installed_script(target / "scripts" / "resolve_preferences.py", "--format", "json")
+            result = self.run_installed_script(target / "commands" / "resolve_preferences.py", "--format", "json")
             self.assertEqual(result.returncode, 0, result.stderr)
             payload = json.loads(result.stdout)
 
@@ -215,6 +218,8 @@ class AntigravityHostInstallTests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             temp_root = Path(temp_dir)
             report, target = self.install_antigravity_bundle(temp_root)
+            self.assertTrue((target / "shared").is_dir())
+            self.assertFalse((target / "engine").exists())
             preferences_path = Path(report["state"]["preferences_path"])
             preferences_path.parent.mkdir(parents=True, exist_ok=True)
             preferences_path.write_text(
@@ -222,7 +227,7 @@ class AntigravityHostInstallTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            result = self.run_installed_script(target / "scripts" / "resolve_preferences.py", "--format", "json")
+            result = self.run_installed_script(target / "commands" / "resolve_preferences.py", "--format", "json")
             self.assertEqual(result.returncode, 0, result.stderr)
             payload = json.loads(result.stdout)
 
@@ -256,6 +261,8 @@ class AntigravityHostInstallTests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             temp_root = Path(temp_dir)
             report, target = self.install_antigravity_bundle(temp_root)
+            self.assertTrue((target / "shared").is_dir())
+            self.assertFalse((target / "engine").exists())
             preferences_path = Path(report["state"]["preferences_path"])
             preferences_path.parent.mkdir(parents=True, exist_ok=True)
             preferences_path.write_text(
@@ -264,7 +271,7 @@ class AntigravityHostInstallTests(unittest.TestCase):
             )
 
             result = self.run_installed_script(
-                target / "scripts" / "write_preferences.py",
+                target / "commands" / "write_preferences.py",
                 "--pace",
                 "fast",
                 "--feedback-style",

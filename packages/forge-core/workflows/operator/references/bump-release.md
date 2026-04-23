@@ -5,9 +5,9 @@
 ## Canonical Script
 
 ```powershell
-python scripts/prepare_bump.py --workspace C:\path\to\workspace
-python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump patch
-python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump 2.0.0 --apply --release-ready
+python commands/prepare_bump.py --workspace C:\path\to\workspace
+python commands/prepare_bump.py --workspace C:\path\to\workspace --bump patch
+python commands/prepare_bump.py --workspace C:\path\to\workspace --bump 2.0.0 --apply --release-ready
 ```
 
 ## Contract
@@ -23,3 +23,4 @@ python scripts/prepare_bump.py --workspace C:\path\to\workspace --bump 2.0.0 --a
 
 - Core only takes care of version math and release checklist.
 - The adapter can expose `/bump` or a natural-language wrapper, but cannot commit/push itself or assume release-ready.
+

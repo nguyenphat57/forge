@@ -8,14 +8,14 @@ from pathlib import Path
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-SCRIPTS_DIR = ROOT_DIR / "scripts"
+TOOLS_DIR = ROOT_DIR / "tools"
 
-if str(SCRIPTS_DIR) not in sys.path:
-    sys.path.append(str(SCRIPTS_DIR))
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.append(str(TOOLS_DIR))
 
 SUPPORT_SPEC = importlib.util.spec_from_file_location(
     "forge_codex_overlay_support",
-    SCRIPTS_DIR / "support.py",
+    TOOLS_DIR / "support.py",
 )
 if SUPPORT_SPEC is None or SUPPORT_SPEC.loader is None:
     raise RuntimeError("Unable to load forge-codex overlay support module.")
