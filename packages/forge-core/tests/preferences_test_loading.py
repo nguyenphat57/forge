@@ -30,8 +30,6 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
                 }
             ),
         )
-        self.assertNotIn("delegation_preference", report["preferences"])
-        self.assertNotIn("delegation_preference", report["sources"])
         self.assertEqual(report["warnings"], [])
 
     def test_global_preferences_override_defaults(self) -> None:
@@ -289,7 +287,6 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
         self.assertEqual(contract["language"], "en")
         self.assertEqual(contract["orthography"], "plain-english")
         self.assertEqual(contract["tone_detail"], "Address the user as lead engineer.")
-        self.assertNotIn("delegation_preference", contract)
 
     def test_invalid_preferences_warn_and_fall_back_in_non_strict_mode(self) -> None:
         report = common.load_preferences(
@@ -304,7 +301,6 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
         self.assertEqual(report["preferences"]["pace"], "steady")
         self.assertEqual(report["preferences"]["feedback_style"], "gentle")
         self.assertEqual(report["preferences"]["personality"], "strict-coach")
-        self.assertNotIn("delegation_preference", report["preferences"])
         self.assertTrue(any("technical_level" in warning for warning in report["warnings"]))
         self.assertTrue(any("detail_level" in warning for warning in report["warnings"]))
         self.assertTrue(any("unknown_field" in warning for warning in report["warnings"]))
@@ -361,7 +357,6 @@ class PreferencesLoadingTests(PreferencesTestSupport, unittest.TestCase):
                 forge_home=forge_home,
             )
 
-        self.assertNotIn("delegation_preference", report["preferences"])
         self.assertIn(
             "Delegated: Spawn subagents để tăng tiến độ khi cần",
             report["preferences"]["custom_rules"],

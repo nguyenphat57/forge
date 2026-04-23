@@ -149,10 +149,19 @@ class RouteDelegationPacketTests(unittest.TestCase):
         self.assertEqual(host_skills, [])
         self.assertIn("packet-dependencies-block-parallel-dispatch", plan["fallback_reasons"])
 
-    def test_delegation_plan_signature_no_longer_accepts_preference_override(self) -> None:
+    def test_delegation_plan_signature_matches_packet_routing_contract(self) -> None:
         signature = inspect.signature(route_delegation_packets.choose_delegation_plan)
 
-        self.assertNotIn("delegation_preference", signature.parameters)
+        self.assertEqual(
+            list(signature.parameters),
+            [
+                "intent",
+                "execution_mode",
+                "execution_pipeline_key",
+                "registry",
+                "packet_candidates",
+            ],
+        )
 
 
 if __name__ == "__main__":

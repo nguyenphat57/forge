@@ -1,9 +1,15 @@
 # Changelog
 
+## 3.2.1 (stable) - 2026-04-23
+
+- Remove the last remaining obsolete delegation-setting mentions from active source surfaces so the retired setting no longer appears in tests, changelog copy, or continuity artifacts.
+- Refresh the stable-line metadata across `README.md`, `docs/release/*`, and `.brain/*` so the repo advertises `3.2.1` consistently after the cleanup release.
+
+
 ## 3.2.0 (stable) - 2026-04-23
 
 - Strengthen Codex subagent auto-activation so packetized parallel dispatch only happens when independent packet candidates have proof, verification, no blockers, no dependencies, and no conflicting write scopes.
-- Remove the obsolete durable `delegation_preference` setting now that Forge delegation is host-capability and packet-safety driven instead of preference driven.
+- Remove the obsolete durable delegation setting so Forge routing is driven entirely by host capabilities and packet-safety checks.
 - Move Visual Companion source ownership into `forge-brainstorming` as skill-local tooling, keep core and adapter bundles free of core-owned companion assets, and refresh release-facing plus continuity surfaces around `3.2.0`.
 
 

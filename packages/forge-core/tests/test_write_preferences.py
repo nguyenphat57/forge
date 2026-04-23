@@ -126,7 +126,7 @@ class WritePreferencesTests(unittest.TestCase):
             self.assertEqual(len(report["targets"]), 2)
             self.assertEqual(report["sources"]["pace"], "workspace")
 
-    def test_write_preferences_script_rejects_removed_delegation_preference_flag(self) -> None:
+    def test_write_preferences_script_rejects_unknown_flag(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)
             forge_home = Path(temp_dir) / "forge-home"
@@ -134,8 +134,8 @@ class WritePreferencesTests(unittest.TestCase):
                 "write_preferences.py",
                 "--workspace",
                 str(workspace),
-                "--delegation-preference",
-                "review-lanes",
+                "--legacy-routing-flag",
+                "parallel-workers",
                 "--apply",
                 "--format",
                 "json",

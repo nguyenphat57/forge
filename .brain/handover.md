@@ -1,22 +1,22 @@
 HANDOVER
-- Current task: Publish Forge 3.2.0 as the stable release after stronger Codex subagent auto-activation, delegation_preference removal, and Visual Companion ownership cleanup.
+- Current task: Publish Forge 3.2.1 as the stable release after stable-line metadata refresh, delegation-setting cleanup, stronger Codex subagent auto-activation, and Visual Companion ownership cleanup.
 - Status: ready-to-commit
 - Pending:
-  - Commit the 3.2.0 release slice and push `main` to `origin`
+  - Commit the 3.2.1 release slice and push `main` to `origin`
 - Verification run:
   - python packages/forge-core/tests/test_route_delegation_packets.py -> PASS on 2026-04-23
   - python -m unittest preferences_test_loading preferences_test_scripts test_write_preferences test_route_delegation_packets -> PASS on 2026-04-23 (workdir `packages/forge-core/tests`)
   - python packages/forge-core/tests/test_visual_companion.py -> PASS on 2026-04-23
   - python -m unittest tests.test_install_bundle_design tests.test_install_bundle_codex_host tests.test_install_bundle_antigravity_host -> PASS on 2026-04-23
-  - python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23 before 3.2.0 release sync
-  - python scripts/verify_repo.py -> PASS on 2026-04-23 after 3.2.0 release sync
+  - python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23 before 3.2.1 release sync
+  - python scripts/verify_repo.py -> PASS on 2026-04-23 after 3.2.1 release sync
 - Important decisions:
-  - Bump 3.1.0 to 3.2.0 as minor because the repo bump tooling inferred new capability from new skill-local Visual Companion source files and this slice changes release-facing surfaces.
+  - Bump 3.2.0 to 3.2.1 as patch because this slice cleans the remaining obsolete delegation-setting mentions and refreshes stable-line metadata without changing runtime behavior.
   - Keep `docs/current/*` as the canonical maintainer-doc spine while release-facing docs track the current stable line.
-  - Codex subagent auto-activation is controlled by host capability plus packet safety, not by durable `delegation_preference`.
+  - Codex subagent auto-activation is controlled by host capability plus packet safety, not by any durable delegation preference setting.
   - Safe parallel auto-activation requires independent packet candidates with proof, verification, no dependencies, no blockers, and non-overlapping write scopes.
   - Visual Companion source belongs to `forge-brainstorming` as skill-local tooling; core and adapter bundles should not declare it as core-owned required paths.
 - Risks:
   - Real installed host smoke after the version bump was not rerun; confidence rests on repo, dist, and install verification gates.
 - Blockers: (none)
-- Next step: Commit the 3.2.0 release slice and push `main` to `origin`.
+- Next step: Commit the 3.2.1 release slice and push `main` to `origin`.
