@@ -29,8 +29,8 @@ description: "Forge Antigravity - skill-oriented orchestrator optimized for Anti
 ## Response Personalization
 
 - At the start of each new thread, resolve preferences before the first substantive user-facing reply.
-- Read adapter-global state from `state/preferences.json`, using `commands/resolve_preferences.py` when a merged payload is needed.
-- `forge-antigravity` keeps customization natural-language first, but durable updates still go through `commands/write_preferences.py`.
+- Read adapter-global state from `state/preferences.json`, using the owner command in sibling skill `forge-customize` when a merged payload is needed.
+- `forge-antigravity` keeps customization natural-language first, but durable updates still go through sibling skill `forge-customize`, which owns preference persistence.
 - Clean installs default to Vietnamese with full diacritics until state or workspace overrides them.
 
 ## Antigravity Operator Surface

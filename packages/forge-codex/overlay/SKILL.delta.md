@@ -18,9 +18,9 @@
 ## Response Personalization
 
 - At the start of each new thread, resolve preferences before the first substantive user-facing reply.
-- Read adapter-global state from `state/preferences.json`, using `commands/resolve_preferences.py` when a merged payload is needed.
+- Read adapter-global state from `state/preferences.json`, using the owner command in sibling skill `forge-customize` when a merged payload is needed.
 - `forge-codex` responds in Vietnamese with full diacritics when resolved `language=vi`; broken Vietnamese encoding is a defect.
-- Durable preference changes stay natural-language first and write through `commands/write_preferences.py` or the sibling skill `forge-customize`.
+- Durable preference changes stay natural-language first and write through sibling skill `forge-customize`, which owns preference persistence.
 
 ## Codex Operator Surface
 
@@ -29,7 +29,7 @@
 - `delegate` maps to `forge-dispatching-parallel-agents` when a concise operator action name helps.
 - Guidance, next-step selection, and command execution stay natural-language first through Forge skills and host-native tools.
 - Durable response-style changes route through `forge-customize` instead of a dedicated operator wrapper.
-- Workspace bootstrap routes through the sibling skill `forge-init`, which calls `commands/initialize_workspace.py`.
+- Workspace bootstrap routes through the sibling skill `forge-init` as the sole owner of the bootstrap engine.
 - Completion claims use `forge-verification-before-completion`; branch closure uses `forge-finishing-a-development-branch`.
 
 ## Codex Multi-Agent Delegation

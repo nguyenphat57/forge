@@ -22,7 +22,7 @@ If Codex is expected to speak Vietnamese with full diacritics on Windows, do bot
 1. Persist the language setting in adapter-global Forge state:
 
 ```powershell
-python commands/write_preferences.py --language vi --orthography vietnamese_diacritics --apply
+python <installed forge-customize write-preferences owner command> --language vi --orthography vietnamese_diacritics --apply
 ```
 
 `forge-codex` defaults to English. Use workspace `.brain/preferences.json` only for repo-specific overrides that should not become the Codex-wide default.

@@ -15,8 +15,8 @@ Use `forge-codex` as the only global orchestrator for Codex.
 ## Host Bindings
 
 - Bundle root: `{{FORGE_CODEX_BUNDLE_ROOT}}`
-- Preferences resolver: `{{FORGE_CODEX_RESOLVER}} --workspace <workspace> --format json` via `resolve_preferences.py`
-- Canonical resolver script: `{{FORGE_CODEX_RESOLVER_SCRIPT}}` (`resolve_preferences.py`)
+- Preference owner skill: installed sibling skill `forge-customize` at `{{FORGE_CODEX_CUSTOMIZE_SKILL_ROOT}}`
+- Preferences resolver owner command: `{{FORGE_CODEX_CUSTOMIZE_RESOLVER}}`
 - State root: `{{FORGE_CODEX_STATE_ROOT}}`
 - Canonical state layout: `state/preferences.json` under the state root above.
 - Preferences file: `{{FORGE_CODEX_PREFERENCES_PATH}}`
@@ -32,7 +32,7 @@ Use `forge-codex` as the only global orchestrator for Codex.
 - On every new thread, restore Forge response personalization before the first substantive reply.
 - Resolve adapter-global preferences from `{{FORGE_CODEX_PREFERENCES_PATH}}`.
 - Treat `{{FORGE_CODEX_STATE_ROOT}}` as the canonical adapter-global state root; only fall back to the equivalent `$FORGE_HOME/state/...` paths when the install target is intentionally overridden.
-- Prefer the canonical resolver at `{{FORGE_CODEX_RESOLVER}} --workspace <workspace> --format json` when the merged payload is needed.
+- Prefer the `forge-customize` owner command at `{{FORGE_CODEX_CUSTOMIZE_RESOLVER}} --workspace <workspace> --format json` when the merged payload is needed.
 - If a merged payload is not needed, read the preference file directly instead of only one field subset.
 - Apply the resolved language, orthography, tone detail, and custom writing rules as active instructions; do not wait for the user to repeat customization in each new thread.
 

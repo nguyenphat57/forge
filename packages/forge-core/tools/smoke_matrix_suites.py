@@ -104,7 +104,7 @@ def run_router_suite() -> list[dict]:
 
 
 def run_preferences_suite() -> list[dict]:
-    preferences_script = ROOT_DIR / "commands" / "resolve_preferences.py"
+    preferences_script = _resolve_skill_command_path("customize", "forge-customize", "resolve_preferences.py")
     return _run_json_suite(
         "preferences",
         PREFERENCES_CASES,
@@ -170,7 +170,7 @@ def run_bump_suite() -> list[dict]:
 
 
 def run_preferences_write_suite() -> list[dict]:
-    write_script = ROOT_DIR / "commands" / "write_preferences.py"
+    write_script = _resolve_skill_command_path("customize", "forge-customize", "write_preferences.py")
     return _run_json_suite(
         "preferences-write",
         PREFERENCES_WRITE_CASES,

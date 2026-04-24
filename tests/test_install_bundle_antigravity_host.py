@@ -176,13 +176,16 @@ class AntigravityHostInstallTests(unittest.TestCase):
             expected_state_root = str((gemini_home / "antigravity" / "forge-antigravity").resolve())
             expected_preferences = str((gemini_home / "antigravity" / "forge-antigravity" / "state" / "preferences.json").resolve())
             expected_skill = str((target / "SKILL.md").resolve())
+            expected_customize_root = gemini_home / "antigravity" / "skills" / "forge-customize"
             expected_customize_resolver = gemini_home / "antigravity" / "skills" / "forge-customize" / "commands" / "resolve_preferences.py"
 
             self.assertIn("Use `forge-antigravity` as the global orchestrator for Gemini workspaces.", rendered)
             self.assertIn(expected_skill, rendered)
             self.assertIn(expected_state_root, rendered)
             self.assertIn(expected_preferences, rendered)
+            self.assertIn(str(expected_customize_root.resolve()), rendered)
             self.assertIn(f"python {expected_customize_resolver.resolve()}", rendered)
+            self.assertNotIn(str((target / "commands" / "resolve_preferences.py").resolve()), rendered)
 
             host_backup_path = Path(report["gemini_host_activation"]["host_backup_path"])
             self.assertTrue(host_backup_path.exists())

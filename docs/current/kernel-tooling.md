@@ -19,8 +19,7 @@ python commands/verify_bundle.py --format json
 
 Other current kernel tools:
 
-- `resolve_preferences.py`
-- `write_preferences.py`
+- `packages/forge-skills/customize/commands/` owner commands for merged preference reads and durable preference writes
 - `packages/forge-skills/init/commands/initialize_workspace.py`
 - `generate_overlay_skills.py`
 - `capture_continuity.py`
@@ -53,7 +52,7 @@ python packages/forge-skills/init/commands/initialize_workspace.py --workspace C
 python packages/forge-skills/init/commands/initialize_workspace.py --workspace C:\path\to\workspace --seed-preferences --apply --format json
 ```
 
-`initialize_workspace.py` is now owned by the sibling skill `forge-init`. Release bundles may materialize it into top-level `commands/` for installed host compatibility, but the source command stays with the skill owner.
+`initialize_workspace.py` is owned by the sibling skill `forge-init`. Release bundles install `forge-init` as its own sibling skill instead of copying that command into `forge-core`, `forge-codex`, or `forge-antigravity`.
 
 ## Persistence
 

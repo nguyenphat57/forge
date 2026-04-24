@@ -119,13 +119,14 @@ class ReleaseRepoInstallTests(ReleaseRepoTestSupport):
             workspace.mkdir(parents=True, exist_ok=True)
             expected_state_root = (codex_home / "forge-codex").resolve()
             expected_preferences = (expected_state_root / "state" / "preferences.json").resolve()
+            customize_root = codex_home / "skills" / "forge-customize"
             env = os.environ.copy()
             env.pop("FORGE_HOME", None)
 
             write_result = subprocess.run(
                 [
                     sys.executable,
-                    str(target / "commands" / "write_preferences.py"),
+                    str(customize_root / "commands" / "write_preferences.py"),
                     "--workspace",
                     str(workspace),
                     "--technical-level",

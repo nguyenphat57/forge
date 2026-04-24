@@ -8,6 +8,7 @@ from pathlib import Path
 
 
 BUNDLE_ROOT_ENV_VAR = "FORGE_BUNDLE_ROOT"
+HOST_BUNDLE_NAMES = ("forge-antigravity", "forge-codex", "forge-core")
 
 
 def resolve_bundle_root() -> Path:
@@ -17,8 +18,33 @@ def resolve_bundle_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
+def resolve_adjacent_host_bundle_root(bundle_root: Path) -> Path | None:
+    if bundle_root.name != "forge-customize":
+        return None
+
+    sibling_root = bundle_root.parent
+    preferred_names = HOST_BUNDLE_NAMES
+    if sibling_root.parent.name != "antigravity":
+        preferred_names = ("forge-codex", "forge-antigravity", "forge-core")
+
+    for bundle_name in preferred_names:
+        candidate = sibling_root / bundle_name
+        if candidate.is_dir():
+            return candidate.resolve()
+    return None
+
+
+def _resolve_compat_path() -> Path:
+    host_runtime_root = resolve_adjacent_host_bundle_root(ROOT_DIR)
+    if host_runtime_root is not None:
+        candidate = host_runtime_root / "data" / "preferences-compat.json"
+        if candidate.exists():
+            return candidate
+    return ROOT_DIR / "data" / "preferences-compat.json"
+
+
 ROOT_DIR = resolve_bundle_root()
-PREFERENCES_COMPAT_PATH = ROOT_DIR / "data" / "preferences-compat.json"
+PREFERENCES_COMPAT_PATH = _resolve_compat_path()
 CANONICAL_PREFERENCE_KEYS = (
     "technical_level",
     "detail_level",

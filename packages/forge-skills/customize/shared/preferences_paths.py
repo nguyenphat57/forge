@@ -7,6 +7,7 @@ from pathlib import Path
 
 
 BUNDLE_ROOT_ENV_VAR = "FORGE_BUNDLE_ROOT"
+HOST_BUNDLE_NAMES = ("forge-antigravity", "forge-codex", "forge-core")
 
 
 def resolve_bundle_root() -> Path:
@@ -16,11 +17,37 @@ def resolve_bundle_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
+def resolve_adjacent_host_bundle_root(bundle_root: Path) -> Path | None:
+    if bundle_root.name != "forge-customize":
+        return None
+
+    sibling_root = bundle_root.parent
+    preferred_names = HOST_BUNDLE_NAMES
+    if sibling_root.parent.name != "antigravity":
+        preferred_names = ("forge-codex", "forge-antigravity", "forge-core")
+
+    for bundle_name in preferred_names:
+        candidate = sibling_root / bundle_name
+        if candidate.is_dir():
+            return candidate.resolve()
+    return None
+
+
+def _resolve_data_path(*relative_parts: str) -> Path:
+    host_runtime_root = resolve_adjacent_host_bundle_root(ROOT_DIR)
+    if host_runtime_root is not None:
+        candidate = host_runtime_root.joinpath(*relative_parts)
+        if candidate.exists():
+            return candidate
+    return ROOT_DIR.joinpath(*relative_parts)
+
+
 ROOT_DIR = resolve_bundle_root()
+HOST_RUNTIME_ROOT = resolve_adjacent_host_bundle_root(ROOT_DIR)
 PREFERENCES_SCHEMA_PATH = ROOT_DIR / "data" / "preferences-schema.json"
-OUTPUT_CONTRACTS_PATH = ROOT_DIR / "data" / "output-contracts.json"
-INSTALL_MANIFEST_PATH = ROOT_DIR / "INSTALL-MANIFEST.json"
-BUILD_MANIFEST_PATH = ROOT_DIR / "BUILD-MANIFEST.json"
+OUTPUT_CONTRACTS_PATH = _resolve_data_path("data", "output-contracts.json")
+INSTALL_MANIFEST_PATH = (HOST_RUNTIME_ROOT or ROOT_DIR) / "INSTALL-MANIFEST.json"
+BUILD_MANIFEST_PATH = (HOST_RUNTIME_ROOT or ROOT_DIR) / "BUILD-MANIFEST.json"
 DEFAULT_FALLBACK_STATE_ROOT = Path.home() / ".forge"
 GLOBAL_PREFERENCES_RELATIVE_PATH = Path("state") / "preferences.json"
 LEGACY_GLOBAL_EXTRA_PREFERENCES_RELATIVE_PATH = Path("state") / "extra_preferences.json"
@@ -61,6 +88,19 @@ def resolve_installed_state_root() -> Path | None:
             root = state.get("root")
             if isinstance(root, str) and root.strip():
                 return Path(root).expanduser().resolve()
+
+    if HOST_RUNTIME_ROOT is not None:
+        host_install_manifest = HOST_RUNTIME_ROOT / "INSTALL-MANIFEST.json"
+        if host_install_manifest.exists():
+            manifest = json.loads(host_install_manifest.read_text(encoding="utf-8"))
+            if isinstance(manifest, dict):
+                state = manifest.get("state")
+                if isinstance(state, dict):
+                    root = state.get("root")
+                    if isinstance(root, str) and root.strip():
+                        return Path(root).expanduser().resolve()
+        if HOST_RUNTIME_ROOT.parent.name == "skills":
+            return (HOST_RUNTIME_ROOT.parent.parent / HOST_RUNTIME_ROOT.name).resolve()
 
     if ROOT_DIR.parent.name == "skills":
         return (ROOT_DIR.parent.parent / ROOT_DIR.name).resolve()

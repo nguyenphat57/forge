@@ -30,11 +30,8 @@ adapter-global preferences live under:
 state/preferences.json
 ```
 
-Use the installed orchestrator resolver when available:
-
-```powershell
-python commands/resolve_preferences.py --workspace <workspace> --format json
-```
+Use the installed `forge-customize` owner command when available.
+Invoke the `resolve_preferences.py` owner command from sibling skill `forge-customize` with `--workspace <workspace> --format json`.
 
 Apply language, orthography, tone detail, and custom rules before substantive output. Do not expose raw preference schema unless asked.
 

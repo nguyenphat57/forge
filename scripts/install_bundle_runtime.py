@@ -24,7 +24,7 @@ from install_bundle_paths import (
 )
 from install_bundle_report import build_install_transition, format_text, load_install_manifest, write_install_manifest
 from package_matrix import bundle_names, resolve_default_install_target, sibling_skill_names
-from release_fs import copy_tree, remove_path, sync_tree
+from release_fs import copy_file, copy_tree, remove_path, sync_tree
 
 
 def _resolve_requested_target(
@@ -211,6 +211,9 @@ def install_from_plan(report: dict) -> dict:
 
     if report.get("bundle_sync_required", True):
         sync_tree(source_path, target_path)
+    source_build_manifest_path = source_path / "BUILD-MANIFEST.json"
+    if source_build_manifest_path.exists():
+        copy_file(source_build_manifest_path, target_path / "BUILD-MANIFEST.json")
     sibling_skills = report.get("sibling_skills") or {}
     if sibling_skills.get("enabled"):
         for skill in sibling_skills.get("skills", []):

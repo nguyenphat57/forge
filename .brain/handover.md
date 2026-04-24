@@ -1,16 +1,17 @@
 HANDOVER
-- Current task: Forge 5.1.0 stable release is the current shipped line after adding `forge-deploy` and wiring `/deploy` through the sibling-skill release surfaces.
+- Current task: Forge 5.2.0 stable release aligns generated host artifacts, install/render contracts, and owner-command guidance on sibling skill `forge-customize` for preference resolution.
 - Status: released
 - Maintainer docs: docs/current/*
 - Pending: (none)
 - Verification run:
-  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --format json -> PASS, inferred minor 5.0.0 to 5.1.0 with high confidence on 2026-04-24
-  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --apply --release-ready --format json -> PASS, updated VERSION and CHANGELOG.md to 5.1.0 on 2026-04-24
-  - python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-24 after 5.1.0 continuity update
+  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --format json -> PASS, inferred minor 5.1.0 to 5.2.0 with high confidence on 2026-04-24
+  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.2.0 on 2026-04-24
+  - pytest tests/test_host_artifact_generation.py tests/release_repo_test_overlays.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-24
+  - python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-24 after 5.2.0 release update
 - Important decisions:
-  - Bump 5.0.0 to 5.1.0 as minor because this slice adds `forge-deploy` and deploy-facing release surfaces without changing bump or branch ownership boundaries.
-  - Keep `forge-bump-release` as the owner of semver and changelog, `forge-finishing-a-development-branch` as the owner of branch resolution, and `forge-deploy` as the owner of live rollout concerns.
+  - Bump 5.1.0 to 5.2.0 as minor because customize owner-command routing changes affect generated host artifacts, install/render contracts, and installed host activation behavior.
+  - Keep `forge-customize` as the owner of preference resolver and writer commands instead of pointing global host docs at host-bundle-local command paths.
 - Risks:
-  - Full non-fast release suite was not rerun after the final 5.1.0 continuity update.
+  - Full non-fast release suite was not rerun after the final 5.2.0 continuity update.
 - Blockers: (none)
-- Next step: No pending release task.
+- Next step: No pending release task after pushing `main` and updating installed `.codex` / `.gemini` bundles from the fresh `dist/` build.

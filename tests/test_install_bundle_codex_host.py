@@ -182,12 +182,15 @@ class CodexHostInstallTests(unittest.TestCase):
             expected_state_root = str((codex_home / "forge-codex").resolve())
             expected_preferences = str((codex_home / "forge-codex" / "state" / "preferences.json").resolve())
             expected_skill = str((target / "SKILL.md").resolve())
+            expected_customize_root = codex_home / "skills" / "forge-customize"
             expected_customize_resolver = codex_home / "skills" / "forge-customize" / "commands" / "resolve_preferences.py"
             self.assertIn("Use `forge-codex` as the only global orchestrator for Codex.", agents_text)
             self.assertIn(expected_skill, agents_text)
             self.assertIn(expected_state_root, agents_text)
             self.assertIn(expected_preferences, agents_text)
+            self.assertIn(str(expected_customize_root.resolve()), agents_text)
             self.assertIn(f"python {expected_customize_resolver.resolve()}", agents_text)
+            self.assertNotIn(str((target / "commands" / "resolve_preferences.py").resolve()), agents_text)
             self.assertNotIn("{{FORGE_CODEX_SKILL}}", agents_text)
             self.assertNotRegex(agents_text, re.compile(r"\{\{[A-Z0-9_]+\}\}"))
 

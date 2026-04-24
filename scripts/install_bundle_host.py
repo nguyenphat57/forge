@@ -19,12 +19,15 @@ UNRESOLVED_TEMPLATE_PATTERN = re.compile(r"\{\{[A-Z0-9_]+\}\}")
 
 def _render_paths(target_path: Path) -> dict[str, str]:
     state_root = resolve_adapter_state_root(target_path)
+    customize_root = target_path.parent / "forge-customize"
+    resolver_script = customize_root / "commands" / "resolve_preferences.py"
     return {
         "bundle_root": str(target_path),
         "skill_path": str(target_path / "SKILL.md"),
         "state_root": str(state_root),
         "preferences_path": str(state_root / "state" / "preferences.json"),
-        "resolver": f"python {target_path / 'commands' / 'resolve_preferences.py'}",
+        "customize_skill_root": str(customize_root),
+        "customize_resolver": f"python {resolver_script}",
     }
 
 
@@ -52,7 +55,8 @@ def render_codex_global_agents(template_text: str, codex_home: Path, target_path
             "{{FORGE_CODEX_SKILL}}": paths["skill_path"],
             "{{FORGE_CODEX_STATE_ROOT}}": paths["state_root"],
             "{{FORGE_CODEX_PREFERENCES_PATH}}": paths["preferences_path"],
-            "{{FORGE_CODEX_RESOLVER}}": paths["resolver"],
+            "{{FORGE_CODEX_CUSTOMIZE_SKILL_ROOT}}": paths["customize_skill_root"],
+            "{{FORGE_CODEX_CUSTOMIZE_RESOLVER}}": paths["customize_resolver"],
         },
     )
     _ensure_rendered_template_is_clean(rendered, "Codex global AGENTS template")
@@ -69,7 +73,8 @@ def render_antigravity_global_gemini(template_text: str, gemini_home: Path, targ
             "{{FORGE_ANTIGRAVITY_BUNDLE_ROOT}}": paths["bundle_root"],
             "{{FORGE_ANTIGRAVITY_STATE_ROOT}}": paths["state_root"],
             "{{FORGE_ANTIGRAVITY_PREFERENCES_PATH}}": paths["preferences_path"],
-            "{{FORGE_ANTIGRAVITY_RESOLVER}}": paths["resolver"],
+            "{{FORGE_ANTIGRAVITY_CUSTOMIZE_SKILL_ROOT}}": paths["customize_skill_root"],
+            "{{FORGE_ANTIGRAVITY_CUSTOMIZE_RESOLVER}}": paths["customize_resolver"],
         },
     )
     _ensure_rendered_template_is_clean(rendered, "Antigravity global GEMINI template")

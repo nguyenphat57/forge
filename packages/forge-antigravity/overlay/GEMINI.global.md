@@ -18,8 +18,8 @@ Use `forge-antigravity` as the global orchestrator for Gemini workspaces.
 - Bundle root: `{{FORGE_ANTIGRAVITY_BUNDLE_ROOT}}`
 - State root: `{{FORGE_ANTIGRAVITY_STATE_ROOT}}`
 - Canonical state layout: `state/preferences.json` under the state root above.
-- Canonical resolver script: `{{FORGE_ANTIGRAVITY_RESOLVER_SCRIPT}}` (`resolve_preferences.py`)
-- Preferences resolver: `{{FORGE_ANTIGRAVITY_RESOLVER}} --workspace <workspace> --format json` via `resolve_preferences.py`
+- Preference owner skill: installed sibling skill `forge-customize` at `{{FORGE_ANTIGRAVITY_CUSTOMIZE_SKILL_ROOT}}`
+- Preferences resolver owner command: `{{FORGE_ANTIGRAVITY_CUSTOMIZE_RESOLVER}}`
 - Preferences file: `{{FORGE_ANTIGRAVITY_PREFERENCES_PATH}}`
 
 ## Scope Of This File

@@ -967,8 +967,8 @@
         "id":  "20260423-215500",
         "kind":  "decision",
         "scope":  "forge-5-0-stable-status",
-        "summary":  "Treat 5.0.0 as the current stable Forge release because release bump, bootstrap, session, and delegation behavior now route through sibling skills, bump is no longer an operator, and active workflows folders are retired from source and release bundles.",
-        "status":  "resolved",
+        "summary":  "Treat 5.0.0 as a superseded Forge stable slice because the later 5.2.0 customize-owner-contract release replaced its stable line after fresh verification and release sync.",
+        "status":  "superseded",
         "evidence":  [
                          "VERSION",
                          "CHANGELOG.md",
@@ -993,8 +993,40 @@
                      "breaking-change",
                      "verification"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 5.0.0 verification evidence.",
+        "revisit_if":  "Release archaeology needs the original 5.0.0 proof chain or later evidence invalidates the recorded verification.",
         "trigger":  "major-release",
         "resume_hint":  "Resume only if a later audit needs the original 5.0.0 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260424-101318",
+        "kind":  "decision",
+        "scope":  "forge-5-2-stable-status",
+        "summary":  "Treat 5.2.0 as the current stable Forge release because generated host artifacts, install and render contracts, and owner-command guidance now point preference resolver behavior at sibling skill `forge-customize` instead of host-bundle-local command paths.",
+        "status":  "resolved",
+        "evidence":  [
+                         "VERSION",
+                         "CHANGELOG.md",
+                         "README.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
+                         "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
+                         "scripts/install_bundle_host.py",
+                         "packages/forge-skills/customize/shared/preferences_paths.py",
+                         "pytest tests/test_host_artifact_generation.py tests/release_repo_test_overlays.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-24",
+                         "python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-24"
+                     ],
+        "next":  [],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "forge-customize",
+                     "generated-host-artifacts",
+                     "install-contract",
+                     "verification"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 5.2.0 verification evidence.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 5.2.0 proof chain or invalidates the recorded verification."
     }
 ]

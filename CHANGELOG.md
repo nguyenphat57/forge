@@ -1,5 +1,12 @@
 # Changelog
 
+## 5.2.0 (stable) - 2026-04-24
+
+- Point generated Codex and Gemini global bootstrap docs at the `forge-customize` owner command and sibling-skill root instead of host-bundle-local preference command paths.
+- Align install and render contracts around customize-owned preference resolution, including installed-host rendering, session-management guidance, release-facing docs, and stable-version metadata.
+- Refresh host-artifact generation, overlay outputs, targeted install/render verification, and continuity artifacts for the new `forge-customize` ownership contract.
+
+
 ## 5.1.0 (stable) - 2026-04-24
 
 - Add the new sibling skill `forge-deploy` with explicit pre-deploy readiness, live deploy execution, post-deploy verification, and rollback guidance boundaries.

@@ -1,9 +1,9 @@
 # Forge
 ### Evidence-first execution kernel.
 
-**1 core kernel, 2 host adapters, stable 5.0.0**
+**1 core kernel, 2 host adapters, stable 5.2.0**
 
-![Version](https://img.shields.io/badge/version-5.0.0-2563eb)
+![Version](https://img.shields.io/badge/version-5.2.0-2563eb)
 ![License](https://img.shields.io/badge/license-MIT-16a34a)
 ![Verification](https://img.shields.io/badge/verify-repo_passed-22c55e)
 ![Adapters](https://img.shields.io/badge/adapters-Codex%20%7C%20Antigravity-f59e0b)
@@ -118,7 +118,7 @@ graph LR
 
 - License: `MIT`
 - Repo maturity: stable release available
-- Current stable release: `5.0.0`
+- Current stable release: `5.2.0`
 - Canonical verification gate: `python scripts/verify_repo.py`
 - `forge-antigravity` is currently the most mature adapter for real rollout
 - `forge-codex` ships in the current stable release after passing the canonical release gates
@@ -191,7 +191,7 @@ If Codex should reply in Vietnamese with full diacritics on Windows:
 
 ```powershell
 python scripts/install_bundle.py forge-codex --activate-codex
-python "$HOME/.codex/skills/forge-codex/commands/write_preferences.py" --language vi --orthography vietnamese_diacritics --apply
+python <installed forge-customize write-preferences owner command> --language vi --orthography vietnamese_diacritics --apply
 powershell -ExecutionPolicy Bypass -File "$HOME/.codex/skills/forge-codex/scripts/enable_windows_utf8.ps1"
 powershell -ExecutionPolicy Bypass -File "$HOME/.codex/skills/forge-codex/scripts/enable_windows_utf8.ps1" -Persist
 ```

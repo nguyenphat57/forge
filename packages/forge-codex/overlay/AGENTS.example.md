@@ -25,11 +25,11 @@ Use `forge-codex` as the global orchestrator for this workspace.
   - "Use shorter answers and move faster by default"
   - "Bootstrap this workspace for Forge with canonical docs"
 - Let `forge-codex` resolve response-style preferences through the adapter-global Forge preferences engine instead of redefining response-style rules here.
-- If the user wants durable preference changes, let `forge-codex` persist them through `commands/write_preferences.py`, not a host-local schema.
-- If the workspace needs durable language rules such as "always reply in Vietnamese with full diacritics", persist them through `commands/write_preferences.py` in adapter-global Forge state. Use `.brain/preferences.json` only for workspace-specific overrides; otherwise let `forge-codex` default to English.
+- If the user wants durable preference changes, let `forge-codex` persist them through sibling skill `forge-customize`, not a host-local schema.
+- If the workspace needs durable language rules such as "always reply in Vietnamese with full diacritics", persist them through sibling skill `forge-customize` in adapter-global Forge state. Use `.brain/preferences.json` only for workspace-specific overrides; otherwise let `forge-codex` default to English.
 - Let `forge-codex` handle guidance, next-step selection, and command execution through natural language, Forge skills, and host-native tools.
 - If boundaries are clear and the host can delegate safely, let `forge-codex` invoke `forge-dispatching-parallel-agents` instead of improvising parallel edits.
 - Let `forge-codex` keep `bump` natural-language first without reintroducing extra operator ceremony.
-- Let `forge-codex` route durable preference changes through `forge-customize` and `commands/write_preferences.py`, and route bootstrap requests to `forge-init`.
-- If the user asks to bootstrap a workspace, keep the UX thin but still let `forge-init` call `commands/initialize_workspace.py`.
+- Let `forge-codex` route durable preference changes through `forge-customize`, and route bootstrap requests to `forge-init`.
+- If the user asks to bootstrap a workspace, keep the UX thin and route directly to the sibling skill owner `forge-init`.
 
