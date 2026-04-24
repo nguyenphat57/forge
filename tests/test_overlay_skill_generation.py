@@ -36,6 +36,15 @@ class OverlaySkillGenerationTests(unittest.TestCase):
                     skill_bundle_composer.compose_adapter_skill(bundle),
                 )
 
+    def test_adapter_outputs_include_core_operating_biases(self) -> None:
+        for spec in skill_bundle_composer.adapter_skill_specs():
+            bundle = str(spec["bundle"])
+            with self.subTest(bundle=bundle):
+                self.assertIn(
+                    "## Agent Operating Biases",
+                    skill_bundle_composer.compose_adapter_skill(bundle),
+                )
+
     def test_adapter_delta_files_do_not_duplicate_shared_core_sections(self) -> None:
         for spec in skill_bundle_composer.adapter_skill_specs():
             delta_path = Path(spec["delta_path"])

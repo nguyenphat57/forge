@@ -97,6 +97,31 @@ def _parse_document(path: Path) -> dict[str, object]:
     }
 
 
+def _sync_section_after(text: str, *, heading: str, section_text: str, after_heading: str) -> str:
+    matches = list(SECTION_PATTERN.finditer(text))
+    target_match = None
+    after_match = None
+    for match in matches:
+        current_heading = match.group(1).strip()
+        if current_heading == heading:
+            target_match = match
+        if current_heading == after_heading:
+            after_match = match
+
+    if target_match is not None:
+        target_index = matches.index(target_match)
+        start = target_match.start()
+        end = matches[target_index + 1].start() if target_index + 1 < len(matches) else len(text)
+        return text[:start].rstrip() + "\n\n" + section_text.strip() + "\n\n" + text[end:].lstrip("\n")
+
+    if after_match is None:
+        raise ValueError(f"Cannot insert section `{heading}` because `{after_heading}` was not found.")
+
+    after_index = matches.index(after_match)
+    insert_at = matches[after_index + 1].start() if after_index + 1 < len(matches) else len(text)
+    return text[:insert_at].rstrip() + "\n\n" + section_text.strip() + "\n\n" + text[insert_at:].lstrip("\n")
+
+
 def adapter_skill_specs() -> list[dict[str, object]]:
     return [
         {"bundle": bundle_name, **spec}
@@ -110,8 +135,17 @@ def compose_adapter_skill(bundle_name: str, *, core_skill_path: Path = CORE_SKIL
 
     spec = ADAPTER_SKILL_SPECS[bundle_name]
     output_path = Path(spec["output_path"])
+    core_doc = _parse_document(core_skill_path)
+    operating_biases = core_doc["sections"].get("Agent Operating Biases")
+    if operating_biases is None:
+        raise ValueError("Core SKILL is missing shared section `Agent Operating Biases`.")
     if output_path.exists():
-        return output_path.read_text(encoding="utf-8")
+        return _sync_section_after(
+            output_path.read_text(encoding="utf-8"),
+            heading="Agent Operating Biases",
+            section_text=operating_biases,
+            after_heading="Workflow Priority",
+        )
 
     core_doc = _parse_document(core_skill_path)
     delta_doc = _parse_document(spec["delta_path"])
