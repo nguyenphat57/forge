@@ -49,9 +49,14 @@ def bootstrap_shared_paths(command_path: Path | None = None) -> Path:
         raise SystemExit(f"Missing Forge runtime shared/commands for session owner: {bundle_root}")
 
     paths = [target.parent]
-    source_customize_shared = runtime_root.parent / "forge-skills" / "customize" / "shared"
-    if source_customize_shared.is_dir():
-        paths.append(source_customize_shared)
+    customize_shared_candidates = [
+        runtime_root.parent / "forge-skills" / "customize" / "shared",
+        runtime_root.parent / "forge-customize" / "shared",
+    ]
+    for customize_shared in customize_shared_candidates:
+        if customize_shared.is_dir():
+            paths.append(customize_shared)
+            break
     paths.extend([runtime_root / "shared", runtime_root / "commands"])
     for path in paths:
         text = str(path)

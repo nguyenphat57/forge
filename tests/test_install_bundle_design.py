@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import unittest
 from pathlib import Path
@@ -148,6 +149,21 @@ class RetiredBundleMatrixTests(unittest.TestCase):
                     self.assertNotEqual(path, "data/preferences-schema.json")
                     self.assertNotEqual(path, "shared/compat.py")
                     self.assertNotEqual(path, "shared/preferences.py")
+
+    def test_dist_bundle_verify_commands_find_sibling_customize_runtime(self) -> None:
+        build_release.build_all(force=True)
+
+        for bundle_name in ("forge-core", "forge-codex", "forge-antigravity"):
+            with self.subTest(bundle=bundle_name):
+                completed = subprocess.run(
+                    [sys.executable, str(ROOT_DIR / "dist" / bundle_name / "commands" / "verify_bundle.py"), "--format", "json"],
+                    cwd=ROOT_DIR,
+                    capture_output=True,
+                    text=True,
+                    encoding="utf-8",
+                    check=False,
+                )
+                self.assertEqual(completed.returncode, 0, completed.stderr)
 
 
 if __name__ == "__main__":

@@ -18,7 +18,11 @@ SHARED_DIR = ROOT_DIR / "shared"
 COMMANDS_DIR = ROOT_DIR / "commands"
 TOOLS_DIR = ROOT_DIR / "tools"
 SKILLS_ROOT = ROOT_DIR.parent / "forge-skills"
-CUSTOMIZE_SHARED_DIR = SKILLS_ROOT / "customize" / "shared"
+SOURCE_CUSTOMIZE_SHARED_DIR = SKILLS_ROOT / "customize" / "shared"
+SIBLING_CUSTOMIZE_SHARED_DIR = ROOT_DIR.parent / "forge-customize" / "shared"
+CUSTOMIZE_SHARED_DIR = (
+    SOURCE_CUSTOMIZE_SHARED_DIR if SOURCE_CUSTOMIZE_SHARED_DIR.exists() else SIBLING_CUSTOMIZE_SHARED_DIR
+)
 SCRIPTS_DIR = COMMANDS_DIR
 FIXTURES_DIR = ROOT_DIR / "tests" / "fixtures"
 WORKSPACES_DIR = FIXTURES_DIR / "workspaces"
@@ -40,6 +44,9 @@ def _customize_command_path(command_name: str) -> Path:
     source_path = SKILLS_ROOT / "customize" / "commands" / command_name
     if source_path.exists():
         return source_path
+    sibling_path = ROOT_DIR.parent / "forge-customize" / "commands" / command_name
+    if sibling_path.exists():
+        return sibling_path
     return COMMANDS_DIR / command_name
 
 
