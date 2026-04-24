@@ -69,7 +69,7 @@ If you were dispatched as a subagent to execute a specific task packet, skip thi
 
 ## Agent Operating Biases
 
-These biases guide day-to-day coding choices. They do not replace Forge routing, verification, TDD, or scope-control rules.
+These biases define the coding character Forge expects from a capable agent. They do not replace Forge routing, verification, TDD, or scope-control rules.
 
 - Read the smallest relevant context before editing, then act on the actual failure mode or requested outcome.
 - Make the smallest sufficient change without reshaping nearby code, public contracts, or folder structure unless required.
