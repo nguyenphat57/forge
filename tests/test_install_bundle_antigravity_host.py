@@ -43,6 +43,7 @@ FORGE_SIBLING_SKILLS = [
     "forge-finishing-a-development-branch",
     "forge-customize",
     "forge-bump-release",
+    "forge-deploy",
     "forge-writing-skills",
     "forge-session-management",
 ]
@@ -78,6 +79,11 @@ EXPECTED_SIBLING_SKILL_REFERENCES = {
     "forge-customize": [
         "references/forge-preferences.md",
         "references/forge-paths.md",
+    ],
+    "forge-deploy": [
+        "references/deploy-contract.md",
+        "references/deploy-checks.md",
+        "references/rollback-guidance.md",
     ],
 }
 
@@ -147,6 +153,14 @@ class AntigravityHostInstallTests(unittest.TestCase):
             self.assertTrue((target / "shared").is_dir())
             self.assertFalse((target / "engine").exists())
             self.assertFalse((target / "skills").exists())
+            self.assertFalse((target / "commands" / "initialize_workspace.py").exists())
+            self.assertFalse((target / "commands" / "_forge_skill_command.py").exists())
+            self.assertFalse((target / "commands" / "resolve_preferences.py").exists())
+            self.assertFalse((target / "commands" / "write_preferences.py").exists())
+            self.assertFalse((target / "commands" / "_forge_customize_command.py").exists())
+            self.assertFalse((target / "data" / "preferences-schema.json").exists())
+            self.assertFalse((target / "shared" / "compat.py").exists())
+            self.assertFalse((target / "shared" / "preferences.py").exists())
             for skill_name in FORGE_SIBLING_SKILLS:
                 with self.subTest(skill=skill_name):
                     skill_root = gemini_home / "antigravity" / "skills" / skill_name
@@ -162,12 +176,13 @@ class AntigravityHostInstallTests(unittest.TestCase):
             expected_state_root = str((gemini_home / "antigravity" / "forge-antigravity").resolve())
             expected_preferences = str((gemini_home / "antigravity" / "forge-antigravity" / "state" / "preferences.json").resolve())
             expected_skill = str((target / "SKILL.md").resolve())
+            expected_customize_resolver = gemini_home / "antigravity" / "skills" / "forge-customize" / "commands" / "resolve_preferences.py"
 
             self.assertIn("Use `forge-antigravity` as the global orchestrator for Gemini workspaces.", rendered)
             self.assertIn(expected_skill, rendered)
             self.assertIn(expected_state_root, rendered)
             self.assertIn(expected_preferences, rendered)
-            self.assertIn(f"python {target.resolve() / 'commands' / 'resolve_preferences.py'}", rendered)
+            self.assertIn(f"python {expected_customize_resolver.resolve()}", rendered)
 
             host_backup_path = Path(report["gemini_host_activation"]["host_backup_path"])
             self.assertTrue(host_backup_path.exists())
@@ -205,8 +220,9 @@ class AntigravityHostInstallTests(unittest.TestCase):
         with TemporaryDirectory() as temp_dir:
             temp_root = Path(temp_dir)
             _, target = self.install_antigravity_bundle(temp_root)
+            customize_root = temp_root / "antigravity-home" / "skills" / "forge-customize"
 
-            result = self.run_installed_script(target / "commands" / "resolve_preferences.py", "--format", "json")
+            result = self.run_installed_script(customize_root / "commands" / "resolve_preferences.py", "--format", "json")
             self.assertEqual(result.returncode, 0, result.stderr)
             payload = json.loads(result.stdout)
 
@@ -237,6 +253,12 @@ class AntigravityHostInstallTests(unittest.TestCase):
             report, target = self.install_antigravity_bundle(temp_root)
             self.assertTrue((target / "shared").is_dir())
             self.assertFalse((target / "engine").exists())
+            self.assertFalse((target / "commands" / "initialize_workspace.py").exists())
+            self.assertFalse((target / "commands" / "_forge_skill_command.py").exists())
+            self.assertFalse((target / "commands" / "resolve_preferences.py").exists())
+            self.assertFalse((target / "commands" / "write_preferences.py").exists())
+            self.assertFalse((target / "commands" / "_forge_customize_command.py").exists())
+            customize_root = temp_root / "antigravity-home" / "skills" / "forge-customize"
             preferences_path = Path(report["state"]["preferences_path"])
             preferences_path.parent.mkdir(parents=True, exist_ok=True)
             preferences_path.write_text(
@@ -244,7 +266,7 @@ class AntigravityHostInstallTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            result = self.run_installed_script(target / "commands" / "resolve_preferences.py", "--format", "json")
+            result = self.run_installed_script(customize_root / "commands" / "resolve_preferences.py", "--format", "json")
             self.assertEqual(result.returncode, 0, result.stderr)
             payload = json.loads(result.stdout)
 
@@ -279,6 +301,12 @@ class AntigravityHostInstallTests(unittest.TestCase):
             report, target = self.install_antigravity_bundle(temp_root)
             self.assertTrue((target / "shared").is_dir())
             self.assertFalse((target / "engine").exists())
+            self.assertFalse((target / "commands" / "initialize_workspace.py").exists())
+            self.assertFalse((target / "commands" / "_forge_skill_command.py").exists())
+            self.assertFalse((target / "commands" / "resolve_preferences.py").exists())
+            self.assertFalse((target / "commands" / "write_preferences.py").exists())
+            self.assertFalse((target / "commands" / "_forge_customize_command.py").exists())
+            customize_root = temp_root / "antigravity-home" / "skills" / "forge-customize"
             preferences_path = Path(report["state"]["preferences_path"])
             preferences_path.parent.mkdir(parents=True, exist_ok=True)
             preferences_path.write_text(
@@ -287,7 +315,7 @@ class AntigravityHostInstallTests(unittest.TestCase):
             )
 
             result = self.run_installed_script(
-                target / "commands" / "write_preferences.py",
+                customize_root / "commands" / "write_preferences.py",
                 "--pace",
                 "fast",
                 "--feedback-style",

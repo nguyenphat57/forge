@@ -41,6 +41,11 @@ EXPECTED_SIBLING_SKILL_REFERENCES = {
         "references/scripts/prepare_bump_report.py",
         "references/scripts/prepare_bump_semver.py",
     ],
+    "forge-deploy": [
+        "references/deploy-contract.md",
+        "references/deploy-checks.md",
+        "references/rollback-guidance.md",
+    ],
 }
 
 
@@ -134,7 +139,13 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertEqual(manifest["packaging"]["matrix_path"], "docs/release/package-matrix.json")
         self.assertEqual(manifest["packaging"]["default_target_strategy"], "explicit")
         self.assertIn("shared/common.py", manifest["packaging"]["required_bundle_paths"])
-        self.assertIn("commands/write_preferences.py", manifest["packaging"]["required_bundle_paths"])
+        self.assertIn("commands/capture_continuity.py", manifest["packaging"]["required_bundle_paths"])
+        self.assertNotIn("commands/initialize_workspace.py", manifest["packaging"]["required_bundle_paths"])
+        self.assertNotIn("commands/_forge_skill_command.py", manifest["packaging"]["required_bundle_paths"])
+        self.assertNotIn("commands/write_preferences.py", manifest["packaging"]["required_bundle_paths"])
+        self.assertNotIn("commands/resolve_preferences.py", manifest["packaging"]["required_bundle_paths"])
+        self.assertNotIn("data/preferences-schema.json", manifest["packaging"]["required_bundle_paths"])
+        self.assertNotIn("shared/compat.py", manifest["packaging"]["required_bundle_paths"])
         self.assertFalse(
             any(path.startswith("engine/") for path in manifest["packaging"]["required_bundle_paths"])
         )
@@ -242,6 +253,39 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertNotIn("/customize", gemini_text)
         self.assertNotIn("/init", gemini_text)
 
+    def test_release_bundles_do_not_materialize_init_runtime_outside_owner_skill(self) -> None:
+        build_release.build_all()
+
+        for bundle_name in ("forge-core", "forge-codex", "forge-antigravity"):
+            with self.subTest(bundle=bundle_name):
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "commands" / "initialize_workspace.py").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "commands" / "_forge_skill_command.py").exists())
+        self.assertTrue(
+            (ROOT_DIR / "dist" / "forge-init" / "commands" / "initialize_workspace.py").exists()
+        )
+        self.assertTrue(
+            (ROOT_DIR / "dist" / "forge-init" / "commands" / "_forge_skill_command.py").exists()
+        )
+
+    def test_release_bundles_do_not_materialize_customize_runtime_outside_owner_skill(self) -> None:
+        build_release.build_all()
+
+        for bundle_name in ("forge-core", "forge-codex", "forge-antigravity"):
+            with self.subTest(bundle=bundle_name):
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "commands" / "resolve_preferences.py").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "commands" / "write_preferences.py").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "commands" / "_forge_customize_command.py").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "data" / "preferences-schema.json").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "shared" / "compat.py").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "shared" / "preferences.py").exists())
+
+        self.assertTrue((ROOT_DIR / "dist" / "forge-customize" / "commands" / "resolve_preferences.py").exists())
+        self.assertTrue((ROOT_DIR / "dist" / "forge-customize" / "commands" / "write_preferences.py").exists())
+        self.assertTrue((ROOT_DIR / "dist" / "forge-customize" / "commands" / "_forge_customize_command.py").exists())
+        self.assertTrue((ROOT_DIR / "dist" / "forge-customize" / "data" / "preferences-schema.json").exists())
+        self.assertTrue((ROOT_DIR / "dist" / "forge-customize" / "shared" / "compat.py").exists())
+        self.assertTrue((ROOT_DIR / "dist" / "forge-customize" / "shared" / "preferences.py").exists())
+
     def test_core_workflow_tree_is_retired(self) -> None:
         build_release.build_all()
 
@@ -260,63 +304,13 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertFalse((dist_root / "data" / "routing-locales").exists())
         self.assertFalse((dist_root / "data" / "output-contracts.json").exists())
 
-    def test_uninstalled_dist_bundles_use_bundle_native_state_roots(self) -> None:
+    def test_uninstalled_dist_bundles_do_not_ship_customize_runtime_commands(self) -> None:
         build_release.build_all()
-        with TemporaryDirectory() as temp_dir:
-            temp_root = Path(temp_dir)
-            home = temp_root / "home"
-            home.mkdir(parents=True, exist_ok=True)
-            cases = [
-                (
-                    "forge-core",
-                    ROOT_DIR / "dist" / "forge-core" / "commands" / "write_preferences.py",
-                    (ROOT_DIR / "dist" / "forge-core-state").resolve(),
-                ),
-                (
-                    "forge-codex",
-                    ROOT_DIR / "dist" / "forge-codex" / "commands" / "write_preferences.py",
-                    (home / ".codex" / "forge-codex").resolve(),
-                ),
-                (
-                    "forge-antigravity",
-                    ROOT_DIR / "dist" / "forge-antigravity" / "commands" / "write_preferences.py",
-                    (home / ".gemini" / "antigravity" / "forge-antigravity").resolve(),
-                ),
-            ]
 
-            for bundle_name, script_path, expected_state_root in cases:
-                with self.subTest(bundle=bundle_name):
-                    env = os.environ.copy()
-                    env.pop("FORGE_HOME", None)
-                    env.pop("CODEX_HOME", None)
-                    env.pop("GEMINI_HOME", None)
-                    env["USERPROFILE"] = str(home)
-                    env["HOME"] = str(home)
-
-                    result = subprocess.run(
-                        [
-                            sys.executable,
-                            str(script_path),
-                            "--technical-level",
-                            "technical",
-                            "--format",
-                            "json",
-                        ],
-                        capture_output=True,
-                        text=True,
-                        encoding="utf-8",
-                        check=False,
-                        env=env,
-                    )
-                    self.assertEqual(result.returncode, 0, result.stderr)
-                    payload = json.loads(result.stdout)
-
-                    self.assertEqual(payload["state_root"], str(expected_state_root))
-                    self.assertEqual(
-                        payload["targets"],
-                        [str((expected_state_root / "state" / "preferences.json").resolve())],
-                    )
-                    self.assertFalse((home / ".forge").exists())
+        for bundle_name in ("forge-core", "forge-codex", "forge-antigravity"):
+            with self.subTest(bundle=bundle_name):
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "commands" / "write_preferences.py").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "commands" / "resolve_preferences.py").exists())
 
     def test_split_skill_target_tokens_are_visible(self) -> None:
         target_state = (ROOT_DIR / "docs" / "current" / "target-state.md").read_text(encoding="utf-8")
@@ -360,6 +354,7 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
             "Forge sibling skills",
             "Source Repo",
             "forge-bump-release",
+            "forge-deploy",
         ):
             with self.subTest(reference_token=token):
                 self.assertIn(token, operator_surface)
@@ -427,6 +422,37 @@ class ReleaseRepoContractTests(ReleaseRepoTestSupport):
         self.assertFalse((ROOT_DIR / "packages" / "forge-core" / "workflows" / "operator" / "bump.md").exists())
         self.assertFalse((ROOT_DIR / "packages" / "forge-antigravity" / "overlay" / "workflows" / "operator" / "bump.md").exists())
         self.assertFalse((ROOT_DIR / "packages" / "forge-codex" / "overlay" / "workflows" / "operator" / "bump.md").exists())
+
+    def test_deploy_contract_is_owned_by_sibling_skill(self) -> None:
+        deploy_skill = ROOT_DIR / "packages" / "forge-skills" / "deploy" / "SKILL.md"
+        deploy_contract = ROOT_DIR / "packages" / "forge-skills" / "deploy" / "references" / "deploy-contract.md"
+        deploy_checks = ROOT_DIR / "packages" / "forge-skills" / "deploy" / "references" / "deploy-checks.md"
+        rollback_guidance = ROOT_DIR / "packages" / "forge-skills" / "deploy" / "references" / "rollback-guidance.md"
+        core_skill = ROOT_DIR / "packages" / "forge-core" / "SKILL.md"
+
+        self.assertTrue(deploy_skill.exists())
+        self.assertTrue(deploy_contract.exists())
+        self.assertTrue(deploy_checks.exists())
+        self.assertTrue(rollback_guidance.exists())
+        self.assertIn(
+            "pre-deploy readiness",
+            deploy_skill.read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            "explicit confirmation",
+            deploy_contract.read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            "rollback path",
+            rollback_guidance.read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            "Proof before claims is non-negotiable",
+            core_skill.read_text(encoding="utf-8"),
+        )
+        self.assertFalse((ROOT_DIR / "packages" / "forge-core" / "workflows" / "operator" / "deploy.md").exists())
+        self.assertFalse((ROOT_DIR / "packages" / "forge-antigravity" / "overlay" / "workflows" / "operator" / "deploy.md").exists())
+        self.assertFalse((ROOT_DIR / "packages" / "forge-codex" / "overlay" / "workflows" / "operator" / "deploy.md").exists())
 
     def test_sibling_skill_build_manifests_declare_self_contained_reference_files(self) -> None:
         build_release.build_all()

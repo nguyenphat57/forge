@@ -15,8 +15,8 @@ Use `forge-codex` as the only global orchestrator for Codex.
 ## Host Bindings
 
 - Bundle root: `{{FORGE_CODEX_BUNDLE_ROOT}}`
-- Preferences resolver: `{{FORGE_CODEX_RESOLVER}} --workspace <workspace> --format json`
-- Canonical resolver script: `commands/resolve_preferences.py`
+- Preferences resolver: `{{FORGE_CODEX_RESOLVER}} --workspace <workspace> --format json` via `resolve_preferences.py`
+- Canonical resolver script: `{{FORGE_CODEX_RESOLVER_SCRIPT}}` (`resolve_preferences.py`)
 - State root: `{{FORGE_CODEX_STATE_ROOT}}`
 - Canonical state layout: `state/preferences.json` under the state root above.
 - Preferences file: `{{FORGE_CODEX_PREFERENCES_PATH}}`
@@ -52,7 +52,7 @@ Before the first substantive reply in every new thread:
 - Check Forge skills before any response or action. If there is even a 1% chance a Forge skill applies, invoke it first.
 - Process skills come before implementation skills.
 - Sibling Forge skills are host-native skills, not internal workflow files.
-- Installed sibling skills: `forge-init`, `forge-brainstorming`, `forge-writing-plans`, `forge-executing-plans`, `forge-test-driven-development`, `forge-using-git-worktrees`, `forge-dispatching-parallel-agents`, `forge-subagent-driven-development`, `forge-systematic-debugging`, `forge-requesting-code-review`, `forge-receiving-code-review`, `forge-verification-before-completion`, `forge-finishing-a-development-branch`, `forge-customize`, `forge-bump-release`, `forge-writing-skills`, `forge-session-management`.
+- Installed sibling skills: `forge-init`, `forge-brainstorming`, `forge-writing-plans`, `forge-executing-plans`, `forge-test-driven-development`, `forge-using-git-worktrees`, `forge-dispatching-parallel-agents`, `forge-subagent-driven-development`, `forge-systematic-debugging`, `forge-requesting-code-review`, `forge-receiving-code-review`, `forge-verification-before-completion`, `forge-finishing-a-development-branch`, `forge-customize`, `forge-bump-release`, `forge-deploy`, `forge-writing-skills`, `forge-session-management`.
 - For small, low-risk requests where a skill adds no value, answer directly.
 - Read only the files needed for the current task; do not bulk-load the whole bundle.
 - If a skill or referenced file is missing, say so briefly and continue with best effort.
@@ -101,6 +101,7 @@ Rules:
 - Natural-language requests remain the preferred entrypoint.
 - `delegate` stays available when a concise Codex action name helps.
 - Release bump preparation routes through the sibling skill `forge-bump-release`.
+- Live deploy requests and production-readiness checks route through the sibling skill `forge-deploy`.
 - Guidance, next-step selection, and command execution stay natural-language first through Forge skills and host-native tools.
 - Session continuity requests stay explicit and natural-language first: `resume`, `save context`, and `handover`.
 

@@ -45,6 +45,7 @@ FORGE_SIBLING_SKILLS = [
     "forge-finishing-a-development-branch",
     "forge-customize",
     "forge-bump-release",
+    "forge-deploy",
     "forge-writing-skills",
     "forge-session-management",
 ]
@@ -80,6 +81,11 @@ EXPECTED_SIBLING_SKILL_REFERENCES = {
     "forge-customize": [
         "references/forge-preferences.md",
         "references/forge-paths.md",
+    ],
+    "forge-deploy": [
+        "references/deploy-contract.md",
+        "references/deploy-checks.md",
+        "references/rollback-guidance.md",
     ],
 }
 
@@ -148,6 +154,14 @@ class CodexHostInstallTests(unittest.TestCase):
             self.assertTrue((target / "shared").is_dir())
             self.assertFalse((target / "engine").exists())
             self.assertFalse((target / "skills").exists())
+            self.assertFalse((target / "commands" / "initialize_workspace.py").exists())
+            self.assertFalse((target / "commands" / "_forge_skill_command.py").exists())
+            self.assertFalse((target / "commands" / "resolve_preferences.py").exists())
+            self.assertFalse((target / "commands" / "write_preferences.py").exists())
+            self.assertFalse((target / "commands" / "_forge_customize_command.py").exists())
+            self.assertFalse((target / "data" / "preferences-schema.json").exists())
+            self.assertFalse((target / "shared" / "compat.py").exists())
+            self.assertFalse((target / "shared" / "preferences.py").exists())
             for skill_name in FORGE_SIBLING_SKILLS:
                 with self.subTest(skill=skill_name):
                     self.assertTrue((codex_home / "skills" / skill_name / "SKILL.md").exists())
@@ -168,11 +182,12 @@ class CodexHostInstallTests(unittest.TestCase):
             expected_state_root = str((codex_home / "forge-codex").resolve())
             expected_preferences = str((codex_home / "forge-codex" / "state" / "preferences.json").resolve())
             expected_skill = str((target / "SKILL.md").resolve())
+            expected_customize_resolver = codex_home / "skills" / "forge-customize" / "commands" / "resolve_preferences.py"
             self.assertIn("Use `forge-codex` as the only global orchestrator for Codex.", agents_text)
             self.assertIn(expected_skill, agents_text)
             self.assertIn(expected_state_root, agents_text)
             self.assertIn(expected_preferences, agents_text)
-            self.assertIn(f"python {target.resolve() / 'commands' / 'resolve_preferences.py'}", agents_text)
+            self.assertIn(f"python {expected_customize_resolver.resolve()}", agents_text)
             self.assertNotIn("{{FORGE_CODEX_SKILL}}", agents_text)
             self.assertNotRegex(agents_text, re.compile(r"\{\{[A-Z0-9_]+\}\}"))
 
@@ -226,6 +241,12 @@ class CodexHostInstallTests(unittest.TestCase):
 
             self.assertTrue((target / "shared").is_dir())
             self.assertFalse((target / "engine").exists())
+            self.assertFalse((target / "commands" / "initialize_workspace.py").exists())
+            self.assertFalse((target / "commands" / "_forge_skill_command.py").exists())
+            self.assertFalse((target / "commands" / "resolve_preferences.py").exists())
+            self.assertFalse((target / "commands" / "write_preferences.py").exists())
+            self.assertFalse((target / "commands" / "_forge_customize_command.py").exists())
+            customize_root = codex_home / "skills" / "forge-customize"
 
             workspace = temp_root / "workspace"
             workspace.mkdir(parents=True, exist_ok=True)
@@ -237,7 +258,7 @@ class CodexHostInstallTests(unittest.TestCase):
             write_result = subprocess.run(
                 [
                     sys.executable,
-                    str(target / "commands" / "write_preferences.py"),
+                    str(customize_root / "commands" / "write_preferences.py"),
                     "--workspace",
                     str(workspace),
                     "--technical-level",
@@ -262,7 +283,7 @@ class CodexHostInstallTests(unittest.TestCase):
             resolve_result = subprocess.run(
                 [
                     sys.executable,
-                    str(target / "commands" / "resolve_preferences.py"),
+                    str(customize_root / "commands" / "resolve_preferences.py"),
                     "--workspace",
                     str(workspace),
                     "--format",
@@ -299,13 +320,14 @@ class CodexHostInstallTests(unittest.TestCase):
 
             expected_state_root = (codex_home / "forge-codex").resolve()
             expected_preferences = (expected_state_root / "state" / "preferences.json").resolve()
+            customize_root = codex_home / "skills" / "forge-customize"
             env = os.environ.copy()
             env.pop("FORGE_HOME", None)
 
             write_result = subprocess.run(
                 [
                     sys.executable,
-                    str(target / "commands" / "write_preferences.py"),
+                    str(customize_root / "commands" / "write_preferences.py"),
                     "--language",
                     "vi",
                     "--orthography",
@@ -336,7 +358,7 @@ class CodexHostInstallTests(unittest.TestCase):
             resolve_result = subprocess.run(
                 [
                     sys.executable,
-                    str(target / "commands" / "resolve_preferences.py"),
+                    str(customize_root / "commands" / "resolve_preferences.py"),
                     "--format",
                     "json",
                 ],
@@ -414,6 +436,42 @@ class CodexHostInstallTests(unittest.TestCase):
                     activate_codex=True,
                     codex_home=str(codex_home),
                 )
+
+    def test_install_refreshes_build_manifest_even_when_bundle_sync_is_skipped(self) -> None:
+        build_release.build_all()
+        with TemporaryDirectory() as temp_dir:
+            temp_root = Path(temp_dir)
+            codex_home = temp_root / "codex-home"
+            target = codex_home / "skills" / "forge-codex"
+            self.seed_codex_home(codex_home, target)
+
+            initial_report = install_bundle.install_bundle(
+                "forge-codex",
+                target=str(target),
+                activate_codex=True,
+                codex_home=str(codex_home),
+            )
+
+            source_manifest_path = Path(initial_report["source"]) / "BUILD-MANIFEST.json"
+            source_manifest = json.loads(source_manifest_path.read_text(encoding="utf-8"))
+            target_manifest_path = target / "BUILD-MANIFEST.json"
+            stale_manifest = dict(source_manifest)
+            stale_manifest["git_revision"] = "stale-build-manifest"
+            target_manifest_path.write_text(
+                json.dumps(stale_manifest, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+
+            refresh_report = install_bundle.install_bundle(
+                "forge-codex",
+                target=str(target),
+                activate_codex=True,
+                codex_home=str(codex_home),
+            )
+
+            self.assertFalse(refresh_report["bundle_sync_required"])
+            refreshed_manifest = json.loads(target_manifest_path.read_text(encoding="utf-8"))
+            self.assertEqual(refreshed_manifest["git_revision"], source_manifest["git_revision"])
 
 
 if __name__ == "__main__":

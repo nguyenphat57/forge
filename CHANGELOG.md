@@ -1,5 +1,12 @@
 # Changelog
 
+## 5.1.0 (stable) - 2026-04-24
+
+- Add the new sibling skill `forge-deploy` with explicit pre-deploy readiness, live deploy execution, post-deploy verification, and rollback guidance boundaries.
+- Publish deploy work as a first-class Forge surface by wiring `forge-deploy` into the sibling skill catalog, source-repo guidance, generated host artifacts, install package matrix, and bundle contracts.
+- Refresh `/deploy` smoke expectations and release-facing tests so deploy prompts route through `forge-deploy` while version bump, PR, and merge decisions remain with their existing owner skills.
+
+
 ## 5.0.0 (stable) - 2026-04-23
 
 - Promote release bump preparation into the new sibling `forge-bump-release` skill, with the bump engine and semver helpers owned under `packages/forge-skills/bump-release/references/scripts/`.

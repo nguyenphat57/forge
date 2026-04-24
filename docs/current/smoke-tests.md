@@ -398,14 +398,16 @@ Please help me check if this app is ready for production.
 
 **Expected**
 
-- Invoke `forge-verification-before-completion`; use deploy or secure compatibility wrappers only if the host exposes those aliases
+- Invoke `forge-deploy`
+- Make target, command source, post-deploy verification, and rollback path explicit before any deploy-ready wording
+- Invoke `forge-verification-before-completion` before any deployable or shipped claim
 - Require clear pre-deploy checks
 - Do not rely on `session.json` instead of evidence
 
 **Fail if**
 
 - Give deploy pass only verbally
-- No security or recovery prompts
+- No blocked-state, security, or recovery prompts
 
 ---
 

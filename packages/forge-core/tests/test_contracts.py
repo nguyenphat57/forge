@@ -86,6 +86,11 @@ FORGE_SPLIT_SKILLS = {
         "path": "packages/forge-skills/bump-release/SKILL.md",
         "budget": 220,
     },
+    "deploy": {
+        "package": "forge-deploy",
+        "path": "packages/forge-skills/deploy/SKILL.md",
+        "budget": 320,
+    },
     "writing-skills": {
         "package": "forge-writing-skills",
         "path": "packages/forge-skills/writing-skills/SKILL.md",
@@ -129,6 +134,11 @@ EXPECTED_SKILL_LOCAL_REFERENCES = {
         "references/scripts/prepare_bump_git.py",
         "references/scripts/prepare_bump_report.py",
         "references/scripts/prepare_bump_semver.py",
+    ],
+    "deploy": [
+        "references/deploy-contract.md",
+        "references/deploy-checks.md",
+        "references/rollback-guidance.md",
     ],
 }
 

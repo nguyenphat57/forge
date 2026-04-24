@@ -35,6 +35,7 @@ class RepoOperatorScriptShimTests(unittest.TestCase):
         self.assertIn("Use `forge-session-management` for `save context`", agents)
         self.assertIn("Use `forge-session-management` for `handover`", agents)
         self.assertIn("forge-bump-release", agents)
+        self.assertIn("forge-deploy", agents)
         self.assertIn("Use natural language plus Forge skills for guidance, next-step selection, and command execution", agents)
         self.assertNotIn("python scripts/repo_operator.py bump", agents)
         self.assertNotIn("python scripts/repo_operator.py customize", agents)

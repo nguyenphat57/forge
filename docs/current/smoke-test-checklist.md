@@ -156,7 +156,9 @@ Goal: quickly record results for each smoke test run on a real host rolling out 
 |-----|---------|
 |Prompt used | `/deploy` + check production readiness|
 |Route with correct skill? |  |
+|Does it route to `forge-deploy`? |  |
 |Is there pre-deploy/security/recovery guidance? |  |
+|Are target, command source, post-deploy checks, and rollback path explicit? |  |
 |Does Gate 2 follow syntax/config -> type/lint -> build entry? |  |
 |Does it avoid verbal-only readiness claims? |  |
 |Score |  |

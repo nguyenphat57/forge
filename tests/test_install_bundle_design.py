@@ -31,6 +31,7 @@ FORGE_SIBLING_SKILLS = [
     "forge-finishing-a-development-branch",
     "forge-customize",
     "forge-bump-release",
+    "forge-deploy",
     "forge-writing-skills",
     "forge-session-management",
 ]
@@ -74,6 +75,11 @@ EXPECTED_SIBLING_SKILL_REFERENCES = {
         "references/scripts/prepare_bump_report.py",
         "references/scripts/prepare_bump_semver.py",
     ],
+    "forge-deploy": [
+        "references/deploy-contract.md",
+        "references/deploy-checks.md",
+        "references/rollback-guidance.md",
+    ],
 }
 
 
@@ -88,6 +94,14 @@ class RetiredBundleMatrixTests(unittest.TestCase):
             with self.subTest(bundle=bundle_name):
                 self.assertFalse((ROOT_DIR / "dist" / bundle_name / "skills").exists())
                 self.assertFalse((ROOT_DIR / "dist" / bundle_name / "references").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "commands" / "initialize_workspace.py").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "commands" / "_forge_skill_command.py").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "commands" / "resolve_preferences.py").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "commands" / "write_preferences.py").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "commands" / "_forge_customize_command.py").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "data" / "preferences-schema.json").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "shared" / "compat.py").exists())
+                self.assertFalse((ROOT_DIR / "dist" / bundle_name / "shared" / "preferences.py").exists())
         for skill_name in FORGE_SIBLING_SKILLS:
             with self.subTest(skill=skill_name):
                 self.assertTrue((ROOT_DIR / "dist" / skill_name / "SKILL.md").exists())
@@ -126,6 +140,14 @@ class RetiredBundleMatrixTests(unittest.TestCase):
             for path in bundle["required_bundle_paths"]:
                 with self.subTest(bundle=bundle["name"], path=path):
                     self.assertFalse(path.startswith("references/"))
+                    self.assertNotEqual(path, "commands/initialize_workspace.py")
+                    self.assertNotEqual(path, "commands/_forge_skill_command.py")
+                    self.assertNotEqual(path, "commands/resolve_preferences.py")
+                    self.assertNotEqual(path, "commands/write_preferences.py")
+                    self.assertNotEqual(path, "commands/_forge_customize_command.py")
+                    self.assertNotEqual(path, "data/preferences-schema.json")
+                    self.assertNotEqual(path, "shared/compat.py")
+                    self.assertNotEqual(path, "shared/preferences.py")
 
 
 if __name__ == "__main__":

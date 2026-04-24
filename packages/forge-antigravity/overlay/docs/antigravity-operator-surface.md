@@ -18,6 +18,7 @@ Preferred user phrasing:
 
 - Natural language is the primary surface.
 - Release bump preparation routes through `forge-bump-release`.
+- Live deploy or production-readiness work routes through `forge-deploy`.
 - Guidance, next-step selection, and command execution stay natural-language first through Forge skills and host-native tools.
 - Skill docs may use a concise release-prep presentation.
 - Core semantics, schema, and deterministic scripts must not be forked.

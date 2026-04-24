@@ -1,20 +1,16 @@
 HANDOVER
-- Current task: Forge 5.0.0 stable release is the current shipped line after release bump, bootstrap, session, and delegation behavior moved to sibling skills and the retired workflows compatibility surface was removed.
+- Current task: Forge 5.1.0 stable release is the current shipped line after adding `forge-deploy` and wiring `/deploy` through the sibling-skill release surfaces.
 - Status: released
 - Maintainer docs: docs/current/*
 - Pending: (none)
 - Verification run:
-  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --format json -> PASS, inferred major 4.0.0 to 5.0.0 with high confidence on 2026-04-23
-  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.0.0 on 2026-04-23
-  - python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-23 after 5.0.0 continuity update
-  - python scripts/generate_host_artifacts.py --check --format json -> PASS on 2026-04-23
-  - python scripts/generate_overlay_skills.py --check --format json -> PASS on 2026-04-23
-  - python scripts/build_release.py --force --format json -> PASS with all bundles at 5.0.0 on 2026-04-23
+  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --format json -> PASS, inferred minor 5.0.0 to 5.1.0 with high confidence on 2026-04-24
+  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --apply --release-ready --format json -> PASS, updated VERSION and CHANGELOG.md to 5.1.0 on 2026-04-24
+  - python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-24 after 5.1.0 continuity update
 - Important decisions:
-  - Bump 4.0.0 to 5.0.0 as major because this slice removes the remaining public operator and workflow compatibility surface and moves release bump, bootstrap, session, and delegation behavior to sibling skills.
-  - Treat forge-bump-release as the canonical release bump surface; do not revive repo_operator.py bump or workflows/operator/bump.md.
-  - Retire active workflows/ folders from core, Codex overlay, Antigravity overlay, generated host artifacts, and dist bundles.
+  - Bump 5.0.0 to 5.1.0 as minor because this slice adds `forge-deploy` and deploy-facing release surfaces without changing bump or branch ownership boundaries.
+  - Keep `forge-bump-release` as the owner of semver and changelog, `forge-finishing-a-development-branch` as the owner of branch resolution, and `forge-deploy` as the owner of live rollout concerns.
 - Risks:
-  - Full non-fast release suite was not rerun after the final 5.0.0 continuity update.
+  - Full non-fast release suite was not rerun after the final 5.1.0 continuity update.
 - Blockers: (none)
 - Next step: No pending release task.

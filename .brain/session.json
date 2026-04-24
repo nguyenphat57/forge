@@ -1,35 +1,31 @@
 {
-  "updated_at": "2026-04-23T14:55:00+00:00",
+  "updated_at": "2026-04-24T08:10:00+00:00",
   "working_on": {
-    "feature": "forge-5-0-0-stable-release",
-    "task": "Forge 5.0.0 stable release prepared after moving release bump, bootstrap, session, and delegation behavior to sibling skills and retiring workflows.",
+    "feature": "forge-5-1-0-stable-release",
+    "task": "Forge 5.1.0 stable release prepared after adding the public forge-deploy sibling skill and wiring /deploy through the release-facing contract surfaces.",
     "status": "released",
     "files": [
       "VERSION",
       "CHANGELOG.md",
-      "README.md",
       ".brain/decisions.json",
       ".brain/session.json",
       ".brain/handover.md",
-      "docs/release/public-readiness.md",
-      "docs/release/release-process.md",
-      "packages/forge-skills/bump-release/",
-      "packages/forge-skills/init/commands/",
-      "packages/forge-skills/customize/",
-      "packages/forge-skills/session-management/commands/",
-      "packages/forge-core/tests/support.py",
-      "scripts/build_release.py",
       "AGENTS.md",
-      "docs/architecture/adapter-boundary.md",
-      "docs/architecture/architecture-layers.md",
       "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
       "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
       "docs/architecture/generated-host-artifacts/antigravity/docs/antigravity-operator-surface.md",
-      "docs/architecture/host-artifacts-manifest.json",
-      "docs/architecture/monorepo.md",
-      "docs/current/architecture.md",
       "docs/architecture/generated-host-artifacts/codex/docs/codex-operator-surface.md",
-      "docs/architecture/generated-host-artifacts/source-repo/operator-surface.md"
+      "docs/architecture/generated-host-artifacts/source-repo/operator-surface.md",
+      "docs/current/operator-surface.md",
+      "docs/current/smoke-test-checklist.md",
+      "docs/current/smoke-tests.md",
+      "docs/release/package-matrix.json",
+      "packages/forge-antigravity/overlay/GEMINI.global.md",
+      "packages/forge-antigravity/overlay/docs/antigravity-operator-surface.md",
+      "packages/forge-codex/overlay/AGENTS.global.md",
+      "packages/forge-codex/overlay/docs/codex-operator-surface.md",
+      "packages/forge-core/data/orchestrator-registry.json",
+      "packages/forge-skills/deploy/"
     ]
   },
   "pending_tasks": [
@@ -37,29 +33,27 @@
   "recent_changes": [
     "AGENTS.md",
     "CHANGELOG.md",
-    "README.md",
     "VERSION",
-    "docs/architecture/architecture-layers.md",
     "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
     "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
     "docs/architecture/generated-host-artifacts/antigravity/docs/antigravity-operator-surface.md",
     "docs/architecture/generated-host-artifacts/codex/docs/codex-operator-surface.md",
     "docs/architecture/generated-host-artifacts/source-repo/operator-surface.md",
-    "docs/architecture/host-artifacts-manifest.json",
-    "docs/architecture/monorepo.md",
     "docs/current/operator-surface.md",
     "docs/current/smoke-test-checklist.md",
     "docs/current/smoke-tests.md",
-    "docs/release/install.md",
     "docs/release/package-matrix.json",
-    "docs/release/public-readiness.md",
-    "docs/release/release-process.md",
-    "packages/forge-antigravity/README.md",
-    "packages/forge-codex/README.md",
-    "packages/forge-core/SKILL.md",
-    "packages/forge-skills/bump-release/SKILL.md"
+    "packages/forge-antigravity/overlay/GEMINI.global.md",
+    "packages/forge-antigravity/overlay/docs/antigravity-operator-surface.md",
+    "packages/forge-codex/overlay/AGENTS.global.md",
+    "packages/forge-codex/overlay/docs/codex-operator-surface.md",
+    "packages/forge-core/data/orchestrator-registry.json",
+    "packages/forge-skills/deploy/SKILL.md"
   ],
   "verification": [
+    "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --format json -> PASS, inferred minor 5.0.0 to 5.1.0 with high confidence on 2026-04-24",
+    "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --apply --release-ready --format json -> PASS, updated VERSION and CHANGELOG.md to 5.1.0 on 2026-04-24",
+    "python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-24 after 5.1.0 release update",
     "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --format json -> PASS, inferred major 4.0.0 to 5.0.0 with high confidence on 2026-04-23",
     "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.0.0 on 2026-04-23",
     "python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-23 after 5.0.0 continuity update",
@@ -73,6 +67,7 @@
     "python scripts/build_release.py --force --format json -> PASS on 2026-04-23"
   ],
   "decisions_made": [
+    "Bump 5.0.0 to 5.1.0 as minor because this slice adds the public forge-deploy sibling skill and deploy-facing contract surfaces without changing the stable release ownership boundaries for bump or branch flow.",
     "Bump 4.0.0 to 5.0.0 as major because this slice removes the remaining public operator/workflow compatibility surface and moves release bump, bootstrap, session, and delegation behavior to sibling skills.",
     "Treat forge-bump-release as the canonical release bump surface; do not revive repo_operator.py bump or workflows/operator/bump.md.",
     "Retire active workflows/ folders from core, Codex overlay, Antigravity overlay, generated host artifacts, and dist bundles.",
@@ -86,17 +81,17 @@
     "forge-session-management owns resume, save context, handover, and deterministic session command reports."
   ],
   "risks": [
+    "Full non-fast release suite was not rerun after the final 5.1.0 continuity update.",
     "Full non-fast release suite was not rerun after the final 5.0.0 continuity update.",
     "Full non-fast release suite was not rerun after the final 4.0.0 continuity update.",
     "Full non-fast release suite was not rerun after the final 3.3.0 continuity update."
   ],
   "blockers": [],
   "source_artifacts": [
-    "readme: C:\\Users\\Admin\\.gemini\\forge\\README.md",
-    "plan: C:\\Users\\Admin\\.gemini\\forge\\docs\\plans\\2026-04-23-runtime-ownership-refactor-implementation-plan.md",
+    "changelog: C:\\Users\\Admin\\.gemini\\forge\\CHANGELOG.md",
     "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
     "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
-    "git: 5.0.0 release commit prepared for origin/main",
+    "git: 5.1.0 release commit prepared for origin/main",
     "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\workflow-state\\forge\\latest.json"
   ]
 }

@@ -10,6 +10,7 @@ Notes:
 
 - Workspace bootstrap and docs normalization now route through the sibling skill `forge-init`, not a repo operator action.
 - Release bump preparation now routes through the sibling skill `forge-bump-release`, not a repo operator action.
+- Live deploy and production-readiness work now route through the sibling skill `forge-deploy`, not a repo operator action.
 - `forge-session-management` resume reads real artifacts and may auto-seed canonical `workflow-state` from a legacy JSON artifact or the latest plan/spec when no canonical root exists yet.
 - Guidance, next-step selection, and command execution stay natural-language first through Forge skills and host-native tools.
 - Continuity capture remains internal runtime tooling and is not part of the public repo operator surface.
@@ -33,6 +34,6 @@ These sections are catalogs and metadata, not a deterministic routing engine.
 
 ## Current Guidance Rule
 
-When documenting source-repo flows in this repository, show Forge sibling skills for process activation and release bump preparation.
+When documenting source-repo flows in this repository, show Forge sibling skills for process activation, release bump preparation, and deploy work.
 
 Do not reintroduce repo-root operator scripts or describe workflow files as the primary activation surface.

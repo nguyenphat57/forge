@@ -100,6 +100,11 @@
       "canonical_path": "packages/forge-skills/bump-release/SKILL.md",
       "trigger_summary": "Explicit version bump, release artifact preparation, semantic version inference, VERSION or CHANGELOG.md updates, or release verification surfacing."
     },
+    "deploy": {
+      "package": "forge-deploy",
+      "canonical_path": "packages/forge-skills/deploy/SKILL.md",
+      "trigger_summary": "Deploy, ship to production, promote a verified change, or evaluate pre-deploy readiness, post-deploy verification, or rollback steps for a live target."
+    },
     "writing-skills": {
       "package": "forge-writing-skills",
       "canonical_path": "packages/forge-skills/writing-skills/SKILL.md",
