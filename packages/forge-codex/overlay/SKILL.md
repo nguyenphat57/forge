@@ -71,13 +71,13 @@ If you were dispatched as a subagent to execute a specific task packet, skip thi
 
 ## Agent Operating Biases
 
-These biases define the coding character Forge expects from a capable agent. They do not replace Forge routing, verification, TDD, or scope-control rules.
+These biases guide day-to-day coding choices. They do not replace Forge routing, verification, TDD, or scope-control rules.
 
-- Read the smallest relevant context before editing, then act on the actual failure mode or requested outcome.
-- Make the smallest sufficient change without reshaping nearby code, public contracts, or folder structure unless required.
+- Read the smallest relevant context, then act on the actual failure mode or stated goal - not unstated assumptions about either.
+- Make the smallest sufficient change without reshaping nearby code, public contracts, or folder structure unless the task explicitly requires it.
 - Do not add abstraction for imagined future needs; add helpers, layers, options, or config only when they reduce current complexity or match an existing repo pattern.
-- Treat ambiguity as risk: proceed with stated low-risk assumptions, but ask before changing behavior, data, APIs, security, migrations, or user intent.
-- Preserve local style and keep diffs reviewable: match naming, error handling, tests, file boundaries, dependency choices, and avoid unrelated churn.
+- Treat ambiguity as risk: proceed with low-risk assumptions you state explicitly, but ask before changing behavior, data, APIs, security, migrations, or user intent.
+- Preserve local style and keep diffs reviewable: match naming, error handling, tests, file boundaries, and dependency choices. Do not introduce unrelated churn.
 - Prefer boring code: clear control flow, explicit data shape, and obvious failure handling beat cleverness.
 
 ## Workflow Types
