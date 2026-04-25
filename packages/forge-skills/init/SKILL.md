@@ -38,8 +38,8 @@ Preview first. Apply after inspecting the current workspace.
   - `docs/QUALITY.md`
   - `docs/SCHEMA.md`
   - `docs/OPERATIONS.md`
-  - `docs/CHANGELOG.md`
   - `docs/templates/FEATURE_TASK.md`
+- `forge-init` does not create changelog docs; root `CHANGELOG.md` creation belongs to `forge-bump-release`.
 - Do not create `docs/STATUS.md`, `docs/DECISIONS.md`, or `docs/ERRORS.md` by default.
 
 ## Process Flow

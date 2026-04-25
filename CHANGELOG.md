@@ -1,5 +1,12 @@
 # Changelog
 
+## 5.3.0 (stable) - 2026-04-25
+
+- Teach `forge-bump-release` to create root `CHANGELOG.md` when it is missing, while continuing to update `VERSION` and report the release artifact set explicitly.
+- Move changelog ownership out of `forge-init` so bootstrap no longer creates `docs/CHANGELOG.md`; root release history now belongs to `forge-bump-release`.
+- Add regression coverage for missing-changelog bump behavior and init bootstrap output, then refresh release-facing docs and continuity state around `5.3.0`.
+
+
 ## 5.2.0 (stable) - 2026-04-24
 
 - Point generated Codex and Gemini global bootstrap docs at the `forge-customize` owner command and sibling-skill root instead of host-bundle-local preference command paths.

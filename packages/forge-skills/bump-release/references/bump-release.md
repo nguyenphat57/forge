@@ -15,7 +15,8 @@ python references/scripts/prepare_bump.py --workspace <workspace> --bump 2.0.0 -
 - Read `VERSION`.
 - If user requests a bump but does not state the level, infer `patch|minor|major` from git diff since the last changed `VERSION`.
 - Calculate `target_version` from inference level, `patch|minor|major`, or explicit semver.
-- Preview or apply changes to `VERSION` and `CHANGELOG.md`.
+- Preview or apply changes to `VERSION` and root `CHANGELOG.md`.
+- If root `CHANGELOG.md` does not exist, create it with a `# Changelog` heading and the target version entry.
 - Return next verification commands; do not commit, push, tag, publish, or claim release-ready.
 - If inference confidence is low, warn and allow override with `--bump patch|minor|major`.
 

@@ -54,6 +54,31 @@ class BumpWorkflowTests(unittest.TestCase):
             changelog = (workspace / "CHANGELOG.md").read_text(encoding="utf-8")
             self.assertIn("## 1.4.3 - ", changelog)
 
+    def test_bump_apply_creates_changelog_when_missing(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            (workspace / "VERSION").write_text("1.4.2\n", encoding="utf-8")
+
+            result = run_python_script(
+                "prepare_bump.py",
+                "--workspace",
+                str(workspace),
+                "--bump",
+                "patch",
+                "--apply",
+                "--format",
+                "json",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+
+            self.assertEqual(report["target_version"], "1.4.3")
+            self.assertEqual(report["changed_files"], ["VERSION", "CHANGELOG.md"])
+            self.assertTrue((workspace / "CHANGELOG.md").exists())
+            changelog = (workspace / "CHANGELOG.md").read_text(encoding="utf-8")
+            self.assertTrue(changelog.startswith("# Changelog\n\n"))
+            self.assertIn("## 1.4.3 - ", changelog)
+
     def test_bump_auto_infers_minor_from_new_capability_file_in_git_workspace(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)

@@ -91,7 +91,6 @@ workspace/
     ├── QUALITY.md                      ← optional
     ├── SCHEMA.md                       ← optional
     ├── OPERATIONS.md                   ← optional
-    ├── CHANGELOG.md                    ← optional
     ├── DECISIONS.md                    ← optional curated doc
     ├── ERRORS.md                       ← optional curated doc
     └── templates/
@@ -137,8 +136,9 @@ workspace/
 - `docs/QUALITY.md`
 - `docs/SCHEMA.md`
 - `docs/OPERATIONS.md`
-- `docs/CHANGELOG.md`
 - `docs/templates/FEATURE_TASK.md`
+
+Root `CHANGELOG.md` creation belongs to `forge-bump-release`, not `forge-init`.
 
 ### Không tạo mặc định trong Forge workspace
 
@@ -301,10 +301,6 @@ Tạo khi project đã có contract đáng kể:
 ### `docs/OPERATIONS.md`
 
 Tạo khi project có deploy/release/production concern thật.
-
-### `docs/CHANGELOG.md`
-
-Tạo khi workspace có release hoặc milestone history thực sự cần theo dõi.
 
 ### `docs/templates/FEATURE_TASK.md`
 

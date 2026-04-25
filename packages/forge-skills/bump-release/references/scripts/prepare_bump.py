@@ -21,9 +21,9 @@ def main() -> int:
     configure_stdio()
 
     parser = argparse.ArgumentParser(description="Prepare or apply a host-neutral version bump checklist.")
-    parser.add_argument("--workspace", type=Path, default=Path.cwd(), help="Workspace root containing VERSION and CHANGELOG.md")
+    parser.add_argument("--workspace", type=Path, default=Path.cwd(), help="Workspace root containing VERSION; CHANGELOG.md is created when missing")
     parser.add_argument("--bump", default="auto", help="patch, minor, major, auto, or an explicit semantic version")
-    parser.add_argument("--apply", action="store_true", help="Write VERSION and CHANGELOG.md instead of previewing only")
+    parser.add_argument("--apply", action="store_true", help="Write VERSION and root CHANGELOG.md instead of previewing only")
     parser.add_argument("--release-ready", action="store_true", help="Surface the nearest release verification command")
     parser.add_argument("--format", choices=["text", "json"], default="text", help="Output format")
     args = parser.parse_args()

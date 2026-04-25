@@ -166,7 +166,7 @@ class InitializeWorkspaceTests(unittest.TestCase):
             self.assertTrue((workspace / "docs" / "QUALITY.md").exists())
             self.assertTrue((workspace / "docs" / "SCHEMA.md").exists())
             self.assertTrue((workspace / "docs" / "OPERATIONS.md").exists())
-            self.assertTrue((workspace / "docs" / "CHANGELOG.md").exists())
+            self.assertFalse((workspace / "docs" / "CHANGELOG.md").exists())
             self.assertTrue((workspace / "docs" / "templates" / "FEATURE_TASK.md").exists())
             self.assertIn(str(workspace / "README.md"), report["reused_paths"])
             self.assertIn(str(workspace / "package.json"), report["reused_paths"])

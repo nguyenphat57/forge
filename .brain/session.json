@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-04-24T03:13:16.1288840Z",
+  "updated_at": "2026-04-25T03:01:05Z",
   "working_on": {
-    "feature": "forge-5-2-0-stable-release",
-    "task": "Forge 5.2.0 stable release aligns generated host artifacts, install/render contracts, and owner-command guidance on sibling skill forge-customize for preference resolution.",
+    "feature": "forge-5-3-0-stable-release",
+    "task": "Forge 5.3.0 stable release aligns release bump ownership so forge-bump-release creates root CHANGELOG.md when missing and forge-init no longer creates changelog bootstrap docs.",
     "status": "released",
     "files": [
       "VERSION",
@@ -11,28 +11,21 @@
       ".brain/session.json",
       ".brain/handover.md",
       "README.md",
-      "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
-      "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
-      "docs/current/kernel-tooling.md",
       "docs/release/public-readiness.md",
       "docs/release/release-process.md",
-      "packages/forge-antigravity/overlay/GEMINI.global.md",
-      "packages/forge-antigravity/overlay/SKILL.delta.md",
-      "packages/forge-codex/overlay/AGENTS.global.md",
-      "packages/forge-codex/overlay/SKILL.delta.md",
-      "packages/forge-codex/README.md",
-      "packages/forge-skills/session-management/SKILL.md",
-      "packages/forge-core/tools/smoke_matrix_suites.py",
-      "packages/forge-skills/customize/commands/_forge_customize_command.py",
-      "packages/forge-skills/customize/shared/compat_paths.py",
-      "packages/forge-skills/customize/shared/preferences_paths.py",
-      "scripts/build_release.py",
-      "scripts/install_bundle_host.py",
-      "scripts/install_bundle_runtime.py"
+      "packages/forge-core/tests/fixtures/workspace_init_cases.json",
+      "packages/forge-core/tests/test_bump_workflow.py",
+      "packages/forge-core/tests/test_initialize_workspace.py",
+      "packages/forge-skills/bump-release/SKILL.md",
+      "packages/forge-skills/bump-release/references/bump-release.md",
+      "packages/forge-skills/bump-release/references/scripts/prepare_bump.py",
+      "packages/forge-skills/bump-release/references/scripts/prepare_bump_report.py",
+      "packages/forge-skills/init/SKILL.md",
+      "packages/forge-skills/init/commands/initialize_workspace.py",
+      "packages/forge-skills/init/references/project-docs-blueprint.md"
     ]
   },
-  "pending_tasks": [
-  ],
+  "pending_tasks": [],
   "recent_changes": [
     ".brain/decisions.json",
     ".brain/handover.md",
@@ -40,63 +33,38 @@
     "CHANGELOG.md",
     "README.md",
     "VERSION",
-    "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
-    "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
-    "docs/current/kernel-tooling.md",
     "docs/release/public-readiness.md",
     "docs/release/release-process.md",
-    "packages/forge-antigravity/overlay/GEMINI.global.md",
-    "packages/forge-antigravity/overlay/SKILL.md",
-    "packages/forge-codex/overlay/AGENTS.global.md",
-    "packages/forge-codex/overlay/SKILL.md",
-    "packages/forge-skills/customize/shared/preferences_paths.py",
-    "scripts/install_bundle_host.py"
+    "packages/forge-core/tests/fixtures/workspace_init_cases.json",
+    "packages/forge-core/tests/test_bump_workflow.py",
+    "packages/forge-core/tests/test_initialize_workspace.py",
+    "packages/forge-skills/bump-release/SKILL.md",
+    "packages/forge-skills/bump-release/references/bump-release.md",
+    "packages/forge-skills/bump-release/references/scripts/prepare_bump.py",
+    "packages/forge-skills/bump-release/references/scripts/prepare_bump_report.py",
+    "packages/forge-skills/init/SKILL.md",
+    "packages/forge-skills/init/commands/initialize_workspace.py",
+    "packages/forge-skills/init/references/project-docs-blueprint.md"
   ],
   "verification": [
-    "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --format json -> PASS, inferred minor 5.1.0 to 5.2.0 with high confidence on 2026-04-24",
-    "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.2.0 on 2026-04-24",
-    "pytest tests/test_host_artifact_generation.py tests/release_repo_test_overlays.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-24",
-    "python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-24 after 5.2.0 release update",
-    "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --format json -> PASS, inferred major 4.0.0 to 5.0.0 with high confidence on 2026-04-23",
-    "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.0.0 on 2026-04-23",
-    "python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-23 after 5.0.0 continuity update",
-    "python -m pytest tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py tests/test_host_artifact_generation.py packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_help_next.py packages/forge-core/tests/test_run_workflow.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> 95 passed, 86461 subtests passed on 2026-04-23",
-    "python scripts/build_release.py --force --format json -> PASS with all bundles at 4.0.0 on 2026-04-23",
-    "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23",
-    "python scripts/generate_host_artifacts.py --check -> PASS on 2026-04-23",
-    "python scripts/generate_overlay_skills.py --check -> PASS on 2026-04-23",
-    "pytest tests/test_public_customize_skill.py packages/forge-core/tests/test_preferences.py packages/forge-core/tests/test_write_preferences.py packages/forge-core/tests/test_contracts.py tests/test_script_polish.py tests/test_operator_surface_registry.py tests/test_host_artifact_generation.py tests/test_repo_operator_script_shims.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-23",
-    "python -m pytest tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_session_context.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> 83 passed, 86779 subtests passed on 2026-04-23",
-    "python scripts/build_release.py --force --format json -> PASS on 2026-04-23"
+    "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --format json -> PASS, preview inferred minor 5.2.0 to 5.3.0 with high confidence on 2026-04-25; inference included unrelated untracked files, so release used explicit minor",
+    "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump minor --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.3.0 on 2026-04-25",
+    "python -m unittest test_bump_workflow test_initialize_workspace -> PASS from packages/forge-core/tests on 2026-04-25",
+    "python scripts/verify_repo.py -> PASS on 2026-04-25 after 5.3.0 continuity update"
   ],
   "decisions_made": [
-    "Bump 5.1.0 to 5.2.0 as minor because customize owner-command routing changes affect generated host artifacts, install/render contracts, and installed host activation behavior.",
-    "Keep generated Codex and Gemini global docs pointed at the forge-customize owner command instead of host-bundle-local preference command paths.",
-    "Bump 4.0.0 to 5.0.0 as major because this slice removes the remaining public operator/workflow compatibility surface and moves release bump, bootstrap, session, and delegation behavior to sibling skills.",
-    "Treat forge-bump-release as the canonical release bump surface; do not revive repo_operator.py bump or workflows/operator/bump.md.",
-    "Retire active workflows/ folders from core, Codex overlay, Antigravity overlay, generated host artifacts, and dist bundles.",
-    "Bump 3.3.0 to 4.0.0 as major because this slice removes public help, next, and run operator actions from repo and host surfaces.",
-    "Keep resolve_help_next.py and run_with_guidance.py as internal forge-core owner commands with owner report metadata.",
-    "Keep guidance, next-step selection, and command execution natural-language first through Forge skills and host-native tools.",
-    "Bump 3.2.3 to 3.2.4 as patch because this slice moves customize preference runtime ownership and removes the public customize operator action without changing the stable product line.",
-    "Bump 3.2.4 to 3.3.0 as minor because this slice removes public session operator actions and makes forge-session-management the sole session owner.",
-    "forge-customize owns durable preference commands, shared modules, and canonical schema in source; release builds materialize that runtime into adapter bundles.",
-    "Keep durable preference changes natural-language first through forge-customize rather than a public repo or host customize operator action.",
-    "forge-session-management owns resume, save context, handover, and deterministic session command reports."
+    "Bump 5.2.0 to 5.3.0 as minor because release bump ownership gained missing-root-CHANGELOG.md creation behavior and forge-init no longer owns changelog bootstrap docs.",
+    "Keep root CHANGELOG.md as the only release-history file owned by forge-bump-release; do not create CHANGELOGS.md, CHANGELOS.md, or docs/CHANGELOG.md.",
+    "Keep forge-init focused on project bootstrap docs and remove changelog release-history ownership from its optional docs set."
   ],
   "risks": [
-    "Full non-fast release suite was not rerun after the final 5.2.0 continuity update.",
-    "Installed-host update verification depends on post-build install commands into local .codex and .gemini runtime paths.",
-    "Full non-fast release suite was not rerun after the final 5.0.0 continuity update.",
-    "Full non-fast release suite was not rerun after the final 4.0.0 continuity update.",
-    "Full non-fast release suite was not rerun after the final 3.3.0 continuity update."
+    "Installed local Codex/Gemini skill bundles are not updated by this source commit; install from a fresh dist build when promoting the runtime."
   ],
   "blockers": [],
   "source_artifacts": [
     "changelog: C:\\Users\\Admin\\.gemini\\forge\\CHANGELOG.md",
     "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
     "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
-    "git: 5.2.0 release commit aligns source for origin/main",
     "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\workflow-state\\forge\\latest.json"
   ]
 }

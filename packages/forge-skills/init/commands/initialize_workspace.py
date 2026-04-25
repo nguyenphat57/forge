@@ -39,7 +39,6 @@ OPTIONAL_DOCS = (
     "docs/QUALITY.md",
     "docs/SCHEMA.md",
     "docs/OPERATIONS.md",
-    "docs/CHANGELOG.md",
     "docs/templates/FEATURE_TASK.md",
 )
 
@@ -61,7 +60,6 @@ DOC_EQUIVALENTS = {
     "docs/QUALITY.md": ("docs/quality.md", "TESTING.md", ".forge-artifacts/codebase/testing.md"),
     "docs/SCHEMA.md": ("docs/schema.md", "prisma/schema.prisma", "schema.sql"),
     "docs/OPERATIONS.md": ("docs/operations.md", "Dockerfile", "docker-compose.yml", ".github/workflows"),
-    "docs/CHANGELOG.md": ("CHANGELOG.md", "docs/changelog.md", "VERSION"),
     "docs/templates/FEATURE_TASK.md": (),
 }
 
@@ -92,7 +90,6 @@ class WorkspaceSignals:
     has_schema: bool
     has_operations: bool
     has_architecture: bool
-    has_release_signals: bool
 
 
 def _append_unique(values: list[str], item: str) -> None:
@@ -255,11 +252,6 @@ def _load_workspace_signals(workspace: Path, project_name_override: str | None) 
         (workspace / relative).exists()
         for relative in ("app", "src", "packages", "services", ".forge-artifacts/codebase/architecture.md")
     )
-    has_release_signals = any(
-        (workspace / relative).exists()
-        for relative in ("CHANGELOG.md", "VERSION", "docs/changelog.md")
-    )
-
     return WorkspaceSignals(
         workspace=workspace,
         interesting_entries=tuple(_list_interesting_entries(workspace)),
@@ -277,7 +269,6 @@ def _load_workspace_signals(workspace: Path, project_name_override: str | None) 
         has_schema=has_schema,
         has_operations=has_operations,
         has_architecture=has_architecture,
-        has_release_signals=has_release_signals,
     )
 
 
@@ -568,25 +559,6 @@ def _render_operations_doc(signals: WorkspaceSignals, source_paths: list[str]) -
     ]
 
 
-def _render_changelog_doc(signals: WorkspaceSignals, source_paths: list[str]) -> tuple[str, list[str]]:
-    text = "\n".join(
-        [
-            f"# {signals.project_name} Changelog",
-            "",
-            "## Current Signals",
-            "",
-            "- Seed sources:",
-            _format_source_list(source_paths, _placeholder_confirm("release history or version markers")),
-            "",
-            "## Policy",
-            "",
-            f"- Canonical release note format: {_placeholder_needs_input('release note structure and audience')}",
-            f"- Versioning approach: {_placeholder_confirm('semver or other versioning policy')}",
-        ]
-    )
-    return text + "\n", ["release note structure and audience"]
-
-
 def _render_feature_task_template(signals: WorkspaceSignals, source_paths: list[str]) -> tuple[str, list[str]]:
     del source_paths
     text = "\n".join(
@@ -629,7 +601,6 @@ DOC_RENDERERS = {
     "docs/QUALITY.md": _render_quality_doc,
     "docs/SCHEMA.md": _render_schema_doc,
     "docs/OPERATIONS.md": _render_operations_doc,
-    "docs/CHANGELOG.md": _render_changelog_doc,
     "docs/templates/FEATURE_TASK.md": _render_feature_task_template,
 }
 
@@ -644,8 +615,6 @@ def _optional_docs_for_mode(signals: WorkspaceSignals, mode: str) -> list[str]:
         docs.append("docs/SCHEMA.md")
     if signals.has_operations or _equivalent_doc_paths(signals.workspace, "docs/OPERATIONS.md"):
         docs.append("docs/OPERATIONS.md")
-    if signals.has_release_signals or _equivalent_doc_paths(signals.workspace, "docs/CHANGELOG.md"):
-        docs.append("docs/CHANGELOG.md")
     if mode != "greenfield":
         docs.append("docs/templates/FEATURE_TASK.md")
     return _sorted_unique(docs)

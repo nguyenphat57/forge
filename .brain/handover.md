@@ -1,17 +1,18 @@
 HANDOVER
-- Current task: Forge 5.2.0 stable release aligns generated host artifacts, install/render contracts, and owner-command guidance on sibling skill `forge-customize` for preference resolution.
+- Current task: Forge 5.3.0 stable release aligns release bump ownership so `forge-bump-release` creates root `CHANGELOG.md` when missing and `forge-init` no longer creates changelog bootstrap docs.
 - Status: released
 - Maintainer docs: docs/current/*
 - Pending: (none)
 - Verification run:
-  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --format json -> PASS, inferred minor 5.1.0 to 5.2.0 with high confidence on 2026-04-24
-  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.2.0 on 2026-04-24
-  - pytest tests/test_host_artifact_generation.py tests/release_repo_test_overlays.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-24
-  - python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-24 after 5.2.0 release update
+  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --format json -> PASS, preview inferred minor 5.2.0 to 5.3.0 with high confidence on 2026-04-25; inference included unrelated untracked files, so release used explicit minor
+  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump minor --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.3.0 on 2026-04-25
+  - python -m unittest test_bump_workflow test_initialize_workspace -> PASS from packages/forge-core/tests on 2026-04-25
+  - python scripts/verify_repo.py -> PASS on 2026-04-25 after 5.3.0 continuity update
 - Important decisions:
-  - Bump 5.1.0 to 5.2.0 as minor because customize owner-command routing changes affect generated host artifacts, install/render contracts, and installed host activation behavior.
-  - Keep `forge-customize` as the owner of preference resolver and writer commands instead of pointing global host docs at host-bundle-local command paths.
+  - Bump 5.2.0 to 5.3.0 as minor because release bump ownership gained missing-root-CHANGELOG.md creation behavior and forge-init no longer owns changelog bootstrap docs.
+  - Keep root `CHANGELOG.md` as the only release-history file owned by `forge-bump-release`; do not create `CHANGELOGS.md`, `CHANGELOS.md`, or `docs/CHANGELOG.md`.
+  - Keep `forge-init` focused on project bootstrap docs and remove changelog release-history ownership from its optional docs set.
 - Risks:
-  - Full non-fast release suite was not rerun after the final 5.2.0 continuity update.
+  - Installed local Codex/Gemini skill bundles are not updated by this source commit; install from a fresh dist build when promoting the runtime.
 - Blockers: (none)
-- Next step: No pending release task after pushing `main` and updating installed `.codex` / `.gemini` bundles from the fresh `dist/` build.
+- Next step: No pending release task after pushing `main`; install from a fresh `dist/` build when promoting local runtimes.

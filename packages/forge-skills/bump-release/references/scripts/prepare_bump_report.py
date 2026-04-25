@@ -13,8 +13,7 @@ def build_report(args: argparse.Namespace) -> dict:
     changelog_path = workspace / "CHANGELOG.md"
     if not version_path.exists():
         raise FileNotFoundError(f"Missing VERSION file: {version_path}")
-    if not changelog_path.exists():
-        raise FileNotFoundError(f"Missing CHANGELOG.md: {changelog_path}")
+    changelog_existed = changelog_path.exists()
 
     current_version = version_path.read_text(encoding="utf-8").strip()
     parse_version(current_version)
@@ -34,7 +33,8 @@ def build_report(args: argparse.Namespace) -> dict:
         selected_bump = requested_bump
 
     target_version = bump_version(current_version, selected_bump)
-    changelog_preview = update_changelog_content(changelog_path.read_text(encoding="utf-8"), target_version)
+    changelog_content = changelog_path.read_text(encoding="utf-8") if changelog_existed else ""
+    changelog_preview = update_changelog_content(changelog_content, target_version)
 
     changed_files = ["VERSION", "CHANGELOG.md"]
     verification_commands = [["git", "diff", "--stat"]]
@@ -55,6 +55,8 @@ def build_report(args: argparse.Namespace) -> dict:
     if bump_source == "inferred" and inference_confidence == "low":
         status = "WARN"
         warnings.append("Inferred bump has low confidence; consider overriding with --bump patch|minor|major.")
+    if not changelog_existed:
+        warnings.append("CHANGELOG.md did not exist and will be created." if not args.apply else "CHANGELOG.md did not exist and was created.")
 
     return {
         "status": status,

@@ -110,7 +110,7 @@
     ]
   },
   {
-    "name": "release_ops_preview_adds_operations_and_changelog",
+    "name": "release_ops_preview_adds_operations_only",
     "workspace_fixture": "release_ops_workspace",
     "args": [],
     "expected_mode": "normalize-existing-docs",
@@ -123,14 +123,12 @@
     "expected_normalized_files": [
       "docs\\PRODUCT.md",
       "docs\\STACK.md",
-      "docs\\OPERATIONS.md",
-      "docs\\CHANGELOG.md"
+      "docs\\OPERATIONS.md"
     ],
     "expected_reused_paths": [
       "README.md",
       "package.json",
-      "Dockerfile",
-      "CHANGELOG.md"
+      "Dockerfile"
     ]
   }
 ]

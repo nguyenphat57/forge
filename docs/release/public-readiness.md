@@ -1,7 +1,7 @@
 # Forge Public Readiness
 
-Date: 2026-04-24
-Status: `5.2.0` is the current stable release after generated host artifacts, install and render contracts, and owner-command guidance moved preference resolver references to sibling skill `forge-customize`.
+Date: 2026-04-25
+Status: `5.3.0` is the current stable release after release bump ownership was tightened so `forge-bump-release` owns root `CHANGELOG.md` creation and `forge-init` no longer creates changelog bootstrap docs.
 
 ## What This Checklist Covers
 
@@ -22,12 +22,12 @@ This checklist is for publishing the Forge monorepo to a public audience without
 
 ## Latest Evidence
 
-- `pytest tests/test_host_artifact_generation.py tests/release_repo_test_overlays.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q` passed on 2026-04-24
-- `python scripts/verify_repo.py --profile fast --format json` passed on 2026-04-24
+- `python -m unittest test_bump_workflow test_initialize_workspace` passed from `packages/forge-core/tests` on 2026-04-25
+- `python scripts/verify_repo.py` passed on 2026-04-25
 - release and install flows are documented under `docs/release/`
-- release-facing docs now align on `5.2.0` as the stable source version
+- release-facing docs now align on `5.3.0` as the stable source version
 
 ## Verdict
 
-Forge `5.2.0` is in a reasonable state for public stable release under the current policy.
+Forge `5.3.0` is in a reasonable state for public stable release under the current policy.
 The hardening item above is optional evidence, not a release precondition.

@@ -15,7 +15,7 @@ Do not treat generic wrap-up, merge readiness, or task completion as a bump requ
 
 Prepare release version changes while keeping semver inference, release artifacts, and verification evidence explicit.
 
-**Core principle:** `VERSION` and `CHANGELOG.md` edits are release artifacts, not proof that a release is ready.
+**Core principle:** `VERSION` and root `CHANGELOG.md` edits are release artifacts, not proof that a release is ready. If `CHANGELOG.md` is missing, create it as part of the bump; do not create plural or misspelled variants.
 
 ## Required Contract
 
@@ -23,6 +23,7 @@ Prepare release version changes while keeping semver inference, release artifact
 - Bump source is reported as explicit or inferred.
 - Low-confidence inference warnings are surfaced.
 - Changed files and verification commands are shown.
+- Missing root `CHANGELOG.md` is created with the target version entry.
 - No commit, push, tag, publish, or release-ready claim is made by this skill alone.
 
 ## Process
@@ -54,6 +55,7 @@ python references/scripts/prepare_bump.py --workspace <workspace> --bump minor -
 
 - Using retired `repo_operator.py bump` instead of this skill's bundled script.
 - Applying a bump without reporting semver source and target version.
+- Creating `CHANGELOGS.md`, `CHANGELOS.md`, or `docs/CHANGELOG.md` instead of root `CHANGELOG.md`.
 - Hiding low-confidence `auto` inference warnings.
 - Saying a release is ready before running fresh verification.
 - Committing, pushing, tagging, or publishing from the bump script output alone.
