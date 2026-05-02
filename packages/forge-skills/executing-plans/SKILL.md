@@ -12,7 +12,7 @@ description: Use when a written implementation plan exists and the user wants in
 NO PLAN EXECUTION WITHOUT SLICE-BY-SLICE PROOF
 ```
 
-**REQUIRED SUB-SKILL:** If tasks are independent and subagents are useful, use `forge-subagent-driven-development` instead of improvising ad hoc delegation.
+**REQUIRED SUB-SKILL:** When the Codex host supports subagents, start plan execution with a delegation-first assessment. If tasks are independent and subagents are useful, use `forge-subagent-driven-development` instead of improvising ad hoc delegation.
 </EXTREMELY-IMPORTANT>
 
 ## Use When
@@ -31,13 +31,14 @@ NO PLAN EXECUTION WITHOUT SLICE-BY-SLICE PROOF
 
 1. Load the plan and review it critically.
 2. Identify blockers, missing files, missing proof, or scope conflicts **before editing**.
-3. Define verification before each slice.
-4. If behavior changes and a harness is viable, **invoke `forge-test-driven-development` before implementation code**.
-5. If the repo is dirty or the plan needs isolation, **invoke `forge-using-git-worktrees` before editing**.
-6. Execute one task or slice at a time.
-7. Run the exact proof for that slice before proceeding.
-8. Update workflow-state for medium, risky, or long-running work via the orchestrator bundle scripts.
-9. **Do not claim ready or done** until `forge-verification-before-completion` has been invoked.
+3. When the host supports subagents, perform the delegation-first assessment before choosing inline execution.
+4. Define verification before each slice.
+5. If behavior changes and a harness is viable, **invoke `forge-test-driven-development` before implementation code**.
+6. If the repo is dirty or the plan needs isolation, **invoke `forge-using-git-worktrees` before editing**.
+7. Execute one task or slice at a time.
+8. Run the exact proof for that slice before proceeding.
+9. Update workflow-state for medium, risky, or long-running work via the orchestrator bundle scripts.
+10. **Do not claim ready or done** until `forge-verification-before-completion` has been invoked.
 
 ## Execution Loop
 

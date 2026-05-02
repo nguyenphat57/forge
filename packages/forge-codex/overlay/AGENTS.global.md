@@ -48,6 +48,24 @@ Before the first substantive reply in every new thread:
 4. When workspace continuity may matter, use `forge-session-management` resume for the current workspace and follow returned durable context.
 5. If preferences or session artifacts are unavailable, continue with concise, direct, technical output from repo state.
 
+## Delegation-First Rule
+
+Forge Codex defaults to delegation-first execution when the current Codex runtime
+permits subagents for the request.
+
+Before doing non-trivial work locally, evaluate whether one or more subagents can
+safely advance independent slices in parallel. If safe independent slices exist,
+dispatch the bounded sidecar work before continuing the main-thread path.
+
+Keep the main thread responsible for orchestration, user-facing decisions,
+integration, and the immediate blocking step. Do not delegate the immediate
+blocking step when the main thread needs that result before it can continue.
+
+Do not dispatch subagents for small low-risk work, tightly coupled edits, shared
+write sets, missing subagent support, user-forbidden delegation, or any step
+where delegation would violate an exact user-specified tool, model, command,
+workflow, file, API, or method.
+
 ## Strict No-Fallback Rule
 
 When the user specifies an exact tool, model, API, library, command, file,
