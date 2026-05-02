@@ -1,38 +1,45 @@
 {
-  "updated_at": "2026-05-02T06:44:23+00:00",
+  "updated_at": "2026-05-02T13:01:45+00:00",
   "working_on": {
     "feature": "forge",
-    "task": "Forge 5.4.0 stable line and docs/current/* continuity",
+    "task": "Bootstrap docs, .brain, and workflow-state alignment check",
     "status": "completed",
     "files": [
+      "AGENTS.md",
       "README.md",
+      "VERSION",
+      "CHANGELOG.md",
       "docs/current/operator-surface.md",
-      "packages/forge-skills/session-management/SKILL.md",
-      "tests/test_context_contract_docs.py",
-      "packages/forge-core/tests/test_session_context_boundaries.py",
-      "docs/architecture/generated-host-artifacts/source-repo/operator-surface.md"
+      "docs/current/kernel-tooling.md",
+      "docs/current/target-state.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      ".brain/session.json",
+      ".brain/handover.md",
+      ".brain/decisions.json",
+      ".forge-artifacts/workflow-state/forge/latest.json",
+      ".forge-artifacts/workflow-state/forge/packet-index.json"
     ]
   },
-  "pending_tasks": [
-    "Resume the recorded workflow stage 'plan' before opening new scope."
-  ],
+  "pending_tasks": [],
   "recent_changes": [],
   "verification": [
-    "python scripts/verify_repo.py: blocked before install by stale .brain/handover.md; refreshing tracked handover",
-    "python -m unittest tests.test_context_contract_docs: OK",
-    "python -m unittest test_session_context_boundaries: OK",
-    "python -m unittest test_session_context: OK",
-    "python -m unittest tests.test_host_artifact_generation tests.test_context_contract_docs: OK",
-    "python scripts/verify_repo.py --profile fast: PASS"
+    "git status --short --branch: clean main tracking origin/main",
+    "git log -1 --oneline --decorate: 4fff939 (HEAD -> main, origin/main, origin/HEAD) Make Codex plan execution delegation-first",
+    "python scripts\\generate_host_artifacts.py --check --format json: PASS",
+    "python scripts\\generate_overlay_skills.py --check --format json: PASS",
+    "python scripts\\verify_repo.py --profile fast: PASS"
   ],
   "decisions_made": [
-    "Treat 5.4.0 as the current stable Forge release; docs/current/* remains the live maintainer source."
+    "Treat 5.4.0 as the current stable Forge release; docs/current/* remains the live maintainer source.",
+    "No active carried workflow plan remains after the clean main alignment refresh; use the current user request as the next source of truth."
   ],
-  "risks": [],
+  "risks": [
+    "Installed forge-init preview remains blocked outside this source repo by missing installed shared runtime support near C:\\Users\\Admin\\.codex\\skills\\forge-init\\commands."
+  ],
   "blockers": [],
   "source_artifacts": [
     "readme: C:\\Users\\Admin\\.gemini\\forge\\README.md",
-    "plan: C:\\Users\\Admin\\.gemini\\forge\\docs\\plans\\2026-04-23-runtime-ownership-refactor-implementation-plan.md",
     "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
     "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
     "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\workflow-state\\forge\\latest.json"

@@ -1059,15 +1059,36 @@
       "git ls-remote shows origin/main at 63e90b636dab45462fd0d84f9c6db8bcabca836a and no feature branch refs",
       "python scripts\\\\verify_repo.py --profile fast: PASS after merge"
     ],
-    "next": [
-      "README.md rewrite remains as local uncommitted user change; preserve it and do not overwrite"
-    ],
+    "next": [],
     "tags": [
       "git",
       "merge"
     ],
     "revisit_if": null,
     "trigger": "closeout",
-    "resume_hint": "README.md rewrite remains as local uncommitted user change; preserve it and do not overwrite"
+    "resume_hint": null
+  },
+  {
+    "id": "20260502-130145",
+    "kind": "decision",
+    "scope": "forge",
+    "summary": "Refresh continuity state to match clean main at 4fff939; no README rewrite or carried plan remains active.",
+    "status": "resolved",
+    "evidence": [
+      "git status --porcelain=v1: clean",
+      "git log -1 --oneline --decorate: 4fff939 (HEAD -> main, origin/main, origin/HEAD) Make Codex plan execution delegation-first",
+      "python scripts\\generate_host_artifacts.py --check --format json: PASS",
+      "python scripts\\generate_overlay_skills.py --check --format json: PASS",
+      "python scripts\\verify_repo.py --profile fast: PASS"
+    ],
+    "next": [],
+    "tags": [
+      "continuity",
+      "bootstrap-docs",
+      "workflow-state"
+    ],
+    "revisit_if": null,
+    "trigger": "closeout",
+    "resume_hint": null
   }
 ]

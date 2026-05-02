@@ -1,17 +1,17 @@
 HANDOVER
-- Current task: Forge 5.4.0 stable line and docs/current/* continuity
+- Current task: Bootstrap docs, .brain, and workflow-state alignment check
 - Status: completed
-- Pending:
-  - Resume the recorded workflow stage 'plan' before opening new scope.
+- Pending: (none)
 - Verification run:
-  - python scripts/verify_repo.py: blocked before install by stale .brain/handover.md; refreshing tracked handover
-  - python -m unittest tests.test_context_contract_docs: OK
-  - python -m unittest test_session_context_boundaries: OK
-  - python -m unittest test_session_context: OK
-  - python -m unittest tests.test_host_artifact_generation tests.test_context_contract_docs: OK
-  - python scripts/verify_repo.py --profile fast: PASS
+  - git status --short --branch: clean main tracking origin/main
+  - git log -1 --oneline --decorate: 4fff939 (HEAD -> main, origin/main, origin/HEAD) Make Codex plan execution delegation-first
+  - python scripts\generate_host_artifacts.py --check --format json: PASS
+  - python scripts\generate_overlay_skills.py --check --format json: PASS
+  - python scripts\verify_repo.py --profile fast: PASS
 - Important decisions:
   - Treat 5.4.0 as the current stable Forge release; docs/current/* remains the live maintainer source.
-- Risks: (none)
+  - No active carried workflow plan remains after the clean main alignment refresh; use the current user request as the next source of truth.
+- Risks:
+  - Installed forge-init preview remains blocked outside this source repo by missing installed shared runtime support near C:\Users\Admin\.codex\skills\forge-init\commands.
 - Blockers: (none)
-- Next step: Resume the recorded workflow stage 'plan' before opening new scope.
+- Next step: Use the next user request as the source of truth; there is no carried active plan.
