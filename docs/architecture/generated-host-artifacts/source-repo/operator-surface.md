@@ -14,6 +14,15 @@ Notes:
 - Continuity capture remains internal runtime tooling and is not part of the public repo operator surface.
 - Package-level runtime code lives in owner `commands/` directories, with reusable helpers under `packages/forge-core/shared/`. Treat both as implementation detail unless the task is to change runtime internals.
 
+## Context Persistence Boundary
+
+- Resume may auto-seed `.forge-artifacts/workflow-state/<project>/latest.json` from a legacy workflow artifact or the latest plan/spec when no canonical workflow-state root exists.
+- Workflow-state is the automatic execution-state layer for stages, packets, gates, reviews, runs, and related Forge transitions; it is not written by `save context`.
+- `save context` writes `.brain/session.json` as an explicit session snapshot and writes `.brain/handover.md` only when handover is requested.
+- Selective closeout writes lazily at completion only when durable signals exist; it may write `.brain/session.json`, `.brain/handover.md`, `.brain/decisions.json`, or `.brain/learnings.json`.
+- `learning` entries are durable only through selective closeout into `.brain/learnings.json`; normal `save context` does not create learning records.
+- Raw `error` output is not stored as a durable `.brain` record. Persist recurring failures as a blocker, risk, verification note, decision, or learning with evidence.
+
 ## Installed Runtime
 
 Installed Codex and Antigravity adapters expose `forge-codex` or `forge-antigravity` as the bootstrap skill and install the sibling Forge skill family next to it.

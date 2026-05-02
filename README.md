@@ -101,6 +101,24 @@ graph LR
 - Packet and workflow-state artifacts survive beyond the current chat.
 - Runtime and browser proof are bounded execution tools, not vanity add-ons.
 
+### Context Persistence Contract
+
+Forge separates execution state from optional continuity notes:
+
+- Automatic state: workflow-state records stage, packet, gate, and execution
+  transitions when Forge routing or execution tools write them. Resume may also
+  seed workflow-state from an existing plan or spec when no canonical root
+  exists yet.
+- Save context: `forge-session-management` writes `.brain/session.json`, and
+  writes `.brain/handover.md` only when handover is requested.
+- Selective closeout: completion closeout writes lazily only when durable
+  signals exist. It can write `.brain/session.json`, `.brain/handover.md`,
+  `.brain/decisions.json`, or `.brain/learnings.json` depending on the supplied
+  signals.
+- Raw errors are not persisted as a first-class `.brain` record. Store recurring
+  failure knowledge as a learning, blocker, risk, decision, or verification note
+  instead of a raw error log.
+
 ### Lightweight when safe, structured when risky
 
 - Low-risk slices can use fast lane while keeping proof-before-claims.

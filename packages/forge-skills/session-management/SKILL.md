@@ -58,7 +58,16 @@ python commands/session_context.py save --workspace <workspace> --write-handover
 
 The session command is owned by `forge-session-management` and reports `owner: "forge-session-management"` in machine-readable output.
 
-Save only useful continuity: current task, pending next step, changed files, verification, durable decisions, blockers.
+Save only useful continuity: current task, pending next step, changed files, verification, decision notes, risks, and blockers.
+
+## Persistence Boundary
+
+- Automatic restore and seeding: `resume` reads repo state and may auto-seed `.forge-artifacts/workflow-state/<project>/latest.json` from a legacy workflow artifact or the latest plan/spec when no canonical workflow-state root exists.
+- Automatic execution state: workflow-state is written by routing, stage, packet, gate, review, run, and execution tools. `save context` does not write workflow-state.
+- Explicit save context: `save context` writes `.brain/session.json`. It writes `.brain/handover.md` only with `--write-handover` or the handover request path.
+- Selective closeout: `closeout` writes lazily only when durable signals exist. Pending, verification, risk, or blocker signals can write `.brain/session.json`; pending or blocker signals also request `.brain/handover.md`; decision and learning signals write `.brain/decisions.json` or `.brain/learnings.json`.
+- Learning durability: learning records are durable only when passed to `closeout --learning`; normal `save context` has no learning mode.
+- There is no raw error persistence mode. Persist recurring failures as a blocker, risk, verification note, decision, or learning with evidence instead of writing raw error logs.
 
 ## Selective Closeout
 
