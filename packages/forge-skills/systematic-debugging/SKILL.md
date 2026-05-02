@@ -107,6 +107,8 @@ Random fixes waste time, hide the real failure boundary, and teach the wrong les
 4. Add boundary or broader checks when blast radius exists.
 5. Report root cause, fix, proof, and residual risk separately.
 
+If the root cause, workaround, or environment constraint is likely to recur, emit a learning candidate for `session_context.py closeout` instead of leaving it only in chat.
+
 #### If Three Fixes Fail, Reset The Lens
 
 - **Three failed fixes in one lane usually means the investigation model is wrong, not that you need a fourth guess.**

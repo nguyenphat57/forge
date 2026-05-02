@@ -11,6 +11,7 @@ from operator_state_resolution import (
 )
 from workflow_state_support import resolve_workflow_state
 
+from session_context_continuity import relevant_brain_continuity
 from session_context_io import (
     build_handover_text,
     dedupe,
@@ -102,6 +103,7 @@ def build_resume_report(workspace: Path) -> dict:
     session = load_session(session_path, warnings)
     handover_path = workspace / ".brain" / "handover.md"
     handover_excerpt = read_handover_excerpt(handover_path)
+    brain_continuity = relevant_brain_continuity(workspace / ".brain", warnings)
     signals = navigator.get("signals", {})
     pending_work, filtered_pending = filter_stale_session_items(
         string_list((session or {}).get("pending_tasks")),
@@ -112,7 +114,7 @@ def build_resume_report(workspace: Path) -> dict:
         if navigator["recommended_action"].strip():
             pending_work = [navigator["recommended_action"].strip()]
     risks_or_assumptions, filtered_risk_count = _resume_risks(session, handover_excerpt, git_state)
-    status = _resume_status(navigator, workflow_report, session, handover_excerpt)
+    status = _resume_status(navigator, workflow_report, session, handover_excerpt, brain_continuity)
     combined_warnings = dedupe(warnings + navigator.get("warnings", []))
     filtered_items = filtered_pending + filtered_risk_count
     if filtered_items:
@@ -128,7 +130,7 @@ def build_resume_report(workspace: Path) -> dict:
         "pending_work": pending_work,
         "risks_or_assumptions": risks_or_assumptions,
         "best_next_step": navigator.get("recommended_action"),
-        "relevant_continuity": _relevant_continuity(session, handover_excerpt),
+        "relevant_continuity": _relevant_continuity(session, handover_excerpt, brain_continuity),
         "restored_from": dedupe(navigator.get("evidence", [])),
         "session_file": str(session_path) if session_path.exists() else None,
         "handover_file": str(handover_path) if handover_path.exists() else None,
@@ -146,6 +148,14 @@ def format_text(report: dict) -> str:
             f"- Current focus: {report['current_focus'] or '(none)'}",
             f"- Best next step: {report['best_next_step'] or '(none)'}",
         ])
+    elif report["mode"] == "closeout":
+        lines.extend([
+            f"- Continuity action: {report['continuity_action']}",
+            f"- Session file: {report['session_file'] or '(not written)'}",
+            f"- Handover file: {report['handover_file'] or '(not written)'}",
+        ])
+        for path in report["continuity_files"]:
+            lines.append(f"- Continuity file: {path}")
     else:
         lines.extend([
             f"- Current stage: {report['current_stage'] or '(none)'}",
@@ -208,12 +218,12 @@ def _resume_risks(session: dict | None, handover_excerpt: str | None, git_state:
     return risks, count
 
 
-def _relevant_continuity(session: dict | None, handover_excerpt: str | None) -> list[str]:
-    return dedupe(([handover_excerpt] if handover_excerpt else []) + string_list((session or {}).get("decisions_made"))[:3] + [f"Verification: {item}" for item in string_list((session or {}).get("verification"))[:2]])
+def _relevant_continuity(session: dict | None, handover_excerpt: str | None, brain_continuity: list[str]) -> list[str]:
+    return dedupe(([handover_excerpt] if handover_excerpt else []) + string_list((session or {}).get("decisions_made"))[:3] + [f"Verification: {item}" for item in string_list((session or {}).get("verification"))[:2]] + brain_continuity)
 
 
-def _resume_status(navigator: dict, workflow_report: dict, session: dict | None, handover: str | None) -> str:
-    if navigator.get("current_stage") == "unscoped" and not session and workflow_report.get("state") is None and not handover:
+def _resume_status(navigator: dict, workflow_report: dict, session: dict | None, handover: str | None, brain_continuity: list[str]) -> str:
+    if navigator.get("current_stage") == "unscoped" and not session and workflow_report.get("state") is None and not handover and not brain_continuity:
         return "WARN"
     return "PASS"
 

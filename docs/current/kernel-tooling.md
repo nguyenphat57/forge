@@ -14,6 +14,7 @@ Use these deterministic owner commands for the active Forge surface:
 
 ```powershell
 python packages/forge-skills/session-management/commands/session_context.py resume --workspace C:\path\to\workspace --format json
+python packages/forge-skills/session-management/commands/session_context.py closeout --workspace C:\path\to\workspace --format json
 python commands/verify_bundle.py --format json
 ```
 

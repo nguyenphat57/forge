@@ -95,6 +95,188 @@ class SessionContextTests(unittest.TestCase):
         self.assertEqual(report["best_next_step"], "Ship the browser QA findings into release note follow-up")
         self.assertIn("Ship the browser QA findings into release note follow-up", handover)
 
+    def test_closeout_without_durable_signals_skips_brain_creation(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            (workspace / "README.md").write_text("# Tiny Workspace\n", encoding="utf-8")
+
+            result = run_python_script(
+                "session_context.py",
+                "closeout",
+                "--workspace",
+                str(workspace),
+                "--task",
+                "Answer a simple question",
+                "--status",
+                "completed",
+                "--format",
+                "json",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+
+        self.assertEqual(report["mode"], "closeout")
+        self.assertEqual(report["owner"], "forge-session-management")
+        self.assertEqual(report["continuity_action"], "skipped")
+        self.assertFalse((workspace / ".brain").exists())
+
+    def test_closeout_with_session_signals_writes_session_snapshot(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            (workspace / "README.md").write_text("# Checkout Workspace\n", encoding="utf-8")
+
+            result = run_python_script(
+                "session_context.py",
+                "closeout",
+                "--workspace",
+                str(workspace),
+                "--task",
+                "Finish checkout retry slice",
+                "--status",
+                "completed",
+                "--file",
+                "src/checkout.ts",
+                "--pending",
+                "Run browser QA on checkout",
+                "--verification",
+                "pytest tests/test_checkout.py",
+                "--risk",
+                "Browser QA still pending",
+                "--format",
+                "json",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            session = json.loads((workspace / ".brain" / "session.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(report["continuity_action"], "saved")
+        self.assertEqual(session["working_on"]["task"], "Finish checkout retry slice")
+        self.assertEqual(session["working_on"]["files"], ["src/checkout.ts"])
+        self.assertEqual(session["pending_tasks"], ["Run browser QA on checkout"])
+        self.assertEqual(session["verification"], ["pytest tests/test_checkout.py"])
+        self.assertEqual(session["risks"], ["Browser QA still pending"])
+
+    def test_closeout_with_blocker_writes_handover_automatically(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            (workspace / "README.md").write_text("# Checkout Workspace\n", encoding="utf-8")
+
+            result = run_python_script(
+                "session_context.py",
+                "closeout",
+                "--workspace",
+                str(workspace),
+                "--task",
+                "Finish checkout retry slice",
+                "--blocker",
+                "Missing browser credentials for smoke test",
+                "--format",
+                "json",
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            report = json.loads(result.stdout)
+            handover = (workspace / ".brain" / "handover.md").read_text(encoding="utf-8")
+
+        self.assertEqual(report["continuity_action"], "saved")
+        self.assertTrue(report["handover_file"])
+        self.assertIn("Missing browser credentials for smoke test", handover)
+
+    def test_closeout_appends_learning_and_decision_with_dedupe(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            (workspace / "README.md").write_text("# Checkout Workspace\n", encoding="utf-8")
+            args = [
+                "closeout",
+                "--workspace",
+                str(workspace),
+                "--task",
+                "Capture checkout continuity",
+                "--learning",
+                "Browser smoke needs credentials before Electron launch",
+                "--decision",
+                "Checkout retry state remains persisted across reloads",
+                "--evidence",
+                "pytest tests/test_checkout.py -> PASS",
+                "--tag",
+                "checkout",
+                "--format",
+                "json",
+            ]
+
+            first = run_python_script("session_context.py", *args)
+            second = run_python_script("session_context.py", *args)
+            self.assertEqual(first.returncode, 0, first.stderr)
+            self.assertEqual(second.returncode, 0, second.stderr)
+            decisions = json.loads((workspace / ".brain" / "decisions.json").read_text(encoding="utf-8"))
+            learnings = json.loads((workspace / ".brain" / "learnings.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(len(decisions), 1)
+        self.assertEqual(len(learnings), 1)
+        self.assertEqual(decisions[0]["kind"], "decision")
+        self.assertEqual(learnings[0]["kind"], "learning")
+        self.assertEqual(decisions[0]["scope"], workspace.name)
+        self.assertIn("pytest tests/test_checkout.py -> PASS", learnings[0]["evidence"])
+        self.assertIn("checkout", decisions[0]["tags"])
+
+    def test_resume_includes_relevant_learning_and_decision_continuity(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            workspace = Path(temp_dir)
+            (workspace / "README.md").write_text("# Checkout Workspace\n", encoding="utf-8")
+            (workspace / ".brain").mkdir(parents=True, exist_ok=True)
+            (workspace / ".brain" / "decisions.json").write_text(
+                json.dumps(
+                    [
+                        {
+                            "kind": "decision",
+                            "scope": "checkout",
+                            "summary": "Checkout retry state remains persisted across reloads",
+                            "status": "resolved",
+                            "evidence": ["pytest tests/test_checkout.py -> PASS"],
+                            "next": ["Apply this when retry UI changes"],
+                            "tags": ["checkout"],
+                            "resume_hint": "Apply this when retry UI changes",
+                        }
+                    ],
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+            (workspace / ".brain" / "learnings.json").write_text(
+                json.dumps(
+                    [
+                        {
+                            "kind": "learning",
+                            "scope": "browser-smoke",
+                            "summary": "Browser smoke needs credentials before Electron launch",
+                            "status": "active",
+                            "evidence": ["electron-smoke.err.log"],
+                            "next": [],
+                            "tags": ["smoke"],
+                            "resume_hint": "Check credentials before launching smoke.",
+                        }
+                    ],
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+
+            resumed = run_python_script(
+                "session_context.py",
+                "resume",
+                "--workspace",
+                str(workspace),
+                "--format",
+                "json",
+            )
+            self.assertEqual(resumed.returncode, 0, resumed.stderr)
+            report = json.loads(resumed.stdout)
+
+        continuity = "\n".join(report["relevant_continuity"])
+        self.assertIn("Decision: Checkout retry state remains persisted across reloads", continuity)
+        self.assertIn("Learning: Browser smoke needs credentials before Electron launch", continuity)
+
     def test_resume_restores_saved_session_snapshot(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir)

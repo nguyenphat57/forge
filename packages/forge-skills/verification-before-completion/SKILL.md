@@ -59,6 +59,10 @@ Skipping any step means the claim is not allowed.
 6. For medium or risky work, confirm workflow-state or durable artifacts exist.
 7. If merge, PR, or release-facing, confirm branch resolution is explicit.
 
+## Continuity Closeout Gate
+
+Before the final completion response, use `session_context.py closeout` when durable context exists: pending work, verification, risk, blocker, decision, or learning.
+
 ## Claim To Evidence Map
 
 | Claim | Requires | Not sufficient |
@@ -193,5 +197,3 @@ Looks good from the diff.
 - Called by: `forge-executing-plans`, `forge-receiving-code-review`, `forge-requesting-code-review`, and any release-facing closeout path.
 - Calls next: `forge-finishing-a-development-branch` when the work is truly ready for merge, PR, keep, or discard decisions.
 - Pairs with: `forge-session-management` for durable proof artifacts and `forge-systematic-debugging` when verification fails unexpectedly.
-
-Shared guard scripts such as `track_execution_progress.py` and `record_stage_state.py` live in the installed orchestrator bundle.

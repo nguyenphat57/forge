@@ -15,6 +15,7 @@ Preferences restore is an invariant, not a routing choice.
 
 - Resume, continue, recap, restore context, where were we.
 - Save context, handover, capture continuity.
+- Selective closeout should persist durable task context before a completion claim.
 - Thread start needs response personalization restored.
 
 ## Do Not Use When
@@ -58,6 +59,20 @@ python commands/session_context.py save --workspace <workspace> --write-handover
 The session command is owned by `forge-session-management` and reports `owner: "forge-session-management"` in machine-readable output.
 
 Save only useful continuity: current task, pending next step, changed files, verification, durable decisions, blockers.
+
+## Selective Closeout
+
+Use `closeout` when a task ends and may have durable continuity:
+
+```powershell
+python commands/session_context.py closeout --workspace <workspace> --format json
+```
+
+Closeout writes lazily. If there are no pending steps, verification notes, risks, blockers, decisions, or learnings, it reports `continuity_action: "skipped"` and does not create `.brain`.
+
+When signals exist, it may write `.brain/session.json`, `.brain/handover.md`, `.brain/decisions.json`, or `.brain/learnings.json`. Do not use closeout for raw logs; use it only for useful resume context.
+
+Resume reads decisions and learnings only when relevant, after workflow-state, plan/spec, git state, handover, and session context.
 
 ## Red Flags
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 5.4.0 (stable) - 2026-05-02
+
+- Add selective task closeout capture to `forge-session-management`, including lazy `.brain` creation for durable session, handover, decision, and learning context.
+- Extend session resume to surface relevant `.brain/decisions.json` and `.brain/learnings.json` entries without turning bootstrap docs into task logs.
+- Refresh completion, debugging, registry, kernel tooling, and generated Codex/Gemini bootstrap contracts so closeout and workspace resume are part of the Forge workflow.
+
+
 ## 5.3.0 (stable) - 2026-04-25
 
 - Teach `forge-bump-release` to create root `CHANGELOG.md` when it is missing, while continuing to update `VERSION` and report the release artifact set explicitly.

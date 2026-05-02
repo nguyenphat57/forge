@@ -1033,8 +1033,8 @@
         "id":  "20260425-000000",
         "kind":  "decision",
         "scope":  "forge-5-3-stable-status",
-        "summary":  "Treat 5.3.0 as the current stable Forge release because release bump ownership now creates root CHANGELOG.md when missing and forge-init no longer creates changelog bootstrap docs.",
-        "status":  "resolved",
+        "summary":  "Treat 5.3.0 as a superseded Forge stable slice because the later 5.4.0 selective closeout release replaced its stable line after fresh verification and release sync.",
+        "status":  "superseded",
         "evidence":  [
                          "VERSION",
                          "CHANGELOG.md",
@@ -1057,8 +1057,38 @@
                      "changelog",
                      "verification"
                  ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 5.3.0 verification evidence.",
+        "revisit_if":  "Release archaeology needs the original 5.3.0 proof chain or later evidence invalidates the recorded verification.",
         "trigger":  "minor-release",
         "resume_hint":  "Resume only if a later audit needs the original 5.3.0 proof chain or invalidates the recorded verification."
+    },
+    {
+        "id":  "20260502-000000",
+        "kind":  "decision",
+        "scope":  "forge-5-4-stable-status",
+        "summary":  "Treat 5.4.0 as the current stable Forge release because session continuity now supports selective closeout capture and resume restores relevant decisions and learnings.",
+        "status":  "resolved",
+        "evidence":  [
+                         "VERSION",
+                         "CHANGELOG.md",
+                         "README.md",
+                         "docs/release/public-readiness.md",
+                         "docs/release/release-process.md",
+                         "packages/forge-skills/session-management/commands/session_context.py",
+                         "packages/forge-skills/session-management/commands/session_context_closeout.py",
+                         "packages/forge-skills/session-management/commands/session_context_continuity.py",
+                         "python -m unittest test_session_context test_contracts -> PASS from packages/forge-core/tests on 2026-05-02",
+                         "python scripts/verify_repo.py -> PASS on 2026-05-02"
+                     ],
+        "next":  [],
+        "tags":  [
+                     "release",
+                     "stable",
+                     "session-management",
+                     "closeout",
+                     "verification"
+                 ],
+        "revisit_if":  "A later release changes the stable line or invalidates the 5.4.0 verification evidence.",
+        "trigger":  "minor-release",
+        "resume_hint":  "Resume only if a later audit needs the original 5.4.0 proof chain or invalidates the recorded verification."
     }
 ]

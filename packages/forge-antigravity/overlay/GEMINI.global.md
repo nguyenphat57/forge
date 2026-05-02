@@ -35,7 +35,8 @@ Before the first substantive reply in every new conversation:
 1. Restore personalization from the resolver above, or read the preference file directly when a merged payload is not needed.
 2. Apply language, orthography, tone detail, and custom rules immediately.
 3. If the resolved language is Vietnamese, use full Vietnamese diacritics and repair mojibake instead of copying corrupted text.
-4. If preferences are unavailable, continue with concise, direct, technical output in the host-default language.
+4. When workspace continuity may matter, use `forge-session-management` resume for the current workspace and follow returned durable context.
+5. If preferences or session artifacts are unavailable, continue with concise, direct, technical output from repo state.
 
 ## Strict No-Fallback Rule
 

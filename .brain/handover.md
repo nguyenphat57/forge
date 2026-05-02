@@ -1,17 +1,17 @@
 HANDOVER
-- Current task: Forge 5.3.0 stable release aligns release bump ownership so `forge-bump-release` creates root `CHANGELOG.md` when missing and `forge-init` no longer creates changelog bootstrap docs.
+- Current task: Forge 5.4.0 stable release adds selective session closeout and resumes relevant decisions/learnings from `.brain`.
 - Status: released
 - Maintainer docs: docs/current/*
 - Pending: (none)
 - Verification run:
-  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --format json -> PASS, preview inferred minor 5.2.0 to 5.3.0 with high confidence on 2026-04-25; inference included unrelated untracked files, so release used explicit minor
-  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump minor --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.3.0 on 2026-04-25
-  - python -m unittest test_bump_workflow test_initialize_workspace -> PASS from packages/forge-core/tests on 2026-04-25
-  - python scripts/verify_repo.py -> PASS on 2026-04-25 after 5.3.0 continuity update
+  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --format json -> PASS, preview inferred minor 5.3.0 to 5.4.0 with high confidence on 2026-05-02
+  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump minor --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.4.0 on 2026-05-02
+  - python -m unittest test_session_context test_contracts -> PASS from packages/forge-core/tests on 2026-05-02
+  - python scripts/verify_repo.py -> PASS on 2026-05-02 after 5.4.0 continuity update
 - Important decisions:
-  - Bump 5.2.0 to 5.3.0 as minor because release bump ownership gained missing-root-CHANGELOG.md creation behavior and forge-init no longer owns changelog bootstrap docs.
-  - Keep root `CHANGELOG.md` as the only release-history file owned by `forge-bump-release`; do not create `CHANGELOGS.md`, `CHANGELOS.md`, or `docs/CHANGELOG.md`.
-  - Keep `forge-init` focused on project bootstrap docs and remove changelog release-history ownership from its optional docs set.
+  - Bump 5.3.0 to 5.4.0 as minor because selective closeout adds a new session-management capability.
+  - Keep bootstrap docs out of task memory; closeout writes only durable `.brain` continuity.
+  - Keep resume state-first while surfacing only relevant decision and learning entries.
 - Risks:
   - Installed local Codex/Gemini skill bundles are not updated by this source commit; install from a fresh dist build when promoting the runtime.
 - Blockers: (none)

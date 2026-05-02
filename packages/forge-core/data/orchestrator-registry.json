@@ -117,7 +117,8 @@
       "command_entrypoints": {
         "restore": "packages/forge-skills/session-management/commands/session_context.py resume --workspace <workspace> --format json",
         "save": "packages/forge-skills/session-management/commands/session_context.py save --workspace <workspace> --format json",
-        "handover": "packages/forge-skills/session-management/commands/session_context.py save --workspace <workspace> --write-handover --format json"
+        "handover": "packages/forge-skills/session-management/commands/session_context.py save --workspace <workspace> --write-handover --format json",
+        "closeout": "packages/forge-skills/session-management/commands/session_context.py closeout --workspace <workspace> --format json"
       },
       "session_modes": {
         "restore": {

@@ -546,6 +546,22 @@ class BundleContractTests(unittest.TestCase):
         self.assertIn("resume", session)
         self.assertIn("Response Personalization", session)
         self.assertIn("workflow-state", session)
+        self.assertIn("Selective Closeout", session)
+        self.assertIn("closeout", session)
+
+        registry = json.loads((ROOT_DIR / "data" / "orchestrator-registry.json").read_text(encoding="utf-8"))
+        entrypoints = registry["skill_catalog"]["session-management"]["command_entrypoints"]
+        self.assertIn("closeout", entrypoints)
+
+    def test_completion_and_debugging_skills_reference_closeout_continuity(self) -> None:
+        self._require_skill_source_tree()
+        verify = (SKILLS_ROOT / "verification-before-completion" / "SKILL.md").read_text(encoding="utf-8")
+        debug = (SKILLS_ROOT / "systematic-debugging" / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("Continuity Closeout Gate", verify)
+        self.assertIn("session_context.py closeout", verify)
+        self.assertIn("learning candidate", debug)
+        self.assertIn("closeout", debug)
 
     def test_writing_skills_is_copied_with_forge_brand_references(self) -> None:
         self._require_skill_source_tree()
