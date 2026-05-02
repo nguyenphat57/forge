@@ -23,6 +23,7 @@ Notes:
 - `save context` writes `.brain/session.json` as an explicit session snapshot and writes `.brain/handover.md` only when handover is requested.
 - Selective closeout writes lazily at completion only when durable signals exist; it may write `.brain/session.json`, `.brain/handover.md`, `.brain/decisions.json`, or `.brain/learnings.json`.
 - `learning` entries are durable only through selective closeout into `.brain/learnings.json`; normal `save context` does not create learning records.
+- `forge-init` creates or normalizes bootstrap docs only; it does not create `.brain/session.json` by default.
 - Raw `error` output is not stored as a durable `.brain` record. Persist recurring failures as a blocker, risk, verification note, decision, or learning with evidence.
 
 ## Installed Runtime

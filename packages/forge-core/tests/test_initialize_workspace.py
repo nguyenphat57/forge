@@ -41,7 +41,7 @@ class InitializeWorkspaceTests(unittest.TestCase):
                 self._assert_path_suffixes(report["normalized_files"], case.get("expected_normalized_files", []), "normalized_files")
                 self._assert_path_suffixes(report["reused_paths"], case.get("expected_reused_paths", []), "reused_paths")
 
-    def test_initialize_workspace_apply_creates_default_docs_and_readiness(self) -> None:
+    def test_initialize_workspace_apply_creates_default_docs_without_session_memory(self) -> None:
         with TemporaryDirectory() as temp_dir:
             workspace = Path(temp_dir) / "greenfield"
             forge_home = Path(temp_dir) / "forge-home"
@@ -65,7 +65,8 @@ class InitializeWorkspaceTests(unittest.TestCase):
             self.assertTrue((workspace / "AGENTS.md").exists())
             self.assertTrue((workspace / "docs" / "PRODUCT.md").exists())
             self.assertTrue((workspace / "docs" / "STACK.md").exists())
-            self.assertTrue((workspace / ".brain" / "session.json").exists())
+            self.assertFalse((workspace / ".brain").exists())
+            self.assertNotIn(str(workspace / ".brain" / "session.json"), report["created_files"])
             self.assertTrue(common.resolve_global_preferences_path(forge_home).exists())
             self.assertTrue((workspace / "docs" / "plans").exists())
             self.assertTrue((workspace / "docs" / "specs").exists())
@@ -191,6 +192,7 @@ class InitializeWorkspaceTests(unittest.TestCase):
             self.assertTrue(report["seed_continuity"])
             self.assertTrue((workspace / ".brain" / "decisions.json").exists())
             self.assertTrue((workspace / ".brain" / "learnings.json").exists())
+            self.assertFalse((workspace / ".brain" / "session.json").exists())
             self.assertEqual(report["recommended_next_workflow"], "brainstorm")
 
     def test_initialize_workspace_rejects_retired_preset_flag(self) -> None:

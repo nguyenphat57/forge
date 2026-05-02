@@ -14,6 +14,10 @@ class ContextContractDocsTests(unittest.TestCase):
         session_skill = (
             ROOT_DIR / "packages" / "forge-skills" / "session-management" / "SKILL.md"
         ).read_text(encoding="utf-8")
+        init_skill = (ROOT_DIR / "packages" / "forge-skills" / "init" / "SKILL.md").read_text(encoding="utf-8")
+        init_blueprint = (
+            ROOT_DIR / "packages" / "forge-skills" / "init" / "references" / "project-docs-blueprint.md"
+        ).read_text(encoding="utf-8")
 
         for token in (
             "Context Persistence Contract",
@@ -30,6 +34,7 @@ class ContextContractDocsTests(unittest.TestCase):
             "`save context` writes `.brain/session.json`",
             "Resume may auto-seed `.forge-artifacts/workflow-state/<project>/latest.json`",
             "`learning` entries are durable only through selective closeout",
+            "`forge-init` creates or normalizes bootstrap docs only; it does not create `.brain/session.json` by default",
             "Raw `error` output is not stored as a durable `.brain` record",
         ):
             with self.subTest(path="operator-surface.md", token=token):
@@ -44,6 +49,21 @@ class ContextContractDocsTests(unittest.TestCase):
         ):
             with self.subTest(path="session-management/SKILL.md", token=token):
                 self.assertIn(token, session_skill)
+
+        for token in (
+            "Do not create `.brain/session.json` during bootstrap",
+            "`--seed-continuity` may create empty `.brain/decisions.json` and `.brain/learnings.json` only when explicitly requested",
+        ):
+            with self.subTest(path="init/SKILL.md", token=token):
+                self.assertIn(token, init_skill)
+
+        for token in (
+            "## Context Persistence Boundary",
+            "`forge-init` không tạo `.brain/session.json` mặc định",
+            "raw error output không phải durable `.brain` record",
+        ):
+            with self.subTest(path="init blueprint", token=token):
+                self.assertIn(token, init_blueprint)
 
 
 if __name__ == "__main__":

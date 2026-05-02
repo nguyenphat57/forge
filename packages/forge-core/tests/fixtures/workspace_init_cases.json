@@ -8,8 +8,7 @@
     "expected_created_files": [
       "AGENTS.md",
       "docs\\PRODUCT.md",
-      "docs\\STACK.md",
-      ".brain\\session.json"
+      "docs\\STACK.md"
     ]
   },
   {
@@ -23,8 +22,7 @@
     "expected_next_workflow": "plan",
     "expected_created_files": [
       "AGENTS.md",
-      "docs\\templates\\FEATURE_TASK.md",
-      ".brain\\session.json"
+      "docs\\templates\\FEATURE_TASK.md"
     ],
     "expected_normalized_files": [
       "docs\\PRODUCT.md",
@@ -42,8 +40,7 @@
     "expected_mode": "existing-with-docs",
     "expected_next_workflow": "plan",
     "expected_created_files": [
-      "docs\\templates\\FEATURE_TASK.md",
-      ".brain\\session.json"
+      "docs\\templates\\FEATURE_TASK.md"
     ],
     "expected_reused_paths": [
       "AGENTS.md",
@@ -61,8 +58,7 @@
       "AGENTS.md",
       "docs\\ARCHITECTURE.md",
       "docs\\QUALITY.md",
-      "docs\\templates\\FEATURE_TASK.md",
-      ".brain\\session.json"
+      "docs\\templates\\FEATURE_TASK.md"
     ],
     "expected_normalized_files": [
       "docs\\PRODUCT.md",
@@ -84,8 +80,7 @@
       "docs\\PRODUCT.md",
       "docs\\STACK.md",
       "docs\\ARCHITECTURE.md",
-      "docs\\templates\\FEATURE_TASK.md",
-      ".brain\\session.json"
+      "docs\\templates\\FEATURE_TASK.md"
     ]
   },
   {
@@ -97,8 +92,7 @@
     "expected_created_files": [
       "AGENTS.md",
       "docs\\STACK.md",
-      "docs\\templates\\FEATURE_TASK.md",
-      ".brain\\session.json"
+      "docs\\templates\\FEATURE_TASK.md"
     ],
     "expected_normalized_files": [
       "docs\\PRODUCT.md",
@@ -117,8 +111,7 @@
     "expected_next_workflow": "plan",
     "expected_created_files": [
       "AGENTS.md",
-      "docs\\templates\\FEATURE_TASK.md",
-      ".brain\\session.json"
+      "docs\\templates\\FEATURE_TASK.md"
     ],
     "expected_normalized_files": [
       "docs\\PRODUCT.md",

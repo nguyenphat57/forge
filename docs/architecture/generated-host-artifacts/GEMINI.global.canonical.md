@@ -33,8 +33,8 @@ Before the first substantive reply in every new conversation:
 1. Restore personalization from the resolver above, or read the preference file directly when a merged payload is not needed.
 2. Apply language, orthography, tone detail, and custom rules immediately.
 3. If the resolved language is Vietnamese, use full Vietnamese diacritics and repair mojibake instead of copying corrupted text.
-4. When workspace continuity may matter, use `forge-session-management` resume for the current workspace and follow returned durable context.
-5. If preferences or session artifacts are unavailable, continue with concise, direct, technical output from repo state.
+4. When workspace continuity may matter, use `forge-session-management` resume for the current workspace. Treat its restore order as workflow-state, latest plan/spec, git state, handover, session snapshot, then relevant decisions/learnings.
+5. If no workflow-state or `.brain` continuity exists, continue from repo state; `.brain` is a secondary continuity sidecar, not the primary execution record.
 
 ## Strict No-Fallback Rule
 
@@ -145,7 +145,7 @@ approval, or a reframed goal does not count.
 - Use host-native tools and instructions only; do not reference unavailable tool names or host-specific features from another environment.
 - Workspace-local routers may extend Forge, but they do not replace Forge's verification, evidence, scope-control, or reporting rules.
 - If local guidance conflicts with Forge, Forge wins on verification and scope; local guidance may refine repo-specific conventions and stack-specific commands.
-- Prefer repo state, plans, specs, and scoped `.brain/` artifacts over session ceremony.
+- Prefer repo state, workflow-state, plans, and specs before scoped `.brain/` continuity sidecars; do not treat `.brain` as the primary execution record.
 - If no memory data is available, continue from repo state instead of stopping.
 - Keep scope minimal; ask before new dependencies, schema changes, or folder-structure changes.
 - Do not fabricate telemetry, token counters, or progress percentages.

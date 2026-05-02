@@ -41,6 +41,8 @@ Preview first. Apply after inspecting the current workspace.
   - `docs/templates/FEATURE_TASK.md`
 - `forge-init` does not create changelog docs; root `CHANGELOG.md` creation belongs to `forge-bump-release`.
 - Do not create `docs/STATUS.md`, `docs/DECISIONS.md`, or `docs/ERRORS.md` by default.
+- Do not create `.brain/session.json` during bootstrap. Session snapshots belong to `forge-session-management save` or selective `closeout`.
+- `--seed-continuity` may create empty `.brain/decisions.json` and `.brain/learnings.json` only when explicitly requested.
 
 ## Process Flow
 

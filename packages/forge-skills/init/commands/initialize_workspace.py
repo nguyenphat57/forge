@@ -8,7 +8,6 @@ import argparse
 import json
 from collections import OrderedDict
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from pathlib import Path
 
 from common import configure_stdio, preference_defaults, resolve_forge_home, resolve_global_preferences_path
@@ -326,18 +325,6 @@ def detect_workspace_mode_from_signals(signals: WorkspaceSignals) -> str:
     return "existing-no-docs"
 
 
-def build_session_payload(project_name: str | None) -> dict:
-    feature = project_name.strip() if project_name else ""
-    return {
-        "updated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "working_on": {"feature": feature, "task": "bootstrap docs", "status": "idle", "files": []},
-        "pending_tasks": [],
-        "recent_changes": [],
-        "verification": [],
-        "decisions_made": [],
-    }
-
-
 def _format_source_list(sources: list[str], placeholder: str) -> str:
     if not sources:
         return f"- {placeholder}"
@@ -365,7 +352,8 @@ def _render_agents_doc(signals: WorkspaceSignals, planned_docs: list[str]) -> tu
             "## Local Rules",
             "",
             "- Treat bootstrap docs as project knowledge, not execution memory.",
-            "- Keep `.brain` and `.forge-artifacts/workflow-state` as the continuity and execution-state layer.",
+            "- Do not write `.brain/session.json` from bootstrap docs; use `forge-session-management` save or closeout for session continuity.",
+            "- Use `.forge-artifacts/workflow-state` for automatic execution state, and `.brain` only for explicit continuity sidecars.",
             "- Do not reintroduce `STATUS.md`, `DECISIONS.md`, or `ERRORS.md` as default memory files.",
             "- Prefer repo truth, tests, schemas, and configs over stale prose.",
             "",
@@ -651,7 +639,6 @@ def build_plan(args: argparse.Namespace) -> dict:
     planned_writes: list[tuple[Path, str, str]] = []
 
     workspace_directories = [
-        workspace / ".brain",
         workspace / "docs",
         workspace / "docs" / "plans",
         workspace / "docs" / "specs",
@@ -690,19 +677,6 @@ def build_plan(args: argparse.Namespace) -> dict:
                 _append_unique(reused_paths, str(workspace / source_path))
         else:
             _append_unique(created_files, str(canonical_path))
-
-    session_path = workspace / ".brain" / "session.json"
-    if session_path.exists():
-        _append_unique(reused_paths, str(session_path))
-    else:
-        planned_writes.append(
-            (
-                session_path,
-                json.dumps(build_session_payload(signals.project_name), indent=2, ensure_ascii=False) + "\n",
-                "create",
-            )
-        )
-        _append_unique(created_files, str(session_path))
 
     if args.seed_continuity:
         for path, content in (
