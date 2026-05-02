@@ -1,12 +1,17 @@
 HANDOVER
-- Current task: Merge auto continuity closeout to main and clean merged branches
+- Current task: Forge 5.4.0 stable line and docs/current/* continuity
 - Status: completed
 - Pending:
-  - README.md rewrite remains as local uncommitted user change; preserve it and do not overwrite
+  - Resume the recorded workflow stage 'plan' before opening new scope.
 - Verification run:
-  - python scripts\\verify_repo.py --profile fast: PASS after merge
+  - python scripts/verify_repo.py: blocked before install by stale .brain/handover.md; refreshing tracked handover
+  - python -m unittest tests.test_context_contract_docs: OK
+  - python -m unittest test_session_context_boundaries: OK
+  - python -m unittest test_session_context: OK
+  - python -m unittest tests.test_host_artifact_generation tests.test_context_contract_docs: OK
+  - python scripts/verify_repo.py --profile fast: PASS
 - Important decisions:
-  - main fast-forwarded to 63e90b6 and pushed; codex/auto-continuity-closeout local/remote deleted; codex/strong-subagent-auto-activation local deleted as merged/empty
+  - Treat 5.4.0 as the current stable Forge release; docs/current/* remains the live maintainer source.
 - Risks: (none)
 - Blockers: (none)
-- Next step: README.md rewrite remains as local uncommitted user change; preserve it and do not overwrite
+- Next step: Resume the recorded workflow stage 'plan' before opening new scope.

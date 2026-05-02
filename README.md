@@ -191,7 +191,7 @@ python scripts/build_release.py
 - install dry-runs for shipped kernel and host adapter bundles;
 - dist bundle verification.
 
-### Start here as a solo operator
+### Start Here (Solo Operator)
 
 For a first-run repo where context is still weak:
 
