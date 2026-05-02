@@ -1,76 +1,28 @@
 {
-  "updated_at": "2026-04-25T03:01:05Z",
+  "updated_at": "2026-05-02T06:23:10+00:00",
   "working_on": {
-    "feature": "forge-5-4-0-stable-release",
-    "task": "Forge 5.4.0 stable release adds selective session closeout and resumes relevant decisions/learnings from .brain.",
-    "status": "released",
+    "feature": "forge",
+    "task": "Merge auto continuity closeout to main and clean merged branches",
+    "status": "completed",
     "files": [
-      "VERSION",
-      "CHANGELOG.md",
-      ".brain/decisions.json",
-      ".brain/session.json",
-      ".brain/handover.md",
-      "README.md",
-      "docs/release/public-readiness.md",
-      "docs/release/release-process.md",
-      "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
-      "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
-      "docs/current/kernel-tooling.md",
-      "packages/forge-core/data/orchestrator-registry.json",
-      "packages/forge-core/tests/test_contracts.py",
-      "packages/forge-core/tests/test_session_context.py",
-      "packages/forge-skills/session-management/SKILL.md",
-      "packages/forge-skills/session-management/commands/session_context.py",
-      "packages/forge-skills/session-management/commands/session_context_closeout.py",
-      "packages/forge-skills/session-management/commands/session_context_continuity.py",
-      "packages/forge-skills/session-management/commands/session_context_reports.py",
-      "packages/forge-skills/systematic-debugging/SKILL.md",
-      "packages/forge-skills/verification-before-completion/SKILL.md"
+      "README.md"
     ]
   },
-  "pending_tasks": [],
+  "pending_tasks": [
+    "README.md rewrite remains as local uncommitted user change; preserve it and do not overwrite"
+  ],
   "recent_changes": [
-    ".brain/decisions.json",
-    ".brain/handover.md",
-    ".brain/session.json",
-    "CHANGELOG.md",
-    "README.md",
-    "VERSION",
-    "docs/release/public-readiness.md",
-    "docs/release/release-process.md",
-    "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
-    "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
-    "docs/current/kernel-tooling.md",
-    "packages/forge-core/data/orchestrator-registry.json",
-    "packages/forge-core/tests/test_contracts.py",
-    "packages/forge-core/tests/test_session_context.py",
-    "packages/forge-skills/session-management/SKILL.md",
-    "packages/forge-skills/session-management/commands/session_context.py",
-    "packages/forge-skills/session-management/commands/session_context_closeout.py",
-    "packages/forge-skills/session-management/commands/session_context_continuity.py",
-    "packages/forge-skills/session-management/commands/session_context_reports.py",
-    "packages/forge-skills/systematic-debugging/SKILL.md",
-    "packages/forge-skills/verification-before-completion/SKILL.md"
+    "README.md"
   ],
   "verification": [
-    "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --format json -> PASS, preview inferred minor 5.3.0 to 5.4.0 with high confidence on 2026-05-02",
-    "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump minor --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.4.0 on 2026-05-02",
-    "python -m unittest test_session_context test_contracts -> PASS from packages/forge-core/tests on 2026-05-02",
-    "python scripts/verify_repo.py -> PASS on 2026-05-02 after 5.4.0 continuity update"
+    "python scripts\\\\verify_repo.py --profile fast: PASS after merge"
   ],
   "decisions_made": [
-    "Bump 5.3.0 to 5.4.0 as minor because selective closeout adds a new session-management capability.",
-    "Keep bootstrap docs out of task memory; closeout writes only durable .brain continuity.",
-    "Keep resume state-first while surfacing only relevant decision and learning entries."
+    "main fast-forwarded to 63e90b6 and pushed; codex/auto-continuity-closeout local/remote deleted; codex/strong-subagent-auto-activation local deleted as merged/empty"
   ],
-  "risks": [
-    "Installed local Codex/Gemini skill bundles are not updated by this source commit; install from a fresh dist build when promoting the runtime."
-  ],
+  "risks": [],
   "blockers": [],
   "source_artifacts": [
-    "changelog: C:\\Users\\Admin\\.gemini\\forge\\CHANGELOG.md",
-    "session: C:\\Users\\Admin\\.gemini\\forge\\.brain\\session.json",
-    "handover: C:\\Users\\Admin\\.gemini\\forge\\.brain\\handover.md",
-    "workflow-state: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\workflow-state\\forge\\latest.json"
+    "C:\\Users\\Admin\\.gemini\\forge\\.brain\\decisions.json"
   ]
 }

@@ -1,18 +1,12 @@
 HANDOVER
-- Current task: Forge 5.4.0 stable release adds selective session closeout and resumes relevant decisions/learnings from `.brain`.
-- Status: released
-- Maintainer docs: docs/current/*
-- Pending: (none)
+- Current task: Merge auto continuity closeout to main and clean merged branches
+- Status: completed
+- Pending:
+  - README.md rewrite remains as local uncommitted user change; preserve it and do not overwrite
 - Verification run:
-  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --format json -> PASS, preview inferred minor 5.3.0 to 5.4.0 with high confidence on 2026-05-02
-  - python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump minor --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.4.0 on 2026-05-02
-  - python -m unittest test_session_context test_contracts -> PASS from packages/forge-core/tests on 2026-05-02
-  - python scripts/verify_repo.py -> PASS on 2026-05-02 after 5.4.0 continuity update
+  - python scripts\\verify_repo.py --profile fast: PASS after merge
 - Important decisions:
-  - Bump 5.3.0 to 5.4.0 as minor because selective closeout adds a new session-management capability.
-  - Keep bootstrap docs out of task memory; closeout writes only durable `.brain` continuity.
-  - Keep resume state-first while surfacing only relevant decision and learning entries.
-- Risks:
-  - Installed local Codex/Gemini skill bundles are not updated by this source commit; install from a fresh dist build when promoting the runtime.
+  - main fast-forwarded to 63e90b6 and pushed; codex/auto-continuity-closeout local/remote deleted; codex/strong-subagent-auto-activation local deleted as merged/empty
+- Risks: (none)
 - Blockers: (none)
-- Next step: No pending release task after pushing `main`; install from a fresh `dist/` build when promoting local runtimes.
+- Next step: README.md rewrite remains as local uncommitted user change; preserve it and do not overwrite

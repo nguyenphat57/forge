@@ -1,1094 +1,1073 @@
 [
-    {
-        "id":  "20260330-082442",
-        "kind":  "decision",
-        "scope":  "forge-self-hosted-tdd-sdd-adoption",
-        "summary":  "Forge now ships the artifact-driven TDD/SDD rollout as the canonical medium-risk implementation path.",
-        "status":  "resolved",
-        "evidence":  [
-                         "Archived change: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\changes\\archive\\20260330-082442-forge-self-hosted-tdd-sdd-adoption"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "change-archive"
-                 ],
-        "revisit_if":  null,
-        "trigger":  "change-archive"
-    },
-    {
-        "id":  "20260401-051841",
-        "kind":  "decision",
-        "scope":  "forge-public-release-docs",
-        "summary":  "Public GitHub visibility guidance must live as tracked release documentation and be covered by release-hardening tests.",
-        "status":  "resolved",
-        "evidence":  [
-                         "docs/release/public-readiness.md",
-                         "docs/release/github-public-switch-checklist.md",
-                         "tests/test_release_hardening.py"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "docs",
-                     "hardening"
-                 ],
-        "revisit_if":  "The public release flow moves away from GitHub or the checklist becomes fully automated.",
-        "trigger":  "patch-release"
-    },
-    {
-        "id":  "20260401-141503",
-        "kind":  "decision",
-        "scope":  "forge-1-11-hardening-release",
-        "summary":  "Forge 1.11.0 must treat fresh dist-bundle verification and workflow-state round-tripping as release-blocking contracts, not best-effort checks.",
-        "status":  "resolved",
-        "evidence":  [
-                         "docs/plans/2026-04-01-forge-1.11.x-hardening-roadmap.md",
-                         "tests/release_repo_test_overlays.py",
-                         "packages/forge-core/scripts/workflow_state_support.py",
-                         "packages/forge-core/scripts/help_next_support.py"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "routing",
-                     "workflow-state",
-                     "dist"
-                 ],
-        "revisit_if":  "The release pipeline stops materializing in-repo dist bundles or help and next no longer consume workflow-state as the durable source of truth.",
-        "trigger":  "minor-release"
-    },
-    {
-        "id":  "20260401-215058",
-        "kind":  "decision",
-        "scope":  "forge-1-12-maturation-release",
-        "summary":  "Forge 1.12.0 should ship with one canonical four-tier release contract plus a separate roadmap-complete closure sweep for the later maturation commits.",
-        "status":  "resolved",
-        "evidence":  [
-                         "docs/plans/2026-04-01-forge-1.12.x-maturation-roadmap.md",
-                         "packages/forge-core/scripts/release_profile_contract.py",
-                         "packages/forge-core/scripts/release_readiness.py",
-                         "packages/forge-core/tests/test_help_next.py",
-                         "packages/forge-core/tests/test_dashboard.py"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "roadmap",
-                     "workflow-state",
-                     "help-next"
-                 ],
-        "revisit_if":  "A future release changes the canonical tier behavior bar or collapses the roadmap-complete sweep back into the 1.12.0 cut.",
-        "trigger":  "minor-release",
-        "resume_hint":  "A future release changes the canonical tier behavior bar or collapses the roadmap-complete sweep back into the 1.12.0 cut."
-    },
-    {
-        "id":  "20260401-220924",
-        "kind":  "decision",
-        "scope":  "forge-1-12-stable-status",
-        "summary":  "Record 1.12.0 as the stable Forge release for its slice because both the canonical release gate and the roadmap-complete closure sweep were green.",
-        "status":  "superseded",
-        "evidence":  [
-                         "python -m pytest tests/test_release_hardening.py tests/release_repo_test_contracts.py -q -\u003e 26 passed, 82 subtests passed",
-                         "README.md and docs/release declared 1.12.0 as the stable release at the time"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 1.12.0 proof chain or later evidence invalidates the recorded release verification.",
-        "trigger":  null,
-        "resume_hint":  "Resume only if a later audit needs the original 1.12.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260402-111622",
-        "kind":  "decision",
-        "scope":  "forge-1-13-stable-status",
-        "summary":  "Record 1.13.0 as the stable Forge release for its slice because the build-packet enhancement line and the canonical repo verification gate were both green.",
-        "status":  "superseded",
-        "evidence":  [
-                         "docs/plans/2026-04-02-forge-1.13.x-build-process-enhancement-roadmap.md",
-                         "CHANGELOG.md",
-                         "python scripts/verify_repo.py -\u003e PASS on 2026-04-02"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "build-packets",
-                     "workflow-state"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 1.13.0 proof chain or later evidence invalidates the recorded release verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 1.13.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260402-144231",
-        "kind":  "decision",
-        "scope":  "forge-1-14-stable-status",
-        "summary":  "Record 1.14.0 as the stable Forge release for its slice because the competitive roadmap implementation, release contract sweep, and canonical repo gate were all green.",
-        "status":  "superseded",
-        "evidence":  [
-                         "docs/plans/2026-04-02-forge-1.14.x-competitive-roadmap.md",
-                         "CHANGELOG.md",
-                         "python -m pytest packages/forge-core/tests/test_fast_lane_lifecycle.py packages/forge-core/tests/test_chain_status.py packages/forge-core/tests/test_route_preview.py packages/forge-core/tests/test_help_next.py packages/forge-core/tests/test_help_next_workflow_state.py packages/forge-core/tests/test_tool_roundtrip.py packages/forge-core/tests/test_runtime_tool_support.py packages/forge-core/tests/test_contracts.py tests/release_repo_test_contracts.py -q -\u003e 96 passed, 1 skipped, 252 subtests passed",
-                         "python scripts/verify_repo.py -\u003e PASS on 2026-04-02"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "fast-lane",
-                     "packet-graph",
-                     "runtime-health"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 1.14.0 proof chain or later evidence invalidates the recorded release verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 1.14.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260402-215530",
-        "kind":  "decision",
-        "scope":  "forge-1-15-stable-status",
-        "summary":  "Record 1.15.1 as the stable Forge release for its slice because the maintenance footer-clarity update, unique multi-skill footer rule, and the canonical repo verification gate were green.",
-        "status":  "superseded",
-        "evidence":  [
-                         "packages/forge-core/workflows/design/brainstorm.md",
-                         "packages/forge-core/workflows/execution/build.md",
-                         "packages/forge-core/domains/backend.md",
-                         "CHANGELOG.md",
-                         "python scripts/verify_repo.py -\u003e PASS on 2026-04-10"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "maintenance",
-                     "skills",
-                     "footer",
-                     "response-provenance"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 1.15.1 proof chain or later evidence invalidates the recorded release verification.",
-        "trigger":  "patch-release",
-        "resume_hint":  "Resume only if a later audit needs the original 1.15.1 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260402-230000",
-        "kind":  "decision",
-        "scope":  "forge-1-15-maintenance-closure",
-        "summary":  "Close Forge after 1.15.0 into maintenance mode and treat older roadmap lines plus superseded stable-line decisions as historical context, not active work queues.",
-        "status":  "resolved",
-        "evidence":  [
-                         "docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md",
-                         "docs/current/target-state.md",
-                         "packages/forge-core/references/reference-map.md",
-                         "tests/test_release_hardening.py",
-                         "python scripts/verify_repo.py -\u003e PASS on 2026-04-02"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "maintenance",
-                     "roadmap",
-                     "continuity",
-                     "docs"
-                 ],
-        "revisit_if":  "A later change needs more than bounded maintenance work under the 1.15.x closure criteria.",
-        "trigger":  "maintenance-closure",
-        "resume_hint":  "Resume only if target-state reopen criteria are met and Forge needs a new explicit roadmap line."
-    },
-    {
-        "id":  "20260411-000000",
-        "kind":  "decision",
-        "scope":  "forge-1-16-stable-status",
-        "summary":  "Record 1.16.0 as the stable Forge release for the domain-skill retirement slice because the release sync and canonical repo verification gate were green at that cut.",
-        "status":  "superseded",
-        "evidence":  [
-                         "docs/plans/2026-04-11-forge-slim-refactor-v2.md",
-                         "CHANGELOG.md",
-                         "packages/forge-core/workflows/execution/build.md",
-                         "packages/forge-core/workflows/design/spec-review.md",
-                         "packages/forge-core/workflows/design/visualize.md",
-                         "python scripts/verify_repo.py --profile fast -\u003e PASS on 2026-04-11"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "slim-refactor",
-                     "skills",
-                     "routing"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 1.16.0 proof chain or later evidence invalidates the recorded release verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 1.16.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260411-135200",
-        "kind":  "decision",
-        "scope":  "forge-2-0-stable-status",
-        "summary":  "Record 2.0.0 as the stable Forge release for the kernel-only contraction slice because the release sync and canonical repo verification gate were green at that cut.",
-        "status":  "superseded",
-        "evidence":  [
-                         "docs/plans/forge_refactor_V3.md",
-                         "CHANGELOG.md",
-                         "packages/forge-core/scripts/route_preview.py",
-                         "packages/forge-core/scripts/initialize_workspace.py",
-                         "python scripts/verify_repo.py -> PASS on 2026-04-11"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "kernel-only",
-                     "routing",
-                     "workflow-surface"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 2.0.0 proof chain or later evidence invalidates the recorded release verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.0.0 proof chain or invalidates the recorded release verification."
-    },
-    {
-        "id":  "20260411-184500",
-        "kind":  "decision",
-        "scope":  "forge-2-1-stable-status",
-        "summary":  "Treat 2.1.1 as a superseded Forge stable slice because the operator-state cleanup patch, release sync, and canonical repo verification gate were all green at the time.",
-        "status":  "superseded",
-        "evidence":  [
-                         "docs/plans/Thin-SKILL Staged Implementation Plan.md",
-                         "CHANGELOG.md",
-                         "scripts/skill_bundle_composer.py",
-                         "scripts/generate_overlay_skills.py",
-                         "python scripts/verify_repo.py -> PASS on 2026-04-11"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "thin-skill",
-                     "routing",
-                     "workflow-surface"
-        ],
-        "revisit_if":  "Release archaeology needs the original 2.1.1 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.1.1 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260412-220000",
-        "kind":  "decision",
-        "scope":  "forge-2-2-stable-status",
-        "summary":  "Treat 2.2.0 as a superseded Forge stable slice because the later end-to-end state machine release replaced its stable line after a fresh release sync and canonical repo verification gate pass.",
-        "status":  "superseded",
-        "evidence":  [
-                         "CHANGELOG.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-core/scripts/operator_state_resolution.py",
-                         "packages/forge-core/scripts/route_preview.py",
-                         "python scripts/verify_repo.py --format json -> PASS on 2026-04-12"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "lean-pass",
-                     "routing",
-                     "workflow-surface"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 2.2.0 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.2.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260413-000000",
-        "kind":  "decision",
-        "scope":  "forge-2-5-stable-status",
-        "summary":  "Treat 2.5.0 as a superseded Forge stable slice because the later response-contract token-trim release replaced its stable line after a fresh release sync and targeted verification pass.",
-        "status":  "superseded",
-        "evidence":  [
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "docs/current/architecture.md",
-                         "packages/forge-core/references/target-state.md",
-                         "python scripts/verify_repo.py -> PASS on 2026-04-13"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "maintenance",
-                     "routing",
-                     "workflow-surface"
-                 ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 2.5.0 verification evidence.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.5.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260417-000000",
-        "kind":  "decision",
-        "scope":  "forge-2-6-stable-status",
-        "summary":  "Treat 2.6.0 as a superseded Forge stable slice because the later 2.10.0 release replaced its stable line after later release sync and verification passes.",
-        "status":  "superseded",
-        "evidence":  [
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-core/scripts/response_contract.py",
-                         "python -m pytest packages/forge-core/tests/test_response_contract.py packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-17"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "maintenance",
-                     "response-provenance",
-                     "workflow-surface"
-                 ],
-        "revisit_if":  "A later audit needs the original 2.6.0 proof chain or invalidates the recorded 2026-04-17 verification evidence.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.6.0 proof chain or invalidates the recorded 2026-04-17 verification evidence."
-    },
-    {
-        "id":  "20260421-000000",
-        "kind":  "decision",
-        "scope":  "forge-flat-build-routing",
-        "summary":  "Keep Forge BUILD routing flat across risk levels: Brainstorm, Plan, Architect, Build, and Review own readiness/proof strength, while the old pre-build spec-review fork is removed from active routing.",
-        "status":  "resolved",
-        "evidence":  [
-                         "docs/plans/2026-04-21-brainstorm-v2-merge-spec-review-plan.md",
-                         "packages/forge-core/workflows/design/brainstorm.md",
-                         "packages/forge-core/data/orchestrator-registry.json",
-                         "python -m unittest discover -s packages/forge-core/tests -v -> PASS on 2026-04-21",
-                         "python packages/forge-antigravity/overlay/tests/test_adapter_locales.py -> PASS on 2026-04-21",
-                         "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-21"
-                     ],
-        "next":  [
-                     "Decide whether to bump the release version and push/merge to main."
-                 ],
-        "tags":  [
-                     "routing",
-                     "workflow-surface",
-                     "brainstorm",
-                     "flat-build"
-                 ],
-        "revisit_if":  "Future routing reintroduces a separate pre-build fork or legacy readiness artifacts stop bootstrapping into the flat build chain.",
-        "trigger":  "flat-build-routing-plan",
-        "resume_hint":  "Resume from the flat routing plan and verify registry, route preview, workflow-state bootstrap, Codex overlay, and Antigravity overlay together."
-    },
-    {
-        "id":  "20260421-120000",
-        "kind":  "decision",
-        "scope":  "forge-2-9-stable-status",
-        "summary":  "Treat 2.9.0 as a superseded Forge stable slice because the later 2.10.0 release replaced its stable line after a fresh release sync and verification pass.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "python -m unittest discover -s packages/forge-core/tests -v -> PASS on 2026-04-21",
-                         "python packages/forge-codex/overlay/tests/test_adapter_locales.py -> PASS on 2026-04-21",
-                         "python packages/forge-antigravity/overlay/tests/test_adapter_locales.py -> PASS on 2026-04-21",
-                         "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-21"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "maintenance",
-                     "routing",
-                     "workflow-surface"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 2.9.0 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.9.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260421-130500",
-        "kind":  "decision",
-        "scope":  "forge-2-10-stable-status",
-        "summary":  "Treat 2.10.0 as a superseded Forge stable slice because the later 2.11.0 release replaced its stable line after a fresh release sync and verification pass.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-core/workflows/design/brainstorm.md",
-                         "packages/forge-core/workflows/design/plan.md",
-                         "packages/forge-core/tools/visual-companion/scripts/server.cjs",
-                         "python -m unittest discover -s packages/forge-core/tests -p test_visual_companion.py -v -> PASS on 2026-04-21",
-                         "python -m unittest discover -s packages/forge-core/tests -v -> PASS on 2026-04-21",
-                         "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-21",
-                         "python scripts/build_release.py --force --format json -> PASS on 2026-04-21"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "maintenance",
-                     "routing",
-                     "visual-companion",
-                     "workflow-surface"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 2.10.0 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.10.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260421-134500",
-        "kind":  "decision",
-        "scope":  "forge-2-11-stable-status",
-        "summary":  "Treat 2.11.0 as a superseded Forge stable slice because the later 2.12.0 release replaced its stable line after a fresh release sync and verification pass.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "docs/plans/2026-04-21-forge-v3-full-spectrum-upgrade-plan.md",
-                         "packages/forge-core/references/tdd-discipline.md",
-                         "packages/forge-core/references/subagent-execution.md",
-                         "packages/forge-core/workflows/execution/build.md",
-                         "packages/forge-core/workflows/execution/test.md",
-                         "packages/forge-core/workflows/execution/review.md",
-                         "packages/forge-core/workflows/execution/quality-gate.md",
-                         "python -m pytest packages/forge-core/tests -q -> PASS on 2026-04-21",
-                         "python -m pytest packages/forge-codex/overlay/tests -q -> PASS on 2026-04-21",
-                         "python -m pytest packages/forge-antigravity/overlay/tests -q -> PASS on 2026-04-21",
-                         "python -m pytest tests -q -> PASS on 2026-04-21",
-                         "python scripts/generate_overlay_skills.py --check -> PASS on 2026-04-21",
-                         "python scripts/generate_host_artifacts.py --check --format json -> PASS on 2026-04-21"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "tdd",
-                     "subagents",
-                     "workflow-surface"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 2.11.0 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.11.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260421-171000",
-        "kind":  "decision",
-        "scope":  "forge-2-12-stable-status",
-        "summary":  "Treat 2.12.0 as a superseded Forge stable slice because the later 2.13.0 wave-execution release replaced its stable line after a fresh release sync and verification pass.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-core/data/orchestrator-registry.json",
-                         "packages/forge-core/scripts/route_complexity_safety.py",
-                         "packages/forge-core/scripts/route_policy.py",
-                         "packages/forge-core/scripts/route_preview.py",
-                         "packages/forge-core/scripts/route_preview_builder.py",
-                         "packages/forge-core/scripts/route_preview_output.py",
-                         "packages/forge-core/tests/test_route_complexity_safety.py",
-                         "python -m pytest packages\\forge-core\\tests\\test_route_complexity_safety.py packages\\forge-core\\tests\\test_route_preview.py -q -> PASS on 2026-04-21",
-                         "python -m pytest packages\\forge-core\\tests -q -> PASS on 2026-04-21",
-                         "python -m pytest tests -q -> PASS on 2026-04-21",
-                         "python -m pytest packages\\forge-codex\\overlay\\tests -q -> PASS on 2026-04-21",
-                         "python -m pytest packages\\forge-antigravity\\overlay\\tests -q -> PASS on 2026-04-21",
-                         "python scripts\\verify_repo.py --profile full --format json -> PASS on 2026-04-21",
-                         "git diff --check -> PASS on 2026-04-21"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "routing",
-                     "complexity",
-                     "quality-gate"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 2.12.0 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.12.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260421-214538",
-        "kind":  "decision",
-        "scope":  "forge-2-13-stable-status",
-        "summary":  "Treat 2.13.0 as a superseded Forge stable slice because the later 2.14.0 markdown-first sibling skill split replaced its stable line after a fresh release sync and verification pass.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-core/scripts/run_wave_execution.py",
-                         "packages/forge-core/scripts/wave_execution.py",
-                         "packages/forge-core/scripts/wave_execution_state.py",
-                         "packages/forge-core/scripts/workflow_state_summary.py",
-                         "packages/forge-core/tests/test_wave_execution.py",
-                         "packages/forge-core/tests/test_route_preview.py",
-                         "packages/forge-codex/overlay/workflows/execution/dispatch-subagents.md",
-                         "packages/forge-codex/overlay/tests/test_adapter_locales.py",
-                         "packages/forge-antigravity/overlay/tests/test_adapter_locales.py",
-                         "python scripts/verify_repo.py -> PASS on 2026-04-21"
-                     ],
-        "next":  [],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "wave-execution",
-                     "workflow-state",
-                     "delegation"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 2.13.0 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.13.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260422-000000",
-        "kind":  "decision",
-        "scope":  "forge-2-14-stable-status",
-        "summary":  "Treat 2.14.4 as a superseded Forge stable slice because the later 2.14.5 sibling-skill and reference ownership migration release replaced its stable line after a fresh release sync and canonical verification checks.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-core/skills/brainstorming/SKILL.md",
-                         "packages/forge-core/skills/executing-plans/SKILL.md",
-                         "packages/forge-core/skills/dispatching-parallel-agents/SKILL.md",
-                         "packages/forge-core/skills/requesting-code-review/SKILL.md",
-                         "packages/forge-core/skills/systematic-debugging/SKILL.md",
-                         "packages/forge-core/skills/using-git-worktrees/SKILL.md",
-                         "pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-22",
-                         "python scripts/generate_host_artifacts.py --check --format json -> PASS on 2026-04-22",
-                         "python scripts/generate_overlay_skills.py --check --format json -> PASS on 2026-04-22",
-                         "python scripts/verify_repo.py -> PASS on 2026-04-22"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "forge-core",
-                     "skills",
-                     "wording",
-                     "verification"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 2.14.4 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "patch-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.14.4 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260423-000000",
-        "kind":  "decision",
-        "scope":  "forge-2-14-5-stable-status",
-        "summary":  "Treat 2.14.5 as a superseded Forge stable slice because the later 2.15.0 rollback-surface removal and install-backup migration release replaced its stable line after a fresh release sync and canonical verification checks.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-skills/",
-                         "packages/forge-core/workflows/operator/references/",
-                         "python -m pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-22",
-                         "python -m pytest tests/release_repo_test_contracts.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py tests/release_repo_test_overlays.py tests/test_operator_surface_registry.py tests/test_release_hardening.py -q -> PASS on 2026-04-22",
-                         "python scripts/build_release.py --format json -> PASS on 2026-04-22",
-                         "python scripts/verify_repo.py -> PASS on 2026-04-23"
-                     ],
-        "next":  [
-
-                 ],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "forge-skills",
-                     "references",
-                     "verification"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 2.14.5 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "patch-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.14.5 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260423-084500",
-        "kind":  "decision",
-        "scope":  "forge-2-15-stable-status",
-        "summary":  "Treat 2.15.0 as a superseded Forge stable slice because the later 3.0.0 runtime-ownership refactor release replaced its stable line after a fresh release sync and canonical verification checks.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "scripts/repo_operator.py",
-                         "packages/forge-core/data/orchestrator-registry.json",
-                         "packages/forge-core/scripts/resolve_rollback.py",
-                         "scripts/install_bundle_paths.py",
-                         "scripts/install_bundle_runtime.py",
-                         "python -m pytest tests/test_repo_operator_script_shims.py tests/test_operator_surface_registry.py tests/test_host_artifact_generation.py -q -> PASS on 2026-04-23",
-                         "python -m pytest tests/release_repo_test_overlays.py tests/release_repo_test_contracts.py packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-23",
-                         "python -m pytest tests/release_repo_test_install.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py tests/test_release_acceleration.py tests/test_runtime_tool_registration.py packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-23",
-                         "python scripts/verify_repo.py -> PASS on 2026-04-23"
-                     ],
-        "next":  [],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "rollback",
-                     "install",
-                     "verification"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 2.15.0 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 2.15.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260423-235900",
-        "kind":  "decision",
-        "scope":  "forge-3-0-stable-status",
-        "summary":  "Treat 3.0.0 as a superseded Forge stable slice because the later 3.1.0 script-polish release replaced its stable line after a fresh release sync and canonical verification checks.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-core/commands/",
-                         "packages/forge-core/shared/",
-                         "packages/forge-skills/brainstorming/commands/",
-                         "packages/forge-skills/executing-plans/commands/",
-                         "packages/forge-skills/systematic-debugging/commands/",
-                         "packages/forge-skills/using-git-worktrees/commands/",
-                         "python -m pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-23",
-                         "python -m unittest tests.test_install_bundle_codex_host tests.test_install_bundle_antigravity_host tests.test_release_hardening -v -> PASS on 2026-04-23",
-                         "python -m unittest discover -s tests -p 'release_repo_test*.py' -v -> PASS on 2026-04-23",
-                         "python -m unittest discover -s tests -p 'test_repo_operator_script_shims.py' -v -> PASS on 2026-04-23",
-                         "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23"
-                     ],
-        "next":  [],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "runtime-ownership",
-                     "commands",
-                     "shared",
-                     "verification"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 3.0.0 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "major-release",
-        "resume_hint":  "Resume only if a later audit needs the original 3.0.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260423-235959",
-        "kind":  "decision",
-        "scope":  "forge-3-1-stable-status",
-        "summary":  "Treat 3.1.0 as a superseded Forge stable slice because the later 3.2.0 delegation and skill-ownership release replaced its stable line after a fresh release sync and canonical verification checks.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "scripts/repo_operator.py",
-                         "scripts/host_artifacts_support.py",
-                         "packages/forge-core/commands/prepare_bump.py",
-                         "tests/test_script_polish.py",
-                         "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23"
-                     ],
-        "next":  [],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "script-polish",
-                     "repo-operator",
-                     "verification"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 3.1.0 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 3.1.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260423-122256",
-        "kind":  "decision",
-        "scope":  "forge-3-2-stable-status",
-        "summary":  "Treat 3.2.1 as a superseded Forge stable slice because the later 3.2.2 Windows Forge Codex UTF-8 activation fix replaced its stable line after fresh verification and release sync.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "docs/release/package-matrix.json",
-                         "packages/forge-core/shared/route_delegation_packets.py",
-                         "packages/forge-core/shared/preferences_contract.py",
-                         "packages/forge-skills/brainstorming/tools/visual-companion/",
-                         "python packages/forge-core/tests/test_route_delegation_packets.py -> PASS on 2026-04-23",
-                         "python -m unittest preferences_test_loading preferences_test_scripts test_write_preferences test_route_delegation_packets -> PASS on 2026-04-23",
-                         "python packages/forge-core/tests/test_visual_companion.py -> PASS on 2026-04-23",
-                         "python -m unittest tests.test_install_bundle_design tests.test_install_bundle_codex_host tests.test_install_bundle_antigravity_host -> PASS on 2026-04-23",
-                         "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23",
-                         "python scripts/verify_repo.py -> PASS on 2026-04-23"
-                     ],
-        "next":  [],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "delegation",
-                     "visual-companion",
-                     "verification"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 3.2.1 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 3.2.1 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260423-144000",
-        "kind":  "decision",
-        "scope":  "forge-3-2-stable-status",
-        "summary":  "Treat 3.2.2 as a superseded Forge stable slice because the later 3.2.3 forge-init bootstrap release replaced its stable line after fresh verification and release sync.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-codex/README.md",
-                         "packages/forge-codex/overlay/tools/enable_windows_utf8.ps1",
-                         "tests/test_install_bundle_codex_host.py",
-                         "python -m pytest tests/test_install_bundle_codex_host.py -q -> PASS on 2026-04-23",
-                         "python -m pytest tests/release_repo_test_install.py tests/release_repo_test_overlays.py -q -> PASS on 2026-04-23",
-                         "python -m pytest packages/forge-codex/overlay/tests/test_adapter_locales.py packages/forge-core/tests/preferences_test_loading.py packages/forge-core/tests/test_response_contract.py -q -> PASS on 2026-04-23",
-                         "python -m unittest discover -s tests -v -> PASS on 2026-04-23",
-                         "python scripts/verify_repo.py -> PASS on 2026-04-23"
-                     ],
-        "next":  [],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "windows",
-                     "utf-8",
-                     "codex",
-                     "verification"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 3.2.2 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "patch-release",
-        "resume_hint":  "Resume only if a later audit needs the original 3.2.2 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260423-144923",
-        "kind":  "decision",
-        "scope":  "forge-3-2-stable-status",
-        "summary":  "Treat 3.2.3 as a superseded Forge stable slice because the later 3.2.4 forge-customize ownership release replaced its stable line after fresh verification and release sync.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-core/commands/initialize_workspace.py",
-                         "packages/forge-core/tests/fixtures/workspace_init_cases.json",
-                         "packages/forge-core/tests/test_initialize_workspace.py",
-                         "packages/forge-skills/init/SKILL.md",
-                         "packages/forge-skills/init/references/project-docs-blueprint.md",
-                         "python -m pytest packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_initialize_workspace.py tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> PASS on 2026-04-23",
-                         "python -m pytest packages/forge-core/tests/test_initialize_workspace.py -q -> PASS on 2026-04-23",
-                         "python scripts/generate_host_artifacts.py --check --format json -> PASS on 2026-04-23",
-                         "python scripts/generate_overlay_skills.py --check --format json -> PASS on 2026-04-23",
-                         "python scripts/build_release.py --format json -> PASS on 2026-04-23",
-                         "python scripts/verify_repo.py -> PASS on 2026-04-23"
-                     ],
-        "next":  [],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "forge-init",
-                     "bootstrap-docs",
-                     "verification"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 3.2.3 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "patch-release",
-        "resume_hint":  "Resume only if a later audit needs the original 3.2.3 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260423-160500",
-        "kind":  "decision",
-        "scope":  "forge-3-2-stable-status",
-        "summary":  "Treat 3.2.4 as a superseded Forge stable slice because the later 3.3.0 session-management ownership release replaced its stable line after fresh verification and release sync.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-skills/customize/commands/resolve_preferences.py",
-                         "packages/forge-skills/customize/commands/write_preferences.py",
-                         "packages/forge-skills/customize/shared/preferences_store.py",
-                         "packages/forge-skills/customize/data/preferences-schema.json",
-                         "python scripts/generate_host_artifacts.py --check -> PASS on 2026-04-23",
-                         "python scripts/generate_overlay_skills.py --check -> PASS on 2026-04-23",
-                         "pytest tests/test_public_customize_skill.py packages/forge-core/tests/test_preferences.py packages/forge-core/tests/test_write_preferences.py packages/forge-core/tests/test_contracts.py tests/test_script_polish.py tests/test_operator_surface_registry.py tests/test_host_artifact_generation.py tests/test_repo_operator_script_shims.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-23",
-                         "python scripts/verify_repo.py -> pending rerun after .brain stable-line update"
-                     ],
-        "next":  [],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "forge-customize",
-                     "preferences",
-                     "verification"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 3.2.4 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "patch-release",
-        "resume_hint":  "Resume only if a later audit needs the original 3.2.4 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260423-173300",
-        "kind":  "decision",
-        "scope":  "forge-3-3-stable-status",
-        "summary":  "Treat 3.3.0 as a superseded Forge stable slice because the later 4.0.0 operator-surface removal replaced its stable line after fresh verification and release sync.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-skills/session-management/commands/session_context.py",
-                         "packages/forge-core/data/orchestrator-registry.json",
-                         "scripts/repo_operator.py",
-                         "python -m pytest tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_session_context.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> 83 passed, 86779 subtests passed on 2026-04-23",
-                         "python scripts/build_release.py --force --format json -> PASS on 2026-04-23",
-                         "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23"
-                     ],
-        "next":  [],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "session-management",
-                     "operator-surface",
-                     "verification"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 3.3.0 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 3.3.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260423-194100",
-        "kind":  "decision",
-        "scope":  "forge-4-0-stable-status",
-        "summary":  "Treat 4.0.0 as a superseded Forge stable slice because the later 5.0.0 release moved release bump, bootstrap, session, and delegation behavior to sibling skills and retired the remaining workflows compatibility surface.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-core/data/orchestrator-registry.json",
-                         "scripts/repo_operator.py",
-                         "docs/architecture/host-artifacts-manifest.json",
-                         "docs/release/package-matrix.json",
-                         "python -m pytest tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py tests/test_host_artifact_generation.py packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_help_next.py packages/forge-core/tests/test_run_workflow.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> 95 passed, 86461 subtests passed on 2026-04-23",
-                         "python scripts/build_release.py --force --format json -> PASS with all bundles at 4.0.0 on 2026-04-23",
-                         "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23"
-                     ],
-        "next":  [],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "operator-surface",
-                     "breaking-change",
-                     "verification"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 4.0.0 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "major-release",
-        "resume_hint":  "Resume only if a later audit needs the original 4.0.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260423-215500",
-        "kind":  "decision",
-        "scope":  "forge-5-0-stable-status",
-        "summary":  "Treat 5.0.0 as a superseded Forge stable slice because the later 5.2.0 customize-owner-contract release replaced its stable line after fresh verification and release sync.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-skills/bump-release/SKILL.md",
-                         "packages/forge-skills/bump-release/references/scripts/prepare_bump.py",
-                         "packages/forge-core/data/orchestrator-registry.json",
-                         "docs/release/package-matrix.json",
-                         "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --format json -> PASS, inferred major 4.0.0 to 5.0.0 with high confidence on 2026-04-23",
-                         "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.0.0 on 2026-04-23",
-                         "python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-23 after 5.0.0 continuity update"
-                     ],
-        "next":  [],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "operator-surface",
-                     "workflow-retirement",
-                     "bump-release",
-                     "breaking-change",
-                     "verification"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 5.0.0 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "major-release",
-        "resume_hint":  "Resume only if a later audit needs the original 5.0.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260424-101318",
-        "kind":  "decision",
-        "scope":  "forge-5-2-stable-status",
-        "summary":  "Treat 5.2.0 as a superseded Forge stable slice because the later 5.3.0 release-bump ownership release replaced its stable line after fresh verification and release sync.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
-                         "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
-                         "scripts/install_bundle_host.py",
-                         "packages/forge-skills/customize/shared/preferences_paths.py",
-                         "pytest tests/test_host_artifact_generation.py tests/release_repo_test_overlays.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-24",
-                         "python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-24"
-                     ],
-        "next":  [],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "forge-customize",
-                     "generated-host-artifacts",
-                     "install-contract",
-                     "verification"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 5.2.0 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 5.2.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260425-000000",
-        "kind":  "decision",
-        "scope":  "forge-5-3-stable-status",
-        "summary":  "Treat 5.3.0 as a superseded Forge stable slice because the later 5.4.0 selective closeout release replaced its stable line after fresh verification and release sync.",
-        "status":  "superseded",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-skills/bump-release/SKILL.md",
-                         "packages/forge-skills/bump-release/references/scripts/prepare_bump_report.py",
-                         "packages/forge-skills/init/SKILL.md",
-                         "packages/forge-skills/init/commands/initialize_workspace.py",
-                         "python -m unittest test_bump_workflow test_initialize_workspace -> PASS from packages/forge-core/tests on 2026-04-25",
-                         "python scripts/verify_repo.py -> PASS on 2026-04-25"
-                     ],
-        "next":  [],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "bump-release",
-                     "forge-init",
-                     "changelog",
-                     "verification"
-                 ],
-        "revisit_if":  "Release archaeology needs the original 5.3.0 proof chain or later evidence invalidates the recorded verification.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 5.3.0 proof chain or invalidates the recorded verification."
-    },
-    {
-        "id":  "20260502-000000",
-        "kind":  "decision",
-        "scope":  "forge-5-4-stable-status",
-        "summary":  "Treat 5.4.0 as the current stable Forge release because session continuity now supports selective closeout capture and resume restores relevant decisions and learnings.",
-        "status":  "resolved",
-        "evidence":  [
-                         "VERSION",
-                         "CHANGELOG.md",
-                         "README.md",
-                         "docs/release/public-readiness.md",
-                         "docs/release/release-process.md",
-                         "packages/forge-skills/session-management/commands/session_context.py",
-                         "packages/forge-skills/session-management/commands/session_context_closeout.py",
-                         "packages/forge-skills/session-management/commands/session_context_continuity.py",
-                         "python -m unittest test_session_context test_contracts -> PASS from packages/forge-core/tests on 2026-05-02",
-                         "python scripts/verify_repo.py -> PASS on 2026-05-02"
-                     ],
-        "next":  [],
-        "tags":  [
-                     "release",
-                     "stable",
-                     "session-management",
-                     "closeout",
-                     "verification"
-                 ],
-        "revisit_if":  "A later release changes the stable line or invalidates the 5.4.0 verification evidence.",
-        "trigger":  "minor-release",
-        "resume_hint":  "Resume only if a later audit needs the original 5.4.0 proof chain or invalidates the recorded verification."
-    }
+  {
+    "id": "20260330-082442",
+    "kind": "decision",
+    "scope": "forge-self-hosted-tdd-sdd-adoption",
+    "summary": "Forge now ships the artifact-driven TDD/SDD rollout as the canonical medium-risk implementation path.",
+    "status": "resolved",
+    "evidence": [
+      "Archived change: C:\\Users\\Admin\\.gemini\\forge\\.forge-artifacts\\changes\\archive\\20260330-082442-forge-self-hosted-tdd-sdd-adoption"
+    ],
+    "next": [],
+    "tags": [
+      "change-archive"
+    ],
+    "revisit_if": null,
+    "trigger": "change-archive"
+  },
+  {
+    "id": "20260401-051841",
+    "kind": "decision",
+    "scope": "forge-public-release-docs",
+    "summary": "Public GitHub visibility guidance must live as tracked release documentation and be covered by release-hardening tests.",
+    "status": "resolved",
+    "evidence": [
+      "docs/release/public-readiness.md",
+      "docs/release/github-public-switch-checklist.md",
+      "tests/test_release_hardening.py"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "docs",
+      "hardening"
+    ],
+    "revisit_if": "The public release flow moves away from GitHub or the checklist becomes fully automated.",
+    "trigger": "patch-release"
+  },
+  {
+    "id": "20260401-141503",
+    "kind": "decision",
+    "scope": "forge-1-11-hardening-release",
+    "summary": "Forge 1.11.0 must treat fresh dist-bundle verification and workflow-state round-tripping as release-blocking contracts, not best-effort checks.",
+    "status": "resolved",
+    "evidence": [
+      "docs/plans/2026-04-01-forge-1.11.x-hardening-roadmap.md",
+      "tests/release_repo_test_overlays.py",
+      "packages/forge-core/scripts/workflow_state_support.py",
+      "packages/forge-core/scripts/help_next_support.py"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "routing",
+      "workflow-state",
+      "dist"
+    ],
+    "revisit_if": "The release pipeline stops materializing in-repo dist bundles or help and next no longer consume workflow-state as the durable source of truth.",
+    "trigger": "minor-release"
+  },
+  {
+    "id": "20260401-215058",
+    "kind": "decision",
+    "scope": "forge-1-12-maturation-release",
+    "summary": "Forge 1.12.0 should ship with one canonical four-tier release contract plus a separate roadmap-complete closure sweep for the later maturation commits.",
+    "status": "resolved",
+    "evidence": [
+      "docs/plans/2026-04-01-forge-1.12.x-maturation-roadmap.md",
+      "packages/forge-core/scripts/release_profile_contract.py",
+      "packages/forge-core/scripts/release_readiness.py",
+      "packages/forge-core/tests/test_help_next.py",
+      "packages/forge-core/tests/test_dashboard.py"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "roadmap",
+      "workflow-state",
+      "help-next"
+    ],
+    "revisit_if": "A future release changes the canonical tier behavior bar or collapses the roadmap-complete sweep back into the 1.12.0 cut.",
+    "trigger": "minor-release",
+    "resume_hint": "A future release changes the canonical tier behavior bar or collapses the roadmap-complete sweep back into the 1.12.0 cut."
+  },
+  {
+    "id": "20260401-220924",
+    "kind": "decision",
+    "scope": "forge-1-12-stable-status",
+    "summary": "Record 1.12.0 as the stable Forge release for its slice because both the canonical release gate and the roadmap-complete closure sweep were green.",
+    "status": "superseded",
+    "evidence": [
+      "python -m pytest tests/test_release_hardening.py tests/release_repo_test_contracts.py -q -> 26 passed, 82 subtests passed",
+      "README.md and docs/release declared 1.12.0 as the stable release at the time"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable"
+    ],
+    "revisit_if": "Release archaeology needs the original 1.12.0 proof chain or later evidence invalidates the recorded release verification.",
+    "trigger": null,
+    "resume_hint": "Resume only if a later audit needs the original 1.12.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260402-111622",
+    "kind": "decision",
+    "scope": "forge-1-13-stable-status",
+    "summary": "Record 1.13.0 as the stable Forge release for its slice because the build-packet enhancement line and the canonical repo verification gate were both green.",
+    "status": "superseded",
+    "evidence": [
+      "docs/plans/2026-04-02-forge-1.13.x-build-process-enhancement-roadmap.md",
+      "CHANGELOG.md",
+      "python scripts/verify_repo.py -> PASS on 2026-04-02"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "build-packets",
+      "workflow-state"
+    ],
+    "revisit_if": "Release archaeology needs the original 1.13.0 proof chain or later evidence invalidates the recorded release verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 1.13.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260402-144231",
+    "kind": "decision",
+    "scope": "forge-1-14-stable-status",
+    "summary": "Record 1.14.0 as the stable Forge release for its slice because the competitive roadmap implementation, release contract sweep, and canonical repo gate were all green.",
+    "status": "superseded",
+    "evidence": [
+      "docs/plans/2026-04-02-forge-1.14.x-competitive-roadmap.md",
+      "CHANGELOG.md",
+      "python -m pytest packages/forge-core/tests/test_fast_lane_lifecycle.py packages/forge-core/tests/test_chain_status.py packages/forge-core/tests/test_route_preview.py packages/forge-core/tests/test_help_next.py packages/forge-core/tests/test_help_next_workflow_state.py packages/forge-core/tests/test_tool_roundtrip.py packages/forge-core/tests/test_runtime_tool_support.py packages/forge-core/tests/test_contracts.py tests/release_repo_test_contracts.py -q -> 96 passed, 1 skipped, 252 subtests passed",
+      "python scripts/verify_repo.py -> PASS on 2026-04-02"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "fast-lane",
+      "packet-graph",
+      "runtime-health"
+    ],
+    "revisit_if": "Release archaeology needs the original 1.14.0 proof chain or later evidence invalidates the recorded release verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 1.14.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260402-215530",
+    "kind": "decision",
+    "scope": "forge-1-15-stable-status",
+    "summary": "Record 1.15.1 as the stable Forge release for its slice because the maintenance footer-clarity update, unique multi-skill footer rule, and the canonical repo verification gate were green.",
+    "status": "superseded",
+    "evidence": [
+      "packages/forge-core/workflows/design/brainstorm.md",
+      "packages/forge-core/workflows/execution/build.md",
+      "packages/forge-core/domains/backend.md",
+      "CHANGELOG.md",
+      "python scripts/verify_repo.py -> PASS on 2026-04-10"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "maintenance",
+      "skills",
+      "footer",
+      "response-provenance"
+    ],
+    "revisit_if": "Release archaeology needs the original 1.15.1 proof chain or later evidence invalidates the recorded release verification.",
+    "trigger": "patch-release",
+    "resume_hint": "Resume only if a later audit needs the original 1.15.1 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260402-230000",
+    "kind": "decision",
+    "scope": "forge-1-15-maintenance-closure",
+    "summary": "Close Forge after 1.15.0 into maintenance mode and treat older roadmap lines plus superseded stable-line decisions as historical context, not active work queues.",
+    "status": "resolved",
+    "evidence": [
+      "docs/plans/2026-04-02-forge-1.15.x-maintenance-closure.md",
+      "docs/current/target-state.md",
+      "packages/forge-core/references/reference-map.md",
+      "tests/test_release_hardening.py",
+      "python scripts/verify_repo.py -> PASS on 2026-04-02"
+    ],
+    "next": [],
+    "tags": [
+      "maintenance",
+      "roadmap",
+      "continuity",
+      "docs"
+    ],
+    "revisit_if": "A later change needs more than bounded maintenance work under the 1.15.x closure criteria.",
+    "trigger": "maintenance-closure",
+    "resume_hint": "Resume only if target-state reopen criteria are met and Forge needs a new explicit roadmap line."
+  },
+  {
+    "id": "20260411-000000",
+    "kind": "decision",
+    "scope": "forge-1-16-stable-status",
+    "summary": "Record 1.16.0 as the stable Forge release for the domain-skill retirement slice because the release sync and canonical repo verification gate were green at that cut.",
+    "status": "superseded",
+    "evidence": [
+      "docs/plans/2026-04-11-forge-slim-refactor-v2.md",
+      "CHANGELOG.md",
+      "packages/forge-core/workflows/execution/build.md",
+      "packages/forge-core/workflows/design/spec-review.md",
+      "packages/forge-core/workflows/design/visualize.md",
+      "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-11"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "slim-refactor",
+      "skills",
+      "routing"
+    ],
+    "revisit_if": "Release archaeology needs the original 1.16.0 proof chain or later evidence invalidates the recorded release verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 1.16.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260411-135200",
+    "kind": "decision",
+    "scope": "forge-2-0-stable-status",
+    "summary": "Record 2.0.0 as the stable Forge release for the kernel-only contraction slice because the release sync and canonical repo verification gate were green at that cut.",
+    "status": "superseded",
+    "evidence": [
+      "docs/plans/forge_refactor_V3.md",
+      "CHANGELOG.md",
+      "packages/forge-core/scripts/route_preview.py",
+      "packages/forge-core/scripts/initialize_workspace.py",
+      "python scripts/verify_repo.py -> PASS on 2026-04-11"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "kernel-only",
+      "routing",
+      "workflow-surface"
+    ],
+    "revisit_if": "Release archaeology needs the original 2.0.0 proof chain or later evidence invalidates the recorded release verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 2.0.0 proof chain or invalidates the recorded release verification."
+  },
+  {
+    "id": "20260411-184500",
+    "kind": "decision",
+    "scope": "forge-2-1-stable-status",
+    "summary": "Treat 2.1.1 as a superseded Forge stable slice because the operator-state cleanup patch, release sync, and canonical repo verification gate were all green at the time.",
+    "status": "superseded",
+    "evidence": [
+      "docs/plans/Thin-SKILL Staged Implementation Plan.md",
+      "CHANGELOG.md",
+      "scripts/skill_bundle_composer.py",
+      "scripts/generate_overlay_skills.py",
+      "python scripts/verify_repo.py -> PASS on 2026-04-11"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "thin-skill",
+      "routing",
+      "workflow-surface"
+    ],
+    "revisit_if": "Release archaeology needs the original 2.1.1 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 2.1.1 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260412-220000",
+    "kind": "decision",
+    "scope": "forge-2-2-stable-status",
+    "summary": "Treat 2.2.0 as a superseded Forge stable slice because the later end-to-end state machine release replaced its stable line after a fresh release sync and canonical repo verification gate pass.",
+    "status": "superseded",
+    "evidence": [
+      "CHANGELOG.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-core/scripts/operator_state_resolution.py",
+      "packages/forge-core/scripts/route_preview.py",
+      "python scripts/verify_repo.py --format json -> PASS on 2026-04-12"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "lean-pass",
+      "routing",
+      "workflow-surface"
+    ],
+    "revisit_if": "Release archaeology needs the original 2.2.0 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 2.2.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260413-000000",
+    "kind": "decision",
+    "scope": "forge-2-5-stable-status",
+    "summary": "Treat 2.5.0 as a superseded Forge stable slice because the later response-contract token-trim release replaced its stable line after a fresh release sync and targeted verification pass.",
+    "status": "superseded",
+    "evidence": [
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "docs/current/architecture.md",
+      "packages/forge-core/references/target-state.md",
+      "python scripts/verify_repo.py -> PASS on 2026-04-13"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "maintenance",
+      "routing",
+      "workflow-surface"
+    ],
+    "revisit_if": "A later release changes the stable line or invalidates the 2.5.0 verification evidence.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 2.5.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260417-000000",
+    "kind": "decision",
+    "scope": "forge-2-6-stable-status",
+    "summary": "Treat 2.6.0 as a superseded Forge stable slice because the later 2.10.0 release replaced its stable line after later release sync and verification passes.",
+    "status": "superseded",
+    "evidence": [
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-core/scripts/response_contract.py",
+      "python -m pytest packages/forge-core/tests/test_response_contract.py packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-17"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "maintenance",
+      "response-provenance",
+      "workflow-surface"
+    ],
+    "revisit_if": "A later audit needs the original 2.6.0 proof chain or invalidates the recorded 2026-04-17 verification evidence.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 2.6.0 proof chain or invalidates the recorded 2026-04-17 verification evidence."
+  },
+  {
+    "id": "20260421-000000",
+    "kind": "decision",
+    "scope": "forge-flat-build-routing",
+    "summary": "Keep Forge BUILD routing flat across risk levels: Brainstorm, Plan, Architect, Build, and Review own readiness/proof strength, while the old pre-build spec-review fork is removed from active routing.",
+    "status": "resolved",
+    "evidence": [
+      "docs/plans/2026-04-21-brainstorm-v2-merge-spec-review-plan.md",
+      "packages/forge-core/workflows/design/brainstorm.md",
+      "packages/forge-core/data/orchestrator-registry.json",
+      "python -m unittest discover -s packages/forge-core/tests -v -> PASS on 2026-04-21",
+      "python packages/forge-antigravity/overlay/tests/test_adapter_locales.py -> PASS on 2026-04-21",
+      "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-21"
+    ],
+    "next": [
+      "Decide whether to bump the release version and push/merge to main."
+    ],
+    "tags": [
+      "routing",
+      "workflow-surface",
+      "brainstorm",
+      "flat-build"
+    ],
+    "revisit_if": "Future routing reintroduces a separate pre-build fork or legacy readiness artifacts stop bootstrapping into the flat build chain.",
+    "trigger": "flat-build-routing-plan",
+    "resume_hint": "Resume from the flat routing plan and verify registry, route preview, workflow-state bootstrap, Codex overlay, and Antigravity overlay together."
+  },
+  {
+    "id": "20260421-120000",
+    "kind": "decision",
+    "scope": "forge-2-9-stable-status",
+    "summary": "Treat 2.9.0 as a superseded Forge stable slice because the later 2.10.0 release replaced its stable line after a fresh release sync and verification pass.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "python -m unittest discover -s packages/forge-core/tests -v -> PASS on 2026-04-21",
+      "python packages/forge-codex/overlay/tests/test_adapter_locales.py -> PASS on 2026-04-21",
+      "python packages/forge-antigravity/overlay/tests/test_adapter_locales.py -> PASS on 2026-04-21",
+      "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-21"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "maintenance",
+      "routing",
+      "workflow-surface"
+    ],
+    "revisit_if": "Release archaeology needs the original 2.9.0 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 2.9.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260421-130500",
+    "kind": "decision",
+    "scope": "forge-2-10-stable-status",
+    "summary": "Treat 2.10.0 as a superseded Forge stable slice because the later 2.11.0 release replaced its stable line after a fresh release sync and verification pass.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-core/workflows/design/brainstorm.md",
+      "packages/forge-core/workflows/design/plan.md",
+      "packages/forge-core/tools/visual-companion/scripts/server.cjs",
+      "python -m unittest discover -s packages/forge-core/tests -p test_visual_companion.py -v -> PASS on 2026-04-21",
+      "python -m unittest discover -s packages/forge-core/tests -v -> PASS on 2026-04-21",
+      "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-21",
+      "python scripts/build_release.py --force --format json -> PASS on 2026-04-21"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "maintenance",
+      "routing",
+      "visual-companion",
+      "workflow-surface"
+    ],
+    "revisit_if": "Release archaeology needs the original 2.10.0 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 2.10.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260421-134500",
+    "kind": "decision",
+    "scope": "forge-2-11-stable-status",
+    "summary": "Treat 2.11.0 as a superseded Forge stable slice because the later 2.12.0 release replaced its stable line after a fresh release sync and verification pass.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "docs/plans/2026-04-21-forge-v3-full-spectrum-upgrade-plan.md",
+      "packages/forge-core/references/tdd-discipline.md",
+      "packages/forge-core/references/subagent-execution.md",
+      "packages/forge-core/workflows/execution/build.md",
+      "packages/forge-core/workflows/execution/test.md",
+      "packages/forge-core/workflows/execution/review.md",
+      "packages/forge-core/workflows/execution/quality-gate.md",
+      "python -m pytest packages/forge-core/tests -q -> PASS on 2026-04-21",
+      "python -m pytest packages/forge-codex/overlay/tests -q -> PASS on 2026-04-21",
+      "python -m pytest packages/forge-antigravity/overlay/tests -q -> PASS on 2026-04-21",
+      "python -m pytest tests -q -> PASS on 2026-04-21",
+      "python scripts/generate_overlay_skills.py --check -> PASS on 2026-04-21",
+      "python scripts/generate_host_artifacts.py --check --format json -> PASS on 2026-04-21"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "tdd",
+      "subagents",
+      "workflow-surface"
+    ],
+    "revisit_if": "Release archaeology needs the original 2.11.0 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 2.11.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260421-171000",
+    "kind": "decision",
+    "scope": "forge-2-12-stable-status",
+    "summary": "Treat 2.12.0 as a superseded Forge stable slice because the later 2.13.0 wave-execution release replaced its stable line after a fresh release sync and verification pass.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-core/data/orchestrator-registry.json",
+      "packages/forge-core/scripts/route_complexity_safety.py",
+      "packages/forge-core/scripts/route_policy.py",
+      "packages/forge-core/scripts/route_preview.py",
+      "packages/forge-core/scripts/route_preview_builder.py",
+      "packages/forge-core/scripts/route_preview_output.py",
+      "packages/forge-core/tests/test_route_complexity_safety.py",
+      "python -m pytest packages\\forge-core\\tests\\test_route_complexity_safety.py packages\\forge-core\\tests\\test_route_preview.py -q -> PASS on 2026-04-21",
+      "python -m pytest packages\\forge-core\\tests -q -> PASS on 2026-04-21",
+      "python -m pytest tests -q -> PASS on 2026-04-21",
+      "python -m pytest packages\\forge-codex\\overlay\\tests -q -> PASS on 2026-04-21",
+      "python -m pytest packages\\forge-antigravity\\overlay\\tests -q -> PASS on 2026-04-21",
+      "python scripts\\verify_repo.py --profile full --format json -> PASS on 2026-04-21",
+      "git diff --check -> PASS on 2026-04-21"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "routing",
+      "complexity",
+      "quality-gate"
+    ],
+    "revisit_if": "Release archaeology needs the original 2.12.0 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 2.12.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260421-214538",
+    "kind": "decision",
+    "scope": "forge-2-13-stable-status",
+    "summary": "Treat 2.13.0 as a superseded Forge stable slice because the later 2.14.0 markdown-first sibling skill split replaced its stable line after a fresh release sync and verification pass.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-core/scripts/run_wave_execution.py",
+      "packages/forge-core/scripts/wave_execution.py",
+      "packages/forge-core/scripts/wave_execution_state.py",
+      "packages/forge-core/scripts/workflow_state_summary.py",
+      "packages/forge-core/tests/test_wave_execution.py",
+      "packages/forge-core/tests/test_route_preview.py",
+      "packages/forge-codex/overlay/workflows/execution/dispatch-subagents.md",
+      "packages/forge-codex/overlay/tests/test_adapter_locales.py",
+      "packages/forge-antigravity/overlay/tests/test_adapter_locales.py",
+      "python scripts/verify_repo.py -> PASS on 2026-04-21"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "wave-execution",
+      "workflow-state",
+      "delegation"
+    ],
+    "revisit_if": "Release archaeology needs the original 2.13.0 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 2.13.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260422-000000",
+    "kind": "decision",
+    "scope": "forge-2-14-stable-status",
+    "summary": "Treat 2.14.4 as a superseded Forge stable slice because the later 2.14.5 sibling-skill and reference ownership migration release replaced its stable line after a fresh release sync and canonical verification checks.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-core/skills/brainstorming/SKILL.md",
+      "packages/forge-core/skills/executing-plans/SKILL.md",
+      "packages/forge-core/skills/dispatching-parallel-agents/SKILL.md",
+      "packages/forge-core/skills/requesting-code-review/SKILL.md",
+      "packages/forge-core/skills/systematic-debugging/SKILL.md",
+      "packages/forge-core/skills/using-git-worktrees/SKILL.md",
+      "pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-22",
+      "python scripts/generate_host_artifacts.py --check --format json -> PASS on 2026-04-22",
+      "python scripts/generate_overlay_skills.py --check --format json -> PASS on 2026-04-22",
+      "python scripts/verify_repo.py -> PASS on 2026-04-22"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "forge-core",
+      "skills",
+      "wording",
+      "verification"
+    ],
+    "revisit_if": "Release archaeology needs the original 2.14.4 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "patch-release",
+    "resume_hint": "Resume only if a later audit needs the original 2.14.4 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260423-000000",
+    "kind": "decision",
+    "scope": "forge-2-14-5-stable-status",
+    "summary": "Treat 2.14.5 as a superseded Forge stable slice because the later 2.15.0 rollback-surface removal and install-backup migration release replaced its stable line after a fresh release sync and canonical verification checks.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-skills/",
+      "packages/forge-core/workflows/operator/references/",
+      "python -m pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-22",
+      "python -m pytest tests/release_repo_test_contracts.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py tests/release_repo_test_overlays.py tests/test_operator_surface_registry.py tests/test_release_hardening.py -q -> PASS on 2026-04-22",
+      "python scripts/build_release.py --format json -> PASS on 2026-04-22",
+      "python scripts/verify_repo.py -> PASS on 2026-04-23"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "forge-skills",
+      "references",
+      "verification"
+    ],
+    "revisit_if": "Release archaeology needs the original 2.14.5 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "patch-release",
+    "resume_hint": "Resume only if a later audit needs the original 2.14.5 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260423-084500",
+    "kind": "decision",
+    "scope": "forge-2-15-stable-status",
+    "summary": "Treat 2.15.0 as a superseded Forge stable slice because the later 3.0.0 runtime-ownership refactor release replaced its stable line after a fresh release sync and canonical verification checks.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "scripts/repo_operator.py",
+      "packages/forge-core/data/orchestrator-registry.json",
+      "packages/forge-core/scripts/resolve_rollback.py",
+      "scripts/install_bundle_paths.py",
+      "scripts/install_bundle_runtime.py",
+      "python -m pytest tests/test_repo_operator_script_shims.py tests/test_operator_surface_registry.py tests/test_host_artifact_generation.py -q -> PASS on 2026-04-23",
+      "python -m pytest tests/release_repo_test_overlays.py tests/release_repo_test_contracts.py packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-23",
+      "python -m pytest tests/release_repo_test_install.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py tests/test_release_acceleration.py tests/test_runtime_tool_registration.py packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-23",
+      "python scripts/verify_repo.py -> PASS on 2026-04-23"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "rollback",
+      "install",
+      "verification"
+    ],
+    "revisit_if": "Release archaeology needs the original 2.15.0 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 2.15.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260423-235900",
+    "kind": "decision",
+    "scope": "forge-3-0-stable-status",
+    "summary": "Treat 3.0.0 as a superseded Forge stable slice because the later 3.1.0 script-polish release replaced its stable line after a fresh release sync and canonical verification checks.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-core/commands/",
+      "packages/forge-core/shared/",
+      "packages/forge-skills/brainstorming/commands/",
+      "packages/forge-skills/executing-plans/commands/",
+      "packages/forge-skills/systematic-debugging/commands/",
+      "packages/forge-skills/using-git-worktrees/commands/",
+      "python -m pytest packages/forge-core/tests/test_contracts.py -q -> PASS on 2026-04-23",
+      "python -m unittest tests.test_install_bundle_codex_host tests.test_install_bundle_antigravity_host tests.test_release_hardening -v -> PASS on 2026-04-23",
+      "python -m unittest discover -s tests -p 'release_repo_test*.py' -v -> PASS on 2026-04-23",
+      "python -m unittest discover -s tests -p 'test_repo_operator_script_shims.py' -v -> PASS on 2026-04-23",
+      "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "runtime-ownership",
+      "commands",
+      "shared",
+      "verification"
+    ],
+    "revisit_if": "Release archaeology needs the original 3.0.0 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "major-release",
+    "resume_hint": "Resume only if a later audit needs the original 3.0.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260423-235959",
+    "kind": "decision",
+    "scope": "forge-3-1-stable-status",
+    "summary": "Treat 3.1.0 as a superseded Forge stable slice because the later 3.2.0 delegation and skill-ownership release replaced its stable line after a fresh release sync and canonical verification checks.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "scripts/repo_operator.py",
+      "scripts/host_artifacts_support.py",
+      "packages/forge-core/commands/prepare_bump.py",
+      "tests/test_script_polish.py",
+      "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "script-polish",
+      "repo-operator",
+      "verification"
+    ],
+    "revisit_if": "Release archaeology needs the original 3.1.0 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 3.1.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260423-122256",
+    "kind": "decision",
+    "scope": "forge-3-2-stable-status",
+    "summary": "Treat 3.2.1 as a superseded Forge stable slice because the later 3.2.2 Windows Forge Codex UTF-8 activation fix replaced its stable line after fresh verification and release sync.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "docs/release/package-matrix.json",
+      "packages/forge-core/shared/route_delegation_packets.py",
+      "packages/forge-core/shared/preferences_contract.py",
+      "packages/forge-skills/brainstorming/tools/visual-companion/",
+      "python packages/forge-core/tests/test_route_delegation_packets.py -> PASS on 2026-04-23",
+      "python -m unittest preferences_test_loading preferences_test_scripts test_write_preferences test_route_delegation_packets -> PASS on 2026-04-23",
+      "python packages/forge-core/tests/test_visual_companion.py -> PASS on 2026-04-23",
+      "python -m unittest tests.test_install_bundle_design tests.test_install_bundle_codex_host tests.test_install_bundle_antigravity_host -> PASS on 2026-04-23",
+      "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23",
+      "python scripts/verify_repo.py -> PASS on 2026-04-23"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "delegation",
+      "visual-companion",
+      "verification"
+    ],
+    "revisit_if": "Release archaeology needs the original 3.2.1 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 3.2.1 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260423-144000",
+    "kind": "decision",
+    "scope": "forge-3-2-stable-status",
+    "summary": "Treat 3.2.2 as a superseded Forge stable slice because the later 3.2.3 forge-init bootstrap release replaced its stable line after fresh verification and release sync.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-codex/README.md",
+      "packages/forge-codex/overlay/tools/enable_windows_utf8.ps1",
+      "tests/test_install_bundle_codex_host.py",
+      "python -m pytest tests/test_install_bundle_codex_host.py -q -> PASS on 2026-04-23",
+      "python -m pytest tests/release_repo_test_install.py tests/release_repo_test_overlays.py -q -> PASS on 2026-04-23",
+      "python -m pytest packages/forge-codex/overlay/tests/test_adapter_locales.py packages/forge-core/tests/preferences_test_loading.py packages/forge-core/tests/test_response_contract.py -q -> PASS on 2026-04-23",
+      "python -m unittest discover -s tests -v -> PASS on 2026-04-23",
+      "python scripts/verify_repo.py -> PASS on 2026-04-23"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "windows",
+      "utf-8",
+      "codex",
+      "verification"
+    ],
+    "revisit_if": "Release archaeology needs the original 3.2.2 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "patch-release",
+    "resume_hint": "Resume only if a later audit needs the original 3.2.2 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260423-144923",
+    "kind": "decision",
+    "scope": "forge-3-2-stable-status",
+    "summary": "Treat 3.2.3 as a superseded Forge stable slice because the later 3.2.4 forge-customize ownership release replaced its stable line after fresh verification and release sync.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-core/commands/initialize_workspace.py",
+      "packages/forge-core/tests/fixtures/workspace_init_cases.json",
+      "packages/forge-core/tests/test_initialize_workspace.py",
+      "packages/forge-skills/init/SKILL.md",
+      "packages/forge-skills/init/references/project-docs-blueprint.md",
+      "python -m pytest packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_initialize_workspace.py tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> PASS on 2026-04-23",
+      "python -m pytest packages/forge-core/tests/test_initialize_workspace.py -q -> PASS on 2026-04-23",
+      "python scripts/generate_host_artifacts.py --check --format json -> PASS on 2026-04-23",
+      "python scripts/generate_overlay_skills.py --check --format json -> PASS on 2026-04-23",
+      "python scripts/build_release.py --format json -> PASS on 2026-04-23",
+      "python scripts/verify_repo.py -> PASS on 2026-04-23"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "forge-init",
+      "bootstrap-docs",
+      "verification"
+    ],
+    "revisit_if": "Release archaeology needs the original 3.2.3 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "patch-release",
+    "resume_hint": "Resume only if a later audit needs the original 3.2.3 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260423-160500",
+    "kind": "decision",
+    "scope": "forge-3-2-stable-status",
+    "summary": "Treat 3.2.4 as a superseded Forge stable slice because the later 3.3.0 session-management ownership release replaced its stable line after fresh verification and release sync.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-skills/customize/commands/resolve_preferences.py",
+      "packages/forge-skills/customize/commands/write_preferences.py",
+      "packages/forge-skills/customize/shared/preferences_store.py",
+      "packages/forge-skills/customize/data/preferences-schema.json",
+      "python scripts/generate_host_artifacts.py --check -> PASS on 2026-04-23",
+      "python scripts/generate_overlay_skills.py --check -> PASS on 2026-04-23",
+      "pytest tests/test_public_customize_skill.py packages/forge-core/tests/test_preferences.py packages/forge-core/tests/test_write_preferences.py packages/forge-core/tests/test_contracts.py tests/test_script_polish.py tests/test_operator_surface_registry.py tests/test_host_artifact_generation.py tests/test_repo_operator_script_shims.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py tests/test_install_bundle_design.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-23",
+      "python scripts/verify_repo.py -> pending rerun after .brain stable-line update"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "forge-customize",
+      "preferences",
+      "verification"
+    ],
+    "revisit_if": "Release archaeology needs the original 3.2.4 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "patch-release",
+    "resume_hint": "Resume only if a later audit needs the original 3.2.4 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260423-173300",
+    "kind": "decision",
+    "scope": "forge-3-3-stable-status",
+    "summary": "Treat 3.3.0 as a superseded Forge stable slice because the later 4.0.0 operator-surface removal replaced its stable line after fresh verification and release sync.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-skills/session-management/commands/session_context.py",
+      "packages/forge-core/data/orchestrator-registry.json",
+      "scripts/repo_operator.py",
+      "python -m pytest tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_session_context.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> 83 passed, 86779 subtests passed on 2026-04-23",
+      "python scripts/build_release.py --force --format json -> PASS on 2026-04-23",
+      "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "session-management",
+      "operator-surface",
+      "verification"
+    ],
+    "revisit_if": "Release archaeology needs the original 3.3.0 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 3.3.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260423-194100",
+    "kind": "decision",
+    "scope": "forge-4-0-stable-status",
+    "summary": "Treat 4.0.0 as a superseded Forge stable slice because the later 5.0.0 release moved release bump, bootstrap, session, and delegation behavior to sibling skills and retired the remaining workflows compatibility surface.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-core/data/orchestrator-registry.json",
+      "scripts/repo_operator.py",
+      "docs/architecture/host-artifacts-manifest.json",
+      "docs/release/package-matrix.json",
+      "python -m pytest tests/test_operator_surface_registry.py tests/test_repo_operator_script_shims.py tests/test_host_artifact_generation.py packages/forge-core/tests/test_contracts.py packages/forge-core/tests/test_help_next.py packages/forge-core/tests/test_run_workflow.py tests/release_repo_test_contracts.py tests/release_repo_test_overlays.py -q -> 95 passed, 86461 subtests passed on 2026-04-23",
+      "python scripts/build_release.py --force --format json -> PASS with all bundles at 4.0.0 on 2026-04-23",
+      "python scripts/verify_repo.py --profile fast -> PASS on 2026-04-23"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "operator-surface",
+      "breaking-change",
+      "verification"
+    ],
+    "revisit_if": "Release archaeology needs the original 4.0.0 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "major-release",
+    "resume_hint": "Resume only if a later audit needs the original 4.0.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260423-215500",
+    "kind": "decision",
+    "scope": "forge-5-0-stable-status",
+    "summary": "Treat 5.0.0 as a superseded Forge stable slice because the later 5.2.0 customize-owner-contract release replaced its stable line after fresh verification and release sync.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-skills/bump-release/SKILL.md",
+      "packages/forge-skills/bump-release/references/scripts/prepare_bump.py",
+      "packages/forge-core/data/orchestrator-registry.json",
+      "docs/release/package-matrix.json",
+      "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --format json -> PASS, inferred major 4.0.0 to 5.0.0 with high confidence on 2026-04-23",
+      "python packages/forge-skills/bump-release/references/scripts/prepare_bump.py --workspace . --bump auto --apply --format json -> PASS, updated VERSION and CHANGELOG.md to 5.0.0 on 2026-04-23",
+      "python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-23 after 5.0.0 continuity update"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "operator-surface",
+      "workflow-retirement",
+      "bump-release",
+      "breaking-change",
+      "verification"
+    ],
+    "revisit_if": "Release archaeology needs the original 5.0.0 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "major-release",
+    "resume_hint": "Resume only if a later audit needs the original 5.0.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260424-101318",
+    "kind": "decision",
+    "scope": "forge-5-2-stable-status",
+    "summary": "Treat 5.2.0 as a superseded Forge stable slice because the later 5.3.0 release-bump ownership release replaced its stable line after fresh verification and release sync.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "docs/architecture/generated-host-artifacts/AGENTS.global.canonical.md",
+      "docs/architecture/generated-host-artifacts/GEMINI.global.canonical.md",
+      "scripts/install_bundle_host.py",
+      "packages/forge-skills/customize/shared/preferences_paths.py",
+      "pytest tests/test_host_artifact_generation.py tests/release_repo_test_overlays.py tests/test_install_bundle_codex_host.py tests/test_install_bundle_antigravity_host.py -q -> PASS on 2026-04-24",
+      "python scripts/verify_repo.py --profile fast --format json -> PASS on 2026-04-24"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "forge-customize",
+      "generated-host-artifacts",
+      "install-contract",
+      "verification"
+    ],
+    "revisit_if": "Release archaeology needs the original 5.2.0 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 5.2.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260425-000000",
+    "kind": "decision",
+    "scope": "forge-5-3-stable-status",
+    "summary": "Treat 5.3.0 as a superseded Forge stable slice because the later 5.4.0 selective closeout release replaced its stable line after fresh verification and release sync.",
+    "status": "superseded",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-skills/bump-release/SKILL.md",
+      "packages/forge-skills/bump-release/references/scripts/prepare_bump_report.py",
+      "packages/forge-skills/init/SKILL.md",
+      "packages/forge-skills/init/commands/initialize_workspace.py",
+      "python -m unittest test_bump_workflow test_initialize_workspace -> PASS from packages/forge-core/tests on 2026-04-25",
+      "python scripts/verify_repo.py -> PASS on 2026-04-25"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "bump-release",
+      "forge-init",
+      "changelog",
+      "verification"
+    ],
+    "revisit_if": "Release archaeology needs the original 5.3.0 proof chain or later evidence invalidates the recorded verification.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 5.3.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260502-000000",
+    "kind": "decision",
+    "scope": "forge-5-4-stable-status",
+    "summary": "Treat 5.4.0 as the current stable Forge release because session continuity now supports selective closeout capture and resume restores relevant decisions and learnings.",
+    "status": "resolved",
+    "evidence": [
+      "VERSION",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/release/public-readiness.md",
+      "docs/release/release-process.md",
+      "packages/forge-skills/session-management/commands/session_context.py",
+      "packages/forge-skills/session-management/commands/session_context_closeout.py",
+      "packages/forge-skills/session-management/commands/session_context_continuity.py",
+      "python -m unittest test_session_context test_contracts -> PASS from packages/forge-core/tests on 2026-05-02",
+      "python scripts/verify_repo.py -> PASS on 2026-05-02"
+    ],
+    "next": [],
+    "tags": [
+      "release",
+      "stable",
+      "session-management",
+      "closeout",
+      "verification"
+    ],
+    "revisit_if": "A later release changes the stable line or invalidates the 5.4.0 verification evidence.",
+    "trigger": "minor-release",
+    "resume_hint": "Resume only if a later audit needs the original 5.4.0 proof chain or invalidates the recorded verification."
+  },
+  {
+    "id": "20260502-132310",
+    "kind": "decision",
+    "scope": "forge",
+    "summary": "main fast-forwarded to 63e90b6 and pushed; codex/auto-continuity-closeout local/remote deleted; codex/strong-subagent-auto-activation local deleted as merged/empty",
+    "status": "resolved",
+    "evidence": [
+      "git ls-remote shows origin/main at 63e90b636dab45462fd0d84f9c6db8bcabca836a and no feature branch refs",
+      "python scripts\\\\verify_repo.py --profile fast: PASS after merge"
+    ],
+    "next": [
+      "README.md rewrite remains as local uncommitted user change; preserve it and do not overwrite"
+    ],
+    "tags": [
+      "git",
+      "merge"
+    ],
+    "revisit_if": null,
+    "trigger": "closeout",
+    "resume_hint": "README.md rewrite remains as local uncommitted user change; preserve it and do not overwrite"
+  }
 ]
